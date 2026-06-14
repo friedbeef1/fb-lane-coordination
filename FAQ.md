@@ -167,6 +167,14 @@ The human supervisor does not need technical project management expertise; they 
 *   **Claude (Single-Threaded Chat)**: Simulated via thread partitioning. The developer acts as the supervisor, starting a fresh chat thread for each task to protect Claude's memory. However, the work inside the thread is **highly automated**: once instructed to adopt a role, Claude uses terminal/IDE tools (via Cursor, MCP, or command tools) to checkout branches, write code, update the markdown board, and push branches/PRs automatically.
 *   **Codex (Local File/Git Agent)**: Enforced via local repository rule files (e.g., `.codex/rules.md`). The Codex runs checkouts, updates the markdown board locally, and validates compilations inside isolated local git branches.
 
+### Q: Correct me if I'm wrong, but does this mean only Antigravity is truly hands-off for the user?
+**A:** **You are correct.** Because Antigravity is built on a programmatic multi-agent SDK, it is the only platform that is **100% hands-off** for the user. 
+
+Here is how they compare in developer friction:
+1.  **Antigravity (Fully Hands-Off)**: The user only interacts with the main `FB-Product` thread. The Product agent programmatically spawns, coordinates, and merges sandboxed subagents (`FB-Tech`/`FB-Design`) in the background. You do not switch threads or run local git/compilation commands.
+2.  **Claude & Cursor (Simulated / Low-Friction)**: Since Claude is single-threaded, the user must manually act as the coordinator—opening new chat threads for each task and telling Claude which role to adopt. The agent's work *within* the thread is automated, but the thread management is manual.
+3.  **Codex (CLI-Driven / Developer-Assisted)**: The developer must manually trigger Codex runs in their terminal on the correct branches. Codex handles the code editing and board updates autonomously, but it requires the developer to initiate the execution.
+
 ### Q: If I do everything on the same thread in Claude, Codex, or Antigravity, won't the context window get bloated?
 **A:** **Yes, absolutely.** Running everything on a single, long-running thread causes severe context window bloat, leading to:
 1.  **Reasoning Degradation**: AI models lose performance, make mistakes, and forget rules as the chat history grows.
