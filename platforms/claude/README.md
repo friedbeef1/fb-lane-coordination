@@ -10,6 +10,7 @@ Claude Projects and Cursor chats are highly prone to:
 **How FB-Lane fixes this:**
 * **Chat Thread Segmentation**: By starting a new, fresh chat thread for each lane/task (FB-Tech, FB-Design, FB-Business), you keep Claude's context window extremely clean and focused.
 * **Instruction Anchoring**: The custom instructions and project knowledge files keep Claude anchored to its specific lane parameters, preventing it from straying into other files.
+* **Simulated Tool Sandboxing**: Since Claude Projects cannot programmatically restrict tool access, role-based "sandboxing" is simulated via system instructions (e.g., instructing Claude that `FB-Business` is strictly read-only and `FB-Design` is restricted from editing backend logic).
 
 ## The Simulation Concept
 Instead of running four separate processes in parallel, the user acts as the coordinator (`FB-Product`) and instructs Claude to adopt a specific lane for each chat session. 

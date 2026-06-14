@@ -11,7 +11,8 @@ As a local, filesystem-active developer agent, Codex is prone to:
 **How FB-Lane fixes this:**
 * **Mandatory Feature Branches**: Enforces the checkout of isolated branches (`tech/[feature]` or `design/[feature]`).
 * **Atomic Documentation Commits**: Enforces committing `PROJECT_BOARD.md` updates separately from code changes.
-* **Rigid Code Boundaries**: Prevents the agent from editing files outside its assigned role (e.g., Tech lane cannot modify `.css` files).
+* **Rigid Code Boundaries**: Prevents the agent from editing files or directories outside its assigned role (e.g., Tech lane cannot modify `.css` files).
+* **Simulated Tool Sandboxing**: Enforces role restrictions in Codex's system instructions (e.g. `.codex/rules.md`), strictly prohibiting the agent from running write/deploy commands or modifying files outside its domain (such as keeping `FB-Business` read-only).
 
 ## Coordination Concept
 Since Codex is a developer-centric CLI agent, its coordination model is built entirely around standard Git workflows and the local `PROJECT_BOARD.md`:
