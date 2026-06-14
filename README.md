@@ -8,29 +8,27 @@ When multiple autonomous AI agents or developers work on the same codebase, they
 2. **Git Collision & Code Bleed**: Different threads editing the same files concurrently leads to merge conflicts. For example, a design agent modifying CSS styles might conflict with a technical agent refactoring backend components in the same file.
 
 ## The Solution: The Four-Lane Model
-The FB-Lane model splits work into four highly bounded, specialized lanes, supporting both plan delegation and direct-to-lane interaction:
+The FB-Lane model splits work into four highly bounded, specialized lanes, supporting both structured plan handoff and direct-to-lane interaction:
 
 ```mermaid
 graph TD
-    User([User]) -->|Primary: Plan Delegation| MP[FB-Product: Captain]
+    User([User]) -->|Primary: Plan Handoff| MP[FB-Product: Captain]
     User -.->|Alternative: Direct Lane Interaction| MT[FB-Tech: Backend/Logic]
     User -.->|Alternative: Direct Lane Interaction| MD[FB-Design: UI/UX/QA]
     User -.->|Alternative: Direct Lane Interaction| MB[FB-Business: Copy/Positioning]
-    MP -->|Delegates Tasks| MT
-    MP -->|Delegates Tasks| MD
-    MP -->|Delegates Tasks| MB
-    MT --> PB[(PROJECT_BOARD.md)]
-    MD --> PB
-    MB --> PB
-    PB --> MP
+    MP -->|Prioritizes Backlog| PB[(PROJECT_BOARD.md)]
+    MT -->|Pulls Tasks & Locks Files| PB
+    MD -->|Pulls Tasks & Locks Files| PB
+    MB -->|Pulls Tasks| PB
+    PB -->|Integration Gate & Merge| MP
 ```
 
 ### Two Workflow Scenarios
-1. **Primary Scenario (Hands-Off Plan Delegation)**: The user hands a structured plan or feature checklist directly to the **`FB-Product`** lane. Product handles board updates, dispatches tasks to other lanes, reviews PRs, and merges changes.
-2. **Alternative Scenario (Direct Lane Interaction)**: The user talks directly to a specific lane thread (e.g. pair-programming with **`FB-Tech`** or refining styling with **`FB-Design`**). The lane agent autonomously claims the task, asserts the required file locks on `PROJECT_BOARD.md`, and implements the change. **`FB-Product`** still acts as the integration gatekeeper for final staging QA and merging.
+1. **Primary Scenario (Hands-Off Plan Handoff)**: The user hands a structured plan or feature checklist directly to the **`FB-Product`** lane. Product triages the requirements, prioritizes tasks on the project board, reviews PRs, and merges changes. Lanes autonomously pull their respective tasks from the board.
+2. **Alternative Scenario (Direct Lane Interaction)**: The user talks directly to a specific lane thread (e.g. pair-programming with **`FB-Tech`** or refining styling with **`FB-Design`**). The lane agent autonomously claims/creates the task, asserts the required file locks on `PROJECT_BOARD.md`, and implements the change. **`FB-Product`** still acts as the integration gatekeeper for final staging QA and merging.
 
 ### 1. The Four Specialized Lanes
-*   **`FB-Product` (Integration Captain)**: The central orchestrator. Receives instructions from the user, scopes work items, spawns/delegates to sub-threads, reviews pull requests, runs release gates, and handles staging-to-production deployments.
+*   **`FB-Product` (Integration Captain)**: The central orchestrator. Receives instructions from the user, scopes and prioritizes work items, reviews pull requests, runs release gates, and handles staging-to-production deployments.
 *   **`FB-Tech` (Backend / Logic / Data)**: Owns core application logic, database schemas, APIs, migrations, serverless functions, security rules (e.g. RLS policies), and verification suites. *Never touches UI styling or layout geometry.*
 *   **`FB-Design` (UI/UX / Styling / Visual QA)**: Owns CSS, theme tokens, responsive layouts, page geometry, visual assets, and UI layout QA. Enforces strict text-containment and branding integrity. *Never touches backend logic, serverless functions, or database schemas.*
 *   **`FB-Business` (Copywriting / Positioning)**: Owns application copy, onboarding text, pricing tiers, documentation, and marketing content. Operates in a **read-only** code mode, drafting text updates for `FB-Product` or `FB-Design` to integrate.

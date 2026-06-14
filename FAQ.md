@@ -102,7 +102,7 @@ This prevents a single thread from having write-access to both backend models an
 **A:** In most cases, your day-to-day workflow is simple, automated, and hands-off:
 1.  **Draft Your Plan**: Write down your requirements, feature checklist, or PRD. (While you can write in plain text, **Markdown is highly preferred** because the agent can parse headers and checklists directly onto the `PROJECT_BOARD.md` without losing structure or details).
 2.  **Hand Off to Product**: Give the plan directly to the main **`FB-Product`** thread.
-3.  **Autonomous Execution**: Product parses your requirements, creates tasks on the board, locks files, dispatches them to parallel threads (`FB-Tech`/`FB-Design`), runs verification tests, and deploys to staging.
+3.  **Autonomous Execution**: Product parses your requirements, and creates and prioritizes tasks on the project board. The parallel lane threads (`FB-Tech`/`FB-Design`) pull their respective tasks from the board, lock affected files, implement the changes, and hand them back for staging review and deployment.
 4.  **Review Deliverables**: Product hands you the staging links, code PRs, and verification artifacts (e.g. test logs, walkthroughs, layout screenshots) for your final approval.
 
 ### Q: What is the alternative workflow if I want to talk directly to a specific lane (e.g., Tech or Design)?
