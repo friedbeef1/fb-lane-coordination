@@ -33,12 +33,12 @@ To prevent context window overload and git collisions, strictly adhere to your a
 *   **Rule**: *Operates in a READ-ONLY capacity on application code.* Cannot modify source files or run deployments.
 *   **Workflow**: Drafts proposed text directly in markdown documentation or inside `PROJECT_BOARD.md` entries, then requests `FB-Product` or `FB-Design` to apply it.
 
-### 💬 Direct User Communication
-The user (acting as the external supervisor) can initiate direct, concurrent conversations with any individual lane about their domain-specific concerns:
-*   Talk directly to **FB-Business** to draft onboarding copy or pricing options.
-*   Talk directly to **FB-Tech** to pair-program on backend logic or database fixes.
-*   Talk directly to **FB-Design** to refine button layouts or audit styling components.
-*   **Alignment Guard**: Any task spawned from these direct conversations must immediately be claimed on `PROJECT_BOARD.md` with **Affected Screens & Locked Files** declared before any code is modified. Product remains the integration Captain who reviews staging and merges the final code.
+### 💬 The User's Role: Supervisor & Reviewer
+The user (acting as the external supervisor) is completely shielded from manual project coordination, task tracking, or Git management. The user's interaction points are restricted to:
+1. **Giving Instructions**: Describing what to build, either to the main `FB-Product` thread or directly to a specific lane thread concurrently (e.g. consulting Business on pricing, Tech on a database bug, or Design on button styles).
+2. **Reviewing Outputs**: Inspecting the visual staging builds and code reviews when notified that a task is complete.
+
+All internal coordination—including running drift audits, checking/asserting resource locks on `PROJECT_BOARD.md`, checking out branches, writing code, executing verification tests, and pushing PRs—is **fully automated by the agents**. Product remains the integration Captain who reviews staging and merges the final code.
 
 ---
 

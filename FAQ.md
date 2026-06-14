@@ -98,6 +98,13 @@ This prevents a single thread from having write-access to both backend models an
 2.  **Self-Reporting QA Checklists**: Each lane owns its quality checks (tests, visual QA) and documents the outcomes directly on the board card. Product's role is reduced to a quick review of the checklist and staging build, which takes minutes.
 3.  **Conflict-Free Concurrency**: Because files and screens are locked on the board, different lanes coordinate schedule conflicts automatically. A tech branch knows to work on a different endpoint if its target file is locked by design, eliminating coordination meetings.
 
+### Q: How much manual coordination does the user have to do?
+**A:** Virtually none. The human user is completely shielded from the mechanics of project management, task board updates, branch checkouts, and Git merges. Your role is strictly restricted to:
+1. **Giving Instructions**: Describing what needs to be built (either via the main Product captain or directly to a developer/designer).
+2. **Reviewing Output**: Testing the visual changes on the staging environment and verifying outcomes.
+
+The agents autonomously handle drift audits, check/claim/lock resources on the project board, manage feature branches, run functional and layout QA checks, compile test suites, push changes, and generate pull requests.
+
 ---
 
 ## 6. Platform Integration (Antigravity, Claude, Codex)
