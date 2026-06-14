@@ -45,6 +45,26 @@ Instead of relying on heavy cloud PM tools, teams use a local, version-controlle
 
 ---
 
+## Getting Started
+
+### 🤖 Option A: Automated Bootstrapping (Recommended)
+You can instruct your AI assistant (Antigravity, Claude, Cursor, or Codex) to read this framework and set it up autonomously. Simply point your agent to this repository (or copy the framework files into a reference folder) and prompt:
+
+> *"I want to bootstrap the FB-Lane Coordination Framework in our project workspace. Read this framework's templates and platform guide, and configure our workspace accordingly."*
+
+The agent will copy the templates and configure the platform rules automatically.
+
+### 🛠️ Option B: Manual Setup
+If you prefer to configure the framework manually, follow these steps:
+1.  **Copy the Templates**: Copy [templates/AGENTS.md](templates/AGENTS.md) and [templates/PROJECT_BOARD.md](templates/PROJECT_BOARD.md) to the root of your project repository and commit them.
+2.  **Configure Your Platform**: Follow the detailed guide for your platform of choice:
+    *   **Antigravity**: Read the [Antigravity Guide](platforms/antigravity/README.md) and use the [project-coordination-setup-skill.md](platforms/antigravity/project-coordination-setup-skill.md) skill to auto-register subagent roles.
+    *   **Claude & Cursor**: Read the [Claude Guide](platforms/claude/README.md) to set Project Custom Instructions and copy-paste [system prompts](platforms/claude/system-prompts.md).
+    *   **Codex**: Read the [Codex Guide](platforms/codex/README.md) and copy the [workflow-rules.md](platforms/codex/workflow-rules.md) to your local rules directory.
+3.  **Claim Your First Task**: Mark `TASK-001` (Setup & Bootstrap) as `In Progress` in your project board, check out your feature branch, and start building!
+
+---
+
 ## Directory Structure
 This repository provides everything you need to bootstrap this framework on your team:
 
