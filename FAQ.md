@@ -83,10 +83,14 @@ This prevents a single thread from having write-access to both backend models an
 
 ## 5. Orchestration & Team Workflow
 
-### Q: Do I (the supervisor/user) only talk to FB-Product, or can I talk to individual lanes?
-**A:** You can do both depending on the task:
-*   **High-Level Planning**: Instruct **`FB-Product`** to prioritize upcoming tasks, scope new features, and review staging releases. Product manages the overall project board.
-*   **Deep-Dive Development**: Talk directly to **`FB-Tech`**, **`FB-Design`**, or **`FB-Business`** threads when you want to pair-program, refine a specific visual button layout, or review copywriting options. Since all lanes log their active branches and locks in `PROJECT_BOARD.md`, the whole team remains aligned asynchronously without Product needing to mediate every conversation.
+### Q: Do I (the supervisor/user) only talk to FB-Product, or can I talk to individual lanes? Doesn't direct communication screw up alignment?
+**A:** You can do both depending on the task, and **it will not break alignment**. The framework has built-in guards to maintain synchronization even during decentralized conversations:
+*   **High-Level Planning**: Instruct **`FB-Product`** to prioritize tasks, scope features, and review staging releases. Product retains final merge authority.
+*   **Deep-Dive Development**: Talk directly to **`FB-Tech`**, **`FB-Design`**, or **`FB-Business`** threads when you want to pair-program, refine layouts, or discuss copy options.
+*   **Why Alignment is Maintained**:
+    1.  **Immediate Board Logging**: Whenever you direct a lane to work in a thread, they must claim the task on `PROJECT_BOARD.md`, setting status to `In Progress` and documenting their scope.
+    2.  **Strict File Locking**: The lane immediately declares its resource locks. Other threads check the board and see which files are locked, preventing duplicate edits or file collisions.
+    3.  **Merge Isolation**: No lane can merge their own code. When they finish, they hand it over to Product for review on staging, ensuring Product has final quality and alignment control before anything goes live.
 
 ### Q: How do we ensure the Product lane (Captain) does not become a workflow bottleneck?
 **A:** The framework is built to prevent Product from becoming a chokepoint through three mechanisms:
