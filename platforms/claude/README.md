@@ -57,19 +57,9 @@ To manage Claude's context window:
 
 Since Claude is single-threaded, the user coordinates the project lifecycle by opening distinct, concurrent chat threads with Claude adopting different roles. The user acts as the **Integration Captain (FB-Product)** when scoping, merging, and deploying, but talks directly to Claude as **FB-Tech**, **FB-Design**, or **FB-Business** in separate threads to execute tasks:
 
-### Step 1: Drift Audit, Claim Task, Locking & Branch Checkout
-1. **Drift Audit**: Before starting work, check git status and the project board for any state drift.
-2. **Locking Check**: Check `PROJECT_BOARD.md` to ensure the files/screens you want to edit are not locked by other active tasks.
-3. Select an available task in `PROJECT_BOARD.md` (e.g., `TASK-102`).
-4. Locally, checkout a clean feature branch prefixing the lane:
-   ```bash
-   git checkout -b tech/TASK-102-auth-endpoint
-   ```
-5. Update `PROJECT_BOARD.md` to change the status to `In Progress` under `TASK-102`, **declare your Affected Screens and Locked Files** to establish the resource lock, and commit the board update separately:
-   ```bash
-   git add PROJECT_BOARD.md
-   git commit -m "docs: claim TASK-102 and lock resources"
-   ```
+### Step 1: Task Initialization & File Locking
+1. **Select Task**: Choose an available task (e.g. `TASK-102`) from the `Ready` list on the board.
+2. **Branch & Lock**: Checkout the feature branch (e.g., `tech/TASK-102-auth`) and update `PROJECT_BOARD.md` to `In Progress` with the declared file locks. (If using Cursor, simply instruct Claude to run these terminal commands and commit the board separately).
 
 ### Step 2: Open a Dedicated Chat Thread (Concurrent Execution)
 1. **Always open a fresh, empty chat thread** in Claude Projects or Cursor for a new task. Do not reuse old chats to prevent context bloat. You can run multiple task threads concurrently (e.g. one for tech bug fixing, one for design styling) as long as they work on different branches and non-overlapping locked files.
@@ -86,15 +76,7 @@ Since Claude is single-threaded, the user coordinates the project lifecycle by o
    - Ensure aesthetic integrity (brand fonts and styling colors load correctly).
 4. Commit code changes regularly.
 
-### Step 4: Staging QA, Handoff & Unlock
-1. Push the branch to GitHub:
-   ```bash
-   git push origin tech/TASK-102-auth-endpoint
-   ```
-2. Switch Claude to the **`FB-Product`** lane (or start a fresh chat) and ask it to update `PROJECT_BOARD.md` to `Staging QA` with the PR and branch links. Commit `PROJECT_BOARD.md` in a separate, clean documentation commit:
-   ```bash
-   git add PROJECT_BOARD.md
-   git commit -m "docs: submit TASK-102 for review"
-   ```
-3. Verify on staging, merge the branch into `main`, and update the task status to `Done` in `PROJECT_BOARD.md`—**removing the resource locks** (unlocking them) and committing the final board separately.
+### Step 4: Staging QA & Merge
+1. **Push & Staging QA**: Push the branch to the remote and update `PROJECT_BOARD.md` status to `Staging QA` (including the PR and staging links).
+2. **Product Merge**: Verify the staging build, merge the branch into `main`, and set the status to `Done` in `PROJECT_BOARD.md` (releasing the resource locks). Commit the board update separately.
 

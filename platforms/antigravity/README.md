@@ -130,7 +130,7 @@ These are the standard configurations Antigravity uses under the hood to instant
 
 In Antigravity, the user acts as the external supervisor, interacting primarily with the `FB-Product` (Captain) thread. The agent framework coordinates the rest of the loop autonomously:
 
-### Step 1: Initiate, Audit & Scope
+### Step 1: Task Initialization & File Locking
 1. **User Request**: Describe a feature or bugfix to the main Antigravity thread.
 2. **Drift Audit**: Before scoping, `FB-Product` runs a drift audit (inspects active tasks, checks for file and schema updates from other threads, and ensures staging/live build statuses are aligned).
 3. **Lock & Board Update**: `FB-Product` checks `PROJECT_BOARD.md` to verify that the target files/screens are not locked by other active tasks. It creates a scoped task card (e.g. `TASK-101`) detailing the changes, **assigns the resource locks** (declarative screens/files to be modified), and commits the board update.

@@ -54,17 +54,10 @@ To configure Codex:
 When working with Codex, the user can spin up concurrent terminal/file agent runs. While the user coordinates overall prioritization and staging merges as **FB-Product**, they can initiate concurrent tasks directly with Codex in **FB-Tech**, **FB-Design**, or **FB-Business** modes:
 
 
-### Step 1: Drift Audit, Claim Task & Locking
-Before starting any coding task, Codex must:
-1. **Drift Audit**: Verify what branch it is on: `git branch`.
-2. **Locking Check**: Read `PROJECT_BOARD.md` to ensure the files/screens you want to edit are not locked by other active tasks.
-3. Inspect `PROJECT_BOARD.md` to claim an available task ID (e.g., `TASK-002`).
-4. Create a branch: `git checkout -b tech/TASK-002-logic-update`.
-5. Update `PROJECT_BOARD.md` with:
-   - Status: `In Progress`
-   - Owner: `FB-Tech` or `FB-Design`
-   - **Affected Screens / Locks**: Declare the exact screens and files being modified to lock them.
-6. Commit the board update in a separate, clean documentation commit: `git add PROJECT_BOARD.md && git commit -m "docs: claim TASK-002 and lock resources"`.
+### Step 1: Task Initialization & File Locking
+Before starting any coding task, Codex autonomously runs its pre-flight loop:
+1. **Pre-flight Check**: Verifies workspace git status and reads `PROJECT_BOARD.md` to ensure target files/screens are not locked.
+2. **Branch & Lock**: Checks out the isolated feature branch (e.g., `tech/TASK-002-logic`) and updates the board status to `In Progress` with the declared file locks, committing the board separately.
 
 ### Step 2: Implement & Test (Concurrent Execution)
 *   Implement changes strictly within the lane scope. 
@@ -74,11 +67,6 @@ Before starting any coding task, Codex must:
     - Verify text containment across mobile/desktop viewports (zero text clipping or overflow).
     - Ensure aesthetic integrity (brand fonts and styling colors load correctly).
 
-### Step 3: Audit, Handoff & Unlock
-1. Push the branch to remote: `git push origin [branch-name]`.
-2. Update `PROJECT_BOARD.md`:
-   - Status: `Staging QA`
-   - Modified Files: List of changed files.
-   - QA Checklist: Mark verified items as checked.
-3. Commit and push the project board update in a clean documentation commit: `git add PROJECT_BOARD.md && git commit -m "docs: submit TASK-002 for review"`.
-4. Create a Pull Request and hand the PR link back to `FB-Product` (Integration Captain). Product merges the branch and **removes the resource locks** (unlocking them), marking the task `Done`.
+### Step 3: Staging QA & Merge
+1. **Push & Staging QA**: Codex pushes the feature branch to the remote, updates the task on `PROJECT_BOARD.md` to `Staging QA` (documenting the modified files and checking off the QA checklist), and commits/pushes the board update in a separate, clean commit.
+2. **Product Merge**: `FB-Product` (Integration Captain) reviews the staging environment, merges the branch to `main`, and removes the resource locks (marking the task `Done` on the board).
