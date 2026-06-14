@@ -98,12 +98,15 @@ This prevents a single thread from having write-access to both backend models an
 2.  **Self-Reporting QA Checklists**: Each lane owns its quality checks (tests, visual QA) and documents the outcomes directly on the board card. Product's role is reduced to a quick review of the checklist and staging build, which takes minutes.
 3.  **Conflict-Free Concurrency**: Because files and screens are locked on the board, different lanes coordinate schedule conflicts automatically. A tech branch knows to work on a different endpoint if its target file is locked by design, eliminating coordination meetings.
 
-### Q: How much manual coordination does the user have to do?
-**A:** Virtually none. The human user is completely shielded from the mechanics of project management, task board updates, branch checkouts, and Git merges. Your role is strictly restricted to:
-1. **Giving Instructions**: Describing what needs to be built (either via the main Product captain or directly to a developer/designer).
-2. **Reviewing Output**: Testing the visual changes on the staging environment and verifying outcomes.
+### Q: What is the typical day-to-day workflow for a user?
+**A:** In most cases, your day-to-day workflow is simple, automated, and hands-off:
+1.  **Draft Your Plan**: Write down your requirements, feature checklist, or PRD using whatever tool you prefer.
+2.  **Hand Off to Product**: Give the plan directly to the main **`FB-Product`** thread.
+3.  **Autonomous Execution**: Product parses your requirements, creates tasks on the board, locks files, dispatches them to parallel threads (`FB-Tech`/`FB-Design`), runs verification tests, and deploys to staging.
+4.  **Review Deliverables**: Product hands you the staging links, code PRs, and verification artifacts (e.g. test logs, walkthroughs, layout screenshots) for your final approval.
 
-The agents autonomously handle drift audits, check/claim/lock resources on the project board, manage feature branches, run functional and layout QA checks, compile test suites, push changes, and generate pull requests.
+### Q: How much manual coordination does the user have to do?
+**A:** Virtually none. The human user is completely shielded from the mechanics of project management, task board updates, branch checkouts, and Git merges. Your role is strictly restricted to **giving instructions/plans** and **reviewing staging outputs/verification artifacts**. The agents autonomously handle all background logistics, testing, and Git operations in between.
 
 ---
 
