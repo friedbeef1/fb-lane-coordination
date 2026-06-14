@@ -105,6 +105,14 @@ This prevents a single thread from having write-access to both backend models an
 3.  **Autonomous Execution**: Product parses your requirements, creates tasks on the board, locks files, dispatches them to parallel threads (`FB-Tech`/`FB-Design`), runs verification tests, and deploys to staging.
 4.  **Review Deliverables**: Product hands you the staging links, code PRs, and verification artifacts (e.g. test logs, walkthroughs, layout screenshots) for your final approval.
 
+### Q: What is the alternative workflow if I want to talk directly to a specific lane (e.g., Tech or Design)?
+**A:** If you want to bypass the Product lane to refine a specific feature (like pair-programming a backend fix or iterating on a button layout), the workflow is:
+1.  **Direct Instruction**: Describe the goal directly in the specific lane's thread (e.g., *"Design, make this button tactile and green"*).
+2.  **Autonomous Claim & Lock**: Before writing code, the lane agent checks `PROJECT_BOARD.md`, claims the task, asserts the resource locks on target files (e.g. `Button.css`), and commits the board update.
+3.  **Implement & Test**: The lane agent checks out its isolated feature branch (e.g. `design/TASK-102`), writes code, and runs functional/visual checks.
+4.  **Staging QA**: The lane agent pushes the branch to the remote and updates `PROJECT_BOARD.md` to `Staging QA`.
+5.  **Product Gate Review**: Product reviews the staging build, merges the branch to `main`, and removes the resource locks (unlocking the files).
+
 ### Q: How much manual coordination does the user have to do?
 **A:** Virtually none. The human user is completely shielded from the mechanics of project management, task board updates, branch checkouts, and Git merges. Your role is strictly restricted to **giving instructions/plans** and **reviewing staging outputs/verification artifacts**. The agents autonomously handle all background logistics, testing, and Git operations in between.
 
