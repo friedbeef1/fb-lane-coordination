@@ -11,9 +11,9 @@
 
 ## Active Workstreams
 
-| ID | Status | Owner | Area | Scope | Links & Deliverables |
-|---|---|---|---|---|---|
-| TASK-001 | Ready | FB-Product | Setup | Bootstrap repository files | [Branch](https://github.com/example/repo/tree/main) \| [PR #1](https://github.com/example/repo/pull/1) |
+| ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
+|---|---|---|---|---|---|---|
+| TASK-001 | Ready | FB-Product | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \| [PR #1](https://github.com/example/repo/pull/1) |
 
 ---
 
@@ -23,6 +23,9 @@
 *   **Area**: Setup
 *   **Scope**: Create initial files, initialize repository layout.
 *   **Out of Scope**: Writing application business logic.
+*   **Affected Screens / Locks**:
+    *   **Screens**: (None)
+    *   **Locked Files**: `AGENTS.md`, `PROJECT_BOARD.md`
 *   **Links & Deliverables**:
     *   **Git Branch / PR**: [Branch Link](https://github.com/example/repo/tree/main)
     *   **Staging URL**: [Staging Link](https://staging.example.com)

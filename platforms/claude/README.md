@@ -57,21 +57,22 @@ To manage Claude's context window:
 
 Since Claude is single-threaded, the user acts as the **Integration Captain (`FB-Product`)** to guide Claude through the development lifecycle:
 
-### Step 1: Drift Audit, Claim Task & Branch Checkout
-1. **Drift Audit**: Before starting work, check git status and project board for any state drift (e.g. changes made in other threads or remote updates).
-2. Select a task in `PROJECT_BOARD.md` (e.g., `TASK-102`).
-3. Locally, checkout a clean feature branch prefixing the lane:
+### Step 1: Drift Audit, Claim Task, Locking & Branch Checkout
+1. **Drift Audit**: Before starting work, check git status and the project board for any state drift.
+2. **Locking Check**: Check `PROJECT_BOARD.md` to ensure the files/screens you want to edit are not locked by other active tasks.
+3. Select an available task in `PROJECT_BOARD.md` (e.g., `TASK-102`).
+4. Locally, checkout a clean feature branch prefixing the lane:
    ```bash
    git checkout -b tech/TASK-102-auth-endpoint
    ```
-4. Update `PROJECT_BOARD.md` to change the status to `In Progress` under `TASK-102` and commit the board update separately:
+5. Update `PROJECT_BOARD.md` to change the status to `In Progress` under `TASK-102`, **declare your Affected Screens and Locked Files** to establish the resource lock, and commit the board update separately:
    ```bash
    git add PROJECT_BOARD.md
-   git commit -m "docs: claim TASK-102"
+   git commit -m "docs: claim TASK-102 and lock resources"
    ```
 
-### Step 2: Open a Dedicated Chat Thread
-1. **Always open a fresh, empty chat thread** in Claude Projects or Cursor for a new task. Do not reuse old chats to prevent context bloat.
+### Step 2: Open a Dedicated Chat Thread (Concurrent Execution)
+1. **Always open a fresh, empty chat thread** in Claude Projects or Cursor for a new task. Do not reuse old chats to prevent context bloat. You can run multiple task threads concurrently (e.g. one for tech bug fixing, one for design styling) as long as they work on different branches and non-overlapping locked files.
 2. Prompt Claude to adopt the specific lane and define its boundaries:
    > "Adopt the **`FB-Tech`** lane. We are working on branch `tech/TASK-102-auth-endpoint` to implement user authentication. Do not edit styling files or UI templates."
    
@@ -85,7 +86,7 @@ Since Claude is single-threaded, the user acts as the **Integration Captain (`FB
    - Ensure aesthetic integrity (brand fonts and styling colors load correctly).
 4. Commit code changes regularly.
 
-### Step 4: Staging QA & Handoff
+### Step 4: Staging QA, Handoff & Unlock
 1. Push the branch to GitHub:
    ```bash
    git push origin tech/TASK-102-auth-endpoint
@@ -95,5 +96,5 @@ Since Claude is single-threaded, the user acts as the **Integration Captain (`FB
    git add PROJECT_BOARD.md
    git commit -m "docs: submit TASK-102 for review"
    ```
-3. Verify on staging, merge the branch into `main`, and update the task status to `Done` (committing the final board separately).
+3. Verify on staging, merge the branch into `main`, and update the task status to `Done` in `PROJECT_BOARD.md`—**removing the resource locks** (unlocking them) and committing the final board separately.
 

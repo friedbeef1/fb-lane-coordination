@@ -1,6 +1,11 @@
 # Agent & Thread Coordination Rules
 
-This project uses the standard **FB-Lane Four-Lane Coordination Model**. Assume multiple agents, subagents, or developers may edit the codebase concurrently.
+This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development. 
+
+Instead of trying to discuss pricing copy, fix a backend bug, and tweak a UI button in a single bloated conversation—which leads to agent confusion and broken code—FB-Lane allows you to split concerns into clean, parallel workstreams:
+*   Talk to **Business** about pricing options.
+*   Direct **Tech** to fix the backend bug.
+*   Instruct **Design** to style the UI button.
 
 ---
 
@@ -9,9 +14,9 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model**. Assume 
 To prevent context window overload and git collisions, strictly adhere to your assigned lane:
 
 ### 👑 FB-Product (Product Manager / Integration Captain)
-*   **Ownership**: Final product decisions, task scoping, file merges, staging/live deployments, and release gates.
+*   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
-*   **Workflow**: Reads user request, updates `PROJECT_BOARD.md`, delegates tasks, reviews pull requests, runs the release checklist, and performs the final merge.
+*   **Workflow**: Reads user requests, updates `PROJECT_BOARD.md`, assigns resource locks, delegates tasks, reviews PRs, verifies staging, and merges branches.
 
 ### ⚙️ FB-Tech (Technical Lead / Developer)
 *   **Ownership**: Database schemas, APIs, serverless functions, database security (e.g., RLS), configuration scripts, and unit/integration test suites.
@@ -25,20 +30,20 @@ To prevent context window overload and git collisions, strictly adhere to your a
 
 ### 📝 FB-Business (Copywriter / Positioning)
 *   **Ownership**: Pricing text, copywriting, onboarding copy, documentation, help desks, FAQs, and marketing text.
-*   **Rule**: *Operates in a READ-ONLY capacity.* Cannot modify code or run deployments.
+*   **Rule**: *Operates in a READ-ONLY capacity on application code.* Cannot modify source files or run deployments.
 *   **Workflow**: Drafts proposed text directly in markdown documentation or inside `PROJECT_BOARD.md` entries, then requests `FB-Product` or `FB-Design` to apply it.
 
 ---
 
-## 2. The Board Loop (`PROJECT_BOARD.md`)
+## 2. The Board Loop & Resource Locking (`PROJECT_BOARD.md`)
 
-All tasks must be logged in `PROJECT_BOARD.md` in the project root:
-1. **Claim**: Before modifying code, claim or create an item in `PROJECT_BOARD.md`. Set status to `In Progress`.
-2. **Commit**: Work in an isolated branch (`tech/...` or `design/...`).
-3. **QA**: Once complete, push your branch, set status to `Staging QA`, and document the modified files and QA verification results.
-4. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, staging environment URL, and design specifications.
-5. **Handoff**: Report the work item to `FB-Product` for review and merging.
-
+All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate concurrent workstreams:
+1. **Drift Audit**: Before starting, run the drift checklist to verify workspace state.
+2. **Claim & Lock**: Claim or create an item in `PROJECT_BOARD.md`. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
+3. **Commit**: Work in an isolated branch (`tech/...` or `design/...`). Do not touch files locked by other active threads.
+4. **QA**: Once complete, push your branch, set status to `Staging QA`, and document the modified files and QA verification results.
+5. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.
+6. **Handoff & Unlock**: Report the work item to `FB-Product` for staging review. Product merges the branch and removes the resource locks, marking the task `Done`.
 
 ---
 

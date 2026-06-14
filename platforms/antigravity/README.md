@@ -133,14 +133,15 @@ In Antigravity, the user acts as the external supervisor, interacting primarily 
 ### Step 1: Initiate, Audit & Scope
 1. **User Request**: Describe a feature or bugfix to the main Antigravity thread.
 2. **Drift Audit**: Before scoping, `FB-Product` runs a drift audit (inspects active tasks, checks for file and schema updates from other threads, and ensures staging/live build statuses are aligned).
-3. **Board Update**: `FB-Product` checks `PROJECT_BOARD.md`, creates a scoped task card (e.g. `TASK-101`) detailing the changes, and commits it.
+3. **Lock & Board Update**: `FB-Product` checks `PROJECT_BOARD.md` to verify that the target files/screens are not locked by other active tasks. It creates a scoped task card (e.g. `TASK-101`) detailing the changes, **assigns the resource locks** (declarative screens/files to be modified), and commits the board update.
 
-### Step 2: Parallel Dispatch
-1. **Delegation**: `FB-Product` uses `invoke_subagent` to spawn background tasks for `FB-Tech` and/or `FB-Design`.
+### Step 2: Parallel Dispatch (Concurrent Execution)
+1. **Delegation**: `FB-Product` uses `invoke_subagent` to spawn background tasks for `FB-Tech` and/or `FB-Design` concurrently.
 2. **Subagent Execution**:
    - `FB-Tech` checks out `tech/TASK-101` and implements database/API logic.
    - `FB-Design` checks out `design/TASK-101` and implements frontend layouts.
-3. **Collaboration**: If `FB-Design` needs copy approved, it calls `send_message` to consult `FB-Business` in the background.
+   - *Since they are running in parallel, they work concurrently without git collisions because their work is isolated by branches and locks.*
+3. **Collaboration**: If `FB-Design` needs copy approved, it calls `send_message` to consult `FB-Business` (which acts in a read-only copywriting role) in the background.
 
 ### Step 3: Staging Verification & Gates
 1. **Staging QA**: Subagents push their code to staging, mark `Staging QA` on the board, and notify `FB-Product`.
@@ -150,8 +151,9 @@ In Antigravity, the user acts as the external supervisor, interacting primarily 
      - Text containment is perfect (no clipping, overlap, or overflow across mobile/desktop viewports).
      - Aesthetic/style integrity is intact (brand fonts load correctly, styling themes match specifications).
 
-### Step 4: Integration & Deployment
+### Step 4: Integration, Unlock & Deployment
 1. **Code Merge**: `FB-Product` merges the subagent branches into `main`.
-2. **Commit Docs Separately**: `FB-Product` commits any updates to `PROJECT_BOARD.md` or documentation in a separate commit from source code changes.
-3. **Board Closure**: `FB-Product` updates the board item `TASK-101` to `Done` with final links, and reports the results back to the user.
+2. **Unlock**: `FB-Product` removes the resource locks on the project board, freeing those screens/files for future tasks.
+3. **Commit Docs Separately**: `FB-Product` commits any updates to `PROJECT_BOARD.md` or documentation in a separate commit from source code changes.
+4. **Board Closure**: `FB-Product` updates the board item `TASK-101` to `Done` with final links, and reports the results back to the user.
 
