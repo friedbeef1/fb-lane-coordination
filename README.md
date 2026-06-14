@@ -58,7 +58,7 @@ The agent will copy the templates and configure the platform rules automatically
 If you prefer to configure the framework manually, follow these steps:
 1.  **Copy the Templates**: Copy [templates/AGENTS.md](templates/AGENTS.md) and [templates/PROJECT_BOARD.md](templates/PROJECT_BOARD.md) to the root of your project repository and commit them.
 2.  **Configure Your Platform**: Follow the detailed guide for your platform of choice:
-    *   **Antigravity**: Read the [Antigravity Guide](platforms/antigravity/README.md) and use the [project-coordination-setup-skill.md](platforms/antigravity/project-coordination-setup-skill.md) skill to auto-register subagent roles.
+    *   **Antigravity**: Read the [Antigravity Guide](platforms/antigravity/README.md) to register subagent roles, or run `tools/run_lane.py` to start direct interactive lane sessions directly in your terminal. Use the [project-coordination-setup-skill.md](platforms/antigravity/project-coordination-setup-skill.md) skill to auto-register subagent roles.
     *   **Claude & Cursor**: Read the [Claude Guide](platforms/claude/README.md) to set Project Custom Instructions and copy-paste [system prompts](platforms/claude/system-prompts.md).
     *   **Codex**: Read the [Codex Guide](platforms/codex/README.md) and copy the [workflow-rules.md](platforms/codex/workflow-rules.md) to your local rules directory.
 3.  **Claim Your First Task**: Mark `TASK-001` (Setup & Bootstrap) as `In Progress` in your project board, check out your feature branch, and start building!

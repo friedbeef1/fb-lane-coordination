@@ -158,3 +158,46 @@ In Antigravity, the user acts as the external supervisor, interacting primarily 
    ```
    This merges the branch to `main`, deletes the feature branch, releases the locked files on the board, commits the board changes, and pushes to remote.
 2. **Notification**: Product notifies the user that the task is complete.
+
+---
+
+## Direct Lane Interactive Threads (Antigravity 2.0)
+
+In addition to autonomous background subagent delegation orchestrated by `FB-Product`, Antigravity 2.0 supports running specialized lane agents directly on **main threads** (interactive terminal sessions). This allows developers to interact directly with `FB-Tech`, `FB-Design`, `FB-Business`, or `FB-Product` in their terminal while automatically maintaining the underlying board updates, git branching, and lock mechanics.
+
+### 🔑 Authentication Prerequisite
+Make sure you have a valid Gemini API key set in your environment:
+```bash
+export GEMINI_API_KEY="your-api-key-here"
+```
+If you do not have an API key, you can obtain one from [Google AI Studio](https://aistudio.google.com/app/api-keys).
+
+### 🚀 Running a Direct Lane Thread
+Execute the `tools/run_lane.py` runner script to start an interactive lane agent loop:
+```bash
+python tools/run_lane.py <lane> <task-id> [locked_files]
+```
+*   **`<lane>`**: The target lane to run (`Tech`, `Design`, `Business`, or `Product`).
+*   **`<task-id>`**: The task ID from `PROJECT_BOARD.md` (e.g., `TASK-102`).
+*   **`[locked_files]`**: An optional comma-separated list of files to lock (e.g., `src/db.ts,src/auth.ts`).
+
+#### Examples:
+1. **Tech Lane**:
+   ```bash
+   python tools/run_lane.py Tech TASK-102 "src/api.ts"
+   ```
+2. **Design Lane**:
+   ```bash
+   python tools/run_lane.py Design TASK-103 "src/App.css"
+   ```
+3. **Business Lane (Read-Only)**:
+   ```bash
+   python tools/run_lane.py Business TASK-104
+   ```
+
+### 🛡️ How It Coordinates Internally
+When you run the `run_lane.py` script:
+1. **Board Claim Hook**: The script programmatically executes `node tools/fb-lane.js claim` to checkout the appropriate branch, declare locks, and commit the board.
+2. **Strict Sandbox Configuration**: It maps the target lane to the corresponding rules defined in the coordination model, configuring the agent's system prompt and capabilities (e.g. read-only tool limits for `Business`).
+3. **Interactive Prompt**: It starts the conversational loop using the standard `User:` and `Agent:` terminal prompts.
+4. **Command Approval**: When the agent requests a shell command execution (such as `npm test` or compilation checks), the safety policy will present an interactive `y/n` confirmation prompt to you before running the command.
