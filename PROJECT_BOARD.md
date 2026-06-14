@@ -13,19 +13,19 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-001 | Staging QA | FB-Tech | Setup | Bootstrap repository files | `AGENTS.md`, `PROJECT_BOARD.md` | [Branch](https://github.com/example/repo/tree/main) \ |
+| TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \ |
 
 ---
 
 ### TASK-001 - Project Setup & Bootstrap
-*   **Status**: Staging QA
+*   **Status**: Done
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Setup
 *   **Scope**: Create initial files, initialize repository layout.
 *   **Out of Scope**: Writing application business logic.
 *   **Affected Screens / Locks**:
     *   **Screens**: (None)
-    *   **Locked Files**: `AGENTS.md`, `PROJECT_BOARD.md`
+    *   **Locked Files**: (None)
 *   **Links & Deliverables**:
     *   **Git Branch / PR**: [Branch Link](https://github.com/example/repo/tree/main)
     *   **Staging URL**: [Staging Link](https://staging.example.com)
