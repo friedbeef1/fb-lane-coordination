@@ -11,9 +11,9 @@
 
 ## Active Workstreams
 
-| ID | Status | Owner | Area | Scope | Out Of Scope |
+| ID | Status | Owner | Area | Scope | Links & Deliverables |
 |---|---|---|---|---|---|
-| TASK-001 | Ready | FB-Product | Setup | Bootstrap repository files | Unrelated refactors |
+| TASK-001 | Ready | FB-Product | Setup | Bootstrap repository files | [Branch](https://github.com/example/repo/tree/main) \| [PR #1](https://github.com/example/repo/pull/1) |
 
 ---
 
@@ -23,6 +23,11 @@
 *   **Area**: Setup
 *   **Scope**: Create initial files, initialize repository layout.
 *   **Out of Scope**: Writing application business logic.
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: [Branch Link](https://github.com/example/repo/tree/main)
+    *   **Staging URL**: [Staging Link](https://staging.example.com)
+    *   **Design Specs**: [Figma Link](https://figma.com)
+    *   **Decision Memo**: [docs/decisions/001-setup.md](file:///./docs/decisions/001-setup.md)
 *   **QA Checklist**:
     *   [ ] Repository structure is clean and follows design guidelines.
     *   [ ] File names and paths are correct.
@@ -31,3 +36,4 @@
     *   (None)
 *   **Latest Update**:
     *   *2026-06-14*: Scoped task and marked ready for execution.
+

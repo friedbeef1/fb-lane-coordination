@@ -36,7 +36,9 @@ All tasks must be logged in `PROJECT_BOARD.md` in the project root:
 1. **Claim**: Before modifying code, claim or create an item in `PROJECT_BOARD.md`. Set status to `In Progress`.
 2. **Commit**: Work in an isolated branch (`tech/...` or `design/...`).
 3. **QA**: Once complete, push your branch, set status to `Staging QA`, and document the modified files and QA verification results.
-4. **Handoff**: Report the work item to `FB-Product` for review and merging.
+4. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, staging environment URL, and design specifications.
+5. **Handoff**: Report the work item to `FB-Product` for review and merging.
+
 
 ---
 
