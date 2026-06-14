@@ -212,7 +212,7 @@ function updateBoardTask(boardPath, taskId, updates) {
 }
 
 // Generate the start instructions context
-function generateStartupPrompt(task, lane, branchName) {
+function generateStartupPrompt(task, lane, branchName, lockedFiles) {
   const roleName = `FB-${lane.charAt(0).toUpperCase() + lane.slice(1).toLowerCase()}`;
   return `You are an AI assistant adopting the **${roleName}** lane for this chat thread.
 We are working on branch: **${branchName}**
@@ -221,7 +221,7 @@ We are working on branch: **${branchName}**
 * **Task ID**: ${task.id}
 * **Area**: ${task.area}
 * **Scope**: ${task.scope}
-* **Locked Files**: ${task.locks || '(None)'}
+* **Locked Files**: ${lockedFiles || '(None)'}
 
 ### Rules & Boundaries for ${roleName}:
 ${getRoleInstructions(lane)}
@@ -355,7 +355,7 @@ ${task.scope}
   fs.writeFileSync(path.join(codexDir, 'current_task.md'), contextContent, 'utf8');
 
   // Generate startup prompt
-  const prompt = generateStartupPrompt(task, lane, branchName);
+  const prompt = generateStartupPrompt(task, lane, branchName, formattedLocks);
   const copied = copyToClipboard(prompt);
 
   console.log(`\n✅ Task ${taskId} successfully claimed!`);
@@ -404,7 +404,7 @@ function handleSubmit(taskId, stagingUrl = '') {
   console.log(`   - Branch pushed to remote.`);
   console.log(`\n👉 Request FB-Product to review the build and merge. Review instructions copied to clipboard!`);
   
-  const reviewPrompt = `TASK-${taskId} is ready for review on Staging. 
+  const reviewPrompt = `${taskId} is ready for review on Staging. 
 Staging URL: ${stagingUrl || 'Local / CI Build'}
 Please review the changes and run the merge command:
 node tools/fb-lane.js merge ${taskId}`;
