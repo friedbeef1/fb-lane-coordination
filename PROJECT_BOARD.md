@@ -14,6 +14,7 @@
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \ |
+| TASK-002 | In Progress | FB-Tech | Integration | Migrate Speech Coach from AssemblyAI LeMUR to Google Gemini API | `package.json`, `services/googleGeminiService.ts`, `hooks/useAudioAnalysis.ts`, `components/AnalysisResults.tsx`, `hooks/useRecording.ts`, `index.html`, `services/assemblyAiService.ts`, `types.ts` | [Branch](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-002-gemini-speech-coach-integration) |
 
 ---
 
@@ -39,4 +40,29 @@
     *   `docs/decisions/001-setup.md`
 *   **Latest Update**:
     *   *2026-06-15*: Completed repository bootstrapping and documented layout decisions.
+
+
+### TASK-002 - Gemini Speech Coach Integration
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Tech
+*   **Area**: Integration
+*   **Scope**: Migrate the speech coach recording analysis and tips generator from AssemblyAI LeMUR to the Google Gemini API.
+*   **Out of Scope**: Major UI redesigns or unrelated styling tweaks.
+*   **Affected Screens / Locks**:
+    *   **Screens**: (None)
+    *   **Locked Files**: `package.json`, `services/googleGeminiService.ts`, `hooks/useAudioAnalysis.ts`, `components/AnalysisResults.tsx`, `hooks/useRecording.ts`, `index.html`, `services/assemblyAiService.ts`, `types.ts`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: [Branch Link](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-002-gemini-speech-coach-integration)
+    *   **Staging URL**: (None)
+    *   **Design Specs**: (None)
+    *   **Decision Memo**: (None)
+*   **QA Checklist**:
+    *   [ ] Gemini feedback, summary, and tips generate correctly.
+    *   [ ] Local audio features extraction functions correctly.
+    *   [ ] Build compiles with no TypeScript compilation errors.
+*   **Modified Files**:
+    *   (None)
+*   **Latest Update**:
+    *   *2026-06-15*: Initialized task and claimed for execution.
+
 
