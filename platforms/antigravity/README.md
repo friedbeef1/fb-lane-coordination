@@ -35,13 +35,14 @@ In Antigravity, **`FB-Product`** is the main agent thread (or Integration Captai
 
 ---
 
-## Setting Up the Global Skill
-The bootstrapper skill handles:
-1. Verifying if `AGENTS.md` and `PROJECT_BOARD.md` exist (merging them safely if they do).
-2. Generating the standard template files if they are missing.
-3. Running `define_subagent` to programmatically register `FB-Tech`, `FB-Design`, and `FB-Business` as subagents in the environment.
+## Setting Up Antigravity Skills
 
-*   You can find the complete skill definition at [project-coordination-setup-skill.md](project-coordination-setup-skill.md).
+The FB-Lane Coordination framework for Antigravity is divided into two reusable skills to optimize token efficiency:
+
+1.  **`project-coordination-setup`**: Handles verifying and bootstrapping the workspace files (`AGENTS.md`, `PROJECT_BOARD.md`) and programmatically registering `FB-Tech`, `FB-Design`, and `FB-Business` subagents.
+    *   *Skill file:* [project-coordination-setup-skill.md](project-coordination-setup-skill.md)
+2.  **`fb-lane-coordination`**: Guides the agent on how to use the local `tools/fb-lane.js` utility to claim, submit, and merge tasks autonomously using simple `run_command` invocations. This avoids having to register heavy MCP tool schemas, saving thousands of context window tokens.
+    *   *Skill file:* [fb-lane-coordination-skill.md](fb-lane-coordination-skill.md)
 
 ---
 
@@ -124,36 +125,36 @@ These are the standard configurations Antigravity uses under the hood to instant
 }
 ```
 
----
-
 ## Operational Loop: Working with Antigravity
 
-In Antigravity, the user acts as the external supervisor, interacting primarily with the `FB-Product` (Captain) thread. The agent framework coordinates the rest of the loop autonomously:
+In Antigravity, the user acts as the external supervisor, interacting primarily with the `FB-Product` (Captain) thread. The agent framework coordinates the rest of the loop autonomously using the `fb-lane-coordination` skill:
 
 ### Step 1: Task Initialization & File Locking
-1. **User Request**: Describe a feature or bugfix to the main Antigravity thread.
-2. **Drift Audit**: Before scoping, `FB-Product` runs a drift audit (inspects active tasks, checks for file and schema updates from other threads, and ensures staging/live build statuses are aligned).
-3. **Lock & Board Update**: `FB-Product` checks `PROJECT_BOARD.md` to verify that the target files/screens are not locked by other active tasks. It creates a scoped task card (e.g. `TASK-101`) detailing the changes, **assigns the resource locks** (declarative screens/files to be modified), and commits the board update.
+1. **User Request**: Describe a feature or bugfix to the main Antigravity thread (e.g., *"Build user signup feature"*).
+2. **Scoping**: `FB-Product` reviews requirements and updates `PROJECT_BOARD.md` to add the new tasks (e.g., `TASK-102`).
+3. **Claiming**: Before spawning subagents, `FB-Product` executes the claim command via the skill:
+   ```bash
+   node tools/fb-lane.js claim TASK-102 Tech "src/auth.ts"
+   ```
+   This checks out the feature branch, updates the board to `In Progress`, and commits the board changes separately.
 
 ### Step 2: Parallel Spawning (Concurrent Execution)
-1. **Spawning**: `FB-Product` uses `invoke_subagent` to spawn background tasks for `FB-Tech` and/or `FB-Design` concurrently. Spawned subagents autonomously check the project board, lock files, and execute.
-2. **Subagent Execution**:
-   - `FB-Tech` checks out `tech/TASK-101` and implements database/API logic.
-   - `FB-Design` checks out `design/TASK-101` and implements frontend layouts.
-   - *Since they are running in parallel, they work concurrently without git collisions because their work is isolated by branches and locks.*
-3. **Collaboration**: If `FB-Design` needs copy approved, it calls `send_message` to consult `FB-Business` (which acts in a read-only copywriting role) in the background.
+1. **Spawning**: `FB-Product` uses `invoke_subagent` to spawn background tasks for `FB-Tech` (or `FB-Design`) on the active branch.
+2. **Subagent Execution**: The spawned agent operates on the checkout branch and implements the requested code changes locally.
+3. **Collaboration**: Subagents collaborate using inter-agent messaging (`send_message`).
 
 ### Step 3: Staging Verification & Gates
-1. **Staging QA**: Subagents push their code to staging, mark `Staging QA` on the board, and notify `FB-Product`.
-2. **Quality Gates**: `FB-Product` checks the build and runs static check suites:
-   - **Functional Gates**: Ensures unit and integration tests pass.
-   - **UI Visual QA Gates**: `FB-Product` triggers a visual audit using browser tools to verify that:
-     - Text containment is perfect (no clipping, overlap, or overflow across mobile/desktop viewports).
-     - Aesthetic/style integrity is intact (brand fonts load correctly, styling themes match specifications).
+1. **Submit for QA**: When code changes are ready, the subagent (or Product) runs the submission command:
+   ```bash
+   node tools/fb-lane.js submit TASK-102 "https://staging.example.com"
+   ```
+   This commits the board update, pushes the branch to remote origin, and marks the status as `Staging QA`.
+2. **Quality Gates**: `FB-Product` checks that functional test suites pass and runs visual audits to ensure viewport styling and text containment are correct.
 
-### Step 4: Integration, Unlock & Deployment
-1. **Code Merge**: `FB-Product` merges the subagent branches into `main`.
-2. **Unlock**: `FB-Product` removes the resource locks on the project board, freeing those screens/files for future tasks.
-3. **Commit Docs Separately**: `FB-Product` commits any updates to `PROJECT_BOARD.md` or documentation in a separate commit from source code changes.
-4. **Board Closure**: `FB-Product` updates the board item `TASK-101` to `Done` with final links, and reports the results back to the user.
-
+### Step 4: Integration, Unlock & Completion
+1. **Merge & Completion**: Once verified, `FB-Product` runs the merge command:
+   ```bash
+   node tools/fb-lane.js merge TASK-102
+   ```
+   This merges the branch to `main`, deletes the feature branch, releases the locked files on the board, commits the board changes, and pushes to remote.
+2. **Notification**: Product notifies the user that the task is complete.
