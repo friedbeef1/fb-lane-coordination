@@ -167,6 +167,16 @@ The human supervisor does not need technical project management expertise; they 
 *   **Claude (Single-Threaded Chat)**: Simulated via thread partitioning. The developer acts as the supervisor, starting a fresh chat thread for each task to protect Claude's memory. However, the work inside the thread is **highly automated**: once instructed to adopt a role, Claude uses terminal/IDE tools (via Cursor, MCP, or command tools) to checkout branches, write code, update the markdown board, and push branches/PRs automatically.
 *   **Codex (Local File/Git Agent)**: Enforced via local repository rule files (e.g., `.codex/rules.md`). The Codex runs checkouts, updates the markdown board locally, and validates compilations inside isolated local git branches.
 
+### Q: If I do everything on the same thread in Claude, Codex, or Antigravity, won't the context window get bloated?
+**A:** **Yes, absolutely.** Running everything on a single, long-running thread causes severe context window bloat, leading to:
+1.  **Reasoning Degradation**: AI models lose performance, make mistakes, and forget rules as the chat history grows.
+2.  **Scope Bleed**: The agent will start cross-modifying files from previous tasks (e.g., editing database logic while working on a styling layout).
+
+To prevent this, the FB-Lane framework enforces strict **Thread Segmentation**:
+*   **Claude (Projects/Cursor)**: You must start a fresh chat thread for every single task. Never discuss backend logic and styling changes in the same thread.
+*   **Antigravity**: The `FB-Product` agent runs the orchestrator thread, but automatically spawns temporary, isolated subagents (`invoke_subagent`) for each task. Once complete, that subagent's conversation thread is archived and closed, protecting Product's memory.
+*   **Codex**: Codex operates as a short-lived local execution. Because it uses file locking, it only reads the subset of files related to the active task, preventing it from sucking the entire codebase context into its window.
+
 ---
 
 ## 7. Getting Started & Automation
