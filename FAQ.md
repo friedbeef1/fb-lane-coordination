@@ -83,14 +83,15 @@ This prevents a single thread from having write-access to both backend models an
 
 ## 5. Orchestration & Team Workflow
 
-### Q: Do I (the supervisor/user) only talk to FB-Product, or can I talk to individual lanes? Doesn't direct communication screw up alignment?
-**A:** You can do both depending on the task, and **it will not break alignment**. The framework has built-in guards to maintain synchronization even during decentralized conversations:
+### Q: Do I (the supervisor/user) only talk to FB-Product, or can I talk to individual lanes? Doesn't direct communication screw up alignment or the product's direction?
+**A:** You can do both depending on the task, and **it will not break alignment or derail the product's strategic direction**. The framework has built-in guards to maintain synchronization and protect the roadmap even during decentralized conversations:
 *   **High-Level Planning**: Instruct **`FB-Product`** to prioritize tasks, scope features, and review staging releases. Product retains final merge authority.
 *   **Deep-Dive Development**: Talk directly to **`FB-Tech`**, **`FB-Design`**, or **`FB-Business`** threads when you want to pair-program, refine layouts, or discuss copy options.
-*   **Why Alignment is Maintained**:
-    1.  **Immediate Board Logging**: Whenever you direct a lane to work in a thread, they must claim the task on `PROJECT_BOARD.md`, setting status to `In Progress` and documenting their scope.
-    2.  **Strict File Locking**: The lane immediately declares its resource locks. Other threads check the board and see which files are locked, preventing duplicate edits or file collisions.
-    3.  **Merge Isolation**: No lane can merge their own code. When they finish, they hand it over to Product for review on staging, ensuring Product has final quality and alignment control before anything goes live.
+*   **Why Alignment and Product Direction are Guarded**:
+    1.  **Immediate Board Logging**: Whenever you direct a lane to work in a thread, the lane agent must claim or create the task on `PROJECT_BOARD.md` immediately, setting status to `In Progress` and documenting the exact scope.
+    2.  **Strict File Locking**: The lane declares its resource locks on the board. Other threads check the board and see which files are locked, preventing duplicate edits or conflicting file modifications.
+    3.  **Merge Isolation (Veto Power)**: No lane can merge their own code. When they finish, they push a PR and hand it over to Product for review on staging. Product acts as the ultimate gatekeeper with exclusive merge authority, ensuring nothing goes live that conflicts with the roadmap.
+    4.  **Roadmap Visibility & Veto**: Because every lane immediately logs their active scope on the project board, the roadmap remains the single source of truth. Product (or the human supervisor reviewing Product) has real-time visibility and can instantly pause, re-prioritize, or flag tasks that drift from the core strategic direction.
 
 ### Q: How do we ensure the Product lane (Captain) does not become a workflow bottleneck?
 **A:** The framework is built to prevent Product from becoming a chokepoint through three mechanisms:

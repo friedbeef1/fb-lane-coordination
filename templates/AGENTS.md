@@ -38,7 +38,7 @@ The user (acting as the external supervisor) is completely shielded from manual 
 1. **Giving Instructions**: Describing what to build, either to the main `FB-Product` thread or directly to a specific lane thread concurrently (e.g. consulting Business on pricing, Tech on a database bug, or Design on button styles).
 2. **Reviewing Outputs**: Inspecting the visual staging builds and code reviews when notified that a task is complete.
 
-All internal coordination—including running drift audits, checking/asserting resource locks on `PROJECT_BOARD.md`, checking out branches, writing code, executing verification tests, and pushing PRs—is **fully automated by the agents**. Product remains the integration Captain who reviews staging and merges the final code.
+All internal coordination—including running drift audits, checking/asserting resource locks on `PROJECT_BOARD.md`, checking out branches, writing code, executing verification tests, and pushing PRs—is **fully automated by the agents**. Product remains the integration Captain who reviews staging and merges the final code, ensuring all changes align with the product's strategic direction and do not cause scope drift.
 
 ---
 
