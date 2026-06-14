@@ -13,12 +13,12 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-001 | In Progress | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \ |
+| TASK-001 | Staging QA | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \ |
 
 ---
 
 ### TASK-001 - Project Setup & Bootstrap
-*   **Status**: In Progress
+*   **Status**: Staging QA
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Setup
 *   **Scope**: Create initial files, initialize repository layout.
@@ -32,11 +32,11 @@
     *   **Design Specs**: (None)
     *   **Decision Memo**: [docs/decisions/001-setup.md](file:///./docs/decisions/001-setup.md)
 *   **QA Checklist**:
-    *   [ ] Repository structure is clean and follows design guidelines.
-    *   [ ] File names and paths are correct.
-    *   [ ] Documentation has zero typos or placeholders.
+    *   [x] Repository structure is clean and follows design guidelines.
+    *   [x] File names and paths are correct.
+    *   [x] Documentation has zero typos or placeholders.
 *   **Modified Files**:
-    *   (None)
+    *   `docs/decisions/001-setup.md`
 *   **Latest Update**:
-    *   *2026-06-14*: Scoped task and marked ready for execution.
+    *   *2026-06-15*: Completed repository bootstrapping and documented layout decisions.
 
