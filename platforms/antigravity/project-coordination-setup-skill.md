@@ -54,7 +54,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 ### 3. Safety & Git Hygiene
 - **Never commit directly to main**. All work goes through feature branches.
 - **Commit Docs Separately**: Commit updates to `PROJECT_BOARD.md` and documentation files in separate commits from codebase logic and styling changes.
-- **Rejection & Rectification**: If Product rejects a branch due to strategic mismatch or scope creep, Product marks the task `Blocked` or `Rejected` on `PROJECT_BOARD.md`, alerts the user with the rationale, and either deletes the branch/locks or realigns the scope in the backlog.
+- **Rejection & Rectification**: If Product rejects a branch due to failing test suites, visual QA issues, or strategic misalignment, Product marks the task `Blocked` or `Rejected` on `PROJECT_BOARD.md` (attaching the failure logs) and alerts the user and the lane agent. The lane agent then resolves the bugs locally on its feature branch until all tests pass before resubmitting. If the changes are permanently rejected, Product closes the PR, deletes the feature branch, and removes the task and resource locks from the board.
 ```
 
 ### Phase 3: Create PROJECT_BOARD.md

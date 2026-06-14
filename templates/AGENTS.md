@@ -59,7 +59,7 @@ All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate
 *   **Commit Docs Separately**: When editing documentation, `PROJECT_BOARD.md`, design specifications, plans, or handoff notes, commit those updates separately from codebase logic and styling changes. Stage files explicitly and keep documentation commits clean.
 *   **Staging First**: All features must be visually and functionally verified on staging before production promotion is requested. Do not deploy to production based on stale approvals from prior chats/days.
 *   **Do Not Revert Others**: If another lane has touched a shared file (such as the main entrypoint), merge main into your branch and resolve/adapt, rather than overwriting.
-*   **Rejection & Rectification**: If Product rejects a branch during review due to strategic mismatch or scope creep, Product marks the task `Blocked` or `Rejected` on `PROJECT_BOARD.md` and alerts the user with the rationale. Product then either deletes the feature branch and locks to revert changes, or scopes adjustments on the board and sends the task back to the backlog for correction.
+*   **Rejection & Rectification**: If Product rejects a branch during review due to failing test suites, visual QA issues, or strategic misalignment, Product marks the task `Blocked` or `Rejected` on `PROJECT_BOARD.md` (attaching the failure logs) and alerts the user and the lane agent. The lane agent then resolves the bugs locally on its feature branch until all tests pass before resubmitting. If the changes are permanently rejected, Product closes the PR, deletes the feature branch, and removes the task and resource locks from the board.
 
 ---
 

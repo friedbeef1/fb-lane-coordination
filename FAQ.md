@@ -62,6 +62,14 @@ This prevents a single thread from having write-access to both backend models an
 *   **`FB-Design` (Visual QA)**: Runs layout audits across mobile/desktop viewports, checking theme styling, font loading, hover states, and ensuring zero text clipping or spill.
 *   **`FB-Product` (Integration Captain)**: Coordinates final staging verification. Product checks that both functional and visual test checklists are complete, reviews git diffs, and performs a smoke test on the staging build before merging.
 
+### Q: What happens if the tests or QA checks fail?
+**A:** Depending on when the failure occurs, the framework handles it via two safety loops:
+1.  **Local Dev Failures (Before Push)**: If `FB-Tech` or `FB-Design` runs their local test suites/linters and they fail, the agent **cannot push the code or promote the task to `Staging QA`**. The task remains `In Progress` while the agent autonomously debugs the failure. If the agent gets stuck, it flags the task as `Blocked` and notifies you with the logs.
+2.  **Staging Failures (During Product Review)**: If code is pushed but fails the automated CI/CD pipeline, staging build compilation, or Product's final smoke/visual checks:
+    - **Rejection**: Product rejects the PR and moves the task status to `Blocked` or `Rejected` on the board, attaching the failure logs.
+    - **Notification**: Product alerts the user and the lane thread.
+    - **Correction**: The lane agent checks out the branch, fixes the bugs locally until tests pass, pushes the fix, and resubmits for review.
+
 ### Q: What happens if two lanes must edit the same file (e.g. `App.tsx` or `index.html`)?
 **A:** This is a common code-bleed scenario. Under FB-Lane:
 1. Each lane checks out its own branch (`tech/TASK-101` and `design/TASK-102`) and performs its edits.
