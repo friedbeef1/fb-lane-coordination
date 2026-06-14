@@ -114,6 +114,11 @@ This prevents a single thread from having write-access to both backend models an
 
 The human supervisor does not need technical project management expertise; they simply review and sign off on the Product agent's AI-sequenced roadmap.
 
+### Q: So there is also going to be a backlog or something? How does it map to the board?
+**A:** Yes. In the FB-Lane framework, the backlog is not stored in an external tool like Jira or Linear; it is built directly into the local **`PROJECT_BOARD.md`** file, divided into two distinct statuses:
+1.  **`Inbox` (The Raw Backlog)**: This is where new user ideas, raw instructions, or rejected tasks requiring major re-scoping are placed first. These tasks are waiting to be triaged and analyzed.
+2.  **`Ready` (The Prioritized Backlog)**: This is where fully scoped, dependency-resolved, and value-sequenced tasks live. Lane agents pull tasks directly from here when they are ready to work.
+
 ### Q: What is the typical day-to-day workflow for a user?
 **A:** In most cases, your day-to-day workflow is simple, automated, and hands-off:
 1.  **Draft Your Plan**: Write down your requirements, feature checklist, or PRD. (While you can write in plain text, **Markdown is highly preferred** because the agent can parse headers and checklists directly onto the `PROJECT_BOARD.md` without losing structure or details).
