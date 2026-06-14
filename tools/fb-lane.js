@@ -335,8 +335,7 @@ function handleClaim(taskId, lane, lockedFiles = '(None)') {
   });
 
   // Commit board separately
-  runGit('add PROJECT_BOARD.md');
-  runGit(`commit -m "docs: claim ${taskId} and lock files"`);
+  commitBoard(`docs: claim ${taskId} and lock files`);
 
   // Write local Codex context file to reduce search pain
   const codexDir = path.join(path.dirname(boardPath), '.codex');
@@ -374,11 +373,65 @@ ${task.scope}
   }
 }
 
+// Run local test suite if package.json has a valid test script
+function runTests(boardPath) {
+  let testCmd = null;
+  const pkgPath = path.join(path.dirname(boardPath), 'package.json');
+  if (fs.existsSync(pkgPath)) {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+      if (pkg.scripts && pkg.scripts.test && !pkg.scripts.test.includes('no test specified')) {
+        testCmd = 'npm test';
+      }
+    } catch (err) {}
+  }
+
+  if (testCmd) {
+    console.log(`\n🔍 Running local test suite: "${testCmd}"...`);
+    try {
+      execSync(testCmd, { stdio: 'inherit' });
+      console.log('✅ Local tests passed successfully!\n');
+      return true;
+    } catch (err) {
+      throw new Error(`Local tests failed. Please fix errors before submitting.`);
+    }
+  }
+  return true;
+}
+
+// Stage and commit the project board only if there are staged modifications
+function commitBoard(message) {
+  runGit('add PROJECT_BOARD.md');
+  try {
+    const staged = runGit('diff --cached --name-only PROJECT_BOARD.md');
+    if (staged.trim() !== '') {
+      runGit(`commit -m "${message}"`);
+      return true;
+    }
+  } catch (err) {}
+  console.log('ℹ️  Project board already up to date. No commit needed.');
+  return false;
+}
+
 function handleSubmit(taskId, stagingUrl = '') {
   const boardPath = findBoardPath();
   if (!boardPath) {
     console.error('❌ Error: PROJECT_BOARD.md not found.');
     process.exit(1);
+  }
+
+  const noTests = process.argv.includes('--no-tests');
+
+  if (!noTests) {
+    try {
+      runTests(boardPath);
+    } catch (err) {
+      console.error(`❌ Error: ${err.message}`);
+      console.error(`👉 Use --no-tests flag if you need to bypass tests temporarily.\n`);
+      process.exit(1);
+    }
+  } else {
+    console.log('⚠️  Bypassing local test run (--no-tests flag detected)...');
   }
 
   const currentBranch = runGit('rev-parse --abbrev-ref HEAD || git branch --show-current');
@@ -392,8 +445,7 @@ function handleSubmit(taskId, stagingUrl = '') {
   updateBoardTask(boardPath, taskId, updates);
 
   // Commit board separately
-  runGit('add PROJECT_BOARD.md');
-  runGit(`commit -m "docs: submit ${taskId} for staging qa"`);
+  commitBoard(`docs: submit ${taskId} for staging qa`);
 
   // Push branch
   console.log('Pushing feature branch to origin...');
@@ -453,8 +505,7 @@ function handleMerge(taskId) {
   });
 
   // Commit board
-  runGit('add PROJECT_BOARD.md');
-  runGit(`commit -m "docs: complete ${taskId} and release locks"`);
+  commitBoard(`docs: complete ${taskId} and release locks`);
 
   // Push main
   runGit('push origin main');
@@ -620,8 +671,7 @@ function handleMcpRequest(request) {
           lockedFiles: formattedLocks
         });
 
-        runGit('add PROJECT_BOARD.md');
-        runGit(`commit -m "docs: claim ${taskId} and lock files"`);
+        commitBoard(`docs: claim ${taskId} and lock files`);
 
         // Write Codex context
         const codexDir = path.join(path.dirname(boardPath), '.codex');
@@ -631,12 +681,15 @@ function handleMcpRequest(request) {
         message = `Successfully claimed ${taskId} on branch ${branchName}. Locks: ${formattedLocks}.`;
       } else if (name === 'fb_lane_submit') {
         const { taskId, stagingUrl } = args;
+        
+        // Run local tests first under MCP
+        runTests(boardPath);
+
         const updates = { status: 'Staging QA' };
         if (stagingUrl) updates.stagingUrl = `[Staging Link](${stagingUrl})`;
         
         updateBoardTask(boardPath, taskId, updates);
-        runGit('add PROJECT_BOARD.md');
-        runGit(`commit -m "docs: submit ${taskId} for staging qa"`);
+        commitBoard(`docs: submit ${taskId} for staging qa`);
         runGit('push origin HEAD');
         message = `Successfully submitted ${taskId} for Staging QA. Branch pushed.`;
       } else if (name === 'fb_lane_merge') {
@@ -666,8 +719,7 @@ function handleMcpRequest(request) {
           lockedFiles: '(None)'
         });
 
-        runGit('add PROJECT_BOARD.md');
-        runGit(`commit -m "docs: complete ${taskId} and release locks"`);
+        commitBoard(`docs: complete ${taskId} and release locks`);
         runGit('push origin main');
 
         try { runGit(`branch -d ${targetBranch}`); } catch (e) {}
@@ -720,9 +772,9 @@ function main() {
     handleClaim(taskId, lane, locks);
   } else if (command === 'submit') {
     const taskId = args[1];
-    const stagingUrl = args[2];
+    let stagingUrl = args[2] === '--no-tests' ? '' : args[2];
     if (!taskId) {
-      console.error('❌ Error: Usage: node tools/fb-lane.js submit <task-id> [staging_url]');
+      console.error('❌ Error: Usage: node tools/fb-lane.js submit <task-id> [staging_url] [--no-tests]');
       process.exit(1);
     }
     handleSubmit(taskId, stagingUrl);
@@ -740,7 +792,7 @@ function main() {
 Usage:
   node tools/fb-lane.js status                  - Print active tasks & locks
   node tools/fb-lane.js claim <id> <lane> [lks] - Claim task, checkout branch, copy prompt to clipboard
-  node tools/fb-lane.js submit <id> [url]       - Submit task, update board, push branch
+  node tools/fb-lane.js submit <id> [url] [--no-tests] - Run tests, submit task, update board, push branch
   node tools/fb-lane.js merge <id>              - Merge branch to main, release locks, delete branch
   node tools/fb-lane.js mcp                     - Run local Model Context Protocol (MCP) server
 `);

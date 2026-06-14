@@ -63,12 +63,16 @@ This prevents a single thread from having write-access to both backend models an
 *   **`FB-Product` (Integration Captain)**: Coordinates final staging verification. Product checks that both functional and visual test checklists are complete, reviews git diffs, and performs a smoke test on the staging build before merging.
 
 ### Q: What happens if the tests or QA checks fail?
-**A:** Depending on when the failure occurs, the framework handles it via two safety loops:
-1.  **Local Dev Failures (Before Push)**: If `FB-Tech` or `FB-Design` runs their local test suites/linters and they fail, the agent **cannot push the code or promote the task to `Staging QA`**. The task remains `In Progress` while the agent autonomously debugs the failure. If the agent gets stuck, it flags the task as `Blocked` and notifies you with the logs.
+**A:** Depending on when the failure occurs, the framework handles it via two safety loops, enforced by programmatic gates and a token budget protection policy:
+1.  **Local Dev Failures (Before Push)**: If `FB-Tech` or `FB-Design` runs local test suites and they fail:
+    *   **Auto-Fixing Loop**: The agent autonomously debugs the failure by reading error logs, editing code, and rerunning tests locally.
+    *   **Pre-Submission Gate**: The `submit` command (`node tools/fb-lane.js submit`) automatically runs the local test suite (e.g. `npm test`) and **blocks the branch from being pushed or updated on the board** if the tests fail.
+    *   **Token Burn Protection (5-Retry Cap)**: To prevent an agent from burning through your token budget in an infinite debugging loop, it is restricted to a maximum of **5 debugging attempts**.
+    *   **Escalation**: If tests still fail after 5 retries, the agent must halt execution, set the task on the board to `Blocked` (marked as `Blocked - Debug Retry Limit Exceeded`), attach the failure logs, and notify the user for supervisor triage.
 2.  **Staging Failures (During Product Review)**: If code is pushed but fails the automated CI/CD pipeline, staging build compilation, or Product's final smoke/visual checks:
-    - **Rejection**: Product rejects the PR and moves the task status to `Blocked` or `Rejected` on the board, attaching the failure logs.
-    - **Notification**: Product alerts the user and the lane thread.
-    - **Correction**: The lane agent checks out the branch, fixes the bugs locally until tests pass, pushes the fix, and resubmits for review.
+    *   **Rejection**: Product rejects the PR and moves the task status to `Blocked` or `Rejected` on the board, attaching the failure logs.
+    *   **Notification**: Product alerts the user and the lane thread.
+    *   **Correction**: The lane agent checks out the branch, fixes the bugs locally (subject to the same 5-retry cap) until tests pass, pushes the fix, and resubmits for review.
 
 ### Q: What happens if two lanes must edit the same file (e.g. `App.tsx` or `index.html`)?
 **A:** This is a common code-bleed scenario. Under FB-Lane:
