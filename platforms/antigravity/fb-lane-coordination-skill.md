@@ -39,7 +39,11 @@ When a task's implementation is complete and ready for review:
    node tools/fb-lane.js submit <task-id> "[staging_url]"
    ```
    *Example*: `node tools/fb-lane.js submit TASK-102 "https://staging.example.com"`
-2. This will update the board status to `Staging QA`, stage and commit the board update, and push the feature branch to remote origin.
+2. **Pre-Submission Testing**: This command automatically detects and runs `npm test` before committing/pushing. If tests fail, it exits with error code `1` and blocks submission.
+3. **Bypass Flag**: To bypass tests temporarily, add the `--no-tests` flag:
+   ```bash
+   node tools/fb-lane.js submit <task-id> "[staging_url]" --no-tests
+   ```
 
 ### 4. Merge & Complete a Task (Product Merge)
 When a task has passed staging verification and is ready to be merged:
@@ -49,3 +53,13 @@ When a task has passed staging verification and is ready to be merged:
    ```
    *Example*: `node tools/fb-lane.js merge TASK-102`
 2. This command merges the branch into `main`, releases the locks, sets status to `Done` on `PROJECT_BOARD.md`, commits, pushes `main`, and deletes the feature branch.
+
+### 5. Autonomous Debugging, Retry Limits & Auto-Proceed
+When executing code updates and running test/lint commands:
+1. **Auto-Fixing Loop**: If a test/compilation run fails, analyze the stderr logs, make code adjustments, and rerun the tests locally.
+2. **Token Burn Protection (5-Retry Cap)**: Limit your debugging iterations to a maximum of **5 retries** per task to prevent token waste in infinite loops.
+3. **Escalation**: If tests still fail after the 5th attempt:
+   - Stash or commit the current changes.
+   - Update the task status in `PROJECT_BOARD.md` to `Blocked` (marked as `Blocked - Debug Retry Limit Exceeded`), appending the current failure logs.
+   - Notify the user of the blockage.
+4. **Auto-Proceed Loop**: Immediately scan the `PROJECT_BOARD.md` `Ready` queue and claim the **next independent task** (verifying that it does not edit locked files or depend on the blocked task). Checkout a new branch for the new task and continue development.
