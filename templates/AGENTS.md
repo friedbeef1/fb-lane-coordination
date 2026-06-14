@@ -50,7 +50,7 @@ All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate
 3. **Commit**: Work in an isolated branch (`tech/...` or `design/...`). Do not touch files locked by other active threads.
 4. **QA**: Once complete, push your branch, set status to `Staging QA`, and document the modified files and QA verification results.
 5. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.
-6. **Handoff & Unlock**: Report the work item to `FB-Product` for staging review. Product merges the branch and removes the resource locks, marking the task `Done`.
+6. **Handoff, Unlock & Clean**: Report the work item to `FB-Product` for staging review. Product merges the branch, removes the resource locks (marking the task `Done`), and notifies the lane thread. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
 
 ---
 

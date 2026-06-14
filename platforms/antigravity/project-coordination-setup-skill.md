@@ -49,7 +49,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 - `PROJECT_BOARD.md` in the project root is the source of truth.
 - **Claim & Lock**: Before coding, active threads claim or create an item in `PROJECT_BOARD.md`, set status to `In Progress`, and declare Affected Screens and Locked Files to assert a resource lock.
 - **Push & QA**: When complete, threads push feature branches (e.g. `tech/[task]` or `design/[task]`), update board status to `Staging QA`, and list modified files/QA checks.
-- **Handoff & Unlock**: Product reviews staging, merges the branch, and removes resource locks, marking the task `Done`.
+- **Handoff, Unlock & Clean**: Product reviews staging, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
 
 ### 3. Safety & Git Hygiene
 - **Never commit directly to main**. All work goes through feature branches.

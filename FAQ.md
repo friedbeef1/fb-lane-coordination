@@ -148,6 +148,12 @@ The human supervisor does not need technical project management expertise; they 
 4.  **Staging QA**: The lane agent pushes the branch to the remote and updates `PROJECT_BOARD.md` to `Staging QA`.
 5.  **Product Gate Review**: Product reviews the staging build, merges the branch to `main`, and removes the resource locks (unlocking the files).
 
+### Q: If a lane completes its work, does it get notified when Product merges it and finishes?
+**A:** Yes. When `FB-Product` completes the staging review, merges the branch to `main`, and removes the file locks on the board, a completion loop triggers:
+1.  **Direct Notification**: Product sends a notification message back to the active lane thread (e.g., *"TASK-102 has been successfully merged and locks have been released. This task is complete."*).
+2.  **Board Sync**: Product marks the task `Done` on `PROJECT_BOARD.md` and deletes the file locks. Other active threads scan the board and immediately see that those files are now free.
+3.  **Local Branch Cleanup**: Once notified, the lane agent (or developer) safely deletes its local feature branch (`git branch -d [branch-name]`) to keep the workspace clean.
+
 ### Q: How much manual coordination does the user have to do?
 **A:** Virtually none. The human user is completely shielded from the mechanics of project management, task board updates, branch checkouts, and Git merges. Your role is strictly restricted to **giving instructions/plans** and **reviewing staging outputs/verification artifacts**. The agents autonomously handle all background logistics, testing, and Git operations in between.
 
