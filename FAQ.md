@@ -100,7 +100,7 @@ This prevents a single thread from having write-access to both backend models an
 
 ### Q: What is the typical day-to-day workflow for a user?
 **A:** In most cases, your day-to-day workflow is simple, automated, and hands-off:
-1.  **Draft Your Plan**: Write down your requirements, feature checklist, or PRD using whatever tool you prefer.
+1.  **Draft Your Plan**: Write down your requirements, feature checklist, or PRD. (While you can write in plain text, **Markdown is highly preferred** because the agent can parse headers and checklists directly onto the `PROJECT_BOARD.md` without losing structure or details).
 2.  **Hand Off to Product**: Give the plan directly to the main **`FB-Product`** thread.
 3.  **Autonomous Execution**: Product parses your requirements, creates tasks on the board, locks files, dispatches them to parallel threads (`FB-Tech`/`FB-Design`), runs verification tests, and deploys to staging.
 4.  **Review Deliverables**: Product hands you the staging links, code PRs, and verification artifacts (e.g. test logs, walkthroughs, layout screenshots) for your final approval.
