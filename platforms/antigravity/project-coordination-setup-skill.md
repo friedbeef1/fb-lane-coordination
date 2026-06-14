@@ -36,24 +36,25 @@ To bootstrap a workspace, run through the **Execution Steps** in the Workflow be
 ```markdown
 ## FB-Lane Coordination Rules
 
-This project uses the standard four-lane coordination model. Assume other threads or subagents may edit the codebase concurrently.
+This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development.
 
-### 1. Lane Scopes & Boundaries:
-- **FB-Product (Product / Captain / Integration)**: Owns final product decisions, task scoping, file merges, staging/live deployments, and release gates. Acts as the central captain.
-- **FB-Tech (Technical & Development)**: Owns database schemas, serverless functions, APIs, security/auth hardening, and verifier check suites. *Does not make styling or UI layout changes.*
-- **FB-Design (Design & UI/UX)**: Owns CSS styles, design tokens, visual assets, layout geometry, and responsive visual QA. Enforces text containment and typography alignment. *Does not modify backend schemas or core application logic.*
-- **FB-Business (Business & Copy)**: Owns copy decks, onboarding flows, user-facing documentation, pricing, and marketing content. Operating in *read-only* code mode.
+### 1. Lane Scopes & Boundaries
+- **FB-Product (PM / Integration Captain)**: Owns final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates. Prioritizes the backlog on the project board, sequencing tasks based on goal-alignment and value-vs-effort mix.
+- **FB-Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, security rules, and functional test suites. *Does not make styling, layout geometry, or visual changes.*
+- **FB-Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
+- **FB-Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only code capacity.*
+- **The User (Supervisor / Reviewer)**: Gives instructions to Product or directly to specific lanes, and reviews staging outputs. The Product agent prompts the user for approval before promoting backlog items to Ready.
 
-### 2. The Board Loop:
-- `PROJECT_BOARD.md` is the local task tracker.
-- Before coding, every subagent must claim or create an item on the board and set status to `In Progress`.
-- When done, the subagent moves the status to `Staging QA` and lists the modified files.
-- `FB-Product` reviews the changes, runs the verification checks, and moves the item to `Done`.
+### 2. The Board Loop & Resource Locking
+- `PROJECT_BOARD.md` in the project root is the source of truth.
+- **Claim & Lock**: Before coding, active threads claim or create an item in `PROJECT_BOARD.md`, set status to `In Progress`, and declare Affected Screens and Locked Files to assert a resource lock.
+- **Push & QA**: When complete, threads push feature branches (e.g. `tech/[task]` or `design/[task]`), update board status to `Staging QA`, and list modified files/QA checks.
+- **Handoff & Unlock**: Product reviews staging, merges the branch, and removes resource locks, marking the task `Done`.
 
-### 3. Safety & Deployment:
-- Feature lanes work in isolated branches (e.g., `tech/[feature]` or `design/[feature]`).
-- Do not push directly to main or merge your own branches.
-- Staging-first is the default. Do not deploy live without explicit approval.
+### 3. Safety & Git Hygiene
+- **Never commit directly to main**. All work goes through feature branches.
+- **Commit Docs Separately**: Commit updates to `PROJECT_BOARD.md` and documentation files in separate commits from codebase logic and styling changes.
+- **Rejection & Rectification**: If Product rejects a branch due to strategic mismatch or scope creep, Product marks the task `Blocked` or `Rejected` on `PROJECT_BOARD.md`, alerts the user with the rationale, and either deletes the branch/locks or realigns the scope in the backlog.
 ```
 
 ### Phase 3: Create PROJECT_BOARD.md
@@ -62,23 +63,33 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 # Project Board
 
 ## Statuses
-- `Inbox`, `Ready`, `In Progress`, `Staging QA`, `Done`
+- `Inbox`: Newly requested tasks requiring triage.
+- `Ready`: Triaged tasks, fully scoped, ready to be claimed.
+- `In Progress`: Tasks currently being worked on by an owner.
+- `Staging QA`: Features deployed to staging, awaiting visual/functional verification.
+- `Done`: Checked, verified, and merged to production by FB-Product.
 
 ## Active Workstreams
-| ID | Status | Owner | Area | Scope | Out Of Scope |
-|---|---|---|---|---|---|
-| PROJ-001 | Ready | FB-Product | Bootstrap | Coordination setup | Unrelated refactors |
+| ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
+|---|---|---|---|---|---|---|
+| TASK-001 | Ready | FB-Product | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \| [PR #1](https://github.com/example/repo/pull/1) |
 
-### PROJ-001 - Coordination Setup
-- Status: Ready
-- Owner / Thread: FB-Product
-- Area: Bootstrap
-- Scope: Bootstrap coordination files
-- Out of scope: Editing codebase logic
-- QA checklist:
-  - [x] AGENTS.md created or updated
-  - [x] PROJECT_BOARD.md created
-  - [x] Subagents defined
+### TASK-001 - Project Setup & Bootstrap
+*   - Status: Ready
+*   - Owner / Thread: FB-Product
+*   - Area: Setup
+*   - Scope: Create initial files, initialize repository layout.
+*   - Out of Scope: Writing application business logic.
+*   - Affected Screens / Locks:
+*       - Screens: (None)
+*       - Locked Files: `AGENTS.md`, `PROJECT_BOARD.md`
+*   - Links & Deliverables:
+*       - Git Branch / PR: [Branch Link](https://github.com/example/repo/tree/main)
+*       - Staging URL: [Staging Link](https://staging.example.com)
+*   - QA Checklist:
+*       - [x] AGENTS.md created or updated
+*       - [x] PROJECT_BOARD.md created
+*       - [x] Subagents defined
 ```
 
 ### Phase 4: Register the Subagents
