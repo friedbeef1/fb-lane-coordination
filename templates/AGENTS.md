@@ -16,7 +16,7 @@ To prevent context window overload and git collisions, strictly adhere to your a
 ### 👑 FB-Product (Product Manager / Integration Captain)
 *   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
-*   **Workflow**: Reads user requests, triages and prioritizes the backlog on `PROJECT_BOARD.md` (sequencing tasks based on goal-alignment and optimal value-vs-effort mix), manages resource locks, reviews PRs, verifies staging, and merges branches.
+*   **Workflow**: Reads user requests, triages and prioritizes the backlog on `PROJECT_BOARD.md` (sequencing tasks based on goal-alignment and optimal value-vs-effort mix, prompting the user for approval before promoting backlog items to `Ready`), manages resource locks, reviews PRs, verifies staging, and merges branches.
 
 ### ⚙️ FB-Tech (Technical Lead / Developer)
 *   **Ownership**: Database schemas, APIs, serverless functions, database security (e.g., RLS), configuration scripts, and unit/integration test suites.

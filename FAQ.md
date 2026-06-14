@@ -119,6 +119,12 @@ The human supervisor does not need technical project management expertise; they 
 1.  **`Inbox` (The Raw Backlog)**: This is where new user ideas, raw instructions, or rejected tasks requiring major re-scoping are placed first. These tasks are waiting to be triaged and analyzed.
 2.  **`Ready` (The Prioritized Backlog)**: This is where fully scoped, dependency-resolved, and value-sequenced tasks live. Lane agents pull tasks directly from here when they are ready to work.
 
+### Q: How do backlog items get reviewed? Are they automatically pulled in, or am I asked "Do you still want to do this?"
+**A:** Backlog items are **never automatically pulled into development**. Development lanes only pull tasks that have been promoted to the `Ready` list. Backlog items (in `Inbox` or deferred status) follow an explicit review and sign-off cycle:
+1.  **When Review Happens**: Backlog grooming occurs whenever you hand a new plan/goal to Product, or when the active `Ready` list runs dry. The `FB-Product` AI agent analyzes `Inbox` and deferred items to see if they align with the new goals or are now unblocked by recent code changes.
+2.  **No Automated Promotion**: The AI Product agent does not move backlog items to `Ready` on its own. Instead, it grooms and packages the backlog, then prompts the user for explicit confirmation (e.g., *"I've triaged the backlog. I recommend promoting TASK-103 (previously deferred database optimization) to Ready because its backend dependency is now solved. Do you still want to do this?"*).
+3.  **User Confirmation Gate**: You retain absolute control. You can approve the promotion, keep the task deferred in the backlog, adjust its scope, or delete it entirely. Tasks only enter the active development pool (`Ready`) after your explicit sign-off.
+
 ### Q: What is the typical day-to-day workflow for a user?
 **A:** In most cases, your day-to-day workflow is simple, automated, and hands-off:
 1.  **Draft Your Plan**: Write down your requirements, feature checklist, or PRD. (While you can write in plain text, **Markdown is highly preferred** because the agent can parse headers and checklists directly onto the `PROJECT_BOARD.md` without losing structure or details).
