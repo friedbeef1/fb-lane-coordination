@@ -51,19 +51,22 @@ To configure Codex:
 ## Operational Loop: Working with Codex
 
 
-### Step 1: Claim Task
+### Step 1: Drift Audit & Claim Task
 Before starting any coding task, Codex must:
-1. Verify what branch it is on: `git branch`.
+1. **Drift Audit**: Verify what branch it is on: `git branch`. Read the project board to ensure no other active tasks conflict with the target files.
 2. Inspect `PROJECT_BOARD.md` to claim a task ID (e.g., `TASK-002`).
 3. Create a branch: `git checkout -b tech/TASK-002-logic-update`.
 4. Update `PROJECT_BOARD.md` with:
    - Status: `In Progress`
    - Owner: `FB-Tech` or `FB-Design`
-   - Commit the board update separately: `git commit PROJECT_BOARD.md -m "docs: claim TASK-002"`.
+5. Commit the board update in a separate, clean documentation commit: `git add PROJECT_BOARD.md && git commit -m "docs: claim TASK-002"`.
 
 ### Step 2: Implement & Test
 *   Implement changes strictly within the lane scope.
 *   Run local test suites (e.g. `npm run check`, `npm run test`, or equivalent test runners) to confirm logic compiles and is correct.
+*   If modifying UI, perform a **Visual QA Audit**:
+    - Verify text containment across mobile/desktop viewports (zero text clipping or overflow).
+    - Ensure aesthetic integrity (brand fonts and styling colors load correctly).
 
 ### Step 3: Audit & Handoff
 1. Push the branch to remote: `git push origin [branch-name]`.
@@ -71,5 +74,5 @@ Before starting any coding task, Codex must:
    - Status: `Staging QA`
    - Modified Files: List of changed files.
    - QA Checklist: Mark verified items as checked.
-3. Commit and push the project board update.
+3. Commit and push the project board update in a clean documentation commit: `git add PROJECT_BOARD.md && git commit -m "docs: submit TASK-002 for review"`.
 4. Create a Pull Request and hand the PR link back to `FB-Product` (Integration Captain) for review and merging.

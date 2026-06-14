@@ -56,13 +56,18 @@ To manage Claude's context window:
 
 Since Claude is single-threaded, the user acts as the **Integration Captain (`FB-Product`)** to guide Claude through the development lifecycle:
 
-### Step 1: Claim Task & Branch Checkout
-1. Select a task in `PROJECT_BOARD.md` (e.g., `TASK-102`).
-2. Locally, checkout a clean feature branch prefixing the lane:
+### Step 1: Drift Audit, Claim Task & Branch Checkout
+1. **Drift Audit**: Before starting work, check git status and project board for any state drift (e.g. changes made in other threads or remote updates).
+2. Select a task in `PROJECT_BOARD.md` (e.g., `TASK-102`).
+3. Locally, checkout a clean feature branch prefixing the lane:
    ```bash
    git checkout -b tech/TASK-102-auth-endpoint
    ```
-3. Update `PROJECT_BOARD.md` to change the status to `In Progress` under `TASK-102` and commit the board update.
+4. Update `PROJECT_BOARD.md` to change the status to `In Progress` under `TASK-102` and commit the board update separately:
+   ```bash
+   git add PROJECT_BOARD.md
+   git commit -m "docs: claim TASK-102"
+   ```
 
 ### Step 2: Open a Dedicated Chat Thread
 1. **Always open a fresh, empty chat thread** in Claude Projects or Cursor for a new task. Do not reuse old chats to prevent context bloat.
@@ -74,13 +79,20 @@ Since Claude is single-threaded, the user acts as the **Integration Captain (`FB
 ### Step 3: Implement & Verify
 1. Direct Claude to draft modifications or write files.
 2. Run compilation commands, test suites, or linters locally. If errors occur, paste the console logs back into the Claude chat.
-3. Commit code changes regularly.
+3. If modifying UI, run a **Visual QA Audit**:
+   - Verify text containment across mobile/desktop viewports (zero text clipping or overflow).
+   - Ensure aesthetic integrity (brand fonts and styling colors load correctly).
+4. Commit code changes regularly.
 
 ### Step 4: Staging QA & Handoff
 1. Push the branch to GitHub:
    ```bash
    git push origin tech/TASK-102-auth-endpoint
    ```
-2. Switch Claude to the **`FB-Product`** lane (or start a fresh chat) and ask it to update `PROJECT_BOARD.md` to `Staging QA` with the PR and branch links. Commit `PROJECT_BOARD.md` separately.
-3. Verify on staging, merge the branch, and update the task status to `Done`.
+2. Switch Claude to the **`FB-Product`** lane (or start a fresh chat) and ask it to update `PROJECT_BOARD.md` to `Staging QA` with the PR and branch links. Commit `PROJECT_BOARD.md` in a separate, clean documentation commit:
+   ```bash
+   git add PROJECT_BOARD.md
+   git commit -m "docs: submit TASK-102 for review"
+   ```
+3. Verify on staging, merge the branch into `main`, and update the task status to `Done` (committing the final board separately).
 

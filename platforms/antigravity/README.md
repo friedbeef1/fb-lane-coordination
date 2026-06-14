@@ -130,9 +130,10 @@ These are the standard configurations Antigravity uses under the hood to instant
 
 In Antigravity, the user acts as the external supervisor, interacting primarily with the `FB-Product` (Captain) thread. The agent framework coordinates the rest of the loop autonomously:
 
-### Step 1: Initiate & Scope
+### Step 1: Initiate, Audit & Scope
 1. **User Request**: Describe a feature or bugfix to the main Antigravity thread.
-2. **Board Update**: `FB-Product` checks `PROJECT_BOARD.md`, creates a scoped task card (e.g. `TASK-101`) detailing the changes, and commits it.
+2. **Drift Audit**: Before scoping, `FB-Product` runs a drift audit (inspects active tasks, checks for file and schema updates from other threads, and ensures staging/live build statuses are aligned).
+3. **Board Update**: `FB-Product` checks `PROJECT_BOARD.md`, creates a scoped task card (e.g. `TASK-101`) detailing the changes, and commits it.
 
 ### Step 2: Parallel Dispatch
 1. **Delegation**: `FB-Product` uses `invoke_subagent` to spawn background tasks for `FB-Tech` and/or `FB-Design`.
@@ -143,9 +144,14 @@ In Antigravity, the user acts as the external supervisor, interacting primarily 
 
 ### Step 3: Staging Verification & Gates
 1. **Staging QA**: Subagents push their code to staging, mark `Staging QA` on the board, and notify `FB-Product`.
-2. **Quality Gates**: `FB-Product` checks the build, runs the static check suites, and triggers a visual QA audit (confirming responsive layouts and text containment) using browser tools.
+2. **Quality Gates**: `FB-Product` checks the build and runs static check suites:
+   - **Functional Gates**: Ensures unit and integration tests pass.
+   - **UI Visual QA Gates**: `FB-Product` triggers a visual audit using browser tools to verify that:
+     - Text containment is perfect (no clipping, overlap, or overflow across mobile/desktop viewports).
+     - Aesthetic/style integrity is intact (brand fonts load correctly, styling themes match specifications).
 
 ### Step 4: Integration & Deployment
 1. **Code Merge**: `FB-Product` merges the subagent branches into `main`.
-2. **Board Closure**: `FB-Product` updates the board item `TASK-101` to `Done` with final links, and reports the results back to the user.
+2. **Commit Docs Separately**: `FB-Product` commits any updates to `PROJECT_BOARD.md` or documentation in a separate commit from source code changes.
+3. **Board Closure**: `FB-Product` updates the board item `TASK-101` to `Done` with final links, and reports the results back to the user.
 

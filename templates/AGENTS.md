@@ -44,6 +44,25 @@ All tasks must be logged in `PROJECT_BOARD.md` in the project root:
 
 ## 3. Safety & Git Hygiene
 *   **Never commit directly to main**. All work must go through a branch.
-*   **Commit Docs Separately**: When editing documentation or `PROJECT_BOARD.md`, make separate commits from source code changes. Keep the git tree clean.
-*   **Staging First**: All features must be visually and functionally verified on staging before production promotion is requested.
+*   **Commit Docs Separately**: When editing documentation, `PROJECT_BOARD.md`, design specifications, plans, or handoff notes, commit those updates separately from codebase logic and styling changes. Stage files explicitly and keep documentation commits clean.
+*   **Staging First**: All features must be visually and functionally verified on staging before production promotion is requested. Do not deploy to production based on stale approvals from prior chats/days.
 *   **Do Not Revert Others**: If another lane has touched a shared file (such as the main entrypoint), merge main into your branch and resolve/adapt, rather than overwriting.
+
+---
+
+## 4. UI Quality Gates (Visual QA)
+To maintain the visual integrity of the user interface, enforce two hard gates:
+*   **Text Containment**: No text may clip, spill out of its container (button, pill, card, input, sidebar, frame), or become hidden behind overflow on any viewport. Always run a text-fit check.
+*   **Aesthetic & Style Integrity**: The app must render the correct theme, colors, layouts, and brand typography (no fallback to default system fonts or broken tactile styling). Ensure all local asset files (fonts, SVGs) load successfully.
+*   **Interactive QA**: Before declaring UI work ready, visually verify the actual staged page, including responsiveness across mobile/desktop viewports, active hover states, and navigation transitions.
+
+---
+
+## 5. Drift Audit
+Run this quick checklist when resuming a task after a pause, a context compaction, a new day, or an interrupted deploy to prevent state drift:
+1. Are active task statuses on the `PROJECT_BOARD.md` still correct?
+2. Did another agent/developer modify files, schemas, or the staging target while you were away?
+3. Is your staging or live deployment authorization still valid for this specific task?
+4. Do you have uncommitted changes in your branch outside the declared scope?
+5. Does the next action still belong to your assigned lane?
+
