@@ -48,8 +48,8 @@ To configure Codex:
    ```
 
 ---
+## Operational Loop: Working with Codex
 
-## The Codex Developer Loop
 
 ### Step 1: Claim Task
 Before starting any coding task, Codex must:

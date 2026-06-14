@@ -123,3 +123,29 @@ These are the standard configurations Antigravity uses under the hood to instant
   }
 }
 ```
+
+---
+
+## Operational Loop: Working with Antigravity
+
+In Antigravity, the user acts as the external supervisor, interacting primarily with the `FB-Product` (Captain) thread. The agent framework coordinates the rest of the loop autonomously:
+
+### Step 1: Initiate & Scope
+1. **User Request**: Describe a feature or bugfix to the main Antigravity thread.
+2. **Board Update**: `FB-Product` checks `PROJECT_BOARD.md`, creates a scoped task card (e.g. `TASK-101`) detailing the changes, and commits it.
+
+### Step 2: Parallel Dispatch
+1. **Delegation**: `FB-Product` uses `invoke_subagent` to spawn background tasks for `FB-Tech` and/or `FB-Design`.
+2. **Subagent Execution**:
+   - `FB-Tech` checks out `tech/TASK-101` and implements database/API logic.
+   - `FB-Design` checks out `design/TASK-101` and implements frontend layouts.
+3. **Collaboration**: If `FB-Design` needs copy approved, it calls `send_message` to consult `FB-Business` in the background.
+
+### Step 3: Staging Verification & Gates
+1. **Staging QA**: Subagents push their code to staging, mark `Staging QA` on the board, and notify `FB-Product`.
+2. **Quality Gates**: `FB-Product` checks the build, runs the static check suites, and triggers a visual QA audit (confirming responsive layouts and text containment) using browser tools.
+
+### Step 4: Integration & Deployment
+1. **Code Merge**: `FB-Product` merges the subagent branches into `main`.
+2. **Board Closure**: `FB-Product` updates the board item `TASK-101` to `Done` with final links, and reports the results back to the user.
+
