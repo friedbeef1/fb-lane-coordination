@@ -81,7 +81,22 @@ This prevents a single thread from having write-access to both backend models an
 
 ---
 
-## 5. Platform Integration (Antigravity, Claude, Codex)
+## 5. Orchestration & Team Workflow
+
+### Q: Do I (the supervisor/user) only talk to FB-Product, or can I talk to individual lanes?
+**A:** You can do both depending on the task:
+*   **High-Level Planning**: Instruct **`FB-Product`** to prioritize upcoming tasks, scope new features, and review staging releases. Product manages the overall project board.
+*   **Deep-Dive Development**: Talk directly to **`FB-Tech`**, **`FB-Design`**, or **`FB-Business`** threads when you want to pair-program, refine a specific visual button layout, or review copywriting options. Since all lanes log their active branches and locks in `PROJECT_BOARD.md`, the whole team remains aligned asynchronously without Product needing to mediate every conversation.
+
+### Q: How do we ensure the Product lane (Captain) does not become a workflow bottleneck?
+**A:** The framework is built to prevent Product from becoming a chokepoint through three mechanisms:
+1.  **Asynchronous Pull Model**: Developers and subagents do not wait for Product assignments. They pull prioritized tasks directly from the `PROJECT_BOARD.md` when they are ready, setting them to `In Progress` and locking their resources autonomously.
+2.  **Self-Reporting QA Checklists**: Each lane owns its quality checks (tests, visual QA) and documents the outcomes directly on the board card. Product's role is reduced to a quick review of the checklist and staging build, which takes minutes.
+3.  **Conflict-Free Concurrency**: Because files and screens are locked on the board, different lanes coordinate schedule conflicts automatically. A tech branch knows to work on a different endpoint if its target file is locked by design, eliminating coordination meetings.
+
+---
+
+## 6. Platform Integration (Antigravity, Claude, Codex)
 
 ### Q: How does execution differ between Antigravity, Claude, and Codex?
 **A:** The framework operates differently based on the platform's orchestration capabilities:
@@ -91,7 +106,7 @@ This prevents a single thread from having write-access to both backend models an
 
 ---
 
-## 6. Getting Started & Automation
+## 7. Getting Started & Automation
 
 ### Q: Can I just ask Antigravity, Claude, or Codex to read this framework and set it up themselves?
 **A:** **Yes, absolutely!** In fact, this is the recommended way to get started. You do not need to manually copy or configure files. 
