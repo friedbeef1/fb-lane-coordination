@@ -2,7 +2,14 @@
 
 Claude (via Claude Projects, Desktop, or Cursor IDE) is typically a single-threaded agent. It does not natively spawn background subagents. However, you can easily simulate the **M-Lane Model** to protect Claude's context window from bloating and keep its focus razor-sharp.
 
----
+## The Problem This Solves in Claude & Cursor
+Claude Projects and Cursor chats are highly prone to:
+* **Context Overload & Forgetfulness**: As a chat thread grows longer, Claude starts losing track of earlier instructions, forgets its system constraints, and suffers from degraded reasoning.
+* **Scope Creep**: Without strict instruction boundaries, Claude will attempt to solve multiple unrelated tasks at once (e.g., trying to write backend endpoints while fixing a CSS centering bug), resulting in bloated diffs and bugs.
+
+**How M-Lane fixes this:**
+* **Chat Thread Segmentation**: By starting a new, fresh chat thread for each lane/task (M-Tech, M-Design, M-Business), you keep Claude's context window extremely clean and focused.
+* **Instruction Anchoring**: The custom instructions and project knowledge files keep Claude anchored to its specific lane parameters, preventing it from straying into other files.
 
 ## The Simulation Concept
 Instead of running four separate processes in parallel, the user acts as the coordinator (`M-Product`) and instructs Claude to adopt a specific lane for each chat session. 

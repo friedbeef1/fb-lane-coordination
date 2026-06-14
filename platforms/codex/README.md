@@ -2,7 +2,16 @@
 
 Codex is a local developer agent that operates directly on your filesystem and git workspace. It excels at codebase audits, local compilation checks, and terminal automation. To coordinate multiple Codex threads working on the same project, the M-Lane model relies on strict **branch isolation** and local **project board tracking**.
 
----
+## The Problem This Solves in Codex
+As a local, filesystem-active developer agent, Codex is prone to:
+* **Merge Collisions**: If multiple Codex runs execute in the same workspace without branch isolation, they will overwrite each other's changes, corrupting the code state.
+* **Dirty Git Logs**: Mixing project board tracking updates, markdown notes, and source code edits in a single commit makes PR reviews extremely difficult.
+* **Scope Creep & Code Bleed**: Without rigid boundary constraints, a Codex run might aggressively modify stylesheets, schemas, and config files all in one go to solve a minor issue, introducing regressions.
+
+**How M-Lane fixes this:**
+* **Mandatory Feature Branches**: Enforces the checkout of isolated branches (`tech/[feature]` or `design/[feature]`).
+* **Atomic Documentation Commits**: Enforces committing `PROJECT_BOARD.md` updates separately from code changes.
+* **Rigid Code Boundaries**: Prevents the agent from editing files outside its assigned role (e.g., Tech lane cannot modify `.css` files).
 
 ## Coordination Concept
 Since Codex is a developer-centric CLI agent, its coordination model is built entirely around standard Git workflows and the local `PROJECT_BOARD.md`:

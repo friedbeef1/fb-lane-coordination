@@ -2,6 +2,15 @@
 
 Antigravity is a highly agentic SDK with native support for multi-agent systems, background subagent executions, task scheduling, and inter-agent messaging. This directory contains instructions and templates to leverage Antigravity's tools to automate the M-Lane coordination model.
 
+## The Problem This Solves in Antigravity
+Even in highly agentic workflows, complex projects can fail due to:
+* **Tool Overload & Routing Confusion**: Giving one agent access to every available tool (e.g., database writes, styling files, Web audits, API invocations) leads to routing confusion and slower response times.
+* **State Drift & Overwrites**: Multiple background agents working concurrently on the same branch will collide and overwrite each other's changes.
+
+**How M-Lane fixes this:**
+* **Strict Tool Sandboxing**: Subagents are registered with only the tools they need (e.g., `M-Business` is read-only, `M-Design` only gets UI and styling tools).
+* **Automated Orchestration**: `M-Product` acts as the traffic controller, spawning background tasks sequentially or on isolated branches, and coordinating the merge gate.
+
 ## Orchestration Concept
 
 In Antigravity, **`M-Product`** is the main agent thread (or Integration Captain). It uses Antigravity tools to spawn and manage specialized subagents:
