@@ -79,6 +79,14 @@ This prevents a single thread from having write-access to both backend models an
 *   You can register multiple concurrent `FB-Tech` or `FB-Design` agents, provided they checkout separate, unique task-prefixed branches (e.g., `tech/TASK-103-billing`, `tech/TASK-104-notifications`).
 *   Keep **one single Project Board** and **one Product Captain** thread to maintain centralization, code review sanity, and staging control.
 
+### Q: What happens if I talk to a lane directly, but Product rejects their changes during review? How is this rectified, and how do I know?
+**A:** If a direct-lane instruction results in code that conflicts with the product's strategic direction, user experience standards, or technical roadmap, the rectification and notification loop operates as follows:
+1.  **Rejection & Blocked Status**: `FB-Product` rejects the pull request and updates the task status in `PROJECT_BOARD.md` to `Blocked` (or `Rejected`), documenting the specific reason (e.g. *strategic misalignment, dependency sequencing conflicts, or poor value-vs-effort mix*).
+2.  **User Notification**: The `FB-Product` agent immediately alerts the user in the main product/roadmap thread, explaining why the integration was paused and pointing to the logged rationale on the board.
+3.  **Rectification Options**:
+    *   **Abandonment**: If the change is scrapped completely, Product closes the PR, deletes the isolated feature branch, and removes the task and resource locks from `PROJECT_BOARD.md`, reverting the affected files back to the clean main branch baseline.
+    *   **Scope Realignment**: If the change is valid but needs adjustments to align with the roadmap, Product updates the task scope on the board and moves it back to the backlog. The lane agent then pulls the updated task, refines its branch, and resubmits it for staging QA.
+
 ---
 
 ## 5. Orchestration & Team Workflow
