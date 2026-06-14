@@ -99,6 +99,13 @@ This prevents a single thread from having write-access to both backend models an
 2.  **Self-Reporting QA Checklists**: Each lane owns its quality checks (tests, visual QA) and documents the outcomes directly on the board card. Product's role is reduced to a quick review of the checklist and staging build, which takes minutes.
 3.  **Conflict-Free Concurrency**: Because files and screens are locked on the board, different lanes coordinate schedule conflicts automatically. A tech branch knows to work on a different endpoint if its target file is locked by design, eliminating coordination meetings.
 
+### Q: What if Product (the human or the agent) is not technically capable of sequencing tasks or prioritizing them properly?
+**A:** The framework relies on the **`FB-Product` AI agent** to handle the heavy lifting of technical task analysis, dependency mapping, and roadmap sequencing. It acts as an autonomous co-pilot that evaluates tasks against two primary criteria:
+1.  **Goal Alignment**: It cross-checks every task claimed or created on the board back to the user's high-level goal, preventing accidental scope creep or rogue code changes.
+2.  **Optimal Sequencing (Value vs. Effort)**: The Product AI analyzes files affected, maps technical dependencies (e.g. database schema migrations must precede frontend styling components), and sequences the backlog to optimize the value-to-effort ratio (tackling quick-win, high-impact tasks first).
+
+The human supervisor does not need technical project management expertise; they simply review and sign off on the Product agent's AI-sequenced roadmap.
+
 ### Q: What is the typical day-to-day workflow for a user?
 **A:** In most cases, your day-to-day workflow is simple, automated, and hands-off:
 1.  **Draft Your Plan**: Write down your requirements, feature checklist, or PRD. (While you can write in plain text, **Markdown is highly preferred** because the agent can parse headers and checklists directly onto the `PROJECT_BOARD.md` without losing structure or details).

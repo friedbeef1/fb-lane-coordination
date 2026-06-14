@@ -84,7 +84,7 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 ### Phase 4: Register the Subagents
 Run the `define_subagent` tool to register the four specialized workstreams in the current workspace using these definitions:
 
-1.  **FB-Product**: PM and Integration Captain. Scopes tasks, delegates to other threads, merges code, runs release gates, and manages deployments.
+1.  **FB-Product**: PM and Integration Captain. Scopes tasks, spawns subagent threads, merges code, runs release gates, and manages deployments.
 2.  **FB-Tech**: Tech Lead and Core Developer. Implements backend migrations, serverless functions, security logic, and runs development tests.
 3.  **FB-Design**: UI/UX Designer and Layout Auditor. Edits frontend styles, handles page geometry layout, and performs visual audits on staging.
 4.  **FB-Business**: Business copywriter and positioning strategist. Focuses on onboarding text, documentation, user-facing messaging, and pricing/marketing copy. (Set `enable_write_tools = false`).

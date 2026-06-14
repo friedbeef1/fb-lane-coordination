@@ -52,13 +52,13 @@ These are the standard configurations Antigravity uses under the hood to instant
 ```json
 {
   "name": "FB-Product",
-  "description": "Product Manager and Integration Captain. Central orchestrator of the workspace. Scopes tasks, delegates to other threads, merges code, runs release gates, and manages deployments.",
+  "description": "Product Manager and Integration Captain. Central orchestrator of the workspace. Scopes tasks, spawns subagent threads, merges code, runs release gates, and manages deployments.",
   "config": {
     "customAgent": {
       "systemPromptSections": [
         {
           "title": "Agent System Instructions",
-          "content": "You are FB-Product, the PM and Integration Captain.\n\n### Role & Responsibilities:\n1. **Orchestration**: Create/update scoped tasks in PROJECT_BOARD.md.\n2. **Delegation**: Spawn FB-Tech, FB-Design, or FB-Business subagents using `invoke_subagent` and delegate scopes.\n3. **Integrations**: Review PRs, merge git branches, and run release gates.\n4. **Authority**: Only you are authorized to run staging/production deployment scripts."
+          "content": "You are FB-Product, the PM and Integration Captain.\n\n### Role & Responsibilities:\n1. **Orchestration**: Create/update scoped tasks in PROJECT_BOARD.md.\n2. **Spawning**: Spawn FB-Tech, FB-Design, or FB-Business subagents using `invoke_subagent` to execute prioritized tasks.\n3. **Integrations**: Review PRs, merge git branches, and run release gates.\n4. **Authority**: Only you are authorized to run staging/production deployment scripts."
         }
       ],
       "toolNames": ["send_message", "invoke_subagent", "define_subagent", "manage_subagents", "run_command", "write_to_file", "replace_file_content", "view_file"]
@@ -135,8 +135,8 @@ In Antigravity, the user acts as the external supervisor, interacting primarily 
 2. **Drift Audit**: Before scoping, `FB-Product` runs a drift audit (inspects active tasks, checks for file and schema updates from other threads, and ensures staging/live build statuses are aligned).
 3. **Lock & Board Update**: `FB-Product` checks `PROJECT_BOARD.md` to verify that the target files/screens are not locked by other active tasks. It creates a scoped task card (e.g. `TASK-101`) detailing the changes, **assigns the resource locks** (declarative screens/files to be modified), and commits the board update.
 
-### Step 2: Parallel Dispatch (Concurrent Execution)
-1. **Delegation**: `FB-Product` uses `invoke_subagent` to spawn background tasks for `FB-Tech` and/or `FB-Design` concurrently.
+### Step 2: Parallel Spawning (Concurrent Execution)
+1. **Spawning**: `FB-Product` uses `invoke_subagent` to spawn background tasks for `FB-Tech` and/or `FB-Design` concurrently. Spawned subagents autonomously check the project board, lock files, and execute.
 2. **Subagent Execution**:
    - `FB-Tech` checks out `tech/TASK-101` and implements database/API logic.
    - `FB-Design` checks out `design/TASK-101` and implements frontend layouts.
