@@ -37,46 +37,86 @@ To manage Claude's context window:
 
 ---
 
-## How to Set Up Claude Projects
+## Automation & Reducing Manual Friction
 
-1. **Create a Claude Project** for your codebase.
-2. **Upload Reference Files**: Add `AGENTS.md` and `PROJECT_BOARD.md` to the Project Knowledge section.
-3. **Set Custom Instructions**: Paste the overall platform guidelines into the Project Custom Instructions text area:
-    ```markdown
-    You are an AI assistant operating in a workspace that uses the FB-Lane Coordination Model (detailed in the attached AGENTS.md).
-    Before you start any work:
-    1. Read AGENTS.md to understand your boundaries.
-    2. Read PROJECT_BOARD.md to check active tasks.
-    3. At the beginning of the chat, ask the user which lane (FB-Tech, FB-Design, or FB-Business) you should adopt. 
-    4. Adhere strictly to the boundaries of the adopted lane. Do not touch files outside your lane scope.
+To eliminate manual Git commands, board editing, and context copy-pasting, use the provided **`fb-lane` automation utility** (`tools/fb-lane.js`). It supports two modes:
+
+### 1. Claude Desktop (Zero-Friction via MCP)
+If you use the **Claude Desktop app**, you can configure it as a local **Model Context Protocol (MCP)** server. This allows Claude to autonomously checkout branches, update the markdown board, assert file locks, and submit PRs without you running any commands.
+
+Add this to your `claude_desktop_config.json` (typically located at `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+
+```json
+{
+  "mcpServers": {
+    "fb-lane": {
+      "command": "node",
+      "args": ["/Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/tools/fb-lane.js", "mcp"]
+    }
+  }
+}
+```
+
+Once registered, Claude Desktop will show the `fb_lane_status`, `fb_lane_claim`, `fb_lane_submit`, and `fb_lane_merge` tools, allowing it to manage the entire coordination lifecycle autonomously.
+
+---
+
+### 2. Cursor IDE & Claude Web (Low-Friction via CLI & Clipboard)
+If you are using Cursor IDE or the Claude Web Projects interface, you can run the CLI utility to automate your workspace management. The utility automatically **copies startup prompts directly to your system clipboard** so you can paste them instantly into a new chat thread:
+
+*   **To claim a task & lock files**:
+    ```bash
+    node tools/fb-lane.js claim TASK-102 Tech "src/auth.ts, src/db.ts"
     ```
+    *This checks out the feature branch, updates the board, commits the change, and copies the startup prompt containing task context and lane rules to your clipboard. Simply paste (Cmd+V) in a new chat thread!*
+
+*   **To submit a task for QA**:
+    ```bash
+    node tools/fb-lane.js submit TASK-102 "https://staging.example.com"
+    ```
+    *This updates the board, commits the change, pushes the branch to remote, and copies the review instructions for Product to your clipboard.*
+
+*   **To merge and complete a task (Product)**:
+    ```bash
+    node tools/fb-lane.js merge TASK-102
+    ```
+    *This merges the branch into main, releases the locks on the board, commits, pushes, and deletes the local feature branch.*
 
 ---
 
 ## Operational Loop: Working with Claude
 
-Since Claude is single-threaded, the user coordinates the project lifecycle by opening distinct, concurrent chat threads with Claude adopting different roles. The user acts as the **Integration Captain (FB-Product)** when scoping, merging, and deploying, but talks directly to Claude as **FB-Tech**, **FB-Design**, or **FB-Business** in separate threads to execute tasks:
+The step-by-step loop using the automation tools:
 
 ### Step 1: Task Initialization & File Locking
-1. **Select Task**: Choose an available task (e.g. `TASK-102`) from the `Ready` list on the board.
-2. **Branch & Lock**: Checkout the feature branch (e.g., `tech/TASK-102-auth`) and update `PROJECT_BOARD.md` to `In Progress` with the declared file locks. (If using Cursor, simply instruct Claude to run these terminal commands and commit the board separately).
+1. Run `node tools/fb-lane.js status` to view ready tasks and verify file locks.
+2. Claim your task (e.g. `TASK-102`) in your chosen lane, specifying files to lock:
+   ```bash
+   node tools/fb-lane.js claim TASK-102 Tech "src/auth.ts"
+   ```
+   *(If using Claude Desktop with MCP enabled, you can skip this step and simply ask Claude in the chat: "Claim TASK-102 for Tech locking src/auth.ts").*
 
-### Step 2: Open a Dedicated Chat Thread (Concurrent Execution)
-1. **Always open a fresh, empty chat thread** in Claude Projects or Cursor for a new task. Do not reuse old chats to prevent context bloat. You can run multiple task threads concurrently (e.g. one for tech bug fixing, one for design styling) as long as they work on different branches and non-overlapping locked files.
-2. Prompt Claude to adopt the specific lane and define its boundaries:
-   > "Adopt the **`FB-Tech`** lane. We are working on branch `tech/TASK-102-auth-endpoint` to implement user authentication. Do not edit styling files or UI templates."
-   
-   *(You can find copy-pasteable system prompts for each role in [system-prompts.md](system-prompts.md)).*
+### Step 2: Open a Dedicated Chat Thread
+1. **Always open a fresh, empty chat thread** for a new task.
+2. Paste (Cmd+V) the startup prompt generated by the claim command.
+   *(If using Claude Desktop with MCP, Claude will read the board and active task status automatically via its tools).*
 
 ### Step 3: Implement & Verify
-1. Direct Claude to draft modifications or write files.
-2. Run compilation commands, test suites, or linters locally. If errors occur, paste the console logs back into the Claude chat.
-3. If modifying UI, run a **Visual QA Audit**:
-   - Verify text containment across mobile/desktop viewports (zero text clipping or overflow).
-   - Ensure aesthetic integrity (brand fonts and styling colors load correctly).
-4. Commit code changes regularly.
+1. Direct the agent to write code.
+2. Run local tests. If errors occur, paste the console logs back into the chat.
+3. If modifying UI, run a **Visual QA Audit** across viewports to ensure layout integrity.
+4. Commit changes regularly.
 
 ### Step 4: Staging QA & Merge
-1. **Push & Staging QA**: Push the branch to the remote and update `PROJECT_BOARD.md` status to `Staging QA` (including the PR and staging links).
-2. **Product Merge**: Verify the staging build, merge the branch into `main`, and set the status to `Done` in `PROJECT_BOARD.md` (releasing the resource locks). Commit the board update separately.
+1. Run the submission command:
+   ```bash
+   node tools/fb-lane.js submit TASK-102 "https://staging.example.com"
+   ```
+   *(Or ask Claude Desktop with MCP: "Submit TASK-102 with staging link https://staging.example.com").*
+2. As **FB-Product**, run the merge command to complete the cycle:
+   ```bash
+   node tools/fb-lane.js merge TASK-102
+   ```
+   *(Or ask Claude Desktop with MCP: "Merge TASK-102").*
+
 

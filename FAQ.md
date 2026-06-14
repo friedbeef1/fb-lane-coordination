@@ -168,17 +168,14 @@ The human supervisor does not need technical project management expertise; they 
 *   **Codex (Local File/Git Agent)**: Enforced via local repository rule files (e.g., `.codex/rules.md`). The Codex runs checkouts, updates the markdown board locally, and validates compilations inside isolated local git branches.
 
 ### Q: Managing threads on Claude and Codex Desktop (non-CLI) sounds painful and full of friction. How can I make this easier?
-**A:** If you are using Claude Projects (web interface) or Codex Desktop/manual chat, you can eliminate manual git operations, branch management, and file copy-pasting by adopting these two approaches:
-1.  **Enable Tool Access (Recommended)**: Instead of a web UI, run your models inside **Cursor IDE** or **Claude Desktop equipped with local filesystem/terminal MCP tools**. This allows the AI agent to checkout branches, edit files, run test commands, and update the markdown board **completely autonomously**. Your role is reduced to simply typing the prompt and reviewing the final staging build.
-2.  **Use Git Helper Aliases**: If you must use a sandboxed web interface with no file access, you can automate the branch checkout and project board updates locally in a single command by adding these aliases to your `~/.gitconfig`:
-    *   **To claim a task**: `git lane-claim <lane> <task-id>`
-        ```bash
-        git config --global alias.lane-claim "!f() { git checkout -b $1/$2 && sed -i '' \"s/| $2 | Ready /| $2 | In Progress /\" PROJECT_BOARD.md && git add PROJECT_BOARD.md && git commit -m \"docs: claim $2 and lock files\"; }; f"
-        ```
-    *   **To submit a task**: `git lane-submit <task-id>`
-        ```bash
-        git config --global alias.lane-submit "!f() { sed -i '' \"s/| $1 | In Progress /| $1 | Staging QA /\" PROJECT_BOARD.md && git add PROJECT_BOARD.md && git commit -m \"docs: submit $1 for staging qa\" && git push origin HEAD; }; f"
-        ```
+**A:** We have created the **`fb-lane` automation utility** (`tools/fb-lane.js`) specifically to eliminate this manual friction. It automates branch management, project board edits, file locking, and git commits via two workflows:
+
+1.  **For Claude Desktop (Zero Friction via MCP)**: You can register `tools/fb-lane.js` as a local Model Context Protocol (MCP) server in your `claude_desktop_config.json`. This allows Claude to claim tasks, checkout branches, update the board, and submit changes autonomously using standard tool calls. Your only job is starting the thread and telling Claude what task to execute.
+2.  **For Cursor & Claude Web (Low Friction via CLI & Clipboard)**: Run the CLI tool locally:
+    - `node tools/fb-lane.js claim <task-id> <lane> [locked_files]` claims the task on the board, locks files, checks out the branch, and **copies the startup prompt (with lane rules and task context) directly to your clipboard**. You just open a fresh thread and press Cmd+V (Paste)!
+    - `node tools/fb-lane.js submit <task-id>` updates the status to Staging QA, commits, pushes to origin, and copies the PR review instructions to your clipboard.
+    - `node tools/fb-lane.js merge <task-id>` handles merging the feature branch into main, releasing the board locks, pushing, and deleting the branch.
+3.  **For Codex Desktop (Hands-Off Context Injection)**: The CLI claim command automatically writes the active task scope to a local file: **`.codex/current_task.md`**. You can add a single instruction in your project rules telling Codex to read this file upon startup. When you open Codex Desktop, it instantly picks up the branch, locked files, and task details, working on it completely hands-off.
 
 ### Q: If I do everything on the same thread in Claude, Codex, or Antigravity, won't the context window get bloated?
 **A:** **Yes, absolutely.** Running everything on a single, long-running thread causes severe context window bloat, leading to:

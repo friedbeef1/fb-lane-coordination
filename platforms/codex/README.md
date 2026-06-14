@@ -38,35 +38,58 @@ Since Codex is a developer-centric CLI agent, its coordination model is built en
 
 ---
 
-## Setting Up Codex Rules
-To configure Codex:
-1. Copy [templates/AGENTS.md](../../templates/AGENTS.md) and [templates/PROJECT_BOARD.md](../../templates/PROJECT_BOARD.md) to your project root.
-2. Copy [workflow-rules.md](workflow-rules.md) content into your Codex project instructions (e.g. inside `~/.Codex/rules/` or in your local workspace `.codex/rules.md`).
-3. Commit `AGENTS.md` and the template `PROJECT_BOARD.md` to your repository:
-   ```bash
-   git add AGENTS.md PROJECT_BOARD.md
-   git commit -m "docs: bootstrap FB-Lane agent coordination rules and project board"
-   ```
+## Automation & Reducing Manual Friction
+
+To eliminate manual git dancing, board markdown updates, and manual prompting in Codex Desktop, use the **`fb-lane` CLI utility** (`tools/fb-lane.js`):
+
+*   **Task Claiming & Context Injection**:
+    ```bash
+    node tools/fb-lane.js claim TASK-102 Tech "src/auth.ts"
+    ```
+    This command:
+    1. Checks out the isolated feature branch `tech/TASK-102-auth` automatically.
+    2. Updates `PROJECT_BOARD.md` task status to `In Progress` and commits it separately.
+    3. Writes the active task scope to a local file: **`.codex/current_task.md`**.
+
+### Auto-Focusing Codex Desktop
+You can make Codex Desktop **completely hands-off** by updating your Codex project instructions (e.g. `.codex/rules.md`) to read this context file automatically:
+
+```markdown
+# Codex Instructions
+- You operate under the FB-Lane coordination framework.
+- If the file .codex/current_task.md exists, read it immediately.
+- Adhere strictly to the active branch, task ID, and locked files listed in that file. Do not modify files outside of the locked files or the assigned lane.
+```
+
+When you open Codex Desktop on the repository, it will read `.codex/current_task.md` and immediately start working on the claimed task without you typing a single prompt!
 
 ---
+
 ## Operational Loop: Working with Codex
 
-When working with Codex, the user can spin up concurrent terminal/file agent runs. While the user coordinates overall prioritization and staging merges as **FB-Product**, they can initiate concurrent tasks directly with Codex in **FB-Tech**, **FB-Design**, or **FB-Business** modes:
-
+The step-by-step workflow using the automation tools:
 
 ### Step 1: Task Initialization & File Locking
-Before starting any coding task, Codex autonomously runs its pre-flight loop:
-1. **Pre-flight Check**: Verifies workspace git status and reads `PROJECT_BOARD.md` to ensure target files/screens are not locked.
-2. **Branch & Lock**: Checks out the isolated feature branch (e.g., `tech/TASK-002-logic`) and updates the board status to `In Progress` with the declared file locks, committing the board separately.
+Before starting any coding task, run the claim command:
+```bash
+node tools/fb-lane.js claim TASK-102 Tech "src/auth.ts"
+```
+This prepares the branch, updates the board, and writes the `.codex/current_task.md` context.
 
-### Step 2: Implement & Test (Concurrent Execution)
-*   Implement changes strictly within the lane scope. 
-*   *Codex threads can run concurrently on different branches as long as they are working on separate tasks and non-overlapping locked resources.*
-*   Run local test suites (e.g. `npm run check`, `npm run test`, or equivalent test runners) to confirm logic compiles and is correct.
-*   If modifying UI, perform a **Visual QA Audit**:
-    - Verify text containment across mobile/desktop viewports (zero text clipping or overflow).
-    - Ensure aesthetic integrity (brand fonts and styling colors load correctly).
+### Step 2: Implement & Test
+*   Launch Codex Desktop. It will auto-detect `.codex/current_task.md` and begin implementing the changes.
+*   Run local test suites (e.g., `npm run test` or backend linters) to confirm logic compiles and is correct.
+*   Perform a **Visual QA Audit** across viewports if any UI was modified.
 
 ### Step 3: Staging QA & Merge
-1. **Push & Staging QA**: Codex pushes the feature branch to the remote, updates the task on `PROJECT_BOARD.md` to `Staging QA` (documenting the modified files and checking off the QA checklist), and commits/pushes the board update in a separate, clean commit.
-2. **Product Merge**: `FB-Product` (Integration Captain) reviews the staging environment, merges the branch to `main`, and removes the resource locks (marking the task `Done` on the board).
+1. **Submit for QA**:
+   ```bash
+   node tools/fb-lane.js submit TASK-102 "https://staging.example.com"
+   ```
+   This updates the board status to `Staging QA`, commits, and pushes the branch to remote.
+2. **Product Merge**:
+   ```bash
+   node tools/fb-lane.js merge TASK-102
+   ```
+   This merges the changes to main, releases the board locks, deletes the branch, and deletes the temporary `.codex/current_task.md` context.
+
