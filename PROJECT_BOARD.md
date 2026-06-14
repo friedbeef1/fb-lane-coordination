@@ -13,13 +13,13 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \ |
+| TASK-001 | Ready | FB-Product | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \| [PR #1](https://github.com/example/repo/pull/1) |
 
 ---
 
 ### TASK-001 - Project Setup & Bootstrap
-*   **Status**: Done
-*   **Owner / Thread**: FB-Tech
+*   **Status**: Ready
+*   **Owner / Thread**: FB-Product
 *   **Area**: Setup
 *   **Scope**: Create initial files, initialize repository layout.
 *   **Out of Scope**: Writing application business logic.
