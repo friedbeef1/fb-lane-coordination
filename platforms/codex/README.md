@@ -1,6 +1,6 @@
-# M-Lane on Codex
+# FB-Lane on Codex
 
-Codex is a local developer agent that operates directly on your filesystem and git workspace. It excels at codebase audits, local compilation checks, and terminal automation. To coordinate multiple Codex threads working on the same project, the M-Lane model relies on strict **branch isolation** and local **project board tracking**.
+Codex is a local developer agent that operates directly on your filesystem and git workspace. It excels at codebase audits, local compilation checks, and terminal automation. To coordinate multiple Codex threads working on the same project, the FB-Lane model relies on strict **branch isolation** and local **project board tracking**.
 
 ## The Problem This Solves in Codex
 As a local, filesystem-active developer agent, Codex is prone to:
@@ -8,7 +8,7 @@ As a local, filesystem-active developer agent, Codex is prone to:
 * **Dirty Git Logs**: Mixing project board tracking updates, markdown notes, and source code edits in a single commit makes PR reviews extremely difficult.
 * **Scope Creep & Code Bleed**: Without rigid boundary constraints, a Codex run might aggressively modify stylesheets, schemas, and config files all in one go to solve a minor issue, introducing regressions.
 
-**How M-Lane fixes this:**
+**How FB-Lane fixes this:**
 * **Mandatory Feature Branches**: Enforces the checkout of isolated branches (`tech/[feature]` or `design/[feature]`).
 * **Atomic Documentation Commits**: Enforces committing `PROJECT_BOARD.md` updates separately from code changes.
 * **Rigid Code Boundaries**: Prevents the agent from editing files outside its assigned role (e.g., Tech lane cannot modify `.css` files).
@@ -26,7 +26,7 @@ Since Codex is a developer-centric CLI agent, its coordination model is built en
       v                       v                       v
 +-----+------+          +-----+------+          +-----+------+
 | Codex as   |          | Codex as   |          | Codex as   |
-| M-Tech     |          | M-Design   |          | M-Business |
+| FB-Tech     |          | FB-Design   |          | FB-Business |
 +------------+          +------------+          +------------+
 ```
 
@@ -44,7 +44,7 @@ To configure Codex:
 3. Commit `AGENTS.md` and the template `PROJECT_BOARD.md` to your repository:
    ```bash
    git add AGENTS.md PROJECT_BOARD.md
-   git commit -m "docs: bootstrap M-Lane agent coordination rules and project board"
+   git commit -m "docs: bootstrap FB-Lane agent coordination rules and project board"
    ```
 
 ---
@@ -58,7 +58,7 @@ Before starting any coding task, Codex must:
 3. Create a branch: `git checkout -b tech/TASK-002-logic-update`.
 4. Update `PROJECT_BOARD.md` with:
    - Status: `In Progress`
-   - Owner: `M-Tech` or `M-Design`
+   - Owner: `FB-Tech` or `FB-Design`
    - Commit the board update separately: `git commit PROJECT_BOARD.md -m "docs: claim TASK-002"`.
 
 ### Step 2: Implement & Test
@@ -72,4 +72,4 @@ Before starting any coding task, Codex must:
    - Modified Files: List of changed files.
    - QA Checklist: Mark verified items as checked.
 3. Commit and push the project board update.
-4. Create a Pull Request and hand the PR link back to `M-Product` (Integration Captain) for review and merging.
+4. Create a Pull Request and hand the PR link back to `FB-Product` (Integration Captain) for review and merging.

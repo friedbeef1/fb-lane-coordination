@@ -2,8 +2,8 @@
 name: project-coordination-setup
 description: >-
   Bootstraps a project with the product-agnostic four-lane multi-agent coordination model,
-  PROJECT_BOARD.md template, and registers the M-Product, M-Tech, M-Design,
-  and M-Business subagents.
+  PROJECT_BOARD.md template, and registers the FB-Product, FB-Tech, FB-Design,
+  and FB-Business subagents.
 ---
 
 # Project Coordination Bootstrapper
@@ -30,25 +30,25 @@ To bootstrap a workspace, run through the **Execution Steps** in the Workflow be
 
 ### Phase 2: Merge or Create AGENTS.md
 *   **Case A: AGENTS.md does NOT exist**: Create it using the template below.
-*   **Case B: AGENTS.md exists**: Append the **M-Lane Coordination Rules** section to the end of the file, preserving all original content.
+*   **Case B: AGENTS.md exists**: Append the **FB-Lane Coordination Rules** section to the end of the file, preserving all original content.
 
 #### **AGENTS.md Template / Append Block:**
 ```markdown
-## M-Lane Coordination Rules
+## FB-Lane Coordination Rules
 
 This project uses the standard four-lane coordination model. Assume other threads or subagents may edit the codebase concurrently.
 
 ### 1. Lane Scopes & Boundaries:
-- **M-Product (Product / Captain / Integration)**: Owns final product decisions, task scoping, file merges, staging/live deployments, and release gates. Acts as the central captain.
-- **M-Tech (Technical & Development)**: Owns database schemas, serverless functions, APIs, security/auth hardening, and verifier check suites. *Does not make styling or UI layout changes.*
-- **M-Design (Design & UI/UX)**: Owns CSS styles, design tokens, visual assets, layout geometry, and responsive visual QA. Enforces text containment and typography alignment. *Does not modify backend schemas or core application logic.*
-- **M-Business (Business & Copy)**: Owns copy decks, onboarding flows, user-facing documentation, pricing, and marketing content. Operating in *read-only* code mode.
+- **FB-Product (Product / Captain / Integration)**: Owns final product decisions, task scoping, file merges, staging/live deployments, and release gates. Acts as the central captain.
+- **FB-Tech (Technical & Development)**: Owns database schemas, serverless functions, APIs, security/auth hardening, and verifier check suites. *Does not make styling or UI layout changes.*
+- **FB-Design (Design & UI/UX)**: Owns CSS styles, design tokens, visual assets, layout geometry, and responsive visual QA. Enforces text containment and typography alignment. *Does not modify backend schemas or core application logic.*
+- **FB-Business (Business & Copy)**: Owns copy decks, onboarding flows, user-facing documentation, pricing, and marketing content. Operating in *read-only* code mode.
 
 ### 2. The Board Loop:
 - `PROJECT_BOARD.md` is the local task tracker.
 - Before coding, every subagent must claim or create an item on the board and set status to `In Progress`.
 - When done, the subagent moves the status to `Staging QA` and lists the modified files.
-- `M-Product` reviews the changes, runs the verification checks, and moves the item to `Done`.
+- `FB-Product` reviews the changes, runs the verification checks, and moves the item to `Done`.
 
 ### 3. Safety & Deployment:
 - Feature lanes work in isolated branches (e.g., `tech/[feature]` or `design/[feature]`).
@@ -67,11 +67,11 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 ## Active Workstreams
 | ID | Status | Owner | Area | Scope | Out Of Scope |
 |---|---|---|---|---|---|
-| PROJ-001 | Ready | M-Product | Bootstrap | Coordination setup | Unrelated refactors |
+| PROJ-001 | Ready | FB-Product | Bootstrap | Coordination setup | Unrelated refactors |
 
 ### PROJ-001 - Coordination Setup
 - Status: Ready
-- Owner / Thread: M-Product
+- Owner / Thread: FB-Product
 - Area: Bootstrap
 - Scope: Bootstrap coordination files
 - Out of scope: Editing codebase logic
@@ -84,10 +84,10 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 ### Phase 4: Register the Subagents
 Run the `define_subagent` tool to register the four specialized workstreams in the current workspace using these definitions:
 
-1.  **M-Product**: PM and Integration Captain. Scopes tasks, delegates to other threads, merges code, runs release gates, and manages deployments.
-2.  **M-Tech**: Tech Lead and Core Developer. Implements backend migrations, serverless functions, security logic, and runs development tests.
-3.  **M-Design**: UI/UX Designer and Layout Auditor. Edits frontend styles, handles page geometry layout, and performs visual audits on staging.
-4.  **M-Business**: Business copywriter and positioning strategist. Focuses on onboarding text, documentation, user-facing messaging, and pricing/marketing copy. (Set `enable_write_tools = false`).
+1.  **FB-Product**: PM and Integration Captain. Scopes tasks, delegates to other threads, merges code, runs release gates, and manages deployments.
+2.  **FB-Tech**: Tech Lead and Core Developer. Implements backend migrations, serverless functions, security logic, and runs development tests.
+3.  **FB-Design**: UI/UX Designer and Layout Auditor. Edits frontend styles, handles page geometry layout, and performs visual audits on staging.
+4.  **FB-Business**: Business copywriter and positioning strategist. Focuses on onboarding text, documentation, user-facing messaging, and pricing/marketing copy. (Set `enable_write_tools = false`).
 
 ---
 
