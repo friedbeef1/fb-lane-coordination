@@ -55,7 +55,7 @@ To manage Claude's context window:
 
 ## Operational Loop: Working with Claude
 
-Since Claude is single-threaded, the user acts as the **Integration Captain (`FB-Product`)** to guide Claude through the development lifecycle:
+Since Claude is single-threaded, the user coordinates the project lifecycle by opening distinct, concurrent chat threads with Claude adopting different roles. The user acts as the **Integration Captain (FB-Product)** when scoping, merging, and deploying, but talks directly to Claude as **FB-Tech**, **FB-Design**, or **FB-Business** in separate threads to execute tasks:
 
 ### Step 1: Drift Audit, Claim Task, Locking & Branch Checkout
 1. **Drift Audit**: Before starting work, check git status and the project board for any state drift.

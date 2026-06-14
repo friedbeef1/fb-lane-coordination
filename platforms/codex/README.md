@@ -51,6 +51,8 @@ To configure Codex:
 ---
 ## Operational Loop: Working with Codex
 
+When working with Codex, the user can spin up concurrent terminal/file agent runs. While the user coordinates overall prioritization and staging merges as **FB-Product**, they can initiate concurrent tasks directly with Codex in **FB-Tech**, **FB-Design**, or **FB-Business** modes:
+
 
 ### Step 1: Drift Audit, Claim Task & Locking
 Before starting any coding task, Codex must:
