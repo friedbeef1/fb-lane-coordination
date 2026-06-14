@@ -26,7 +26,7 @@
 *   **Links & Deliverables**:
     *   **Git Branch / PR**: [Branch Link](https://github.com/example/repo/tree/main)
     *   **Staging URL**: [Staging Link](https://staging.example.com)
-    *   **Design Specs**: [Figma Link](https://figma.com)
+    *   **Design Specs**: (None)
     *   **Decision Memo**: [docs/decisions/001-setup.md](file:///./docs/decisions/001-setup.md)
 *   **QA Checklist**:
     *   [ ] Repository structure is clean and follows design guidelines.
