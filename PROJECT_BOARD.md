@@ -13,12 +13,12 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-001 | Staging QA | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \ |
+| TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \ |
 
 ---
 
 ### TASK-001 - Project Setup & Bootstrap
-*   **Status**: Staging QA
+*   **Status**: Done
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Setup
 *   **Scope**: Create initial files, initialize repository layout.
