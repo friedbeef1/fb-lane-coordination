@@ -31,7 +31,7 @@ FB-Lane allows you to run these workstreams **concurrently** in separate, isolat
 **A:** Business and copywriting agents are experts in messaging, not code structure. Letting them modify source files directly risks breaking CSS layout grids or React component syntax. Furthermore, new copy must pass the `FB-Design` visual check (text-containment) to ensure it doesn't break styling on smaller viewports. Business agents draft copy in markdown or the task board, and developers/designers integrate it.
 
 ### Q: What if a task requires both database changes and UI updates?
-**A:** Under the FB-Lane model, you split this task into two distinct, sequential, or parallel tasks on the project board:
+**A:** Under the FB-Lane model, the `FB-Product` agent (or the framework orchestrator) automatically splits this task into two distinct, sequential, or parallel tasks on the project board, saving the user from having to do it manually:
 1. A **`tech/[feature]`** task (claimed by `FB-Tech`) to implement the database schema and expose the API endpoint.
 2. A **`design/[feature]`** task (claimed by `FB-Design`) to build the visual UI component and consume the new API.
 This prevents a single thread from having write-access to both backend models and styling configurations.
@@ -86,10 +86,11 @@ This prevents a single thread from having write-access to both backend models an
 *   **Antigravity**: Managed programmatically via tool sandboxing (Design is not registered with database/server access tools).
 *   **Claude/Codex**: Checked during the Product lane's integration gate. You can also implement pre-commit git hooks or CI workflows that reject commits if a `design/` branch contains changes to files in `server/` or `db/` directories.
 
-### Q: How does this scale as the development team grows?
-**A:** While the number of developers/agents can grow, the core architecture remains robust:
-*   You can register multiple concurrent `FB-Tech` or `FB-Design` agents, provided they checkout separate, unique task-prefixed branches (e.g., `tech/TASK-103-billing`, `tech/TASK-104-notifications`).
-*   Keep **one single Project Board** and **one Product Captain** thread to maintain centralization, code review sanity, and staging control.
+### Q: How does this scale as the development team grows? How do I register multiple concurrent Tech or Design agents?
+**A:** While the number of developers/agents can grow, the core architecture remains robust. You can register and run multiple concurrent `FB-Tech` or `FB-Design` agents:
+*   **In Antigravity (Autonomous Background Orchestration)**: The `FB-Product` agent spawns them using `invoke_subagent` for separate tasks concurrently. The Antigravity client handles unique context boundaries per conversation ID on the active branches.
+*   **In IDE Threads (Claude/Cursor/Codex)**: Open separate chat tabs/threads, and in each thread, instruct the agent to adopt the respective lane role on separate task-prefixed branches (e.g., `tech/TASK-103-billing`, `tech/TASK-104-notifications`).
+To maintain centralization, code review sanity, and staging control, you must keep **one single Project Board** (`PROJECT_BOARD.md`) and **one Product Captain** thread.
 
 ### Q: What happens if I talk to a lane directly, but Product rejects their changes during review? How is this rectified, and how do I know?
 **A:** If a direct-lane instruction results in code that conflicts with the product's strategic direction, user experience standards, or technical roadmap, the rectification and notification loop operates as follows:
@@ -191,12 +192,17 @@ To prevent this, the FB-Lane framework enforces strict **Thread Segmentation**:
 *   **Antigravity**: The `FB-Product` agent runs the orchestrator thread, but automatically spawns temporary, isolated subagents (`invoke_subagent`) for each task. Once complete, that subagent's conversation thread is archived and closed, protecting Product's memory.
 *   **Codex**: Codex operates as a short-lived local execution. Because it uses file locking, it only reads the subset of files related to the active task, preventing it from sucking the entire codebase context into its window.
 
+> [!NOTE]
+> Detailed thread-segmentation instructions, system prompts, and configuration steps for each environment are fully documented in the platform-specific guides: [platforms/antigravity/README.md](platforms/antigravity/README.md), [platforms/claude/README.md](platforms/claude/README.md), and [platforms/codex/README.md](platforms/codex/README.md).
+
 ----
 
 ## 8. User Involvement & Thread Synchronization
 
 ### Q: I want to be involved less than 20% of the time. Which mode should I choose?
 **A:** Choose **Option A: Autonomous Background Orchestration**. Under this option, you spend 95% of your time talking directly to the main **`FB-Product`** thread. Product will autonomously plan, write board tasks, spawn background workers (`FB-Tech`, `FB-Design`, `FB-Business`), run tests, and push branches silently in the background. Your interaction is restricted to reviewing the plan at the beginning (Plan Gate) and smoke testing the staging site at the end (Staging Gate) before merging.
+*   **Option A: Autonomous Background Orchestration** is best if you want the agents to handle all task updates, branching, and execution in the background while you act purely as a supervisor.
+*   **Option B: Interactive Direct Control** (Direct Lane Threads) is best if you want to pair-program, refine layouts, or discuss copy options directly with individual lane threads (`FB-Tech`, `FB-Design`, or `FB-Business`) or run interactive terminal sessions.
 
 ### Q: If I run background subagents, are my sidebar threads in the IDE meaningless?
 **A:** **No.** They serve as your direct query interfaces and domain-expert assistants:
@@ -205,6 +211,11 @@ To prevent this, the FB-Lane framework enforces strict **Thread Segmentation**:
 
 ### Q: How do State-Driven Writing Gates work?
 **A:** By default, sidebar threads (`FB-Tech` and `FB-Design`) operate strictly as **read-only consultants**. This means they will not edit files or run commands that modify your codebase during brainstorming. They only unlock writing capabilities once a task is actively claimed (indicated by the presence of `.codex/current_task.md` matching their lane). 
+
+### Q: Does the agent claim tasks on its own also?
+**A:** Yes. You do not need to manually run claim commands or edit the board. Task claiming is fully automated:
+*   Under **Option A (Autonomous Background Orchestration)**, `FB-Product` automatically claims the task on the board, locks the files, and checks out the branch before spawning the subagent. The subagent starts with the task already claimed.
+*   Under **Option B (Interactive Direct Control)**, when you instruct a lane agent directly in a thread, that lane agent autonomously runs the claim script, claims the task, and locks the files on `PROJECT_BOARD.md` before starting any code modifications.
 
 ### Q: What is the File Lock Boundary rule for agents?
 **A:** Once a task is claimed and writing is unlocked, the agent is strictly prohibited from modifying files outside of the "Locked Files" declared in `.codex/current_task.md`. This prevents code-bleed and ensures styling agents never modify backend routes, and vice versa.
