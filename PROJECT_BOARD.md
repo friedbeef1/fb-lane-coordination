@@ -15,6 +15,7 @@
 |---|---|---|---|---|---|---|
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \ |
 | TASK-002 | Staging QA | FB-Tech | Integration | Migrate Speech Coach from AssemblyAI LeMUR to OpenAI GPT-4o-mini API | `package.json`, `services/googleGeminiService.ts`, `hooks/useAudioAnalysis.ts`, `components/AnalysisResults.tsx`, `hooks/useRecording.ts`, `index.html`, `services/assemblyAiService.ts`, `types.ts` | [Branch](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-002-gemini-speech-coach-integration) |
+| TASK-003 | In Progress | FB-Business | Business | Toastmasters community strategy and prebuilt scenarios | `docs/business/toastmasters-community-strategy.md` | [Docs](file:///Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/docs/business/toastmasters-community-strategy.md) |
 
 ---
 
@@ -64,5 +65,30 @@
     *   (None)
 *   **Latest Update**:
     *   *2026-06-15*: Initialized task and claimed for execution.
+
+---
+
+### TASK-003 - Toastmasters Community Acquisition & Positioning Strategy
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Business
+*   **Area**: Business
+*   **Scope**: Define positioning, outreach templates, and app scenarios for targeting Toastmasters globally.
+*   **Out of Scope**: Direct codebase modifications or UI engineering.
+*   **Affected Screens / Locks**:
+    *   **Screens**: (None)
+    *   **Locked Files**: `docs/business/toastmasters-community-strategy.md`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: (None - Read-only copywriting task)
+    *   **Staging URL**: (None)
+    *   **Design Specs**: (None)
+    *   **Decision Memo**: [docs/business/toastmasters-community-strategy.md](file:///Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/docs/business/toastmasters-community-strategy.md)
+*   **QA Checklist**:
+    *   [x] Draft positioning strategy and copy templates.
+    *   [x] Define 4 Toastmasters-specific practice scenarios.
+    *   [x] Verify markdown and file formatting.
+*   **Modified Files**:
+    *   `docs/business/toastmasters-community-strategy.md`
+*   **Latest Update**:
+    *   *2026-06-15*: Drafted the strategy and prebuilt scenarios document.
 
 
