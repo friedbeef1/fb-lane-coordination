@@ -1,0 +1,10 @@
+{
+  "name": "todo-app-example",
+  "version": "1.0.0",
+  "description": "A fictional Todo App demonstrating the FB-Lane coordination framework.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "echo 'Mock start'"
+  },
+  "dependencies": {}
+}

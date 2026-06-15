@@ -757,7 +757,7 @@ function handleBootstrap() {
   console.log('🚀 Bootstrapping FB-Lane Coordination Framework...\n');
   const rootDir = process.cwd();
 
-  // 0. Auto-detect project metadata from package.json (if present)
+  // 0. Auto-detect project metadata from package.json and git remote URL
   let projectName = path.basename(rootDir);
   let projectDescription = 'A project using the FB-Lane coordination framework.';
   const pkgPath = path.join(rootDir, 'package.json');
@@ -772,6 +772,26 @@ function handleBootstrap() {
     }
   } else {
     console.log(`📁 No package.json found. Using folder name: "${projectName}"`);
+  }
+
+  let repoUrl = 'https://github.com/example/repo';
+  try {
+    const gitRemote = runGit('config --get remote.origin.url');
+    if (gitRemote) {
+      let cleanUrl = gitRemote.trim();
+      if (cleanUrl.endsWith('.git')) {
+        cleanUrl = cleanUrl.slice(0, -4);
+      }
+      if (cleanUrl.startsWith('git@')) {
+        cleanUrl = cleanUrl.replace(':', '/').replace('git@', 'https://');
+      } else if (cleanUrl.startsWith('ssh://git@')) {
+        cleanUrl = cleanUrl.replace('ssh://git@', 'https://');
+      }
+      repoUrl = cleanUrl;
+      console.log(`📡 Detected Git Remote URL: ${repoUrl}`);
+    }
+  } catch (err) {
+    // Git remote config not found, or not in a git repository
   }
 
   // 1. Create PROJECT_BOARD.md if missing
@@ -793,7 +813,7 @@ function handleBootstrap() {
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-001 | Ready | FB-Product | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \\| [PR #1](https://github.com/example/repo/pull/1) |
+| TASK-001 | Ready | FB-Product | Setup | Bootstrap repository files | (None) | [Branch](${repoUrl}/tree/main) \\| [PR #1](${repoUrl}/pull/1) |
 
 ---
 
@@ -807,7 +827,7 @@ function handleBootstrap() {
     *   **Screens**: (None)
     *   **Locked Files**: (None)
 *   **Links & Deliverables**:
-    *   **Git Branch / PR**: [Branch Link](https://github.com/example/repo/tree/main)
+    *   **Git Branch / PR**: [Branch Link](${repoUrl}/tree/main)
     *   **Staging URL**: [Staging Link](https://staging.example.com)
     *   **Design Specs**: (None)
 *   **QA Checklist**:

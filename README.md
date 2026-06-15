@@ -1,135 +1,157 @@
-# FB-Lane Coordination Framework
+# 🚀 FB-Lane Coordination Framework
 
-**Run AI agents concurrently on the same codebase — without merge conflicts, context overload, or stepping on each other.**
+**Run multiple AI agent threads concurrently on the same codebase — with zero merge conflicts, zero context overload, and strict scope safety.**
 
-FB-Lane splits your project into four role-isolated lanes (Product, Tech, Design, Business), each running in its own chat thread. A shared `PROJECT_BOARD.md` acts as the single source of truth for task state and file locks.
+FB-Lane splits complex software development into four role-isolated workstreams (Product, Tech, Design, Business), each running in its own conversational thread. A version-controlled, markdown-based `PROJECT_BOARD.md` acts as the single source of truth and message bus for task state, branch names, and file-level resource locks.
 
 ```
-User
- ├─▶ FB-Product  (orchestrator — merges, deploys, gates)
- ├─▶ FB-Tech     (backend, APIs, database)
- ├─▶ FB-Design   (CSS, layout, visual QA)
- └─▶ FB-Business (copy, docs — read-only)
-         │
-         ▼
-   PROJECT_BOARD.md  (task state + file locks)
+                  ┌──────────────────────┐
+                  │      User Prompt     │
+                  └──────────┬───────────┘
+                             │
+                             ▼
+                  ┌──────────────────────┐
+                  │      FB-Product      │ (Orchestrator / Main Thread)
+                  └──────────┬───────────┘
+                             │
+            ┌────────────────┼────────────────┐
+            ▼                ▼                ▼
+     ┌────────────┐   ┌────────────┐   ┌────────────┐
+     │  FB-Tech   │   │ FB-Design  │   │FB-Business │ (Worker Threads / Lanes)
+     └──────┬─────┘   └─────┬──────┘   └─────┬──────┘
+            │               │                │
+            └───────────────┼────────────────┘
+                            ▼
+                  ┌──────────────────────┐
+                  │   PROJECT_BOARD.md   │ (Single Source of Truth)
+                  └──────────────────────┘
 ```
-
-Works with **Antigravity**, **Claude**, and **Codex** (OpenAI).
 
 ---
 
-## Why this exists
+## 🌟 Key Features
 
-When multiple AI agents or developers work on the same repo concurrently, two problems emerge:
-
-1. **Context overload** — One thread handling backend bugs, pricing copy, and CSS layout at the same time quickly hits token limits and degrades model quality.
-2. **Git collisions** — Two threads editing the same file at the same time causes merge conflicts.
-
-FB-Lane solves both by giving each lane a strict ownership boundary and a lightweight file-locking system baked into a markdown board.
+* **Strict Tool Sandboxing**: Prevents tool overload and routing confusion. `FB-Tech` owns backend/logic, `FB-Design` owns styling/CSS, and `FB-Business` is strictly read-only on code.
+* **Lightweight Resource Locking**: Locks specific files to prevent concurrent threads from stepping on each other's toes and producing merge conflicts.
+* **Standard Operating Procedure (SOP)**: On every session start, threads automatically inspect the board and current task file to claim, align, or resume work without human hand-holding.
+* **Two-Layer Handoff**: Worker threads summarize work back to the board and write structured handoff specs under `docs/handoffs/TASK-XXX.md` to ensure context is never lost.
+* **Platform Agnostic**: Works natively with **Antigravity 2.0**, **Claude Projects**, and **Codex (OpenAI)**.
 
 ---
 
-## Quickstart (2 minutes)
+## ⚡ Quickstart (2 Minutes)
 
-### Step 1 — Copy the CLI tool into your repo
+### 1. Copy the CLI tool into your repository
+From your project root, run:
 ```bash
-# From your project root:
 curl -o tools/fb-lane.js https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.js
 ```
-Or just copy `tools/fb-lane.js` manually.
+*(Or manually copy `tools/fb-lane.js` to a `tools/` folder in your project.)*
 
-### Step 2 — Run bootstrap
+### 2. Run bootstrap
 ```bash
 node tools/fb-lane.js bootstrap
 ```
+This auto-detects your project's name and description from `package.json`, detects your remote origin URL, and generates:
+* `PROJECT_BOARD.md` — The centralized task and file-locking board.
+* `AGENTS.md` — Human and agent guidelines defining lane boundaries.
+* `FB-Product/agent.json`, `FB-Tech/agent.json`, `FB-Design/agent.json`, `FB-Business/agent.json` — Sidebar agent configurations.
+* `.codex/rules.md` — Codex rule integration.
+* `docs/handoffs/` — Directory for structured lane handoffs.
+* Automatically registers the `fb-lane` MCP server in your **Claude Desktop** config.
 
-This auto-detects your project name from `package.json` and generates:
-- `PROJECT_BOARD.md` — your task board
-- `AGENTS.md` — lane rules and boundaries
-- `FB-Product/agent.json`, `FB-Tech/agent.json`, `FB-Design/agent.json`, `FB-Business/agent.json` — sidebar agent configs (Antigravity 2.0 picks these up automatically)
-- `.codex/rules.md` — Codex auto-configuration
-- Auto-registers the MCP server in your Claude Desktop config
+### 3. Open in your AI Platform
+* **Antigravity**: Open the folder. The lane threads will appear instantly in the sidebar!
+* **Claude Desktop**: Restart Claude. The `fb-lane` MCP toolset is ready to use.
+* **Codex**: The rules file is already in place.
 
-### Step 3 — Open in your AI platform
-- **Antigravity**: Open the workspace folder — agents appear instantly in the left sidebar.
-- **Claude Desktop**: Restart Claude — the `fb-lane` MCP server is now registered.
-- **Codex**: The `.codex/rules.md` file is already in place.
+---
 
-### Step 4 — Claim your first task
+## 🔄 The Board Lifecycle
+
+Every feature, bug, or improvement follows a simple, structured 4-step loop:
+
+```
+Inbox ──▶ Ready ──▶ In Progress ──▶ Staging QA ──▶ Done
+```
+
+1. **Claim**: A worker lane claims a `Ready` task:
+   ```bash
+   node tools/fb-lane.js claim TASK-001 Tech "src/api.ts"
+   ```
+   *Checks out a branch `tech/TASK-001-...`, locks `src/api.ts` on the board, and copies a startup instructions block to the clipboard.*
+2. **Execute**: The agent implements changes on their branch in their isolated sandbox.
+3. **Submit**: Once changes are ready:
+   ```bash
+   node tools/fb-lane.js submit TASK-001
+   ```
+   *Writes a detailed handoff document to `docs/handoffs/TASK-001.md`, updates the board status to `Staging QA`, and pushes the branch to remote origin.*
+4. **Merge**: Product reviews the handoff and verifies the staging/PR:
+   ```bash
+   node tools/fb-lane.js merge TASK-001
+   ```
+   *Merges the branch to main, releases all file locks on the board, and sets the status to `Done`.*
+
+---
+
+## 🛠️ CLI Commands
+
+Run from the root of your project:
+
+| Command | Scope | Description |
+|---------|-------|-------------|
+| `node tools/fb-lane.js bootstrap` | Setup | Auto-generates board, rules, folder structures, and Claude configurations. |
+| `node tools/fb-lane.js status` | Utility | Prints all active tasks, branch mappings, and active file locks. |
+| `node tools/fb-lane.js claim <id> <lane> [locks]` | Workers | Checks out a task branch, locks files on the board, and prepares clipboard prompt. |
+| `node tools/fb-lane.js submit <id> [staging_url]` | Workers | Formats board updates, pushes feature branch, and moves task to `Staging QA`. |
+| `node tools/fb-lane.js merge <id>` | Product | Merges feature branch to main, unlocks files, and moves status to `Done`. |
+
+---
+
+## 👑 The Four Lanes
+
+| Lane | Role | Owns | Hard Sandbox Boundary |
+|------|------|------|-----------------------|
+| **FB-Product** | Captain / PM | Scoping, branch merges, release gates, deployments. | Never writes/modifies application feature code. |
+| **FB-Tech** | Tech Lead | Backend, APIs, database schemas, migrations, tests. | Never touches CSS, page layouts, or visual styles. |
+| **FB-Design** | UI / Designer | CSS, styles, design tokens, layout geometry, responsive UI. | Never touches backend code, API routes, or databases. |
+| **FB-Business** | Copywriter | Onboarding texts, FAQs, messaging cards, documentation. | Read-only access to code. Markdown and docs files only. |
+
+---
+
+## 🏃 Direct Lane interactive Threads (Antigravity 2.0)
+
+For interactive CLI/terminal usage, you can run a lane agent directly in the main thread using the python runner:
+
 ```bash
-node tools/fb-lane.js claim TASK-001 Tech
-```
-This creates a feature branch, locks files on the board, and copies a startup prompt to your clipboard. Paste it into your lane thread to begin.
-
----
-
-## CLI Commands
-
-| Command | Description |
-|---------|-------------|
-| `node tools/fb-lane.js bootstrap` | One-time setup: generates board, agents, configs |
-| `node tools/fb-lane.js status` | Print all active tasks and file locks |
-| `node tools/fb-lane.js claim <id> <lane> [files]` | Claim a task, checkout branch, lock files |
-| `node tools/fb-lane.js submit <id> [url]` | Run tests, push branch, mark Staging QA |
-| `node tools/fb-lane.js merge <id>` | Merge to main, release locks, mark Done |
-| `node tools/fb-lane.js mcp` | Start the MCP server (used by Claude Desktop) |
-
----
-
-## The Four Lanes
-
-| Lane | Owns | Hard Boundary |
-|------|------|--------------|
-| **FB-Product** | Merges, deployments, backlog, release gates | Never writes feature code |
-| **FB-Tech** | APIs, DB schemas, serverless functions, tests | Never touches CSS or layout |
-| **FB-Design** | CSS, tokens, layout geometry, visual QA | Never touches backend or schemas |
-| **FB-Business** | Copy, docs, marketing content | Read-only on source code |
-
----
-
-## The Board Loop
-
-```
-Inbox → Ready → In Progress → Staging QA → Done
+python tools/run_lane.py <lane> <task_id> [locked_files]
 ```
 
-1. **Product** triages and marks a task `Ready`
-2. A lane thread **claims** it (`In Progress`) and locks the relevant files
-3. The lane implements, then **submits** (`Staging QA`) — branch is pushed automatically
-4. **Product** reviews staging and **merges** (`Done`) — locks are released
+#### Examples:
+* Run the Tech agent on `TASK-102` locking `src/db.ts`:
+  ```bash
+  python tools/run_lane.py Tech TASK-102 "src/db.ts"
+  ```
+* Run the Design agent on `TASK-103`:
+  ```bash
+  python tools/run_lane.py Design TASK-103
+  ```
 
-All state lives in `PROJECT_BOARD.md`, committed to git, visible to every thread.
-
----
-
-## Templates
-
-Drop these into any repo to instantly adopt the framework:
-
-| File | Purpose |
-|------|---------|
-| [`templates/AGENTS.md`](templates/AGENTS.md) | Full lane rules and boundaries |
-| [`templates/PROJECT_BOARD.md`](templates/PROJECT_BOARD.md) | Blank task board |
-| [`templates/CLAUDE.md`](templates/CLAUDE.md) | Claude Projects system prompt |
+This automatically claims the task on the project board, checks out the correct feature branch, configures the sandboxed system instructions for that lane, and begins the interactive terminal loop.
 
 ---
 
-## Platform Guides
+## 📖 Platform Integration Guides
 
-| Platform | Guide |
-|----------|-------|
-| Antigravity 2.0 | [platforms/antigravity/README.md](platforms/antigravity/README.md) |
-| Claude Desktop | [platforms/claude/README.md](platforms/claude/README.md) |
-| Codex (OpenAI) | [platforms/codex/README.md](platforms/codex/README.md) |
+Detailed walkthroughs for configuring and running the framework on specific developer platforms:
 
----
+* **Antigravity 2.0**: [platforms/antigravity/README.md](platforms/antigravity/README.md)
+* **Claude Desktop**: [platforms/claude/README.md](platforms/claude/README.md)
+* **Codex**: [platforms/codex/README.md](platforms/codex/README.md)
 
-## Example
-
-See [`examples/my-app/`](examples/my-app/README.md) for a minimal walkthrough showing bootstrap output and a full task lifecycle on a fictional project.
+*See [`examples/my-app/`](examples/my-app/README.md) for a mock project illustrating the post-bootstrap folder structure and a complete task workflow lifecycle.*
 
 ---
 
-## License
+## 📄 License
 [MIT](LICENSE)
