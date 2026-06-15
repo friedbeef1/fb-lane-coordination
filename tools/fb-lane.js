@@ -757,10 +757,28 @@ function handleBootstrap() {
   console.log('🚀 Bootstrapping FB-Lane Coordination Framework...\n');
   const rootDir = process.cwd();
 
+  // 0. Auto-detect project metadata from package.json (if present)
+  let projectName = path.basename(rootDir);
+  let projectDescription = 'A project using the FB-Lane coordination framework.';
+  const pkgPath = path.join(rootDir, 'package.json');
+  if (fs.existsSync(pkgPath)) {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+      if (pkg.name) projectName = pkg.name;
+      if (pkg.description) projectDescription = pkg.description;
+      console.log(`📦 Detected project: "${projectName}" — ${projectDescription}`);
+    } catch (err) {
+      console.warn('⚠️  Could not parse package.json. Using directory name as project name.');
+    }
+  } else {
+    console.log(`📁 No package.json found. Using folder name: "${projectName}"`);
+  }
+
   // 1. Create PROJECT_BOARD.md if missing
   const boardPath = path.join(rootDir, 'PROJECT_BOARD.md');
   if (!fs.existsSync(boardPath)) {
-    const boardTemplate = `# Project Board
+    const boardTemplate = `# Project Board — ${projectName}
+> ${projectDescription}
 
 ## Statuses
 - \`Inbox\`: Newly requested tasks requiring triage.
@@ -810,7 +828,7 @@ function handleBootstrap() {
   // 2. Create AGENTS.md if missing
   const agentsPath = path.join(rootDir, 'AGENTS.md');
   if (!fs.existsSync(agentsPath)) {
-    const agentsTemplate = `# Agent & Thread Coordination Rules
+    const agentsTemplate = `# Agent & Thread Coordination Rules — ${projectName}
 
 This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development. 
 
