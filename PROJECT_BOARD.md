@@ -16,6 +16,35 @@
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \ |
 | TASK-002 | Staging QA | FB-Tech | Integration | Migrate Speech Coach from AssemblyAI LeMUR to OpenAI GPT-4o-mini API | `package.json`, `services/googleGeminiService.ts`, `hooks/useAudioAnalysis.ts`, `components/AnalysisResults.tsx`, `hooks/useRecording.ts`, `index.html`, `services/assemblyAiService.ts`, `types.ts` | [Branch](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-002-gemini-speech-coach-integration) |
 | TASK-003 | Staging QA | FB-Business | Business | Toastmasters community strategy and prebuilt scenarios | `docs/business/toastmasters-community-strategy.md` | [Docs](file:///Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/docs/business/toastmasters-community-strategy.md) |
+| MEJA-100 | In Progress | FB-Design | UI | Playful warning status badge/toast fallback (Plan D) | `index.html`, `src/index.css` | [Branch](https://github.com/friedbeef1/friedbeef123/tree/design/MEJA-100-sync-fallback) |
+
+---
+
+### MEJA-100 - Plan D UI Fallback States
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Design
+*   **Area**: UI
+*   **Scope**: Style a playful warning status badge/toast or notification in `src/index.css` and render it in `index.html` when `state.syncError` is active.
+*   **Out of Scope**: Editing database schemas, Supabase migrations, or core business logic.
+*   **Affected Screens / Locks**:
+    *   **Screens**: All screens (global toast/badge)
+    *   **Locked Files**: `index.html`, `src/index.css`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: [Branch Link](https://github.com/friedbeef1/friedbeef123/tree/design/MEJA-100-sync-fallback)
+    *   **Staging URL**: (None)
+    *   **Design Specs**: [plan_meja_100_fallback.md](file:///Users/jamesyeang/.gemini/antigravity/brain/0d7ec486-0bb5-4f03-9fee-b9327180a9cc/plan_meja_100_fallback.md)
+*   **QA Checklist**:
+    *   [ ] Patrick Hand font loads correctly.
+    *   [ ] Matches hand-drawn cartoon postcard aesthetic.
+    *   [ ] Fits responsive viewports (mobile, tablet, desktop) without text clipping or layout spilling.
+    *   [ ] Reactive `window.state.syncError` shows/hides the component.
+*   **Modified Files**:
+    *   `index.html`
+    *   `src/index.css`
+*   **Latest Update**:
+    *   *2026-06-15*: Created branch and started implementation.
+
+
 
 ---
 
