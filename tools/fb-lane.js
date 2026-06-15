@@ -942,7 +942,69 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
     console.log('ℹ️  .codex/rules.md already exists, skipping.');
   }
 
-  // 5. Auto-configure Claude Desktop MCP
+  // 5. Inject FB-Lane section into CLAUDE.md (non-destructive)
+  const claudeMdPath = path.join(rootDir, 'CLAUDE.md');
+  const FB_LANE_START = '<!-- fb-lane-start -->';
+  const FB_LANE_END = '<!-- fb-lane-end -->';
+  const fbLaneBlock = `${FB_LANE_START}
+## FB-Lane Coordination
+
+This project uses the **FB-Lane Four-Lane Coordination Model**.
+Source of truth for active tasks and file locks: \`PROJECT_BOARD.md\`.
+
+### Lane Boundaries
+
+| Lane | Owns | Never touches |
+|------|------|--------------|
+| **FB-Product** | Backlog, merges, deployments, release gates | Feature code |
+| **FB-Tech** | APIs, DB schemas, serverless functions, tests | CSS, layout, copy |
+| **FB-Design** | CSS, tokens, layout geometry, visual QA | Backend, schemas |
+| **FB-Business** | Copy, docs, marketing text | Source code (read-only) |
+
+### Starting a Session
+1. Read \`PROJECT_BOARD.md\` — check active tasks and file locks.
+2. Read \`.codex/current_task.md\` if it exists — it has your exact branch and locked files.
+3. Confirm your branch: \`git rev-parse --abbrev-ref HEAD\`.
+4. Never modify files locked by another active task.
+
+### CLI Commands
+\`\`\`bash
+node tools/fb-lane.js status               # View all tasks and locks
+node tools/fb-lane.js claim <id> <lane>    # Claim a task, checkout branch, lock files
+node tools/fb-lane.js submit <id>          # Submit for QA, push branch
+node tools/fb-lane.js merge <id>           # Merge to main, release locks (FB-Product only)
+\`\`\`
+
+### Rules
+- Never commit directly to \`main\` — always use a feature branch.
+- Commit docs separately from code changes.
+- Run tests before submitting — the \`submit\` command does this automatically.
+- Max 5 debug retries — if still failing, mark task \`Blocked\` and notify the user.
+- Do not revert others — merge \`main\` into your branch to resolve conflicts.
+${FB_LANE_END}`;
+
+  if (!fs.existsSync(claudeMdPath)) {
+    fs.writeFileSync(claudeMdPath, fbLaneBlock + '\n', 'utf8');
+    console.log('📝 Created CLAUDE.md with FB-Lane section.');
+  } else {
+    const existing = fs.readFileSync(claudeMdPath, 'utf8');
+    if (existing.includes(FB_LANE_START)) {
+      // Section already exists — update it in-place (idempotent)
+      const updated = existing.replace(
+        new RegExp(`${FB_LANE_START}[\\s\\S]*?${FB_LANE_END}`),
+        fbLaneBlock
+      );
+      fs.writeFileSync(claudeMdPath, updated, 'utf8');
+      console.log('🔄 Updated existing FB-Lane section in CLAUDE.md.');
+    } else {
+      // Existing CLAUDE.md without FB-Lane — append, never overwrite
+      const appended = existing.trimEnd() + '\n\n---\n\n' + fbLaneBlock + '\n';
+      fs.writeFileSync(claudeMdPath, appended, 'utf8');
+      console.log('✅ Appended FB-Lane section to your existing CLAUDE.md.');
+    }
+  }
+
+  // 6. Auto-configure Claude Desktop MCP
   const os = require('os');
   let claudeConfigPath = '';
   if (process.platform === 'darwin') {
