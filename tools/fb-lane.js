@@ -906,6 +906,66 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
     console.log(`📁 Created agent config: ${folderName}/agent.json`);
   }
 
+  // 4. Create .codex/rules.md if missing
+  const codexDir = path.join(rootDir, '.codex');
+  if (!fs.existsSync(codexDir)) {
+    fs.mkdirSync(codexDir);
+  }
+  const codexRulesPath = path.join(codexDir, 'rules.md');
+  if (!fs.existsSync(codexRulesPath)) {
+    const codexRulesTemplate = `# Codex Instructions
+- You operate under the FB-Lane coordination framework.
+- If the file .codex/current_task.md exists, read it immediately.
+- Adhere strictly to the active branch, task ID, and locked files listed in that file. Do not modify files outside of the locked files or the assigned lane.
+`;
+    fs.writeFileSync(codexRulesPath, codexRulesTemplate, 'utf8');
+    console.log('📝 Created .codex/rules.md (Codex Auto-Configuration)');
+  } else {
+    console.log('ℹ️  .codex/rules.md already exists, skipping.');
+  }
+
+  // 5. Auto-configure Claude Desktop MCP
+  const os = require('os');
+  let claudeConfigPath = '';
+  if (process.platform === 'darwin') {
+    claudeConfigPath = path.join(os.homedir(), 'Library', 'Application Support', 'Claude', 'claude_desktop_config.json');
+  } else if (process.platform === 'win32') {
+    claudeConfigPath = path.join(process.env.APPDATA || '', 'Claude', 'claude_desktop_config.json');
+  }
+
+  if (claudeConfigPath) {
+    try {
+      const configDir = path.dirname(claudeConfigPath);
+      if (!fs.existsSync(configDir)) {
+        fs.mkdirSync(configDir, { recursive: true });
+      }
+
+      let config = { mcpServers: {} };
+      if (fs.existsSync(claudeConfigPath)) {
+        try {
+          config = JSON.parse(fs.readFileSync(claudeConfigPath, 'utf8'));
+        } catch (err) {
+          console.warn('⚠️  Could not parse existing claude_desktop_config.json. Overwriting with clean template.');
+        }
+      }
+
+      if (!config.mcpServers) {
+        config.mcpServers = {};
+      }
+
+      const scriptPath = path.join(rootDir, 'tools', 'fb-lane.js');
+      config.mcpServers['fb-lane'] = {
+        command: 'node',
+        args: [scriptPath, 'mcp']
+      };
+
+      fs.writeFileSync(claudeConfigPath, JSON.stringify(config, null, 2), 'utf8');
+      console.log(`🔌 Auto-configured Claude Desktop MCP server at: ${claudeConfigPath}`);
+    } catch (err) {
+      console.warn(`⚠️  Failed to automatically configure Claude Desktop MCP: ${err.message}`);
+    }
+  }
+
   console.log('\n🎉 FB-Lane Framework bootstrapped successfully!');
   console.log('👉 Open this workspace folder in Antigravity 2.0 to see the agents in your left sidebar.\n');
 }
