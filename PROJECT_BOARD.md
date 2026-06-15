@@ -16,6 +16,7 @@
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \ |
 | TASK-002 | Staging QA | FB-Tech | Integration | Migrate Speech Coach from AssemblyAI LeMUR to OpenAI GPT-4o-mini API | `package.json`, `services/googleGeminiService.ts`, `hooks/useAudioAnalysis.ts`, `components/AnalysisResults.tsx`, `hooks/useRecording.ts`, `index.html`, `services/assemblyAiService.ts`, `types.ts` | [Branch](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-002-gemini-speech-coach-integration) |
 | TASK-003 | Staging QA | FB-Business | Business | Toastmasters community strategy and prebuilt scenarios | `docs/business/toastmasters-community-strategy.md` | [Docs](file:///Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/docs/business/toastmasters-community-strategy.md) |
+| TASK-004 | Staging QA | FB-Tech | Integration | Technical integration of Toastmasters scenarios | `data/scenarios.ts` | [Branch](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-004-toastmasters-scenario-integration) |
 | MEJA-100 | Staging QA | FB-Design | UI | Playful warning status badge/toast fallback (Plan D) | `index.html`, `src/index.css` | [Branch](https://github.com/friedbeef1/meja/tree/design/MEJA-100-sync-fallback) |
 
 ---
@@ -122,5 +123,30 @@
     *   `docs/business/toastmasters-community-strategy.md`
 *   **Latest Update**:
     *   *2026-06-15*: Drafted the strategy and prebuilt scenarios document.
+
+
+### TASK-004 - Toastmasters Scenario Technical Integration
+*   **Status**: Staging QA
+*   **Owner / Thread**: FB-Tech
+*   **Area**: Integration
+*   **Scope**: Integrate the Toastmasters prebuilt scenarios into the TypeScript data file (`data/scenarios.ts`) and wire them into the React user interface.
+*   **Out of Scope**: Customizing the CSS styling of the Scenario Gallery or creating new SVG icons.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Scenario Gallery
+    *   **Locked Files**: `data/scenarios.ts`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: [Branch Link](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-004-toastmasters-scenario-integration)
+    *   **Staging URL**: (None)
+    *   **Design Specs**: (None)
+    *   **Decision Memo**: (None)
+*   **QA Checklist**:
+    *   [x] Toastmasters category renders in `ScenarioGallery`.
+    *   [x] All 4 scenarios (Table Topics, Ice Breaker, Pathways, Evaluation) render correctly with prompts and tips.
+    *   [x] Build compiles with no TypeScript compilation errors.
+*   **Modified Files**:
+    *   `data/scenarios.ts`
+*   **Latest Update**:
+    *   *2026-06-15*: Integrated the scenarios into `data/scenarios.ts`, ran verification builds, and checked in the code on `tech/TASK-004-toastmasters-scenario-integration`.
+
 
 
