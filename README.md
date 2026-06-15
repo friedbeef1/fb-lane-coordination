@@ -84,7 +84,7 @@ node tools/fb-lane.js bootstrap
 This auto-detects your project's name and description from `package.json`, detects your remote origin URL, and generates:
 * `PROJECT_BOARD.md` — The centralized task and file-locking board.
 * `AGENTS.md` — Human and agent guidelines defining lane boundaries.
-* `FB-Product/agent.json`, `FB-Tech/agent.json`, `FB-Design/agent.json`, `FB-Business/agent.json` — Sidebar agent configurations.
+* `agents/FB-Product/agent.json`, `agents/FB-Tech/agent.json`, `agents/FB-Design/agent.json`, `agents/FB-Business/agent.json` — Sidebar agent configurations.
 * `.codex/rules.md` — Codex rule integration.
 * `docs/handoffs/` — Directory for structured lane handoffs.
 

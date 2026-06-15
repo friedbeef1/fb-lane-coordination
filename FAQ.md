@@ -243,7 +243,7 @@ Simply point your agent to this repository (or copy the framework files into a r
 The agents are designed to autonomously:
 1.  **Copy the Templates**: Copy [templates/AGENTS.md](file:///./templates/AGENTS.md) and [templates/PROJECT_BOARD.md](file:///./templates/PROJECT_BOARD.md) directly to the root of your project repository and commit them.
 2.  **Configure Your Platforms**: Follow the detailed guide for your platform of choice:
-    *   **Antigravity**: Read the [Antigravity Guide](file:///./platforms/antigravity/README.md) and use the [project-coordination-setup](file:///./platforms/antigravity/project-coordination-setup-skill.md) skill to auto-register your subagent roles.
+    *   **Antigravity**: Read the [Antigravity Guide](file:///./platforms/antigravity/README.md) and use the [project-coordination-setup](file:///./skills/project-coordination-setup/SKILL.md) skill to auto-register your subagent roles.
     *   **Claude & Cursor**: Read the [Claude Guide](file:///./platforms/claude/README.md) to set Custom Instructions and use the copy-pasteable [system prompts](file:///./platforms/claude/system-prompts.md).
     *   **Codex**: Read the [Codex Guide](file:///./platforms/codex/README.md) and copy the [Codex workflow rules](file:///./platforms/codex/workflow-rules.md) to your rules directory.
 3.  **Claim Your First Task**: Triage your board, mark `TASK-001` (Setup & Bootstrap) as `In Progress`, check out a new branch, and start building!

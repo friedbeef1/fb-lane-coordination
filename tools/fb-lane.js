@@ -1108,13 +1108,13 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
   };
 
   for (const [folderName, configObj] of Object.entries(agentConfigs)) {
-    const dirPath = path.join(rootDir, folderName);
+    const dirPath = path.join(rootDir, 'agents', folderName);
     if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath);
+      fs.mkdirSync(dirPath, { recursive: true });
     }
     const agentJsonPath = path.join(dirPath, 'agent.json');
     fs.writeFileSync(agentJsonPath, JSON.stringify(configObj, null, 2), 'utf8');
-    console.log(`📁 Created agent config: ${folderName}/agent.json`);
+    console.log(`📁 Created agent config: agents/${folderName}/agent.json`);
   }
 
   // 3b. Create docs/handoffs/ directory for handoff files

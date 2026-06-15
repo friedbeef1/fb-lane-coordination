@@ -45,7 +45,7 @@ node tools/fb-lane.js bootstrap
 This one command automatically creates:
 - `PROJECT_BOARD.md` (Project Task Board)
 - `AGENTS.md` (Lane Boundaries & Rules)
-- The agent configuration directories (`FB-Product/agent.json`, `FB-Tech/agent.json`, `FB-Design/agent.json`, `FB-Business/agent.json`)
+- The agent configuration directories (`agents/FB-Product/agent.json`, `agents/FB-Tech/agent.json`, `agents/FB-Design/agent.json`, `agents/FB-Business/agent.json`)
 
 **Next Step**: Open the project folder in **Antigravity 2.0**. The lane agents will automatically populate on your left sidebar!
 
@@ -56,16 +56,16 @@ This one command automatically creates:
 The FB-Lane Coordination framework for Antigravity is divided into two reusable skills to optimize token efficiency:
 
 1.  **`project-coordination-setup`**: Handles verifying and bootstrapping the workspace files (`AGENTS.md`, `PROJECT_BOARD.md`) and programmatically registering `FB-Tech`, `FB-Design`, and `FB-Business` subagents.
-    *   *Skill file:* [project-coordination-setup-skill.md](project-coordination-setup-skill.md)
+    *   *Skill file:* [SKILL.md](../../skills/project-coordination-setup/SKILL.md)
 2.  **`fb-lane-coordination`**: Guides the agent on how to use the local `tools/fb-lane.js` utility to claim, submit, and merge tasks autonomously using simple `run_command` invocations. This avoids having to register heavy MCP tool schemas, saving thousands of context window tokens.
-    *   *Skill file:* [fb-lane-coordination-skill.md](fb-lane-coordination-skill.md)
+    *   *Skill file:* [SKILL.md](../../skills/fb-lane-coordination/SKILL.md)
 
 ---
 
 ## Custom Subagent JSON Configurations
 These are the standard configurations Antigravity uses under the hood to instantiate the agents:
 
-### 👑 FB-Product Config (`FB-Product/agent.json`)
+### 👑 FB-Product Config (`agents/FB-Product/agent.json`)
 ```json
 {
   "name": "FB-Product",
@@ -84,7 +84,7 @@ These are the standard configurations Antigravity uses under the hood to instant
 }
 ```
 
-### ⚙️ FB-Tech Config (`FB-Tech/agent.json`)
+### ⚙️ FB-Tech Config (`agents/FB-Tech/agent.json`)
 ```json
 {
   "name": "FB-Tech",
@@ -103,7 +103,7 @@ These are the standard configurations Antigravity uses under the hood to instant
 }
 ```
 
-### 🎨 FB-Design Config (`FB-Design/agent.json`)
+### 🎨 FB-Design Config (`agents/FB-Design/agent.json`)
 ```json
 {
   "name": "FB-Design",
@@ -122,7 +122,7 @@ These are the standard configurations Antigravity uses under the hood to instant
 }
 ```
 
-### 📝 FB-Business Config (`FB-Business/agent.json`)
+### 📝 FB-Business Config (`agents/FB-Business/agent.json`)
 ```json
 {
   "name": "FB-Business",
