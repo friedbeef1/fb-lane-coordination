@@ -141,9 +141,9 @@ These are the standard configurations Antigravity uses under the hood to instant
 }
 ```
 
-## Option A: Autonomous Background Orchestration
+## Main Approach: Autonomous Background Orchestration
 
-In Option A, the user acts as the supervisor, interacting primarily with the main `FB-Product` (User Value) thread. The agent framework coordinates the rest of the loop autonomously in the background using the `fb-lane-coordination` skill:
+In the Main Approach, the user acts as the supervisor, interacting primarily with the main `FB-Product` (User Value) thread. The agent framework coordinates the rest of the loop autonomously in the background using the `fb-lane-coordination` skill:
 
 ### Step 1: Task Initialization & File Locking
 1. **User Request**: Describe a feature or bugfix to the main Antigravity thread (e.g., *"Build user signup feature"*).
@@ -177,9 +177,9 @@ In Option A, the user acts as the supervisor, interacting primarily with the mai
 
 ---
 
-## Option B: Interactive Direct Control (Direct Lane Threads)
+## Optional Interaction: Interactive Direct Control (Direct Lane Threads)
 
-In addition to autonomous background subagent delegation orchestrated by `FB-Product` (Option A), Antigravity supports running specialized lane agents directly on **main threads** (interactive terminal sessions or dedicated IDE sidebar threads). This allows developers to interact directly with `FB-Tech`, `FB-Design`, `FB-Business`, or `FB-Product` in their workspace while automatically maintaining the underlying board updates, git branching, and lock mechanics.
+In addition to autonomous background subagent delegation orchestrated by `FB-Product` (Main Approach), Antigravity supports running specialized lane agents directly on **main threads** (interactive terminal sessions or dedicated IDE sidebar threads). This allows developers to interact directly with `FB-Tech`, `FB-Design`, `FB-Business`, or `FB-Product` in their workspace while automatically maintaining the underlying board updates, git branching, and lock mechanics.
 
 ### 🔑 Authentication Prerequisite
 Make sure you have a valid Gemini API key set in your environment:

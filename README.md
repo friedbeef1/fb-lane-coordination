@@ -95,6 +95,23 @@ This auto-detects your project's name and description from `package.json`, detec
 
 ---
 
+## 👥 How to Use
+
+Depending on your preferred style, you can choose between two operational patterns:
+* **Main Approach: Autonomous Background Orchestration (<20% Involvement)**: You chat only with the main **`FB-Product`** thread. Product autonomously analyzes requirements, splits tasks, claims them on the board, locks files, and spawns subagents (`FB-Tech`/`FB-Design`) in the background silently. Your interaction is restricted to reviewing the plan at the beginning and smoke-testing staging at the end.
+* **Optional Interaction: Interactive Direct Control (Pair-Programming)**: You chat directly with the sidebar worker threads (`FB-Tech`/`FB-Design`) to review plans, write code, and collaboratively debug. When you instruct a lane agent directly, it autonomously claims the task and locks the files on the board before modifying any files.
+  * *Syncing Threads*: If a sidebar thread shows stale history or old buttons, simply type `status` or `SOP` in the thread to force the agent to sync with the board.
+  * *Direct Lane Interactive Threads (Antigravity 2.0)*: For interactive CLI/terminal usage under Optional Interaction, you can run any lane agent directly in the main thread using the python runner:
+    ```bash
+    python tools/run_lane.py <lane> <task_id> [locked_files]
+    ```
+    *Examples:*
+    - Run the Tech agent on `TASK-102` locking `src/db.ts`: `python tools/run_lane.py Tech TASK-102 "src/db.ts"`
+    - Run the Design agent on `TASK-103`: `python tools/run_lane.py Design TASK-103`
+    This automatically claims the task on the project board, checks out the correct feature branch, configures the sandboxed system instructions for that lane, and begins the interactive terminal loop.
+
+---
+
 ## 🔄 The Board Lifecycle
 
 Every feature, bug, or improvement follows a simple, structured 4-step loop:
@@ -146,15 +163,6 @@ To prevent accidental codebase corruption or "rogue edits" when brainstorming wi
 
 ---
 
-## 👥 User Involvement Modes
-
-Depending on your preferred style, you can choose between two operational patterns:
-* **Option A: Autonomous Background Orchestration (<20% Involvement)**: You chat only with the main **`FB-Product`** thread. Product autonomously analyzes requirements, splits tasks, claims them on the board, locks files, and spawns subagents (`FB-Tech`/`FB-Design`) in the background silently. Your interaction is restricted to reviewing the plan at the beginning and smoke-testing staging at the end.
-* **Option B: Interactive Direct Control (Pair-Programming)**: You chat directly with the sidebar worker threads (`FB-Tech`/`FB-Design`) to review plans, write code, and collaboratively debug. When you instruct a lane agent directly, it autonomously claims the task and locks the files on the board before modifying any files.
-  * *Syncing Threads*: If a sidebar thread shows stale history or old buttons, simply type `status` or `SOP` in the thread to force the agent to sync with the board.
-
----
-
 ## 👑 The Four Lanes
 
 | Lane | Role | Owns | Hard Sandbox Boundary |
@@ -163,28 +171,6 @@ Depending on your preferred style, you can choose between two operational patter
 | **FB-Tech** | Tech Lead | Backend, APIs, database schemas, migrations, tests. | Never touches CSS, page layouts, or visual styles. |
 | **FB-Design** | UI / Designer | CSS, styles, design tokens, layout geometry, responsive UI. | Never touches backend code, API routes, or databases. |
 | **FB-Business** | Copywriter | Onboarding texts, FAQs, messaging cards, documentation. | Read-only access to code. Markdown and docs files only. |
-
----
-
-## 🏃 Option B: Direct Lane Interactive Threads (Antigravity 2.0)
-
-For interactive CLI/terminal usage under Option B (Interactive Direct Control), you can run a lane agent directly in the main thread using the python runner:
-
-```bash
-python tools/run_lane.py <lane> <task_id> [locked_files]
-```
-
-#### Examples:
-* Run the Tech agent on `TASK-102` locking `src/db.ts`:
-  ```bash
-  python tools/run_lane.py Tech TASK-102 "src/db.ts"
-  ```
-* Run the Design agent on `TASK-103`:
-  ```bash
-  python tools/run_lane.py Design TASK-103
-  ```
-
-This automatically claims the task on the project board, checks out the correct feature branch, configures the sandboxed system instructions for that lane, and begins the interactive terminal loop.
 
 ---
 

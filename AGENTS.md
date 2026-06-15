@@ -35,15 +35,15 @@ To prevent context window overload and git collisions, strictly adhere to your a
 
 ### 💬 The User's Role: Supervisor & Reviewer
 
-The user (acting as the external supervisor) is shielded from manual project coordination, task tracking, or Git management. The framework is optimized for **Option A (Autonomous Background Orchestration)**, with **Option B (Interactive Direct Control)** serving as a manual escape hatch or fallback mode for single-threaded platforms.
+The user (acting as the external supervisor) is shielded from manual project coordination, task tracking, or Git management. The framework is optimized for **Main Approach: Autonomous Background Orchestration**, with **Optional Interaction: Interactive Direct Control** serving as a manual escape hatch or fallback mode for single-threaded platforms.
 
-#### Option A: Autonomous Background Orchestration (<20% Involvement - Optimized Mode)
+#### Main Approach: Autonomous Background Orchestration (<20% Involvement - Optimized Mode)
 * **Status**: **Primary/Recommended**. This is the mode the framework is designed and optimized for.
 * **Workflow**: The user talks only to the main **`FB-Product`** thread to describe features and milestones. Product automatically handles task planning, claiming, file locking, branch checkouts, and spawns background subagents (`FB-Tech`, `FB-Design`, `FB-Business`) in the background to execute work in parallel.
 * **User Touchpoints**: Restricted to reviewing plans (Plan Gate) and verifying staging environments (Staging Gate) before final merges.
 * **Sidebar Threads**: Used passively as detail desks. If the user opens a sidebar thread to check technical details, the agent reads local handoff files and schema states to present an update.
 
-#### Option B: Interactive Direct Control (Pair-programming / Escape Hatch)
+#### Optional Interaction: Interactive Direct Control (Pair-programming / Escape Hatch)
 * **Status**: **Fallback/Manual**. Used on platforms without background orchestration support (e.g. Claude Projects, Cursor) or when the user explicitly wishes to manually pair-program or debug code.
 * **Workflow**: The user manually instructs and chats directly with individual sidebar threads (e.g. asking Tech to build a feature, or Design to update a button). 
 * **User Touchpoints**: Higher involvement; the user reviews plans and approves task executions directly within the specific lane thread.

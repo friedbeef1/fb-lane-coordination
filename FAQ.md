@@ -200,9 +200,9 @@ To prevent this, the FB-Lane framework enforces strict **Thread Segmentation**:
 ## 8. User Involvement & Thread Synchronization
 
 ### Q: I want to be involved less than 20% of the time. Which mode should I choose?
-**A:** Choose **Option A: Autonomous Background Orchestration**. Under this option, you spend 95% of your time talking directly to the main **`FB-Product`** thread. Product will autonomously plan, write board tasks, spawn background workers (`FB-Tech`, `FB-Design`, `FB-Business`), run tests, and push branches silently in the background. Your interaction is restricted to reviewing the plan at the beginning (Plan Gate) and smoke testing the staging site at the end (Staging Gate) before merging.
-*   **Option A: Autonomous Background Orchestration** is best if you want the agents to handle all task updates, branching, and execution in the background while you act purely as a supervisor.
-*   **Option B: Interactive Direct Control** (Direct Lane Threads) is best if you want to pair-program, refine layouts, or discuss copy options directly with individual lane threads (`FB-Tech`, `FB-Design`, or `FB-Business`) or run interactive terminal sessions.
+**A:** Choose **Main Approach: Autonomous Background Orchestration**. Under this option, you spend 95% of your time talking directly to the main **`FB-Product`** thread. Product will autonomously plan, write board tasks, spawn background workers (`FB-Tech`, `FB-Design`, `FB-Business`), run tests, and push branches silently in the background. Your interaction is restricted to reviewing the plan at the beginning (Plan Gate) and smoke testing the staging site at the end (Staging Gate) before merging.
+*   **Main Approach: Autonomous Background Orchestration** is best if you want the agents to handle all task updates, branching, and execution in the background while you act purely as a supervisor.
+*   **Optional Interaction: Interactive Direct Control** (Direct Lane Threads) is best if you want to pair-program, refine layouts, or discuss copy options directly with individual lane threads (`FB-Tech`, `FB-Design`, or `FB-Business`) or run interactive terminal sessions.
 
 ### Q: If I run background subagents, are my sidebar threads in the IDE meaningless?
 **A:** **No.** They serve as your direct query interfaces and domain-expert assistants:
@@ -214,8 +214,8 @@ To prevent this, the FB-Lane framework enforces strict **Thread Segmentation**:
 
 ### Q: Does the agent claim tasks on its own also?
 **A:** Yes. You do not need to manually run claim commands or edit the board. Task claiming is fully automated:
-*   Under **Option A (Autonomous Background Orchestration)**, `FB-Product` automatically claims the task on the board, locks the files, and checks out the branch before spawning the subagent. The subagent starts with the task already claimed.
-*   Under **Option B (Interactive Direct Control)**, when you instruct a lane agent directly in a thread, that lane agent autonomously runs the claim script, claims the task, and locks the files on `PROJECT_BOARD.md` before starting any code modifications.
+*   Under the **Main Approach (Autonomous Background Orchestration)**, `FB-Product` automatically claims the task on the board, locks the files, and checks out the branch before spawning the subagent. The subagent starts with the task already claimed.
+*   Under **Optional Interaction (Interactive Direct Control)**, when you instruct a lane agent directly in a thread, that lane agent autonomously runs the claim script, claims the task, and locks the files on `PROJECT_BOARD.md` before starting any code modifications.
 
 ### Q: What is the File Lock Boundary rule for agents?
 **A:** Once a task is claimed and writing is unlocked, the agent is strictly prohibited from modifying files outside of the "Locked Files" declared in `.codex/current_task.md`. This prevents code-bleed and ensures styling agents never modify backend routes, and vice versa.
