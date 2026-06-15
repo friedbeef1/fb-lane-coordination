@@ -121,8 +121,8 @@ To prevent accidental codebase corruption or "rogue edits" when brainstorming wi
 ## 👥 User Involvement Modes
 
 Depending on your preferred style, you can choose between two operational patterns:
-* **Option A: Autonomous Background Orchestration (<20% Involvement)**: You chat only with the main **`FB-Product`** thread. Product autonomously scopes tasks, spawns subagents (`FB-Tech`/`FB-Design`) in the background, runs tests, and pushes branches. You are only involved to approve the plan at the start and review staging at the end.
-* **Option B: Interactive Direct Control (Pair-Programming)**: You chat directly with the sidebar worker threads (`FB-Tech`/`FB-Design`) to review plans and collaboratively debug code. Threads pass data and context back and forth using `PROJECT_BOARD.md` and `docs/handoffs/TASK-XXX.md`.
+* **Option A: Autonomous Background Orchestration (<20% Involvement)**: You chat only with the main **`FB-Product`** thread. Product autonomously analyzes requirements, splits tasks, claims them on the board, locks files, and spawns subagents (`FB-Tech`/`FB-Design`) in the background silently. Your interaction is restricted to reviewing the plan at the beginning and smoke-testing staging at the end.
+* **Option B: Interactive Direct Control (Pair-Programming)**: You chat directly with the sidebar worker threads (`FB-Tech`/`FB-Design`) to review plans, write code, and collaboratively debug. When you instruct a lane agent directly, it autonomously claims the task and locks the files on the board before modifying any files.
   * *Syncing Threads*: If a sidebar thread shows stale history or old buttons, simply type `status` or `SOP` in the thread to force the agent to sync with the board.
 
 ---
@@ -138,9 +138,9 @@ Depending on your preferred style, you can choose between two operational patter
 
 ---
 
-## 🏃 Direct Lane interactive Threads (Antigravity 2.0)
+## 🏃 Option B: Direct Lane Interactive Threads (Antigravity 2.0)
 
-For interactive CLI/terminal usage, you can run a lane agent directly in the main thread using the python runner:
+For interactive CLI/terminal usage under Option B (Interactive Direct Control), you can run a lane agent directly in the main thread using the python runner:
 
 ```bash
 python tools/run_lane.py <lane> <task_id> [locked_files]
