@@ -57,16 +57,26 @@ Compare how development works on complex, multi-layered features with AI agents:
 
 ---
 
-## ⚡ Quickstart (2 Minutes)
+## ⚡ Quickstart
 
-### 1. Copy the CLI tool into your repository
+Initialize the framework in your workspace using one of the following methods:
+
+### Method A: AI-Powered Bootstrap (Recommended — 30 Seconds)
+If you are using a capable AI coding agent in your project workspace (such as Antigravity or Claude), simply paste the following instruction to let the agent retrieve, copy, and set up the framework autonomously:
+> *"Visit the repository at `https://github.com/friedbeef1/fb-lane-coordination` and bootstrap the FB-Lane Coordination Framework in our project workspace. Read the templates and guides, copy the necessary config files, and initialize the directories accordingly."*
+
+---
+
+### Method B: Manual CLI Bootstrap (2 Minutes)
+
+#### 1. Copy the CLI tool into your repository
 From your project root, run:
 ```bash
 curl -o tools/fb-lane.js https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.js
 ```
 *(Or manually copy `tools/fb-lane.js` to a `tools/` folder in your project.)*
 
-### 2. Run bootstrap
+#### 2. Run bootstrap
 ```bash
 node tools/fb-lane.js bootstrap
 ```
@@ -76,9 +86,8 @@ This auto-detects your project's name and description from `package.json`, detec
 * `FB-Product/agent.json`, `FB-Tech/agent.json`, `FB-Design/agent.json`, `FB-Business/agent.json` — Sidebar agent configurations.
 * `.codex/rules.md` — Codex rule integration.
 * `docs/handoffs/` — Directory for structured lane handoffs.
-* Automatically registers the `fb-lane` MCP server in your **Claude Desktop** config.
 
-### 3. Open in your AI Platform
+#### 3. Open in your AI Platform
 * **Antigravity**: Open the folder. The lane threads will appear instantly in the sidebar!
 * **Claude Desktop**: Restart Claude. The `fb-lane` MCP toolset is ready to use.
 * **Codex**: The rules file is already in place.
