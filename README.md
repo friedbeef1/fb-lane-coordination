@@ -6,19 +6,19 @@ FB-Lane splits complex software development into four role-isolated workstreams 
 
 ---
 
-## 🆕 What's New in v2.0 (Before & After)
+## ⚖️ Before & After: The FB-Lane Advantage
 
-To protect your project budget, ensure robust code quality, and make local terminal operations seamless, the framework has been upgraded with automated validation gates and retry protection:
+Compare how development works on complex, multi-layered features with AI agents:
 
-| Feature / Capability | Before (v1.0) | Now (v2.0) |
+| Development Challenge | Without FB-Lane Framework | With FB-Lane Framework |
 | :--- | :--- | :--- |
-| **Code Reliability** | Untested code pushed directly to staging; tests run post-facto. | **Pre-Submission Test Gate**: CLI automatically executes your test suites (e.g. `npm test`) and blocks commits if they fail. |
-| **Token Budget Protection** | Infinite loops; agents could repeatedly attempt fixes, burning tokens. | **5-Retry Debug Cap**: Programmatic threshold stops runaway agent loops and immediately alerts the human developer. |
-| **Task Bottlenecks** | Workflow freeze; blocked tasks stalled the entire queue. | **Auto-Proceed Backlog Loop**: Product automatically claims and executes the next independent task from the `Ready` backlog. |
-| **CLI & Terminal Usage** | Background-only; required manual coordination and GUI setup. | **Direct Lane Runner (`run_lane.py`)**: Launch any lane interactive agent directly in your terminal with automated branch setup. |
-| **Code-Bleed Prevention** | Weak writing constraints; agents could modify files outside their domain. | **State-Driven Writing Gates**: Agents are read-only by default; write-access is locked strictly to declared files in active task context. |
-| **Micro-Tasks & Hotfixes** | Heavy setup; tiny changes required full backlog scoping on the board. | **Fast-Track Quick Edits**: Use `node tools/fb-lane.js quick` to spin up instant, short-lived tasks and branch out in seconds. |
-| **Bootstrap Personalization** | Generic templates; required manual editing of repository URLs. | **Smarter Auto-Bootstrap**: Automatically resolves git remote origin SSH/HTTPS URLs to configure board links. |
+| **Concurrency & Collisions** | High risk of merge conflicts and regression as multiple agent threads modify the same files. | **Lightweight Resource Locking**: Tasks declare affected files on `PROJECT_BOARD.md`, establishing locks to prevent collisions. |
+| **Context & Token Overload** | Large, bloated chat threads discussing copy, databases, and UI style together, causing agent confusion and poor outputs. | **Role-Isolated Lanes**: Tech, Design, Business, and Product operate in specialized, isolated threads with targeted capabilities. |
+| **Domain Safety (Code-Bleed)** | Copywriters editing React layouts or layout agents inadvertently breaking database schemas and backend models. | **State-Driven Writing Gates**: Tech cannot touch CSS/styles, Design cannot edit backend code, and Business is strictly read-only. |
+| **Code Reliability** | Broken or compile-failing code gets pushed to main/staging; tests are rarely run by agents. | **Pre-Submission Test Gate**: The CLI automatically executes test suites (e.g. `npm test`) and blocks pushing if tests fail. |
+| **Token Budget Protection** | Runaway debugging loops; agents attempt infinite edits to fix a bug, burning through your tokens. | **5-Retry Debug Cap**: Strict retry threshold pauses execution and escalates to the user if a bug can't be resolved in 5 attempts. |
+| **Handoffs & Context Retention** | Silent handoffs; subsequent agents must blindly read repo history to understand what prior agents changed. | **Structured Handoff Cards**: Automated creation of `docs/handoffs/TASK-XXX.md` summarizing decisions, risk details, and testing. |
+| **Micro-Tasks & Hotfixes** | Manual branch creation, file tracking, and state sync, leading to developer overhead for simple edits. | **Fast-Track Quick Edits**: A single command (`node tools/fb-lane.js quick`) instantly checks out a branch and locks files for edits. |
 
 ```
                   ┌──────────────────────┐
