@@ -9,6 +9,15 @@ This FAQ is designed to help developers, product managers, and AI agents underst
 ### Q: What is the FB-Lane Coordination Framework?
 **A:** It is a decentralized, role-isolated project management and execution framework. By dividing tasks into four highly bounded "lanes" (Product, Tech, Design, Business) and coordinating them via a local markdown-based project board (`PROJECT_BOARD.md`), it allows human developers and autonomous AI agents to work concurrently on the same codebase without stepping on each other's toes.
 
+### Q: What does "FB" stand for?
+**A:** "FB" can stand for a variety of concepts depending on the context:
+*   **Frame Bound**: Representing the strict sandbox boundaries and containerized workspaces built around each agent lane.
+*   **Feature Branch**: Emphasizing the isolated branch-per-task model that prevents code collisions.
+*   **Flow Based**: Highlighting the state-driven transition of tasks through the project board.
+*   **Function Block**: Mapping to the modular, component-centric architecture of the system.
+*   **Feedback Loop**: Focusing on the continuous testing, QA, and validation checkpoints built into the submission process.
+... or it could mean Fried Beef, you never know ;)
+
 ### Q: What core problems does it solve?
 **A:** It solves the chaos of trying to do everything in a single, bloated developer thread. 
 
