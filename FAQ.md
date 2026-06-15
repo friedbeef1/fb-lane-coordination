@@ -191,9 +191,24 @@ To prevent this, the FB-Lane framework enforces strict **Thread Segmentation**:
 *   **Antigravity**: The `FB-Product` agent runs the orchestrator thread, but automatically spawns temporary, isolated subagents (`invoke_subagent`) for each task. Once complete, that subagent's conversation thread is archived and closed, protecting Product's memory.
 *   **Codex**: Codex operates as a short-lived local execution. Because it uses file locking, it only reads the subset of files related to the active task, preventing it from sucking the entire codebase context into its window.
 
+----
+
+## 8. User Involvement & Thread Synchronization
+
+### Q: I want to be involved less than 20% of the time. Which mode should I choose?
+**A:** Choose **Option A: Autonomous Background Orchestration**. Under this option, you spend 95% of your time talking directly to the main **`FB-Product`** thread. Product will autonomously plan, write board tasks, spawn background workers (`FB-Tech`, `FB-Design`, `FB-Business`), run tests, and push branches silently in the background. Your interaction is restricted to reviewing the plan at the beginning (Plan Gate) and smoke testing the staging site at the end (Staging Gate) before merging.
+
+### Q: If I run background subagents, are my sidebar threads in the IDE meaningless?
+**A:** **No.** They serve as your direct query interfaces and domain-expert assistants:
+1. **Details & Inspections**: If you want to know technical details without reading files, click the `FB-Tech` sidebar thread and ask. The agent reads the local files and handoff notes to present a clean, domain-specific explanation.
+2. **Individual Conversations**: If you ever want to bypass Product and give a direct instruction (e.g. asking Design to make a header transparent), you can do so directly in the sidebar thread. Design will check out the branch, implement it, and submit it, leaving Product to merge it.
+
+### Q: What if my sidebar threads show stale info or a pending button from a background run?
+**A:** Because `PROJECT_BOARD.md` and git are the single source of truth, the threads are never actually out of sync. To force any sidebar thread to align its chat context with the actual state of your workspace instantly, just type **`status`** or **`SOP`** in that thread. The agent will read the board, detect the active branch, and update its context.
+
 ---
 
-## 7. Getting Started & Automation
+## 9. Getting Started & Automation
 
 ### Q: Can I just ask Antigravity, Claude, or Codex to read this framework and set it up themselves?
 **A:** **Yes, absolutely!** In fact, this is the recommended way to get started. You do not need to manually copy or configure files. 
@@ -202,11 +217,6 @@ Simply point your agent to this repository (or copy the framework files into a r
 > *"I want to bootstrap the FB-Lane Coordination Framework in our project workspace. Read this framework's templates and platform guide, and configure our workspace accordingly."*
 
 The agents are designed to autonomously:
-1. Copy [templates/AGENTS.md](file:///./templates/AGENTS.md) and [templates/PROJECT_BOARD.md](file:///./templates/PROJECT_BOARD.md) to your project root.
-2. Register the respective system prompts, workspace rules (e.g. `.codex/rules.md`), or skills (such as running the [project-coordination-setup](file:///./platforms/antigravity/project-coordination-setup-skill.md) skill on Antigravity) without human intervention.
-
-### Q: How do I manually bootstrap the FB-Lane framework?
-**A:** If you prefer manual setup, it takes three quick steps:
 1.  **Copy the Templates**: Copy [templates/AGENTS.md](file:///./templates/AGENTS.md) and [templates/PROJECT_BOARD.md](file:///./templates/PROJECT_BOARD.md) directly to the root of your project repository and commit them.
 2.  **Configure Your Platforms**: Follow the detailed guide for your platform of choice:
     *   **Antigravity**: Read the [Antigravity Guide](file:///./platforms/antigravity/README.md) and use the [project-coordination-setup](file:///./platforms/antigravity/project-coordination-setup-skill.md) skill to auto-register your subagent roles.

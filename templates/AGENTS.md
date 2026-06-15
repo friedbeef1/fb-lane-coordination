@@ -34,9 +34,23 @@ To prevent context window overload and git collisions, strictly adhere to your a
 *   **Workflow**: Drafts proposed text directly in markdown documentation or inside `PROJECT_BOARD.md` entries, then requests `FB-Product` or `FB-Design` to apply it.
 
 ### 💬 The User's Role: Supervisor & Reviewer
-The user (acting as the external supervisor) is completely shielded from manual project coordination, task tracking, or Git management. The user's interaction points are restricted to:
-1. **Giving Instructions**: Describing what to build, either to the main `FB-Product` thread or directly to a specific lane thread concurrently (e.g. consulting Business on pricing, Tech on a database bug, or Design on button styles).
-2. **Reviewing Outputs**: Inspecting the visual staging builds and code reviews when notified that a task is complete.
+
+The user (acting as the external supervisor) is shielded from manual project coordination, task tracking, or Git management. The user can choose between two operational modes depending on their desired level of involvement:
+
+#### Option A: Autonomous Background Orchestration (<20% Involvement)
+* **Workflow**: The user talks only to the main **`FB-Product`** thread to describe features and milestones. Product automatically spawns background subagents (`FB-Tech`, `FB-Design`, `FB-Business`) to execute work in parallel. 
+* **User Touchpoints**: Restricted to reviewing plans (Plan Gate) and verifying staging environments (Staging Gate) before final merges.
+* **Sidebar Threads**: Used passively. If the user opens a sidebar thread to check technical details, the agent reads local handoff files and schema states to present an update.
+
+#### Option B: Interactive Direct Control (Pair-programming)
+* **Workflow**: The user manually instructs and chats directly with individual sidebar threads (e.g. asking Tech to build a feature, or Design to update a button). 
+* **User Touchpoints**: Higher involvement; the user reviews plans and approves task executions directly within the specific lane thread.
+* **Multi-thread Crossing**: Lanes synchronize via `PROJECT_BOARD.md` and `docs/handoffs/`. When a lane finishes, they write a structured handoff document that the next lane automatically reads on session start.
+
+#### Thread Synchronization & SOP alignment
+Because the project board and git branch are the single source of truth:
+* Sidebar threads do not get out of sync.
+* If a thread shows stale history or a pending button from a background run, typing `status` or `SOP` in that thread forces the agent to read `PROJECT_BOARD.md` and instantly update its chat context.
 
 All internal coordination—including running drift audits, checking/asserting resource locks on `PROJECT_BOARD.md`, checking out branches, writing code, executing verification tests, and pushing PRs—is **fully automated by the agents**. Product remains the integration Captain who reviews staging and merges the final code, ensuring all changes align with the product's strategic direction and do not cause scope drift.
 
