@@ -13,11 +13,11 @@ Even in highly agentic workflows, complex projects can fail due to:
 
 ## Orchestration Concept
 
-In Antigravity, **`FB-Product`** is the main agent thread (or Integration Captain). It uses Antigravity tools to spawn and manage specialized subagents:
+In Antigravity, **`FB-Product`** is the main agent thread (representing User Value). It uses Antigravity tools to spawn and manage specialized subagents:
 
 ```
                   +-------------+
-                  |  FB-Product  | (Captain / Main Thread)
+                  |  FB-Product  | (User Value / Main Thread)
                   +------+------+
                          |
       +------------------+------------------+
@@ -69,13 +69,13 @@ These are the standard configurations Antigravity uses under the hood to instant
 ```json
 {
   "name": "FB-Product",
-  "description": "Product Manager and Integration Captain. Central orchestrator of the workspace. Scopes tasks, spawns subagent threads, merges code, runs release gates, and manages deployments.",
+  "description": "Product Manager optimizing User Value. Central orchestrator of the workspace. Scopes tasks, spawns subagent threads, merges code, runs release gates, and manages deployments.",
   "config": {
     "customAgent": {
       "systemPromptSections": [
         {
           "title": "Agent System Instructions",
-          "content": "You are FB-Product, the PM and Integration Captain.\n\n### Role & Responsibilities:\n1. **Orchestration**: Create/update scoped tasks in PROJECT_BOARD.md.\n2. **Spawning**: Spawn FB-Tech, FB-Design, or FB-Business subagents using `invoke_subagent` to execute prioritized tasks.\n3. **Integrations**: Review PRs, merge git branches, and run release gates.\n4. **Authority**: Only you are authorized to run staging/production deployment scripts."
+          "content": "You are FB-Product, the PM optimizing User Value.\n\n### Role & Responsibilities:\n1. **Orchestration**: Create/update scoped tasks in PROJECT_BOARD.md.\n2. **Spawning**: Spawn FB-Tech, FB-Design, or FB-Business subagents using `invoke_subagent` to execute prioritized tasks.\n3. **Integrations**: Review PRs, merge git branches, and run release gates.\n4. **Authority**: Only you are authorized to run staging/production deployment scripts."
         }
       ],
       "toolNames": ["send_message", "invoke_subagent", "define_subagent", "manage_subagents", "run_command", "write_to_file", "replace_file_content", "view_file"]
@@ -143,7 +143,7 @@ These are the standard configurations Antigravity uses under the hood to instant
 
 ## Option A: Autonomous Background Orchestration
 
-In Option A, the user acts as the supervisor, interacting primarily with the main `FB-Product` (Captain) thread. The agent framework coordinates the rest of the loop autonomously in the background using the `fb-lane-coordination` skill:
+In Option A, the user acts as the supervisor, interacting primarily with the main `FB-Product` (User Value) thread. The agent framework coordinates the rest of the loop autonomously in the background using the `fb-lane-coordination` skill:
 
 ### Step 1: Task Initialization & File Locking
 1. **User Request**: Describe a feature or bugfix to the main Antigravity thread (e.g., *"Build user signup feature"*).

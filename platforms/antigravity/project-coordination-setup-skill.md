@@ -39,7 +39,7 @@ To bootstrap a workspace, run through the **Execution Steps** in the Workflow be
 This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development.
 
 ### 1. Lane Scopes & Boundaries
-- **FB-Product (PM / Integration Captain)**: Owns final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates. Prioritizes the backlog on the project board, sequencing tasks based on goal-alignment and value-vs-effort mix.
+- **FB-Product (PM / Integration User Value)**: Owns final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates. Prioritizes the backlog on the project board, sequencing tasks based on goal-alignment and value-vs-effort mix.
 - **FB-Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, security rules, and functional test suites. *Does not make styling, layout geometry, or visual changes.*
 - **FB-Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
 - **FB-Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only code capacity.*
@@ -95,7 +95,7 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 ### Phase 4: Register the Subagents
 Run the `define_subagent` tool to register the four specialized workstreams in the current workspace using these definitions:
 
-1.  **FB-Product**: PM and Integration Captain. Scopes tasks, spawns subagent threads, merges code, runs release gates, and manages deployments.
+1.  **FB-Product**: PM and Integration User Value Optimizer. Scopes tasks, spawns subagent threads, merges code, runs release gates, and manages deployments.
 2.  **FB-Tech**: Tech Lead and Core Developer. Implements backend migrations, serverless functions, security logic, and runs development tests.
 3.  **FB-Design**: UI/UX Designer and Layout Auditor. Edits frontend styles, handles page geometry layout, and performs visual audits on staging.
 4.  **FB-Business**: Business copywriter and positioning strategist. Focuses on onboarding text, documentation, user-facing messaging, and pricing/marketing copy. (Set `enable_write_tools = false`).

@@ -18,7 +18,7 @@ FB-Lane allows you to run these workstreams **concurrently** in separate, isolat
 
 ### Q: Why 4 lanes? How are they structured?
 **A:** The four lanes map directly to the primary pillars of software development:
-*   **`FB-Product` (Captain)**: The orchestrator. Scopes tasks, runs checks, reviews PRs, prioritizes execution, and deploys.
+*   **`FB-Product` (User Value)**: The orchestrator. Scopes tasks, runs checks, reviews PRs, prioritizes execution, and deploys.
 *   **`FB-Tech` (Backend/Logic)**: Owns core logic, schemas, APIs, security rules, and tests.
 *   **`FB-Design` (UI/UX/Styling)**: Owns styling (CSS), page layout geometry, and visual QA.
 *   **`FB-Business` (Copywriting)**: Owns positioning, pricing text, help documents, and marketing copy.
@@ -60,7 +60,7 @@ This prevents a single thread from having write-access to both backend models an
 **A:** Testing is distributed across specialized lanes to keep code quality high without overloading agent threads:
 *   **`FB-Tech` (Functional Tests)**: Writes and runs unit, integration, API, and database security test suites (e.g. `npm run test` or backend linters) inside isolated `tech/` branches before pushing.
 *   **`FB-Design` (Visual QA)**: Runs layout audits across mobile/desktop viewports, checking theme styling, font loading, hover states, and ensuring zero text clipping or spill.
-*   **`FB-Product` (Integration Captain)**: Coordinates final staging verification. Product checks that both functional and visual test checklists are complete, reviews git diffs, and performs a smoke test on the staging build before merging.
+*   **`FB-Product` (User Value Optimizer)**: Coordinates final staging verification. Product checks that both functional and visual test checklists are complete, reviews git diffs, and performs a smoke test on the staging build before merging.
 
 ### Q: What happens if the tests or QA checks fail?
 **A:** Depending on when the failure occurs, the framework handles it via two safety loops, enforced by programmatic gates and a token budget protection policy:
@@ -78,7 +78,7 @@ This prevents a single thread from having write-access to both backend models an
 **A:** This is a common code-bleed scenario. Under FB-Lane:
 1. Each lane checks out its own branch (`tech/TASK-101` and `design/TASK-102`) and performs its edits.
 2. They push their branches and request merge.
-3. **`FB-Product` (Integration Captain)** reviews the PRs. The Captain merges the branches sequentially, resolving any conflicts in the shared file.
+3. **`FB-Product` (User Value Optimizer)** reviews the PRs. Product merges the branches sequentially, resolving any conflicts in the shared file.
 4. Product performs the final verification on staging to ensure the styling did not break the backend bindings, and vice versa.
 
 ### Q: How do we prevent an AI agent from violating its boundary (e.g. FB-Design modifying APIs)?
@@ -90,7 +90,7 @@ This prevents a single thread from having write-access to both backend models an
 **A:** While the number of developers/agents can grow, the core architecture remains robust. You can register and run multiple concurrent `FB-Tech` or `FB-Design` agents:
 *   **In Antigravity (Autonomous Background Orchestration)**: The `FB-Product` agent spawns them using `invoke_subagent` for separate tasks concurrently. The Antigravity client handles unique context boundaries per conversation ID on the active branches.
 *   **In IDE Threads (Claude/Cursor/Codex)**: Open separate chat tabs/threads, and in each thread, instruct the agent to adopt the respective lane role on separate task-prefixed branches (e.g., `tech/TASK-103-billing`, `tech/TASK-104-notifications`).
-To maintain centralization, code review sanity, and staging control, you must keep **one single Project Board** (`PROJECT_BOARD.md`) and **one Product Captain** thread.
+To maintain centralization, code review sanity, and staging control, you must keep **one single Project Board** (`PROJECT_BOARD.md`) and **one Product (User Value)** thread.
 
 ### Q: What happens if I talk to a lane directly, but Product rejects their changes during review? How is this rectified, and how do I know?
 **A:** If a direct-lane instruction results in code that conflicts with the product's strategic direction, user experience standards, or technical roadmap, the rectification and notification loop operates as follows:
@@ -114,7 +114,7 @@ To maintain centralization, code review sanity, and staging control, you must ke
     3.  **Merge Isolation (Veto Power)**: No lane can merge their own code. When they finish, they push a PR and hand it over to Product for review on staging. Product acts as the ultimate gatekeeper with exclusive merge authority, ensuring nothing goes live that conflicts with the roadmap.
     4.  **Roadmap Visibility & Veto**: Because every lane immediately logs their active scope on the project board, the roadmap remains the single source of truth. Product (or the human supervisor reviewing Product) has real-time visibility and can instantly pause, re-prioritize, or flag tasks that drift from the core strategic direction.
 
-### Q: How do we ensure the Product lane (Captain) does not become a workflow bottleneck?
+### Q: How do we ensure the Product lane (User Value) does not become a workflow bottleneck?
 **A:** The framework is built to prevent Product from becoming a chokepoint through three mechanisms:
 1.  **Asynchronous Pull Model**: Developers and subagents do not wait for Product assignments. They pull prioritized tasks directly from the `PROJECT_BOARD.md` when they are ready, setting them to `In Progress` and locking their resources autonomously.
 2.  **Self-Reporting QA Checklists**: Each lane owns its quality checks (tests, visual QA) and documents the outcomes directly on the board card. Product's role is reduced to a quick review of the checklist and staging build, which takes minutes.

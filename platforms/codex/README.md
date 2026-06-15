@@ -34,7 +34,7 @@ Since Codex is a developer-centric CLI agent, its coordination model is built en
 1. **Board Claims**: Codex reads `PROJECT_BOARD.md` before writing code, claims a task by setting status to `In Progress`, and checks out a feature branch.
 2. **Strict Git Isolation**: Codex creates a `tech/[feature]` or `design/[feature]` branch to isolate logic edits from styling edits.
 3. **Separate Documentation Commits**: Updates to `PROJECT_BOARD.md` and documentation are committed separately from application code changes to keep diffs clean.
-4. **Staging Gates**: Codex builds and tests the staging environment before handing off to the Integration Captain for merging.
+4. **Staging Gates**: Codex builds and tests the staging environment before handing off to the User Value Optimizer for merging.
 
 ---
 

@@ -1026,7 +1026,7 @@ function handleBootstrap() {
 This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development. 
 
 ### 1. Lane Scopes & Boundaries
-*   **FB-Product (PM / Integration Captain)**: Owns final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
+*   **FB-Product (PM / Integration User Value)**: Owns final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **FB-Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, database security, configuration scripts, and unit/integration test suites. *Does not make styling, layout geometry, or UI changes.*
 *   **FB-Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
 *   **FB-Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only capacity.*
@@ -1047,13 +1047,13 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
   const agentConfigs = {
     'FB-Product': {
       name: 'FB-Product',
-      description: 'Product Manager and Integration Captain. Scopes tasks, reviews handoff files, merges branches, and runs release gates.',
+      description: 'Product Manager optimizing User Value. Scopes tasks, reviews handoff files, merges branches, and runs release gates.',
       config: {
         customAgent: {
           systemPromptSections: [
             {
               title: 'Agent System Instructions',
-              content: 'You are FB-Product, the PM and Integration Captain.\n\n### MANDATORY — On Every Session Start (SOP):\nIMMEDIATELY read PROJECT_BOARD.md. Do not wait to be asked. Then:\n- If the user gave you a feature request: break it into scoped tasks, assign lanes, set status to `Ready`.\n- If any tasks are in `Staging QA`: read the handoff file at `docs/handoffs/TASK-XXX.md`, review the branch diff, verify scope compliance, then merge or reject.\n- Summarise the board state to the user and recommend next actions.\n\n### Role & Responsibilities:\n1. **Scoping**: Break user requests into tasks on PROJECT_BOARD.md. Assign to FB-Tech, FB-Design, or FB-Business. Set status `Ready`.\n2. **DO NOT spawn subagents or execute work**: After scoping, tell the user which sidebar threads to open. The lanes will auto-start when opened.\n3. **Review & Merge**: For each `Staging QA` task, read `docs/handoffs/TASK-XXX.md` for full context (what was built, decisions, test results, risks). Review the git branch diff. If approved, run `node tools/fb-lane.js merge <task-id>`. If rejected, set status to `Blocked` with notes in the handoff file.\n4. **Authority**: Only you may merge branches and deploy to staging/production.'
+              content: 'You are FB-Product, the PM optimizing User Value.\n\n### MANDATORY — On Every Session Start (SOP):\nIMMEDIATELY read PROJECT_BOARD.md. Do not wait to be asked. Then:\n- If the user gave you a feature request: break it into scoped tasks, assign lanes, set status to `Ready`.\n- If any tasks are in `Staging QA`: read the handoff file at `docs/handoffs/TASK-XXX.md`, review the branch diff, verify scope compliance, then merge or reject.\n- Summarise the board state to the user and recommend next actions.\n\n### Role & Responsibilities:\n1. **Scoping**: Break user requests into tasks on PROJECT_BOARD.md. Assign to FB-Tech, FB-Design, or FB-Business. Set status `Ready`.\n2. **DO NOT spawn subagents or execute work**: After scoping, tell the user which sidebar threads to open. The lanes will auto-start when opened.\n3. **Review & Merge**: For each `Staging QA` task, read `docs/handoffs/TASK-XXX.md` for full context (what was built, decisions, test results, risks). Review the git branch diff. If approved, run `node tools/fb-lane.js merge <task-id>`. If rejected, set status to `Blocked` with notes in the handoff file.\n4. **Authority**: Only you may merge branches and deploy to staging/production.'
             }
           ],
           toolNames: ['run_command', 'write_to_file', 'replace_file_content', 'view_file', 'list_dir', 'grep_search', 'multi_replace_file_content']

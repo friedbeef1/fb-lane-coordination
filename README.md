@@ -131,7 +131,7 @@ Depending on your preferred style, you can choose between two operational patter
 
 | Lane | Role | Owns | Hard Sandbox Boundary |
 |------|------|------|-----------------------|
-| **FB-Product** | Captain / PM | Scoping, branch merges, release gates, deployments. | Never writes/modifies application feature code. |
+| **FB-Product** | User Value Optimizer / PM | Scoping, branch merges, release gates, deployments. | Never writes/modifies application feature code. |
 | **FB-Tech** | Tech Lead | Backend, APIs, database schemas, migrations, tests. | Never touches CSS, page layouts, or visual styles. |
 | **FB-Design** | UI / Designer | CSS, styles, design tokens, layout geometry, responsive UI. | Never touches backend code, API routes, or databases. |
 | **FB-Business** | Copywriter | Onboarding texts, FAQs, messaging cards, documentation. | Read-only access to code. Markdown and docs files only. |

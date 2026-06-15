@@ -13,7 +13,7 @@ Instead of trying to discuss pricing copy, fix a backend bug, and tweak a UI but
 
 To prevent context window overload and git collisions, strictly adhere to your assigned lane:
 
-### 👑 FB-Product (Product Manager / Integration Captain)
+### 👑 FB-Product (Product Manager / User Value Optimizer)
 *   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
 *   **Workflow**: Reads user requests, triages and prioritizes the backlog on `PROJECT_BOARD.md` (sequencing tasks based on goal-alignment and optimal value-vs-effort mix, prompting the user for approval before promoting backlog items to `Ready`), manages resource locks, reviews PRs, verifies staging, and merges branches.
@@ -54,7 +54,7 @@ Because the project board and git branch are the single source of truth:
 * Sidebar threads do not get out of sync.
 * If a thread shows stale history or a pending button from a background run, typing `status` or `SOP` in that thread forces the agent to read `PROJECT_BOARD.md` and instantly update its chat context.
 
-All internal coordination—including running drift audits, checking/asserting resource locks on `PROJECT_BOARD.md`, checking out branches, writing code, executing verification tests, and pushing PRs—is **fully automated by the agents**. Product remains the integration Captain who reviews staging and merges the final code, ensuring all changes align with the product's strategic direction and do not cause scope drift.
+All internal coordination—including running drift audits, checking/asserting resource locks on `PROJECT_BOARD.md`, checking out branches, writing code, executing verification tests, and pushing PRs—is **fully automated by the agents**. Product remains the User Value Optimizer who reviews staging and merges the final code, ensuring all changes align with the product's strategic direction and do not cause scope drift.
 
 ---
 
