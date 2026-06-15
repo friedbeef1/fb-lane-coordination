@@ -55,13 +55,18 @@ You can instruct your AI assistant (Antigravity, Claude, Cursor, or Codex) to re
 The agent will copy the templates and configure the platform rules automatically.
 
 ### 🛠️ Option B: Manual Setup
-If you prefer to configure the framework manually, follow these steps:
-1.  **Copy the Templates**: Copy [templates/AGENTS.md](templates/AGENTS.md) and [templates/PROJECT_BOARD.md](templates/PROJECT_BOARD.md) to the root of your project repository and commit them.
-2.  **Configure Your Platform**: Follow the detailed guide for your platform of choice:
-    *   **Antigravity**: Read the [Antigravity Guide](platforms/antigravity/README.md) to register subagent roles, or run `tools/run_lane.py` to start direct interactive lane sessions directly in your terminal. Use the [project-coordination-setup-skill.md](platforms/antigravity/project-coordination-setup-skill.md) skill to auto-register subagent roles.
+If you prefer to configure the framework manually:
+1.  **Copy the CLI Tool**: Copy `tools/fb-lane.js` to your project repository.
+2.  **Run the Bootstrap Command**: Execute the following command in your repository root:
+    ```bash
+    node tools/fb-lane.js bootstrap
+    ```
+    *This automatically creates `PROJECT_BOARD.md`, `AGENTS.md`, and the agent configuration folders (`FB-Product/agent.json`, `FB-Tech/agent.json`, etc.) so they instantly appear on your Antigravity 2.0 left sidebar.*
+3.  **Configure Your Platform**: Follow the detailed guide for your platform of choice:
+    *   **Antigravity**: Read the [Antigravity Guide](platforms/antigravity/README.md) to register subagent roles, or run `tools/run_lane.py` to start direct interactive lane sessions in your terminal.
     *   **Claude & Cursor**: Read the [Claude Guide](platforms/claude/README.md) to set Project Custom Instructions and copy-paste [system prompts](platforms/claude/system-prompts.md).
     *   **Codex**: Read the [Codex Guide](platforms/codex/README.md) and copy the [workflow-rules.md](platforms/codex/workflow-rules.md) to your local rules directory.
-3.  **Claim Your First Task**: Mark `TASK-001` (Setup & Bootstrap) as `In Progress` in your project board, check out your feature branch, and start building!
+4.  **Claim Your First Task**: Mark `TASK-001` (Setup & Bootstrap) as `In Progress` in your project board, check out your feature branch, and start building!
 
 ---
 

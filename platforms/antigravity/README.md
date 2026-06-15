@@ -35,6 +35,22 @@ In Antigravity, **`FB-Product`** is the main agent thread (or Integration Captai
 
 ---
 
+## Quick Start: Bootstrapping a Project
+
+To automatically set up the FB-Lane coordination framework in any new project, copy `tools/fb-lane.js` to your repository root and run:
+```bash
+node tools/fb-lane.js bootstrap
+```
+
+This one command automatically creates:
+- `PROJECT_BOARD.md` (Project Task Board)
+- `AGENTS.md` (Lane Boundaries & Rules)
+- The agent configuration directories (`FB-Product/agent.json`, `FB-Tech/agent.json`, `FB-Design/agent.json`, `FB-Business/agent.json`)
+
+**Next Step**: Open the project folder in **Antigravity 2.0**. The lane agents will automatically populate on your left sidebar!
+
+---
+
 ## Setting Up Antigravity Skills
 
 The FB-Lane Coordination framework for Antigravity is divided into two reusable skills to optimize token efficiency:
