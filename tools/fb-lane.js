@@ -753,6 +753,163 @@ function handleMcpRequest(request) {
 }
 
 // Main execution parsing
+function handleBootstrap() {
+  console.log('🚀 Bootstrapping FB-Lane Coordination Framework...\n');
+  const rootDir = process.cwd();
+
+  // 1. Create PROJECT_BOARD.md if missing
+  const boardPath = path.join(rootDir, 'PROJECT_BOARD.md');
+  if (!fs.existsSync(boardPath)) {
+    const boardTemplate = `# Project Board
+
+## Statuses
+- \`Inbox\`: Newly requested tasks requiring triage.
+- \`Ready\`: Triaged tasks, fully scoped, ready to be claimed.
+- \`In Progress\`: Tasks currently being worked on by an owner.
+- \`Staging QA\`: Features deployed to staging, awaiting visual/functional verification.
+- \`Done\`: Checked, verified, and merged to production by FB-Product.
+
+---
+
+## Active Workstreams
+
+| ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
+|---|---|---|---|---|---|---|
+| TASK-001 | Ready | FB-Product | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \\| [PR #1](https://github.com/example/repo/pull/1) |
+
+---
+
+### TASK-001 - Project Setup & Bootstrap
+*   **Status**: Ready
+*   **Owner / Thread**: FB-Product
+*   **Area**: Setup
+*   **Scope**: Create initial files, initialize repository layout.
+*   **Out of Scope**: Writing application business logic.
+*   **Affected Screens / Locks**:
+    *   **Screens**: (None)
+    *   **Locked Files**: (None)
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: [Branch Link](https://github.com/example/repo/tree/main)
+    *   **Staging URL**: [Staging Link](https://staging.example.com)
+    *   **Design Specs**: (None)
+*   **QA Checklist**:
+    *   [ ] Repository structure is clean and follows design guidelines.
+    *   [ ] File names and paths are correct.
+    *   [ ] Documentation has zero typos or placeholders.
+*   **Modified Files**:
+    *   (None)
+*   **Latest Update**:
+    *   *2026-06-15*: Scoped task and marked ready for execution.
+`;
+    fs.writeFileSync(boardPath, boardTemplate, 'utf8');
+    console.log('📝 Created PROJECT_BOARD.md');
+  } else {
+    console.log('ℹ️  PROJECT_BOARD.md already exists, skipping.');
+  }
+
+  // 2. Create AGENTS.md if missing
+  const agentsPath = path.join(rootDir, 'AGENTS.md');
+  if (!fs.existsSync(agentsPath)) {
+    const agentsTemplate = `# Agent & Thread Coordination Rules
+
+This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development. 
+
+### 1. Lane Scopes & Boundaries
+*   **FB-Product (PM / Integration Captain)**: Owns final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
+*   **FB-Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, database security, configuration scripts, and unit/integration test suites. *Does not make styling, layout geometry, or UI changes.*
+*   **FB-Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
+*   **FB-Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only capacity.*
+
+### 2. The Board Loop & Resource Locking
+1. **Claim**: A thread claims or creates an item on the board and changes its status to \`In Progress\` using \`node tools/fb-lane.js claim\`.
+2. **Execute**: The thread works in an isolated branch (\`tech/[feature]\` or \`design/[feature]\`).
+3. **Audit**: When complete, the thread pushes the branch, moves the board item to \`Staging QA\` using \`node tools/fb-lane.js submit\`.
+4. **Merge**: \`FB-Product\` runs verification/release gates, merges the branch to main using \`node tools/fb-lane.js merge\`, and releases locks.
+`;
+    fs.writeFileSync(agentsPath, agentsTemplate, 'utf8');
+    console.log('📝 Created AGENTS.md');
+  } else {
+    console.log('ℹ️  AGENTS.md already exists, skipping.');
+  }
+
+  // 3. Create Agent config folders and files
+  const agentConfigs = {
+    'FB-Product': {
+      name: 'FB-Product',
+      description: 'Product Manager and Integration Captain. Central orchestrator of the workspace. Scopes tasks, spawns subagent threads, merges code, runs release gates, and manages deployments.',
+      config: {
+        customAgent: {
+          systemPromptSections: [
+            {
+              title: 'Agent System Instructions',
+              content: 'You are FB-Product, the PM and Integration Captain.\n\n### Role & Responsibilities:\n1. **Orchestration**: Create/update scoped tasks in PROJECT_BOARD.md.\n2. **Spawning**: Spawn FB-Tech, FB-Design, or FB-Business subagents using `invoke_subagent` to execute prioritized tasks.\n3. **Integrations**: Review PRs, merge git branches, and run release gates.\n4. **Authority**: Only you are authorized to run staging/production deployment scripts.'
+            }
+          ],
+          toolNames: ['send_message', 'invoke_subagent', 'define_subagent', 'manage_subagents', 'run_command', 'write_to_file', 'replace_file_content', 'view_file']
+        }
+      }
+    },
+    'FB-Tech': {
+      name: 'FB-Tech',
+      description: 'Tech Lead and Core Developer. Implements backend migrations, APIs, core app logic, and runs development tests.',
+      config: {
+        customAgent: {
+          systemPromptSections: [
+            {
+              title: 'Agent System Instructions',
+              content: 'You are FB-Tech, the Tech Lead and Core Developer.\n\n### Role & Responsibilities:\n1. **Core Development**: Implement backend code, APIs, schemas, migrations, and third-party integrations.\n2. **Security**: Own database permissions (RLS/policies), credentials, and secret hygiene.\n3. **Verification**: Run tests (e.g. npm run test) and compilation checks.\n4. **Boundary**: Do not modify UI styling, CSS layouts, or frontend design classes.'
+            }
+          ],
+          toolNames: ['send_message', 'run_command', 'write_to_file', 'replace_file_content', 'view_file', 'list_dir', 'grep_search']
+        }
+      }
+    },
+    'FB-Design': {
+      name: 'FB-Design',
+      description: 'UI/UX Designer and Layout Auditor. Edits frontend styles, handles page geometry layout, and performs visual audits on staging.',
+      config: {
+        customAgent: {
+          systemPromptSections: [
+            {
+              title: 'Agent System Instructions',
+              content: 'You are FB-Design, the UI/UX Designer and Layout Auditor.\n\n### Role & Responsibilities:\n1. **Frontend Styling**: Modify CSS/HTML/JS styles for responsive, premium layouts.\n2. **Quality Gates**: Enforce strict text containment (no spill/clip) and typography integrity (correct font loading).\n3. **Visual QA**: Use browser tools to capture screenshots and verify layouts across mobile and desktop viewports.\n4. **Boundary**: Do not edit database schemas, API routes, or backend server logic.'
+            }
+          ],
+          toolNames: ['send_message', 'run_command', 'write_to_file', 'replace_file_content', 'view_file', 'list_dir', 'call_mcp_tool']
+        }
+      }
+    },
+    'FB-Business': {
+      name: 'FB-Business',
+      description: 'Business copywriter and positioning strategist. Focuses on onboarding text, documentation, user-facing messaging, and pricing/marketing copy.',
+      config: {
+        customAgent: {
+          systemPromptSections: [
+            {
+              title: 'Agent System Instructions',
+              content: 'You are FB-Business, the copywriter and positioning strategist.\n\n### Role & Responsibilities:\n1. **Positioning**: Align copy with target audiences, write pricing cards and product benefits.\n2. **Copywriting**: Write onboarding copy, help center/FAQs, system documentation, and interface text.\n3. **Boundary (Read-Only)**: Propose copy updates to FB-Product or FB-Design; do not write code or run deployment commands.'
+            }
+          ],
+          toolNames: ['send_message', 'view_file', 'list_dir', 'grep_search', 'search_web']
+        }
+      }
+    }
+  };
+
+  for (const [folderName, configObj] of Object.entries(agentConfigs)) {
+    const dirPath = path.join(rootDir, folderName);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath);
+    }
+    const agentJsonPath = path.join(dirPath, 'agent.json');
+    fs.writeFileSync(agentJsonPath, JSON.stringify(configObj, null, 2), 'utf8');
+    console.log(`📁 Created agent config: ${folderName}/agent.json`);
+  }
+
+  console.log('\n🎉 FB-Lane Framework bootstrapped successfully!');
+  console.log('👉 Open this workspace folder in Antigravity 2.0 to see the agents in your left sidebar.\n');
+}
+
 function main() {
   const args = process.argv.slice(2);
   const command = args[0] ? args[0].toLowerCase() : '';
@@ -761,6 +918,8 @@ function main() {
     runMcpServer();
   } else if (command === 'status') {
     handleStatus();
+  } else if (command === 'bootstrap') {
+    handleBootstrap();
   } else if (command === 'claim') {
     const taskId = args[1];
     const lane = args[2];
@@ -790,6 +949,7 @@ function main() {
 🤖 FB-Lane Automation Tool
 ==========================
 Usage:
+  node tools/fb-lane.js bootstrap             - Bootstrap project board, agents, and folders
   node tools/fb-lane.js status                  - Print active tasks & locks
   node tools/fb-lane.js claim <id> <lane> [lks] - Claim task, checkout branch, copy prompt to clipboard
   node tools/fb-lane.js submit <id> [url] [--no-tests] - Run tests, submit task, update board, push branch
