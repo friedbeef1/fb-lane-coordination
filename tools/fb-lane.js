@@ -924,22 +924,62 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
     console.log(`📁 Created agent config: ${folderName}/agent.json`);
   }
 
-  // 4. Create .codex/rules.md if missing
+  // 4. Inject FB-Lane section into .codex/rules.md (non-destructive)
   const codexDir = path.join(rootDir, '.codex');
   if (!fs.existsSync(codexDir)) {
     fs.mkdirSync(codexDir);
   }
   const codexRulesPath = path.join(codexDir, 'rules.md');
+  const CODEX_FB_START = '<!-- fb-lane-start -->';
+  const CODEX_FB_END = '<!-- fb-lane-end -->';
+  const codexFbBlock = `${CODEX_FB_START}
+## FB-Lane Coordination
+
+This project uses the FB-Lane Four-Lane Coordination Model.
+
+### On every session start
+1. Read \`PROJECT_BOARD.md\` — check active tasks and file locks.
+2. Read \`.codex/current_task.md\` if it exists — it contains your task ID, branch, and locked files. Follow it exactly.
+3. Confirm your active branch matches the task. If not, stop and notify the user.
+4. Never modify files that are locked by another active task.
+
+### Lane boundaries
+- **FB-Tech**: backend, APIs, schemas, tests only. Never touch CSS or layout.
+- **FB-Design**: CSS, tokens, layout only. Never touch backend logic or schemas.
+- **FB-Business**: read-only on source code. Write to markdown docs only.
+- **FB-Product**: orchestrates merges and deployments only.
+
+### CLI commands (run from project root)
+- \`node tools/fb-lane.js status\` — view all tasks and locks
+- \`node tools/fb-lane.js claim <id> <lane>\` — claim task, checkout branch, lock files
+- \`node tools/fb-lane.js submit <id>\` — run tests, push branch, mark Staging QA
+- \`node tools/fb-lane.js merge <id>\` — merge to main, release locks (FB-Product only)
+
+### Rules
+- Never commit directly to \`main\`.
+- Commit \`PROJECT_BOARD.md\` updates in a separate commit from code changes.
+- Max 5 debug retries before marking task \`Blocked\` and notifying the user.
+${CODEX_FB_END}`;
+
   if (!fs.existsSync(codexRulesPath)) {
-    const codexRulesTemplate = `# Codex Instructions
-- You operate under the FB-Lane coordination framework.
-- If the file .codex/current_task.md exists, read it immediately.
-- Adhere strictly to the active branch, task ID, and locked files listed in that file. Do not modify files outside of the locked files or the assigned lane.
-`;
-    fs.writeFileSync(codexRulesPath, codexRulesTemplate, 'utf8');
-    console.log('📝 Created .codex/rules.md (Codex Auto-Configuration)');
+    fs.writeFileSync(codexRulesPath, codexFbBlock + '\n', 'utf8');
+    console.log('📝 Created .codex/rules.md with FB-Lane section.');
   } else {
-    console.log('ℹ️  .codex/rules.md already exists, skipping.');
+    const existingCodex = fs.readFileSync(codexRulesPath, 'utf8');
+    if (existingCodex.includes(CODEX_FB_START)) {
+      // Update in-place — idempotent
+      const updatedCodex = existingCodex.replace(
+        new RegExp(`${CODEX_FB_START}[\\s\\S]*?${CODEX_FB_END}`),
+        codexFbBlock
+      );
+      fs.writeFileSync(codexRulesPath, updatedCodex, 'utf8');
+      console.log('🔄 Updated existing FB-Lane section in .codex/rules.md.');
+    } else {
+      // Append — never overwrite user's existing rules
+      const appendedCodex = existingCodex.trimEnd() + '\n\n---\n\n' + codexFbBlock + '\n';
+      fs.writeFileSync(codexRulesPath, appendedCodex, 'utf8');
+      console.log('✅ Appended FB-Lane section to your existing .codex/rules.md.');
+    }
   }
 
   // 5. Inject FB-Lane section into CLAUDE.md (non-destructive)
