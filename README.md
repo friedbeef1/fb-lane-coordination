@@ -10,15 +10,16 @@ FB-Lane splits complex software development into four role-isolated workstreams 
 
 Compare how development works on complex, multi-layered features with AI agents:
 
-| Development Challenge | Without FB-Lane Framework | With FB-Lane Framework |
-| :--- | :--- | :--- |
-| **Concurrency & Collisions** | High risk of merge conflicts and regression as multiple agent threads modify the same files. | **Lightweight Resource Locking**: Tasks declare affected files on `PROJECT_BOARD.md`, establishing locks to prevent collisions. |
-| **Context & Token Overload** | Large, bloated chat threads discussing copy, databases, and UI style together, causing agent confusion and poor outputs. | **Role-Isolated Lanes**: Tech, Design, Business, and Product operate in specialized, isolated threads with targeted capabilities. |
-| **Domain Safety (Code-Bleed)** | Copywriters editing React layouts or layout agents inadvertently breaking database schemas and backend models. | **State-Driven Writing Gates**: Tech cannot touch CSS/styles, Design cannot edit backend code, and Business is strictly read-only. |
-| **Code Reliability** | Broken or compile-failing code gets pushed to main/staging; tests are rarely run by agents. | **Pre-Submission Test Gate**: The CLI automatically executes test suites (e.g. `npm test`) and blocks pushing if tests fail. |
-| **Token Budget Protection** | Runaway debugging loops; agents attempt infinite edits to fix a bug, burning through your tokens. | **5-Retry Debug Cap**: Strict retry threshold pauses execution and escalates to the user if a bug can't be resolved in 5 attempts. |
-| **Handoffs & Context Retention** | Silent handoffs; subsequent agents must blindly read repo history to understand what prior agents changed. | **Structured Handoff Cards**: Automated creation of `docs/handoffs/TASK-XXX.md` summarizing decisions, risk details, and testing. |
-| **Micro-Tasks & Hotfixes** | Manual branch creation, file tracking, and state sync, leading to developer overhead for simple edits. | **Fast-Track Quick Edits**: A single command (`node tools/fb-lane.js quick`) instantly checks out a branch and locks files for edits. |
+| Development Challenge | Without FB-Lane Framework | With FB-Lane Framework | How the User Works Now |
+| :--- | :--- | :--- | :--- |
+| **Concurrency & Collisions** | High risk of merge conflicts and regression as multiple agent threads modify the same files. | **Lightweight Resource Locking**: Tasks declare affected files on `PROJECT_BOARD.md`, establishing locks to prevent collisions. | **Review & Merge**: You monitor status cards on the project board and review PRs; no manual branch-sorting required. |
+| **Context & Token Overload** | Large, bloated chat threads discussing copy, databases, and UI style together, causing agent confusion and poor outputs. | **Role-Isolated Lanes**: Tech, Design, Business, and Product operate in specialized, isolated threads with targeted capabilities. | **Focused Threads**: Chat only with `FB-Product` (main thread) under Option A, or open clean sidebar threads per lane under Option B. |
+| **Domain Safety (Code-Bleed)** | Copywriters editing React layouts or layout agents inadvertently breaking database schemas and backend models. | **State-Driven Writing Gates**: Tech cannot touch CSS/styles, Design cannot edit backend code, and Business is strictly read-only. | **Declare Intent**: Describe feature requirements; the framework automatically splits tasks and locks files programmatically. |
+| **Code Reliability** | Broken or compile-failing code gets pushed to main/staging; tests are rarely run by agents. | **Pre-Submission Test Gate**: The CLI automatically executes test suites (e.g. `npm test`) and blocks pushing if tests fail. | **Smoke Testing**: Skip manual checkout and testing; you only perform a quick visual smoke test on the generated staging environment. |
+| **Token Budget Protection** | Runaway debugging loops; agents attempt infinite edits to fix a bug, burning through your tokens. | **5-Retry Debug Cap**: Strict retry threshold pauses execution and escalates to the user if a bug can't be resolved in 5 attempts. | **Passive Monitoring**: Sit back; the framework notifies you immediately if a worker agent hits the cap and goes into a `Blocked` state. |
+| **Handoffs & Context Retention** | Silent handoffs; subsequent agents must blindly read repo history to understand what prior agents changed. | **Structured Handoff Cards**: Automated creation of `docs/handoffs/TASK-XXX.md` summarizing decisions, risk details, and testing. | **Review Handoffs**: Read the short markdown handoff files to inspect implementation choices and risks before merging. |
+| **Micro-Tasks & Hotfixes** | Manual branch creation, file tracking, and state sync, leading to developer overhead for simple edits. | **Fast-Track Quick Edits**: A single command (`node tools/fb-lane.js quick`) instantly checks out a branch and locks files for edits. | **Fast Hotfixes**: Run the `quick` command in your terminal to instantly pair-program on micro-tasks without board overhead. |
+
 
 ```
                   ┌──────────────────────┐
