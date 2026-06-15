@@ -103,8 +103,27 @@ Run from the root of your project:
 | `node tools/fb-lane.js bootstrap` | Setup | Auto-generates board, rules, folder structures, and Claude configurations. |
 | `node tools/fb-lane.js status` | Utility | Prints all active tasks, branch mappings, and active file locks. |
 | `node tools/fb-lane.js claim <id> <lane> [locks]` | Workers | Checks out a task branch, locks files on the board, and prepares clipboard prompt. |
+| `node tools/fb-lane.js quick <lane> <locks> [desc]` | Workers | Fast-track: creates a temporary task, checks out a quick branch, and unlocks write access. |
 | `node tools/fb-lane.js submit <id> [staging_url]` | Workers | Formats board updates, pushes feature branch, and moves task to `Staging QA`. |
 | `node tools/fb-lane.js merge <id>` | Product | Merges feature branch to main, unlocks files, and moves status to `Done`. |
+
+---
+
+## 🛡️ Safety & State-Driven Writing Gates
+
+To prevent accidental codebase corruption or "rogue edits" when brainstorming with agents:
+* **Read-Only by Default**: Worker agents (`FB-Tech`, `FB-Design`) operate strictly as read-only consultants by default. They will not modify files or run write commands in your active chat window.
+* **Dynamic Writing Unlock**: Once a task is actively claimed (using the `claim` or `quick` commands), the presence of `.codex/current_task.md` matching their lane unlocks code-writing capability for that agent in the chat thread.
+* **File-Lock Boundary**: When write access is unlocked, the agent's prompt strictly restricts writes to the files listed under the task's active locks.
+
+---
+
+## 👥 User Involvement Modes
+
+Depending on your preferred style, you can choose between two operational patterns:
+* **Option A: Autonomous Background Orchestration (<20% Involvement)**: You chat only with the main **`FB-Product`** thread. Product autonomously scopes tasks, spawns subagents (`FB-Tech`/`FB-Design`) in the background, runs tests, and pushes branches. You are only involved to approve the plan at the start and review staging at the end.
+* **Option B: Interactive Direct Control (Pair-Programming)**: You chat directly with the sidebar worker threads (`FB-Tech`/`FB-Design`) to review plans and collaboratively debug code. Threads pass data and context back and forth using `PROJECT_BOARD.md` and `docs/handoffs/TASK-XXX.md`.
+  * *Syncing Threads*: If a sidebar thread shows stale history or old buttons, simply type `status` or `SOP` in the thread to force the agent to sync with the board.
 
 ---
 
