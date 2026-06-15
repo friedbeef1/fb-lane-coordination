@@ -373,6 +373,179 @@ ${task.scope}
   }
 }
 
+// Add a new task to PROJECT_BOARD.md programmatically
+function addTaskToBoard(boardPath, task) {
+  const content = fs.readFileSync(boardPath, 'utf8');
+  const lines = content.split(/\r?\n/);
+  
+  let tableHeaderIndex = -1;
+  let tableDividerIndex = -1;
+  
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].includes('## Active Workstreams')) {
+      tableHeaderIndex = i;
+    }
+    if (tableHeaderIndex !== -1 && lines[i].startsWith('|---|')) {
+      tableDividerIndex = i;
+      break;
+    }
+  }
+  
+  if (tableDividerIndex === -1) {
+    throw new Error('Could not find active workstreams table in PROJECT_BOARD.md');
+  }
+  
+  // Insert table row right after the table divider
+  const tableRow = `| ${task.id} | ${task.status} | ${task.owner} | ${task.area} | ${task.scope} | ${task.locks} | ${task.links} |`;
+  lines.splice(tableDividerIndex + 1, 0, tableRow);
+  
+  // Insert detail block at the bottom of the file
+  const detailsBlock = `
+### ${task.id} - ${task.scope}
+*   **Status**: ${task.status}
+*   **Owner / Thread**: ${task.owner}
+*   **Area**: ${task.area}
+*   **Scope**: ${task.scope}
+*   **Out of Scope**: Unrelated codebase changes.
+*   **Affected Screens / Locks**:
+    *   **Screens**: (None)
+    *   **Locked Files**: ${task.lockedFiles || '(None)'}
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: [Branch Link](${task.repoUrl}/tree/${task.branchName})
+    *   **Staging URL**: (None)
+    *   **Design Specs**: (None)
+*   **QA Checklist**:
+    *   [ ] Changes compile without error.
+    *   [ ] Modified files are verified and checked.
+*   **Modified Files**:
+    *   (None)
+*   **Latest Update**:
+    *   *${new Date().toISOString().split('T')[0]}*: Initialized quick edit task.
+`;
+  
+  lines.push(detailsBlock);
+  fs.writeFileSync(boardPath, lines.join('\n'), 'utf8');
+}
+
+// Handle quick-edit task creation and branch checkout
+function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit') {
+  const boardPath = findBoardPath();
+  if (!boardPath) {
+    console.error('❌ Error: PROJECT_BOARD.md not found.');
+    process.exit(1);
+  }
+  
+  if (!lane || !lockedFiles) {
+    console.error('❌ Error: Usage: node tools/fb-lane.js quick <lane> <locked_files> [scope_description]');
+    process.exit(1);
+  }
+  
+  const normLane = lane.charAt(0).toUpperCase() + lane.slice(1).toLowerCase();
+  if (!['Tech', 'Design', 'Business', 'Product'].includes(normLane)) {
+    console.error('❌ Error: Invalid lane. Must be Tech, Design, Business, or Product.');
+    process.exit(1);
+  }
+  
+  const timestamp = Math.floor(Date.now() / 1000).toString().slice(-4);
+  const taskId = `TASK-Q-${timestamp}`;
+  const owner = `FB-${normLane}`;
+  const area = 'Quick-Fix';
+  
+  // Format branch name
+  const slug = scopeDescription.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const branchName = `quick/${taskId}-${slug}`;
+  
+  // Run git checkout
+  try {
+    console.log(`Checking out quick branch: ${branchName}...`);
+    runGit(`checkout -b ${branchName}`);
+  } catch (err) {
+    console.log(`Branch might exist. Attempting to switch to: ${branchName}...`);
+    try {
+      runGit(`checkout ${branchName}`);
+    } catch (err2) {
+      console.error(`❌ Error switching branch: ${err2.message}`);
+      process.exit(1);
+    }
+  }
+  
+  // Resolve Git remote URL
+  let repoUrl = 'https://github.com/example/repo';
+  try {
+    const gitRemote = runGit('config --get remote.origin.url');
+    if (gitRemote) {
+      let cleanUrl = gitRemote.trim();
+      if (cleanUrl.endsWith('.git')) {
+        cleanUrl = cleanUrl.slice(0, -4);
+      }
+      if (cleanUrl.startsWith('git@')) {
+        cleanUrl = cleanUrl.replace(':', '/').replace('git@', 'https://');
+      } else if (cleanUrl.startsWith('ssh://git@')) {
+        cleanUrl = cleanUrl.replace('ssh://git@', 'https://');
+      }
+      repoUrl = cleanUrl;
+    }
+  } catch (err) {}
+  
+  // Format locks
+  const formattedLocks = lockedFiles.split(',').map(f => `\`${f.trim()}\``).join(', ');
+  
+  // Add to board
+  const taskRecord = {
+    id: taskId,
+    status: 'In Progress',
+    owner: owner,
+    area: area,
+    scope: scopeDescription,
+    locks: formattedLocks,
+    lockedFiles: formattedLocks,
+    links: `[Branch](${repoUrl}/tree/${branchName})`,
+    repoUrl: repoUrl,
+    branchName: branchName
+  };
+  
+  addTaskToBoard(boardPath, taskRecord);
+  
+  // Commit board separately
+  commitBoard(`docs: quick-claim ${taskId} and lock files`);
+  
+  // Write local Codex context file
+  const codexDir = path.join(path.dirname(boardPath), '.codex');
+  if (!fs.existsSync(codexDir)) {
+    fs.mkdirSync(codexDir);
+  }
+  const contextContent = `# Active Task Context
+* **Current Task**: ${taskId}
+* **Lane**: ${owner}
+* **Feature Branch**: ${branchName}
+* **Locked Files**: ${formattedLocks}
+
+## Task Scope:
+${scopeDescription} (Quick Edit)
+`;
+  fs.writeFileSync(path.join(codexDir, 'current_task.md'), contextContent, 'utf8');
+  
+  // Generate startup prompt
+  const taskObjForPrompt = { id: taskId, area: area, scope: scopeDescription };
+  const prompt = generateStartupPrompt(taskObjForPrompt, normLane, branchName, formattedLocks);
+  const copied = copyToClipboard(prompt);
+  
+  console.log(`\n✅ Quick edit task ${taskId} successfully claimed!`);
+  console.log(`   - Branch: ${branchName}`);
+  console.log(`   - Locked: ${formattedLocks}`);
+  console.log(`   - Board updated & committed separately.`);
+  console.log(`   - Codex Desktop context written to .codex/current_task.md`);
+  if (copied) {
+    console.log('\n🚀 STARTUP PROMPT COPIED TO CLIPBOARD!');
+    console.log('   Simply open a fresh chat thread in Claude/Cursor and paste (Cmd+V) to begin.\n');
+  } else {
+    console.log('\n👉 Copy-paste this startup prompt into your Claude/Cursor thread:');
+    console.log('-'.repeat(60));
+    console.log(prompt);
+    console.log('-'.repeat(60) + '\n');
+  }
+}
+
 // Run local test suite if package.json has a valid test script
 function runTests(boardPath) {
   let testCmd = null;
@@ -895,7 +1068,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
           systemPromptSections: [
             {
               title: 'Agent System Instructions',
-              content: 'You are FB-Tech, the Tech Lead and Core Developer.\n\n### MANDATORY — On Every Session Start (SOP):\nIMMEDIATELY do the following without waiting for instructions:\n1. Read PROJECT_BOARD.md.\n2. Find tasks assigned to FB-Tech with status `Ready` or `In Progress`.\n3. If `Ready`: claim it with `node tools/fb-lane.js claim <task-id> Tech <locked-files>`.\n4. If `In Progress`: read `.codex/current_task.md` and confirm your branch with `git rev-parse --abbrev-ref HEAD`.\n5. Begin implementation immediately.\n\n### Role & Responsibilities:\n1. **Core Development**: Backend code, APIs, schemas, migrations, serverless functions, integrations.\n2. **Security**: Database permissions (RLS/policies), credentials, secret hygiene.\n3. **Verification**: Run tests and compilation checks before submitting.\n4. **Boundary**: Do NOT modify CSS, layouts, fonts, or UI styling. Those belong to FB-Design.\n\n### MANDATORY — On Completion (Handoff Protocol):\nBefore running `node tools/fb-lane.js submit <task-id>`:\n1. Create `docs/handoffs/TASK-XXX.md` with the following sections:\n   - **Task**: ID and scope (copy from board).\n   - **What Was Built**: Detailed description of the implementation.\n   - **Technical Decisions**: Any architecture choices, trade-offs, or deviations from scope.\n   - **Modified Files**: Full list with brief per-file explanations.\n   - **Testing**: What was tested, how, and results (include command output if relevant).\n   - **Known Risks / Caveats**: Anything Product should be aware of.\n   - **Blocked Dependencies**: Any work that requires another lane to follow up.\n2. Update the task detail block in PROJECT_BOARD.md with: Modified Files list, QA Checklist marks, and a one-line Latest Update.\n3. Run `node tools/fb-lane.js submit <task-id>` to push and update status.\n4. Tell the user: "TASK-XXX is submitted. Open FB-Product to review."'
+              content: 'You are FB-Tech, the Tech Lead and Core Developer.\n\n### State-Driven Writing Gate (CRITICAL):\nYou are strictly READ-ONLY on codebase files by default. You are only authorized to use file-editing tools (like write_to_file or edit_file) if you have actively claimed a task (indicated by the presence of `.codex/current_task.md` matching your lane). If no task is active, you must suggest code blocks/changes in the chat only.\nOnce a task is claimed, you are only authorized to modify files that are explicitly listed under "Locked Files" in `.codex/current_task.md`. Editing files outside this lock is a boundary violation.\n\n### MANDATORY — On Every Session Start (SOP):\nIMMEDIATELY do the following without waiting for instructions:\n1. Read PROJECT_BOARD.md.\n2. Find tasks assigned to FB-Tech with status `Ready` or `In Progress`.\n3. If `Ready`: claim it with `node tools/fb-lane.js claim <task-id> Tech <locked-files>`.\n4. If `In Progress`: read `.codex/current_task.md` and confirm your branch with `git rev-parse --abbrev-ref HEAD`.\n5. Begin work immediately.\n\n### Role & Responsibilities:\n1. **Core Development**: Backend code, APIs, schemas, migrations, serverless functions, integrations.\n2. **Security**: Database permissions (RLS/policies), credentials, secret hygiene.\n3. **Verification**: Run tests and compilation checks before submitting.\n4. **Boundary**: Do NOT modify CSS, layouts, fonts, or UI styling. Those belong to FB-Design.\n\n### MANDATORY — On Completion (Handoff Protocol):\nBefore running `node tools/fb-lane.js submit <task-id>`:\n1. Create `docs/handoffs/TASK-XXX.md` with the following sections:\n   - **Task**: ID and scope (copy from board).\n   - **What Was Built**: Detailed description of the implementation.\n   - **Technical Decisions**: Any architecture choices, trade-offs, or deviations from scope.\n   - **Modified Files**: Full list with brief per-file explanations.\n   - **Testing**: What was tested, how, and results (include command output if relevant).\n   - **Known Risks / Caveats**: Anything Product should be aware of.\n   - **Blocked Dependencies**: Any work that requires another lane to follow up.\n2. Update the task detail block in PROJECT_BOARD.md with: Modified Files list, QA Checklist marks, and a one-line Latest Update.\n3. Run `node tools/fb-lane.js submit <task-id>` to push and update status.\n4. Tell the user: "TASK-XXX is submitted. Open FB-Product to review."'
             }
           ],
           toolNames: ['run_command', 'write_to_file', 'replace_file_content', 'view_file', 'list_dir', 'grep_search', 'multi_replace_file_content']
@@ -910,7 +1083,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
           systemPromptSections: [
             {
               title: 'Agent System Instructions',
-              content: 'You are FB-Design, the UI/UX Designer and Layout Auditor.\n\n### MANDATORY — On Every Session Start (SOP):\nIMMEDIATELY do the following without waiting for instructions:\n1. Read PROJECT_BOARD.md.\n2. Find tasks assigned to FB-Design with status `Ready` or `In Progress`.\n3. If `Ready`: claim it with `node tools/fb-lane.js claim <task-id> Design <locked-files>`.\n4. If `In Progress`: read `.codex/current_task.md` and confirm your branch.\n5. Begin implementation immediately.\n\n### Role & Responsibilities:\n1. **Frontend Styling**: CSS, HTML/JS styles, responsive layouts, design tokens, theme systems.\n2. **Quality Gates**: Strict text containment (no spill/clip), typography integrity (correct font loading).\n3. **Visual QA**: Verify layouts across mobile and desktop viewports. Capture screenshots when possible.\n4. **Boundary**: Do NOT edit database schemas, API routes, serverless functions, or backend logic. Those belong to FB-Tech.\n\n### MANDATORY — On Completion (Handoff Protocol):\nBefore running `node tools/fb-lane.js submit <task-id>`:\n1. Create `docs/handoffs/TASK-XXX.md` with the following sections:\n   - **Task**: ID and scope.\n   - **What Was Styled**: Detailed description of visual changes.\n   - **Design Decisions**: Color choices, spacing rationale, responsive breakpoints, any deviations.\n   - **Modified Files**: Full list with per-file explanations.\n   - **Visual QA Results**: Which viewports were tested, screenshot paths if captured.\n   - **Known Risks / Caveats**: Untested viewports, browser-specific issues, etc.\n2. Update PROJECT_BOARD.md with: Modified Files, QA Checklist marks, one-line Latest Update.\n3. Run `node tools/fb-lane.js submit <task-id>`.\n4. Tell the user: "TASK-XXX is submitted. Open FB-Product to review."'
+              content: 'You are FB-Design, the UI/UX Designer and Layout Auditor.\n\n### State-Driven Writing Gate (CRITICAL):\nYou are strictly READ-ONLY on codebase files by default. You are only authorized to use file-editing tools (like write_to_file or edit_file) if you have actively claimed a task (indicated by the presence of `.codex/current_task.md` matching your lane). If no task is active, you must suggest code blocks/changes in the chat only.\nOnce a task is claimed, you are only authorized to modify files that are explicitly listed under "Locked Files" in `.codex/current_task.md`. Editing files outside this lock is a boundary violation.\n\n### MANDATORY — On Every Session Start (SOP):\nIMMEDIATELY do the following without waiting for instructions:\n1. Read PROJECT_BOARD.md.\n2. Find tasks assigned to FB-Design with status `Ready` or `In Progress`.\n3. If `Ready`: claim it with `node tools/fb-lane.js claim <task-id> Design <locked-files>`.\n4. If `In Progress`: read `.codex/current_task.md` and confirm your branch.\n5. Begin work immediately.\n\n### Role & Responsibilities:\n1. **Frontend Styling**: CSS, HTML/JS styles, responsive layouts, design tokens, theme systems.\n2. **Quality Gates**: Strict text containment (no spill/clip), typography integrity (correct font loading).\n3. **Visual QA**: Verify layouts across mobile and desktop viewports. Capture screenshots when possible.\n4. **Boundary**: Do NOT edit database schemas, API routes, serverless functions, or backend logic. Those belong to FB-Tech.\n\n### MANDATORY — On Completion (Handoff Protocol):\nBefore running `node tools/fb-lane.js submit <task-id>`:\n1. Create `docs/handoffs/TASK-XXX.md` with the following sections:\n   - **Task**: ID and scope.\n   - **What Was Styled**: Detailed description of visual changes.\n   - **Design Decisions**: Color choices, spacing rationale, responsive breakpoints, any deviations.\n   - **Modified Files**: Full list with per-file explanations.\n   - **Visual QA Results**: Which viewports were tested, screenshot paths if captured.\n   - **Known Risks / Caveats**: Untested viewports, browser-specific issues, etc.\n2. Update PROJECT_BOARD.md with: Modified Files, QA Checklist marks, one-line Latest Update.\n3. Run `node tools/fb-lane.js submit <task-id>`.\n4. Tell the user: "TASK-XXX is submitted. Open FB-Product to review."'
             }
           ],
           toolNames: ['run_command', 'write_to_file', 'replace_file_content', 'view_file', 'list_dir', 'grep_search', 'call_mcp_tool']
@@ -1148,6 +1321,15 @@ function main() {
       process.exit(1);
     }
     handleSubmit(taskId, stagingUrl);
+  } else if (command === 'quick') {
+    const lane = args[1];
+    const lockedFiles = args[2];
+    const scope = args.slice(3).join(' ') || 'Quick Edit';
+    if (!lane || !lockedFiles) {
+      console.error('❌ Error: Usage: node tools/fb-lane.js quick <lane> <locked_files> [scope_description]');
+      process.exit(1);
+    }
+    handleQuick(lane, lockedFiles, scope);
   } else if (command === 'merge') {
     const taskId = args[1];
     if (!taskId) {
@@ -1160,12 +1342,13 @@ function main() {
 🤖 FB-Lane Automation Tool
 ==========================
 Usage:
-  node tools/fb-lane.js bootstrap             - Bootstrap project board, agents, and folders
-  node tools/fb-lane.js status                  - Print active tasks & locks
-  node tools/fb-lane.js claim <id> <lane> [lks] - Claim task, checkout branch, copy prompt to clipboard
+  node tools/fb-lane.js bootstrap                      - Bootstrap project board, agents, and folders
+  node tools/fb-lane.js status                         - Print active tasks & locks
+  node tools/fb-lane.js claim <id> <lane> [locks]      - Claim task, checkout branch, copy prompt to clipboard
+  node tools/fb-lane.js quick <lane> <locks> [desc]    - Create & claim a fast-track quick task
   node tools/fb-lane.js submit <id> [url] [--no-tests] - Run tests, submit task, update board, push branch
-  node tools/fb-lane.js merge <id>              - Merge branch to main, release locks, delete branch
-  node tools/fb-lane.js mcp                     - Run local Model Context Protocol (MCP) server
+  node tools/fb-lane.js merge <id>                     - Merge branch to main, release locks, delete branch
+  node tools/fb-lane.js mcp                            - Run local Model Context Protocol (MCP) server
 `);
   }
 }

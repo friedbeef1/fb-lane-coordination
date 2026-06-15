@@ -203,6 +203,19 @@ To prevent this, the FB-Lane framework enforces strict **Thread Segmentation**:
 1. **Details & Inspections**: If you want to know technical details without reading files, click the `FB-Tech` sidebar thread and ask. The agent reads the local files and handoff notes to present a clean, domain-specific explanation.
 2. **Individual Conversations**: If you ever want to bypass Product and give a direct instruction (e.g. asking Design to make a header transparent), you can do so directly in the sidebar thread. Design will check out the branch, implement it, and submit it, leaving Product to merge it.
 
+### Q: How do State-Driven Writing Gates work?
+**A:** By default, sidebar threads (`FB-Tech` and `FB-Design`) operate strictly as **read-only consultants**. This means they will not edit files or run commands that modify your codebase during brainstorming. They only unlock writing capabilities once a task is actively claimed (indicated by the presence of `.codex/current_task.md` matching their lane). 
+
+### Q: What is the File Lock Boundary rule for agents?
+**A:** Once a task is claimed and writing is unlocked, the agent is strictly prohibited from modifying files outside of the "Locked Files" declared in `.codex/current_task.md`. This prevents code-bleed and ensures styling agents never modify backend routes, and vice versa.
+
+### Q: How do I perform quick edits without setting up a full task backlog?
+**A:** You can run the fast-track command in your terminal:
+```bash
+node tools/fb-lane.js quick Tech "src/utils.ts" "Fix db indexing"
+```
+This automatically registers a temporary task (`TASK-Q-XXXX`) on your project board, checks out a `quick/` branch, locks the files, and immediately unlocks write capability for the `FB-Tech` agent in your active thread.
+
 ### Q: What if my sidebar threads show stale info or a pending button from a background run?
 **A:** Because `PROJECT_BOARD.md` and git are the single source of truth, the threads are never actually out of sync. To force any sidebar thread to align its chat context with the actual state of your workspace instantly, just type **`status`** or **`SOP`** in that thread. The agent will read the board, detect the active branch, and update its context.
 

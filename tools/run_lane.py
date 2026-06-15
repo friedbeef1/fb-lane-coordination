@@ -159,12 +159,14 @@ async def main() -> None:
         role_instructions = (
             "- Only modify backend code, API endpoints, serverless functions, database schemas, and migration files. "
             "Do not touch stylesheets, UI layouts, or page style classes.\n"
+            "- File Lock Boundary: You are strictly restricted to modifying files that are explicitly listed under the 'Locked Files' section. Writing to files outside this list is a boundary violation.\n"
             "- Compile and test your changes locally. Ensure functional tests pass before pushing."
         )
     elif lane == "Design":
         role_instructions = (
             "- Only modify styling files (CSS), layout geometry, design tokens, and static UI assets. "
             "Do not modify backend logic, API routes, or databases.\n"
+            "- File Lock Boundary: You are strictly restricted to modifying files that are explicitly listed under the 'Locked Files' section. Writing to files outside this list is a boundary violation.\n"
             "- Run visual verification across mobile/desktop viewports (check for clipping and spacing integrity)."
         )
     elif lane == "Business":
