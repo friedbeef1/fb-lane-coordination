@@ -4,6 +4,22 @@
 
 FB-Lane splits complex software development into four role-isolated workstreams (Product, Tech, Design, Business), each running in its own conversational thread. A version-controlled, markdown-based `PROJECT_BOARD.md` acts as the single source of truth and message bus for task state, branch names, and file-level resource locks.
 
+---
+
+## 🆕 What's New in v2.0 (Before & After)
+
+To protect your project budget, ensure robust code quality, and make local terminal operations seamless, the framework has been upgraded with automated validation gates and retry protection:
+
+| Feature / Capability | Before (v1.0) | Now (v2.0) |
+| :--- | :--- | :--- |
+| **Code Reliability** | Untested code pushed directly to staging; tests run post-facto. | **Pre-Submission Test Gate**: CLI automatically executes your test suites (e.g. `npm test`) and blocks commits if they fail. |
+| **Token Budget Protection** | Infinite loops; agents could repeatedly attempt fixes, burning tokens. | **5-Retry Debug Cap**: Programmatic threshold stops runaway agent loops and immediately alerts the human developer. |
+| **Task Bottlenecks** | Workflow freeze; blocked tasks stalled the entire queue. | **Auto-Proceed Backlog Loop**: Product automatically claims and executes the next independent task from the `Ready` backlog. |
+| **CLI & Terminal Usage** | Background-only; required manual coordination and GUI setup. | **Direct Lane Runner (`run_lane.py`)**: Launch any lane interactive agent directly in your terminal with automated branch setup. |
+| **Code-Bleed Prevention** | Weak writing constraints; agents could modify files outside their domain. | **State-Driven Writing Gates**: Agents are read-only by default; write-access is locked strictly to declared files in active task context. |
+| **Micro-Tasks & Hotfixes** | Heavy setup; tiny changes required full backlog scoping on the board. | **Fast-Track Quick Edits**: Use `node tools/fb-lane.js quick` to spin up instant, short-lived tasks and branch out in seconds. |
+| **Bootstrap Personalization** | Generic templates; required manual editing of repository URLs. | **Smarter Auto-Bootstrap**: Automatically resolves git remote origin SSH/HTTPS URLs to configure board links. |
+
 ```
                   ┌──────────────────────┐
                   │      User Prompt     │
