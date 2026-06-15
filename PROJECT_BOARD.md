@@ -14,9 +14,9 @@
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \ |
-| TASK-002 | Staging QA | FB-Tech | Integration | Migrate Speech Coach from AssemblyAI LeMUR to OpenAI GPT-4o-mini API | `package.json`, `services/googleGeminiService.ts`, `hooks/useAudioAnalysis.ts`, `components/AnalysisResults.tsx`, `hooks/useRecording.ts`, `index.html`, `services/assemblyAiService.ts`, `types.ts` | [Branch](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-002-gemini-speech-coach-integration) |
-| TASK-003 | Staging QA | FB-Business | Business | Toastmasters community strategy and prebuilt scenarios | `docs/business/toastmasters-community-strategy.md` | [Docs](file:///Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/docs/business/toastmasters-community-strategy.md) |
-| TASK-004 | Staging QA | FB-Tech | Integration | Technical integration of Toastmasters scenarios | `data/scenarios.ts` | [Branch](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-004-toastmasters-scenario-integration) |
+| TASK-002 | Done | FB-Tech | Integration | Migrate Speech Coach from AssemblyAI LeMUR to OpenAI GPT-4o-mini API | `package.json`, `services/googleGeminiService.ts`, `hooks/useAudioAnalysis.ts`, `components/AnalysisResults.tsx`, `hooks/useRecording.ts`, `index.html`, `services/assemblyAiService.ts`, `types.ts` | [Branch](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-002-gemini-speech-coach-integration) |
+| TASK-003 | Done | FB-Business | Business | Toastmasters community strategy and prebuilt scenarios | `docs/business/toastmasters-community-strategy.md` | [Docs](file:///Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/docs/business/toastmasters-community-strategy.md) |
+| TASK-004 | Done | FB-Tech | Integration | Technical integration of Toastmasters scenarios | `data/scenarios.ts` | [Branch](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-004-toastmasters-scenario-integration) |
 | MEJA-100 | Staging QA | FB-Design | UI | Playful warning status badge/toast fallback (Plan D) | `index.html`, `src/index.css` | [Branch](https://github.com/friedbeef1/meja/tree/design/MEJA-100-sync-fallback) |
 
 ---
@@ -77,7 +77,7 @@
 
 
 ### TASK-002 - OpenAI GPT-4o-mini Speech Coach Integration
-*   **Status**: Staging QA
+*   **Status**: Done
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Integration
 *   **Scope**: Migrate the speech coach recording analysis and tips generator from AssemblyAI LeMUR to the OpenAI GPT-4o-mini API.
@@ -102,7 +102,7 @@
 ---
 
 ### TASK-003 - Toastmasters Community Acquisition & Positioning Strategy
-*   **Status**: Staging QA
+*   **Status**: Done
 *   **Owner / Thread**: FB-Business
 *   **Area**: Business
 *   **Scope**: Define positioning, outreach templates, and app scenarios for targeting Toastmasters globally.
@@ -126,7 +126,7 @@
 
 
 ### TASK-004 - Toastmasters Scenario Technical Integration
-*   **Status**: Staging QA
+*   **Status**: Done
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Integration
 *   **Scope**: Integrate the Toastmasters prebuilt scenarios into the TypeScript data file (`data/scenarios.ts`) and wire them into the React user interface.
