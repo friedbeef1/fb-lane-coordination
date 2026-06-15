@@ -119,4 +119,7 @@ The step-by-step loop using the automation tools:
    ```
    *(Or ask Claude Desktop with MCP: "Merge TASK-102").*
 
+> [!NOTE]
+> **Thread Initialization**: Claude Projects, Cursor, and other chat interfaces cannot programmatically start a new UI chat thread for you. You must manually start a fresh chat thread for each lane/task (e.g., one thread for `FB-Tech`, another for `FB-Design`). Because all threads operate on the same local workspace files and share the same git branch and `PROJECT_BOARD.md`, the different sessions remain fully in sync. Work done by Claude in one thread will be immediately visible and ready for testing or merging in the next thread.
+
 

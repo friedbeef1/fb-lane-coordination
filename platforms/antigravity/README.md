@@ -201,3 +201,6 @@ When you run the `run_lane.py` script:
 2. **Strict Sandbox Configuration**: It maps the target lane to the corresponding rules defined in the coordination model, configuring the agent's system prompt and capabilities (e.g. read-only tool limits for `Business`).
 3. **Interactive Prompt**: It starts the conversational loop using the standard `User:` and `Agent:` terminal prompts.
 4. **Command Approval**: When the agent requests a shell command execution (such as `npm test` or compilation checks), the safety policy will present an interactive `y/n` confirmation prompt to you before running the command.
+
+> [!NOTE]
+> **Thread Initialization in IDE (Agent Mode)**: The parent integration agent (or assistant) cannot programmatically spawn a new conversation UI thread in the IDE panel for you. When working across multiple lanes in the IDE, you should start the conversation thread manually for each lane (e.g. `FB-Tech` or `FB-Design`) from the sidebar, and let the agents coordinate the work. Since all lane threads read/write to the same workspace files, the active git branch, and the same `PROJECT_BOARD.md` as the single source of truth, they will seamlessly pick up the context and work together without split-brain issues.

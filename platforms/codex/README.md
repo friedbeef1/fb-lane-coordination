@@ -106,4 +106,7 @@ node tools/fb-lane.js claim TASK-102 Tech "src/auth.ts"
    ```
    *(Or ask Codex Desktop via MCP: "Merge TASK-102").*
 
+> [!NOTE]
+> **Thread Initialization**: The Codex client cannot programmatically start new conversation UI threads on your behalf. You must start the chat sessions manually for the individual lanes (e.g. `FB-Tech`, `FB-Design`) in Codex. Because the active branch, task metadata (`.codex/current_task.md`), and `PROJECT_BOARD.md` are shared directly in the local workspace directory, each newly initiated Codex session will automatically pick up where the other left off, ensuring seamless collaboration across separate threads.
+
 
