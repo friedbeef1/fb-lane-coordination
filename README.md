@@ -2,8 +2,10 @@
 
 **Run multiple AI agent threads concurrently on the same codebase — with zero merge conflicts, zero context overload, and strict scope safety.**
 
-> 📺 **[Watch the FB-Lane Demo Video on YouTube](https://youtu.be/wry1xhaEEBg)** — Click the preview below to watch the framework in action:
-[![FB-Lane Framework Demo Video](https://img.youtube.com/vi/wry1xhaEEBg/maxresdefault.jpg)](https://youtu.be/wry1xhaEEBg)
+> 📺 **<a href="https://youtu.be/wry1xhaEEBg" target="_blank">Watch the FB-Lane Demo Video on YouTube</a>** — Click the preview below to watch the framework in action:
+<a href="https://youtu.be/wry1xhaEEBg" target="_blank">
+  <img src="https://img.youtube.com/vi/wry1xhaEEBg/maxresdefault.jpg" alt="FB-Lane Framework Demo Video" style="max-width: 100%;">
+</a>
 
 Looking for quick answers, troubleshooting tips, or details on how the coordination loops work under the hood? Check out our [Frequently Asked Questions (FAQ)](FAQ.md).
 
