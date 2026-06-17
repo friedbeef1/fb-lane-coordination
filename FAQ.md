@@ -2,6 +2,8 @@
 
 This FAQ is designed to help developers, product managers, and AI agents understand the philosophy, architecture, and daily operations of the **FB-Lane Coordination Model**.
 
+For a complete overview of the framework, key features, quickstart guides, and step-by-step lifecycles, please refer back to the main [README.md](README.md).
+
 ---
 
 ## 1. High-Level Concepts

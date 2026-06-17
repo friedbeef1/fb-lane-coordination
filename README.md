@@ -2,6 +2,8 @@
 
 **Run multiple AI agent threads concurrently on the same codebase — with zero merge conflicts, zero context overload, and strict scope safety.**
 
+Looking for quick answers, troubleshooting tips, or details on how the coordination loops work under the hood? Check out our [Frequently Asked Questions (FAQ)](FAQ.md).
+
 FB-Lane splits complex software development into four role-isolated workstreams (Product, Tech, Design, Business), each running in its own conversational thread. A version-controlled, markdown-based `PROJECT_BOARD.md` acts as the single source of truth and message bus for task state, branch names, and file-level resource locks.
 
 ---
