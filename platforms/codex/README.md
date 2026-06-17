@@ -2,6 +2,24 @@
 
 Codex is a local developer agent that operates directly on your filesystem and git workspace. It excels at codebase audits, local compilation checks, and terminal automation. To coordinate multiple Codex threads working on the same project, the FB-Lane model relies on strict **branch isolation** and local **project board tracking**.
 
+## ⚡ Quick Setup
+
+### Method A: AI-Powered Bootstrap (Recommended)
+If you have an AI agent active in your workspace, simply paste this prompt:
+> *"I want to bootstrap the FB-Lane Coordination Framework in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
+
+### Method B: Manual CLI Bootstrap
+1. Download the CLI script:
+   ```bash
+   curl -o tools/fb-lane.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.cjs
+   ```
+2. Run bootstrap:
+   ```bash
+   node tools/fb-lane.cjs bootstrap
+   ```
+
+---
+
 ## The Problem This Solves in Codex
 As a local, filesystem-active developer agent, Codex is prone to:
 * **Merge Collisions**: If multiple Codex runs execute in the same workspace without branch isolation, they will overwrite each other's changes, corrupting the code state.
@@ -107,6 +125,10 @@ node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
    *(Or ask Codex Desktop via MCP: "Merge TASK-102").*
 
 > [!NOTE]
-> **Thread Initialization**: The Codex client cannot programmatically start new conversation UI threads on your behalf. You must start the chat sessions manually for the individual lanes (e.g. `FB-Tech`, `FB-Design`) in Codex. Because the active branch, task metadata (`.codex/current_task.md`), and `PROJECT_BOARD.md` are shared directly in the local workspace directory, each newly initiated Codex session will automatically pick up where the other left off, ensuring seamless collaboration across separate threads.
+> **Thread Initialization & Context Clearing**: The Codex client cannot programmatically start new conversation UI threads on your behalf. You must start the chat sessions manually for the individual lanes (e.g. `FB-Tech`, `FB-Design`) in Codex. 
+> 
+> Furthermore, **clearing the Codex thread or workspace session (e.g., via `/clear` or starting a fresh chat window) is highly encouraged** for each new task to avoid context bloat and reasoning degradation. Because all threads operate on the same local workspace files and share the exact same git branch, `.codex/current_task.md`, and `PROJECT_BOARD.md`, the different sessions remain fully in sync.
+> 
+> If you clear context, typing `status` or `SOP` in the fresh session prompts Codex to inspect the local files (like `.codex/current_task.md` and `PROJECT_BOARD.md`) and run Git queries (like `git branch --show-current`) to immediately determine its active lane, task ID, and locked files, resuming control instantly.
 
 

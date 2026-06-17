@@ -37,12 +37,17 @@ In Antigravity, **`FB-Product`** is the main agent thread (representing User Val
 
 ## Quick Start: Bootstrapping a Project
 
-To automatically set up the FB-Lane coordination framework in any new project, copy `tools/fb-lane.cjs` to your repository root and run:
+### Method A: AI-Powered Bootstrap (Recommended)
+If you have an AI agent active in your workspace, simply paste this prompt:
+> *"I want to bootstrap the FB-Lane Coordination Framework in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
+
+### Method B: Manual CLI Bootstrap
+To automatically set up the framework manually, copy `tools/fb-lane.cjs` to your repository root `tools/` folder and run:
 ```bash
 node tools/fb-lane.cjs bootstrap
 ```
 
-This one command automatically creates:
+This bootstrap command automatically creates:
 - `PROJECT_BOARD.md` (Project Task Board)
 - `AGENTS.md` (Lane Boundaries & Rules)
 - The agent configuration directories (`agents/FB-Product/agent.json`, `agents/FB-Tech/agent.json`, `agents/FB-Design/agent.json`, `agents/FB-Business/agent.json`)
@@ -219,4 +224,8 @@ When you run the `run_lane.py` script:
 4. **Command Approval**: When the agent requests a shell command execution (such as `npm test` or compilation checks), the safety policy will present an interactive `y/n` confirmation prompt to you before running the command.
 
 > [!NOTE]
-> **Thread Initialization in IDE (Agent Mode)**: The parent integration agent (or assistant) cannot programmatically spawn a new conversation UI thread in the IDE panel for you. When working across multiple lanes in the IDE, you should start the conversation thread manually for each lane (e.g. `FB-Tech` or `FB-Design`) from the sidebar, and let the agents coordinate the work. Since all lane threads read/write to the same workspace files, the active git branch, and the same `PROJECT_BOARD.md` as the single source of truth, they will seamlessly pick up the context and work together without split-brain issues.
+> **Thread Initialization & Context Clearing**: The parent integration agent (or assistant) cannot programmatically spawn a new conversation UI thread in the IDE panel for you. When working across multiple lanes in the IDE, you should start the conversation thread manually for each lane (e.g. `FB-Tech` or `FB-Design`) from the sidebar, and let the agents coordinate the work.
+> 
+> Furthermore, **clearing the thread (e.g., via `/clear` or starting a fresh chat window) is highly encouraged** for each new task to avoid context bloat and reasoning degradation. Because all threads operate on the same local workspace files and share the exact same git branch, `.codex/current_task.md`, and `PROJECT_BOARD.md`, the different sessions remain fully in sync.
+> 
+> If you clear context, simply typing `status` or `SOP` in the fresh thread prompts the agent to inspect the local files (like `.codex/current_task.md` and `PROJECT_BOARD.md`) and run Git queries (like `git branch --show-current`) to immediately determine its active lane, task ID, and locked files, resuming control instantly.

@@ -13,42 +13,9 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \ |
-| TASK-002 | Done | FB-Tech | Integration | Migrate Speech Coach from AssemblyAI LeMUR to OpenAI GPT-4o-mini API | `package.json`, `services/googleGeminiService.ts`, `hooks/useAudioAnalysis.ts`, `components/AnalysisResults.tsx`, `hooks/useRecording.ts`, `index.html`, `services/assemblyAiService.ts`, `types.ts` | [Branch](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-002-gemini-speech-coach-integration) |
-| TASK-003 | Done | FB-Business | Business | Toastmasters community strategy and prebuilt scenarios | `docs/business/toastmasters-community-strategy.md` | [Docs](file:///Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/docs/business/toastmasters-community-strategy.md) |
-| TASK-004 | Done | FB-Tech | Integration | Technical integration of Toastmasters scenarios | `data/scenarios.ts` | [Branch](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-004-toastmasters-scenario-integration) |
-| MEJA-100 | Staging QA | FB-Design | UI | Playful warning status badge/toast fallback (Plan D) | `index.html`, `src/index.css` | [Branch](https://github.com/friedbeef1/meja/tree/design/MEJA-100-sync-fallback) |
-
----
-
-### MEJA-100 - Plan D UI Fallback States
-*   **Status**: Staging QA
-*   **Owner / Thread**: FB-Design
-*   **Area**: UI
-*   **Scope**: Style a playful warning status badge/toast or notification in `src/index.css` and render it in `index.html` when `state.syncError` is active.
-*   **Out of Scope**: Editing database schemas, Supabase migrations, or core business logic.
-*   **Affected Screens / Locks**:
-    *   **Screens**: All screens (global toast/badge)
-    *   **Locked Files**: `index.html`, `src/index.css`
-*   **Links & Deliverables**:
-    *   **Git Branch / PR**: [Branch Link](https://github.com/friedbeef1/meja/tree/design/MEJA-100-sync-fallback)
-    *   **Staging URL**: (None)
-    *   **Design Specs**: [plan_meja_100_fallback.md](file:///Users/jamesyeang/.gemini/antigravity/brain/0d7ec486-0bb5-4f03-9fee-b9327180a9cc/plan_meja_100_fallback.md)
-
-*   **QA Checklist**:
-    *   [x] Patrick Hand font loads correctly.
-    *   [x] Matches hand-drawn cartoon postcard aesthetic.
-    *   [x] Fits responsive viewports (mobile, tablet, desktop) without text clipping or layout spilling.
-    *   [x] Reactive `window.state.syncError` shows/hides the component.
-*   **Modified Files**:
-    *   `index.html`
-    *   `index.tsx`
-    *   `src/index.css`
-*   **Latest Update**:
-    *   *2026-06-15*: Completed visual styling, HTML structure, and reactivity hooks. Submitted to Staging QA.
-
-
-
+| TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) |
+| TASK-002 | Ready | FB-Tech | Core | Implement user authentication endpoints | `src/auth.ts`, `src/db.ts` | (None) |
+| TASK-003 | Ready | FB-Design | UI | Design responsive dashboard navigation | `src/navigation.css` | (None) |
 
 ---
 
@@ -76,77 +43,36 @@
     *   *2026-06-15*: Completed repository bootstrapping and documented layout decisions.
 
 
-### TASK-002 - OpenAI GPT-4o-mini Speech Coach Integration
-*   **Status**: Done
+### TASK-002 - Implement user authentication endpoints
+*   **Status**: Ready
 *   **Owner / Thread**: FB-Tech
-*   **Area**: Integration
-*   **Scope**: Migrate the speech coach recording analysis and tips generator from AssemblyAI LeMUR to the OpenAI GPT-4o-mini API.
-*   **Out of Scope**: Major UI redesigns or unrelated styling tweaks.
+*   **Area**: Core
+*   **Scope**: Implement user registration and login API endpoints.
+*   **Out of Scope**: Unrelated styling edits.
 *   **Affected Screens / Locks**:
     *   **Screens**: (None)
-    *   **Locked Files**: `package.json`, `services/googleGeminiService.ts`, `hooks/useAudioAnalysis.ts`, `components/AnalysisResults.tsx`, `hooks/useRecording.ts`, `index.html`, `services/assemblyAiService.ts`, `types.ts`
+    *   **Locked Files**: `src/auth.ts`, `src/db.ts`
 *   **Links & Deliverables**:
-    *   **Git Branch / PR**: [Branch Link](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-002-gemini-speech-coach-integration)
+    *   **Git Branch / PR**: (None)
     *   **Staging URL**: (None)
-    *   **Design Specs**: (None)
-    *   **Decision Memo**: (None)
 *   **QA Checklist**:
-    *   [ ] Gemini feedback, summary, and tips generate correctly.
-    *   [ ] Local audio features extraction functions correctly.
-    *   [ ] Build compiles with no TypeScript compilation errors.
-*   **Modified Files**:
-    *   (None)
-*   **Latest Update**:
-    *   *2026-06-15*: Initialized task and claimed for execution.
+    *   [ ] Registration works and hashes passwords.
+    *   [ ] Session tokens generated securely.
+    *   [ ] Unit tests pass.
 
----
 
-### TASK-003 - Toastmasters Community Acquisition & Positioning Strategy
-*   **Status**: Done
-*   **Owner / Thread**: FB-Business
-*   **Area**: Business
-*   **Scope**: Define positioning, outreach templates, and app scenarios for targeting Toastmasters globally.
-*   **Out of Scope**: Direct codebase modifications or UI engineering.
+### TASK-003 - Design responsive dashboard navigation
+*   **Status**: Ready
+*   **Owner / Thread**: FB-Design
+*   **Area**: UI
+*   **Scope**: Design a responsive sidebar navigation menu.
+*   **Out of Scope**: Editing database schemas or APIs.
 *   **Affected Screens / Locks**:
-    *   **Screens**: (None)
-    *   **Locked Files**: `docs/business/toastmasters-community-strategy.md`
+    *   **Screens**: Dashboard
+    *   **Locked Files**: `src/navigation.css`
 *   **Links & Deliverables**:
-    *   **Git Branch / PR**: (None - Read-only copywriting task)
+    *   **Git Branch / PR**: (None)
     *   **Staging URL**: (None)
-    *   **Design Specs**: (None)
-    *   **Decision Memo**: [docs/business/toastmasters-community-strategy.md](file:///Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/docs/business/toastmasters-community-strategy.md)
 *   **QA Checklist**:
-    *   [x] Draft positioning strategy and copy templates.
-    *   [x] Define 4 Toastmasters-specific practice scenarios.
-    *   [x] Verify markdown and file formatting.
-*   **Modified Files**:
-    *   `docs/business/toastmasters-community-strategy.md`
-*   **Latest Update**:
-    *   *2026-06-15*: Drafted the strategy and prebuilt scenarios document.
-
-
-### TASK-004 - Toastmasters Scenario Technical Integration
-*   **Status**: Done
-*   **Owner / Thread**: FB-Tech
-*   **Area**: Integration
-*   **Scope**: Integrate the Toastmasters prebuilt scenarios into the TypeScript data file (`data/scenarios.ts`) and wire them into the React user interface.
-*   **Out of Scope**: Customizing the CSS styling of the Scenario Gallery or creating new SVG icons.
-*   **Affected Screens / Locks**:
-    *   **Screens**: Scenario Gallery
-    *   **Locked Files**: `data/scenarios.ts`
-*   **Links & Deliverables**:
-    *   **Git Branch / PR**: [Branch Link](https://github.com/friedbeef1/friedbeef123/tree/tech/TASK-004-toastmasters-scenario-integration)
-    *   **Staging URL**: (None)
-    *   **Design Specs**: (None)
-    *   **Decision Memo**: (None)
-*   **QA Checklist**:
-    *   [x] Toastmasters category renders in `ScenarioGallery`.
-    *   [x] All 4 scenarios (Table Topics, Ice Breaker, Pathways, Evaluation) render correctly with prompts and tips.
-    *   [x] Build compiles with no TypeScript compilation errors.
-*   **Modified Files**:
-    *   `data/scenarios.ts`
-*   **Latest Update**:
-    *   *2026-06-15*: Integrated the scenarios into `data/scenarios.ts`, ran verification builds, and checked in the code on `tech/TASK-004-toastmasters-scenario-integration`.
-
-
-
+    *   [ ] Sidebar collapses cleanly on mobile viewports.
+    *   [ ] Colors align with the design system.

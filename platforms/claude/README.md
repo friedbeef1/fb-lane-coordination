@@ -2,6 +2,24 @@
 
 Claude (via Claude Projects, Desktop, or Cursor IDE) is typically a single-threaded agent. It does not natively spawn background subagents. However, you can easily simulate the **FB-Lane Model** to protect Claude's context window from bloating and keep its focus razor-sharp.
 
+## ⚡ Quick Setup
+
+### Method A: AI-Powered Bootstrap (Recommended)
+If you have an AI agent active in your workspace, simply paste this prompt:
+> *"I want to bootstrap the FB-Lane Coordination Framework in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
+
+### Method B: Manual CLI Bootstrap
+1. Download the CLI script:
+   ```bash
+   curl -o tools/fb-lane.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.cjs
+   ```
+2. Run bootstrap:
+   ```bash
+   node tools/fb-lane.cjs bootstrap
+   ```
+
+---
+
 ## The Problem This Solves in Claude & Cursor
 Claude Projects and Cursor chats are highly prone to:
 * **Context Overload & Forgetfulness**: As a chat thread grows longer, Claude starts losing track of earlier instructions, forgets its system constraints, and suffers from degraded reasoning.
@@ -120,6 +138,10 @@ The step-by-step loop using the automation tools:
    *(Or ask Claude Desktop with MCP: "Merge TASK-102").*
 
 > [!NOTE]
-> **Thread Initialization**: Claude Projects, Cursor, and other chat interfaces cannot programmatically start a new UI chat thread for you. You must manually start a fresh chat thread for each lane/task (e.g., one thread for `FB-Tech`, another for `FB-Design`). Because all threads operate on the same local workspace files and share the same git branch and `PROJECT_BOARD.md`, the different sessions remain fully in sync. Work done by Claude in one thread will be immediately visible and ready for testing or merging in the next thread.
+> **Thread Initialization & Context Clearing**: Claude Projects, Cursor, and other chat interfaces cannot programmatically start a new UI chat thread for you. You must manually start a fresh chat thread for each lane/task (e.g., one thread for `FB-Tech`, another for `FB-Design`).
+> 
+> Furthermore, **clearing the thread (e.g., via `/clear` or starting a fresh chat window) is highly encouraged** for each new task to avoid context bloat and reasoning degradation. Because all threads operate on the same local workspace files and share the exact same git branch, `.codex/current_task.md`, and `PROJECT_BOARD.md`, the different sessions remain fully in sync.
+> 
+> If you clear context, simply typing `status` or `SOP` in the fresh thread will prompt the agent to inspect the local files (like `.codex/current_task.md` and `PROJECT_BOARD.md`) and run Git queries (like `git branch --show-current`) to immediately determine its active lane, task ID, and locked files, resuming control instantly.
 
 

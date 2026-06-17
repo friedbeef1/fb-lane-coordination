@@ -241,6 +241,13 @@ This automatically registers a temporary task (`TASK-Q-XXXX`) on your project bo
 ### Q: What if my sidebar threads show stale info or a pending button from a background run?
 **A:** Because `PROJECT_BOARD.md` and git are the single source of truth, the threads are never actually out of sync. To force any sidebar thread to align its chat context with the actual state of your workspace instantly, just type **`status`** or **`SOP`** in that thread. The agent will read the board, detect the active branch, and update its context.
 
+### Q: If I clear the chat context (e.g. via `/clear` or starting a fresh thread), how does the agent know which lane it is in when I type `status` or `SOP`?
+**A:** Clearing context or starting a fresh thread is fully supported and even encouraged to keep the agent's context clean and prevent reasoning degradation. When you clear context and type `status` or `SOP`, the agent dynamically reconstructs its lane identity and task constraints from the local workspace state:
+1. **Local State File (`.codex/current_task.md`)**: It reads this file first. The file explicitly documents the active `Task ID`, `Lane` (e.g. `FB-Tech`), `Feature Branch`, and `Locked Files`.
+2. **Git Branch Parsing**: It runs git queries (like `git rev-parse --abbrev-ref HEAD` or `git branch --show-current`) to inspect the current checkout. The prefix (e.g. `tech/` or `design/`) lets the agent know which lane's branch it is currently working on.
+3. **Project Board Reference (`PROJECT_BOARD.md`)**: It reads the project board and matches the active task ID from the Git branch with the designated owner (`FB-Tech`, `FB-Design`, `FB-Business`, or `FB-Product`) in the table.
+4. **Agent Configurations & System Prompts**: On platforms like Antigravity, the registered subagent configuration or custom instructions (such as those in `.codex/rules.md` or `CLAUDE.md`) anchor the agent to its specific lane parameters (e.g. keeping `FB-Tech` restricted from stylesheet modifications).
+
 ---
 
 ## 9. Getting Started & Automation
