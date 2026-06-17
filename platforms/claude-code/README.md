@@ -10,10 +10,25 @@ Claude Code discovers three project-local artifacts:
 | `.claude/agents/*.md` | The four lanes as selectable subagents: `fb-product`, `fb-tech`, `fb-design`, `fb-business`. |
 | `CLAUDE.md` | Auto-loaded coordination rules (lane boundaries + board/lock protocol). |
 
-## Setup
+## Install as a Claude Code plugin (recommended)
 
-From your project root, run the bootstrap — it generates all three, non-destructively (existing
-files are skipped or merged in place):
+This repo is also a single-plugin **marketplace** (`.claude-plugin/marketplace.json` +
+`.claude-plugin/plugin.json`). Install the lanes, skills, and MCP server in one step:
+
+```bash
+/plugin marketplace add friedbeef1/fb-lane-coordination
+/plugin install fb-lane-coordination@fb-lane
+```
+
+This registers the four lane subagents (`./.claude/agents`), the `fb-lane` skills (`skills/`),
+and the `fb-lane` MCP server (the bundled CLI is referenced via `${CLAUDE_PLUGIN_ROOT}`, so it
+works wherever the plugin is installed). The MCP server reads the `PROJECT_BOARD.md` of whatever
+project you currently have open.
+
+## Or: bootstrap into a project (copies the CLI in)
+
+From your project root, run the bootstrap — it generates all three artifacts, non-destructively
+(existing files are skipped or merged in place):
 
 ```bash
 node tools/fb-lane.cjs bootstrap

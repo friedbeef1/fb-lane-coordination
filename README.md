@@ -91,6 +91,14 @@ If you have an active AI agent in your project workspace (such as Antigravity, C
    * **Cursor / Claude Projects Web**: Add `AGENTS.md` and `PROJECT_BOARD.md` to your Project Knowledge or Custom Instructions.
    * **Codex**: Launch Codex Desktop. It is preconfigured to automatically read active task scopes.
 
+### Method C: Install as a Claude Code Plugin
+This repo doubles as a single-plugin marketplace. In Claude Code, run:
+```bash
+/plugin marketplace add friedbeef1/fb-lane-coordination
+/plugin install fb-lane-coordination@fb-lane
+```
+This installs the four lane subagents, the `fb-lane` skills, and the `fb-lane` MCP server — no manual file copying. See [`platforms/claude-code/`](platforms/claude-code/README.md).
+
 Done! You are ready to run `node tools/fb-lane.cjs claim <task-id> <lane>` and start coding.
 
 ---
