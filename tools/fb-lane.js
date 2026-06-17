@@ -59,7 +59,7 @@ function parseBoard(boardPath) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     // Parse table row
-    const tableMatch = line.match(/^\|\s*(TASK-\w+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/);
+    const tableMatch = line.match(/^\|\s*([A-Za-z0-9]+-\d+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|/);
     if (tableMatch) {
       const id = tableMatch[1].trim();
       if (id !== 'ID' && !id.startsWith('---')) {
@@ -80,7 +80,7 @@ function parseBoard(boardPath) {
   // Parse detail blocks
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const headerMatch = line.match(/^###\s*(TASK-\w+)\s*-\s*(.*)/);
+    const headerMatch = line.match(/^###\s*([A-Za-z0-9]+-\d+)\s*-\s*(.*)/);
     if (headerMatch) {
       if (currentTask) {
         currentTask.details = parseDetailLines(detailLines);
@@ -142,7 +142,7 @@ function updateBoardTask(boardPath, taskId, updates) {
   // 1. Update the table row
   for (let i = 0; i < updatedLines.length; i++) {
     const line = updatedLines[i];
-    const tableMatch = line.match(/^\|\s*(TASK-\w+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/);
+    const tableMatch = line.match(/^\|\s*([A-Za-z0-9]+-\d+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|/);
     if (tableMatch && tableMatch[1].trim() === taskId) {
       const newStatus = updates.status !== undefined ? updates.status : task.status;
       const newOwner = updates.owner !== undefined ? updates.owner : task.owner;
@@ -161,7 +161,7 @@ function updateBoardTask(boardPath, taskId, updates) {
 
   for (let i = 0; i < updatedLines.length; i++) {
     const line = updatedLines[i];
-    const headerMatch = line.match(/^###\s*(TASK-\w+)\s*-\s*(.*)/);
+    const headerMatch = line.match(/^###\s*([A-Za-z0-9]+-\d+)\s*-\s*(.*)/);
     if (headerMatch && headerMatch[1].trim() === taskId) {
       inDetailBlock = true;
       blockStartIndex = i;
@@ -310,6 +310,15 @@ function handleClaim(taskId, lane, lockedFiles = '(None)') {
   const branchName = `${lane.toLowerCase()}/${taskId}-${slug}`;
 
   // Run git checkout
+  console.log('Switching to main and pulling latest changes...');
+  try {
+    runGit('checkout main');
+    runGit('pull origin main');
+  } catch (err) {
+    console.error(`❌ Error: Could not pull main branch safely: ${err.message}`);
+    console.error(`👉 Please stash, commit, or discard your uncommitted changes first.`);
+    process.exit(1);
+  }
   try {
     console.log(`Checking out branch: ${branchName}...`);
     runGit(`checkout -b ${branchName}`);
@@ -456,6 +465,15 @@ function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit') {
   const branchName = `quick/${taskId}-${slug}`;
   
   // Run git checkout
+  console.log('Switching to main and pulling latest changes...');
+  try {
+    runGit('checkout main');
+    runGit('pull origin main');
+  } catch (err) {
+    console.error(`❌ Error: Could not pull main branch safely: ${err.message}`);
+    console.error(`👉 Please stash, commit, or discard your uncommitted changes first.`);
+    process.exit(1);
+  }
   try {
     console.log(`Checking out quick branch: ${branchName}...`);
     runGit(`checkout -b ${branchName}`);
@@ -562,7 +580,7 @@ function runTests(boardPath) {
   if (testCmd) {
     console.log(`\n🔍 Running local test suite: "${testCmd}"...`);
     try {
-      execSync(testCmd, { stdio: 'inherit' });
+      execSync(testCmd, { stdio: 'inherit', cwd: path.dirname(boardPath) });
       console.log('✅ Local tests passed successfully!\n');
       return true;
     } catch (err) {
@@ -650,6 +668,13 @@ function handleMerge(taskId) {
     process.exit(1);
   }
 
+  const gitStatus = runGit('status --porcelain');
+  if (gitStatus !== '') {
+    console.error('❌ Error: You have uncommitted changes in your workspace.');
+    console.error('👉 Please commit, stash, or discard them before merging.');
+    process.exit(1);
+  }
+
   // Determine the feature branch name from task scope slug
   const slug = task.scope.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   // Try to find the branch name matching the task ID
@@ -666,9 +691,19 @@ function handleMerge(taskId) {
   }
 
   console.log(`Merging ${targetBranch} into main...`);
-  runGit('checkout main');
-  runGit('pull origin main');
-  runGit(`merge ${targetBranch}`);
+  try {
+    runGit('checkout main');
+    runGit('pull origin main');
+    runGit(`merge ${targetBranch}`);
+  } catch (err) {
+    console.error(`\n❌ Error: Merge conflict or checkout failure detected while merging ${targetBranch} into main.`);
+    console.error(`⚠️  Aborting merge safely to protect your workspace...`);
+    try {
+      runGit('merge --abort');
+    } catch (abortErr) {}
+    console.error(`👉 Please run the merge manually to resolve conflicts:\n   git checkout main && git merge ${targetBranch}\n`);
+    process.exit(1);
+  }
 
   // Update board
   updateBoardTask(boardPath, taskId, {

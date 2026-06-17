@@ -52,7 +52,7 @@ def parse_board(board_path: str) -> List[Dict[str, str]]:
     lines = content.splitlines()
     for line in lines:
         match = re.match(
-            r"^\|\s*(TASK-\w+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|",
+            r"^\|\s*([A-Za-z0-9]+-\d+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|",
             line,
         )
         if match:
@@ -106,6 +106,12 @@ async def main() -> None:
     """
     Main entry point for parsing arguments and starting the agent loop.
     """
+    if "GEMINI_API_KEY" not in os.environ:
+        print("❌ Error: GEMINI_API_KEY environment variable is not set.", file=sys.stderr)
+        print("👉 Please obtain an API key from Google AI Studio (https://aistudio.google.com/) and set it:", file=sys.stderr)
+        print("   export GEMINI_API_KEY=\"your_key_here\"", file=sys.stderr)
+        sys.exit(1)
+
     parser = argparse.ArgumentParser(
         description="Run direct lane interactive agent sessions in Antigravity 2.0."
     )
