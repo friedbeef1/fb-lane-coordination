@@ -10,6 +10,11 @@ Claude Code discovers three project-local artifacts:
 | `.claude/agents/*.md` | The four lanes as selectable subagents: `fb-product`, `fb-tech`, `fb-design`, `fb-business`. |
 | `CLAUDE.md` | Auto-loaded coordination rules (lane boundaries + board/lock protocol). |
 
+> **Two agent locations (kept in sync):** the lane definitions live in both `agents/*.md` (the
+> plugin's default-discovery directory, used when installed via the marketplace) and
+> `.claude/agents/*.md` (used when this repo is opened directly as a Claude Code project). They are
+> identical copies — if you change a lane's prompt, edit both.
+
 ## Install as a Claude Code plugin (recommended)
 
 This repo is also a single-plugin **marketplace** (`.claude-plugin/marketplace.json` +
