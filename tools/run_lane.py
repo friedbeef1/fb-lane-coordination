@@ -4,7 +4,7 @@ Direct Lane Runner for Antigravity 2.0.
 
 This script launches a direct interactive loop with a specialized lane agent
 (Tech, Design, Business, or Product) after ensuring the task is claimed,
-the branch is checked out, and file locks are applied via fb-lane.js.
+the branch is checked out, and file locks are applied via fb-lane.cjs.
 """
 
 import argparse
@@ -89,12 +89,12 @@ def get_current_branch() -> str:
 
 def run_claim(task_id: str, lane: str, locked_files: Optional[str]) -> None:
     """
-    Call the local tools/fb-lane.js claim command.
+    Call the local tools/fb-lane.cjs claim command.
 
     This ensures the branch is checked out, the board is updated,
     and locks are applied, maintaining compatibility with the core workflow.
     """
-    cmd = ["node", "tools/fb-lane.js", "claim", task_id, lane]
+    cmd = ["node", "tools/fb-lane.cjs", "claim", task_id, lane]
     if locked_files:
         cmd.append(locked_files)
 
