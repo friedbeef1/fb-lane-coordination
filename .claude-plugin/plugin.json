@@ -16,7 +16,6 @@
     "agent-safety",
     "antigravity"
   ],
-  "agents": "./.claude/agents",
   "mcpServers": {
     "fb-lane": {
       "command": "node",
