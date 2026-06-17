@@ -59,7 +59,7 @@ Compare how development works on complex, multi-layered features with AI agents:
 * **Lightweight Resource Locking**: Locks specific files to prevent concurrent threads from stepping on each other's toes and producing merge conflicts.
 * **Standard Operating Procedure (SOP)**: On every session start, threads automatically inspect the board and current task file to claim, align, or resume work without human hand-holding.
 * **Two-Layer Handoff**: Worker threads summarize work back to the board and write structured handoff specs under `docs/handoffs/TASK-XXX.md` to ensure context is never lost.
-* **Platform Agnostic**: Works natively with **Antigravity 2.0**, **Claude Projects**, and **Codex (OpenAI)**.
+* **Platform Agnostic**: Works natively with **Antigravity 2.0**, **Claude Code**, **Claude Projects**, and **Codex (OpenAI)**.
 
 ---
 
@@ -82,13 +82,22 @@ If you have an active AI agent in your project workspace (such as Antigravity, C
    ```bash
    node tools/fb-lane.cjs bootstrap
    ```
-   *What this does:* Auto-generates the central task board (`PROJECT_BOARD.md`), boundary rules (`AGENTS.md`), local Codex configurations (`.codex/rules.md`), Claude configuration (`CLAUDE.md`), and **automatically registers the MCP server for Claude Desktop** (if installed).
+   *What this does:* Auto-generates the central task board (`PROJECT_BOARD.md`), boundary rules (`AGENTS.md`), local Codex configurations (`.codex/rules.md`), Claude configuration (`CLAUDE.md`), the **Claude Code integration** (`.mcp.json` MCP server + `.claude/agents/` lane subagents), and **automatically registers the MCP server for Claude Desktop** (if installed).
 
 3. **Launch Your Agent**:
    * **Antigravity**: Open the project folder. The lane subagents will automatically appear in your sidebar!
    * **Claude Desktop**: Restart Claude. The `fb-lane` MCP tools are registered and ready to use.
+   * **Claude Code** (CLI / web / IDE): Reload the workspace. The lanes (`fb-product`, `fb-tech`, `fb-design`, `fb-business`) appear as subagents in `/agents` and the agent picker; approve the `fb-lane` MCP server via `/mcp`. See [`platforms/claude-code/`](platforms/claude-code/README.md).
    * **Cursor / Claude Projects Web**: Add `AGENTS.md` and `PROJECT_BOARD.md` to your Project Knowledge or Custom Instructions.
    * **Codex**: Launch Codex Desktop. It is preconfigured to automatically read active task scopes.
+
+### Method C: Install as a Claude Code Plugin
+This repo doubles as a single-plugin marketplace. In Claude Code, run:
+```bash
+/plugin marketplace add friedbeef1/fb-lane-coordination
+/plugin install fb-lane-coordination@fb-lane
+```
+This installs the four lane subagents, the `fb-lane` skills, and the `fb-lane` MCP server — no manual file copying. See [`platforms/claude-code/`](platforms/claude-code/README.md).
 
 Done! You are ready to run `node tools/fb-lane.cjs claim <task-id> <lane>` and start coding.
 

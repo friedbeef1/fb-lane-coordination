@@ -1,10 +1,13 @@
 {
   "name": "fb-lane-coordination",
+  "displayName": "FB-Lane Coordination",
   "version": "1.0.0",
   "description": "Multi-agent coordination framework using role-isolated lanes and a version-controlled project board.",
   "author": {
     "name": "James Yeang"
   },
+  "homepage": "https://github.com/friedbeef1/fb-lane-coordination",
+  "repository": "https://github.com/friedbeef1/fb-lane-coordination",
   "license": "MIT",
   "keywords": [
     "coordination",
@@ -12,5 +15,11 @@
     "git-coordination",
     "agent-safety",
     "antigravity"
-  ]
+  ],
+  "mcpServers": {
+    "fb-lane": {
+      "command": "node",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/tools/fb-lane.cjs", "mcp"]
+    }
+  }
 }

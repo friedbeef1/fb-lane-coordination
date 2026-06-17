@@ -47,3 +47,16 @@ node tools/fb-lane.cjs merge <id>           # Merge to main, release locks (FB-P
 - **Run tests before submitting** — the `submit` command does this automatically.
 - **Max 5 debug retries** — if tests still fail after 5 attempts, mark task `Blocked` and notify the user.
 - **Do not revert others** — if another lane touched a shared file, merge `main` into your branch first.
+
+## Lane Subagents (Claude Code)
+
+The non-orchestrator lanes are available as Claude Code subagents in `.claude/agents/`. You can
+invoke any of them directly, or let the main session delegate to them:
+
+- **`fb-tech`** — backend/APIs/schemas/migrations/security/tests (CLI lane `Tech`)
+- **`fb-design`** — CSS/tokens/layout geometry/visual QA (CLI lane `Design`)
+- **`fb-business`** — copy/docs/positioning; read-only on code (CLI lane `Business`)
+
+The **main session acts as FB-Product** (the orchestrator): scope tasks on `PROJECT_BOARD.md`,
+delegate to a lane subagent, review the result, then merge. Full lane ownership boundaries and
+the board/locking protocol live in `AGENTS.md`.

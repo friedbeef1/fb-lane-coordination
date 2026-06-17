@@ -1325,8 +1325,62 @@ ${FB_LANE_END}`;
     }
   }
 
+  // 7. Auto-configure Claude Code MCP server (project-scoped .mcp.json — all platforms)
+  const mcpJsonPath = path.join(rootDir, '.mcp.json');
+  try {
+    let mcpConfig = { mcpServers: {} };
+    if (fs.existsSync(mcpJsonPath)) {
+      try {
+        mcpConfig = JSON.parse(fs.readFileSync(mcpJsonPath, 'utf8'));
+      } catch (err) {
+        console.warn('⚠️  Could not parse existing .mcp.json. Merging into a clean template.');
+      }
+    }
+    if (!mcpConfig.mcpServers) {
+      mcpConfig.mcpServers = {};
+    }
+    mcpConfig.mcpServers['fb-lane'] = {
+      command: 'node',
+      args: ['tools/fb-lane.cjs', 'mcp']
+    };
+    fs.writeFileSync(mcpJsonPath, JSON.stringify(mcpConfig, null, 2) + '\n', 'utf8');
+    console.log('🔌 Configured Claude Code MCP server in .mcp.json');
+  } catch (err) {
+    console.warn(`⚠️  Failed to configure Claude Code MCP (.mcp.json): ${err.message}`);
+  }
+
+  // 8. Create Claude Code lane subagents (.claude/agents/*.md — non-destructive).
+  // Derived from the canonical `agentConfigs` above so the lanes stay in sync. Antigravity
+  // tool names are mapped to Claude Code tools; FB-Business stays read-only on code.
+  const claudeAgentsDir = path.join(rootDir, '.claude', 'agents');
+  if (!fs.existsSync(claudeAgentsDir)) {
+    fs.mkdirSync(claudeAgentsDir, { recursive: true });
+  }
+  const claudeLaneTools = {
+    'FB-Product': 'Read, Edit, Write, Grep, Glob, Bash',
+    'FB-Tech': 'Read, Edit, Write, Grep, Glob, Bash',
+    'FB-Design': 'Read, Edit, Write, Grep, Glob, Bash',
+    'FB-Business': 'Read, Grep, Glob, WebSearch, WebFetch'
+  };
+  for (const [folderName, configObj] of Object.entries(agentConfigs)) {
+    const slug = folderName.toLowerCase();
+    const agentMdPath = path.join(claudeAgentsDir, `${slug}.md`);
+    if (fs.existsSync(agentMdPath)) {
+      console.log(`ℹ️  .claude/agents/${slug}.md already exists, skipping.`);
+      continue;
+    }
+    const body = configObj.config.customAgent.systemPromptSections
+      .map((section) => section.content)
+      .join('\n\n');
+    const tools = claudeLaneTools[folderName] || 'Read, Grep, Glob';
+    const frontmatter = `---\nname: ${slug}\ndescription: ${configObj.description}\ntools: ${tools}\n---\n\n`;
+    fs.writeFileSync(agentMdPath, frontmatter + body + '\n', 'utf8');
+    console.log(`🤖 Created Claude Code subagent: .claude/agents/${slug}.md`);
+  }
+
   console.log('\n🎉 FB-Lane Framework bootstrapped successfully!');
-  console.log('👉 Open this workspace folder in Antigravity 2.0 to see the agents in your left sidebar.\n');
+  console.log('👉 Antigravity 2.0: open this folder to see the lane agents in your left sidebar.');
+  console.log('👉 Claude Code: reload to load .claude/agents/ (lanes) and approve the fb-lane MCP server via /mcp.\n');
 }
 
 function main() {
