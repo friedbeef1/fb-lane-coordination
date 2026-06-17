@@ -19,7 +19,7 @@ Compare how development works on complex, multi-layered features with AI agents:
 | **Code Reliability** | Broken or compile-failing code gets pushed to main/staging; tests are rarely run by agents. | **Pre-Submission Test Gate**: The CLI automatically executes test suites (e.g. `npm test`) and blocks pushing if tests fail. | **Smoke Testing**: Skip manual checkout and testing; you only perform a quick visual smoke test on the generated staging environment. |
 | **Token Budget Protection** | Runaway debugging loops; agents attempt infinite edits to fix a bug, burning through your tokens. | **5-Retry Debug Cap**: Strict retry threshold pauses execution and escalates to the user if a bug can't be resolved in 5 attempts. | **Passive Monitoring**: Sit back; the framework notifies you immediately if a worker agent hits the cap and goes into a `Blocked` state. |
 | **Handoffs & Context Retention** | Silent handoffs; subsequent agents must blindly read repo history to understand what prior agents changed. | **Structured Handoff Cards**: Automated creation of `docs/handoffs/TASK-XXX.md` summarizing decisions, risk details, and testing. | **Review Handoffs**: Read the short markdown handoff files to inspect implementation choices and risks before merging. |
-| **Micro-Tasks & Hotfixes** | Manual branch creation, file tracking, and state sync, leading to developer overhead for simple edits. | **Fast-Track Quick Edits**: A single command (`node tools/fb-lane.js quick`) instantly checks out a branch and locks files for edits. | **Fast Hotfixes**: Run the `quick` command in your terminal to instantly pair-program on micro-tasks without board overhead. |
+| **Micro-Tasks & Hotfixes** | Manual branch creation, file tracking, and state sync, leading to developer overhead for simple edits. | **Fast-Track Quick Edits**: A single command (`node tools/fb-lane.cjs quick`) instantly checks out a branch and locks files for edits. | **Fast Hotfixes**: Run the `quick` command in your terminal to instantly pair-program on micro-tasks without board overhead. |
 
 
 ```
@@ -73,13 +73,13 @@ If you are using a capable AI coding agent in your project workspace (such as An
 #### 1. Copy the CLI tool into your repository
 From your project root, run:
 ```bash
-curl -o tools/fb-lane.js https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.js
+curl -o tools/fb-lane.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.cjs
 ```
-*(Or manually copy `tools/fb-lane.js` to a `tools/` folder in your project.)*
+*(Or manually copy `tools/fb-lane.cjs` to a `tools/` folder in your project.)*
 
 #### 2. Run bootstrap
 ```bash
-node tools/fb-lane.js bootstrap
+node tools/fb-lane.cjs bootstrap
 ```
 This auto-detects your project's name and description from `package.json`, detects your remote origin URL, and generates:
 * `PROJECT_BOARD.md` — The centralized task and file-locking board.
@@ -122,18 +122,18 @@ Inbox ──▶ Ready ──▶ In Progress ──▶ Staging QA ──▶ Done
 
 1. **Claim**: A worker lane claims a `Ready` task:
    ```bash
-   node tools/fb-lane.js claim TASK-001 Tech "src/api.ts"
+   node tools/fb-lane.cjs claim TASK-001 Tech "src/api.ts"
    ```
    *Checks out a branch `tech/TASK-001-...`, locks `src/api.ts` on the board, and copies a startup instructions block to the clipboard.*
 2. **Execute**: The agent implements changes on their branch in their isolated sandbox.
 3. **Submit**: Once changes are ready:
    ```bash
-   node tools/fb-lane.js submit TASK-001
+   node tools/fb-lane.cjs submit TASK-001
    ```
    *Writes a detailed handoff document to `docs/handoffs/TASK-001.md`, updates the board status to `Staging QA`, and pushes the branch to remote origin.*
 4. **Merge**: Product reviews the handoff and verifies the staging/PR:
    ```bash
-   node tools/fb-lane.js merge TASK-001
+   node tools/fb-lane.cjs merge TASK-001
    ```
    *Merges the branch to main, releases all file locks on the board, and sets the status to `Done`.*
 
@@ -145,12 +145,12 @@ Run from the root of your project:
 
 | Command | Scope | Description |
 |---------|-------|-------------|
-| `node tools/fb-lane.js bootstrap` | Setup | Auto-generates board, rules, folder structures, and Claude configurations. |
-| `node tools/fb-lane.js status` | Utility | Prints all active tasks, branch mappings, and active file locks. |
-| `node tools/fb-lane.js claim <id> <lane> [locks]` | Workers | Checks out a task branch, locks files on the board, and prepares clipboard prompt. |
-| `node tools/fb-lane.js quick <lane> <locks> [desc]` | Workers | Fast-track: creates a temporary task, checks out a quick branch, and unlocks write access. |
-| `node tools/fb-lane.js submit <id> [staging_url]` | Workers | Formats board updates, pushes feature branch, and moves task to `Staging QA`. |
-| `node tools/fb-lane.js merge <id>` | Product | Merges feature branch to main, unlocks files, and moves status to `Done`. |
+| `node tools/fb-lane.cjs bootstrap` | Setup | Auto-generates board, rules, folder structures, and Claude configurations. |
+| `node tools/fb-lane.cjs status` | Utility | Prints all active tasks, branch mappings, and active file locks. |
+| `node tools/fb-lane.cjs claim <id> <lane> [locks]` | Workers | Checks out a task branch, locks files on the board, and prepares clipboard prompt. |
+| `node tools/fb-lane.cjs quick <lane> <locks> [desc]` | Workers | Fast-track: creates a temporary task, checks out a quick branch, and unlocks write access. |
+| `node tools/fb-lane.cjs submit <id> [staging_url]` | Workers | Formats board updates, pushes feature branch, and moves task to `Staging QA`. |
+| `node tools/fb-lane.cjs merge <id>` | Product | Merges feature branch to main, unlocks files, and moves status to `Done`. |
 
 ---
 

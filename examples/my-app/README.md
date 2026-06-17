@@ -1,6 +1,6 @@
 # FB-Lane Example: `my-app`
 
-This is a minimal, fictional project that shows what a repo looks like **after running `node tools/fb-lane.js bootstrap`**.
+This is a minimal, fictional project that shows what a repo looks like **after running `node tools/fb-lane.cjs bootstrap`**.
 
 > **You don't need to copy these files.** The bootstrap command generates all of this automatically.  
 > This example exists purely so you can see the expected output before running it.
@@ -9,7 +9,7 @@ This is a minimal, fictional project that shows what a repo looks like **after r
 
 ## What gets generated
 
-Running `node tools/fb-lane.js bootstrap` inside any project root produces:
+Running `node tools/fb-lane.cjs bootstrap` inside any project root produces:
 
 ```
 your-project/
@@ -47,7 +47,7 @@ Product adds it to `PROJECT_BOARD.md`:
 ### Step 2 — Design claims it
 The **FB-Design** thread runs:
 ```bash
-node tools/fb-lane.js claim TASK-001 Design src/styles/theme.css
+node tools/fb-lane.cjs claim TASK-001 Design src/styles/theme.css
 ```
 This:
 - Creates branch `design/TASK-001-add-dark-mode-toggle-to-the-header`
@@ -57,14 +57,14 @@ This:
 ### Step 3 — Design implements & submits
 After editing styles:
 ```bash
-node tools/fb-lane.js submit TASK-001
+node tools/fb-lane.cjs submit TASK-001
 ```
 Branch is pushed, board status → `Staging QA`.
 
 ### Step 4 — Product reviews & merges
 After verifying staging:
 ```bash
-node tools/fb-lane.js merge TASK-001
+node tools/fb-lane.cjs merge TASK-001
 ```
 Branch merged to `main`, locks released, status → `Done`.
 

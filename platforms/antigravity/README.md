@@ -37,9 +37,9 @@ In Antigravity, **`FB-Product`** is the main agent thread (representing User Val
 
 ## Quick Start: Bootstrapping a Project
 
-To automatically set up the FB-Lane coordination framework in any new project, copy `tools/fb-lane.js` to your repository root and run:
+To automatically set up the FB-Lane coordination framework in any new project, copy `tools/fb-lane.cjs` to your repository root and run:
 ```bash
-node tools/fb-lane.js bootstrap
+node tools/fb-lane.cjs bootstrap
 ```
 
 This one command automatically creates:
@@ -57,7 +57,7 @@ The FB-Lane Coordination framework for Antigravity is divided into two reusable 
 
 1.  **`project-coordination-setup`**: Handles verifying and bootstrapping the workspace files (`AGENTS.md`, `PROJECT_BOARD.md`) and programmatically registering `FB-Tech`, `FB-Design`, and `FB-Business` subagents.
     *   *Skill file:* [SKILL.md](../../skills/project-coordination-setup/SKILL.md)
-2.  **`fb-lane-coordination`**: Guides the agent on how to use the local `tools/fb-lane.js` utility to claim, submit, and merge tasks autonomously using simple `run_command` invocations. This avoids having to register heavy MCP tool schemas, saving thousands of context window tokens.
+2.  **`fb-lane-coordination`**: Guides the agent on how to use the local `tools/fb-lane.cjs` utility to claim, submit, and merge tasks autonomously using simple `run_command` invocations. This avoids having to register heavy MCP tool schemas, saving thousands of context window tokens.
     *   *Skill file:* [SKILL.md](../../skills/fb-lane-coordination/SKILL.md)
 
 ---
@@ -150,7 +150,7 @@ In the Main Approach, the user acts as the supervisor, interacting primarily wit
 2. **Scoping**: `FB-Product` reviews requirements and updates `PROJECT_BOARD.md` to add the new tasks (e.g., `TASK-102`).
 3. **Claiming**: Before spawning subagents, `FB-Product` executes the claim command via the skill:
    ```bash
-   node tools/fb-lane.js claim TASK-102 Tech "src/auth.ts"
+   node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
    ```
    This checks out the feature branch, updates the board to `In Progress`, and commits the board changes separately.
 
@@ -162,7 +162,7 @@ In the Main Approach, the user acts as the supervisor, interacting primarily wit
 ### Step 3: Staging Verification & Gates
 1. **Submit for QA**: When code changes are ready, the subagent (or Product) runs the submission command:
    ```bash
-   node tools/fb-lane.js submit TASK-102 "https://staging.example.com"
+   node tools/fb-lane.cjs submit TASK-102 "https://staging.example.com"
    ```
    This commits the board update, pushes the branch to remote origin, and marks the status as `Staging QA`.
 2. **Quality Gates**: `FB-Product` checks that functional test suites pass and runs visual audits to ensure viewport styling and text containment are correct.
@@ -170,7 +170,7 @@ In the Main Approach, the user acts as the supervisor, interacting primarily wit
 ### Step 4: Integration, Unlock & Completion
 1. **Merge & Completion**: Once verified, `FB-Product` runs the merge command:
    ```bash
-   node tools/fb-lane.js merge TASK-102
+   node tools/fb-lane.cjs merge TASK-102
    ```
    This merges the branch to `main`, deletes the feature branch, releases the locked files on the board, commits the board changes, and pushes to remote.
 2. **Notification**: Product notifies the user that the task is complete.
@@ -213,7 +213,7 @@ python tools/run_lane.py <lane> <task-id> [locked_files]
 
 ### 🛡️ How It Coordinates Internally
 When you run the `run_lane.py` script:
-1. **Board Claim Hook**: The script programmatically executes `node tools/fb-lane.js claim` to checkout the appropriate branch, declare locks, and commit the board.
+1. **Board Claim Hook**: The script programmatically executes `node tools/fb-lane.cjs claim` to checkout the appropriate branch, declare locks, and commit the board.
 2. **Strict Sandbox Configuration**: It maps the target lane to the corresponding rules defined in the coordination model, configuring the agent's system prompt and capabilities (e.g. read-only tool limits for `Business`).
 3. **Interactive Prompt**: It starts the conversational loop using the standard `User:` and `Agent:` terminal prompts.
 4. **Command Approval**: When the agent requests a shell command execution (such as `npm test` or compilation checks), the safety policy will present an interactive `y/n` confirmation prompt to you before running the command.

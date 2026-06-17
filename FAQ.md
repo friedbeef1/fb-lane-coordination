@@ -66,7 +66,7 @@ This prevents a single thread from having write-access to both backend models an
 **A:** Depending on when the failure occurs, the framework handles it via two safety loops, enforced by programmatic gates and a token budget protection policy:
 1.  **Local Dev Failures (Before Push)**: If `FB-Tech` or `FB-Design` runs local test suites and they fail:
     *   **Auto-Fixing Loop**: The agent autonomously debugs the failure by reading error logs, editing code, and rerunning tests locally.
-    *   **Pre-Submission Gate**: The `submit` command (`node tools/fb-lane.js submit`) automatically runs the local test suite (e.g. `npm test`) and **blocks the branch from being pushed or updated on the board** if the tests fail.
+    *   **Pre-Submission Gate**: The `submit` command (`node tools/fb-lane.cjs submit`) automatically runs the local test suite (e.g. `npm test`) and **blocks the branch from being pushed or updated on the board** if the tests fail.
     *   **Token Burn Protection (5-Retry Cap)**: To prevent an agent from burning through your token budget in an infinite debugging loop, it is restricted to a maximum of **5 debugging attempts**.
     *   **Escalation**: If tests still fail after 5 retries, the agent must halt execution, set the task on the board to `Blocked` (marked as `Blocked - Debug Retry Limit Exceeded`), attach the failure logs, and notify the user for supervisor triage.
 2.  **Staging Failures (During Product Review)**: If code is pushed but fails the automated CI/CD pipeline, staging build compilation, or Product's final smoke/visual checks:
@@ -173,13 +173,13 @@ The human supervisor does not need technical project management expertise; they 
 *   **Codex (Local File/Git Agent)**: Enforced via local repository rule files (e.g., `.codex/rules.md`). The Codex runs checkouts, updates the markdown board locally, and validates compilations inside isolated local git branches.
 
 ### Q: Managing threads on Claude and Codex Desktop (non-CLI) sounds painful and full of friction. How can I make this easier?
-**A:** We have created the **`fb-lane` automation utility** (`tools/fb-lane.js`) specifically to eliminate this manual friction. It automates branch management, project board edits, file locking, and git commits via two workflows:
+**A:** We have created the **`fb-lane` automation utility** (`tools/fb-lane.cjs`) specifically to eliminate this manual friction. It automates branch management, project board edits, file locking, and git commits via two workflows:
 
-1.  **For Claude Desktop (Zero Friction via MCP)**: You can register `tools/fb-lane.js` as a local Model Context Protocol (MCP) server in your `claude_desktop_config.json`. This allows Claude to claim tasks, checkout branches, update the board, and submit changes autonomously using standard tool calls. Your only job is starting the thread and telling Claude what task to execute.
+1.  **For Claude Desktop (Zero Friction via MCP)**: You can register `tools/fb-lane.cjs` as a local Model Context Protocol (MCP) server in your `claude_desktop_config.json`. This allows Claude to claim tasks, checkout branches, update the board, and submit changes autonomously using standard tool calls. Your only job is starting the thread and telling Claude what task to execute.
 2.  **For Cursor & Claude Web (Low Friction via CLI & Clipboard)**: Run the CLI tool locally:
-    - `node tools/fb-lane.js claim <task-id> <lane> [locked_files]` claims the task on the board, locks files, checks out the branch, and **copies the startup prompt (with lane rules and task context) directly to your clipboard**. You just open a fresh thread and press Cmd+V (Paste)!
-    - `node tools/fb-lane.js submit <task-id>` updates the status to Staging QA, commits, pushes to origin, and copies the PR review instructions to your clipboard.
-    - `node tools/fb-lane.js merge <task-id>` handles merging the feature branch into main, releasing the board locks, pushing, and deleting the branch.
+    - `node tools/fb-lane.cjs claim <task-id> <lane> [locked_files]` claims the task on the board, locks files, checks out the branch, and **copies the startup prompt (with lane rules and task context) directly to your clipboard**. You just open a fresh thread and press Cmd+V (Paste)!
+    - `node tools/fb-lane.cjs submit <task-id>` updates the status to Staging QA, commits, pushes to origin, and copies the PR review instructions to your clipboard.
+    - `node tools/fb-lane.cjs merge <task-id>` handles merging the feature branch into main, releasing the board locks, pushing, and deleting the branch.
 3.  **For Codex Desktop (Hands-Off Context Injection)**: The CLI claim command automatically writes the active task scope to a local file: **`.codex/current_task.md`**. You can add a single instruction in your project rules telling Codex to read this file upon startup. When you open Codex Desktop, it instantly picks up the branch, locked files, and task details, working on it completely hands-off.
 
 ### Q: If I do everything on the same thread in Claude, Codex, or Antigravity, won't the context window get bloated?
@@ -223,7 +223,7 @@ To prevent this, the FB-Lane framework enforces strict **Thread Segmentation**:
 ### Q: How do I perform quick edits without setting up a full task backlog?
 **A:** You can run the fast-track command in your terminal:
 ```bash
-node tools/fb-lane.js quick Tech "src/utils.ts" "Fix db indexing"
+node tools/fb-lane.cjs quick Tech "src/utils.ts" "Fix db indexing"
 ```
 This automatically registers a temporary task (`TASK-Q-XXXX`) on your project board, checks out a `quick/` branch, locks the files, and immediately unlocks write capability for the `FB-Tech` agent in your active thread.
 

@@ -40,17 +40,17 @@ Since Codex is a developer-centric CLI agent, its coordination model is built en
 
 ## Automation & Reducing Manual Friction
 
-To eliminate manual git dancing, board updates, and manual prompting in Codex Desktop, use the **`fb-lane` automation utility** (`tools/fb-lane.js`) in one of two modes:
+To eliminate manual git dancing, board updates, and manual prompting in Codex Desktop, use the **`fb-lane` automation utility** (`tools/fb-lane.cjs`) in one of two modes:
 
 ### 1. Codex Desktop (Zero Friction via MCP)
-Like Claude, the **Codex Desktop App** supports the Model Context Protocol (MCP). You can register `tools/fb-lane.js` as an MCP server directly through the Codex Desktop GUI (under **Settings > Plugins** or **MCP Servers**) or in its configuration settings:
+Like Claude, the **Codex Desktop App** supports the Model Context Protocol (MCP). You can register `tools/fb-lane.cjs` as an MCP server directly through the Codex Desktop GUI (under **Settings > Plugins** or **MCP Servers**) or in its configuration settings:
 
 ```json
 {
   "mcpServers": {
     "fb-lane": {
       "command": "node",
-      "args": ["/Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/tools/fb-lane.js", "mcp"]
+      "args": ["/Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/tools/fb-lane.cjs", "mcp"]
     }
   }
 }
@@ -64,7 +64,7 @@ Once configured, Codex Desktop gets direct tool-level access to Git and `PROJECT
 If you do not register the MCP server, you can run the CLI tool locally. The claim command automatically writes the active task scope to a local file: **`.codex/current_task.md`**:
 
 ```bash
-node tools/fb-lane.js claim TASK-102 Tech "src/auth.ts"
+node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
 ```
 
 Add this directive to your project instructions (e.g. `.codex/rules.md` or system instructions) to instruct Codex Desktop to auto-read the context file:
@@ -85,7 +85,7 @@ The step-by-step workflow using the automation tools:
 ### Step 1: Task Initialization & File Locking
 Before starting any coding task, run the claim command:
 ```bash
-node tools/fb-lane.js claim TASK-102 Tech "src/auth.ts"
+node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
 ```
 *(If using Codex Desktop with MCP enabled, you can skip this step and simply tell Codex in the chat: "Claim TASK-102 for Tech locking src/auth.ts").*
 
@@ -97,12 +97,12 @@ node tools/fb-lane.js claim TASK-102 Tech "src/auth.ts"
 ### Step 3: Staging QA & Merge
 1. **Submit for QA**:
    ```bash
-   node tools/fb-lane.js submit TASK-102 "https://staging.example.com"
+   node tools/fb-lane.cjs submit TASK-102 "https://staging.example.com"
    ```
    *(Or ask Codex Desktop via MCP: "Submit TASK-102 with staging link https://staging.example.com").*
 2. **Product Merge**:
    ```bash
-   node tools/fb-lane.js merge TASK-102
+   node tools/fb-lane.cjs merge TASK-102
    ```
    *(Or ask Codex Desktop via MCP: "Merge TASK-102").*
 

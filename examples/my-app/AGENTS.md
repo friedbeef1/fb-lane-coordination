@@ -9,7 +9,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 *   **FB-Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only capacity.*
 
 ### 2. The Board Loop & Resource Locking
-1. **Claim**: A thread claims or creates an item on the board and changes its status to `In Progress` using `node tools/fb-lane.js claim`.
+1. **Claim**: A thread claims or creates an item on the board and changes its status to `In Progress` using `node tools/fb-lane.cjs claim`.
 2. **Execute**: The thread works in an isolated branch (`tech/[feature]` or `design/[feature]`).
-3. **Audit**: When complete, the thread pushes the branch, moves the board item to `Staging QA` using `node tools/fb-lane.js submit`.
-4. **Merge**: `FB-Product` runs verification/release gates, merges the branch to main using `node tools/fb-lane.js merge`, and releases locks.
+3. **Audit**: When complete, the thread pushes the branch, moves the board item to `Staging QA` using `node tools/fb-lane.cjs submit`.
+4. **Merge**: `FB-Product` runs verification/release gates, merges the branch to main using `node tools/fb-lane.cjs merge`, and releases locks.

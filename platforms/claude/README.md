@@ -39,7 +39,7 @@ To manage Claude's context window:
 
 ## Automation & Reducing Manual Friction
 
-To eliminate manual Git commands, board editing, and context copy-pasting, use the provided **`fb-lane` automation utility** (`tools/fb-lane.js`). It supports two modes:
+To eliminate manual Git commands, board editing, and context copy-pasting, use the provided **`fb-lane` automation utility** (`tools/fb-lane.cjs`). It supports two modes:
 
 ### 1. Claude Desktop (Zero-Friction via MCP)
 If you use the **Claude Desktop app**, you can configure it as a local **Model Context Protocol (MCP)** server. This allows Claude to autonomously checkout branches, update the markdown board, assert file locks, and submit PRs without you running any commands.
@@ -51,7 +51,7 @@ Add this to your `claude_desktop_config.json` (typically located at `~/Library/A
   "mcpServers": {
     "fb-lane": {
       "command": "node",
-      "args": ["/Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/tools/fb-lane.js", "mcp"]
+      "args": ["/Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/tools/fb-lane.cjs", "mcp"]
     }
   }
 }
@@ -66,19 +66,19 @@ If you are using Cursor IDE or the Claude Web Projects interface, you can run th
 
 *   **To claim a task & lock files**:
     ```bash
-    node tools/fb-lane.js claim TASK-102 Tech "src/auth.ts, src/db.ts"
+    node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts, src/db.ts"
     ```
     *This checks out the feature branch, updates the board, commits the change, and copies the startup prompt containing task context and lane rules to your clipboard. Simply paste (Cmd+V) in a new chat thread!*
 
 *   **To submit a task for QA**:
     ```bash
-    node tools/fb-lane.js submit TASK-102 "https://staging.example.com"
+    node tools/fb-lane.cjs submit TASK-102 "https://staging.example.com"
     ```
     *This updates the board, commits the change, pushes the branch to remote, and copies the review instructions for Product to your clipboard.*
 
 *   **To merge and complete a task (Product)**:
     ```bash
-    node tools/fb-lane.js merge TASK-102
+    node tools/fb-lane.cjs merge TASK-102
     ```
     *This merges the branch into main, releases the locks on the board, commits, pushes, and deletes the local feature branch.*
 
@@ -89,10 +89,10 @@ If you are using Cursor IDE or the Claude Web Projects interface, you can run th
 The step-by-step loop using the automation tools:
 
 ### Step 1: Task Initialization & File Locking
-1. Run `node tools/fb-lane.js status` to view ready tasks and verify file locks.
+1. Run `node tools/fb-lane.cjs status` to view ready tasks and verify file locks.
 2. Claim your task (e.g. `TASK-102`) in your chosen lane, specifying files to lock:
    ```bash
-   node tools/fb-lane.js claim TASK-102 Tech "src/auth.ts"
+   node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
    ```
    *(If using Claude Desktop with MCP enabled, you can skip this step and simply ask Claude in the chat: "Claim TASK-102 for Tech locking src/auth.ts").*
 
@@ -110,12 +110,12 @@ The step-by-step loop using the automation tools:
 ### Step 4: Staging QA & Merge
 1. Run the submission command:
    ```bash
-   node tools/fb-lane.js submit TASK-102 "https://staging.example.com"
+   node tools/fb-lane.cjs submit TASK-102 "https://staging.example.com"
    ```
    *(Or ask Claude Desktop with MCP: "Submit TASK-102 with staging link https://staging.example.com").*
 2. As **FB-Product**, run the merge command to complete the cycle:
    ```bash
-   node tools/fb-lane.js merge TASK-102
+   node tools/fb-lane.cjs merge TASK-102
    ```
    *(Or ask Claude Desktop with MCP: "Merge TASK-102").*
 

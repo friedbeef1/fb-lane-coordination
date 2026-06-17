@@ -31,13 +31,13 @@ When you are invoked in a lane thread, you will be told your lane at the top of 
 
 ## CLI Tool
 
-Use `node tools/fb-lane.js` for all task lifecycle management:
+Use `node tools/fb-lane.cjs` for all task lifecycle management:
 
 ```bash
-node tools/fb-lane.js status               # View all tasks and locks
-node tools/fb-lane.js claim <id> <lane>    # Claim a task, checkout branch, lock files
-node tools/fb-lane.js submit <id>          # Submit for QA, push branch
-node tools/fb-lane.js merge <id>           # Merge to main, release locks (FB-Product only)
+node tools/fb-lane.cjs status               # View all tasks and locks
+node tools/fb-lane.cjs claim <id> <lane>    # Claim a task, checkout branch, lock files
+node tools/fb-lane.cjs submit <id>          # Submit for QA, push branch
+node tools/fb-lane.cjs merge <id>           # Merge to main, release locks (FB-Product only)
 ```
 
 ## Rules

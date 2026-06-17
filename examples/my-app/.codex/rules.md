@@ -16,10 +16,10 @@ This project uses the FB-Lane Four-Lane Coordination Model.
 - **FB-Product**: orchestrates merges and deployments only.
 
 ### CLI commands (run from project root)
-- `node tools/fb-lane.js status` — view all tasks and locks
-- `node tools/fb-lane.js claim <id> <lane>` — claim task, checkout branch, lock files
-- `node tools/fb-lane.js submit <id>` — run tests, push branch, mark Staging QA
-- `node tools/fb-lane.js merge <id>` — merge to main, release locks (FB-Product only)
+- `node tools/fb-lane.cjs status` — view all tasks and locks
+- `node tools/fb-lane.cjs claim <id> <lane>` — claim task, checkout branch, lock files
+- `node tools/fb-lane.cjs submit <id>` — run tests, push branch, mark Staging QA
+- `node tools/fb-lane.cjs merge <id>` — merge to main, release locks (FB-Product only)
 
 ### Rules
 - Never commit directly to `main`.
