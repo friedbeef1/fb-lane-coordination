@@ -25,6 +25,15 @@ FB-Lane allows you to run these workstreams **concurrently** in separate, isolat
 *   **`FB-Design` (UI/UX/Styling)**: Owns styling (CSS), page layout geometry, and visual QA.
 *   **`FB-Business` (Copywriting)**: Owns positioning, pricing text, help documents, and marketing copy.
 
+### Q: Does this framework look familiar? Why does this structure feel so intuitive?
+**A:** That’s because it is modeled directly after the industry-standard **cross-functional product pod structure** (Product Manager, Backend/Core Developer, UI/UX Designer, and Copywriter/Business Analyst) used by high-performing product teams worldwide.
+
+Instead of reinventing the wheel, the framework maps these familiar organizational roles directly to isolated AI agent conversational loops. This provides two major advantages without standing in the way of AI autonomy:
+1. **Strict Tool Boundaries**: Just as you wouldn't expect a copywriter to push database migrations or a developer to redesign theme stylesheets, each agent lane is sandbox-restricted to the specific tools it needs. This reduces token overhead, eliminates routing errors, and prevents "code-bleed" (e.g., agents breaking logic while editing UI classes).
+2. **Autonomy via Git Coordination**: Instead of synchronous meetings or heavy central locking systems, the lanes synchronize asynchronously using git branches and a local markdown-based `PROJECT_BOARD.md` as their message bus. This allows agents to work concurrently and autonomously in the background without stepping on each other's toes.
+
+In short, it takes the best practices of human team coordination and translates them into a lightweight, machine-readable protocol for collaborative AI.
+
 ---
 
 ## 2. Lane-Specific Boundaries
