@@ -25,6 +25,7 @@ Compare how development works on complex, multi-layered features with AI agents:
 | **Token Budget Protection** | Runaway debugging loops; agents attempt infinite edits to fix a bug, burning through your tokens. | **5-Retry Debug Cap**: Strict retry threshold pauses execution and escalates to the user if a bug can't be resolved in 5 attempts. | **Passive Monitoring**: Sit back; the framework notifies you immediately if a worker agent hits the cap and goes into a `Blocked` state. |
 | **Handoffs & Context Retention** | Silent handoffs; subsequent agents must blindly read repo history to understand what prior agents changed. | **Structured Handoff Cards**: Automated creation of `docs/handoffs/TASK-XXX.md` summarizing decisions, risk details, and testing. | **Review Handoffs**: Read the short markdown handoff files to inspect implementation choices and risks before merging. |
 | **Micro-Tasks & Hotfixes** | Manual branch creation, file tracking, and state sync, leading to developer overhead for simple edits. | **Fast-Track Quick Edits**: A single command (`node tools/fb-lane.cjs quick`) instantly checks out a branch and locks files for edits. | **Fast Hotfixes**: Run the `quick` command in your terminal to instantly pair-program on micro-tasks without board overhead. |
+| **Cross-Lane Consistency** | No one checks whether Tech's API contracts match Design's assumptions, or whether Business copy references features not yet built. Integration drift only surfaces at runtime — often in production. | **FB-Product Integration Gate**: Before any branch merges, FB-Product cross-reads all submitted branches and handoff cards, actively catching API/UI contract mismatches, copy referencing unbuilt features, and conflicting assumptions between lanes. | **Automatic Catch & Correct**: Product flags the inconsistency, sends the offending lane back with a specific fix request, and sequences merges so dependencies land in the right order. |
 
 
 ```
@@ -59,6 +60,7 @@ Compare how development works on complex, multi-layered features with AI agents:
 * **Lightweight Resource Locking**: Locks specific files to prevent concurrent threads from stepping on each other's toes and producing merge conflicts.
 * **Standard Operating Procedure (SOP)**: On every session start, threads automatically inspect the board and current task file to claim, align, or resume work without human hand-holding.
 * **Two-Layer Handoff**: Worker threads summarize work back to the board and write structured handoff specs under `docs/handoffs/TASK-XXX.md` to ensure context is never lost.
+* **FB-Product Integration Gate**: FB-Product actively cross-reads all submitted branches before merging — catching API contract mismatches between Tech and Design, Business copy referencing unbuilt features, and conflicting assumptions across lanes. It sends the offending lane back for corrections and sequences merges so dependencies land in the right order.
 * **Platform Agnostic**: Works natively with **Antigravity 2.0**, **Claude Code**, **Claude Projects**, and **Codex (OpenAI)**.
 
 ---
