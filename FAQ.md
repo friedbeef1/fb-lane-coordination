@@ -92,6 +92,22 @@ This prevents a single thread from having write-access to both backend models an
 3. **`FB-Product` (User Value Optimizer)** reviews the PRs. Product merges the branches sequentially, resolving any conflicts in the shared file.
 4. Product performs the final verification on staging to ensure the styling did not break the backend bindings, and vice versa.
 
+### Q: Can FB-Product actively catch and correct inconsistencies between lanes before they reach main?
+**A:** Yes — this is one of FB-Product's core responsibilities at the integration gate. Because Product has read access to every branch and every handoff card (`docs/handoffs/TASK-XXX.md`), it cross-reads all submitted work before merging rather than reviewing each lane in isolation.
+
+Common cross-lane inconsistencies Product catches:
+*   **API/UI contract drift**: Tech's API returns a field named `user_id` but Design's component expects `userId` — Product flags it before either branch merges.
+*   **Copy referencing unbuilt features**: Business copy describes a "one-click checkout" flow that Tech hasn't built yet — Product sends Business back to hold or revise.
+*   **Conflicting shared-file assumptions**: Tech and Design both touch `App.tsx` and make incompatible changes — Product sequences the merges and resolves the conflict at the integration point rather than letting it surface on `main`.
+*   **Dependency order violations**: Design's UI component depends on a new API endpoint that is still in Tech's unmerged branch — Product merges Tech first, then Design.
+
+When Product catches an inconsistency:
+1. It sends the offending lane back to `In Progress` on the board with a specific fix request.
+2. The lane fixes its branch and resubmits.
+3. Product re-reviews before merging.
+
+This gate runs **after submission, not in real time** — lanes work concurrently and Product reviews at the handoff boundary. If lanes stay within their role boundaries (Tech never touches CSS, Design never touches backend), cross-lane drift is rare; the gate exists for the cases where shared contracts or shared files are involved.
+
 ### Q: How do we prevent an AI agent from violating its boundary (e.g. FB-Design modifying APIs)?
 **A:** Enforcement depends on the platform:
 *   **Antigravity**: Managed programmatically via tool sandboxing (Design is not registered with database/server access tools).
@@ -177,10 +193,10 @@ The human supervisor does not need technical project management expertise; they 
 
 ## 6. Platform Integration (Antigravity, Claude, Codex)
 
-### Q: How does execution differ between Antigravity, Claude, and Codex?
+### Q: How does execution differ between Antigravity, Claude Code, and Codex?
 **A:** The framework operates differently based on the platform's orchestration capabilities:
 *   **Antigravity (Programmatic Multi-Agent)**: The main `FB-Product` thread runs on an agentic SDK. It uses programmatic tools (`define_subagent` and `invoke_subagent`) to spin up sandboxed background threads for `FB-Tech` and `FB-Design` autonomously.
-*   **Claude (Single-Threaded Chat)**: Simulated via thread partitioning. The developer acts as the supervisor, starting a fresh chat thread for each task to protect Claude's memory. However, the work inside the thread is **highly automated**: once instructed to adopt a role, Claude uses terminal/IDE tools (via Cursor, MCP, or command tools) to checkout branches, write code, update the markdown board, and push branches/PRs automatically.
+*   **Claude Code (Native Subagents + MCP)**: Four lane agents (`fb-product`, `fb-tech`, `fb-design`, `fb-business`) are registered as Claude Code subagents in `.claude/agents/` and invokable directly from the sidebar via `@mention`. The `fb-lane` MCP server connects all four to the same `PROJECT_BOARD.md` for real-time status and lock checks. The main session acts as FB-Product by default; open separate sidebar conversations for each lane to run them concurrently. Install as a plugin in one step: `/plugin marketplace add friedbeef1/fb-lane-coordination`. See [`platforms/claude-code/`](platforms/claude-code/README.md).
 *   **Codex (Local File/Git Agent)**: Enforced via local repository rule files (e.g., `.codex/rules.md`). The Codex runs checkouts, updates the markdown board locally, and validates compilations inside isolated local git branches.
 
 ### Q: Managing threads on Claude and Codex Desktop (non-CLI) sounds painful and full of friction. How can I make this easier?
