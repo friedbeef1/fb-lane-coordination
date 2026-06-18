@@ -5,6 +5,10 @@ You've bootstrapped the **FB-Lane Four-Lane Coordination Model**. Four role-isol
 **FB-Business** (copy; read-only on code) — work concurrently on the same repo, coordinating
 through `PROJECT_BOARD.md` (the single source of truth for tasks and file locks).
 
+> 🎬 **New here?** Open [`how-to-interact.html`](how-to-interact.html) in a browser — a short
+> animated explainer of running multiple lanes concurrently with zero conflicts, including a
+> before/after and FB-Product resolving at the end. (Screen-record it to share as a video.)
+
 How you *drive* the lanes depends on which AI you use. Open the guide for yours:
 
 | AI | Guide | How you invoke a lane |

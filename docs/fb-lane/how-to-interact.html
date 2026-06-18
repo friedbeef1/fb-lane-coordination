@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FB-Lane — How to Interact (concurrent lanes, zero conflicts)</title>
+<style>
+  :root{
+    --product:#F59E0B; --tech:#2563EB; --design:#7C3AED; --business:#059669;
+    --bg:#0a0e17; --panel:#0f1525; --panel2:#131b2e; --line:#22304a;
+    --ink:#e8eefb; --muted:#93a4c4; --good:#34d399; --bad:#f87171;
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:radial-gradient(1200px 700px at 50% -10%, #15203a 0%, var(--bg) 60%);
+    color:var(--ink); font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex; align-items:center; justify-content:center; min-height:100%; padding:24px;
+  }
+  .player{ width:min(960px,100%); }
+  .frame{
+    position:relative; aspect-ratio:16/9; background:var(--bg);
+    border:1px solid var(--line); border-radius:var(--r); overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  .topbar{
+    position:absolute; inset:0 0 auto 0; height:34px; display:flex; align-items:center; gap:8px;
+    padding:0 12px; background:linear-gradient(#131b2e,#0f1525); border-bottom:1px solid var(--line);
+    font-size:12px; color:var(--muted); z-index:5;
+  }
+  .tl{display:flex;gap:6px}
+  .tl i{width:10px;height:10px;border-radius:50%;display:block}
+  .tl i:nth-child(1){background:#ff5f57}.tl i:nth-child(2){background:#febc2e}.tl i:nth-child(3){background:#28c840}
+  .topbar .ttl{font-weight:600;color:#c7d4ef}
+  .rec{margin-left:auto;display:flex;align-items:center;gap:6px;color:#ff6b6b;font-weight:600;letter-spacing:.5px}
+  .rec .dot{width:9px;height:9px;border-radius:50%;background:#ff6b6b;animation:blink 1.4s infinite}
+  @keyframes blink{50%{opacity:.25}}
+
+  .stage{position:absolute; inset:34px 0 0 0;}
+  .scene{
+    position:absolute; inset:0; padding:30px 34px 26px; display:flex; flex-direction:column;
+    opacity:0; visibility:hidden; transform:translateY(10px); transition:opacity .5s ease, transform .5s ease;
+  }
+  .scene.is-active{opacity:1; visibility:visible; transform:none}
+  .scene.is-active .pop{animation:pop .5s both}
+  .scene.is-active .pop.d1{animation-delay:.15s}
+  .scene.is-active .pop.d2{animation-delay:.35s}
+  .scene.is-active .pop.d3{animation-delay:.55s}
+  .scene.is-active .pop.d4{animation-delay:.8s}
+  @keyframes pop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+
+  .kic{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .tag{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;font-size:12.5px;font-weight:700}
+  .tag.bad{background:rgba(248,113,113,.12);color:#fca5a5;border:1px solid rgba(248,113,113,.35)}
+  .tag.good{background:rgba(52,211,153,.12);color:#6ee7b7;border:1px solid rgba(52,211,153,.35)}
+  h1{font-size:34px;line-height:1.12;margin:.2em 0 .15em;letter-spacing:-.02em}
+  h2{font-size:23px;margin:.1em 0 .5em;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:16px;max-width:48ch}
+  .center{align-items:center;text-align:center;justify-content:center}
+  .grow{flex:1;min-height:0;display:flex}
+  .cols{display:flex;gap:14px;width:100%}
+  .cols>*{flex:1;min-width:0}
+
+  /* mock window */
+  .win{background:var(--panel);border:1px solid var(--line);border-radius:11px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+  .win.l-tech{border-top:3px solid var(--tech)} .win.l-design{border-top:3px solid var(--design)}
+  .win.l-business{border-top:3px solid var(--business)} .win.l-product{border-top:3px solid var(--product)}
+  .win__bar{display:flex;align-items:center;gap:7px;padding:7px 10px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:12px}
+  .win__bar .tl i{width:8px;height:8px}
+  .win__name{font-weight:700;display:flex;align-items:center;gap:6px}
+  .win__name.l-tech{color:#7aa2f7}.win__name.l-design{color:#b794f6}.win__name.l-business{color:#5fd0a6}.win__name.l-product{color:#fbbf6b}
+  .live{margin-left:auto;font-size:10.5px;color:var(--good);display:flex;align-items:center;gap:5px}
+  .live .dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 0 rgba(52,211,153,.6);animation:pulse 1.6s infinite}
+  @keyframes pulse{70%{box-shadow:0 0 0 7px rgba(52,211,153,0)}100%{box-shadow:0 0 0 0 rgba(52,211,153,0)}}
+  .win__body{padding:11px;display:flex;flex-direction:column;gap:8px;font-size:12.5px;flex:1}
+  .msg{padding:7px 10px;border-radius:9px;max-width:92%}
+  .msg.u{align-self:flex-end;background:#1e293b;border:1px solid #2c3a52}
+  .msg.a{align-self:flex-start;background:#101a30;border:1px solid var(--line)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .meta{font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+  .pill{background:#0b1322;border:1px solid var(--line);border-radius:6px;padding:2px 6px;font-size:10.5px}
+  .pill.lock{color:#fcd34d;border-color:rgba(252,211,77,.3)}
+  .pill.br{color:#7dd3fc;border-color:rgba(125,211,252,.3)}
+  .code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;background:#070b14;border:1px solid var(--line);border-radius:7px;padding:8px;white-space:pre;overflow:hidden}
+  .code .add{color:var(--good)} .code .del{color:var(--bad)} .code .cf{color:#fbbf6b} .code .c{color:#6b7a99}
+
+  .stamp{position:absolute;font-weight:800;letter-spacing:.04em;border-radius:10px;padding:8px 14px;font-size:18px;transform:rotate(-8deg)}
+  .stamp.bad{background:rgba(248,113,113,.14);color:#fca5a5;border:2px solid rgba(248,113,113,.6)}
+  .scene.is-active .stamp{animation:slam .5s .7s both}
+  @keyframes slam{from{opacity:0;transform:rotate(-8deg) scale(1.6)}to{opacity:1;transform:rotate(-8deg) scale(1)}}
+
+  /* board table */
+  .board{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .board th,.board td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
+  .board th{background:var(--panel2);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+  .board tr:last-child td{border-bottom:none}
+  .chip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700}
+  .chip.prog{background:rgba(245,158,11,.15);color:#fbbf6b}
+  .chip.ready{background:rgba(148,163,184,.15);color:#aebbd4}
+  .owner.l-tech{color:#7aa2f7}.owner.l-design{color:#b794f6}.owner.l-business{color:#5fd0a6}
+  .lk{color:#fcd34d;font-family:ui-monospace,monospace;font-size:11px}
+
+  .ic{width:1em;height:1em;vertical-align:-.125em}
+  .chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+  .lchip{display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-weight:700;font-size:13px}
+  .lchip.l-tech{color:#7aa2f7}.lchip.l-design{color:#b794f6}.lchip.l-business{color:#5fd0a6}.lchip.l-product{color:#fbbf6b}
+
+  .note{margin-top:auto;color:var(--muted);font-size:13px}
+  .big-emoji{font-size:30px}
+
+  /* caption + controls */
+  .caption{margin:14px 2px 10px;min-height:42px;color:#d7e1f5;font-size:15px;text-align:center}
+  .caption b{color:#fff}
+  .controls{display:flex;align-items:center;gap:12px}
+  .progress{flex:1;height:6px;background:#16203a;border-radius:999px;overflow:hidden}
+  .bar{height:100%;width:0;background:linear-gradient(90deg,var(--tech),var(--design));border-radius:999px}
+  .btns{display:flex;gap:6px}
+  button.ctrl{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 11px;cursor:pointer;font-size:13px}
+  button.ctrl:hover{background:var(--panel2)}
+  .dots{display:flex;gap:6px}
+  .dot{width:9px;height:9px;border-radius:50%;background:#2a3a59;border:none;padding:0;cursor:pointer}
+  .dot.is-active{background:linear-gradient(90deg,var(--tech),var(--design))}
+  .legend{margin-top:10px;color:#6b7a99;font-size:12px;text-align:center}
+
+  @media (max-width:640px){ h1{font-size:24px} .scene{padding:18px} .caption{font-size:13px} }
+  @media (prefers-reduced-motion: reduce){ .scene{transition:none} .scene *{animation:none!important} }
+</style>
+</head>
+<body>
+  <!-- icon sprite -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-product" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4h11l-2 3 2 3H5"/></symbol>
+    <symbol id="i-tech" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 8l-4 4 4 4"/><path d="M15 8l4 4-4 4"/></symbol>
+    <symbol id="i-design" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M15.5 4.5l4 4L9 19l-5 1 1-5z"/><path d="M13.5 6.5l4 4"/></symbol>
+    <symbol id="i-business" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h6M10 16h6"/></symbol>
+  </svg>
+
+  <div class="player">
+    <div class="frame">
+      <div class="topbar">
+        <div class="tl"><i></i><i></i><i></i></div>
+        <span class="ttl">FB-Lane · How to Interact</span>
+        <span class="rec"><span class="dot"></span>DEMO</span>
+      </div>
+      <div class="stage" id="stage">
+
+        <!-- 0: TITLE -->
+        <section class="scene center" data-dur="4200" data-caption="The FB-Lane way: run several AI agents on one codebase at the same time — and never clean up a merge conflict.">
+          <div class="kic pop">FB-Lane Coordination Framework</div>
+          <h1 class="pop d1">Run multiple AI agents<br>on one codebase.</h1>
+          <div class="sub pop d2">Concurrently. Each in its own thread. <b style="color:#fff">Zero merge conflicts.</b></div>
+          <div class="chips pop d3">
+            <span class="lchip l-product"><svg class="ic"><use href="#i-product"/></svg>Product</span>
+            <span class="lchip l-tech"><svg class="ic"><use href="#i-tech"/></svg>Tech</span>
+            <span class="lchip l-design"><svg class="ic"><use href="#i-design"/></svg>Design</span>
+            <span class="lchip l-business"><svg class="ic"><use href="#i-business"/></svg>Business</span>
+          </div>
+        </section>
+
+        <!-- 1: BEFORE -->
+        <section class="scene" data-dur="6000" data-caption="WITHOUT coordination: point several agents at one repo and they edit the SAME files at once → overwrites, merge conflicts, broken main, context bloat.">
+          <span class="tag bad pop">❌ Without FB-Lane</span>
+          <h2 class="pop d1">Three agents, one file, no rules.</h2>
+          <div class="grow">
+            <div class="cols">
+              <div class="win pop d1" style="border-top:3px solid #ff5f57">
+                <div class="win__bar"><div class="tl"><i></i><i></i><i></i></div><span class="win__name">Agent A</span><span class="live"><span class="dot" style="background:#ff6b6b;box-shadow:none;animation:none"></span>editing</span></div>
+                <div class="win__body"><div class="msg u">add login to <span class="mono">app.ts</span></div><div class="code"><span class="del">- export const app = ()</span>
+<span class="add">+ login() {…}</span></div></div>
+              </div>
+              <div class="win pop d2" style="border-top:3px solid #ff5f57">
+                <div class="win__bar"><div class="tl"><i></i><i></i><i></i></div><span class="win__name">Agent B</span><span class="live"><span class="dot" style="background:#ff6b6b;box-shadow:none;animation:none"></span>editing</span></div>
+                <div class="win__body"><div class="msg u">restyle header in <span class="mono">app.ts</span></div><div class="code"><span class="del">- export const app = ()</span>
+<span class="add">+ &lt;Header theme/&gt;</span></div></div>
+              </div>
+              <div class="win pop d3" style="border-top:3px solid #ff5f57">
+                <div class="win__bar"><div class="tl"><i></i><i></i><i></i></div><span class="win__name">Agent C</span><span class="live"><span class="dot" style="background:#ff6b6b;box-shadow:none;animation:none"></span>editing</span></div>
+                <div class="win__body"><div class="msg u">fix copy in <span class="mono">app.ts</span></div><div class="code"><span class="cf">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span>
+<span class="del">conflict</span>
+<span class="cf">=======</span></div></div>
+              </div>
+            </div>
+            <div class="stamp bad" style="right:34px;bottom:64px">💥 MERGE CONFLICT</div>
+          </div>
+          <div class="note">Same file, three branches → collisions, overwrites, a broken <span class="mono">main</span>, and bloated context.</div>
+        </section>
+
+        <!-- 2: THE BOARD -->
+        <section class="scene" data-dur="5200" data-caption="FB-Lane adds one shared source of truth — PROJECT_BOARD.md — where every task declares the exact files it locks.">
+          <span class="tag good pop">✅ With FB-Lane</span>
+          <h2 class="pop d1">One shared board. Every file claimed.</h2>
+          <div class="grow pop d2" style="align-items:flex-start">
+            <table class="board">
+              <tr><th>Task</th><th>Owner</th><th>Status</th><th>🔒 Locked files</th><th>Branch</th></tr>
+              <tr><td>TASK-002</td><td class="owner l-tech">FB-Tech</td><td><span class="chip prog">In Progress</span></td><td class="lk">src/auth.ts, src/db.ts</td><td class="mono">tech/TASK-002</td></tr>
+              <tr><td>TASK-003</td><td class="owner l-design">FB-Design</td><td><span class="chip prog">In Progress</span></td><td class="lk">src/navigation.css</td><td class="mono">design/TASK-003</td></tr>
+              <tr><td>TASK-004</td><td class="owner l-business">FB-Business</td><td><span class="chip prog">In Progress</span></td><td class="lk">docs/onboarding.md</td><td class="mono">business/TASK-004</td></tr>
+            </table>
+          </div>
+          <div class="note pop d3">No two tasks lock the same file — so the work can't overlap.</div>
+        </section>
+
+        <!-- 3: AFTER — CONCURRENT LANES -->
+        <section class="scene" data-dur="6500" data-caption="Each lane runs in its OWN thread, on its OWN locked files, on its OWN branch — all at the same time. No shared files means no collisions.">
+          <span class="tag good pop">✅ Concurrent · isolated</span>
+          <h2 class="pop d1">Three lanes. Three threads. At once.</h2>
+          <div class="grow">
+            <div class="cols">
+              <div class="win l-tech pop d1">
+                <div class="win__bar"><div class="tl"><i></i><i></i><i></i></div><span class="win__name l-tech"><svg class="ic"><use href="#i-tech"/></svg>@fb-tech</span><span class="live"><span class="dot"></span>live</span></div>
+                <div class="win__body"><div class="msg u">build the auth endpoints</div><div class="msg a">Claimed <b>TASK-002</b>. On it.<div class="meta"><span class="pill lock">src/auth.ts</span><span class="pill lock">src/db.ts</span><span class="pill br">tech/TASK-002</span></div></div></div>
+              </div>
+              <div class="win l-design pop d2">
+                <div class="win__bar"><div class="tl"><i></i><i></i><i></i></div><span class="win__name l-design"><svg class="ic"><use href="#i-design"/></svg>@fb-design</span><span class="live"><span class="dot"></span>live</span></div>
+                <div class="win__body"><div class="msg u">responsive nav</div><div class="msg a">Claimed <b>TASK-003</b>. Styling.<div class="meta"><span class="pill lock">src/navigation.css</span><span class="pill br">design/TASK-003</span></div></div></div>
+              </div>
+              <div class="win l-business pop d3">
+                <div class="win__bar"><div class="tl"><i></i><i></i><i></i></div><span class="win__name l-business"><svg class="ic"><use href="#i-business"/></svg>@fb-business</span><span class="live"><span class="dot"></span>live</span></div>
+                <div class="win__body"><div class="msg u">onboarding copy</div><div class="msg a">Drafting <b>TASK-004</b> (read-only on code).<div class="meta"><span class="pill lock">docs/onboarding.md</span><span class="pill br">business/TASK-004</span></div></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="note">Different files, different branches → they literally cannot step on each other.</div>
+        </section>
+
+        <!-- 4: DIRECT INVOKE EXAMPLE -->
+        <section class="scene" data-dur="5600" data-caption="Drive a lane directly: type @fb-design and just ask. It claims the task, locks files, branches, builds — then hands back to Product.">
+          <span class="kic pop">Talking to a lane (Claude Code)</span>
+          <h2 class="pop d1">Type <span class="mono" style="color:#b794f6">@fb-design</span> and ask.</h2>
+          <div class="grow pop d2" style="justify-content:center">
+            <div class="win l-design" style="max-width:560px;width:100%;margin:auto">
+              <div class="win__bar"><div class="tl"><i></i><i></i><i></i></div><span class="win__name l-design"><svg class="ic"><use href="#i-design"/></svg>@fb-design</span><span class="live"><span class="dot"></span>live</span></div>
+              <div class="win__body">
+                <div class="msg u"><span class="mono" style="color:#b794f6">@fb-design</span> I need new icons</div>
+                <div class="msg a">On it — claiming + locking now.
+                  <div class="meta"><span class="pill br">design/TASK-Q-1014</span><span class="pill lock">src/assets/icons/</span></div>
+                </div>
+                <div class="msg a">Done ✅ &nbsp;<span style="color:#b794f6">
+                  <svg class="ic"><use href="#i-product"/></svg><svg class="ic"><use href="#i-tech"/></svg><svg class="ic"><use href="#i-design"/></svg><svg class="ic"><use href="#i-business"/></svg></span>
+                  4 icons + preview. Handing back to Product to review &amp; merge.</div>
+              </div>
+            </div>
+          </div>
+          <div class="note">Prefer hands-off? Just tell the <b>main thread</b> your goal — FB-Product scopes it and delegates for you.</div>
+        </section>
+
+        <!-- 5: PRODUCT RESOLVES -->
+        <section class="scene" data-dur="6500" data-caption="At the end, FB-Product reviews every branch, sequences the merges, and resolves the one shared file (the board). Your code merges clean.">
+          <span class="tag" style="background:rgba(245,158,11,.14);color:#fbbf6b;border:1px solid rgba(245,158,11,.4)"><svg class="ic"><use href="#i-product"/></svg>&nbsp;FB-Product · integration gate</span>
+          <h2 class="pop d1">Product sequences &amp; resolves at the end.</h2>
+          <div class="grow pop d2" style="gap:16px;align-items:center">
+            <svg viewBox="0 0 520 200" width="100%" style="max-height:200px" fill="none" stroke-linecap="round">
+              <!-- branch lines -->
+              <path d="M40,40 H300 C360,40 360,100 420,100" stroke="#2563EB" stroke-width="3"/>
+              <path d="M40,100 H420" stroke="#7C3AED" stroke-width="3"/>
+              <path d="M40,160 H300 C360,160 360,100 420,100" stroke="#059669" stroke-width="3"/>
+              <path d="M420,100 H490" stroke="#F59E0B" stroke-width="4"/>
+              <!-- nodes -->
+              <circle cx="40" cy="40" r="6" fill="#2563EB"/><circle cx="40" cy="100" r="6" fill="#7C3AED"/><circle cx="40" cy="160" r="6" fill="#059669"/>
+              <circle cx="420" cy="100" r="9" fill="#F59E0B"/>
+              <circle cx="490" cy="100" r="6" fill="#F59E0B"/>
+              <text x="40" y="28" fill="#7aa2f7" font-size="12" text-anchor="middle" stroke="none">tech</text>
+              <text x="40" y="118" fill="#b794f6" font-size="12" text-anchor="middle" stroke="none" dy="6">design</text>
+              <text x="40" y="180" fill="#5fd0a6" font-size="12" text-anchor="middle" stroke="none">business</text>
+              <text x="478" y="86" fill="#fbbf6b" font-size="12" text-anchor="middle" stroke="none">main ✓</text>
+            </svg>
+            <div style="display:flex;flex-direction:column;gap:8px;min-width:210px">
+              <div class="msg a" style="border-color:rgba(245,158,11,.4)">Reviewed 3 branches · code is disjoint ✓</div>
+              <div class="msg a" style="border-color:rgba(245,158,11,.4)">Board conflict on <span class="mono">PROJECT_BOARD.md</span> → resolved (kept both) ✓</div>
+              <div class="msg a" style="border-color:rgba(52,211,153,.4);color:#6ee7b7">Merged to <span class="mono">main</span>. Clean. ✅</div>
+            </div>
+          </div>
+          <div class="note">Only the shared board ever needs reconciling — never your actual code.</div>
+        </section>
+
+        <!-- 6: CLOSING -->
+        <section class="scene center" data-dur="5200" data-caption="Multiple agents, one codebase, zero collisions. Start hands-off with Product, or @-mention a lane directly.">
+          <h1 class="pop">Multiple agents.<br>One codebase. <span style="color:var(--good)">Zero collisions.</span></h1>
+          <div class="chips pop d2" style="margin-top:14px">
+            <span class="lchip l-product"><svg class="ic"><use href="#i-product"/></svg>Describe a goal → Product delegates</span>
+          </div>
+          <div class="chips pop d3" style="margin-top:10px">
+            <span class="lchip l-tech"><svg class="ic"><use href="#i-tech"/></svg>@fb-tech</span>
+            <span class="lchip l-design"><svg class="ic"><use href="#i-design"/></svg>@fb-design</span>
+            <span class="lchip l-business"><svg class="ic"><use href="#i-business"/></svg>@fb-business</span>
+          </div>
+          <div class="sub pop d4" style="margin-top:16px">FB-Lane Coordination Framework · <span class="mono">docs/fb-lane/</span></div>
+        </section>
+
+      </div>
+    </div>
+
+    <div class="caption" id="caption"></div>
+    <div class="controls">
+      <div class="btns">
+        <button class="ctrl" id="replay" aria-label="Restart">⤺</button>
+        <button class="ctrl" id="prev" aria-label="Previous">◀</button>
+        <button class="ctrl" id="play" aria-label="Pause">❚❚</button>
+        <button class="ctrl" id="next" aria-label="Next">▶</button>
+      </div>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+      <div class="dots" id="dots"></div>
+    </div>
+    <div class="legend">Autoplays · ← / → to step · space to pause · click a dot to jump. Screen-record this frame to export an MP4.</div>
+  </div>
+
+<script>
+(function(){
+  var scenes = Array.prototype.slice.call(document.querySelectorAll('.scene'));
+  var dotsWrap = document.getElementById('dots');
+  var caption = document.getElementById('caption');
+  var bar = document.getElementById('bar');
+  var playBtn = document.getElementById('play');
+  var durations = scenes.map(function(s){ return parseInt(s.getAttribute('data-dur') || '4500', 10); });
+  var i = 0, timer = null, playing = true;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var dots = scenes.map(function(s, idx){
+    var d = document.createElement('button');
+    d.className = 'dot';
+    d.setAttribute('aria-label', 'Scene ' + (idx + 1));
+    d.addEventListener('click', function(){ go(idx); });
+    dotsWrap.appendChild(d);
+    return d;
+  });
+
+  function render(){
+    scenes.forEach(function(s, idx){ s.classList.toggle('is-active', idx === i); });
+    dots.forEach(function(d, idx){ d.classList.toggle('is-active', idx === i); });
+    caption.innerHTML = scenes[i].getAttribute('data-caption') || '';
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+    void bar.offsetWidth; // reflow
+    if (playing && !reduce){
+      bar.style.transition = 'width ' + durations[i] + 'ms linear';
+      bar.style.width = '100%';
+    } else {
+      bar.style.transition = 'none';
+      bar.style.width = '100%';
+    }
+  }
+
+  function schedule(){
+    clearTimeout(timer);
+    if (playing && !reduce){ timer = setTimeout(next, durations[i]); }
+  }
+  function go(n){ i = (n + scenes.length) % scenes.length; render(); schedule(); }
+  function next(){ go(i + 1); }
+  function prev(){ go(i - 1); }
+  function setPlaying(p){
+    playing = p;
+    playBtn.textContent = p ? '❚❚' : '▶';
+    playBtn.setAttribute('aria-label', p ? 'Pause' : 'Play');
+    render();
+    schedule();
+  }
+
+  document.getElementById('next').addEventListener('click', function(){ setPlaying(false); next(); });
+  document.getElementById('prev').addEventListener('click', function(){ setPlaying(false); prev(); });
+  document.getElementById('replay').addEventListener('click', function(){ setPlaying(true); go(0); });
+  playBtn.addEventListener('click', function(){ setPlaying(!playing); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight'){ setPlaying(false); next(); }
+    else if (e.key === 'ArrowLeft'){ setPlaying(false); prev(); }
+    else if (e.key === ' '){ e.preventDefault(); setPlaying(!playing); }
+  });
+
+  if (reduce){ playing = false; playBtn.textContent = '▶'; }
+  render();
+  schedule();
+})();
+</script>
+</body>
+</html>
