@@ -69,7 +69,7 @@ Add this to your `claude_desktop_config.json` (typically located at `~/Library/A
   "mcpServers": {
     "fb-lane": {
       "command": "node",
-      "args": ["/Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/tools/fb-lane.cjs", "mcp"]
+      "args": ["/absolute/path/to/your-project/tools/fb-lane.cjs", "mcp"]
     }
   }
 }

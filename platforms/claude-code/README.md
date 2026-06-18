@@ -46,6 +46,10 @@ Then **reload your Claude Code session**:
 > These artifacts are read at session start, so a new/reloaded session is required for them to
 > take effect — they are not hot-loaded into a running session.
 
+Bootstrap also writes a self-contained Claude Code interaction guide to
+[`docs/fb-lane/claude-code.md`](../../docs/fb-lane/claude-code.md) (one is generated per AI under
+`docs/fb-lane/`) covering how to invoke lanes, the autonomous-vs-direct modes, and the task loop.
+
 ## How the lanes map
 
 The **main session acts as FB-Product** (the orchestrator): scope tasks on `PROJECT_BOARD.md`,
