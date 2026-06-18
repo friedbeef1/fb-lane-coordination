@@ -197,7 +197,67 @@ The human supervisor does not need technical project management expertise; they 
 **A:** The framework operates differently based on the platform's orchestration capabilities:
 *   **Antigravity (Programmatic Multi-Agent)**: The main `FB-Product` thread runs on an agentic SDK. It uses programmatic tools (`define_subagent` and `invoke_subagent`) to spin up sandboxed background threads for `FB-Tech` and `FB-Design` autonomously.
 *   **Claude Code (Native Subagents + MCP)**: Four lane agents (`fb-product`, `fb-tech`, `fb-design`, `fb-business`) are registered as Claude Code subagents in `.claude/agents/` and invokable directly from the sidebar via `@mention`. The `fb-lane` MCP server connects all four to the same `PROJECT_BOARD.md` for real-time status and lock checks. The main session acts as FB-Product by default; open separate sidebar conversations for each lane to run them concurrently. Install as a plugin in one step: `/plugin marketplace add friedbeef1/fb-lane-coordination`. See [`platforms/claude-code/`](platforms/claude-code/README.md) and the Claude Code walkthrough video at [`platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4`](platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4).
-*   **Codex (Local File/Git Agent)**: Enforced via local repository rule files (e.g., `.codex/rules.md`). The Codex runs checkouts, updates the markdown board locally, and validates compilations inside isolated local git branches.
+*   **Codex (Local File/Git Agent)**: The main benefit is that you can give multiple lane instructions at once, Codex can run them concurrently with native subagents or sidebar threads, and FB-Lane keeps those concurrent tasks from editing the same files or losing handoff context. FB-Lane's Codex value is the collision-control protocol: local rules (e.g., `.codex/rules.md`), a shared project board/current-task file, file claims, handoff docs, and Product/Captain integration gates.
+
+### Q: What is the main benefit of FB-Lane in Codex?
+**A:** The main benefit is not that FB-Lane creates parallelism. Codex already has native subagents. The benefit is that you can give several lane instructions at once and let Codex run them concurrently without those lanes stepping on each other's files, losing context, or forcing you to manually coordinate locks and handoffs.
+
+The practical Codex split is:
+*   **Concurrency engine**: Codex native subagents.
+*   **Coordination safety**: FB-Lane board/status/claim/handoff protocol.
+*   **Final integration**: Product/Captain thread.
+
+Example Product/Captain prompt:
+```text
+Product/Captain mode.
+
+Run this in parallel where safe:
+@tt-design create warmer prep-screen icon direction.
+@tt-tech check whether the prep flow touches risky auth/data paths.
+@tt-business tighten the prep-step copy for anxious interview users.
+
+Keep file scopes separate. Integrate the lane outputs here.
+```
+
+### Q: In Codex, can I address lanes like `@tt-design` or `@tt-tech`?
+**A:** Yes, as a lightweight convention. It is not the same as Claude Code's native `@agent` mention unless your Codex environment has a matching agent router installed. In Codex, the repo rules can define these aliases:
+
+```text
+@tt-product  -> Product / Captain / Integration
+@tt-design   -> UI, visuals, icons, layout, responsive QA
+@tt-tech     -> implementation, auth, data, tests, reliability
+@tt-business -> positioning, pricing, GTM, onboarding/help copy
+```
+
+In a Product/Captain thread, a bundle like this means "route or spawn lanes where safe":
+```text
+@tt-design I need new icons for the prep screen.
+@tt-tech Check if this auth flow is safe.
+@tt-product decide whether this should go into staging.
+@tt-business rewrite this onboarding copy.
+```
+
+In a persistent sidebar thread, the same tag means "this thread should adopt that lane, sync from repo state, and claim files before editing."
+
+### Q: How do separate Codex lane threads become aware of each other?
+**A:** They do not share chat memory. They become aware through shared repo state.
+
+The minimal automation loop is:
+1. The lane runs a status command or reads `PROJECT_BOARD.md` / `.codex/current_task.md` before editing.
+2. The lane claims intended files or surfaces.
+3. The claim operation rejects overlaps with active lane claims.
+4. The lane releases the claim when done.
+5. Non-trivial lane output creates a short `docs/handoffs/` document for Product/Captain.
+
+Example local script aliases some projects use:
+```bash
+npm run lane:status
+npm run lane:claim -- --lane design --task "new prep icons" --files "components/Prep.tsx,index.css" --board TASK-123
+npm run lane:release -- --session design/new-prep-icons-20260618 --status "released - handed to Product"
+npm run lane:handoff -- --lane design --task "new prep icons" --board TASK-123 --files "components/Prep.tsx,index.css" --next-owner "Product / Captain"
+```
+
+The exact commands can be backed by `tools/fb-lane.cjs`, an MCP server, or a small repo-local helper. The key invariant is the same: every editing lane checks active locks before writing, and Product/Captain owns final integration.
 
 ### Q: Managing threads on Claude and Codex Desktop (non-CLI) sounds painful and full of friction. How can I make this easier?
 **A:** We have created the **`fb-lane` automation utility** (`tools/fb-lane.cjs`) specifically to eliminate this manual friction. It automates branch management, project board edits, file locking, and git commits via two workflows:
