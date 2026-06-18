@@ -708,9 +708,9 @@
           <div class="eyebrow">Antigravity 2.0 + FB-Lane</div>
           <h1>Native agents. <span class="accent">Safe coordination.</span></h1>
           <div class="rule"></div>
-          <p>Run Tech, Design, and Business in parallel while Product keeps the board, locks, and merge sequence under control.</p>
+          <p>Start in Product, or talk directly to Tech, Design, and Business. Lanes run in parallel, then hand back for Product to sequence.</p>
           <div class="pill-row">
-            <span class="pill product">FB-Product orchestrates</span>
+            <span class="pill product">Product starts or finishes</span>
             <span class="pill tech">FB-Tech implements</span>
             <span class="pill design">FB-Design audits</span>
             <span class="pill business">FB-Business drafts</span>
@@ -770,9 +770,9 @@
         <div class="scene-inner split">
           <div>
             <div class="eyebrow">Step 2 / invoke in parallel</div>
-            <h2>Product becomes the traffic controller.</h2>
+          <h2>Product can start or receive the work.</h2>
             <div class="rule"></div>
-            <p>It scopes the work, claims the files, launches the right background agents, and watches progress without turning one chat into everything.</p>
+            <p>Use Product for hands-off orchestration, or open direct lane threads. Either path returns handoffs to Product for integration.</p>
           </div>
           <div class="hub">
             <div class="link a"></div>
@@ -793,7 +793,7 @@
         <div class="scene-inner">
           <div>
             <div class="eyebrow good">After / parallel, but scoped</div>
-            <h2>Three background lanes. One controlled workspace.</h2>
+          <h2>Three direct lane threads. One controlled workspace.</h2>
           </div>
           <div class="lane-board">
             <div class="lane-card tech">
@@ -801,21 +801,21 @@
               <small>branch tech/TASK-204-auth</small>
               <div class="progress"><span></span></div>
               <p>Builds the auth endpoint and test coverage.</p>
-              <div class="status-line">locks: api/auth.ts, tests/auth.spec.ts</div>
+              <div class="status-line">handoff: Product integration</div>
             </div>
             <div class="lane-card design">
               <h3>FB-Design</h3>
               <small>branch design/TASK-205-prep-ui</small>
               <div class="progress"><span></span></div>
               <p>Refines prep screen layout and visual QA.</p>
-              <div class="status-line">locks: src/prep.css, assets/icons/</div>
+              <div class="status-line">handoff: Product integration</div>
             </div>
             <div class="lane-card business">
               <h3>FB-Business</h3>
               <small>branch business/TASK-206-copy</small>
               <div class="progress"><span></span></div>
               <p>Drafts onboarding copy as a docs handoff.</p>
-              <div class="status-line">locks: docs/copy/prep.md</div>
+              <div class="status-line">handoff: Product integration</div>
             </div>
           </div>
         </div>
@@ -842,7 +842,7 @@
             <div class="eyebrow">Step 3 / shared state</div>
             <h2>The board makes agents aware of each other.</h2>
             <div class="rule"></div>
-            <p>Separate subagents do not need shared chat memory. They read the same board, respect active locks, and write handoffs Product can review.</p>
+            <p>Direct lane threads do not need shared chat memory. They read the same board, respect active locks, and write handoffs Product can review.</p>
           </div>
         </div>
       </section>
@@ -855,12 +855,12 @@
             <div class="eyebrow">Antigravity 2.0 section demo</div>
             <h1>Parallel by default. <span class="good">Safe by design.</span></h1>
             <div class="rule"></div>
-            <p>Antigravity runs the agents. FB-Lane keeps Product in charge of scope, sequencing, staging, and conflict resolution.</p>
+            <p>Antigravity runs the agents. FB-Lane lets Product be the start point, the endpoint, or both.</p>
           </div>
           <div class="checklist">
-            <div class="check"><b>1</b><span>Product sequences work</span></div>
-            <div class="check"><b>2</b><span>Lanes claim files first</span></div>
-            <div class="check"><b>3</b><span>Merge gate resolves the end</span></div>
+            <div class="check"><b>1</b><span>Product can delegate first</span></div>
+            <div class="check"><b>2</b><span>Lanes run directly in parallel</span></div>
+            <div class="check"><b>3</b><span>Product resolves the end</span></div>
           </div>
         </div>
         <div class="footer-note">platforms/antigravity/how-to-interact-demo</div>
@@ -872,13 +872,13 @@
       const tl = gsap.timeline({ paused: true });
 
       const captions = [
-        [0, "Antigravity gives you native agents. FB-Lane gives them lanes, locks, and a merge gate."],
+        [0, "Start with Product, or talk directly to several Antigravity lane threads at once."],
         [5, "Without the board and file claims, parallel background work can still collide."],
         [11, "Product defines specialist subagents with bounded tools and clear lane responsibilities."],
-        [17, "Product invokes Tech, Design, and Business in parallel while keeping the coordination loop."],
-        [24, "Each lane works on its own branch and locked file scope."],
+        [17, "Product can delegate first, or direct lane threads can hand work back to Product."],
+        [24, "Each lane thread works in parallel, then hands off to Product integration."],
         [31, "The shared board is the awareness layer: status, locks, blockers, and handoffs."],
-        [37, "Antigravity runs the agents. FB-Lane keeps concurrent work safe and sequenced."]
+        [37, "Product can be the start point, the endpoint, or both."]
       ];
 
       captions.forEach(([time, text]) => {
