@@ -40,7 +40,9 @@ node tools/fb-lane.cjs bootstrap
 ```
 
 Then **reload your Claude Code session**:
-- The lanes appear in `/agents` and the agent picker (the left-sidebar agents list in the app).
+- Invoke a lane by typing `@fb-tech` (the `@` autocomplete lists `fb-product` / `fb-tech` /
+  `fb-design` / `fb-business`) or via the `/agents` menu — they are modes you switch into within
+  a chat, **not** separate items in the conversations sidebar.
 - Approve the `fb-lane` MCP server with `/mcp`.
 
 > These artifacts are read at session start, so a new/reloaded session is required for them to
