@@ -1378,9 +1378,296 @@ ${FB_LANE_END}`;
     console.log(`🤖 Created Claude Code subagent: .claude/agents/${slug}.md`);
   }
 
+  // 9. Write per-AI interaction guides (docs/fb-lane/*.md — non-destructive).
+  // One self-contained "how to drive the lanes" guide per AI, so the setup itself explains how to
+  // interact. Canonical source for these strings: docs/fb-lane/ in the fb-lane-coordination repo.
+  const fbLaneDocsDir = path.join(rootDir, 'docs', 'fb-lane');
+  if (!fs.existsSync(fbLaneDocsDir)) {
+    fs.mkdirSync(fbLaneDocsDir, { recursive: true });
+  }
+  const interactionGuides = {
+    'README.md': `# FB-Lane — How to Interact (one guide per AI)
+
+You've bootstrapped the **FB-Lane Four-Lane Coordination Model**. Four role-isolated lanes —
+**FB-Product** (orchestrator / merges), **FB-Tech** (backend), **FB-Design** (UI/CSS), and
+**FB-Business** (copy; read-only on code) — work concurrently on the same repo, coordinating
+through \`PROJECT_BOARD.md\` (the single source of truth for tasks and file locks).
+
+How you *drive* the lanes depends on which AI you use. Open the guide for yours:
+
+| AI | Guide | How you invoke a lane |
+|----|-------|-----------------------|
+| **Claude Code** (CLI / web / IDE) | [claude-code.md](claude-code.md) | \`@fb-tech\` in chat, or the \`/agents\` picker; the main session is FB-Product |
+| **Claude Desktop / Cursor / Projects** | [claude-desktop.md](claude-desktop.md) | one fresh chat per lane; paste the lane's prompt (or use the MCP tools) |
+| **Antigravity 2.0** | [antigravity.md](antigravity.md) | lanes appear in the left sidebar; FB-Product spawns them via \`invoke_subagent\` |
+| **Codex** | [codex.md](codex.md) | \`.codex/current_task.md\` context injection (or the MCP tools) |
+
+## The task loop (every AI, same CLI)
+
+Whatever the platform, work flows through one lifecycle on \`PROJECT_BOARD.md\`:
+
+\`\`\`bash
+node tools/fb-lane.cjs status                            # see tasks + active file locks
+node tools/fb-lane.cjs claim  TASK-101 Tech "src/api.ts" # lock files, checkout tech/TASK-101
+node tools/fb-lane.cjs submit TASK-101                   # run tests, push branch, -> Staging QA
+node tools/fb-lane.cjs merge  TASK-101                   # FB-Product only: merge, unlock, -> Done
+\`\`\`
+
+- **Two ways to work:** talk only to **FB-Product** and let it scope / delegate / merge (hands-off),
+  or invoke a lane **directly** to pair-program. Both keep the board and locks honest.
+- **FB-Product is the gate:** it is the only lane that merges, and it cross-reads every submitted
+  branch first to catch cross-lane drift (API/UI mismatches, copy referencing unbuilt features,
+  shared-file conflicts) before integrating.
+- **Full rules:** lane boundaries and the board/lock protocol live in [\`AGENTS.md\`](../../AGENTS.md).
+`,
+    'claude-code.md': `# How to Interact — Claude Code
+
+Claude Code (CLI, web, and the desktop / IDE extensions) runs the FB-Lane lanes as **native
+subagents**. The **main session you are typing in acts as FB-Product** (the orchestrator).
+
+## What Claude Code reads
+
+| Artifact | Role |
+|----------|------|
+| \`.claude/agents/*.md\` | the four lanes as selectable subagents: \`fb-product\`, \`fb-tech\`, \`fb-design\`, \`fb-business\` |
+| \`.mcp.json\` | registers the \`fb-lane\` MCP server -> \`fb_lane_status\` / \`claim\` / \`submit\` / \`merge\` |
+| \`CLAUDE.md\` | auto-loaded lane boundaries + board/lock protocol |
+
+> These load at **session start**. After bootstrapping (or pulling new lanes), **reload / start a
+> fresh session**, then run **\`/mcp\`** once to approve the \`fb-lane\` server. The lanes are not
+> hot-loaded into an already-running session.
+
+## Two ways to interact
+
+**1. Autonomous (hands-off).** Stay in the main session — it is FB-Product. Describe a goal; it
+scopes tasks on \`PROJECT_BOARD.md\`, delegates to a lane, reviews, and merges. You approve the plan
+up front and smoke-test at the end.
+
+**2. Direct lane (pair-programming).** Invoke a specific lane yourself:
+
+- Type **\`@fb-tech\`** (or \`@fb-design\`, \`@fb-business\`, \`@fb-product\`) in the chat — the \`@\`
+  autocomplete lists them — or open the **\`/agents\`** picker and pick one.
+- The lanes are **not** separate sidebar items; they are modes you switch into within a chat.
+- For real concurrency, open **separate conversations**, invoke a different lane in each (e.g. one
+  \`@fb-tech\`, one \`@fb-design\`), and rename the conversations to match.
+
+## The task loop
+
+\`\`\`bash
+node tools/fb-lane.cjs status
+node tools/fb-lane.cjs claim  TASK-101 Tech "src/api.ts"
+node tools/fb-lane.cjs submit TASK-101
+node tools/fb-lane.cjs merge  TASK-101                    # FB-Product only
+\`\`\`
+
+With the \`fb-lane\` MCP server approved you can drive this in plain language ("claim TASK-101 for
+Tech locking src/api.ts") instead of running the CLI by hand.
+
+## FB-Product catches cross-lane drift
+
+The main session (FB-Product) is the **only** lane that merges. Before merging it cross-reads every
+submitted branch to catch API/UI contract mismatches, copy referencing unbuilt features, and
+shared-file conflicts, then sends the offending lane back. See the checklist in
+\`.claude/agents/fb-product.md\`.
+
+## Install options
+
+- **This repo opened directly** -> the lanes and \`.mcp.json\` are already here; just reload.
+- **As a plugin in any project** -> \`/plugin marketplace add friedbeef1/fb-lane-coordination\`
+  then \`/plugin install fb-lane-coordination@fb-lane\`.
+
+## Context hygiene
+
+Start a fresh conversation per task to keep context clean. If a conversation looks stale, type
+**\`status\`** or **\`SOP\`** — the lane re-reads \`PROJECT_BOARD.md\`, \`.codex/current_task.md\`, and the
+git branch to recover its task, lane, and locked files.
+`,
+    'claude-desktop.md': `# How to Interact — Claude Desktop / Cursor / Projects
+
+Claude Desktop, Cursor, and Claude Projects are single-threaded chat agents — they do not spawn
+background subagents. You run the FB-Lane model by giving each lane **its own chat thread** and
+acting as FB-Product (the coordinator) yourself.
+
+## What this AI reads
+
+| Artifact | Role |
+|----------|------|
+| \`CLAUDE.md\` (or the Project's Custom Instructions) | lane boundaries + board/lock protocol |
+| \`AGENTS.md\` + \`PROJECT_BOARD.md\` | upload to Project Knowledge / add as \`@\` references in Cursor |
+| \`.claude/agents/<lane>.md\` | the per-lane system prompt to paste into a fresh thread |
+| \`claude_desktop_config.json\` | (Desktop only) registers the \`fb-lane\` MCP server |
+
+## Two ways to interact
+
+**1. Zero-friction via MCP (Claude Desktop).** Register the \`fb-lane\` MCP server (bootstrap does
+this automatically on macOS / Windows). Claude then exposes \`fb_lane_status\` / \`claim\` / \`submit\` /
+\`merge\`, so you just say *"Claim TASK-102 for Tech locking src/auth.ts"* and it manages the branch,
+locks, and board for you.
+
+**2. Low-friction via CLI + clipboard (Cursor / Web).** Run the claim command in your terminal — it
+checks out the branch, locks files, and **copies a startup prompt to your clipboard**:
+
+\`\`\`bash
+node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
+\`\`\`
+
+Open a **fresh chat thread** for that lane and paste (Cmd/Ctrl+V) to start it. (You can also paste
+the lane's prompt straight from \`.claude/agents/<lane>.md\`.)
+
+## The task loop
+
+\`\`\`bash
+node tools/fb-lane.cjs status
+node tools/fb-lane.cjs claim  TASK-102 Tech "src/auth.ts"          # copies a startup prompt to your clipboard
+node tools/fb-lane.cjs submit TASK-102 "https://staging.example.com"
+node tools/fb-lane.cjs merge  TASK-102                             # as FB-Product
+\`\`\`
+
+*(With MCP enabled, ask Claude to run each step instead of typing the CLI.)*
+
+## One thread per lane; FB-Product merges
+
+Always start a **new, empty chat** for each lane/task — never mix backend logic (\`FB-Tech\`) and
+styling (\`FB-Design\`) in one thread. All threads share the same git branch, \`PROJECT_BOARD.md\`, and
+\`.codex/current_task.md\`, so they stay in sync. Acting as **FB-Product**, you review each lane's
+submission and run \`merge\` — Product is the only role that merges, and the place cross-lane
+inconsistencies (API/UI mismatches, copy referencing unbuilt features) get caught.
+
+## Context hygiene
+
+Clearing a thread (\`/clear\`) per task is encouraged. In a fresh thread, type **\`status\`** or
+**\`SOP\`** — the agent inspects \`.codex/current_task.md\`, \`PROJECT_BOARD.md\`, and \`git branch
+--show-current\` to recover its lane, task, and locked files instantly.
+`,
+    'antigravity.md': `# How to Interact — Antigravity 2.0
+
+Antigravity is a multi-agent SDK: **FB-Product** is the main thread and spawns **FB-Tech**,
+**FB-Design**, and **FB-Business** as sandboxed background subagents. The lanes appear in your
+**left sidebar** automatically when you open the project.
+
+## What Antigravity reads
+
+| Artifact | Role |
+|----------|------|
+| \`agents/FB-*/agent.json\` | the four lane subagents (tools + system prompt per lane) |
+| \`PROJECT_BOARD.md\` | single source of truth for tasks + file locks |
+| \`AGENTS.md\` | lane boundaries + board/lock protocol |
+| \`skills/\` | the \`project-coordination-setup\` + \`fb-lane-coordination\` skills |
+
+> **Setup:** open the project folder in Antigravity 2.0 — the lane agents populate the left
+> sidebar. If they do not appear, re-run \`node tools/fb-lane.cjs bootstrap\` to regenerate
+> \`agents/FB-*/agent.json\`.
+
+## Two ways to interact
+
+**1. Autonomous background orchestration (main approach).** Talk only to the **FB-Product** thread.
+Describe a feature; Product scopes tasks on the board, runs \`claim\`, then uses \`invoke_subagent\` to
+spawn \`FB-Tech\` / \`FB-Design\` concurrently on isolated branches, and merges when verified. You
+approve the plan and smoke-test staging.
+
+**2. Direct lane threads (interactive).** Run a lane yourself in an interactive terminal loop with
+the framework's runner:
+
+\`\`\`bash
+python tools/run_lane.py <lane> <task-id> [locked_files]
+# e.g.  python tools/run_lane.py Tech   TASK-102 "src/api.ts"
+#       python tools/run_lane.py Design TASK-103 "src/App.css"
+\`\`\`
+
+The runner auto-claims the task, checks out the branch, declares locks, and configures that lane's
+sandbox before starting the \`User:\` / \`Agent:\` loop. (Requires \`GEMINI_API_KEY\` in your env.)
+
+## The task loop
+
+\`\`\`bash
+node tools/fb-lane.cjs status
+node tools/fb-lane.cjs claim  TASK-102 Tech "src/api.ts"
+node tools/fb-lane.cjs submit TASK-102 "https://staging.example.com"
+node tools/fb-lane.cjs merge  TASK-102                    # FB-Product only
+\`\`\`
+
+## FB-Product is the merge gate
+
+Only FB-Product merges. It cross-reads the submitted branches first to catch cross-lane drift
+(API/UI contract mismatches, copy referencing unbuilt features, shared-file conflicts) and sends
+the offending lane back before integrating.
+
+## Context hygiene
+
+Start a fresh sidebar thread per lane/task; clearing context is encouraged. Type **\`status\`** or
+**\`SOP\`** in a fresh thread to have the agent re-read \`.codex/current_task.md\`, \`PROJECT_BOARD.md\`,
+and the git branch and resume instantly.
+`,
+    'codex.md': `# How to Interact — Codex
+
+Codex is a local, filesystem-active developer agent. The FB-Lane model coordinates multiple Codex
+runs through **git branch isolation** and the local \`PROJECT_BOARD.md\`. Each lane runs in its own
+Codex session; **you act as FB-Product** to review and merge.
+
+## What Codex reads
+
+| Artifact | Role |
+|----------|------|
+| \`.codex/rules.md\` | lane boundaries + board/lock protocol (system rules) |
+| \`.codex/current_task.md\` | the active task, branch, and locked files (written by \`claim\`) |
+| \`PROJECT_BOARD.md\` | single source of truth for tasks + file locks |
+
+## Two ways to interact
+
+**1. Zero-friction via MCP.** Register \`tools/fb-lane.cjs mcp\` as an MCP server in Codex Desktop
+(**Settings -> MCP Servers**). Codex then has \`fb_lane_status\` / \`claim\` / \`submit\` / \`merge\` and
+manages its own branch, locks, and board — just say *"Claim TASK-102 for Tech locking src/auth.ts"*.
+
+**2. Local context injection (CLI).** Run \`claim\` — it writes \`.codex/current_task.md\`:
+
+\`\`\`bash
+node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
+\`\`\`
+
+\`.codex/rules.md\` already tells Codex to read that file on startup, so when you launch Codex Desktop
+it picks up the branch, locks, and task and starts working — no prompt needed.
+
+## The task loop
+
+\`\`\`bash
+node tools/fb-lane.cjs status
+node tools/fb-lane.cjs claim  TASK-102 Tech "src/auth.ts"          # writes .codex/current_task.md
+node tools/fb-lane.cjs submit TASK-102 "https://staging.example.com"
+node tools/fb-lane.cjs merge  TASK-102                             # as FB-Product
+\`\`\`
+
+*(With MCP enabled, ask Codex to run each step instead of typing the CLI.)*
+
+## One session per lane; FB-Product merges
+
+Run one Codex session per lane on its own \`tech/...\` or \`design/...\` branch, and commit board / doc
+updates separately from code. As **FB-Product**, review each submission and \`merge\` — Product is the
+only role that merges, and it cross-reads the submitted branches to catch cross-lane drift (API/UI
+mismatches, copy referencing unbuilt features) before integrating.
+
+## Context hygiene
+
+Clearing the Codex session per task is encouraged. In a fresh session, type **\`status\`** or
+**\`SOP\`** — Codex inspects \`.codex/current_task.md\`, \`PROJECT_BOARD.md\`, and \`git branch
+--show-current\` to recover its lane, task, and locked files.
+`
+  };
+  for (const [fileName, content] of Object.entries(interactionGuides)) {
+    const guidePath = path.join(fbLaneDocsDir, fileName);
+    if (fs.existsSync(guidePath)) {
+      console.log(`ℹ️  docs/fb-lane/${fileName} already exists, skipping.`);
+      continue;
+    }
+    fs.writeFileSync(guidePath, content, 'utf8');
+    console.log(`📖 Created interaction guide: docs/fb-lane/${fileName}`);
+  }
+
   console.log('\n🎉 FB-Lane Framework bootstrapped successfully!');
-  console.log('👉 Antigravity 2.0: open this folder to see the lane agents in your left sidebar.');
-  console.log('👉 Claude Code: reload to load .claude/agents/ (lanes) and approve the fb-lane MCP server via /mcp.\n');
+  console.log('📖 Per-AI interaction guides written to docs/fb-lane/ — open the one for your AI:');
+  console.log('   • Claude Code           → docs/fb-lane/claude-code.md   (reload, /mcp, invoke lanes with @fb-tech)');
+  console.log('   • Claude Desktop/Cursor → docs/fb-lane/claude-desktop.md');
+  console.log('   • Antigravity 2.0       → docs/fb-lane/antigravity.md   (lanes appear in your left sidebar)');
+  console.log('   • Codex                 → docs/fb-lane/codex.md\n');
 }
 
 function main() {
