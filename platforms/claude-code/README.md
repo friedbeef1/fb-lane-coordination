@@ -30,6 +30,16 @@ and the `fb-lane` MCP server (the bundled CLI is referenced via `${CLAUDE_PLUGIN
 works wherever the plugin is installed). The MCP server reads the `PROJECT_BOARD.md` of whatever
 project you currently have open.
 
+## How-To Video
+
+The Claude Code interaction demo lives in [`how-to-interact-demo/`](how-to-interact-demo/). It shows
+the recommended Claude Code workflow: use direct lane tags such as `@fb-design`, `@fb-tech`, and
+`@fb-business`, let each lane claim files on the shared board, then let Product sequence and resolve
+integration at the end.
+
+Watch the rendered MP4:
+[`how-to-interact-demo/renders/claude-code-how-to-interact.mp4`](how-to-interact-demo/renders/claude-code-how-to-interact.mp4).
+
 ## Or: bootstrap into a project (copies the CLI in)
 
 From your project root, run the bootstrap — it generates all three artifacts, non-destructively
