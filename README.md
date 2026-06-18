@@ -91,7 +91,7 @@ If you have an active AI agent in your project workspace (such as Antigravity, C
    * **Claude Desktop**: Restart Claude. The `fb-lane` MCP tools are registered and ready to use.
    * **Claude Code** (CLI / web / IDE): Reload the workspace. The lanes (`fb-product`, `fb-tech`, `fb-design`, `fb-business`) appear as subagents in `/agents` and the agent picker; approve the `fb-lane` MCP server via `/mcp`. See [`platforms/claude-code/`](platforms/claude-code/README.md).
    * **Cursor / Claude Projects Web**: Add `AGENTS.md` and `PROJECT_BOARD.md` to your Project Knowledge or Custom Instructions.
-   * **Codex**: Launch Codex Desktop. It is preconfigured to automatically read active task scopes.
+   * **Codex**: Launch Codex Desktop. The main benefit is that you can give several lane instructions at once, Codex can run them concurrently with native subagents or sidebar threads, and FB-Lane keeps those concurrent tasks from editing the same files or losing handoff context. See [`platforms/codex/`](platforms/codex/README.md).
 
 ### Method C: Install as a Claude Code Plugin
 This repo doubles as a single-plugin marketplace. In Claude Code, run:
@@ -119,6 +119,31 @@ Depending on your preferred style, you can choose between two operational patter
     - Run the Tech agent on `TASK-102` locking `src/db.ts`: `python tools/run_lane.py Tech TASK-102 "src/db.ts"`
     - Run the Design agent on `TASK-103`: `python tools/run_lane.py Design TASK-103`
     This automatically claims the task on the project board, checks out the correct feature branch, configures the sandboxed system instructions for that lane, and begins the interactive terminal loop.
+
+### Codex Shortcut: Multiple Lane Instructions at Once
+
+In Codex, the simplest workflow is to give multiple lane instructions in one Product/Captain thread. Codex provides the concurrency; FB-Lane provides the guardrails so concurrent agents do not get in each other's way:
+
+```text
+Product/Captain: run this in parallel where safe.
+@tt-design create warmer prep-screen icon direction.
+@tt-tech check whether the prep flow touches risky auth/data paths.
+@tt-business tighten the prep-step copy for anxious interview users.
+Integrate the lane outputs here and keep file scopes separate.
+```
+
+For persistent sidebar conversations, use the same natural lane tags:
+
+```text
+@tt-design status
+@tt-tech check this auth flow
+@tt-business rewrite this onboarding copy
+@tt-product decide whether this goes to staging
+```
+
+The important rule is that the lane agent, not the user, handles the ceremony. Before editing, it syncs from the project board/current-task file, claims the intended files, and stops if another active lane already owns the same files. That is the Codex value: multiple instructions can run concurrently without relying on the user to manually prevent collisions. Non-trivial lane output gets a short handoff under `docs/handoffs/` for Product/Captain to integrate.
+
+Watch the short HyperFrames demo: [`codex-lane-demo/renders/codex-lane-demo.mp4`](codex-lane-demo/renders/codex-lane-demo.mp4).
 
 ---
 

@@ -1,6 +1,8 @@
 # FB-Lane on Codex
 
-Codex is a local developer agent that operates directly on your filesystem and git workspace. It excels at codebase audits, local compilation checks, and terminal automation. To coordinate multiple Codex threads working on the same project, the FB-Lane model relies on strict **branch isolation** and local **project board tracking**.
+Codex is a local developer agent that operates directly on your filesystem and git workspace. It excels at codebase audits, local compilation checks, terminal automation, and native subagent concurrency. The main FB-Lane benefit in Codex is that you can give multiple lane instructions at once and let Codex run them concurrently without the lanes editing the same files or losing handoff context.
+
+> **Codex reality check:** Codex already has native subagents for concurrency. FB-Lane is not what makes Codex parallel. FB-Lane is the shared-state protocol that makes parallel Codex work safe: lane identity, file claims, status checks, handoffs, and Product/Captain integration.
 
 ## ⚡ Quick Setup
 
@@ -22,6 +24,7 @@ If you have an AI agent active in your workspace, simply paste this prompt:
 
 ## The Problem This Solves in Codex
 As a local, filesystem-active developer agent, Codex is prone to:
+* **Uncoordinated Parallelism**: Codex can run multiple subagents, but without a shared claim/status protocol they may inspect stale state, duplicate work, or edit the same files.
 * **Merge Collisions**: If multiple Codex runs execute in the same workspace without branch isolation, they will overwrite each other's changes, corrupting the code state.
 * **Dirty Git Logs**: Mixing project board tracking updates, markdown notes, and source code edits in a single commit makes PR reviews extremely difficult.
 * **Scope Creep & Code Bleed**: Without rigid boundary constraints, a Codex run might aggressively modify stylesheets, schemas, and config files all in one go to solve a minor issue, introducing regressions.
@@ -31,6 +34,96 @@ As a local, filesystem-active developer agent, Codex is prone to:
 * **Atomic Documentation Commits**: Enforces committing `PROJECT_BOARD.md` updates separately from code changes.
 * **Rigid Code Boundaries**: Prevents the agent from editing files or directories outside its assigned role (e.g., Tech lane cannot modify `.css` files).
 * **Simulated Tool Sandboxing**: Enforces role restrictions in Codex's system instructions (e.g. `.codex/rules.md`), strictly prohibiting the agent from running write/deploy commands or modifying files outside its domain (such as keeping `FB-Business` read-only).
+
+---
+
+## Two Codex Workflows
+
+### 1. One Product/Captain Thread + Native Codex Subagents
+
+This is the safest default. You give several lane instructions to one Product/Captain thread. Codex runs the safe pieces concurrently; FB-Lane makes each lane check and claim shared repo state before editing:
+
+```text
+Product/Captain mode.
+
+Run this in parallel where safe:
+@tt-design create warmer prep-screen icon direction.
+@tt-tech check whether the prep flow touches risky auth/data paths.
+@tt-business tighten the prep-step copy for anxious interview users.
+
+Do not let agents edit overlapping files. Integrate the lane outputs here.
+```
+
+Product/Captain remains the integration owner. It decides which work can run in parallel, serializes shared-file edits, and records final decisions. This is the core Codex use case: multiple instructions can run at once without you manually babysitting collisions.
+
+### 2. Persistent Codex Sidebar Lane Threads
+
+Use this when you want ongoing specialist conversations, like a physical Design or Tech person:
+
+```text
+@tt-design status
+@tt-design I need new icons for the prep screen.
+
+@tt-tech status
+@tt-tech check whether this auth flow is safe.
+
+@tt-business status
+@tt-business rewrite this onboarding copy.
+```
+
+Those tags are a convention defined in repo rules, not magic Codex routing. A lane thread must sync from shared repo state before editing. It should run or perform the equivalent of:
+
+```bash
+npm run lane:status
+npm run lane:claim -- --lane design --task "new prep icons" --files "components/Prep.tsx,index.css" --board TASK-123
+```
+
+If the claim reports an overlap, the lane stops and asks Product/Captain to split, serialize, or reassign the work.
+
+Common aliases:
+
+| Alias | Lane |
+|---|---|
+| `@tt-product`, `Product`, `Captain`, `Integration` | Product / Captain |
+| `@tt-design`, `Design`, `hey design` | Design |
+| `@tt-tech`, `Tech`, `Technical`, `Development` | Tech |
+| `@tt-business`, `Business`, `Marketing`, `Copy` | Business |
+
+---
+
+## Minimal Lane Awareness Contract
+
+Codex lane threads do not share chat memory. They become aware of each other through files in the repo. A minimal setup should provide:
+
+1. A status command or rule that reads active lane claims.
+2. A claim command that records the lane, task, board item, and locked files.
+3. Overlap rejection, so two active lanes cannot claim the same file.
+4. A release command that clears the lane claim when done.
+5. A handoff command/template for non-trivial output that Product/Captain must integrate.
+
+Example project-local aliases:
+
+```json
+{
+  "scripts": {
+    "lane:status": "node scripts/lane-session.mjs status",
+    "lane:claim": "node scripts/lane-session.mjs claim",
+    "lane:release": "node scripts/lane-session.mjs release",
+    "lane:handoff": "node scripts/lane-session.mjs handoff"
+  }
+}
+```
+
+Example usage:
+
+```bash
+npm run lane:status
+npm run lane:claim -- --lane design --task "new prep icons" --files "components/Prep.tsx,index.css" --board TASK-123
+npm run lane:release -- --session design/new-prep-icons-20260618 --status "released - handed to Product"
+npm run lane:handoff -- --lane design --task "new prep icons" --board TASK-123 --files "components/Prep.tsx,index.css" --next-owner "Product / Captain"
+```
+
+Whether you implement those aliases with `tools/fb-lane.cjs`, MCP tools, or a small repo-local helper, the invariant is the same: every editing lane checks active claims before writing.
 
 ## Coordination Concept
 Since Codex is a developer-centric CLI agent, its coordination model is built entirely around standard Git workflows and the local `PROJECT_BOARD.md`:
@@ -130,5 +223,3 @@ node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
 > Furthermore, **clearing the Codex thread or workspace session (e.g., via `/clear` or starting a fresh chat window) is highly encouraged** for each new task to avoid context bloat and reasoning degradation. Because all threads operate on the same local workspace files and share the exact same git branch, `.codex/current_task.md`, and `PROJECT_BOARD.md`, the different sessions remain fully in sync.
 > 
 > If you clear context, typing `status` or `SOP` in the fresh session prompts Codex to inspect the local files (like `.codex/current_task.md` and `PROJECT_BOARD.md`) and run Git queries (like `git branch --show-current`) to immediately determine its active lane, task ID, and locked files, resuming control instantly.
-
-
