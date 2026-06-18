@@ -68,7 +68,7 @@ Like Claude, the **Codex Desktop App** supports the Model Context Protocol (MCP)
   "mcpServers": {
     "fb-lane": {
       "command": "node",
-      "args": ["/Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/tools/fb-lane.cjs", "mcp"]
+      "args": ["/absolute/path/to/your-project/tools/fb-lane.cjs", "mcp"]
     }
   }
 }

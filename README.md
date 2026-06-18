@@ -84,7 +84,7 @@ If you have an active AI agent in your project workspace (such as Antigravity, C
    ```bash
    node tools/fb-lane.cjs bootstrap
    ```
-   *What this does:* Auto-generates the central task board (`PROJECT_BOARD.md`), boundary rules (`AGENTS.md`), local Codex configurations (`.codex/rules.md`), Claude configuration (`CLAUDE.md`), the **Claude Code integration** (`.mcp.json` MCP server + `.claude/agents/` lane subagents), and **automatically registers the MCP server for Claude Desktop** (if installed).
+   *What this does:* Auto-generates the central task board (`PROJECT_BOARD.md`), boundary rules (`AGENTS.md`), local Codex configurations (`.codex/rules.md`), Claude configuration (`CLAUDE.md`), the **Claude Code integration** (`.mcp.json` MCP server + `.claude/agents/` lane subagents), **per-AI interaction guides** (`docs/fb-lane/` — one "how to drive the lanes" guide for each of Claude Code, Claude Desktop, Antigravity, and Codex), and **automatically registers the MCP server for Claude Desktop** (if installed).
 
 3. **Launch Your Agent**:
    * **Antigravity**: Open the project folder. The lane subagents will automatically appear in your sidebar!
@@ -106,6 +106,8 @@ Done! You are ready to run `node tools/fb-lane.cjs claim <task-id> <lane>` and s
 ---
 
 ## 👥 How to Use
+
+> 📖 **New here?** After bootstrapping, open the interaction guide for your AI in [`docs/fb-lane/`](docs/fb-lane/README.md) — one self-contained "how to drive the lanes" set per platform (Claude Code, Claude Desktop, Antigravity, Codex).
 
 Depending on your preferred style, you can choose between two operational patterns:
 * **Main Approach: Autonomous Background Orchestration (<20% Involvement)**: You chat only with the main **`FB-Product`** thread. Product autonomously analyzes requirements, splits tasks, claims them on the board, locks files, and spawns subagents (`FB-Tech`/`FB-Design`) in the background silently. Your interaction is restricted to reviewing the plan at the beginning and smoke-testing staging at the end.
