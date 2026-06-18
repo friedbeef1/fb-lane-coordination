@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1280, height=720" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --bg: #0a0e17;
+        --panel: #0f1525;
+        --panel-2: #131b2e;
+        --line: #22304a;
+        --ink: #e8eefb;
+        --muted: #93a4c4;
+        --product: #f59e0b;
+        --tech: #2563eb;
+        --design: #7c3aed;
+        --business: #059669;
+        --good: #34d399;
+        --bad: #f87171;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: sans-serif;
+      }
+
+      #root {
+        position: relative;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 18% 10%, rgba(37, 99, 235, 0.24), transparent 34%),
+          radial-gradient(circle at 84% 86%, rgba(245, 158, 11, 0.18), transparent 32%),
+          linear-gradient(135deg, #0b1020 0%, #0a0e17 54%, #101827 100%);
+      }
+
+      #root::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0.22;
+        background-image:
+          linear-gradient(rgba(232, 238, 251, 0.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(232, 238, 251, 0.048) 1px, transparent 1px);
+        background-size: 42px 42px;
+        pointer-events: none;
+      }
+
+      #root::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0.16;
+        background-image: radial-gradient(rgba(232, 238, 251, 0.42) 0.7px, transparent 0.7px);
+        background-size: 7px 7px;
+        pointer-events: none;
+        mix-blend-mode: overlay;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        overflow: hidden;
+      }
+
+      .scene-content {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        height: 100%;
+        padding: 54px 64px 92px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+      }
+
+      .eyebrow {
+        font-family: monospace;
+        font-size: 18px;
+        line-height: 1.1;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-family: serif;
+        letter-spacing: 0;
+        line-height: 0.96;
+      }
+
+      h1 {
+        font-size: 76px;
+        max-width: 940px;
+      }
+
+      h2 {
+        font-size: 54px;
+        max-width: 920px;
+      }
+
+      h3 {
+        font-size: 34px;
+      }
+
+      p {
+        color: rgba(232, 238, 251, 0.8);
+        font-size: 26px;
+        line-height: 1.25;
+        max-width: 840px;
+      }
+
+      .ghost {
+        position: absolute;
+        z-index: 1;
+        font-family: serif;
+        font-weight: 800;
+        font-size: 132px;
+        line-height: 0.85;
+        color: rgba(232, 238, 251, 0.065);
+        pointer-events: none;
+      }
+
+      .ghost::before {
+        content: attr(data-word);
+      }
+
+      .rule {
+        height: 3px;
+        width: 100%;
+        transform-origin: left;
+        background: linear-gradient(90deg, var(--product), rgba(245, 158, 11, 0), rgba(232, 238, 251, 0.24));
+      }
+
+      .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .lane-chip,
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 36px;
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-family: monospace;
+        font-size: 18px;
+        line-height: 1;
+        color: var(--ink);
+        border: 2px solid rgba(232, 238, 251, 0.16);
+        background: rgba(232, 238, 251, 0.08);
+      }
+
+      .lane-chip.product,
+      .panel.product {
+        --lane: var(--product);
+      }
+
+      .lane-chip.tech,
+      .panel.tech {
+        --lane: var(--tech);
+      }
+
+      .lane-chip.design,
+      .panel.design {
+        --lane: var(--design);
+      }
+
+      .lane-chip.business,
+      .panel.business {
+        --lane: var(--business);
+      }
+
+      .lane-chip {
+        color: #ffffff;
+        background: color-mix(in srgb, var(--lane) 62%, #111827);
+      }
+
+      .panel-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .panel {
+        position: relative;
+        min-height: 250px;
+        border-radius: 20px;
+        overflow: hidden;
+        background: rgba(15, 21, 37, 0.94);
+        border: 2px solid rgba(232, 238, 251, 0.14);
+        box-shadow: 0 22px 56px rgba(0, 0, 0, 0.38);
+      }
+
+      .panel::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 7px;
+        background: var(--lane, var(--line));
+      }
+
+      .panel-head {
+        height: 48px;
+        padding: 12px 16px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-family: monospace;
+        font-size: 16px;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--lane, var(--muted));
+        box-shadow: 0 0 0 6px color-mix(in srgb, var(--lane, var(--muted)) 20%, transparent);
+      }
+
+      .live {
+        margin-left: auto;
+        color: var(--good);
+        font-size: 14px;
+      }
+
+      .panel-body {
+        padding: 12px 16px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .bubble,
+      .code,
+      .status-line {
+        border-radius: 14px;
+        padding: 12px 14px;
+        background: rgba(232, 238, 251, 0.07);
+        border: 2px solid rgba(232, 238, 251, 0.1);
+        font-size: 20px;
+        line-height: 1.15;
+      }
+
+      .bubble.user {
+        align-self: flex-end;
+        background: rgba(37, 99, 235, 0.2);
+      }
+
+      .code {
+        font-family: monospace;
+        font-size: 16px;
+        line-height: 1.22;
+        white-space: pre-wrap;
+        color: rgba(232, 238, 251, 0.84);
+      }
+
+      .bad-text {
+        color: var(--bad);
+      }
+
+      .good-text {
+        color: var(--good);
+      }
+
+      .stamp {
+        position: absolute;
+        z-index: 6;
+        right: 62px;
+        bottom: 78px;
+        transform: rotate(-7deg);
+        padding: 16px 26px;
+        border-radius: 18px;
+        font-family: monospace;
+        font-size: 28px;
+        font-weight: 800;
+        color: #fff7f7;
+        background: var(--bad);
+        border: 4px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 26px 60px rgba(248, 113, 113, 0.28);
+      }
+
+      .board-wrap {
+        display: grid;
+        grid-template-columns: 1.18fr 0.82fr;
+        gap: 28px;
+        align-items: stretch;
+        flex: 1;
+        min-height: 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border-radius: 20px;
+        background: rgba(15, 21, 37, 0.96);
+        border: 2px solid rgba(232, 238, 251, 0.14);
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.34);
+      }
+
+      th,
+      td {
+        padding: 16px 18px;
+        text-align: left;
+        border-bottom: 2px solid rgba(232, 238, 251, 0.08);
+        font-size: 18px;
+        line-height: 1.15;
+      }
+
+      th {
+        color: var(--muted);
+        background: rgba(19, 27, 46, 0.96);
+        font-family: monospace;
+        font-size: 15px;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .lock {
+        color: #fcd34d;
+        font-family: monospace;
+        font-size: 16px;
+      }
+
+      .side-card,
+      .merge-card {
+        border-radius: 22px;
+        padding: 22px;
+        background: rgba(15, 21, 37, 0.94);
+        border: 2px solid rgba(232, 238, 251, 0.14);
+        box-shadow: 0 22px 56px rgba(0, 0, 0, 0.32);
+      }
+
+      .side-card strong {
+        display: block;
+        margin-bottom: 14px;
+        color: var(--good);
+        font-family: monospace;
+        font-size: 18px;
+      }
+
+      .direct-layout,
+      .merge-layout,
+      .closing-layout {
+        display: grid;
+        grid-template-columns: 0.94fr 1.06fr;
+        gap: 34px;
+        align-items: center;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .icon-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+
+      .icon-tile {
+        min-height: 86px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: monospace;
+        font-size: 22px;
+        color: #ffffff;
+        background: color-mix(in srgb, var(--design) 62%, #111827);
+        border: 2px solid rgba(232, 238, 251, 0.16);
+      }
+
+      .merge-card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .status-line {
+        font-family: monospace;
+        font-size: 17px;
+      }
+
+      .footer-note {
+        margin-top: auto;
+        color: rgba(232, 238, 251, 0.62);
+        font-family: monospace;
+        font-size: 16px;
+      }
+
+      .caption {
+        position: absolute;
+        z-index: 8;
+        left: 64px;
+        right: 64px;
+        bottom: 20px;
+        min-height: 42px;
+        padding: 10px 16px;
+        border-radius: 16px;
+        color: rgba(232, 238, 251, 0.88);
+        background: rgba(10, 14, 23, 0.74);
+        border: 2px solid rgba(232, 238, 251, 0.1);
+        font-size: 19px;
+        line-height: 1.18;
+        text-align: center;
+        backdrop-filter: blur(10px);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="42" data-width="1280" data-height="720">
+      <section id="scene-title" class="scene clip" data-start="0" data-duration="4.5" data-track-index="1">
+        <div class="ghost" data-layout-ignore data-word="CLAUDE CODE" style="right: -24px; bottom: 34px"></div>
+        <div class="scene-content" style="justify-content: center">
+          <div class="eyebrow">Claude Code + FB-Lane</div>
+          <h1>Run multiple AI lanes on one codebase.</h1>
+          <div class="rule"></div>
+          <p>Concurrently. Each in its own thread. Zero merge conflicts.</p>
+          <div class="chip-row">
+            <span class="lane-chip product">Product</span>
+            <span class="lane-chip tech">Tech</span>
+            <span class="lane-chip design">Design</span>
+            <span class="lane-chip business">Business</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-before" class="scene clip" data-start="4.5" data-duration="6" data-track-index="1">
+        <div class="ghost" data-layout-ignore data-word="WITHOUT RULES" style="left: 18px; bottom: 34px"></div>
+        <div class="scene-content">
+          <div class="eyebrow bad-text">Before / unmanaged parallel chats</div>
+          <h2>Three agents, one file, no rules.</h2>
+          <div class="rule"></div>
+          <div class="panel-grid">
+            <div class="panel" style="--lane: var(--bad)">
+              <div class="panel-head"><span class="dot"></span><span>Agent A</span><span class="live bad-text">editing</span></div>
+              <div class="panel-body">
+                <div class="bubble user">Add login to <span class="lock">app.ts</span></div>
+                <div class="code"><span class="bad-text">- export const app</span>
+<span class="good-text">+ login() { ... }</span></div>
+              </div>
+            </div>
+            <div class="panel" style="--lane: var(--bad)">
+              <div class="panel-head"><span class="dot"></span><span>Agent B</span><span class="live bad-text">editing</span></div>
+              <div class="panel-body">
+                <div class="bubble user">Restyle header in <span class="lock">app.ts</span></div>
+                <div class="code"><span class="bad-text">- export const app</span>
+<span class="good-text">+ Header theme</span></div>
+              </div>
+            </div>
+            <div class="panel" style="--lane: var(--bad)">
+              <div class="panel-head"><span class="dot"></span><span>Agent C</span><span class="live bad-text">editing</span></div>
+              <div class="panel-body">
+                <div class="bubble user">Fix copy in <span class="lock">app.ts</span></div>
+                <div class="code"><span class="bad-text">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span>
+broken main
+<span class="bad-text">=======</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="stamp">MERGE CONFLICT</div>
+        </div>
+      </section>
+
+      <section id="scene-board" class="scene clip" data-start="10.5" data-duration="5.5" data-track-index="1">
+        <div class="ghost" data-layout-ignore data-word="BOARD" style="right: 10px; top: 64px"></div>
+        <div class="scene-content">
+          <div class="eyebrow good-text">With FB-Lane / shared repo state</div>
+          <h2>One shared board. Every file claimed.</h2>
+          <div class="rule"></div>
+          <div class="board-wrap">
+            <table>
+              <thead>
+                <tr><th>Task</th><th>Lane</th><th>Locked files</th><th>Branch</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>TASK-002</td><td class="good-text">FB-Tech</td><td class="lock">src/auth.ts, src/db.ts</td><td>tech/TASK-002</td></tr>
+                <tr><td>TASK-003</td><td class="good-text">FB-Design</td><td class="lock">src/navigation.css</td><td>design/TASK-003</td></tr>
+                <tr><td>TASK-004</td><td class="good-text">FB-Business</td><td class="lock">docs/onboarding.md</td><td>business/TASK-004</td></tr>
+              </tbody>
+            </table>
+            <div class="side-card">
+              <strong>No overlapping locks</strong>
+              <p>Claude Code lane threads do not share chat memory. They become aware through repo state: board rows, file claims, branches, and handoffs.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-concurrent" class="scene clip" data-start="16" data-duration="7" data-track-index="1">
+        <div class="ghost" data-layout-ignore data-word="CONCURRENT" style="left: 18px; bottom: 32px"></div>
+        <div class="scene-content">
+          <div class="eyebrow good-text">After / Claude Code lane threads</div>
+          <h2>Three lanes. Three threads. At once.</h2>
+          <div class="rule"></div>
+          <div class="panel-grid">
+            <div class="panel tech">
+              <div class="panel-head"><span class="dot"></span><span>@fb-tech</span><span class="live">live</span></div>
+              <div class="panel-body">
+                <div class="bubble user">Build the auth endpoints.</div>
+                <div class="bubble">Claimed TASK-002.</div>
+                <div class="chip-row"><span class="pill">src/auth.ts</span><span class="pill">tech/TASK-002</span></div>
+              </div>
+            </div>
+            <div class="panel design">
+              <div class="panel-head"><span class="dot"></span><span>@fb-design</span><span class="live">live</span></div>
+              <div class="panel-body">
+                <div class="bubble user">Make the nav responsive.</div>
+                <div class="bubble">Claimed TASK-003.</div>
+                <div class="chip-row"><span class="pill">src/navigation.css</span><span class="pill">design/TASK-003</span></div>
+              </div>
+            </div>
+            <div class="panel business">
+              <div class="panel-head"><span class="dot"></span><span>@fb-business</span><span class="live">live</span></div>
+              <div class="panel-body">
+                <div class="bubble user">Rewrite onboarding copy.</div>
+                <div class="bubble">Drafting TASK-004. Code read-only.</div>
+                <div class="chip-row"><span class="pill">docs/onboarding.md</span><span class="pill">business/TASK-004</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="footer-note">Different files + different branches = no code collision.</div>
+        </div>
+      </section>
+
+      <section id="scene-direct" class="scene clip" data-start="23" data-duration="5.8" data-track-index="1">
+        <div class="ghost" data-layout-ignore data-word="MENTION" style="right: 8px; top: 58px"></div>
+        <div class="scene-content">
+          <div class="eyebrow">Talking to a lane in Claude Code</div>
+          <h2>Type <span class="good-text">@fb-design</span> and ask.</h2>
+          <div class="rule"></div>
+          <div class="direct-layout">
+            <div class="panel design" style="min-height: 392px">
+              <div class="panel-head"><span class="dot"></span><span>@fb-design</span><span class="live">live</span></div>
+              <div class="panel-body">
+                <div class="bubble user">@fb-design I need new icons.</div>
+                <div class="bubble">On it. Claiming and locking now.</div>
+                <div class="chip-row"><span class="pill">design/TASK-Q-1014</span><span class="pill">src/assets/icons/</span></div>
+                <div class="bubble good-text">Done. Four icons plus preview. Handing back to Product.</div>
+              </div>
+            </div>
+            <div>
+              <div class="icon-row">
+                <div class="icon-tile">flag</div>
+                <div class="icon-tile">code</div>
+                <div class="icon-tile">pen</div>
+                <div class="icon-tile">doc</div>
+              </div>
+              <p style="margin-top: 24px">Prefer hands-off? Tell the main Product thread your goal. Product scopes, delegates, and sequences the work.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-product" class="scene clip" data-start="28.8" data-duration="7" data-track-index="1">
+        <div class="ghost" data-layout-ignore data-word="PRODUCT GATE" style="left: -16px; bottom: 28px"></div>
+        <div class="scene-content">
+          <div class="eyebrow" style="color: var(--product)">FB-Product / integration gate</div>
+          <h2>Product sequences and resolves at the end.</h2>
+          <div class="rule"></div>
+          <div class="merge-layout">
+            <svg viewBox="0 0 560 360" width="100%" height="360" aria-hidden="true">
+              <path d="M54 76 H300 C390 76 382 180 470 180" fill="none" stroke="#2563eb" stroke-width="7" stroke-linecap="round" />
+              <path d="M54 180 H470" fill="none" stroke="#7c3aed" stroke-width="7" stroke-linecap="round" />
+              <path d="M54 284 H300 C390 284 382 180 470 180" fill="none" stroke="#059669" stroke-width="7" stroke-linecap="round" />
+              <path d="M470 180 H536" fill="none" stroke="#f59e0b" stroke-width="9" stroke-linecap="round" />
+              <circle cx="54" cy="76" r="12" fill="#2563eb" />
+              <circle cx="54" cy="180" r="12" fill="#7c3aed" />
+              <circle cx="54" cy="284" r="12" fill="#059669" />
+              <circle cx="470" cy="180" r="18" fill="#f59e0b" />
+              <circle cx="536" cy="180" r="12" fill="#34d399" />
+              <text x="54" y="50" fill="#e8eefb" font-size="23" font-family="monospace" text-anchor="middle">tech</text>
+              <text x="54" y="156" fill="#e8eefb" font-size="23" font-family="monospace" text-anchor="middle">design</text>
+              <text x="54" y="318" fill="#e8eefb" font-size="23" font-family="monospace" text-anchor="middle">business</text>
+              <text x="528" y="152" fill="#34d399" font-size="24" font-family="monospace" text-anchor="middle">main</text>
+            </svg>
+            <div class="merge-card">
+              <div class="status-line good-text">Reviewed 3 branches. Code is disjoint.</div>
+              <div class="status-line" style="color: var(--product)">Board overlap in PROJECT_BOARD.md resolved.</div>
+              <div class="status-line good-text">Merged to main. Clean.</div>
+              <p>Product owns final sequencing, conflict resolution, staging, and release gates.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-close" class="scene clip" data-start="35.8" data-duration="6.2" data-track-index="1">
+        <div class="ghost" data-layout-ignore data-word="ZERO COLLISIONS" style="right: -20px; top: 36px"></div>
+        <div class="scene-content" style="justify-content: center">
+          <div class="closing-layout">
+            <div>
+              <div class="eyebrow">Claude Code section demo</div>
+              <h1>Multiple agents. One codebase. <span class="good-text">Zero collisions.</span></h1>
+              <div class="rule" style="margin-top: 20px"></div>
+            </div>
+            <div>
+              <div class="chip-row">
+                <span class="lane-chip product">Describe a goal -> Product delegates</span>
+                <span class="lane-chip tech">@fb-tech</span>
+                <span class="lane-chip design">@fb-design</span>
+                <span class="lane-chip business">@fb-business</span>
+              </div>
+              <p style="margin-top: 24px">Use direct lane tags when you want specialist control. Use Product when you want hands-off orchestration.</p>
+              <div class="footer-note">platforms/claude-code/how-to-interact-demo</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div id="caption" class="caption"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      const captions = [
+        [0, "Run several Claude Code lane agents on one codebase, concurrently, without untangling merge conflicts."],
+        [4.5, "Without coordination, three agents can reach for the same file and break main."],
+        [10.5, "FB-Lane uses shared repo state: PROJECT_BOARD.md, exact file locks, branches, and handoffs."],
+        [16, "Each lane runs in its own Claude Code thread on its own locked files and branch."],
+        [23, "Direct lane interaction stays simple: type @fb-design and ask."],
+        [28.8, "At the end, Product sequences the branches and resolves the shared board state."],
+        [35.8, "Multiple agents. One codebase. Zero collisions."]
+      ];
+
+      const sceneRanges = [
+        ["#scene-title", 0, 4.5],
+        ["#scene-before", 4.5, 10.5],
+        ["#scene-board", 10.5, 16],
+        ["#scene-concurrent", 16, 23],
+        ["#scene-direct", 23, 28.8],
+        ["#scene-product", 28.8, 35.8],
+        ["#scene-close", 35.8, 42]
+      ];
+
+      sceneRanges.forEach(([id, start, end]) => {
+        tl.set(id, { autoAlpha: 1 }, start);
+        tl.set(id, { autoAlpha: 0 }, end);
+      });
+
+      captions.forEach(([at, text], index) => {
+        tl.set("#caption", { textContent: text, autoAlpha: 1 }, at);
+        if (captions[index + 1]) {
+          tl.set("#caption", { autoAlpha: 0 }, captions[index + 1][0] - 0.08);
+        }
+      });
+
+      function sceneIn(id, at) {
+        tl.fromTo(`${id} .eyebrow`, { y: -18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.42, ease: "power2.out" }, at + 0.16);
+        tl.fromTo(`${id} h1, ${id} h2`, { y: 42, opacity: 0 }, { y: 0, opacity: 1, duration: 0.68, ease: "expo.out", overwrite: "auto" }, at + 0.28);
+        tl.fromTo(`${id} .rule`, { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.5, ease: "power3.out" }, at + 0.46);
+      }
+
+      sceneIn("#scene-title", 0);
+      tl.fromTo("#scene-title p", { y: 28, opacity: 0 }, { y: 0, opacity: 1, duration: 0.52, ease: "sine.out" }, 0.86);
+      tl.fromTo("#scene-title .lane-chip", { y: 32, scale: 0.88, opacity: 0 }, { y: 0, scale: 1, opacity: 1, stagger: 0.1, duration: 0.42, ease: "back.out(1.7)" }, 1.2);
+
+      sceneIn("#scene-before", 4.5);
+      tl.fromTo("#scene-before .panel", { y: 60, opacity: 0, rotate: -1.5 }, { y: 0, opacity: 1, rotate: 0, stagger: 0.14, duration: 0.55, ease: "power3.out" }, 5.42);
+      tl.fromTo("#scene-before .stamp", { scale: 1.6, opacity: 0, rotate: -15 }, { scale: 1, opacity: 1, rotate: -7, duration: 0.42, ease: "back.out(2)" }, 7.15);
+
+      sceneIn("#scene-board", 10.5);
+      tl.fromTo("#scene-board table", { x: -70, opacity: 0 }, { x: 0, opacity: 1, duration: 0.45, ease: "power3.out" }, 10.95);
+      tl.fromTo("#scene-board tr", { x: -24, opacity: 0 }, { x: 0, opacity: 1, stagger: 0.08, duration: 0.28, ease: "sine.out" }, 11.28);
+      tl.fromTo("#scene-board .side-card", { x: 50, opacity: 0 }, { x: 0, opacity: 1, duration: 0.48, ease: "back.out(1.3)" }, 11.62);
+
+      sceneIn("#scene-concurrent", 16);
+      tl.fromTo("#scene-concurrent .panel", { y: 76, opacity: 0, scale: 0.94 }, { y: 0, opacity: 1, scale: 1, stagger: 0.18, duration: 0.58, ease: "power3.out" }, 16.9);
+      tl.fromTo("#scene-concurrent .pill", { scale: 0.78, opacity: 0 }, { scale: 1, opacity: 1, stagger: 0.08, duration: 0.28, ease: "back.out(2)" }, 18.05);
+      tl.fromTo("#scene-concurrent .footer-note", { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.42, ease: "sine.out" }, 19.0);
+
+      sceneIn("#scene-direct", 23);
+      tl.fromTo("#scene-direct .panel", { x: -90, opacity: 0, rotate: -1 }, { x: 0, opacity: 1, rotate: 0, duration: 0.62, ease: "power3.out" }, 23.84);
+      tl.fromTo("#scene-direct .bubble", { x: -24, opacity: 0 }, { x: 0, opacity: 1, stagger: 0.16, duration: 0.34, ease: "sine.out" }, 24.26);
+      tl.fromTo("#scene-direct .icon-tile", { y: 44, opacity: 0, scale: 0.86 }, { y: 0, opacity: 1, scale: 1, stagger: 0.09, duration: 0.38, ease: "back.out(1.8)" }, 24.9);
+      tl.fromTo("#scene-direct p", { y: 28, opacity: 0 }, { y: 0, opacity: 1, duration: 0.46, ease: "power2.out" }, 25.45);
+
+      sceneIn("#scene-product", 28.8);
+      tl.fromTo("#scene-product svg", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.58, ease: "power3.out" }, 29.72);
+      tl.fromTo("#scene-product path", { strokeDasharray: 650, strokeDashoffset: 650 }, { strokeDashoffset: 0, stagger: 0.1, duration: 0.72, ease: "power2.out" }, 30.08);
+      tl.fromTo("#scene-product .merge-card", { x: 62, opacity: 0 }, { x: 0, opacity: 1, duration: 0.56, ease: "back.out(1.3)" }, 30.2);
+      tl.fromTo("#scene-product .status-line", { y: 18, opacity: 0 }, { y: 0, opacity: 1, stagger: 0.16, duration: 0.34, ease: "sine.out" }, 30.72);
+
+      sceneIn("#scene-close", 35.8);
+      tl.fromTo("#scene-close .lane-chip", { y: 30, opacity: 0, scale: 0.88 }, { y: 0, opacity: 1, scale: 1, stagger: 0.12, duration: 0.4, ease: "back.out(1.6)" }, 37.22);
+      tl.fromTo("#scene-close p", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.42, ease: "power2.out" }, 38.0);
+      tl.fromTo("#scene-close .footer-note", { opacity: 0 }, { opacity: 1, duration: 0.42, ease: "sine.out" }, 38.48);
+      tl.to("#scene-close, #caption", { opacity: 0, duration: 0.5, ease: "power2.in" }, 41.4);
+      tl.set("#scene-close, #caption", { autoAlpha: 0 }, 41.92);
+
+      tl.to(".ghost", { y: -12, duration: 42, ease: "sine.inOut" }, 0);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
