@@ -2,10 +2,10 @@
 
 This HyperFrames composition explains how FB-Lane works with Antigravity 2.0:
 
-- Product defines and invokes native background subagents
-- Tech, Design, and Business run concurrently with bounded tools
+- Product can be the starting orchestrator or the final integration endpoint
+- Tech, Design, and Business can run as direct concurrent lane threads with bounded tools
 - `PROJECT_BOARD.md` records status, branches, file locks, and blockers
-- Product owns final sequencing, staging, and merge resolution
+- Lane outputs hand back to Product for final sequencing, staging, and merge resolution
 
 ## Output
 
