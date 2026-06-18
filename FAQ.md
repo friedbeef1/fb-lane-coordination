@@ -196,8 +196,26 @@ The human supervisor does not need technical project management expertise; they 
 ### Q: How does execution differ between Antigravity, Claude Code, and Codex?
 **A:** The framework operates differently based on the platform's orchestration capabilities:
 *   **Antigravity (Programmatic Multi-Agent)**: The main `FB-Product` thread runs on an agentic SDK. It uses programmatic tools (`define_subagent` and `invoke_subagent`) to spin up sandboxed background threads for `FB-Tech` and `FB-Design` autonomously.
-*   **Claude Code (Native Subagents + MCP)**: Four lane agents (`fb-product`, `fb-tech`, `fb-design`, `fb-business`) are registered as Claude Code subagents in `.claude/agents/` and invokable directly from the sidebar via `@mention`. The `fb-lane` MCP server connects all four to the same `PROJECT_BOARD.md` for real-time status and lock checks. The main session acts as FB-Product by default; open separate sidebar conversations for each lane to run them concurrently. Install as a plugin in one step: `/plugin marketplace add friedbeef1/fb-lane-coordination`. See [`platforms/claude-code/`](platforms/claude-code/README.md).
+*   **Claude Code (Native Subagents + MCP)**: Four lane agents (`fb-product`, `fb-tech`, `fb-design`, `fb-business`) are registered as Claude Code subagents in `.claude/agents/`. You invoke a lane from inside a chat — type `@` to open the autocomplete and pick a lane (e.g. `@fb-design`), or open the `/agents` picker. **The lanes are not clickable items in the conversations sidebar; they are modes you switch into within the current chat.** The `fb-lane` MCP server connects all four to the same `PROJECT_BOARD.md` for real-time status and lock checks. The main session acts as FB-Product (the orchestrator) by default, so manual invocation is optional — you can simply describe a goal and let Product delegate. For real concurrency, open **separate conversations** (each Claude Code session is its own checkout) and drive a different lane in each; they coordinate through `PROJECT_BOARD.md` and isolated git branches. Install as a plugin in one step: `/plugin marketplace add friedbeef1/fb-lane-coordination`. See [`platforms/claude-code/`](platforms/claude-code/README.md).
 *   **Codex (Local File/Git Agent)**: Enforced via local repository rule files (e.g., `.codex/rules.md`). The Codex runs checkouts, updates the markdown board locally, and validates compilations inside isolated local git branches.
+
+### Q: How do I actually drive the lanes in Claude Code? Can you show examples?
+**A:** There is no sidebar list to click — you steer the lanes from inside a chat, via the `@` autocomplete (type `@fb-design`) or the `/agents` picker. The main session is FB-Product, so you have two styles:
+
+1.  **Direct lane (pair-programming)**: Open a chat and address a lane by name, then describe the work:
+    > `@fb-design` *"I need new icons for the dashboard nav."*
+
+    The lane claims the task, locks the affected files on `PROJECT_BOARD.md`, checks out its own `design/…` branch, builds the change, and hands it back for Product to review and merge.
+2.  **Autonomous (hands-off)**: Don't invoke anyone — just describe the goal to the main thread. As FB-Product it scopes the task on the board, delegates to the right lane, reviews the result, and merges. This is the default; manual invocation is optional.
+3.  **Resync a stale chat**: If a conversation looks out of date, type `@fb-design status` (or just `status` / `SOP` in that lane's chat). The lane re-reads `PROJECT_BOARD.md`, `.codex/current_task.md`, and the git branch, then reports its task, lane, and locked files.
+
+Under the hood every lane maps to the same task loop — claim, submit, then Product merges:
+```bash
+node tools/fb-lane.cjs claim  TASK-101 Design "src/icons.css"   # lane claims + locks + branches
+node tools/fb-lane.cjs submit TASK-101                          # lane pushes + moves to Staging QA
+node tools/fb-lane.cjs merge  TASK-101                          # FB-Product only
+```
+With the `fb-lane` MCP server approved you can drive this in plain language ("claim TASK-101 for Design locking src/icons.css") instead of running the CLI by hand. For two lanes at once, open two separate conversations — each is its own checkout — and run one lane in each; they stay collision-free through file locks on the board plus per-lane branch isolation.
 
 ### Q: Managing threads on Claude and Codex Desktop (non-CLI) sounds painful and full of friction. How can I make this easier?
 **A:** We have created the **`fb-lane` automation utility** (`tools/fb-lane.cjs`) specifically to eliminate this manual friction. It automates branch management, project board edits, file locking, and git commits via two workflows:
@@ -225,6 +243,9 @@ To prevent this, the FB-Lane framework enforces strict **Thread Segmentation**:
 ----
 
 ## 8. User Involvement & Thread Synchronization
+
+> [!NOTE]
+> The "sidebar thread" wording below describes **Antigravity**, where each lane is a clickable conversation in the sidebar. In **Claude Code** the equivalent action is invoking a lane with its `@mention` (e.g. `@fb-design`) or the `/agents` picker — a mode within the current chat, not a separate sidebar item. Wherever this section says "click the sidebar thread," Claude Code users should read it as "`@`-mention the lane (or open `/agents`)."
 
 ### Q: I want to be involved less than 20% of the time. Which mode should I choose?
 **A:** Choose **Main Approach: Autonomous Background Orchestration**. Under this option, you spend 95% of your time talking directly to the main **`FB-Product`** thread. Product will autonomously plan, write board tasks, spawn background workers (`FB-Tech`, `FB-Design`, `FB-Business`), run tests, and push branches silently in the background. Your interaction is restricted to reviewing the plan at the beginning (Plan Gate) and smoke testing the staging site at the end (Staging Gate) before merging.

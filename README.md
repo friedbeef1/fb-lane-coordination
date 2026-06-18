@@ -111,8 +111,8 @@ Done! You are ready to run `node tools/fb-lane.cjs claim <task-id> <lane>` and s
 
 Depending on your preferred style, you can choose between two operational patterns:
 * **Main Approach: Autonomous Background Orchestration (<20% Involvement)**: You chat only with the main **`FB-Product`** thread. Product autonomously analyzes requirements, splits tasks, claims them on the board, locks files, and spawns subagents (`FB-Tech`/`FB-Design`) in the background silently. Your interaction is restricted to reviewing the plan at the beginning and smoke-testing staging at the end.
-* **Optional Interaction: Interactive Direct Control (Pair-Programming)**: You chat directly with the sidebar worker threads (`FB-Tech`/`FB-Design`) to review plans, write code, and collaboratively debug. When you instruct a lane agent directly, it autonomously claims the task and locks the files on the board before modifying any files.
-  * *Syncing Threads*: If a sidebar thread shows stale history or old buttons, simply type `status` or `SOP` in the thread to force the agent to sync with the board.
+* **Optional Interaction: Interactive Direct Control (Pair-Programming)**: You chat directly with a worker lane (`FB-Tech`/`FB-Design`) — in Claude Code, `@`-mention it (e.g. `@fb-design`) or pick it from `/agents`; in Antigravity, open its sidebar thread — to review plans, write code, and collaboratively debug. When you instruct a lane agent directly, it autonomously claims the task and locks the files on the board before modifying any files.
+  * *Syncing Threads*: If a lane's chat (or Antigravity sidebar thread) shows stale history or old buttons, simply type `status` or `SOP` in it to force the agent to sync with the board.
   * *Direct Lane Interactive Threads (Antigravity 2.0)*: For interactive CLI/terminal usage under Optional Interaction, you can run any lane agent directly in the main thread using the python runner:
     ```bash
     python tools/run_lane.py <lane> <task_id> [locked_files]
@@ -121,6 +121,15 @@ Depending on your preferred style, you can choose between two operational patter
     - Run the Tech agent on `TASK-102` locking `src/db.ts`: `python tools/run_lane.py Tech TASK-102 "src/db.ts"`
     - Run the Design agent on `TASK-103`: `python tools/run_lane.py Design TASK-103`
     This automatically claims the task on the project board, checks out the correct feature branch, configures the sandboxed system instructions for that lane, and begins the interactive terminal loop.
+
+### Driving the lanes in Claude Code
+
+In Claude Code the lanes are **not** clickable items in the conversations sidebar — you invoke them from inside a chat with the `@` autocomplete or the `/agents` picker. The main session is **FB-Product**, so you have two options:
+
+* **Autonomous** — just describe a goal to the main thread; FB-Product scopes it, delegates to a lane, reviews, and merges. No invocation needed.
+* **Direct** — address a lane yourself, e.g. `@fb-design` *"I need new icons"*. The lane claims the task, locks files, branches, builds, and hands back to Product to merge.
+
+To resync a stale chat, type `@fb-design status` (or `status` / `SOP`) — the lane re-reads the board, `.codex/current_task.md`, and its branch. For concurrency, open **separate conversations** (each is its own checkout) and run one lane in each; they stay collision-free via board file locks plus per-lane git branches. Full walkthrough: [`docs/fb-lane/claude-code.md`](docs/fb-lane/claude-code.md).
 
 ---
 
