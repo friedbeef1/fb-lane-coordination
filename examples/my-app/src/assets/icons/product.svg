@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Product lane">
+  <title>Product</title>
+  <path d="M6 21V4" />
+  <path d="M6 4.5h11.5l-2.5 3.5 2.5 3.5H6" />
+  <circle cx="6" cy="3" r="1" fill="#F59E0B" stroke="none" />
+</svg>
