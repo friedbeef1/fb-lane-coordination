@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --bg: #171513;
+        --ink: #26211b;
+        --paper: #ede3d1;
+        --paper-2: #d9ccb8;
+        --cream: #f4efe4;
+        --muted: #a79b89;
+        --amber: #e0a23b;
+        --red: #d4513c;
+        --green: #5f9f73;
+        --blue: #5a7fa8;
+        --purple: #8b6e9d;
+        --shadow: rgba(18, 14, 10, 0.34);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--cream);
+        font-family: sans-serif;
+      }
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 14% 12%, rgba(224, 162, 59, 0.22), transparent 30%),
+          radial-gradient(circle at 84% 80%, rgba(90, 127, 168, 0.18), transparent 34%),
+          linear-gradient(135deg, #201b16 0%, #171513 52%, #241f18 100%);
+      }
+
+      #root::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0.17;
+        background-image:
+          linear-gradient(rgba(244, 239, 228, 0.055) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(244, 239, 228, 0.05) 1px, transparent 1px);
+        background-size: 64px 64px;
+        pointer-events: none;
+      }
+
+      #root::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0.2;
+        background-image: radial-gradient(rgba(244, 239, 228, 0.35) 0.7px, transparent 0.7px);
+        background-size: 8px 8px;
+        mix-blend-mode: overlay;
+        pointer-events: none;
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .scene-content {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 92px 112px 84px;
+        display: flex;
+        flex-direction: column;
+        gap: 34px;
+        z-index: 2;
+      }
+
+      .eyebrow {
+        font-family: monospace;
+        font-size: 24px;
+        line-height: 1.15;
+        color: var(--amber);
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2 {
+        margin: 0;
+        font-family: serif;
+        letter-spacing: 0;
+        line-height: 0.96;
+      }
+
+      h1 {
+        max-width: 1420px;
+        font-size: 116px;
+        font-weight: 800;
+      }
+
+      h2 {
+        font-size: 84px;
+        font-weight: 700;
+      }
+
+      p {
+        margin: 0;
+        color: rgba(244, 239, 228, 0.82);
+        font-size: 34px;
+        line-height: 1.26;
+      }
+
+      .subcopy {
+        max-width: 1040px;
+      }
+
+      .ghost {
+        position: absolute;
+        font-family: serif;
+        font-size: 210px;
+        line-height: 0.9;
+        font-weight: 800;
+        color: rgba(244, 239, 228, 0.075);
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      .rule {
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--amber), rgba(224, 162, 59, 0), rgba(244, 239, 228, 0.2));
+        transform-origin: left;
+      }
+
+      .panel-row {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 28px;
+        width: 100%;
+      }
+
+      .panel {
+        min-height: 250px;
+        border-radius: 28px;
+        padding: 28px;
+        color: var(--ink);
+        background: var(--paper);
+        border: 3px solid rgba(38, 33, 27, 0.18);
+        box-shadow: 0 28px 70px var(--shadow);
+      }
+
+      .panel.dark {
+        color: var(--cream);
+        background: rgba(38, 33, 27, 0.86);
+        border-color: rgba(244, 239, 228, 0.22);
+      }
+
+      .panel-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 22px;
+        font-family: monospace;
+        font-size: 22px;
+        line-height: 1.1;
+        color: rgba(38, 33, 27, 0.72);
+      }
+
+      .dark .panel-title {
+        color: rgba(244, 239, 228, 0.68);
+      }
+
+      .lane-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        flex: 0 0 auto;
+        background: var(--amber);
+        box-shadow: 0 0 0 8px rgba(224, 162, 59, 0.18);
+      }
+
+      .lane-design {
+        --lane: var(--amber);
+      }
+
+      .lane-tech {
+        --lane: var(--green);
+      }
+
+      .lane-business {
+        --lane: var(--purple);
+      }
+
+      .lane-product {
+        --lane: var(--blue);
+      }
+
+      .lane-design .lane-dot,
+      .lane-ticket.lane-design {
+        background: var(--amber);
+      }
+
+      .lane-tech .lane-dot,
+      .lane-ticket.lane-tech {
+        background: var(--green);
+      }
+
+      .lane-business .lane-dot,
+      .lane-ticket.lane-business {
+        background: var(--purple);
+      }
+
+      .lane-product .lane-dot,
+      .lane-ticket.lane-product {
+        background: var(--blue);
+      }
+
+      .chat-stack {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 42px;
+        align-items: stretch;
+        min-height: 650px;
+      }
+
+      .chat-window {
+        border-radius: 34px;
+        padding: 34px;
+        background: rgba(237, 227, 209, 0.94);
+        color: var(--ink);
+        border: 4px solid rgba(244, 239, 228, 0.16);
+        box-shadow: 0 36px 90px rgba(0, 0, 0, 0.38);
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 26px;
+      }
+
+      .topbar span {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: rgba(38, 33, 27, 0.3);
+      }
+
+      .bubble {
+        margin: 14px 0;
+        padding: 18px 22px;
+        border-radius: 20px;
+        font-size: 28px;
+        line-height: 1.18;
+        background: rgba(38, 33, 27, 0.08);
+        border: 2px solid rgba(38, 33, 27, 0.1);
+      }
+
+      .bubble.warning {
+        color: #fff6ef;
+        background: var(--red);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .file-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 48px;
+        padding: 10px 18px;
+        border-radius: 999px;
+        font-family: monospace;
+        font-size: 21px;
+        line-height: 1;
+        color: var(--cream);
+        background: rgba(38, 33, 27, 0.78);
+        border: 2px solid rgba(244, 239, 228, 0.18);
+      }
+
+      .file-pill.conflict {
+        background: var(--red);
+      }
+
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+      }
+
+      .thread {
+        min-height: 104px;
+        padding: 22px 24px;
+        border-radius: 24px;
+        color: var(--ink);
+        background: var(--paper);
+        border: 3px solid rgba(38, 33, 27, 0.13);
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+      }
+
+      .thread strong {
+        display: block;
+        font-family: monospace;
+        font-size: 22px;
+        margin-bottom: 10px;
+      }
+
+      .thread span {
+        display: block;
+        font-size: 25px;
+        line-height: 1.12;
+      }
+
+      .thread[data-state="blind"] {
+        outline: 4px dashed rgba(212, 81, 60, 0.75);
+      }
+
+      .split-stage {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        gap: 48px;
+        align-items: center;
+        height: 680px;
+      }
+
+      .big-alert {
+        grid-column: 1 / -1;
+        justify-self: center;
+        max-width: 1160px;
+        transform: rotate(-2deg);
+        padding: 24px 42px;
+        border-radius: 24px;
+        font-family: monospace;
+        font-size: 34px;
+        font-weight: 600;
+        text-align: center;
+        color: #fff7ef;
+        background: var(--red);
+        border: 4px solid rgba(255, 255, 255, 0.22);
+        box-shadow: 0 30px 80px rgba(212, 81, 60, 0.28);
+        z-index: 7;
+      }
+
+      .prompt-card {
+        width: 100%;
+        border-radius: 36px;
+        padding: 36px;
+        background: rgba(237, 227, 209, 0.96);
+        color: var(--ink);
+        box-shadow: 0 34px 90px rgba(0, 0, 0, 0.32);
+        border: 4px solid rgba(224, 162, 59, 0.48);
+      }
+
+      .prompt-line {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-height: 70px;
+        margin: 16px 0;
+        padding: 14px 18px;
+        border-radius: 18px;
+        background: rgba(38, 33, 27, 0.07);
+        font-size: 29px;
+        line-height: 1.14;
+      }
+
+      .lane-ticket-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 24px;
+      }
+
+      .lane-ticket {
+        min-height: 225px;
+        padding: 28px 24px;
+        border-radius: 28px;
+        color: var(--cream);
+        box-shadow: 0 28px 64px rgba(0, 0, 0, 0.28);
+      }
+
+      .lane-ticket strong {
+        display: block;
+        margin-bottom: 18px;
+        font-family: monospace;
+        font-size: 22px;
+      }
+
+      .lane-ticket span {
+        display: block;
+        color: rgba(255, 255, 255, 0.88);
+        font-size: 28px;
+        line-height: 1.12;
+      }
+
+      .pipeline {
+        display: grid;
+        grid-template-columns: 0.9fr 1.2fr;
+        gap: 42px;
+        align-items: stretch;
+        min-height: 650px;
+      }
+
+      .terminal {
+        border-radius: 30px;
+        padding: 30px;
+        background: rgba(17, 16, 14, 0.9);
+        border: 3px solid rgba(244, 239, 228, 0.18);
+        box-shadow: 0 30px 84px rgba(0, 0, 0, 0.36);
+        font-family: monospace;
+      }
+
+      .cmd {
+        margin: 0 0 18px;
+        font-size: 24px;
+        line-height: 1.24;
+        color: var(--cream);
+      }
+
+      .cmd .ok {
+        color: #8fd39c;
+      }
+
+      .cmd .bad {
+        color: #ff8d78;
+      }
+
+      .claim-board {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .claim-row {
+        display: grid;
+        grid-template-columns: 190px 1fr 170px;
+        gap: 18px;
+        align-items: center;
+        min-height: 82px;
+        padding: 16px 20px;
+        border-radius: 22px;
+        color: var(--ink);
+        background: var(--paper);
+        border: 3px solid rgba(38, 33, 27, 0.12);
+      }
+
+      .claim-row .name {
+        font-family: monospace;
+        font-size: 22px;
+        font-weight: 600;
+      }
+
+      .claim-row .file {
+        font-family: monospace;
+        font-size: 22px;
+        color: rgba(38, 33, 27, 0.76);
+      }
+
+      .claim-row .state {
+        justify-self: end;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-family: monospace;
+        font-size: 18px;
+        color: var(--cream);
+        background: var(--green);
+      }
+
+      .claim-row.blocked .state {
+        background: var(--red);
+      }
+
+      .sequence-board {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        height: 660px;
+      }
+
+      .order-column {
+        border-radius: 34px;
+        padding: 30px;
+        background: rgba(237, 227, 209, 0.94);
+        color: var(--ink);
+        border: 3px solid rgba(244, 239, 228, 0.12);
+      }
+
+      .order-column h3 {
+        margin: 0 0 22px;
+        font-family: serif;
+        font-size: 50px;
+        line-height: 1;
+      }
+
+      .task-card {
+        margin: 18px 0;
+        min-height: 124px;
+        padding: 22px;
+        border-radius: 24px;
+        background: rgba(38, 33, 27, 0.08);
+        border: 3px solid rgba(38, 33, 27, 0.13);
+      }
+
+      .task-card strong {
+        display: block;
+        margin-bottom: 12px;
+        font-family: monospace;
+        font-size: 20px;
+      }
+
+      .task-card span {
+        font-size: 26px;
+        line-height: 1.12;
+      }
+
+      .handoff {
+        background: rgba(95, 159, 115, 0.15);
+        border-color: rgba(95, 159, 115, 0.5);
+      }
+
+      .final-grid {
+        display: grid;
+        grid-template-columns: 0.95fr 1.05fr;
+        gap: 58px;
+        align-items: center;
+        height: 590px;
+      }
+
+      .orbit {
+        position: relative;
+        height: 560px;
+        border-radius: 50%;
+        border: 3px solid rgba(244, 239, 228, 0.18);
+      }
+
+      .repo-core {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 310px;
+        min-height: 190px;
+        transform: translate(-50%, -50%);
+        border-radius: 34px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        color: var(--ink);
+        background: var(--paper);
+        box-shadow: 0 28px 70px rgba(0, 0, 0, 0.3);
+      }
+
+      .repo-core strong {
+        font-family: monospace;
+        font-size: 25px;
+      }
+
+      .mini-lane {
+        position: absolute;
+        width: 170px;
+        min-height: 88px;
+        padding: 18px;
+        border-radius: 24px;
+        color: var(--cream);
+        font-family: monospace;
+        font-size: 21px;
+        line-height: 1.1;
+        text-align: center;
+        box-shadow: 0 20px 52px rgba(0, 0, 0, 0.3);
+      }
+
+      .mini-lane.design {
+        left: 72px;
+        top: 84px;
+        background: var(--amber);
+      }
+
+      .mini-lane.tech {
+        right: 56px;
+        top: 118px;
+        background: var(--green);
+      }
+
+      .mini-lane.business {
+        left: 112px;
+        bottom: 84px;
+        background: var(--purple);
+      }
+
+      .mini-lane.product {
+        right: 88px;
+        bottom: 94px;
+        background: var(--blue);
+      }
+
+      .takeaway {
+        display: flex;
+        flex-direction: column;
+        gap: 26px;
+      }
+
+      .takeaway h2 {
+        font-size: 94px;
+        max-width: 840px;
+      }
+
+      .takeaway p {
+        max-width: 780px;
+        font-size: 35px;
+      }
+
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .badge {
+        padding: 14px 18px;
+        border-radius: 999px;
+        font-family: monospace;
+        font-size: 20px;
+        color: var(--cream);
+        border: 2px solid rgba(244, 239, 228, 0.2);
+        background: rgba(244, 239, 228, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-ihoy" id="root" data-composition-id="main" data-start="0" data-duration="48" data-width="1920" data-height="1080">
+      <section data-hf-id="hf-xc3p" id="scene-before" class="scene clip" data-start="0" data-duration="8" data-track-index="1">
+        <div data-hf-id="hf-ph1w" class="ghost" data-layout-allow-occlusion="" style="right: 42px; bottom: 22px">BEFORE</div>
+        <div data-hf-id="hf-cn5c" class="scene-content">
+          <div data-hf-id="hf-tejx" class="eyebrow">Before / one overloaded conversation</div>
+          <h1 data-hf-id="hf-noe4">Everything in one thread gets messy fast.</h1>
+          <div data-hf-id="hf-a46i" class="rule"></div>
+          <div data-hf-id="hf-v16x" class="chat-stack">
+            <div data-hf-id="hf-4grn" class="chat-window">
+              <div data-hf-id="hf-mndw" class="topbar"><span data-hf-id="hf-uckh"></span><span data-hf-id="hf-l73p"></span><span data-hf-id="hf-me0s"></span></div>
+              <div data-hf-id="hf-gd5x" class="bubble">Design: update prep icons and layout.</div>
+              <div data-hf-id="hf-u4ut" class="bubble">Tech: check auth flow and data safety.</div>
+              <div data-hf-id="hf-addu" class="bubble">Business: rewrite onboarding copy.</div>
+              <div data-hf-id="hf-qrfm" class="bubble warning">Same file edited twice. Context blurred.</div>
+              <div data-hf-id="hf-r29v" class="file-pill conflict">components/PrepFlow.tsx</div>
+              <div data-hf-id="hf-xv9h" class="file-pill" style="margin-left: 14px">copy/onboarding.md</div>
+            </div>
+            <div data-hf-id="hf-96rw" class="sidebar">
+              <div data-hf-id="hf-ebos" class="thread" data-state="blind"><strong data-hf-id="hf-a7bw">Design</strong><span data-hf-id="hf-4vw0">Does not know Tech touched the same component.</span></div>
+              <div data-hf-id="hf-kapw" class="thread" data-state="blind"><strong data-hf-id="hf-srvq">Tech</strong><span data-hf-id="hf-m0cf">Fixes logic while layout changes are pending.</span></div>
+              <div data-hf-id="hf-j3st" class="thread" data-state="blind"><strong data-hf-id="hf-y1ls">Business</strong><span data-hf-id="hf-fc9z">Writes copy Product has not sequenced.</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-h7hx" id="scene-collision" class="scene clip" data-start="8" data-duration="7" data-track-index="1">
+        <div data-hf-id="hf-9g4c" class="ghost" data-layout-allow-occlusion="" style="left: 52px; top: 90px">COLLISION</div>
+        <div data-hf-id="hf-o0eg" class="scene-content">
+          <div data-hf-id="hf-d1yt" class="eyebrow">Manual parallelism / no shared awareness</div>
+          <h2 data-hf-id="hf-33oc">Separate chats are not enough.</h2>
+          <div data-hf-id="hf-ya9a" class="rule"></div>
+          <div data-hf-id="hf-er3l" class="split-stage">
+            <div data-hf-id="hf-74pz" class="panel lane-design">
+              <div data-hf-id="hf-5zv3" class="panel-title"><span data-hf-id="hf-57q3">TT Design Thread</span><span data-hf-id="hf-5d65" class="lane-dot"></span></div>
+              <p data-hf-id="hf-oayj">New icon treatment, step cards, spacing pass.</p>
+              <br data-hf-id="hf-x5px">
+              <div data-hf-id="hf-mlat" class="file-pill">components/PrepFlow.tsx</div>
+            </div>
+            <div data-hf-id="hf-v0lp" class="panel lane-tech">
+              <div data-hf-id="hf-rran" class="panel-title"><span data-hf-id="hf-ufgt">TT Tech Thread</span><span data-hf-id="hf-kcdd" class="lane-dot"></span></div>
+              <p data-hf-id="hf-zdmy">Auth-state safety check and flow cleanup.</p>
+              <br data-hf-id="hf-rsrt">
+              <div data-hf-id="hf-gxhl" class="file-pill">components/PrepFlow.tsx</div>
+            </div>
+            <div data-hf-id="hf-xqfq" class="big-alert">Same file. No lock. Product now has to untangle it.</div>
+          </div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-d9d4" id="scene-prompt" class="scene clip" data-start="15" data-duration="8" data-track-index="1">
+        <div data-hf-id="hf-zlym" class="ghost" data-layout-allow-occlusion="" style="right: 46px; top: 72px">AFTER</div>
+        <div data-hf-id="hf-mthd" class="scene-content">
+          <div data-hf-id="hf-vrbx" class="eyebrow">After / one Product prompt routes safe work</div>
+          <h2 data-hf-id="hf-j9e3">Give multiple lane instructions at once.</h2>
+          <div data-hf-id="hf-yokb" class="rule"></div>
+          <div data-hf-id="hf-4w5l" class="prompt-card">
+            <div data-hf-id="hf-mlru" class="prompt-line"><span data-hf-id="hf-13gh" class="file-pill" style="background: var(--blue)">Product/Captain</span> Run this in parallel where safe.</div>
+            <div data-hf-id="hf-ir9h" class="prompt-line"><span data-hf-id="hf-bywx" class="file-pill" style="background: var(--amber)">@tt-design</span> Create warmer prep-screen icons.</div>
+            <div data-hf-id="hf-965k" class="prompt-line"><span data-hf-id="hf-7orf" class="file-pill" style="background: var(--green)">@tt-tech</span> Check auth and data-risk paths.</div>
+            <div data-hf-id="hf-bgso" class="prompt-line"><span data-hf-id="hf-tutk" class="file-pill" style="background: var(--purple)">@tt-business</span> Tighten onboarding copy.</div>
+          </div>
+          <div data-hf-id="hf-sss0" class="lane-ticket-grid">
+            <div data-hf-id="hf-n4t6" class="lane-ticket lane-design"><strong data-hf-id="hf-e3jw">DESIGN</strong><span data-hf-id="hf-7dnn">Visual direction + icon assets</span></div>
+            <div data-hf-id="hf-35gg" class="lane-ticket lane-tech"><strong data-hf-id="hf-d686">TECH</strong><span data-hf-id="hf-rmiy">Risk review + tests</span></div>
+            <div data-hf-id="hf-tc5y" class="lane-ticket lane-business"><strong data-hf-id="hf-fbls">BUSINESS</strong><span data-hf-id="hf-0uy6">Copy options + rationale</span></div>
+            <div data-hf-id="hf-qa25" class="lane-ticket lane-product"><strong data-hf-id="hf-qr49">PRODUCT</strong><span data-hf-id="hf-gc8o">Sequencing + integration</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-z2rs" id="scene-claims" class="scene clip" data-start="23" data-duration="8" data-track-index="1">
+        <div data-hf-id="hf-rwnf" class="ghost" data-layout-allow-occlusion="" style="left: 40px; bottom: 26px">CLAIMS</div>
+        <div data-hf-id="hf-n7se" class="scene-content">
+          <div data-hf-id="hf-lrq7" class="eyebrow">Shared repo state / automated awareness</div>
+          <h2 data-hf-id="hf-inz2">Each lane checks status before editing.</h2>
+          <div data-hf-id="hf-z2vc" class="rule"></div>
+          <div data-hf-id="hf-vcte" class="pipeline">
+            <div data-hf-id="hf-1ms0" class="terminal">
+              <div data-hf-id="hf-gyma" class="cmd">$ npm run lane:status<br data-hf-id="hf-szow"><span data-hf-id="hf-6qjy" class="ok">Active lane claims: none</span></div>
+              <div data-hf-id="hf-wm8n" class="cmd">$ npm run lane:claim -- --lane design --files icons.svg<br data-hf-id="hf-sldv"><span data-hf-id="hf-urmu" class="ok">Claimed design/new-prep-icons</span></div>
+              <div data-hf-id="hf-0pwa" class="cmd">$ npm run lane:claim -- --lane tech --files auth.ts<br data-hf-id="hf-qluq"><span data-hf-id="hf-ha0k" class="ok">Claimed tech/auth-risk-check</span></div>
+              <div data-hf-id="hf-p7yh" class="cmd">$ npm run lane:claim -- --lane tech --files icons.svg<br data-hf-id="hf-q7jp"><span data-hf-id="hf-8shl" class="bad">Blocked: file already locked by Design</span></div>
+            </div>
+            <div data-hf-id="hf-6s7v" class="claim-board">
+              <div data-hf-id="hf-95t7" class="claim-row"><div data-hf-id="hf-wzp7" class="name">Design</div><div data-hf-id="hf-3fe4" class="file">assets/prep-icons.svg</div><div data-hf-id="hf-pyow" class="state">claimed</div></div>
+              <div data-hf-id="hf-458r" class="claim-row"><div data-hf-id="hf-wwnx" class="name">Tech</div><div data-hf-id="hf-exfw" class="file">services/authFlow.ts</div><div data-hf-id="hf-6n6g" class="state">claimed</div></div>
+              <div data-hf-id="hf-3qxq" class="claim-row"><div data-hf-id="hf-qaun" class="name">Business</div><div data-hf-id="hf-avai" class="file">docs/copy/prep.md</div><div data-hf-id="hf-5g9d" class="state">claimed</div></div>
+              <div data-hf-id="hf-1yuf" class="claim-row blocked"><div data-hf-id="hf-c2up" class="name">Tech</div><div data-hf-id="hf-2sec" class="file">assets/prep-icons.svg</div><div data-hf-id="hf-csjt" class="state">blocked</div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-anxk" id="scene-product" class="scene clip" data-start="31" data-duration="9" data-track-index="1">
+        <div data-hf-id="hf-num4" class="ghost" data-layout-allow-occlusion="" data-layout-allow-overflow="" style="right: 54px; bottom: 64px">PRODUCT</div>
+        <div data-hf-id="hf-m0vb" class="scene-content">
+          <div data-hf-id="hf-wp8u" class="eyebrow">Product / Captain / Integration</div>
+          <h2 data-hf-id="hf-bq0e">Conflicts become sequencing decisions.</h2>
+          <div data-hf-id="hf-waq5" class="rule"></div>
+          <div data-hf-id="hf-6d1c" class="sequence-board">
+            <div data-hf-id="hf-hygn" class="order-column">
+              <h3 data-hf-id="hf-vbrj">Incoming handoffs</h3>
+              <div data-hf-id="hf-ogz0" class="task-card handoff"><strong data-hf-id="hf-zed6">DESIGN HANDOFF</strong><span data-hf-id="hf-96oi">New prep icons, visual QA notes, changed files.</span></div>
+              <div data-hf-id="hf-7y4k" class="task-card handoff"><strong data-hf-id="hf-htxg">TECH HANDOFF</strong><span data-hf-id="hf-x9jc">Auth risk result, tests, no data-path changes.</span></div>
+              <div data-hf-id="hf-6r7h" class="task-card handoff"><strong data-hf-id="hf-dhw6">BUSINESS HANDOFF</strong><span data-hf-id="hf-ggh1">Copy recommendation and audience rationale.</span></div>
+            </div>
+            <div data-hf-id="hf-ttbr" class="order-column">
+              <h3 data-hf-id="hf-tp9o">Product sequence</h3>
+              <div data-hf-id="hf-fslm" class="task-card"><strong data-hf-id="hf-0ayf">1. MERGE TECH</strong><span data-hf-id="hf-wpiu">Auth-safe baseline first.</span></div>
+              <div data-hf-id="hf-y7gu" class="task-card"><strong data-hf-id="hf-q3oc">2. APPLY DESIGN</strong><span data-hf-id="hf-uss6">Icons after shared component is stable.</span></div>
+              <div data-hf-id="hf-ylrv" class="task-card"><strong data-hf-id="hf-hy1d">3. FIT COPY</strong><span data-hf-id="hf-k4fo">Business copy after visual containment check.</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section data-hf-id="hf-9j3w" id="scene-final" class="scene clip" data-start="40" data-duration="8" data-track-index="1">
+        <div data-hf-id="hf-yxjb" class="ghost" data-layout-allow-occlusion="" style="left: 56px; top: 60px">SAFE PARALLEL</div>
+        <div data-hf-id="hf-mf6c" class="scene-content">
+          <div data-hf-id="hf-d0zg" class="eyebrow">The Codex benefit</div>
+          <div data-hf-id="hf-wp16" class="rule"></div>
+          <div data-hf-id="hf-0uvd" class="final-grid">
+            <div data-hf-id="hf-6f1c" class="orbit">
+              <div data-hf-id="hf-dcpk" class="repo-core"><strong data-hf-id="hf-lajr">PROJECT_BOARD.md</strong><span data-hf-id="hf-46op" class="file-pill">shared state</span></div>
+              <div data-hf-id="hf-2moe" class="mini-lane design">Design<br data-hf-id="hf-regs">icons</div>
+              <div style="background-image: linear-gradient(135deg, rgb(95, 159, 115) 0%, rgba(255, 255, 255, 0.04) 100%)" data-hf-id="hf-rpyy" class="mini-lane tech">Tech<br data-hf-id="hf-r05r">auth</div>
+              <div data-hf-id="hf-xg4t" class="mini-lane business">Business<br data-hf-id="hf-p0mm">copy</div>
+              <div data-hf-id="hf-i6x9" class="mini-lane product">Product<br data-hf-id="hf-ombl">sequence</div>
+            </div>
+            <div data-hf-studio-original-inline-translate="none" data-hf-studio-original-translate="" data-hf-studio-path-offset="true" style="--hf-studio-offset-x: 12px; --hf-studio-offset-y: -18px; translate: var(--hf-studio-offset-x, 0px) var(--hf-studio-offset-y, 0px)" data-hf-id="hf-skhz" class="takeaway">
+              <h2 data-hf-id="hf-r4b0">Multiple instructions. Concurrent work. No babysitting collisions.</h2>
+              <p data-hf-id="hf-aybf">Codex runs the safe pieces in parallel. FB-Lane makes every lane check, claim, hand off, and let Product arrange the final sequence.</p>
+              <div data-hf-id="hf-yc7e" class="badge-row">
+                <span data-hf-id="hf-5jve" class="badge">status first</span>
+                <span data-hf-id="hf-s959" class="badge">claim files</span>
+                <span data-hf-id="hf-qxup" class="badge">block overlaps</span>
+                <span data-hf-id="hf-oqji" class="badge">handoff to Product</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+      const compositionDuration = 48;
+
+      gsap.set(".scene", { autoAlpha: 0 });
+
+      const ambient = () => {
+        gsap.to(".ghost", {
+          y: -18,
+          duration: 3.8,
+          repeat: Math.ceil(compositionDuration / 3.8),
+          yoyo: true,
+          ease: "sine.inOut",
+        });
+        gsap.to(".repo-core", {
+          scale: 1.035,
+          duration: 2.8,
+          repeat: Math.ceil(compositionDuration / 2.8),
+          yoyo: true,
+          ease: "sine.inOut",
+        });
+        gsap.to(".orbit", {
+          rotate: 1.5,
+          duration: 7,
+          repeat: Math.ceil(compositionDuration / 7),
+          yoyo: true,
+          ease: "sine.inOut",
+        });
+      };
+      ambient();
+
+      function sceneIn(id, at) {
+        tl.to(id, { autoAlpha: 1, duration: 0.18, ease: "power1.out" }, at);
+        tl.from(`${id} .eyebrow`, { y: -20, opacity: 0, duration: 0.45, ease: "power2.out" }, at + 0.15);
+        tl.from(`${id} h1, ${id} h2`, { y: 48, opacity: 0, duration: 0.68, ease: "power3.out", overwrite: "auto" }, at + 0.28);
+        tl.from(`${id} .rule`, { scaleX: 0, duration: 0.62, ease: "power2.out" }, at + 0.48);
+      }
+
+      function sceneOut(id, at, killAt) {
+        tl.to(id, { autoAlpha: 0, y: -36, duration: 0.48, ease: "power2.in" }, at);
+        tl.set(id, { autoAlpha: 0, y: 0 }, killAt);
+      }
+
+      sceneIn("#scene-before", 0);
+      tl.from("#scene-before .chat-window", { y: 50, opacity: 0, duration: 0.7, ease: "power3.out" }, 0.8);
+      tl.from("#scene-before .bubble", { x: -32, opacity: 0, stagger: 0.14, duration: 0.5, ease: "power2.out" }, 1.15);
+      tl.from("#scene-before .thread", { x: 48, opacity: 0, stagger: 0.18, duration: 0.55, ease: "power2.out" }, 1.25);
+      tl.from("#scene-before .file-pill", { scale: 0.86, opacity: 0, stagger: 0.15, duration: 0.4, ease: "back.out(1.8)" }, 2.1);
+      sceneOut("#scene-before", 7.5, 8);
+
+      sceneIn("#scene-collision", 8);
+      tl.from("#scene-collision .panel:first-child", { x: -180, opacity: 0, rotate: -2, duration: 0.7, ease: "power3.out" }, 8.85);
+      tl.from("#scene-collision .panel:nth-child(2)", { x: 180, opacity: 0, rotate: 2, duration: 0.7, ease: "power3.out" }, 9.05);
+      tl.from("#scene-collision .big-alert", { scale: 0.65, opacity: 0, rotate: -7, duration: 0.45, ease: "back.out(2)" }, 10.6);
+      sceneOut("#scene-collision", 14.5, 15);
+
+      sceneIn("#scene-prompt", 15);
+      tl.from("#scene-prompt .prompt-card", { y: 70, opacity: 0, duration: 0.7, ease: "power3.out" }, 15.85);
+      tl.from("#scene-prompt .prompt-line", { x: -36, opacity: 0, stagger: 0.16, duration: 0.42, ease: "power2.out" }, 16.25);
+      tl.from("#scene-prompt .lane-ticket", { y: 70, opacity: 0, scale: 0.92, stagger: 0.12, duration: 0.55, ease: "back.out(1.5)" }, 17.35);
+      sceneOut("#scene-prompt", 22.5, 23);
+
+      sceneIn("#scene-claims", 23);
+      tl.from("#scene-claims .terminal", { x: -70, opacity: 0, duration: 0.65, ease: "power3.out" }, 23.85);
+      tl.from("#scene-claims .cmd", { y: 18, opacity: 0, stagger: 0.28, duration: 0.35, ease: "power2.out" }, 24.2);
+      tl.from("#scene-claims .claim-row", { x: 64, opacity: 0, stagger: 0.16, duration: 0.48, ease: "power2.out" }, 24.65);
+      tl.from("#scene-claims .blocked", { scale: 0.94, duration: 0.3, repeat: 3, yoyo: true, ease: "power1.inOut" }, 26.2);
+      sceneOut("#scene-claims", 30.5, 31);
+
+      sceneIn("#scene-product", 31);
+      tl.from("#scene-product .order-column:first-child", { x: -70, opacity: 0, duration: 0.62, ease: "power3.out" }, 31.85);
+      tl.from("#scene-product .order-column:nth-child(2)", { x: 70, opacity: 0, duration: 0.62, ease: "power3.out" }, 32.05);
+      tl.from("#scene-product .task-card", { y: 34, opacity: 0, stagger: 0.14, duration: 0.42, ease: "power2.out" }, 32.45);
+      sceneOut("#scene-product", 39.5, 40);
+
+      sceneIn("#scene-final", 40);
+      tl.from("#scene-final .takeaway h2", { y: 58, opacity: 0, duration: 0.65, ease: "power3.out" }, 41.35);
+      tl.from("#scene-final .takeaway p", { y: 32, opacity: 0, duration: 0.48, ease: "power2.out" }, 41.9);
+      tl.from("#scene-final .badge", { y: 20, opacity: 0, stagger: 0.1, duration: 0.32, ease: "power2.out" }, 42.25);
+
+      tl.from("#scene-final .orbit", { scale: 0.88, duration: 0.7, ease: "power3.out" }, 40.75);
+
+      tl.from("#scene-final .orbit", { opacity: 0, duration: 0.7, ease: "power3.out" }, 40.75);
+
+      tl.to(".orbit", { keyframes: { "100%": { width: 976, height: 666 } }, duration: 5 }, 40.75);
+
+      tl.from("#scene-final .mini-lane", { scale: 0.5, duration: 0.45, ease: "back.out(1.8)", stagger: 0.12 }, 41.15);
+
+      tl.from("#scene-final .mini-lane", { opacity: 0, duration: 0.45, ease: "back.out(1.8)", stagger: 0.12 }, 41.15);
+
+      tl.to(".mini-lane", { keyframes: { "100%": { width: 232, height: 127 } }, duration: 5 }, 41.15);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
