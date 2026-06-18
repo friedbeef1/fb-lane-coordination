@@ -214,6 +214,7 @@ To prevent accidental codebase corruption or "rogue edits" when brainstorming wi
 Detailed walkthroughs for configuring and running the framework on specific developer platforms:
 
 * **Antigravity 2.0**: [platforms/antigravity/README.md](platforms/antigravity/README.md)
+* **Claude Code**: [platforms/claude-code/README.md](platforms/claude-code/README.md) — includes the direct lane-thread demo video: [claude-code-how-to-interact.mp4](platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4)
 * **Claude Desktop**: [platforms/claude/README.md](platforms/claude/README.md)
 * **Codex**: [platforms/codex/README.md](platforms/codex/README.md)
 
