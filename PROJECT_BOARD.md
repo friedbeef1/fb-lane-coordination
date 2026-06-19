@@ -16,6 +16,7 @@
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) |
 | TASK-002 | Ready | FB-Tech | Core | Implement user authentication endpoints | `src/auth.ts`, `src/db.ts` | (None) |
 | TASK-003 | Ready | FB-Design | UI | Design responsive dashboard navigation | `src/navigation.css` | (None) |
+| TASK-004 | Done | FB-Product | Codex | Package FB-Lane as a Codex plugin | (None) | PR #7 |
 
 ---
 
@@ -76,3 +77,30 @@
 *   **QA Checklist**:
     *   [ ] Sidebar collapses cleanly on mobile viewports.
     *   [ ] Colors align with the design system.
+
+
+### TASK-004 - Package FB-Lane as a Codex plugin
+*   **Status**: Done
+*   **Owner / Thread**: FB-Product
+*   **Area**: Codex
+*   **Scope**: Add a repo-local Codex plugin package that bundles FB-Lane skills, MCP configuration, and install documentation so Codex users can install the coordination workflow with minimal setup.
+*   **Out of Scope**: Changing Antigravity runtime behavior or replacing the existing Claude Code plugin.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Documentation only
+    *   **Locked Files**: (None)
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: PR #7
+    *   **Staging URL**: (None)
+*   **QA Checklist**:
+    *   [x] Codex plugin manifest validates.
+    *   [x] Marketplace entry points at the plugin package.
+    *   [x] Docs explain install and usage.
+*   **Modified Files**:
+    *   `.agents/plugins/marketplace.json`
+    *   `plugins/fb-lane-coordination/`
+    *   `tools/fb-lane.cjs`
+    *   `README.md`
+    *   `FAQ.md`
+    *   `platforms/codex/README.md`
+*   **Latest Update**:
+    *   *2026-06-19*: Added and validated the Codex plugin package, including bundled skills and MCP workspace-path support.

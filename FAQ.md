@@ -197,7 +197,7 @@ The human supervisor does not need technical project management expertise; they 
 **A:** The framework operates differently based on the platform's orchestration capabilities:
 *   **Antigravity (Programmatic Multi-Agent)**: The main `FB-Product` thread runs on an agentic SDK. It uses programmatic tools (`define_subagent` and `invoke_subagent`) to spin up sandboxed background threads for `FB-Tech` and `FB-Design` autonomously. See [`platforms/antigravity/`](platforms/antigravity/README.md) and the Antigravity walkthrough video at [`platforms/antigravity/how-to-interact-demo/renders/antigravity-how-to-interact.mp4`](platforms/antigravity/how-to-interact-demo/renders/antigravity-how-to-interact.mp4).
 *   **Claude Code (Native Subagents + MCP)**: Four lane agents (`fb-product`, `fb-tech`, `fb-design`, `fb-business`) are registered as Claude Code subagents in `.claude/agents/` and invokable directly from the sidebar via `@mention`. The `fb-lane` MCP server connects all four to the same `PROJECT_BOARD.md` for real-time status and lock checks. The main session acts as FB-Product by default; open separate sidebar conversations for each lane to run them concurrently. Install as a plugin in one step: `/plugin marketplace add friedbeef1/fb-lane-coordination`. See [`platforms/claude-code/`](platforms/claude-code/README.md) and the Claude Code walkthrough video at [`platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4`](platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4).
-*   **Codex (Local File/Git Agent)**: The main benefit is that you can give multiple lane instructions at once, Codex can run them concurrently with native subagents or sidebar threads, and FB-Lane keeps those concurrent tasks from editing the same files or losing handoff context. FB-Lane's Codex value is the collision-control protocol: local rules (e.g., `.codex/rules.md`), a shared project board/current-task file, file claims, handoff docs, and Product/Captain integration gates.
+*   **Codex (Plugin + Local File/Git Agent)**: Install the Codex plugin with `codex plugin marketplace add friedbeef1/fb-lane-coordination` and `codex plugin add fb-lane-coordination@fb-lane`. The main benefit is that you can give multiple lane instructions at once, Codex can run them concurrently with native subagents or sidebar threads, and FB-Lane keeps those concurrent tasks from editing the same files or losing handoff context. FB-Lane's Codex value is the collision-control protocol: bundled skills, the `fb-lane` MCP server, local rules, a shared project board/current-task file, file claims, handoff docs, and Product/Captain integration gates.
 
 ### Q: What is the main benefit of FB-Lane in Codex?
 **A:** The main benefit is not that FB-Lane creates parallelism. Codex already has native subagents. The benefit is that you can give several lane instructions at once and let Codex run them concurrently without those lanes stepping on each other's files, losing context, or forcing you to manually coordinate locks and handoffs.
@@ -218,6 +218,17 @@ Run this in parallel where safe:
 
 Keep file scopes separate. Integrate the lane outputs here.
 ```
+
+### Q: Is there a Codex plugin version?
+**A:** Yes. The repo includes a Codex marketplace at [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) and a plugin package at [`plugins/fb-lane-coordination/`](plugins/fb-lane-coordination/README.md).
+
+Install it with:
+```bash
+codex plugin marketplace add friedbeef1/fb-lane-coordination
+codex plugin add fb-lane-coordination@fb-lane
+```
+
+The plugin bundles Codex skills for `fb-lane`, `fb-product`, `fb-tech`, `fb-design`, and `fb-business`, plus the `fb-lane` MCP server. It does not replace Codex concurrency; it packages the guardrails that make concurrent Codex lane work safe.
 
 ### Q: In Codex, can I address lanes like `@tt-design` or `@tt-tech`?
 **A:** Yes, as a lightweight convention. It is not the same as Claude Code's native `@agent` mention unless your Codex environment has a matching agent router installed. In Codex, the repo rules can define these aliases:
@@ -339,7 +350,7 @@ The agents are designed to autonomously:
 2.  **Configure Your Platforms**: Follow the detailed guide for your platform of choice:
     *   **Antigravity**: Read the [Antigravity Guide](file:///./platforms/antigravity/README.md) and use the [project-coordination-setup](file:///./skills/project-coordination-setup/SKILL.md) skill to auto-register your subagent roles.
     *   **Claude & Cursor**: Read the [Claude Guide](file:///./platforms/claude/README.md) to set Custom Instructions and use the copy-pasteable [system prompts](file:///./platforms/claude/system-prompts.md).
-    *   **Codex**: Read the [Codex Guide](file:///./platforms/codex/README.md) and copy the [Codex workflow rules](file:///./platforms/codex/workflow-rules.md) to your rules directory.
+    *   **Codex**: Install the [Codex plugin](file:///./plugins/fb-lane-coordination/README.md), or read the [Codex Guide](file:///./platforms/codex/README.md) and copy the [Codex workflow rules](file:///./platforms/codex/workflow-rules.md) to your rules directory.
 3.  **Claim Your First Task**: Triage your board, mark `TASK-001` (Setup & Bootstrap) as `In Progress`, check out a new branch, and start building!
 
 ---
