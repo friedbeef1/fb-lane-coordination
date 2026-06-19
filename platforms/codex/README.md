@@ -6,11 +6,38 @@ Codex is a local developer agent that operates directly on your filesystem and g
 
 ## ⚡ Quick Setup
 
-### Method A: AI-Powered Bootstrap (Recommended)
+### Method A: Codex Plugin (Recommended)
+Install the repo marketplace and plugin:
+
+```bash
+codex plugin marketplace add friedbeef1/fb-lane-coordination
+codex plugin add fb-lane-coordination@fb-lane
+```
+
+This installs:
+
+- `fb-lane`, `fb-product`, `fb-tech`, `fb-design`, and `fb-business` Codex skills
+- the bundled `fb-lane` MCP server
+- plugin metadata for Codex's plugin browser
+
+After install, start a new Codex thread and ask for `@fb-lane`, `$fb-lane`, or a lane-specific skill. Example:
+
+```text
+@fb-lane
+Run these concurrently:
+@tt-design create prep-screen icon options.
+@tt-tech check whether the auth flow is safe.
+@tt-business rewrite the onboarding copy.
+Then have Product sequence the handoffs and flag conflicts.
+```
+
+The plugin does not create Codex's parallelism. Codex already has that. The plugin packages the coordination layer: skills, MCP status/claim/submit/merge tools, file locks, handoffs, and Product/Captain integration.
+
+### Method B: AI-Powered Bootstrap
 If you have an AI agent active in your workspace, simply paste this prompt:
 > *"I want to bootstrap the FB-Lane Coordination Framework in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
 
-### Method B: Manual CLI Bootstrap
+### Method C: Manual CLI Bootstrap
 1. Download the CLI script:
    ```bash
    curl -o tools/fb-lane.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.cjs
@@ -153,25 +180,30 @@ Since Codex is a developer-centric CLI agent, its coordination model is built en
 
 To eliminate manual git dancing, board updates, and manual prompting in Codex Desktop, use the **`fb-lane` automation utility** (`tools/fb-lane.cjs`) in one of two modes:
 
-### 1. Codex Desktop (Zero Friction via MCP)
-Like Claude, the **Codex Desktop App** supports the Model Context Protocol (MCP). You can register `tools/fb-lane.cjs` as an MCP server directly through the Codex Desktop GUI (under **Settings > Plugins** or **MCP Servers**) or in its configuration settings:
+### 1. Codex Plugin + MCP
+The recommended path is to install the Codex plugin. It bundles the `fb-lane` MCP server and exposes `fb_lane_status`, `fb_lane_claim`, `fb_lane_submit`, and `fb_lane_merge` to Codex:
 
-```json
-{
-  "mcpServers": {
-    "fb-lane": {
-      "command": "node",
-      "args": ["/Users/jamesyeang/.gemini/antigravity/scratch/fb-lane-coordination/tools/fb-lane.cjs", "mcp"]
-    }
-  }
-}
+```bash
+codex plugin marketplace add friedbeef1/fb-lane-coordination
+codex plugin add fb-lane-coordination@fb-lane
 ```
 
-Once configured, Codex Desktop gets direct tool-level access to Git and `PROJECT_BOARD.md` via `fb_lane_status`, `fb_lane_claim`, `fb_lane_submit`, and `fb_lane_merge`. The Codex agent can then manage its own branch checkout, file locking, board updates, and pushes autonomously.
+When calling MCP tools from a plugin-launched server, pass the active repo path as `workspacePath` if Codex does not infer it automatically. The bundled server uses that path to find `PROJECT_BOARD.md` and run git operations from the correct workspace.
+
+### 2. Manual MCP Registration
+If you do not install the plugin, register the project-local CLI as an MCP server in Codex config:
+
+```toml
+[mcp_servers.fb-lane]
+command = "node"
+args = ["/absolute/path/to/your/project/tools/fb-lane.cjs", "mcp"]
+```
+
+Once configured, Codex gets direct tool-level access to Git and `PROJECT_BOARD.md`. The Codex agent can then manage branch checkout, file locking, board updates, and pushes autonomously.
 
 ---
 
-### 2. Local Context Injection (Low Friction via CLI)
+### 3. Local Context Injection (Low Friction via CLI)
 If you do not register the MCP server, you can run the CLI tool locally. The claim command automatically writes the active task scope to a local file: **`.codex/current_task.md`**:
 
 ```bash

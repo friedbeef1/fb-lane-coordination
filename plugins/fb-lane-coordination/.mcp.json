@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "fb-lane": {
+      "command": "node",
+      "args": ["./tools/fb-lane.cjs", "mcp"],
+      "cwd": "."
+    }
+  }
+}
