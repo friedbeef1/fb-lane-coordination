@@ -11,6 +11,16 @@ Even in highly agentic workflows, complex projects can fail due to:
 * **Strict Tool Sandboxing**: Subagents are registered with only the tools they need (e.g., `FB-Business` is read-only, `FB-Design` only gets UI and styling tools).
 * **Automated Orchestration**: `FB-Product` acts as the traffic controller, spawning background tasks sequentially or on isolated branches, and coordinating the merge gate.
 
+## How-To Video
+
+The Antigravity 2.0 interaction demo lives in [`how-to-interact-demo/`](how-to-interact-demo/).
+It shows the recommended workflow: let Antigravity provide native background subagents, let
+FB-Product define and invoke bounded Tech / Design / Business lanes, and use `PROJECT_BOARD.md`
+claims plus Product's merge gate to keep concurrent work safe.
+
+Watch the rendered MP4:
+[`how-to-interact-demo/renders/antigravity-how-to-interact.mp4`](how-to-interact-demo/renders/antigravity-how-to-interact.mp4).
+
 ## Orchestration Concept
 
 In Antigravity, **`FB-Product`** is the main agent thread (representing User Value). It uses Antigravity tools to spawn and manage specialized subagents:

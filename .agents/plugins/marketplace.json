@@ -1,0 +1,20 @@
+{
+  "name": "fb-lane",
+  "interface": {
+    "displayName": "FB-Lane"
+  },
+  "plugins": [
+    {
+      "name": "fb-lane-coordination",
+      "source": {
+        "source": "local",
+        "path": "./plugins/fb-lane-coordination"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
