@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-Q-8688 | In Progress | FB-Tech | Quick-Fix | Quick test hooks | `scratch/test_quick.txt` | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-8688-quick-test-hooks) |
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) |
 | TASK-002 | Ready | FB-Tech | Core | Implement user authentication endpoints | `src/auth.ts`, `src/db.ts` | (None) |
 | TASK-003 | Ready | FB-Design | UI | Design responsive dashboard navigation | `src/navigation.css` | (None) |
@@ -234,3 +235,25 @@
     *   `PROJECT_BOARD.md`
 *   **Latest Update**:
     *   *2026-06-21*: Reworked the front page into a concise overview and platform-router, moved AI-powered/manual bootstrap to `docs/setup.md`, and kept Codex first-use prompts in the Codex platform guide.
+
+
+### TASK-Q-8688 - Quick test hooks
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Tech
+*   **Area**: Quick-Fix
+*   **Scope**: Quick test hooks
+*   **Out of Scope**: Unrelated codebase changes.
+*   **Affected Screens / Locks**:
+    *   **Screens**: (None)
+    *   **Locked Files**: `scratch/test_quick.txt`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: [Branch Link](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-8688-quick-test-hooks)
+    *   **Staging URL**: (None)
+    *   **Design Specs**: (None)
+*   **QA Checklist**:
+    *   [ ] Changes compile without error.
+    *   [ ] Modified files are verified and checked.
+*   **Modified Files**:
+    *   (None)
+*   **Latest Update**:
+    *   *2026-06-21*: Initialized quick edit task.
