@@ -47,11 +47,28 @@ In Antigravity, **`FB-Product`** is the main agent thread (representing User Val
 
 ## Quick Start: Bootstrapping a Project
 
-### Method A: AI-Powered Bootstrap (Recommended)
+### Method A: Antigravity Plugin (Recommended)
+You can load the FB-Lane Coordination plugin directly in Antigravity by referencing it in your workspace's `.agents/plugins/marketplace.json` file:
+```json
+{
+  "plugins": [
+    {
+      "name": "fb-lane-coordination",
+      "source": {
+        "source": "local",
+        "path": "./plugins/fb-lane-coordination"
+      }
+    }
+  ]
+}
+```
+This automatically registers the `fb-lane-coordination` and `project-coordination-setup` skills, as well as the four lane subagents (`FB-Product`, `FB-Tech`, `FB-Design`, and `FB-Business`) directly in your workspace.
+
+### Method B: AI-Powered Bootstrap
 If you have an AI agent active in your workspace, simply paste this prompt:
 > *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
 
-### Method B: Manual CLI Bootstrap
+### Method C: Manual CLI Bootstrap
 To automatically set up the plugin manually, copy `tools/fb-lane.cjs` to your repository root `tools/` folder and run:
 ```bash
 node tools/fb-lane.cjs bootstrap

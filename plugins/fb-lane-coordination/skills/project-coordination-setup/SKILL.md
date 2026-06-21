@@ -1,0 +1,107 @@
+---
+name: project-coordination-setup
+description: >-
+  Bootstraps a project with the product-agnostic four-lane multi-agent coordination model,
+  PROJECT_BOARD.md template, and registers the FB-Product, FB-Tech, FB-Design,
+  and FB-Business subagents.
+---
+
+# Project Coordination Bootstrapper
+
+## Overview
+This skill instantiates the **Four-Lane Multi-Thread Coordination Model** in any software project directory (SaaS, backend API, mobile/web app, dev tool, etc.). It sets up the project board, updates configuration files safely, and registers specialized subagents to coordinate creative design, technical engineering, and product orchestration without context bleeding.
+
+## Dependencies
+None.
+
+## Quick Start
+To bootstrap a workspace, run through the **Execution Steps** in the Workflow below.
+
+---
+
+## Workflow
+
+### Phase 1: Inspect the Environment
+1.  **Check for Existing Files**: Inspect the root directory of the project for:
+    -   `AGENTS.md`
+    -   `PROJECT_BOARD.md`
+    -   `docs/agents/`
+2.  **Read Existing Configs**: If `AGENTS.md` or `PROJECT_BOARD.md` exist, **DO NOT overwrite them**. Read their contents to understand the current project-specific rules, plugins, or active milestones.
+
+### Phase 2: Merge or Create AGENTS.md
+*   **Case A: AGENTS.md does NOT exist**: Create it using the template below.
+*   **Case B: AGENTS.md exists**: Append the **FB-Lane Coordination Rules** section to the end of the file, preserving all original content.
+
+#### **AGENTS.md Template / Append Block:**
+```markdown
+## FB-Lane Coordination Rules
+
+This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development.
+
+### 1. Lane Scopes & Boundaries
+- **FB-Product (PM / Integration User Value)**: Owns final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates. Prioritizes the backlog on the project board, sequencing tasks based on goal-alignment and value-vs-effort mix.
+- **FB-Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, security rules, and functional test suites. *Does not make styling, layout geometry, or visual changes.*
+- **FB-Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
+- **FB-Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only code capacity.*
+- **The User (Supervisor / Reviewer)**: Gives instructions to Product or directly to specific lanes, and reviews staging outputs. The Product agent prompts the user for approval before promoting backlog items to Ready.
+
+### 2. The Board Loop & Resource Locking
+- `PROJECT_BOARD.md` in the project root is the source of truth.
+- **Claim & Lock**: Before coding, active threads claim or create an item in `PROJECT_BOARD.md`, set status to `In Progress`, and declare Affected Screens and Locked Files to assert a resource lock.
+- **Push & QA**: When complete, threads push feature branches (e.g. `tech/[task]` or `design/[task]`), update board status to `Staging QA`, and list modified files/QA checks.
+- **Handoff, Unlock & Clean**: Product reviews staging, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
+
+### 3. Safety & Git Hygiene
+- **Never commit directly to main**. All work goes through feature branches.
+- **Commit Docs Separately**: Commit updates to `PROJECT_BOARD.md` and documentation files in separate commits from codebase logic and styling changes.
+- **Rejection & Rectification**: If Product rejects a branch due to failing test suites, visual QA issues, or strategic misalignment, Product marks the task `Blocked` or `Rejected` on `PROJECT_BOARD.md` (attaching the failure logs) and alerts the user and the lane agent. The lane agent then resolves the bugs locally on its feature branch until all tests pass before resubmitting. If the changes are permanently rejected, Product closes the PR, deletes the feature branch, and removes the task and resource locks from the board.
+```
+
+### Phase 3: Create PROJECT_BOARD.md
+If `PROJECT_BOARD.md` does not exist, create it with the following structure:
+```markdown
+# Project Board
+
+## Statuses
+- `Inbox`: Newly requested tasks requiring triage.
+- `Ready`: Triaged tasks, fully scoped, ready to be claimed.
+- `In Progress`: Tasks currently being worked on by an owner.
+- `Staging QA`: Features deployed to staging, awaiting visual/functional verification.
+- `Done`: Checked, verified, and merged to production by FB-Product.
+
+## Active Workstreams
+| ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
+|---|---|---|---|---|---|---|
+| TASK-001 | Ready | FB-Product | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \| [PR #1](https://github.com/example/repo/pull/1) |
+
+### TASK-001 - Project Setup & Bootstrap
+*   - Status: Ready
+*   - Owner / Thread: FB-Product
+*   - Area: Setup
+*   - Scope: Create initial files, initialize repository layout.
+*   - Out of Scope: Writing application business logic.
+*   - Affected Screens / Locks:
+*       - Screens: (None)
+*       - Locked Files: `AGENTS.md`, `PROJECT_BOARD.md`
+*   - Links & Deliverables:
+*       - Git Branch / PR: [Branch Link](https://github.com/example/repo/tree/main)
+*       - Staging URL: [Staging Link](https://staging.example.com)
+*   - QA Checklist:
+*       - [x] AGENTS.md created or updated
+*       - [x] PROJECT_BOARD.md created
+*       - [x] Subagents defined
+```
+
+### Phase 4: Register the Subagents
+Run the `define_subagent` tool to register the four specialized workstreams in the current workspace using these definitions:
+
+1.  **FB-Product**: PM and Integration User Value Optimizer. Scopes tasks, spawns subagent threads, merges code, runs release gates, and manages deployments.
+2.  **FB-Tech**: Tech Lead and Core Developer. Implements backend migrations, serverless functions, security logic, and runs development tests.
+3.  **FB-Design**: UI/UX Designer and Layout Auditor. Edits frontend styles, handles page geometry layout, and performs visual audits on staging.
+4.  **FB-Business**: Business copywriter and positioning strategist. Focuses on onboarding text, documentation, user-facing messaging, and pricing/marketing copy. (Set `enable_write_tools = false`).
+
+---
+
+## Common Mistakes
+-   **Destructive Overwrite**: Overwriting an existing `AGENTS.md` containing custom project variables or Deno/Vite compiler rules. Always read and merge.
+-   **Missing Subagent Definitions**: Bootstrapping the Markdown files but forgetting to call `define_subagent` to register the active workstream instances.

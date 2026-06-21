@@ -69,7 +69,24 @@ Compare how development works on complex, multi-layered features with AI agents:
 
 Get up and running with the FB-Lane plugin using one of these methods:
 
-### Method A: Install as a Codex Plugin
+### Method A: Install as an Antigravity Plugin
+Reference the local plugin in your workspace's `.agents/plugins/marketplace.json` file:
+```json
+{
+  "plugins": [
+    {
+      "name": "fb-lane-coordination",
+      "source": {
+        "source": "local",
+        "path": "./plugins/fb-lane-coordination"
+      }
+    }
+  ]
+}
+```
+This automatically registers the `fb-lane-coordination` and `project-coordination-setup` skills, as well as the four lane subagents (`FB-Product`, `FB-Tech`, `FB-Design`, and `FB-Business`) directly in your workspace. See [`platforms/antigravity/`](platforms/antigravity/README.md) and the plugin package in [`plugins/fb-lane-coordination/`](plugins/fb-lane-coordination/README.md).
+
+### Method B: Install as a Codex Plugin
 For the lowest-friction Codex setup, install the repo marketplace and plugin:
 ```bash
 codex plugin marketplace add friedbeef1/fb-lane-coordination
@@ -77,11 +94,19 @@ codex plugin add fb-lane-coordination@fb-lane
 ```
 This installs the Codex skills (`fb-lane`, `fb-product`, `fb-tech`, `fb-design`, `fb-business`) and the bundled `fb-lane` MCP server. Codex still provides the native concurrency; the plugin gives those concurrent lanes shared board/status/claim/handoff guardrails. See [`platforms/codex/`](platforms/codex/README.md) and the plugin package in [`plugins/fb-lane-coordination/`](plugins/fb-lane-coordination/README.md).
 
-### Method B: AI-Powered Bootstrap
+### Method C: Install as a Claude Code Plugin
+This repo doubles as a single-plugin marketplace. In Claude Code, run:
+```bash
+/plugin marketplace add friedbeef1/fb-lane-coordination
+/plugin install fb-lane-coordination@fb-lane
+```
+This installs the four lane subagents, the `fb-lane` skills, and the `fb-lane` MCP server — no manual file copying. See [`platforms/claude-code/`](platforms/claude-code/README.md).
+
+### Method D: AI-Powered Bootstrap
 If you have an active AI agent in your project workspace (such as Antigravity, Claude, or Codex), simply paste this instruction to let the agent copy and configure the plugin autonomously:
 > *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
 
-### Method C: Manual CLI Bootstrap
+### Method E: Manual CLI Bootstrap
 1. **Copy the CLI tool**: From your project root, run:
    ```bash
    curl -o tools/fb-lane.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.cjs
@@ -100,14 +125,6 @@ If you have an active AI agent in your project workspace (such as Antigravity, C
    * **Claude Code** (CLI / web / IDE): Reload the workspace. The lanes (`fb-product`, `fb-tech`, `fb-design`, `fb-business`) appear as subagents in `/agents` and the agent picker; approve the `fb-lane` MCP server via `/mcp`. See [`platforms/claude-code/`](platforms/claude-code/README.md).
    * **Cursor / Claude Projects Web**: Add `AGENTS.md` and `PROJECT_BOARD.md` to your Project Knowledge or Custom Instructions.
    * **Codex**: Launch Codex Desktop. The main benefit is that you can give several lane instructions at once, Codex can run them concurrently with native subagents or sidebar threads, and FB-Lane keeps those concurrent tasks from editing the same files or losing handoff context. See [`platforms/codex/`](platforms/codex/README.md).
-
-### Method D: Install as a Claude Code Plugin
-This repo doubles as a single-plugin marketplace. In Claude Code, run:
-```bash
-/plugin marketplace add friedbeef1/fb-lane-coordination
-/plugin install fb-lane-coordination@fb-lane
-```
-This installs the four lane subagents, the `fb-lane` skills, and the `fb-lane` MCP server — no manual file copying. See [`platforms/claude-code/`](platforms/claude-code/README.md).
 
 Done! You are ready to run `node tools/fb-lane.cjs claim <task-id> <lane>` and start coding.
 
