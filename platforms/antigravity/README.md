@@ -2,14 +2,21 @@
 
 Antigravity is a highly agentic SDK with native support for multi-agent systems, background subagent executions, task scheduling, and inter-agent messaging. This directory contains instructions and templates to leverage Antigravity's tools to automate the FB-Lane coordination model.
 
-## The Problem This Solves in Antigravity
-Even in highly agentic workflows, complex projects can fail due to:
-* **Tool Overload & Routing Confusion**: Giving one agent access to every available tool (e.g., database writes, styling files, Web audits, API invocations) leads to routing confusion and slower response times.
-* **State Drift & Overwrites**: Multiple background agents working concurrently on the same branch will collide and overwrite each other's changes.
+## ⚠️ The Pain Points & Elegant Fixes in Antigravity
 
-**How FB-Lane fixes this:**
-* **Strict Tool Sandboxing**: Subagents are registered with only the tools they need (e.g., `FB-Business` is read-only, `FB-Design` only gets UI and styling tools).
-* **Automated Orchestration**: `FB-Product` acts as the traffic controller, spawning background tasks sequentially or on isolated branches, and coordinating the merge gate.
+Antigravity's highly agentic, multi-threaded nature is powerful, but complex multi-agent setups introduce specific developer pain points:
+
+### 1. Memory Bloat & Conversation Degradation (The Bloat Pain Point)
+* **The Pain Point**: Spawning background subagents that remain active indefinitely, or running multiple tasks in a single long-running subagent conversation, causes rapid context window bloat. The subagent's memory footprint grows, leading to degraded reasoning, slower response times, and increased token costs.
+* **The Elegant Fix**: **Disposable Worker Subagents**. The main `FB-Product` lane orchestrator spawns highly focused, temporary subagents using `invoke_subagent` for each specific task (e.g., spawning `FB-Tech` for a database migration). Once the task is complete and submitted, that subagent's thread is terminated (via `manage_subagents` with action `kill`), keeping the orchestrator's and subagents' memory footprints clean and protecting performance.
+
+### 2. Session Reset & Loss of Context (The State Loss Pain Point)
+* **The Pain Point**: If the main orchestrator thread is cleared (`/clear`), restarted, or crashes mid-sprint, the agent loses its memory of active branches, file locks, running tasks, and what it was supposed to do next. The user is forced to re-explain the workspace state and manually align the agent.
+* **The Elegant Fix**: **Instant Recovery**. Since `PROJECT_BOARD.md` and `.codex/current_task.md` serve as the local, filesystem-level source of truth, the agent has zero dependency on persistent chat session memory. Simply typing `status` or `SOP` forces the orchestrator to inspect the local project board and task context, identify the active branch, and instantly resume control with full context.
+
+### 3. Tool Overload & Routing Confusion
+* **The Pain Point**: Giving a single developer agent access to all tools (database, styling, web browser, file writes) leads to tool-routing errors, slower responses, and dangerous boundary violations (e.g., an agent modifying database schemas while trying to edit a CSS file).
+* **The Elegant Fix**: **Strict Tool Sandboxing**. Antigravity subagents are registered with restricted tool subsets (e.g., `FB-Design` only gets UI/styling tools, `FB-Business` is strictly read-only on code). This keeps routing execution fast, cheap, and safe.
 
 ## How-To Video
 
