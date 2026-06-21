@@ -19,6 +19,7 @@
 | TASK-004 | Done | FB-Product | Codex | Package FB-Lane as a Codex plugin | (None) | PR #7 |
 | TASK-005 | Done | FB-Product | Codex Docs | Clarify Codex plugin pain point and value | (None) | `codex/pain-point-docs` |
 | TASK-006 | Done | FB-Product | Codex Docs | Explain how FB-Lane works with Codex worktrees | `README.md`, `FAQ.md`, `platforms/codex/README.md` | `codex/pain-point-docs` |
+| TASK-007 | Done | FB-Tech | CLI | Fix quick-task ID parsing for `TASK-Q-####` board rows | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | `codex/quick-task-id-parser-fix` |
 
 ---
 
@@ -155,3 +156,27 @@
     *   `PROJECT_BOARD.md`
 *   **Latest Update**:
     *   *2026-06-21*: Added Codex worktrees guidance and clarified that worktrees provide Git/workspace isolation while FB-Lane provides product coordination, claims, handoffs, and Product sequencing.
+
+
+### TASK-007 - Fix quick-task ID parsing for `TASK-Q-####` board rows
+*   **Status**: Done
+*   **Owner / Thread**: FB-Tech
+*   **Area**: CLI
+*   **Scope**: Update board parsing and rewriting so quick tasks created as `TASK-Q-####` are visible to status, submit, merge, and plugin MCP flows.
+*   **Out of Scope**: Example icon assets from draft PR #4.
+*   **Affected Screens / Locks**:
+    *   **Screens**: CLI / MCP behavior only
+    *   **Locked Files**: `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/quick-task-id-parser-fix`
+    *   **Staging URL**: (None)
+*   **QA Checklist**:
+    *   [x] Root CLI parses `TASK-Q-####` rows and detail headers.
+    *   [x] Plugin-packaged CLI parses `TASK-Q-####` rows and detail headers.
+    *   [x] Normal `TASK-###` IDs still parse.
+*   **Modified Files**:
+    *   `tools/fb-lane.cjs`
+    *   `plugins/fb-lane-coordination/tools/fb-lane.cjs`
+    *   `PROJECT_BOARD.md`
+*   **Latest Update**:
+    *   *2026-06-21*: Applied the parser-only fix from draft PR #4 to both CLI copies and verified quick-task read/write behavior without merging optional example icon assets.
