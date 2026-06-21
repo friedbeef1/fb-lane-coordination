@@ -102,6 +102,8 @@ This repo doubles as a single-plugin marketplace. In Claude Code, run:
 ```
 This installs the four lane subagents, the `fb-lane` skills, and the `fb-lane` MCP server — no manual file copying. See [`platforms/claude-code/`](platforms/claude-code/README.md).
 
+Right after installing, type **`/fb-lane-coordination:quickstart`** for a 30-second orientation on how to drive the lanes — no need to read the docs first. (Or just say *"how do I use this?"* to the FB-Product thread.)
+
 ### Method D: AI-Powered Bootstrap
 If you have an active AI agent in your project workspace (such as Antigravity, Claude, or Codex), simply paste this instruction to let the agent copy and configure the plugin autonomously:
 > *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*

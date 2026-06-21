@@ -73,6 +73,10 @@ and the `fb-lane` MCP server (the bundled CLI is referenced via `${CLAUDE_PLUGIN
 works wherever the plugin is installed). The MCP server reads the `PROJECT_BOARD.md` of whatever
 project you currently have open.
 
+**New here?** Type **`/fb-lane-coordination:quickstart`** for a 30-second orientation on the lanes
+and the claim → submit → merge loop — enough to start working without reading the rest of this guide.
+(Or just ask the FB-Product thread *"how do I use this?"*.) The rest of this page is the deep dive.
+
 ## How-To Video
 
 The Claude Code interaction demo lives in [`how-to-interact-demo/`](how-to-interact-demo/). It shows
