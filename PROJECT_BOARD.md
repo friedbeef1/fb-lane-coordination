@@ -22,7 +22,7 @@
 | TASK-007 | Done | FB-Tech | CLI | Fix quick-task ID parsing for `TASK-Q-####` board rows | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | `codex/quick-task-id-parser-fix` |
 | TASK-008 | Done | FB-Product | Documentation | Refresh plugin docs after merged Codex and quick-task work | `README.md`, `FAQ.md`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `PROJECT_BOARD.md` | `codex/docs-refresh-after-merges` |
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
-| TASK-010 | Done | FB-Product | Documentation | Replace platform guides table with platform comparison table and mirror each platform column in its guide | `README.md`, `platforms/antigravity/README.md`, `platforms/claude-code/README.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/platform-comparison-table` |
+| TASK-010 | Done | FB-Product | Documentation | Replace platform guides table with platform comparison table and mirror each platform column in its guide | `README.md`, `platforms/antigravity/README.md`, `platforms/claude-code/README.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | PR #16 |
 
 ---
 
@@ -247,7 +247,7 @@
     *   **Screens**: Documentation only
     *   **Locked Files**: `README.md`, `platforms/antigravity/README.md`, `platforms/claude-code/README.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md`
 *   **Links & Deliverables**:
-    *   **Git Branch / PR**: `codex/platform-comparison-table`
+    *   **Git Branch / PR**: PR #16 (`codex/platform-comparison-table`)
     *   **Staging URL**: (None)
 *   **QA Checklist**:
     *   [x] Front-page Platform Guides table includes guide and demo rows plus the comparison rows.
@@ -260,4 +260,4 @@
     *   `platforms/codex/README.md`
     *   `PROJECT_BOARD.md`
 *   **Latest Update**:
-    *   *2026-06-21*: Replaced the front-page Platform Guides table with the full comparison table, mirrored each platform's column in its guide, and verified all guide/demo link targets exist locally.
+    *   *2026-06-21*: Replaced the front-page Platform Guides table with the full comparison table, mirrored each platform's column in its guide, verified all guide/demo link targets exist locally, and opened draft PR #16.
