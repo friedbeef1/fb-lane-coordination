@@ -4,6 +4,8 @@ This FAQ is designed to help developers, product managers, and AI agents underst
 
 For a complete overview of the plugin, key features, quickstart guides, and step-by-step lifecycles, please refer back to the main [README.md](README.md).
 
+The throughline as you read: FB-Lane exists so you can keep streaming goals as they come — many at once, revealed over time — and have role-isolated lanes run them in parallel without colliding or losing context.
+
 ---
 
 ## 1. High-Level Concepts
@@ -116,7 +118,7 @@ This gate runs **after submission, not in real time** — lanes work concurrentl
 ### Q: How does this scale as the development team grows? How do I register multiple concurrent Tech or Design agents?
 **A:** While the number of developers/agents can grow, the core architecture remains robust. You can register and run multiple concurrent `FB-Tech` or `FB-Design` agents:
 *   **In Antigravity (Autonomous Background Orchestration)**: The `FB-Product` agent spawns them using `invoke_subagent` for separate tasks concurrently. The Antigravity client handles unique context boundaries per conversation ID on the active branches.
-*   **In IDE Threads (Claude/Cursor/Codex)**: Open separate chat tabs/threads, and in each thread, instruct the agent to adopt the respective lane role on separate task-prefixed branches (e.g., `tech/TASK-103-billing`, `tech/TASK-104-notifications`).
+*   **In IDE Threads (Claude Code / Codex)**: Open separate sidebar conversations/threads, and in each, invoke the respective lane on separate task-prefixed branches (e.g., `tech/TASK-103-billing`, `tech/TASK-104-notifications`).
 To maintain centralization, code review sanity, and staging control, you must keep **one single Project Board** (`PROJECT_BOARD.md`) and **one Product (User Value)** thread.
 
 ### Q: What happens if I talk to a lane directly, but Product rejects their changes during review? How is this rectified, and how do I know?
@@ -270,28 +272,28 @@ npm run lane:handoff -- --lane design --task "new prep icons" --board TASK-123 -
 
 The exact commands can be backed by `tools/fb-lane.cjs`, an MCP server, or a small repo-local helper. The key invariant is the same: every editing lane checks active locks before writing, and Product/Captain owns final integration.
 
-### Q: Managing threads on Claude and Codex Desktop (non-CLI) sounds painful and full of friction. How can I make this easier?
+### Q: Managing lane threads by hand sounds painful and full of friction. How can I make this easier?
 **A:** We have created the **`fb-lane` automation utility** (`tools/fb-lane.cjs`) specifically to eliminate this manual friction. It automates branch management, project board edits, file locking, and git commits via two workflows:
 
-1.  **For Claude Desktop (Zero Friction via MCP)**: You can register `tools/fb-lane.cjs` as a local Model Context Protocol (MCP) server in your `claude_desktop_config.json`. This allows Claude to claim tasks, checkout branches, update the board, and submit changes autonomously using standard tool calls. Your only job is starting the thread and telling Claude what task to execute.
-2.  **For Cursor & Claude Web (Low Friction via CLI & Clipboard)**: Run the CLI tool locally:
+1.  **For Claude Code (Zero Friction via MCP)**: Install the plugin (or register `tools/fb-lane.cjs` as a local Model Context Protocol (MCP) server). This lets the lanes claim tasks, checkout branches, update the board, and submit changes autonomously using standard tool calls. Your only job is starting the thread and telling the lane what task to execute.
+2.  **For any thread (Low Friction via CLI & Clipboard)**: Run the CLI tool locally:
     - `node tools/fb-lane.cjs claim <task-id> <lane> [locked_files]` claims the task on the board, locks files, checks out the branch, and **copies the startup prompt (with lane rules and task context) directly to your clipboard**. You just open a fresh thread and press Cmd+V (Paste)!
     - `node tools/fb-lane.cjs submit <task-id>` updates the status to Staging QA, commits, pushes to origin, and copies the PR review instructions to your clipboard.
     - `node tools/fb-lane.cjs merge <task-id>` handles merging the feature branch into main, releasing the board locks, pushing, and deleting the branch.
 3.  **For Codex Desktop (Hands-Off Context Injection)**: The CLI claim command automatically writes the active task scope to a local file: **`.codex/current_task.md`**. You can add a single instruction in your project rules telling Codex to read this file upon startup. When you open Codex Desktop, it instantly picks up the branch, locked files, and task details, working on it completely hands-off.
 
-### Q: If I do everything on the same thread in Claude, Codex, or Antigravity, won't the context window get bloated?
+### Q: If I do everything on the same thread in Claude Code, Codex, or Antigravity, won't the context window get bloated?
 **A:** **Yes, absolutely.** Running everything on a single, long-running thread causes severe context window bloat, leading to:
 1.  **Reasoning Degradation**: AI models lose performance, make mistakes, and forget rules as the chat history grows.
 2.  **Scope Bleed**: The agent will start cross-modifying files from previous tasks (e.g., editing database logic while working on a styling layout).
 
 To prevent this, the FB-Lane plugin enforces strict **Thread Segmentation**:
-*   **Claude (Projects/Cursor)**: You must start a fresh chat thread for every single task. Never discuss backend logic and styling changes in the same thread.
+*   **Claude Code**: Run each lane in its own subagent or sidebar conversation — each gets its own context window — rather than one chat juggling backend logic and styling together.
 *   **Antigravity**: The `FB-Product` agent runs the orchestrator thread, but automatically spawns temporary, isolated subagents (`invoke_subagent`) for each task. Once complete, that subagent's conversation thread is archived and closed, protecting Product's memory.
 *   **Codex**: Codex operates as a short-lived local execution. Because it uses file locking, it only reads the subset of files related to the active task, preventing it from sucking the entire codebase context into its window.
 
 > [!NOTE]
-> Detailed thread-segmentation instructions, system prompts, and configuration steps for each environment are fully documented in the platform-specific guides: [platforms/antigravity/README.md](platforms/antigravity/README.md), [platforms/claude/README.md](platforms/claude/README.md), and [platforms/codex/README.md](platforms/codex/README.md).
+> Detailed thread-segmentation instructions, system prompts, and configuration steps for each environment are fully documented in the platform-specific guides: [platforms/antigravity/README.md](platforms/antigravity/README.md), [platforms/claude-code/README.md](platforms/claude-code/README.md), and [platforms/codex/README.md](platforms/codex/README.md).
 
 ----
 
@@ -349,7 +351,7 @@ The agents are designed to autonomously:
 1.  **Copy the Templates**: Copy [templates/AGENTS.md](file:///./templates/AGENTS.md) and [templates/PROJECT_BOARD.md](file:///./templates/PROJECT_BOARD.md) directly to the root of your project repository and commit them.
 2.  **Configure Your Platforms**: Follow the detailed guide for your platform of choice:
     *   **Antigravity**: Read the [Antigravity Guide](file:///./platforms/antigravity/README.md) and use the [project-coordination-setup](file:///./skills/project-coordination-setup/SKILL.md) skill to auto-register your subagent roles.
-    *   **Claude & Cursor**: Read the [Claude Guide](file:///./platforms/claude/README.md) to set Custom Instructions and use the copy-pasteable [system prompts](file:///./platforms/claude/system-prompts.md).
+    *   **Claude Code**: Install the plugin (`/plugin marketplace add friedbeef1/fb-lane-coordination`) or read the [Claude Code Guide](file:///./platforms/claude-code/README.md) to load the lane subagents and the `fb-lane` MCP server.
     *   **Codex**: Install the [Codex plugin](file:///./plugins/fb-lane-coordination/README.md), or read the [Codex Guide](file:///./platforms/codex/README.md) and copy the [Codex workflow rules](file:///./platforms/codex/workflow-rules.md) to your rules directory.
 3.  **Claim Your First Task**: Triage your board, mark `TASK-001` (Setup & Bootstrap) as `In Progress`, check out a new branch, and start building!
 

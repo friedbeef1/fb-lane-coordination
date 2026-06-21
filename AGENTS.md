@@ -44,7 +44,7 @@ The user (acting as the external supervisor) is shielded from manual project coo
 * **Sidebar Threads**: Used passively as detail desks. If the user opens a sidebar thread to check technical details, the agent reads local handoff files and schema states to present an update.
 
 #### Optional Interaction: Interactive Direct Control (Pair-programming / Escape Hatch)
-* **Status**: **Fallback/Manual**. Used on platforms without background orchestration support (e.g. Claude Projects, Cursor) or when the user explicitly wishes to manually pair-program or debug code.
+* **Status**: **Fallback/Manual**. Used when the user explicitly wishes to manually pair-program or debug code rather than delegate to background orchestration.
 * **Workflow**: The user manually instructs and chats directly with individual sidebar threads (e.g. asking Tech to build a feature, or Design to update a button). 
 * **User Touchpoints**: Higher involvement; the user reviews plans and approves task executions directly within the specific lane thread.
 * **Multi-thread Crossing**: Lanes synchronize via `PROJECT_BOARD.md` and `docs/handoffs/`. When a lane finishes, they write a structured handoff document that the next lane automatically reads on session start.

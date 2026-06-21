@@ -35,7 +35,7 @@ The plugin does not create Codex's parallelism. Codex already has that. The plug
 
 ### Method B: AI-Powered Bootstrap
 If you have an AI agent active in your workspace, simply paste this prompt:
-> *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
+> *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and MCP configuration automatically."*
 
 ### Method C: Manual CLI Bootstrap
 1. Download the CLI script:
@@ -61,6 +61,8 @@ As a local, filesystem-active developer agent, Codex is prone to:
 * **Atomic Documentation Commits**: Enforces committing `PROJECT_BOARD.md` updates separately from code changes.
 * **Rigid Code Boundaries**: Prevents the agent from editing files or directories outside its assigned role (e.g., Tech lane cannot modify `.css` files).
 * **Simulated Tool Sandboxing**: Enforces role restrictions in Codex's system instructions (e.g. `.codex/rules.md`), strictly prohibiting the agent from running write/deploy commands or modifying files outside its domain (such as keeping `FB-Business` read-only).
+
+Solved, the payoff is real: feed Codex several goals at once and let its lanes run them concurrently while the board's file-claims keep them from colliding.
 
 > **Running two lanes on different branches at once:** `claim` does an in-place `git checkout`, and
 > one working directory holds only one branch — so concurrent lanes share a tree and rely on file

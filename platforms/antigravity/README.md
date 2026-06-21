@@ -1,6 +1,6 @@
 # FB-Lane on Antigravity
 
-Antigravity is a highly agentic SDK with native support for multi-agent systems, background subagent executions, task scheduling, and inter-agent messaging. This directory contains instructions and templates to leverage Antigravity's tools to automate the FB-Lane coordination model.
+Antigravity is a highly agentic SDK with native support for multi-agent systems, background subagent executions, task scheduling, and inter-agent messaging. This directory contains instructions and templates to leverage Antigravity's tools to automate the FB-Lane coordination model. Done right, the payoff is that you spin up all four lanes at once and keep feeding them goals, with the board making sure they never overwrite each other.
 
 ## ⚠️ The Pain Points & Elegant Fixes in Antigravity
 
@@ -73,7 +73,7 @@ This automatically registers the `fb-lane-coordination` and `project-coordinatio
 
 ### Method B: AI-Powered Bootstrap
 If you have an AI agent active in your workspace, simply paste this prompt:
-> *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
+> *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and MCP configuration automatically."*
 
 ### Method C: Manual CLI Bootstrap
 To automatically set up the plugin manually, copy `tools/fb-lane.cjs` to your repository root `tools/` folder and run:
