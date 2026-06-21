@@ -14,6 +14,31 @@ Codex supplies the concurrency. FB-Lane supplies shared coordination:
 - `docs/handoffs/` carries lane output back to Product/Captain.
 - The `fb-lane` MCP server or `node tools/fb-lane.cjs` commands perform status, claim, submit, and merge operations.
 
+## User-Facing Quickstart
+
+When the user asks how to start, what to do after install, or says `@fb-lane status`, keep the answer short and immediately actionable:
+
+```text
+Start with @fb-lane status.
+Then describe the work normally.
+Product splits the work, lanes claim files, code-writing lanes can use worktrees, each lane writes a handoff, and Product sequences what is ready to merge.
+```
+
+Useful examples:
+
+```text
+@fb-lane
+Split this across Product, Tech, Design, and Business.
+Use worktrees for code-writing lanes where helpful.
+Each lane should claim files, write a handoff, and return to Product.
+Product should sequence the final integration and tell me what is ready to merge.
+
+@fb-product what is ready to merge?
+@fb-design improve the prep-screen icons.
+@fb-tech check whether this auth flow is safe.
+@fb-business rewrite the onboarding copy.
+```
+
 ## Start Of Work
 
 1. Read `AGENTS.md`, `PROJECT_BOARD.md`, and `.codex/current_task.md` if present.
