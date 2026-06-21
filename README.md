@@ -126,7 +126,7 @@ If you have an active AI agent in your project workspace (such as Antigravity, C
    * **Claude Desktop**: Restart Claude. The `fb-lane` MCP tools are registered and ready to use.
    * **Claude Code** (CLI / web / IDE): Reload the workspace. The lanes (`fb-product`, `fb-tech`, `fb-design`, `fb-business`) appear as subagents in `/agents` and the agent picker; approve the `fb-lane` MCP server via `/mcp`. See [`platforms/claude-code/`](platforms/claude-code/README.md).
    * **Cursor / Claude Projects Web**: Add `AGENTS.md` and `PROJECT_BOARD.md` to your Project Knowledge or Custom Instructions.
-   * **Codex**: Launch Codex Desktop. The main benefit is that you can give several lane instructions at once, Codex can run them concurrently with native subagents or sidebar threads, and FB-Lane keeps those concurrent tasks from editing the same files or losing handoff context. See [`platforms/codex/`](platforms/codex/README.md).
+   * **Codex**: Launch Codex Desktop. Codex already provides parallel tools such as subagents and worktrees; FB-Lane adds the shared board, file claims, lane roles, handoffs, and Product integration gate. See [`platforms/codex/`](platforms/codex/README.md).
 
 Done! You are ready to run `node tools/fb-lane.cjs claim <task-id> <lane>` and start coding.
 
@@ -149,7 +149,20 @@ Depending on your preferred style, you can choose between two operational patter
 
 ### Codex Shortcut: Multiple Lane Instructions at Once
 
-In Codex, the simplest workflow is to give multiple lane instructions in one Product/Captain thread. Codex provides the concurrency; FB-Lane provides the guardrails so concurrent agents do not get in each other's way:
+In Codex, the pain point is not that Codex lacks parallelism. Codex already has subagents, worktrees, plugins, skills, and MCP. The pain point is that once you ask several lanes to work at the same time, you still need a shared product coordination layer: ownership, file claims, handoffs, and Product sequencing.
+
+Without that layer, the user becomes the traffic controller:
+
+- remembering which lane owns which files
+- checking whether Design and Tech are about to edit the same component
+- carrying Business/Design/Tech decisions from one chat into Product
+- deciding which output can merge first after several threads finish
+
+FB-Lane fixes that by making every lane sync from `PROJECT_BOARD.md`, claim files before editing, write durable handoffs for non-trivial work, and pass the result back to Product/Captain for integration.
+
+For bigger code edits, use Codex worktrees underneath FB-Lane. Worktrees isolate the actual Git checkout for each lane; FB-Lane keeps the role ownership, file claims, handoffs, and Product sequencing visible. Worktrees protect the workspace. FB-Lane protects the product coordination.
+
+The simplest workflow is to give multiple lane instructions in one Product/Captain thread:
 
 ```text
 Product/Captain: run this in parallel where safe.
@@ -168,7 +181,7 @@ For persistent sidebar conversations, use the same natural lane tags:
 @tt-product decide whether this goes to staging
 ```
 
-The important rule is that the lane agent, not the user, handles the ceremony. Before editing, it syncs from the project board/current-task file, claims the intended files, and stops if another active lane already owns the same files. That is the Codex value: multiple instructions can run concurrently without relying on the user to manually prevent collisions. Non-trivial lane output gets a short handoff under `docs/handoffs/` for Product/Captain to integrate.
+The important rule is that the lane agent, not the user, handles the ceremony. Before editing, it syncs from the project board/current-task file, claims the intended files, and stops if another active lane already owns the same files. That is the Codex value: multiple instructions can run concurrently while the product coordination state stays visible, durable, and reviewable. Non-trivial lane output gets a short handoff under `docs/handoffs/` for Product/Captain to integrate.
 
 Watch the short HyperFrames demo: [`codex-lane-demo/renders/codex-lane-demo.mp4`](codex-lane-demo/renders/codex-lane-demo.mp4).
 
