@@ -67,13 +67,21 @@ Compare how development works on complex, multi-layered features with AI agents:
 
 ## ⚡ 1-Minute Setup
 
-Get up and running with the FB-Lane plugin using one of two methods:
+Get up and running with the FB-Lane plugin using one of these methods:
 
-### Method A: AI-Powered Bootstrap (Recommended)
+### Method A: Install as a Codex Plugin
+For the lowest-friction Codex setup, install the repo marketplace and plugin:
+```bash
+codex plugin marketplace add friedbeef1/fb-lane-coordination
+codex plugin add fb-lane-coordination@fb-lane
+```
+This installs the Codex skills (`fb-lane`, `fb-product`, `fb-tech`, `fb-design`, `fb-business`) and the bundled `fb-lane` MCP server. Codex still provides the native concurrency; the plugin gives those concurrent lanes shared board/status/claim/handoff guardrails. See [`platforms/codex/`](platforms/codex/README.md) and the plugin package in [`plugins/fb-lane-coordination/`](plugins/fb-lane-coordination/README.md).
+
+### Method B: AI-Powered Bootstrap
 If you have an active AI agent in your project workspace (such as Antigravity, Claude, or Codex), simply paste this instruction to let the agent copy and configure the plugin autonomously:
 > *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
 
-### Method B: Manual CLI Bootstrap
+### Method C: Manual CLI Bootstrap
 1. **Copy the CLI tool**: From your project root, run:
    ```bash
    curl -o tools/fb-lane.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.cjs
@@ -93,7 +101,7 @@ If you have an active AI agent in your project workspace (such as Antigravity, C
    * **Cursor / Claude Projects Web**: Add `AGENTS.md` and `PROJECT_BOARD.md` to your Project Knowledge or Custom Instructions.
    * **Codex**: Launch Codex Desktop. The main benefit is that you can give several lane instructions at once, Codex can run them concurrently with native subagents or sidebar threads, and FB-Lane keeps those concurrent tasks from editing the same files or losing handoff context. See [`platforms/codex/`](platforms/codex/README.md).
 
-### Method C: Install as a Claude Code Plugin
+### Method D: Install as a Claude Code Plugin
 This repo doubles as a single-plugin marketplace. In Claude Code, run:
 ```bash
 /plugin marketplace add friedbeef1/fb-lane-coordination
@@ -213,10 +221,10 @@ To prevent accidental codebase corruption or "rogue edits" when brainstorming wi
 
 Detailed walkthroughs for configuring and running the plugin on specific developer platforms:
 
-* **Antigravity 2.0**: [platforms/antigravity/README.md](platforms/antigravity/README.md)
+* **Antigravity 2.0**: [platforms/antigravity/README.md](platforms/antigravity/README.md) — includes the native subagent orchestration demo video: [antigravity-how-to-interact.mp4](platforms/antigravity/how-to-interact-demo/renders/antigravity-how-to-interact.mp4)
 * **Claude Code**: [platforms/claude-code/README.md](platforms/claude-code/README.md) — includes the direct lane-thread demo video: [claude-code-how-to-interact.mp4](platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4)
 * **Claude Desktop**: [platforms/claude/README.md](platforms/claude/README.md)
-* **Codex**: [platforms/codex/README.md](platforms/codex/README.md)
+* **Codex**: [platforms/codex/README.md](platforms/codex/README.md) — installable plugin package: [plugins/fb-lane-coordination/](plugins/fb-lane-coordination/README.md)
 
 *See [`examples/my-app/`](examples/my-app/README.md) for a mock project illustrating the post-bootstrap folder structure and a complete task workflow lifecycle.*
 

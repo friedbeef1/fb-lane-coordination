@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1280, height=720" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --bg: #0c0b09;
+        --panel: #17130d;
+        --panel-2: #21180d;
+        --ink: #f7efe0;
+        --muted: #bda882;
+        --amber: #f59e0b;
+        --gold: #facc15;
+        --green: #34d399;
+        --red: #fb7185;
+        --tech: #60a5fa;
+        --design: #a78bfa;
+        --business: #2dd4bf;
+        --product: #f59e0b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--ink);
+      }
+
+      body {
+        font-family: Georgia, serif;
+      }
+
+      code,
+      pre,
+      .mono,
+      .eyebrow,
+      .pill,
+      .caption,
+      .micro,
+      .lane-card small {
+        font-family: Menlo, Consolas, monospace;
+      }
+
+      #root {
+        position: relative;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 18% 20%, rgba(245, 158, 11, 0.22), transparent 34%),
+          radial-gradient(circle at 82% 80%, rgba(45, 212, 191, 0.14), transparent 32%),
+          linear-gradient(135deg, #0c0b09 0%, #14100a 52%, #090b0d 100%);
+      }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.28;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+        background-size: 38px 38px, 38px 38px;
+        mask-image: radial-gradient(circle at 50% 50%, #000 0%, transparent 78%);
+      }
+
+      .scene {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+      }
+
+      .scene-inner {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        padding: 54px 64px 62px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 24px;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        gap: 34px;
+        align-items: center;
+      }
+
+      .split.reverse {
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      }
+
+      .eyebrow {
+        color: var(--amber);
+        font-size: 17px;
+        letter-spacing: 0;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+      }
+
+      h1,
+      h2 {
+        margin: 0;
+        letter-spacing: 0;
+        line-height: 0.92;
+        font-weight: 800;
+      }
+
+      h1 {
+        max-width: 820px;
+        font-size: 78px;
+      }
+
+      h2 {
+        max-width: 760px;
+        font-size: 58px;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 24px;
+        line-height: 1.32;
+        max-width: 650px;
+      }
+
+      .accent {
+        color: var(--amber);
+      }
+
+      .good {
+        color: var(--green);
+      }
+
+      .bad {
+        color: var(--red);
+      }
+
+      .rule {
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, var(--amber), rgba(247, 239, 224, 0.08));
+        transform-origin: left center;
+      }
+
+      .ghost {
+        position: absolute;
+        z-index: 0;
+        font-size: 150px;
+        line-height: 0.85;
+        font-weight: 900;
+        color: rgba(247, 239, 224, 0.055);
+        letter-spacing: 0;
+        white-space: nowrap;
+      }
+
+      .ghost::before {
+        content: attr(data-word);
+      }
+
+      .orbital {
+        position: absolute;
+        width: 520px;
+        height: 520px;
+        border: 2px solid rgba(245, 158, 11, 0.18);
+        border-radius: 50%;
+        z-index: 0;
+      }
+
+      .orbital::before,
+      .orbital::after {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+      }
+
+      .orbital::before {
+        inset: 54px;
+        border: 2px dashed rgba(52, 211, 153, 0.14);
+      }
+
+      .orbital::after {
+        top: 72px;
+        right: 46px;
+        width: 18px;
+        height: 18px;
+        background: var(--amber);
+        box-shadow: 0 0 34px rgba(245, 158, 11, 0.78);
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .pill {
+        min-height: 34px;
+        padding: 9px 13px;
+        border: 1px solid rgba(247, 239, 224, 0.16);
+        border-radius: 999px;
+        color: var(--ink);
+        font-size: 14px;
+        background: rgba(247, 239, 224, 0.07);
+      }
+
+      .pill.product {
+        border-color: rgba(245, 158, 11, 0.7);
+        color: #ffe2a5;
+      }
+
+      .pill.tech {
+        border-color: rgba(96, 165, 250, 0.72);
+        color: #bfdbfe;
+      }
+
+      .pill.design {
+        border-color: rgba(167, 139, 250, 0.72);
+        color: #ddd6fe;
+      }
+
+      .pill.business {
+        border-color: rgba(45, 212, 191, 0.72);
+        color: #ccfbf1;
+      }
+
+      .panel {
+        border: 1px solid rgba(247, 239, 224, 0.13);
+        background:
+          linear-gradient(180deg, rgba(247, 239, 224, 0.07), rgba(247, 239, 224, 0.025)),
+          rgba(23, 19, 13, 0.86);
+        box-shadow: 0 26px 80px rgba(0, 0, 0, 0.35);
+      }
+
+      .console {
+        padding: 20px;
+        border-radius: 7px;
+        font-size: 18px;
+        line-height: 1.45;
+        color: #e8ddc8;
+      }
+
+      .console .dim {
+        color: rgba(247, 239, 224, 0.5);
+      }
+
+      .console .kw {
+        color: var(--amber);
+      }
+
+      .console .ok {
+        color: var(--green);
+      }
+
+      .console .warn {
+        color: var(--red);
+      }
+
+      .agent-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .agent-card,
+      .lane-card,
+      .board-row,
+      .merge-card {
+        border-radius: 7px;
+        border: 1px solid rgba(247, 239, 224, 0.14);
+        background: rgba(247, 239, 224, 0.06);
+      }
+
+      .agent-card {
+        min-height: 132px;
+        padding: 16px;
+      }
+
+      .agent-card h3,
+      .lane-card h3,
+      .merge-card h3 {
+        margin: 0 0 8px;
+        font-size: 25px;
+        line-height: 1.08;
+      }
+
+      .agent-card p,
+      .lane-card p,
+      .merge-card p {
+        font-size: 17px;
+        line-height: 1.3;
+      }
+
+      .agent-card.tech {
+        border-color: rgba(96, 165, 250, 0.45);
+      }
+
+      .agent-card.design {
+        border-color: rgba(167, 139, 250, 0.45);
+      }
+
+      .agent-card.business {
+        border-color: rgba(45, 212, 191, 0.45);
+      }
+
+      .stack {
+        display: grid;
+        gap: 14px;
+      }
+
+      .clash-card {
+        position: relative;
+        height: 136px;
+        padding: 16px;
+        overflow: hidden;
+      }
+
+      .clash-card strong {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 22px;
+      }
+
+      .file-strip {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .file {
+        padding: 8px 10px;
+        border-radius: 5px;
+        color: #fdebd3;
+        font-size: 15px;
+        background: rgba(251, 113, 133, 0.17);
+        border: 1px solid rgba(251, 113, 133, 0.45);
+      }
+
+      .stamp {
+        position: absolute;
+        right: 18px;
+        bottom: 14px;
+        padding: 10px 14px;
+        transform: rotate(-5deg);
+        background: var(--red);
+        color: #21050b;
+        border-radius: 5px;
+        font: 800 17px Menlo, Consolas, monospace;
+        box-shadow: 0 14px 32px rgba(251, 113, 133, 0.26);
+      }
+
+      .hub {
+        position: relative;
+        height: 450px;
+      }
+
+      .product-core {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 180px;
+        height: 180px;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        background: radial-gradient(circle, rgba(245, 158, 11, 0.42), rgba(245, 158, 11, 0.08));
+        border: 2px solid rgba(245, 158, 11, 0.7);
+        box-shadow: 0 0 65px rgba(245, 158, 11, 0.24);
+        font-size: 28px;
+        font-weight: 800;
+      }
+
+      .node {
+        position: absolute;
+        width: 172px;
+        min-height: 92px;
+        padding: 14px;
+        border-radius: 8px;
+        background: rgba(12, 11, 9, 0.82);
+        border: 1px solid rgba(247, 239, 224, 0.14);
+      }
+
+      .node h3 {
+        margin: 0 0 6px;
+        font-size: 24px;
+      }
+
+      .node small {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .node.tech {
+        left: 16px;
+        top: 56px;
+        border-color: rgba(96, 165, 250, 0.55);
+      }
+
+      .node.design {
+        right: 22px;
+        top: 64px;
+        border-color: rgba(167, 139, 250, 0.55);
+      }
+
+      .node.business {
+        left: 58px;
+        bottom: 42px;
+        border-color: rgba(45, 212, 191, 0.55);
+      }
+
+      .node.qa {
+        right: 70px;
+        bottom: 38px;
+        border-color: rgba(52, 211, 153, 0.55);
+      }
+
+      .link {
+        position: absolute;
+        height: 2px;
+        background: linear-gradient(90deg, rgba(245, 158, 11, 0), rgba(245, 158, 11, 0.8), rgba(245, 158, 11, 0));
+        transform-origin: left center;
+      }
+
+      .link.a {
+        left: 190px;
+        top: 166px;
+        width: 250px;
+        transform: rotate(19deg);
+      }
+
+      .link.b {
+        right: 190px;
+        top: 164px;
+        width: 246px;
+        transform: rotate(158deg);
+      }
+
+      .link.c {
+        left: 242px;
+        bottom: 162px;
+        width: 218px;
+        transform: rotate(-20deg);
+      }
+
+      .link.d {
+        right: 242px;
+        bottom: 158px;
+        width: 210px;
+        transform: rotate(199deg);
+      }
+
+      .lane-board {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .lane-card {
+        min-height: 252px;
+        padding: 18px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .lane-card.tech {
+        border-color: rgba(96, 165, 250, 0.5);
+      }
+
+      .lane-card.design {
+        border-color: rgba(167, 139, 250, 0.5);
+      }
+
+      .lane-card.business {
+        border-color: rgba(45, 212, 191, 0.5);
+      }
+
+      .lane-card small {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .progress {
+        height: 9px;
+        margin: 18px 0 14px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: rgba(247, 239, 224, 0.1);
+      }
+
+      .progress span {
+        display: block;
+        width: 86%;
+        height: 100%;
+        border-radius: 999px;
+        background: var(--amber);
+      }
+
+      .lane-card.tech .progress span {
+        background: var(--tech);
+      }
+
+      .lane-card.design .progress span {
+        background: var(--design);
+      }
+
+      .lane-card.business .progress span {
+        background: var(--business);
+      }
+
+      .status-line {
+        margin-top: 10px;
+        padding: 9px 10px;
+        border-radius: 5px;
+        background: rgba(0, 0, 0, 0.24);
+        color: var(--ink);
+        font-size: 15px;
+      }
+
+      .board {
+        display: grid;
+        gap: 12px;
+      }
+
+      .board-row {
+        display: grid;
+        grid-template-columns: 110px 130px 1fr 190px;
+        gap: 12px;
+        align-items: center;
+        min-height: 58px;
+        padding: 12px 14px;
+        font: 16px Menlo, Consolas, monospace;
+      }
+
+      .board-row.header {
+        color: var(--muted);
+        background: rgba(245, 158, 11, 0.09);
+      }
+
+      .lock {
+        color: var(--green);
+      }
+
+      .blocked {
+        color: var(--red);
+      }
+
+      .merge-flow {
+        display: grid;
+        grid-template-columns: 0.82fr 1.18fr;
+        gap: 24px;
+        align-items: center;
+      }
+
+      .merge-card {
+        padding: 18px;
+      }
+
+      .rail {
+        position: relative;
+        height: 330px;
+      }
+
+      .rail-line {
+        position: absolute;
+        left: 70px;
+        top: 36px;
+        width: 4px;
+        height: 258px;
+        border-radius: 999px;
+        background: rgba(247, 239, 224, 0.16);
+      }
+
+      .rail-dot {
+        position: absolute;
+        left: 48px;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        color: #140d05;
+        background: var(--amber);
+        font: 900 17px Menlo, Consolas, monospace;
+      }
+
+      .rail-dot:nth-child(2) {
+        top: 22px;
+      }
+
+      .rail-dot:nth-child(3) {
+        top: 139px;
+        background: var(--green);
+      }
+
+      .rail-dot:nth-child(4) {
+        top: 256px;
+        background: var(--gold);
+      }
+
+      .rail-label {
+        position: absolute;
+        left: 122px;
+        width: 360px;
+        font-size: 26px;
+      }
+
+      .rail-label.one {
+        top: 27px;
+      }
+
+      .rail-label.two {
+        top: 145px;
+      }
+
+      .rail-label.three {
+        top: 262px;
+      }
+
+      .caption {
+        position: absolute;
+        left: 64px;
+        right: 64px;
+        bottom: 22px;
+        z-index: 5;
+        min-height: 28px;
+        padding: 7px 14px;
+        border-radius: 5px;
+        text-align: center;
+        color: rgba(247, 239, 224, 0.82);
+        background: rgba(0, 0, 0, 0.34);
+        font-size: 15px;
+      }
+
+      .footer-note {
+        position: absolute;
+        right: 64px;
+        bottom: 62px;
+        z-index: 5;
+        color: rgba(247, 239, 224, 0.68);
+        font: 13px Menlo, Consolas, monospace;
+      }
+
+      .final-grid {
+        display: grid;
+        grid-template-columns: 1fr 0.92fr;
+        gap: 42px;
+        align-items: center;
+      }
+
+      .checklist {
+        display: grid;
+        gap: 14px;
+      }
+
+      .check {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 7px;
+        border: 1px solid rgba(52, 211, 153, 0.25);
+        background: rgba(52, 211, 153, 0.07);
+        font-size: 25px;
+      }
+
+      .check b {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--green);
+        color: #042017;
+        font: 900 17px Menlo, Consolas, monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="42"
+      data-width="1280"
+      data-height="720"
+    >
+      <div class="grain" data-layout-ignore></div>
+      <div id="caption" class="caption">Antigravity gives you native agents. FB-Lane gives them lanes, locks, and a merge gate.</div>
+
+      <section id="scene-title" class="scene clip" data-start="0" data-duration="5" data-track-index="1">
+        <div class="ghost" data-word="ANTIGRAVITY" data-layout-ignore style="left: 390px; bottom: 46px"></div>
+        <div class="orbital" data-layout-ignore style="right: -130px; top: -140px"></div>
+        <div class="scene-inner">
+          <div class="eyebrow">Antigravity 2.0 + FB-Lane</div>
+          <h1>Native agents. <span class="accent">Safe coordination.</span></h1>
+          <div class="rule"></div>
+          <p>Start in Product, or talk directly to Tech, Design, and Business. Lanes run in parallel, then hand back for Product to sequence.</p>
+          <div class="pill-row">
+            <span class="pill product">Product starts or finishes</span>
+            <span class="pill tech">FB-Tech implements</span>
+            <span class="pill design">FB-Design audits</span>
+            <span class="pill business">FB-Business drafts</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-problem" class="scene clip" data-start="5" data-duration="6" data-track-index="1">
+        <div class="ghost" data-word="TOOL OVERLOAD" data-layout-ignore style="left: 40px; top: 64px"></div>
+        <div class="scene-inner split">
+          <div>
+            <div class="eyebrow bad">Before / powerful agents, no traffic control</div>
+            <h2>Parallel agents can still collide.</h2>
+            <div class="rule"></div>
+            <p>Without lane boundaries, three background agents may touch the same files, use the wrong tools, and leave Product to untangle the result.</p>
+          </div>
+          <div class="stack">
+            <div class="panel clash-card">
+              <strong>FB-Tech</strong>
+              <div class="file-strip">
+                <span class="file">src/auth.ts</span>
+                <span class="file">src/theme.css</span>
+              </div>
+            </div>
+            <div class="panel clash-card">
+              <strong>FB-Design</strong>
+              <div class="file-strip">
+                <span class="file">src/theme.css</span>
+                <span class="file">src/nav.tsx</span>
+              </div>
+              <div class="stamp">COLLISION</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-define" class="scene clip" data-start="11" data-duration="6" data-track-index="1">
+        <div class="ghost" data-word="DEFINE" data-layout-ignore style="right: 26px; top: 62px"></div>
+        <div class="scene-inner split reverse">
+          <div class="panel console">
+            <div><span class="dim">Product registers lanes:</span></div>
+            <div><span class="kw">define_subagent</span>({ name: <span class="ok">"FB-Tech"</span>, tools: ["run_command", "view_file"] })</div>
+            <div><span class="kw">define_subagent</span>({ name: <span class="ok">"FB-Design"</span>, tools: ["browser", "styles"] })</div>
+            <div><span class="kw">define_subagent</span>({ name: <span class="ok">"FB-Business"</span>, tools: ["read_docs"] })</div>
+          </div>
+          <div>
+            <div class="eyebrow">Step 1 / register specialist lanes</div>
+            <h2>Each subagent gets only the tools it needs.</h2>
+            <div class="rule"></div>
+            <p>Antigravity provides the native subagent system. FB-Lane supplies the role boundaries, file scopes, and review protocol.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-hub" class="scene clip" data-start="17" data-duration="7" data-track-index="1">
+        <div class="ghost" data-word="ORCHESTRATE" data-layout-ignore style="left: 34px; bottom: 36px"></div>
+        <div class="scene-inner split">
+          <div>
+            <div class="eyebrow">Step 2 / invoke in parallel</div>
+          <h2>Product can start or receive the work.</h2>
+            <div class="rule"></div>
+            <p>Use Product for hands-off orchestration, or open direct lane threads. Either path returns handoffs to Product for integration.</p>
+          </div>
+          <div class="hub">
+            <div class="link a"></div>
+            <div class="link b"></div>
+            <div class="link c"></div>
+            <div class="link d"></div>
+            <div class="product-core">FB<br />Product</div>
+            <div class="node tech"><h3>Tech</h3><small>APIs, auth, tests</small></div>
+            <div class="node design"><h3>Design</h3><small>UI, layout, QA</small></div>
+            <div class="node business"><h3>Business</h3><small>copy, positioning</small></div>
+            <div class="node qa"><h3>Gate</h3><small>staging + merge</small></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-lanes" class="scene clip" data-start="24" data-duration="7" data-track-index="1">
+        <div class="ghost" data-word="CONCURRENT" data-layout-ignore style="left: 118px; top: 54px"></div>
+        <div class="scene-inner">
+          <div>
+            <div class="eyebrow good">After / parallel, but scoped</div>
+          <h2>Three direct lane threads. One controlled workspace.</h2>
+          </div>
+          <div class="lane-board">
+            <div class="lane-card tech">
+              <h3>FB-Tech</h3>
+              <small>branch tech/TASK-204-auth</small>
+              <div class="progress"><span></span></div>
+              <p>Builds the auth endpoint and test coverage.</p>
+              <div class="status-line">handoff: Product integration</div>
+            </div>
+            <div class="lane-card design">
+              <h3>FB-Design</h3>
+              <small>branch design/TASK-205-prep-ui</small>
+              <div class="progress"><span></span></div>
+              <p>Refines prep screen layout and visual QA.</p>
+              <div class="status-line">handoff: Product integration</div>
+            </div>
+            <div class="lane-card business">
+              <h3>FB-Business</h3>
+              <small>branch business/TASK-206-copy</small>
+              <div class="progress"><span></span></div>
+              <p>Drafts onboarding copy as a docs handoff.</p>
+              <div class="status-line">handoff: Product integration</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-board" class="scene clip" data-start="31" data-duration="6" data-track-index="1">
+        <div class="ghost" data-word="PROJECT_BOARD" data-layout-ignore style="right: -10px; bottom: 40px"></div>
+        <div class="scene-inner split reverse">
+          <div class="board">
+            <div class="board-row header">
+              <span>ID</span><span>Owner</span><span>Locked Files</span><span>Status</span>
+            </div>
+            <div class="board-row">
+              <span>TASK-204</span><span>Tech</span><span>api/auth.ts</span><span class="lock">claimed</span>
+            </div>
+            <div class="board-row">
+              <span>TASK-205</span><span>Design</span><span>src/prep.css</span><span class="lock">claimed</span>
+            </div>
+            <div class="board-row">
+              <span>TASK-207</span><span>Tech</span><span>src/prep.css</span><span class="blocked">blocked</span>
+            </div>
+          </div>
+          <div>
+            <div class="eyebrow">Step 3 / shared state</div>
+            <h2>The board makes agents aware of each other.</h2>
+            <div class="rule"></div>
+            <p>Direct lane threads do not need shared chat memory. They read the same board, respect active locks, and write handoffs Product can review.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="scene-final" class="scene clip" data-start="37" data-duration="5" data-track-index="1">
+        <div class="orbital" data-layout-ignore style="left: -190px; bottom: -210px"></div>
+        <div class="ghost" data-word="SAFE PARALLEL" data-layout-ignore style="right: 44px; top: 50px"></div>
+        <div class="scene-inner final-grid">
+          <div>
+            <div class="eyebrow">Antigravity 2.0 section demo</div>
+            <h1>Parallel by default. <span class="good">Safe by design.</span></h1>
+            <div class="rule"></div>
+            <p>Antigravity runs the agents. FB-Lane lets Product be the start point, the endpoint, or both.</p>
+          </div>
+          <div class="checklist">
+            <div class="check"><b>1</b><span>Product can delegate first</span></div>
+            <div class="check"><b>2</b><span>Lanes run directly in parallel</span></div>
+            <div class="check"><b>3</b><span>Product resolves the end</span></div>
+          </div>
+        </div>
+        <div class="footer-note">platforms/antigravity/how-to-interact-demo</div>
+      </section>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      const captions = [
+        [0, "Start with Product, or talk directly to several Antigravity lane threads at once."],
+        [5, "Without the board and file claims, parallel background work can still collide."],
+        [11, "Product defines specialist subagents with bounded tools and clear lane responsibilities."],
+        [17, "Product can delegate first, or direct lane threads can hand work back to Product."],
+        [24, "Each lane thread works in parallel, then hands off to Product integration."],
+        [31, "The shared board is the awareness layer: status, locks, blockers, and handoffs."],
+        [37, "Product can be the start point, the endpoint, or both."]
+      ];
+
+      captions.forEach(([time, text]) => {
+        tl.set("#caption", { textContent: text }, time);
+      });
+
+      tl.from("#scene-title .eyebrow, #scene-title h1, #scene-title p, #scene-title .pill", {
+        y: 34,
+        opacity: 0,
+        duration: 0.75,
+        stagger: 0.08,
+        ease: "power3.out"
+      }, 0.15)
+        .from("#scene-title .rule", { scaleX: 0, duration: 0.8, ease: "power2.out" }, 0.65)
+        .from("#scene-title .orbital", { scale: 0.76, opacity: 0, duration: 1.2, ease: "power2.out" }, 0.15)
+        .to("#scene-title .orbital", { rotation: 24, duration: 4.8, ease: "none" }, 0)
+        .to("#scene-title .ghost", { x: -36, duration: 5, ease: "none" }, 0)
+        .to("#scene-title", { opacity: 0, filter: "blur(16px)", duration: 0.35, ease: "power2.in" }, 4.65)
+        .set("#scene-title", { opacity: 0 }, 5);
+
+      tl.from("#scene-problem h2, #scene-problem p, #scene-problem .eyebrow", {
+        x: -42,
+        opacity: 0,
+        duration: 0.65,
+        stagger: 0.08,
+        ease: "power3.out"
+      }, 5.15)
+        .from("#scene-problem .rule", { scaleX: 0, duration: 0.7, ease: "power2.out" }, 5.65)
+        .from("#scene-problem .clash-card", { x: 80, opacity: 0, duration: 0.6, stagger: 0.18, ease: "power3.out" }, 5.8)
+        .from("#scene-problem .file", { scale: 0.8, opacity: 0, duration: 0.32, stagger: 0.06, ease: "back.out(1.8)" }, 6.35)
+        .from("#scene-problem .stamp", { scale: 1.6, opacity: 0, rotation: 8, duration: 0.28, ease: "power4.out" }, 7.7)
+        .to("#scene-problem .stamp", { scale: 1.04, duration: 0.18, repeat: 3, yoyo: true, ease: "power1.inOut" }, 8.05)
+        .to("#scene-problem .ghost", { x: 34, duration: 6, ease: "none" }, 5)
+        .to("#scene-problem", { opacity: 0, x: -70, filter: "blur(12px)", duration: 0.36, ease: "power2.in" }, 10.65)
+        .set("#scene-problem", { opacity: 0 }, 11);
+
+      tl.from("#scene-define .console", { x: -70, opacity: 0, duration: 0.7, ease: "power3.out" }, 11.15)
+        .from("#scene-define .console div", { y: 14, opacity: 0, duration: 0.38, stagger: 0.12, ease: "power2.out" }, 11.45)
+        .from("#scene-define h2, #scene-define p, #scene-define .eyebrow", { x: 50, opacity: 0, duration: 0.6, stagger: 0.08, ease: "power3.out" }, 11.55)
+        .from("#scene-define .rule", { scaleX: 0, duration: 0.6, ease: "power2.out" }, 12.2)
+        .to("#scene-define .ghost", { x: -34, duration: 6, ease: "none" }, 11)
+        .to("#scene-define", { opacity: 0, y: -50, filter: "blur(12px)", duration: 0.36, ease: "power2.in" }, 16.65)
+        .set("#scene-define", { opacity: 0 }, 17);
+
+      tl.from("#scene-hub h2, #scene-hub p, #scene-hub .eyebrow", { x: -44, opacity: 0, duration: 0.6, stagger: 0.08, ease: "power3.out" }, 17.15)
+        .from("#scene-hub .rule", { scaleX: 0, duration: 0.6, ease: "power2.out" }, 17.75)
+        .from("#scene-hub .product-core", { scale: 0.64, opacity: 0, duration: 0.72, ease: "back.out(1.7)" }, 17.55)
+        .from("#scene-hub .link", { scaleX: 0, opacity: 0, duration: 0.5, stagger: 0.08, ease: "power2.out" }, 18.1)
+        .from("#scene-hub .node", { scale: 0.72, opacity: 0, duration: 0.48, stagger: 0.12, ease: "back.out(1.4)" }, 18.38)
+        .to("#scene-hub .product-core", { boxShadow: "0 0 96px rgba(245,158,11,0.44)", duration: 0.8, repeat: 5, yoyo: true, ease: "sine.inOut" }, 18.8)
+        .to("#scene-hub .ghost", { x: 48, duration: 7, ease: "none" }, 17)
+        .to("#scene-hub", { opacity: 0, x: 80, filter: "blur(12px)", duration: 0.36, ease: "power2.in" }, 23.65)
+        .set("#scene-hub", { opacity: 0 }, 24);
+
+      tl.from("#scene-lanes .eyebrow, #scene-lanes h2", { y: 34, opacity: 0, duration: 0.55, stagger: 0.08, ease: "power3.out" }, 24.15)
+        .from("#scene-lanes .lane-card", { y: 60, opacity: 0, duration: 0.62, stagger: 0.12, ease: "power3.out" }, 24.8)
+        .from("#scene-lanes .progress span", { scaleX: 0, transformOrigin: "left center", duration: 0.9, stagger: 0.1, ease: "power2.out" }, 25.4)
+        .from("#scene-lanes .status-line", { y: 20, opacity: 0, duration: 0.38, stagger: 0.1, ease: "power2.out" }, 26.1)
+        .to("#scene-lanes .lane-card", { y: -7, duration: 1.2, stagger: 0.12, repeat: 3, yoyo: true, ease: "sine.inOut" }, 26.1)
+        .to("#scene-lanes .ghost", { x: -34, duration: 7, ease: "none" }, 24)
+        .to("#scene-lanes", { opacity: 0, y: -62, filter: "blur(12px)", duration: 0.36, ease: "power2.in" }, 30.65)
+        .set("#scene-lanes", { opacity: 0 }, 31);
+
+      tl.from("#scene-board .board-row", { x: -72, opacity: 0, duration: 0.5, stagger: 0.1, ease: "power3.out" }, 31.15)
+        .from("#scene-board h2, #scene-board p, #scene-board .eyebrow", { x: 52, opacity: 0, duration: 0.6, stagger: 0.08, ease: "power3.out" }, 31.5)
+        .from("#scene-board .rule", { scaleX: 0, duration: 0.6, ease: "power2.out" }, 32.1)
+        .to("#scene-board .blocked", { color: "#fff1f2", duration: 0.22, repeat: 7, yoyo: true, ease: "none" }, 33.1)
+        .to("#scene-board .ghost", { x: -36, duration: 6, ease: "none" }, 31)
+        .to("#scene-board", { opacity: 0, scale: 1.04, filter: "blur(14px)", duration: 0.36, ease: "power2.in" }, 36.65)
+        .set("#scene-board", { opacity: 0 }, 37);
+
+      tl.from("#scene-final .eyebrow, #scene-final h1, #scene-final p", { y: 42, opacity: 0, duration: 0.65, stagger: 0.08, ease: "power3.out" }, 37.15)
+        .from("#scene-final .rule", { scaleX: 0, duration: 0.62, ease: "power2.out" }, 37.75)
+        .from("#scene-final .check", { x: 64, opacity: 0, duration: 0.55, stagger: 0.12, ease: "power3.out" }, 38)
+        .from("#scene-final .check b", { scale: 0, duration: 0.3, stagger: 0.1, ease: "back.out(2)" }, 38.25)
+        .to("#scene-final .orbital", { rotation: -20, scale: 1.06, duration: 5, ease: "none" }, 37)
+        .to("#scene-final .ghost", { x: -40, duration: 5, ease: "none" }, 37);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

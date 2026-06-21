@@ -1,0 +1,43 @@
+{
+  "name": "fb-lane-coordination",
+  "version": "0.1.0",
+  "description": "Codex plugin for safe concurrent lane work using FB-Lane board claims, handoffs, and Product integration gates.",
+  "author": {
+    "name": "James Yeang",
+    "url": "https://github.com/friedbeef1"
+  },
+  "homepage": "https://github.com/friedbeef1/fb-lane-coordination",
+  "repository": "https://github.com/friedbeef1/fb-lane-coordination",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "coordination",
+    "multi-agent",
+    "subagents",
+    "mcp",
+    "git"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "FB-Lane Coordination",
+    "shortDescription": "Run concurrent Codex lanes without file collisions",
+    "longDescription": "FB-Lane Coordination packages Codex skills and an MCP server for lane-based project work. Codex supplies native concurrency; FB-Lane supplies the shared board, file claims, handoff docs, and Product/Captain integration gate so multiple lane instructions can run at the same time without overwriting each other.",
+    "developerName": "James Yeang",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/friedbeef1/fb-lane-coordination",
+    "privacyPolicyURL": "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
+    "termsOfServiceURL": "https://docs.github.com/en/site-policy/github-terms/github-terms-of-service",
+    "defaultPrompt": [
+      "Use FB-Lane to run Tech, Design, and Business concurrently.",
+      "Show FB-Lane status and current file claims.",
+      "Package this request into Product, Tech, Design, and Business lanes."
+    ],
+    "brandColor": "#0F766E"
+  }
+}
