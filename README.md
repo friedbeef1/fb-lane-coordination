@@ -31,11 +31,11 @@ FB-Lane fixes this by making every lane sync from the board, claim files before 
 
 Choose the guide for the AI tool you use:
 
-| Platform | Guide | Best For |
-|---|---|---|
-| Antigravity 2.0 | [platforms/antigravity/README.md](platforms/antigravity/README.md) | Native multi-agent orchestration and isolated worker lanes. |
-| Claude Code | [platforms/claude-code/README.md](platforms/claude-code/README.md) | `@agent` / `/agents` lane workflows with MCP and optional worktrees. |
-| Codex | [platforms/codex/README.md](platforms/codex/README.md) | Codex plugin, skills, MCP, subagents, and worktrees. |
+| Platform | Guide | Demo Video | Best For |
+|---|---|---|---|
+| Antigravity 2.0 | [platforms/antigravity/README.md](platforms/antigravity/README.md) | [📺 Video](https://youtu.be/jbyiGyguZHU) | Native multi-agent orchestration and isolated worker lanes. |
+| Claude Code | [platforms/claude-code/README.md](platforms/claude-code/README.md) | [📺 Video](https://youtu.be/2QDJt3mt5P8) | `@agent` / `/agents` lane workflows with MCP and optional worktrees. |
+| Codex | [platforms/codex/README.md](platforms/codex/README.md) | [📺 Video](https://youtu.be/nVEGruk2R7Y) | Codex plugin, skills, MCP, subagents, and worktrees. |
 
 Manual/bootstrap setup options live in [docs/setup.md](docs/setup.md).
 

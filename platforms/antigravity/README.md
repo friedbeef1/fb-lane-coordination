@@ -20,12 +20,14 @@ Antigravity's highly agentic, multi-threaded nature is powerful, but complex mul
 * **The Pain Point**: Giving a single developer agent access to all tools (database, styling, web browser, file writes) leads to tool-routing errors, slower responses, and dangerous boundary violations (e.g., an agent modifying database schemas while trying to edit a CSS file).
 * **The Elegant Fix**: **Strict Tool Sandboxing**. Antigravity subagents are registered with restricted tool subsets (e.g., `FB-Design` only gets UI/styling tools, `FB-Business` is strictly read-only on code). This keeps routing execution fast, cheap, and safe.
 
-## How-To Video
+## 📺 How-To Video
+
+> 📺 **[Watch the FB-Lane on Antigravity 2.0 Video on YouTube](https://youtu.be/jbyiGyguZHU)** (Cmd/Ctrl + click to open in a new tab)
+> 
+> [![FB-Lane on Antigravity 2.0 Demo Video](https://img.youtube.com/vi/jbyiGyguZHU/maxresdefault.jpg)](https://youtu.be/jbyiGyguZHU)
 
 The Antigravity 2.0 interaction demo lives in [`how-to-interact-demo/`](how-to-interact-demo/).
-It shows the recommended workflow: let Antigravity provide native background subagents, let
-FB-Product define and invoke bounded Tech / Design / Business lanes, and use `PROJECT_BOARD.md`
-claims plus Product's merge gate to keep concurrent work safe.
+It shows the recommended workflow: let Antigravity provide native background subagents, let FB-Product define and invoke bounded Tech / Design / Business lanes, and use `PROJECT_BOARD.md` claims plus Product's merge gate to keep concurrent work safe.
 
 Watch the rendered MP4:
 [`how-to-interact-demo/renders/antigravity-how-to-interact.mp4`](how-to-interact-demo/renders/antigravity-how-to-interact.mp4).

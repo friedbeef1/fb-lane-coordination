@@ -6,6 +6,12 @@ The Codex pain point is narrower: once you start using those capabilities for re
 
 > **Codex reality check:** Codex already has concurrency and isolation primitives. FB-Lane is not what makes Codex parallel. FB-Lane is the shared-state protocol that makes parallel lane work easier to trust: lane identity, file claims, status checks, handoffs, and Product/Captain integration.
 
+## 📺 How-To Video
+
+> 📺 **[Watch the FB-Lane on Codex Video on YouTube](https://youtu.be/nVEGruk2R7Y)** (Cmd/Ctrl + click to open in a new tab)
+> 
+> [![FB-Lane on Codex Demo Video](https://img.youtube.com/vi/nVEGruk2R7Y/maxresdefault.jpg)](https://youtu.be/nVEGruk2R7Y)
+
 ## ⚡ Quick Setup
 
 ### Method A: Codex Plugin (Recommended)
