@@ -94,6 +94,17 @@ codex plugin add fb-lane-coordination@fb-lane
 ```
 This installs the Codex skills (`fb-lane`, `fb-product`, `fb-tech`, `fb-design`, `fb-business`) and the bundled `fb-lane` MCP server. Codex still provides the native concurrency; the plugin gives those concurrent lanes shared board/status/claim/handoff guardrails. See [`platforms/codex/`](platforms/codex/README.md) and the plugin package in [`plugins/fb-lane-coordination/`](plugins/fb-lane-coordination/README.md).
 
+Right after installing in Codex, you can start without reading the full docs:
+```text
+@fb-lane status
+
+@fb-lane
+Split this across Product, Tech, Design, and Business.
+Use worktrees for code-writing lanes where helpful.
+Each lane should claim files, write a handoff, and return to Product.
+Product should sequence the final integration and tell me what is ready to merge.
+```
+
 ### Method C: Install as a Claude Code Plugin
 This repo doubles as a single-plugin marketplace. In Claude Code, run:
 ```bash
