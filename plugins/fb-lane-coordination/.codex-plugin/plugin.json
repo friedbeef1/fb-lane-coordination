@@ -1,6 +1,6 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Codex plugin for safe concurrent lane work using FB-Lane board claims, handoffs, and Product integration gates.",
   "author": {
     "name": "James Yeang",
@@ -34,9 +34,10 @@
     "privacyPolicyURL": "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
     "termsOfServiceURL": "https://docs.github.com/en/site-policy/github-terms/github-terms-of-service",
     "defaultPrompt": [
-      "Use FB-Lane to run Tech, Design, and Business concurrently.",
-      "Show FB-Lane status and current file claims.",
-      "Package this request into Product, Tech, Design, and Business lanes."
+      "Start here: use FB-Lane, show current status and file claims, then ask what I want to build.",
+      "Use FB-Lane to split this work across Product, Tech, Design, and Business. Use worktrees for code-writing lanes where helpful. Each lane should claim files, write handoffs, and return to Product for sequencing.",
+      "What is ready to merge? Read the board, lane handoffs, and current file claims before answering.",
+      "Package this request into Product, Tech, Design, and Business lanes without letting lanes edit overlapping files."
     ],
     "brandColor": "#0F766E"
   }

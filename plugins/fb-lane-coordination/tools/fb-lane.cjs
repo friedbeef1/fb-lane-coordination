@@ -84,7 +84,7 @@ function parseBoard(boardPath) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     // Parse table row
-    const tableMatch = line.match(/^\|\s*([A-Za-z0-9]+-\d+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|/);
+    const tableMatch = line.match(/^\|\s*([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*-\d+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|/);
     if (tableMatch) {
       const id = tableMatch[1].trim();
       if (id !== 'ID' && !id.startsWith('---')) {
@@ -105,7 +105,7 @@ function parseBoard(boardPath) {
   // Parse detail blocks
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const headerMatch = line.match(/^###\s*([A-Za-z0-9]+-\d+)\s*-\s*(.*)/);
+    const headerMatch = line.match(/^###\s*([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*-\d+)\s*-\s*(.*)/);
     if (headerMatch) {
       if (currentTask) {
         currentTask.details = parseDetailLines(detailLines);
@@ -167,7 +167,7 @@ function updateBoardTask(boardPath, taskId, updates) {
   // 1. Update the table row
   for (let i = 0; i < updatedLines.length; i++) {
     const line = updatedLines[i];
-    const tableMatch = line.match(/^\|\s*([A-Za-z0-9]+-\d+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|/);
+    const tableMatch = line.match(/^\|\s*([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*-\d+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|/);
     if (tableMatch && tableMatch[1].trim() === taskId) {
       const newStatus = updates.status !== undefined ? updates.status : task.status;
       const newOwner = updates.owner !== undefined ? updates.owner : task.owner;
@@ -186,7 +186,7 @@ function updateBoardTask(boardPath, taskId, updates) {
 
   for (let i = 0; i < updatedLines.length; i++) {
     const line = updatedLines[i];
-    const headerMatch = line.match(/^###\s*([A-Za-z0-9]+-\d+)\s*-\s*(.*)/);
+    const headerMatch = line.match(/^###\s*([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*-\d+)\s*-\s*(.*)/);
     if (headerMatch && headerMatch[1].trim() === taskId) {
       inDetailBlock = true;
       blockStartIndex = i;
