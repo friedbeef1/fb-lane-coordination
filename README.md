@@ -1,13 +1,19 @@
 # 🚀 FB-Lane Coordination Plugin
 
-**Run multiple AI agent threads concurrently on the same codebase — with zero merge conflicts, zero context overload, and strict scope safety.**
+**Keep telling it what you want, as fast as you think of it — FB-Lane runs your goals in parallel across one codebase so you're not stuck waiting behind the last task.**
 
-> 📺 **[Watch the FB-Lane Demo Video on YouTube](https://youtu.be/wry1xhaEEBg)** (Cmd/Ctrl + click to open in a new tab) — Watch the coordination loop run in real time:
+> 📺 **[Watch the FB-Lane Demo Video on YouTube](https://youtu.be/wry1xhaEEBg)** (Cmd/Ctrl + click to open in a new tab) — the coordination loop running in real time:
 [![FB-Lane Plugin Demo Video](https://img.youtube.com/vi/wry1xhaEEBg/maxresdefault.jpg)](https://youtu.be/wry1xhaEEBg)
 
-Looking for quick answers, troubleshooting tips, or details on how the coordination loops work under the hood? Check out our [Frequently Asked Questions (FAQ)](FAQ.md).
+A single AI agent on a single goal already coordinates fine. The mess starts when the **goals pile up** — a few things you want now, plus the two more you think of while the first is still running. Hand a moving target like that to one thread and it collides with itself: a "quick fix" rewrites your backend *and* your CSS, new ideas stall behind whatever's in progress, and you only find out two changes disagree at merge time.
 
-FB-Lane splits complex software development into four role-isolated workstreams (Product, Tech, Design, Business), each running in its own conversational thread. A version-controlled, markdown-based `PROJECT_BOARD.md` acts as the single source of truth and message bus for task state, branch names, and file-level resource locks.
+**FB-Lane is the coordination layer for *many* goals arriving over time.** It splits work into four role-isolated lanes — Product, Tech, Design, Business — that each claim and **lock the exact files they touch** on a shared, version-controlled `PROJECT_BOARD.md`. Product scopes each goal you name onto the board; independent ones run at the same time across lanes, and ones that touch the same files are sequenced safely instead of colliding. So you keep thinking out loud and dropping in what you want — without waiting for one task to finish before naming the next.
+
+### Why it pays for itself
+- **Faster** — You don't queue your own ideas. Name a goal anytime; Product drops it on the board and an open lane starts while the others keep running, and the board's file locks keep concurrent work from ever colliding. A cleared or auto-compacted session recovers full context from the board with one command (`status`), so you never re-explain the workspace.
+- **Cheaper** — A **5-retry debug cap** stops runaway fix-loops before they drain your token budget; a **pre-submission test gate** blocks broken code from being pushed; role-isolated threads stay small and focused instead of dragging one bloated context across backend, CSS, and copy; and Product cross-reads every branch before merging, so contract drift is caught early — not as expensive rework after release.
+
+Want the details — how the loops work, the board lifecycle, or your specific platform? Start with the [FAQ](FAQ.md) or jump to the [platform guides](#-platform-integration-guides). Otherwise, the [1-Minute Setup](#-1-minute-setup) is right below.
 
 ---
 
@@ -26,6 +32,8 @@ Compare how development works on complex, multi-layered features with AI agents:
 | **Handoffs & Context Retention** | Silent handoffs; subsequent agents must blindly read repo history to understand what prior agents changed. | **Structured Handoff Cards**: Automated creation of `docs/handoffs/TASK-XXX.md` summarizing decisions, risk details, and testing. | **Review Handoffs**: Read the short markdown handoff files to inspect implementation choices and risks before merging. |
 | **Micro-Tasks & Hotfixes** | Manual branch creation, file tracking, and state sync, leading to developer overhead for simple edits. | **Fast-Track Quick Edits**: A single command (`node tools/fb-lane.cjs quick`) instantly checks out a branch and locks files for edits. | **Fast Hotfixes**: Run the `quick` command in your terminal to instantly pair-program on micro-tasks without board overhead. |
 | **Cross-Lane Consistency** | No one checks whether Tech's API contracts match Design's assumptions, or whether Business copy references features not yet built. Integration drift only surfaces at runtime — often in production. | **FB-Product Integration Gate**: Before any branch merges, FB-Product cross-reads all submitted branches and handoff cards, actively catching API/UI contract mismatches, copy referencing unbuilt features, and conflicting assumptions between lanes. | **Automatic Catch & Correct**: Product flags the inconsistency, sends the offending lane back with a specific fix request, and sequences merges so dependencies land in the right order. |
+
+**Bottom line:** you stop being the bottleneck — keep naming goals as they come and an open lane starts on each while the others keep running, instead of work piling up behind whatever you asked for first.
 
 
 ```
@@ -61,7 +69,7 @@ Compare how development works on complex, multi-layered features with AI agents:
 * **Standard Operating Procedure (SOP)**: On every session start, threads automatically inspect the board and current task file to claim, align, or resume work without human hand-holding.
 * **Two-Layer Handoff**: Worker threads summarize work back to the board and write structured handoff specs under `docs/handoffs/TASK-XXX.md` to ensure context is never lost.
 * **FB-Product Integration Gate**: FB-Product actively cross-reads all submitted branches before merging — catching API contract mismatches between Tech and Design, Business copy referencing unbuilt features, and conflicting assumptions across lanes. It sends the offending lane back for corrections and sequences merges so dependencies land in the right order.
-* **Platform Agnostic**: Works natively with **Antigravity 2.0**, **Claude Code**, **Claude Projects**, and **Codex (OpenAI)**.
+* **Platform Agnostic**: Works natively with **Antigravity 2.0**, **Claude Code**, and **Codex (OpenAI)**.
 
 ---
 
@@ -116,8 +124,8 @@ This installs the four lane subagents, the `fb-lane` skills, and the `fb-lane` M
 Right after installing, type **`/fb-lane-coordination:quickstart`** for a 30-second orientation on how to drive the lanes — no need to read the docs first. (Or just say *"how do I use this?"* to the FB-Product thread.)
 
 ### Method D: AI-Powered Bootstrap
-If you have an active AI agent in your project workspace (such as Antigravity, Claude, or Codex), simply paste this instruction to let the agent copy and configure the plugin autonomously:
-> *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
+If you have an active AI agent in your project workspace (such as Antigravity, Claude Code, or Codex), simply paste this instruction to let the agent copy and configure the plugin autonomously:
+> *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and MCP configuration automatically."*
 
 ### Method E: Manual CLI Bootstrap
 1. **Copy the CLI tool**: From your project root, run:
@@ -130,13 +138,11 @@ If you have an active AI agent in your project workspace (such as Antigravity, C
    ```bash
    node tools/fb-lane.cjs bootstrap
    ```
-   *What this does:* Auto-generates the central task board (`PROJECT_BOARD.md`), boundary rules (`AGENTS.md`), local Codex configurations (`.codex/rules.md`), Claude configuration (`CLAUDE.md`), the **Claude Code integration** (`.mcp.json` MCP server + `.claude/agents/` lane subagents), and **automatically registers the MCP server for Claude Desktop** (if installed).
+   *What this does:* Auto-generates the central task board (`PROJECT_BOARD.md`), boundary rules (`AGENTS.md`), local Codex configurations (`.codex/rules.md`), Claude configuration (`CLAUDE.md`), and the **Claude Code integration** (`.mcp.json` MCP server + `.claude/agents/` lane subagents).
 
 3. **Launch Your Agent**:
    * **Antigravity**: Open the project folder. The lane subagents will automatically appear in your sidebar!
-   * **Claude Desktop**: Restart Claude. The `fb-lane` MCP tools are registered and ready to use.
    * **Claude Code** (CLI / web / IDE): Reload the workspace. The lanes (`fb-product`, `fb-tech`, `fb-design`, `fb-business`) appear as subagents in `/agents` and the agent picker; approve the `fb-lane` MCP server via `/mcp`. See [`platforms/claude-code/`](platforms/claude-code/README.md).
-   * **Cursor / Claude Projects Web**: Add `AGENTS.md` and `PROJECT_BOARD.md` to your Project Knowledge or Custom Instructions.
    * **Codex**: Launch Codex Desktop. Codex already provides parallel tools such as subagents and worktrees; FB-Lane adds the shared board, file claims, lane roles, handoffs, and Product integration gate. See [`platforms/codex/`](platforms/codex/README.md).
 
 Done! You are ready to run `node tools/fb-lane.cjs claim <task-id> <lane>` and start coding.
@@ -145,7 +151,7 @@ Done! You are ready to run `node tools/fb-lane.cjs claim <task-id> <lane>` and s
 
 ## 👥 How to Use
 
-Depending on your preferred style, you can choose between two operational patterns:
+Depending on your preferred style, you can choose between two operational patterns. Either way, you can keep adding goals as they occur to you: independent ones move through different lanes at once, and any that touch the same files are queued safely rather than colliding.
 * **Main Approach: Autonomous Background Orchestration (<20% Involvement)**: You chat only with the main **`FB-Product`** thread. Product autonomously analyzes requirements, splits tasks, claims them on the board, locks files, and spawns subagents (`FB-Tech`/`FB-Design`) in the background silently. Your interaction is restricted to reviewing the plan at the beginning and smoke-testing staging at the end.
 * **Optional Interaction: Interactive Direct Control (Pair-Programming)**: You chat directly with the sidebar worker threads (`FB-Tech`/`FB-Design`) to review plans, write code, and collaboratively debug. When you instruct a lane agent directly, it autonomously claims the task and locks the files on the board before modifying any files.
   * *Syncing Threads*: If a sidebar thread shows stale history or old buttons, simply type `status` or `SOP` in the thread to force the agent to sync with the board.
@@ -205,6 +211,8 @@ Every feature, bug, or improvement follows a simple, structured 4-step loop:
 ```
 Inbox ──▶ Ready ──▶ In Progress ──▶ Staging QA ──▶ Done
 ```
+
+Several tasks sit at different points of this loop at the same time — that's the point: while one lane is in `Staging QA`, another is just being claimed, so a steady stream of goals keeps flowing.
 
 1. **Claim**: A worker lane claims a `Ready` task:
    ```bash
@@ -266,7 +274,6 @@ Detailed walkthroughs for configuring and running the plugin on specific develop
 
 * **Antigravity 2.0**: [platforms/antigravity/README.md](platforms/antigravity/README.md) — includes the native subagent orchestration demo video: [antigravity-how-to-interact.mp4](platforms/antigravity/how-to-interact-demo/renders/antigravity-how-to-interact.mp4)
 * **Claude Code**: [platforms/claude-code/README.md](platforms/claude-code/README.md) — includes the direct lane-thread demo video: [claude-code-how-to-interact.mp4](platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4)
-* **Claude Desktop**: [platforms/claude/README.md](platforms/claude/README.md)
 * **Codex**: [platforms/codex/README.md](platforms/codex/README.md) — installable plugin package: [plugins/fb-lane-coordination/](plugins/fb-lane-coordination/README.md)
 
 *See [`examples/my-app/`](examples/my-app/README.md) for a mock project illustrating the post-bootstrap folder structure and a complete task workflow lifecycle.*
