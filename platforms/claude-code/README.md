@@ -116,3 +116,34 @@ Product.
 Lanes drive the task lifecycle with the CLI (`node tools/fb-lane.cjs claim|submit|merge …`); only
 FB-Product merges to `main`. Full ownership boundaries and the board loop live in
 [`AGENTS.md`](../../AGENTS.md).
+
+## Run lanes in parallel with worktrees (optional)
+
+For most work you don't need this: lane subagents share the orchestrator's single working tree, and
+the board's **file-locks** keep them from editing the same files. Reach for worktrees only when you
+want two lanes on **different branches at the same time** — because `claim` runs an in-place
+`git checkout -b` (`tools/fb-lane.cjs`), and one working directory can only hold one branch at once.
+Claude Code supports this natively:
+
+```bash
+# One isolated checkout per concurrently-active lane, each on its own branch
+claude --worktree tech-TASK-102      # FB-Tech session, on tech/TASK-102-...
+claude --worktree design-TASK-103    # FB-Design session, on design/TASK-103-...
+```
+
+(Equivalently, `git worktree add ../fb-tech-102 -b tech/TASK-102-... main`.) Each worktree is a
+separate directory, so the two lanes edit truly in parallel with zero physical collision.
+
+**Where the board lives (important):** `PROJECT_BOARD.md` stays authoritative in the **primary
+checkout — the FB-Product / main session.** Product is already the only lane that claims, merges,
+and releases locks, so let it own the board there and spin each lane worktree off `main` carrying
+**only code** for that task's locked files. Don't have lane worktrees edit the board on their own
+branches: each worktree has its own copy on its own branch, so parallel board edits would diverge
+and only reconcile at merge. Keeping one authoritative board in the Product checkout sidesteps that
+entirely.
+
+**Integration is unchanged:** lanes `submit` their branches, FB-Product cross-reads the handoff
+cards, reconciles any contract mismatches, and merges each branch to `main` in dependency order —
+exactly the gate described above. Worktrees add *physical* branch isolation; the board and Product
+still provide the *coordination*. See [Worktrees](https://code.claude.com/docs/en/worktrees) for
+cleanup and `git worktree remove`.
