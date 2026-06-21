@@ -20,15 +20,44 @@ If you have an AI agent active in your workspace, simply paste this prompt:
 
 ---
 
-## The Problem This Solves in Claude & Cursor
-Claude Projects and Cursor chats are highly prone to:
-* **Context Overload & Forgetfulness**: As a chat thread grows longer, Claude starts losing track of earlier instructions, forgets its system constraints, and suffers from degraded reasoning.
-* **Scope Creep**: Without strict instruction boundaries, Claude will attempt to solve multiple unrelated tasks at once (e.g., trying to write backend endpoints while fixing a CSS centering bug), resulting in bloated diffs and bugs.
+## ⚠️ The Pain Points & Elegant Fixes in Claude
 
-**How FB-Lane fixes this:**
-* **Chat Thread Segmentation**: By starting a new, fresh chat thread for each lane/task (FB-Tech, FB-Design, FB-Business), you keep Claude's context window extremely clean and focused.
-* **Instruction Anchoring**: The custom instructions and project knowledge files keep Claude anchored to its specific lane parameters, preventing it from straying into other files.
-* **Simulated Tool Sandboxing**: Since Claude Projects cannot programmatically restrict tool access, role-based "sandboxing" is simulated via system instructions (e.g., instructing Claude that `FB-Business` is strictly read-only and `FB-Design` is restricted from editing backend logic).
+> **Reality check:** Claude Projects and Claude Desktop are **single-threaded** chat surfaces — one
+> conversation, no native background subagents and no native tool-permission restrictions. So here
+> FB-Lane is not adding parallelism; it is a *discipline* that protects the one context window you
+> have and simulates the boundaries the platform cannot enforce on its own.
+
+Single-threaded chat surfaces have three concrete, verifiable pain points:
+
+### 1. Context Overload & Reasoning Degradation (The Bloat Pain Point)
+* **The Pain Point**: There is only one context window, and everything shares it. As a single thread
+  grows — and especially when one thread juggles backend logic, CSS, and copy at once — earlier
+  instructions and lane constraints get pushed out of effective attention. Claude starts forgetting
+  its own rules, contradicting earlier decisions, and reasoning gets noticeably worse.
+* **The Elegant Fix**: **Lane-Per-Thread Segmentation**. Each lane/task runs in its own fresh chat
+  (`FB-Tech`, `FB-Design`, `FB-Business`), so each window holds only what that lane needs. The
+  threads don't need to remember each other because state lives on disk: `PROJECT_BOARD.md`,
+  `.codex/current_task.md`, and the git branch are the shared memory, so a clean thread can pick up
+  full context by reading them (`status` / `SOP`) instead of carrying a bloated history.
+
+### 2. Scope Creep & Code-Bleed (The Boundary Pain Point)
+* **The Pain Point**: Ask one general thread to "just fix this" and it will happily reach across
+  domains — rewriting a backend endpoint while fixing a CSS centering bug — producing sprawling
+  diffs that are hard to review and prone to regressions.
+* **The Elegant Fix**: **Instruction-Anchored Lanes + File Claims**. The lane's pasted startup
+  prompt (and the Project Knowledge / Custom Instructions) anchors Claude to one role, and the
+  task's claimed files on `PROJECT_BOARD.md` define exactly which files it may write. Work stays
+  scoped to one domain and one small, reviewable diff.
+
+### 3. No Native Tool Sandboxing (The Enforcement Pain Point)
+* **The Pain Point**: Unlike Claude Code subagents, Claude Projects/Desktop cannot programmatically
+  restrict tool access. There is no platform switch that makes `FB-Business` physically read-only or
+  stops `FB-Design` from editing backend code.
+* **The Elegant Fix**: **Simulated Sandboxing via Instructions**. Role boundaries are enforced in
+  the system/lane instructions (e.g., `FB-Business` is told it is strictly read-only; `FB-Design`
+  is told never to touch backend logic). This is a *behavioral* guardrail, not a hard sandbox — it
+  is honest about the platform's limits, and it works because each lane thread only ever holds its
+  own role's rules.
 
 ## The Simulation Concept
 Instead of running four separate processes in parallel, the user acts as the coordinator (`FB-Product`) and instructs Claude to adopt a specific lane for each chat session. 

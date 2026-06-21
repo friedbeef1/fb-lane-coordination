@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync, spawn } = require('child_process');
+const { execSync } = require('child_process');
 const readline = require('readline');
 
 function expandHome(filePath) {
@@ -61,15 +61,25 @@ function runGit(args) {
 }
 
 function copyToClipboard(text) {
-  try {
-    const proc = spawn('pbcopy');
-    proc.stdin.write(text);
-    proc.stdin.end();
-    return true;
-  } catch (err) {
-    logError('⚠️  Could not copy to clipboard. Are you running on macOS?');
-    return false;
+  // Pick clipboard commands by platform. `spawn('pbcopy')` emits an async 'error' event that a
+  // try/catch can't catch, so a missing binary (e.g. on Linux/CI) used to crash the whole process.
+  // execSync with `input` runs synchronously and throws catchably when the command is absent.
+  const platform = process.platform;
+  const candidates = platform === 'darwin'
+    ? ['pbcopy']
+    : platform === 'win32'
+      ? ['clip']
+      : ['wl-copy', 'xclip -selection clipboard', 'xsel --clipboard --input'];
+
+  for (const cmd of candidates) {
+    try {
+      execSync(cmd, { input: text, stdio: ['pipe', 'ignore', 'ignore'] });
+      return true;
+    } catch (err) {
+      // Command not installed or failed — try the next candidate.
+    }
   }
+  return false;
 }
 
 // Parse PROJECT_BOARD.md tasks and details
@@ -289,7 +299,7 @@ function handleStatus() {
   console.log('='.repeat(80) + '\n');
 }
 
-function handleClaim(taskId, lane, lockedFiles = '(None)') {
+function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
   const boardPath = findBoardPath();
   if (!boardPath) {
     console.error('❌ Error: PROJECT_BOARD.md not found.');
@@ -334,26 +344,55 @@ function handleClaim(taskId, lane, lockedFiles = '(None)') {
   const slug = task.scope.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const branchName = `${lane.toLowerCase()}/${taskId}-${slug}`;
 
-  // Run git checkout
-  console.log('Switching to main and pulling latest changes...');
-  try {
-    runGit('checkout main');
-    runGit('pull origin main');
-  } catch (err) {
-    console.error(`❌ Error: Could not pull main branch safely: ${err.message}`);
-    console.error(`👉 Please stash, commit, or discard your uncommitted changes first.`);
-    process.exit(1);
-  }
-  try {
-    console.log(`Checking out branch: ${branchName}...`);
-    runGit(`checkout -b ${branchName}`);
-  } catch (err) {
-    console.log(`Branch might exist. Attempting to switch to: ${branchName}...`);
+  // Run git checkout (in-place) or create an isolated worktree for true parallel lanes
+  let worktreePath = null;
+  if (options.worktree) {
+    // Worktree mode: leave the primary checkout (FB-Product) where it is so the board stays
+    // authoritative here, and give this lane its own directory on its own branch off main.
+    const repoRoot = runGit('rev-parse --show-toplevel');
+    const repoBase = path.basename(repoRoot);
+    worktreePath = path.resolve(repoRoot, '..', `${repoBase}-${lane.toLowerCase()}-${taskId}`);
+    let baseRef = 'main';
     try {
-      runGit(`checkout ${branchName}`);
-    } catch (err2) {
-      console.error(`❌ Error switching branch: ${err2.message}`);
+      runGit('fetch origin main');
+      runGit('rev-parse --verify origin/main');
+      baseRef = 'origin/main';
+    } catch (err) {
+      console.warn('⚠️  Could not fetch origin/main; basing the worktree on local main.');
+    }
+    try {
+      console.log(`Creating worktree at ${worktreePath} on new branch ${branchName}...`);
+      runGit(`worktree add -b ${branchName} "${worktreePath}" ${baseRef}`);
+    } catch (err) {
+      console.log(`Branch might exist. Attaching a worktree to: ${branchName}...`);
+      try {
+        runGit(`worktree add "${worktreePath}" ${branchName}`);
+      } catch (err2) {
+        console.error(`❌ Error creating worktree: ${err2.message}`);
+        process.exit(1);
+      }
+    }
+  } else {
+    console.log('Switching to main and pulling latest changes...');
+    try {
+      runGit('checkout main');
+      runGit('pull origin main');
+    } catch (err) {
+      console.error(`❌ Error: Could not pull main branch safely: ${err.message}`);
+      console.error(`👉 Please stash, commit, or discard your uncommitted changes first.`);
       process.exit(1);
+    }
+    try {
+      console.log(`Checking out branch: ${branchName}...`);
+      runGit(`checkout -b ${branchName}`);
+    } catch (err) {
+      console.log(`Branch might exist. Attempting to switch to: ${branchName}...`);
+      try {
+        runGit(`checkout ${branchName}`);
+      } catch (err2) {
+        console.error(`❌ Error switching branch: ${err2.message}`);
+        process.exit(1);
+      }
     }
   }
 
@@ -371,10 +410,12 @@ function handleClaim(taskId, lane, lockedFiles = '(None)') {
   // Commit board separately
   commitBoard(`docs: claim ${taskId} and lock files`);
 
-  // Write local Codex context file to reduce search pain
-  const codexDir = path.join(path.dirname(boardPath), '.codex');
+  // Write local Codex context file to reduce search pain. In worktree mode it goes into the
+  // lane's worktree so the session running there reads its own task context.
+  const codexBase = worktreePath || path.dirname(boardPath);
+  const codexDir = path.join(codexBase, '.codex');
   if (!fs.existsSync(codexDir)) {
-    fs.mkdirSync(codexDir);
+    fs.mkdirSync(codexDir, { recursive: true });
   }
   const contextContent = `# Active Task Context
 * **Current Task**: ${taskId}
@@ -395,7 +436,15 @@ ${task.scope}
   console.log(`   - Branch: ${branchName}`);
   console.log(`   - Locked: ${formattedLocks}`);
   console.log(`   - Board updated & committed separately.`);
-  console.log(`   - Codex Desktop context written to .codex/current_task.md`);
+  if (worktreePath) {
+    console.log(`   - Worktree: ${worktreePath} (board stays authoritative in this checkout)`);
+    console.log(`   - Codex context written to ${path.join(worktreePath, '.codex', 'current_task.md')}`);
+    console.log(`\n👉 Run this lane in its own session:`);
+    console.log(`     cd "${worktreePath}" && claude`);
+    console.log(`   When done: node tools/fb-lane.cjs submit ${taskId}, then (from here) merge — the merge releases the worktree's branch.`);
+  } else {
+    console.log(`   - Codex Desktop context written to .codex/current_task.md`);
+  }
   if (copied) {
     console.log('\n🚀 STARTUP PROMPT COPIED TO CLIPBOARD!');
     console.log('   Simply open a fresh chat thread in Claude/Cursor and paste (Cmd+V) to begin.\n');
@@ -1447,14 +1496,17 @@ function main() {
   } else if (command === 'bootstrap') {
     handleBootstrap();
   } else if (command === 'claim') {
-    const taskId = args[1];
-    const lane = args[2];
-    const locks = args[3];
+    const rest = args.slice(1);
+    const useWorktree = rest.some(a => a === '--worktree' || a === '-w');
+    const positional = rest.filter(a => a !== '--worktree' && a !== '-w');
+    const taskId = positional[0];
+    const lane = positional[1];
+    const locks = positional[2];
     if (!taskId || !lane) {
-      console.error('❌ Error: Usage: node tools/fb-lane.cjs claim <task-id> <lane> [locked_files]');
+      console.error('❌ Error: Usage: node tools/fb-lane.cjs claim <task-id> <lane> [locked_files] [--worktree]');
       process.exit(1);
     }
-    handleClaim(taskId, lane, locks);
+    handleClaim(taskId, lane, locks, { worktree: useWorktree });
   } else if (command === 'submit') {
     const taskId = args[1];
     let stagingUrl = args[2] === '--no-tests' ? '' : args[2];
@@ -1486,7 +1538,8 @@ function main() {
 Usage:
   node tools/fb-lane.cjs bootstrap                      - Bootstrap project board, agents, and folders
   node tools/fb-lane.cjs status                         - Print active tasks & locks
-  node tools/fb-lane.cjs claim <id> <lane> [locks]      - Claim task, checkout branch, copy prompt to clipboard
+  node tools/fb-lane.cjs claim <id> <lane> [locks] [-w] - Claim task, checkout branch (or --worktree for parallel lanes), copy prompt
+  node tools/fb-lane.cjs claim ... --worktree           - Claim into an isolated git worktree (true parallel branches; Claude Code)
   node tools/fb-lane.cjs quick <lane> <locks> [desc]    - Create & claim a fast-track quick task
   node tools/fb-lane.cjs submit <id> [url] [--no-tests] - Run tests, submit task, update board, push branch
   node tools/fb-lane.cjs merge <id>                     - Merge branch to main, release locks, delete branch
