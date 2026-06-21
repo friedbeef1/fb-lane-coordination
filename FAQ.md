@@ -329,11 +329,23 @@ This automatically registers a temporary task (`TASK-Q-XXXX`) on your project bo
 **A:** Because `PROJECT_BOARD.md` and git are the single source of truth, the threads are never actually out of sync. To force any sidebar thread to align its chat context with the actual state of your workspace instantly, just type **`status`** or **`SOP`** in that thread. The agent will read the board, detect the active branch, and update its context.
 
 ### Q: If I clear the chat context (e.g. via `/clear` or starting a fresh thread), how does the agent know which lane it is in when I type `status` or `SOP`?
-**A:** Clearing context or starting a fresh thread is fully supported and even encouraged to keep the agent's context clean and prevent reasoning degradation. When you clear context and type `status` or `SOP`, the agent dynamically reconstructs its lane identity and task constraints from the local workspace state:
-1. **Local State File (`.codex/current_task.md`)**: It reads this file first. The file explicitly documents the active `Task ID`, `Lane` (e.g. `FB-Tech`), `Feature Branch`, and `Locked Files`.
-2. **Git Branch Parsing**: It runs git queries (like `git rev-parse --abbrev-ref HEAD` or `git branch --show-current`) to inspect the current checkout. The prefix (e.g. `tech/` or `design/`) lets the agent know which lane's branch it is currently working on.
-3. **Project Board Reference (`PROJECT_BOARD.md`)**: It reads the project board and matches the active task ID from the Git branch with the designated owner (`FB-Tech`, `FB-Design`, `FB-Business`, or `FB-Product`) in the table.
-4. **Agent Configurations & System Prompts**: On platforms like Antigravity, the registered subagent configuration or custom instructions (such as those in `.codex/rules.md` or `CLAUDE.md`) anchor the agent to its specific lane parameters (e.g. keeping `FB-Tech` restricted from stylesheet modifications).
+**A:** Clearing context or starting a fresh thread is fully supported and even encouraged to keep the agent's context clean and prevent reasoning degradation. When you clear context and type `status` or `SOP`, the agent dynamically reconstructs its lane identity and task constraints from the local workspace state.
+* **The Verification**: 
+  - **In Antigravity**: The pain point of forgetting lane identity *does not actually exist* because Antigravity is a multi-agent system. Each lane (Product, Tech, Design, Business) is a dedicated sidebar subagent thread defined with distinct agent configurations (`agent.json`). A `/clear` command in a thread only clears the conversation history, not the underlying system instructions (e.g., *"You are FB-Tech"*). Therefore, the subagent always retains its role identity.
+  - **In Single-Agent Platforms (Claude Code, Codex)**: The active lane is written directly to the filesystem on claim and read on startup.
+* **The Retrieval Mechanism**:
+  1. **Local State File (`.codex/current_task.md`)**: The agent reads this file first. It explicitly documents the active `Task ID`, `Lane` (e.g. `FB-Tech`), `Feature Branch`, and `Locked Files`.
+  2. **Git Branch Parsing**: The agent runs git queries (like `git rev-parse --abbrev-ref HEAD` or `git branch --show-current`) to inspect the current checkout. The prefix (e.g. `tech/` or `design/`) lets the agent know which lane's branch it is currently working on.
+  3. **Project Board Reference (`PROJECT_BOARD.md`)**: The agent reads the project board and matches the active task ID from the Git branch with the designated owner (`FB-Tech`, `FB-Design`, `FB-Business`, or `FB-Product`) in the table.
+
+### Q: Does Antigravity 2.0 support Git Worktrees for concurrent tasks?
+**A:** **Yes, natively!** Unlike single-threaded platforms (like Claude Code or Codex) where concurrent tasks run in the same workspace directory and would cause branch collisions (unless manually managed or automated with helper worktree scripts), Antigravity 2.0 has built-in support for workspace isolation:
+1. **Background Subagent Isolation**: When `FB-Product` spawns subagents concurrently using the `invoke_subagent` tool, the SDK automatically manages the directories behind the scenes.
+2. **Workspace Modes**:
+   - `Workspace: "share"`: Automatically creates a lightweight, isolated workspace sharing the same underlying repository database (equivalent to a **Git Worktree**). This allows multiple subagents to run concurrently on different branches without file or branch overrides.
+   - `Workspace: "branch"`: Creates a completely isolated checkout directory clone.
+   - `Workspace: "inherit"`: Uses the parent's directory.
+3. **No Developer Overhead**: The developer does not need to run manual `git worktree` commands or manage separate project directories. Antigravity isolates and cleans up these workspaces automatically on task completion/termination.
 
 ---
 

@@ -10,9 +10,11 @@ Antigravity's highly agentic, multi-threaded nature is powerful, but complex mul
 * **The Pain Point**: Spawning background subagents that remain active indefinitely, or running multiple tasks in a single long-running subagent conversation, causes rapid context window bloat. The subagent's memory footprint grows, leading to degraded reasoning, slower response times, and increased token costs.
 * **The Elegant Fix**: **Disposable Worker Subagents**. The main `FB-Product` lane orchestrator spawns highly focused, temporary subagents using `invoke_subagent` for each specific task (e.g., spawning `FB-Tech` for a database migration). Once the task is complete and submitted, that subagent's thread is terminated (via `manage_subagents` with action `kill`), keeping the orchestrator's and subagents' memory footprints clean and protecting performance.
 
-### 2. Session Reset & Loss of Context (The State Loss Pain Point)
-* **The Pain Point**: If the main orchestrator thread is cleared (`/clear`), restarted, or crashes mid-sprint, the agent loses its memory of active branches, file locks, running tasks, and what it was supposed to do next. The user is forced to re-explain the workspace state and manually align the agent.
-* **The Elegant Fix**: **Instant Recovery**. Since `PROJECT_BOARD.md` and `.codex/current_task.md` serve as the local, filesystem-level source of truth, the agent has zero dependency on persistent chat session memory. Simply typing `status` or `SOP` forces the orchestrator to inspect the local project board and task context, identify the active branch, and instantly resume control with full context.
+### 2. Session Reset & Loss of Context (The State Loss & Lane Identity Pain Point)
+* **The Pain Point**: If the main orchestrator thread is cleared (`/clear`), restarted, or crashes mid-sprint, does the agent lose its identity, active branch, file locks, and current task? If the user is forced to re-explain the workspace state and manually align the agent to its specific lane role, it introduces severe friction.
+* **The Verification & Elegant Fix**:
+  1. **Lane Identity is Persistent**: In Antigravity, each lane (Product, Tech, Design, Business) is a separate, dedicated background subagent thread defined with distinct agent configurations (`agent.json`). A `/clear` command in a thread only clears the conversation history, not the underlying system instructions (e.g., *"You are FB-Tech"*). Therefore, the subagent always retains its role identity. For single-agent environments (like Codex/Claude), the active lane is written directly to the filesystem on claim and read on startup.
+  2. **Instant Recovery**: Since `PROJECT_BOARD.md` and `.codex/current_task.md` serve as the local, filesystem-level source of truth, the agent has zero dependency on persistent chat session memory. Simply typing `status` or `SOP` forces the orchestrator to inspect the local project board, read `.codex/current_task.md` (which explicitly stores the active task, lane, feature branch, and locks), and instantly resume control with full context.
 
 ### 3. Tool Overload & Routing Confusion
 * **The Pain Point**: Giving a single developer agent access to all tools (database, styling, web browser, file writes) leads to tool-routing errors, slower responses, and dangerous boundary violations (e.g., an agent modifying database schemas while trying to edit a CSS file).
@@ -47,6 +49,11 @@ In Antigravity, **`FB-Product`** is the main agent thread (representing User Val
 
 1. **`define_subagent`**: Registers the subagents (`FB-Tech`, `FB-Design`, `FB-Business`) with specific tools, systems prompts, and access controls.
 2. **`invoke_subagent`**: Launches the subagents concurrently in the background.
+   * **Native Workspace Isolation (Git Worktree / Clones)**: When invoking subagents, Antigravity 2.0 does not suffer from branch collisions or file overrides. The `Workspace` parameter in `invoke_subagent` natively isolates the directories:
+     * `Workspace: "share"`: Automatically creates and runs the subagent in a shared repository directory (equivalent to a **Git Worktree**), allowing independent branching without duplicating storage.
+     * `Workspace: "branch"`: Automatically creates a cloned, isolated workspace.
+     * `Workspace: "inherit"`: Uses the parent's directory.
+     * This eliminates the need for manual git worktree setups (which Codex or Claude require) and makes concurrent multi-agent executions completely safe and transparent.
 3. **`send_message`**: Sends instructions or reviews code updates.
 4. **`schedule`**: Sets reminders or background checking loops.
 
