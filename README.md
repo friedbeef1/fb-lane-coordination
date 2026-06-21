@@ -86,6 +86,37 @@ Run from the project root:
 | `node tools/fb-lane.cjs merge <id>` | Product/Captain merge path after review. |
 | `node tools/fb-lane.cjs bootstrap` | Manual/bootstrap setup path. See [docs/setup.md](docs/setup.md). |
 
+## 🔧 Extensible Loop Harness & Lifecycle Hooks
+
+FB-Lane operates as a pluggable **execution and loop harness**. Instead of hardcoding opinionated testing or QA tools directly into the core scripts, FB-Lane provides core coordination (branching, status, and file locking) and exposes lifecycle hooks.
+
+This allows developers to bind their own custom loops (e.g., unit tests, visual regression checkers, AST validators, API contract checkers) using a simple local `.fb-lane.json` configuration file in the project root.
+
+### Config Example (`.fb-lane.json`)
+
+```json
+{
+  "hooks": {
+    "pre-claim": "echo 'Checking workspace sanity...'",
+    "pre-submit": "npm test && npm run lint",
+    "post-submit": "curl -X POST https://hooks.slack.com/services/... -d '{\"text\":\"Task submitted for QA\"}'",
+    "pre-merge": "node tools/ast-drift-check.js"
+  }
+}
+```
+
+### Supported Hooks
+
+*   **`pre-claim` / `post-claim`**: Runs before/after a task or quick-edit is claimed and locked. Perfect for environment setup.
+*   **`pre-submit` / `post-submit`**: Runs before/after task submission. *If `pre-submit` exits with a non-zero code, the submission is blocked.* Perfect for custom test suites and notifications.
+*   **`pre-merge` / `post-merge`**: Runs before/after merging. Perfect for goal-drift checkers and cache cleaning.
+
+### Why This Is Important
+
+1.  **Technology Agnostic**: Works out of the box with any stack (Node/React, Python, Go, Rust, etc.) by executing standard shell commands.
+2.  **Zero-Friction Autonomy**: Prevents bad code (broken tests, visual drift, or schema mismatches) from ever reaching the staging branch or being merged, without requiring human developers to manually run checks.
+3.  **Lightweight Core**: Keeps the core framework focused on Git and task state management, letting teams customize and evolve their AI loops independently.
+
 ## More
 
 - [FAQ](FAQ.md)
