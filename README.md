@@ -207,7 +207,7 @@ Run from the root of your project:
 |---------|-------|-------------|
 | `node tools/fb-lane.cjs bootstrap` | Setup | Auto-generates board, rules, folder structures, and Claude configurations. |
 | `node tools/fb-lane.cjs status` | Utility | Prints all active tasks, branch mappings, and active file locks. |
-| `node tools/fb-lane.cjs claim <id> <lane> [locks]` | Workers | Checks out a task branch, locks files on the board, and prepares clipboard prompt. |
+| `node tools/fb-lane.cjs claim <id> <lane> [locks] [--worktree]` | Workers | Checks out a task branch, locks files on the board, and prepares clipboard prompt. Add `--worktree` to run concurrent lanes on separate branches in isolated dirs. |
 | `node tools/fb-lane.cjs quick <lane> <locks> [desc]` | Workers | Fast-track: creates a temporary task, checks out a quick branch, and unlocks write access. |
 | `node tools/fb-lane.cjs submit <id> [staging_url]` | Workers | Formats board updates, pushes feature branch, and moves task to `Staging QA`. |
 | `node tools/fb-lane.cjs merge <id>` | Product | Merges feature branch to main, unlocks files, and moves status to `Done`. |
