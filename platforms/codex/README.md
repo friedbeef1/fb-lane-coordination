@@ -94,6 +94,36 @@ The result: Codex still does what it is good at, but the user no longer has to b
 
 ---
 
+## How FB-Lane Works With Codex Worktrees
+
+Codex worktrees and FB-Lane are not competing answers to the same problem.
+
+- **Worktrees are physical isolation**: each task or lane can run in a separate Git checkout, so one thread's edits do not disturb another thread's working directory.
+- **FB-Lane is coordination**: each lane has an owner, scope, file claim, status, handoff, and Product/Captain integration path.
+
+In plain terms: worktrees give each lane a separate workspace. FB-Lane gives each lane a job, a claim ticket, and a handoff back to Product.
+
+Use the tools this way:
+
+- **Use Codex worktrees alone** when the tasks are technically independent and you are comfortable reviewing branches and merge order yourself.
+- **Use FB-Lane alone** for planning, copy, design review, product decisions, small edits, or one Product/Captain thread coordinating native Codex subagents.
+- **Use both together** for bigger code-writing work: Product splits the work, each implementation lane works in its own Codex worktree, every lane claims files in the board, each lane writes a handoff, and Product/Captain sequences the final integration.
+
+Example prompt:
+
+```text
+@fb-lane
+Use FB-Lane with Codex worktrees for code-writing lanes.
+Product should split the work.
+Tech, Design, and Business should work separately.
+Each lane should claim files, write a handoff, and return to Product.
+Product should sequence the final integration and tell me what is ready to merge.
+```
+
+If Codex asks before creating worktrees, pushing branches, or merging, approve only when the lane scope and affected files are clear on the board.
+
+---
+
 ## Two Codex Workflows
 
 ### 1. One Product/Captain Thread + Native Codex Subagents

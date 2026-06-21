@@ -141,6 +141,8 @@ Without that layer, the user becomes the traffic controller:
 
 FB-Lane fixes that by making every lane sync from `PROJECT_BOARD.md`, claim files before editing, write durable handoffs for non-trivial work, and pass the result back to Product/Captain for integration.
 
+For bigger code edits, use Codex worktrees underneath FB-Lane. Worktrees isolate the actual Git checkout for each lane; FB-Lane keeps the role ownership, file claims, handoffs, and Product sequencing visible. Worktrees protect the workspace. FB-Lane protects the product coordination.
+
 The simplest workflow is to give multiple lane instructions in one Product/Captain thread:
 
 ```text

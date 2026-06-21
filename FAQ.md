@@ -241,6 +241,20 @@ codex plugin add fb-lane-coordination@fb-lane
 
 The plugin bundles Codex skills for `fb-lane`, `fb-product`, `fb-tech`, `fb-design`, and `fb-business`, plus the `fb-lane` MCP server. It does not replace Codex concurrency; it packages the guardrails that make concurrent Codex lane work safe.
 
+### Q: Are Codex worktrees an alternative to FB-Lane?
+**A:** They overlap only at the high level of "safer parallel work." They solve different parts of the problem.
+
+Codex worktrees provide **workspace isolation**: each task can run in a separate Git checkout, so one thread's edits do not disturb another thread's working directory.
+
+FB-Lane provides **product coordination**: lane ownership, board status, file claims, boundary rules, handoff docs, and Product/Captain sequencing.
+
+You can use worktrees without FB-Lane if the tasks are technically independent and you are comfortable managing branches, reviews, and merge order yourself. You can use FB-Lane without worktrees for planning, copy, design review, small edits, or a single Product/Captain thread coordinating subagents. For bigger code-writing lanes, use both: worktrees isolate the files, and FB-Lane coordinates the people-shaped workflow.
+
+### Q: If FB-Lane has file locks, do I still need Codex worktrees?
+**A:** Sometimes, yes. FB-Lane file locks are a coordination rule: they tell lanes which files or surfaces are claimed and when another lane should stop. Worktrees are a Git isolation mechanism: they give each lane a separate checkout so independent edits do not share the same working directory.
+
+For low-risk docs, planning, copy, or narrow edits, FB-Lane claims may be enough. For heavier implementation, risky refactors, or several code-writing lanes at once, worktrees are the stronger isolation layer. The clean setup is: Product/Captain splits the work, each lane uses its own worktree where useful, every lane claims files on the board, and Product/Captain integrates the finished handoffs.
+
 ### Q: In Codex, can I address lanes like `@tt-design` or `@tt-tech`?
 **A:** Yes, as a lightweight convention. It is not the same as Claude Code's native `@agent` mention unless your Codex environment has a matching agent router installed. In Codex, the repo rules can define these aliases:
 
