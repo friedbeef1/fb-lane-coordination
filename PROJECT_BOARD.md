@@ -21,6 +21,7 @@
 | TASK-006 | Done | FB-Product | Codex Docs | Explain how FB-Lane works with Codex worktrees | `README.md`, `FAQ.md`, `platforms/codex/README.md` | `codex/pain-point-docs` |
 | TASK-007 | Done | FB-Tech | CLI | Fix quick-task ID parsing for `TASK-Q-####` board rows | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | `codex/quick-task-id-parser-fix` |
 | TASK-008 | Done | FB-Product | Documentation | Refresh plugin docs after merged Codex and quick-task work | `README.md`, `FAQ.md`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `PROJECT_BOARD.md` | `codex/docs-refresh-after-merges` |
+| TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 
 ---
 
@@ -208,3 +209,28 @@
     *   `PROJECT_BOARD.md`
 *   **Latest Update**:
     *   *2026-06-21*: Added immediate Codex post-install prompts, quick-task lifecycle documentation, and Codex plugin metadata version `0.1.1`. Current repo state: PR #8 and PR #10 are merged; PR #4 is closed as superseded; PR #3 remains a conflicting draft and is not documented as merged.
+
+
+### TASK-009 - Trim front page and move setup/platform details to focused docs
+*   **Status**: Done
+*   **Owner / Thread**: FB-Product
+*   **Area**: Documentation
+*   **Scope**: Make the front page shorter, remove platform-specific usage from the front page, move AI-powered/manual setup into a dedicated setup page, and keep Codex usage inside the Codex platform guide.
+*   **Out of Scope**: Changing plugin behavior, generated videos, or platform runtime claims.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Documentation only
+    *   **Locked Files**: `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/front-page-docs-trim`
+    *   **Staging URL**: (None)
+*   **QA Checklist**:
+    *   [x] Front page is shorter and links to platform guides instead of embedding platform-specific usage.
+    *   [x] AI-powered bootstrap and manual CLI bootstrap live on a separate setup page.
+    *   [x] Codex-specific usage prompts live in the Codex guide and are only linked from the front page.
+*   **Modified Files**:
+    *   `README.md`
+    *   `docs/setup.md`
+    *   `platforms/codex/README.md`
+    *   `PROJECT_BOARD.md`
+*   **Latest Update**:
+    *   *2026-06-21*: Reworked the front page into a concise overview and platform-router, moved AI-powered/manual bootstrap to `docs/setup.md`, and kept Codex first-use prompts in the Codex platform guide.

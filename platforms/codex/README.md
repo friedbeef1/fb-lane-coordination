@@ -25,29 +25,24 @@ This installs:
 After install, start a new Codex thread and ask for `@fb-lane`, `$fb-lane`, or a lane-specific skill. Example:
 
 ```text
+@fb-lane status
+```
+
+Then describe the work in normal language:
+
+```text
 @fb-lane
-Run these concurrently:
-@tt-design create prep-screen icon options.
-@tt-tech check whether the auth flow is safe.
-@tt-business rewrite the onboarding copy.
-Then have Product sequence the handoffs and flag conflicts.
+Split this across Product, Tech, Design, and Business.
+Use worktrees for code-writing lanes where helpful.
+Each lane should claim files, write a handoff, and return to Product.
+Product should sequence the final integration and tell me what is ready to merge.
 ```
 
 The plugin does not create Codex's parallelism. Codex already has that. The plugin packages the coordination layer: skills, MCP status/claim/submit/merge tools, file locks, handoffs, and Product/Captain integration.
 
-### Method B: AI-Powered Bootstrap
-If you have an AI agent active in your workspace, simply paste this prompt:
-> *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and MCP configuration automatically."*
+### Fallback Setup
 
-### Method C: Manual CLI Bootstrap
-1. Download the CLI script:
-   ```bash
-   curl -o tools/fb-lane.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.cjs
-   ```
-2. Run bootstrap:
-   ```bash
-   node tools/fb-lane.cjs bootstrap
-   ```
+If you are not using the Codex plugin installer, use the fallback setup paths in [../../docs/setup.md](../../docs/setup.md).
 
 ---
 
