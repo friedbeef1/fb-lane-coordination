@@ -20,6 +20,7 @@
 | TASK-005 | Done | FB-Product | Codex Docs | Clarify Codex plugin pain point and value | (None) | `codex/pain-point-docs` |
 | TASK-006 | Done | FB-Product | Codex Docs | Explain how FB-Lane works with Codex worktrees | `README.md`, `FAQ.md`, `platforms/codex/README.md` | `codex/pain-point-docs` |
 | TASK-007 | Done | FB-Tech | CLI | Fix quick-task ID parsing for `TASK-Q-####` board rows | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | `codex/quick-task-id-parser-fix` |
+| TASK-008 | Done | FB-Product | Documentation | Refresh plugin docs after merged Codex and quick-task work | `README.md`, `FAQ.md`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `PROJECT_BOARD.md` | `codex/docs-refresh-after-merges` |
 
 ---
 
@@ -180,3 +181,30 @@
     *   `PROJECT_BOARD.md`
 *   **Latest Update**:
     *   *2026-06-21*: Applied the parser-only fix from draft PR #4 to both CLI copies and verified quick-task read/write behavior without merging optional example icon assets.
+
+
+### TASK-008 - Refresh plugin docs after merged Codex and quick-task work
+*   **Status**: Done
+*   **Owner / Thread**: FB-Product
+*   **Area**: Documentation
+*   **Scope**: Update user-facing docs so the repo reflects the merged Codex worktree guidance, immediate post-install usage, quick-task parser support, and remaining draft PR state.
+*   **Out of Scope**: Changing runtime behavior, videos, platform-specific claims, or draft PR #3 content.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Documentation only
+    *   **Locked Files**: `README.md`, `FAQ.md`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `PROJECT_BOARD.md`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/docs-refresh-after-merges`
+    *   **Staging URL**: (None)
+*   **QA Checklist**:
+    *   [x] Install-time docs include a first prompt that works without reading the full README.
+    *   [x] Quick-task docs mention `TASK-Q-####` status/submit/merge support.
+    *   [x] Outstanding draft PR state is documented without implying it is merged.
+*   **Modified Files**:
+    *   `README.md`
+    *   `FAQ.md`
+    *   `plugins/fb-lane-coordination/README.md`
+    *   `plugins/fb-lane-coordination/.codex-plugin/plugin.json`
+    *   `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`
+    *   `PROJECT_BOARD.md`
+*   **Latest Update**:
+    *   *2026-06-21*: Added immediate Codex post-install prompts, quick-task lifecycle documentation, and Codex plugin metadata version `0.1.1`. Current repo state: PR #8 and PR #10 are merged; PR #4 is closed as superseded; PR #3 remains a conflicting draft and is not documented as merged.
