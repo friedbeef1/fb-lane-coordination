@@ -1,8 +1,10 @@
 # FB-Lane on Codex
 
-Codex is a local developer agent that operates directly on your filesystem and git workspace. It excels at codebase audits, local compilation checks, terminal automation, and native subagent concurrency. The main FB-Lane benefit in Codex is that you can give multiple lane instructions at once and let Codex run them concurrently without the lanes editing the same files or losing handoff context.
+Codex is a local developer agent that operates directly on your filesystem and git workspace. It already supports native subagents for parallel work, worktrees for isolated background tasks, plugins for reusable workflows, skills for task-specific instructions, and MCP servers for shared tools and context. FB-Lane does not replace those capabilities.
 
-> **Codex reality check:** Codex already has native subagents for concurrency. FB-Lane is not what makes Codex parallel. FB-Lane is the shared-state protocol that makes parallel Codex work safe: lane identity, file claims, status checks, handoffs, and Product/Captain integration.
+The Codex pain point is narrower: once you start using those capabilities for real product work, someone still has to answer "who owns this?", "which files are safe to edit?", "what finished?", "what must Product integrate first?", and "what did the other lane decide?". FB-Lane gives Codex a lightweight product-coordination contract for that layer.
+
+> **Codex reality check:** Codex already has concurrency and isolation primitives. FB-Lane is not what makes Codex parallel. FB-Lane is the shared-state protocol that makes parallel lane work easier to trust: lane identity, file claims, status checks, handoffs, and Product/Captain integration.
 
 ## ⚡ Quick Setup
 
@@ -49,18 +51,46 @@ If you have an AI agent active in your workspace, simply paste this prompt:
 
 ---
 
-## The Problem This Solves in Codex
-As a local, filesystem-active developer agent, Codex is prone to:
-* **Uncoordinated Parallelism**: Codex can run multiple subagents, but without a shared claim/status protocol they may inspect stale state, duplicate work, or edit the same files.
-* **Merge Collisions**: If multiple Codex runs execute in the same workspace without branch isolation, they will overwrite each other's changes, corrupting the code state.
-* **Dirty Git Logs**: Mixing project board tracking updates, markdown notes, and source code edits in a single commit makes PR reviews extremely difficult.
-* **Scope Creep & Code Bleed**: Without rigid boundary constraints, a Codex run might aggressively modify stylesheets, schemas, and config files all in one go to solve a minor issue, introducing regressions.
+## The Pain Point This Solves in Codex
+Codex already gives you the building blocks for parallel work:
 
-**How FB-Lane fixes this:**
-* **Mandatory Feature Branches**: Enforces the checkout of isolated branches (`tech/[feature]` or `design/[feature]`).
-* **Atomic Documentation Commits**: Enforces committing `PROJECT_BOARD.md` updates separately from code changes.
-* **Rigid Code Boundaries**: Prevents the agent from editing files or directories outside its assigned role (e.g., Tech lane cannot modify `.css` files).
-* **Simulated Tool Sandboxing**: Enforces role restrictions in Codex's system instructions (e.g. `.codex/rules.md`), strictly prohibiting the agent from running write/deploy commands or modifying files outside its domain (such as keeping `FB-Business` read-only).
+- **Subagents** can explore, test, or analyze work concurrently.
+- **Worktrees** let Codex run independent tasks in separate Git checkouts so they do not disturb the foreground workspace.
+- **Plugins, skills, and MCP servers** package reusable workflows and tools.
+
+So the pain point is not "Codex cannot run multiple things." The pain point is what happens when a user tries to use that power like a real product team:
+
+```text
+@tt-design create new prep-screen icons.
+@tt-tech check whether the auth flow is safe.
+@tt-business rewrite onboarding copy.
+@tt-product decide whether this goes to staging.
+```
+
+Without an explicit coordination layer, the user is still left to manage the product-level state:
+
+- Which lane owns the task?
+- Which files or surfaces are safe to edit?
+- Are two lanes about to touch the same component from different angles?
+- Did Business write copy for a feature Tech has not built yet?
+- Did Design assume an API shape Tech changed?
+- What should Product review first, and what must wait?
+- Where is the handoff after the original chat context gets cleared?
+
+Codex worktrees reduce direct workspace interference. Codex subagents reduce context overload and can save time. But neither one is, by itself, a product coordination board, lane-boundary policy, or handoff protocol.
+
+**What this does not claim:** FB-Lane does not claim Codex is unable to run parallel work, isolate work in worktrees, or package workflows through plugins. Those are Codex capabilities. FB-Lane makes the product/team semantics around that work explicit and durable.
+
+**How FB-Lane fixes this elegantly:**
+
+- **Shared board**: `PROJECT_BOARD.md` records owner, scope, status, locks, links, QA, and next owner.
+- **Lane identity**: `fb-product`, `fb-tech`, `fb-design`, and `fb-business` make ownership explicit before work starts.
+- **File claims**: lanes claim files/surfaces before editing and stop when another active lane owns the same area.
+- **Boundary rules**: Tech does not drift into styling, Design does not drift into auth/data, and Business stays read-only on app code.
+- **Handoff docs**: non-trivial lane output lands in `docs/handoffs/` so Product can integrate from durable repo state instead of scattered chat history.
+- **Product endpoint**: Product/Captain sequences dependencies, resolves conflicts, checks staging readiness, and owns the final merge decision.
+
+The result: Codex still does what it is good at, but the user no longer has to be the human traffic controller for every parallel lane.
 
 ---
 
@@ -68,7 +98,7 @@ As a local, filesystem-active developer agent, Codex is prone to:
 
 ### 1. One Product/Captain Thread + Native Codex Subagents
 
-This is the safest default. You give several lane instructions to one Product/Captain thread. Codex runs the safe pieces concurrently; FB-Lane makes each lane check and claim shared repo state before editing:
+This is the safest default. You give several lane instructions to one Product/Captain thread. Codex can use native subagents where the work is independent; FB-Lane makes each lane check and claim shared repo state before editing:
 
 ```text
 Product/Captain mode.
@@ -81,7 +111,7 @@ Run this in parallel where safe:
 Do not let agents edit overlapping files. Integrate the lane outputs here.
 ```
 
-Product/Captain remains the integration owner. It decides which work can run in parallel, serializes shared-file edits, and records final decisions. This is the core Codex use case: multiple instructions can run at once without you manually babysitting collisions.
+Product/Captain remains the integration owner. It decides which work can run in parallel, serializes shared-file edits, and records final decisions. This is the core Codex use case: you can issue multiple lane instructions at once without manually tracking every file claim, dependency, and handoff.
 
 ### 2. Persistent Codex Sidebar Lane Threads
 
@@ -120,7 +150,7 @@ Common aliases:
 
 ## Minimal Lane Awareness Contract
 
-Codex lane threads do not share chat memory. They become aware of each other through files in the repo. A minimal setup should provide:
+Do not rely on separate Codex chats or subagent summaries as the source of truth for coordination. Make lanes aware of each other through files in the repo. A minimal setup should provide:
 
 1. A status command or rule that reads active lane claims.
 2. A claim command that records the lane, task, board item, and locked files.
