@@ -117,6 +117,8 @@ Product should sequence the final integration and tell me what is ready to merge
 
 If Codex asks before creating worktrees, pushing branches, or merging, approve only when the lane scope and affected files are clear on the board.
 
+Solved, the payoff is real: feed Codex several goals at once and let its lanes run them concurrently while the board's file-claims keep them from colliding.
+
 > **Running two lanes on different branches at once:** `claim` does an in-place `git checkout`, and
 > one working directory holds only one branch — so concurrent lanes share a tree and rely on file
 > locks. To put each concurrent lane on its own branch in its own directory, add `--worktree`:
