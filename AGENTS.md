@@ -35,10 +35,10 @@ To prevent context window overload and git collisions, strictly adhere to your a
 
 ### 💬 The User's Role: Supervisor & Reviewer
 
-The user (acting as the external supervisor) is shielded from manual project coordination, task tracking, or Git management. The framework is optimized for **Main Approach: Autonomous Background Orchestration**, with **Optional Interaction: Interactive Direct Control** serving as a manual escape hatch or fallback mode for single-threaded platforms.
+The user (acting as the external supervisor) is shielded from manual project coordination, task tracking, or Git management. The plugin is optimized for **Main Approach: Autonomous Background Orchestration**, with **Optional Interaction: Interactive Direct Control** serving as a manual escape hatch or fallback mode for single-threaded platforms.
 
 #### Main Approach: Autonomous Background Orchestration (<20% Involvement - Optimized Mode)
-* **Status**: **Primary/Recommended**. This is the mode the framework is designed and optimized for.
+* **Status**: **Primary/Recommended**. This is the mode the plugin is designed and optimized for.
 * **Workflow**: The user talks only to the main **`FB-Product`** thread to describe features and milestones. Product automatically handles task planning, claiming, file locking, branch checkouts, and spawns background subagents (`FB-Tech`, `FB-Design`, `FB-Business`) in the background to execute work in parallel.
 * **User Touchpoints**: Restricted to reviewing plans (Plan Gate) and verifying staging environments (Staging Gate) before final merges.
 * **Sidebar Threads**: Used passively as detail desks. If the user opens a sidebar thread to check technical details, the agent reads local handoff files and schema states to present an update.
@@ -76,7 +76,7 @@ All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate
 *   **Fast-Track Quick Edits**: For micro-edits (such as simple typos or minor styling tweaks), you can bypass the main Product triage and planning process. Run `node tools/fb-lane.cjs quick <lane> <locks> [desc]` to instantly generate a temporary task on the board, checkout a `quick/` branch, and unlock the lane agent's write ability in the sidebar for those locked files.
 *   **Never commit directly to main**. All work must go through a branch.
 *   **Commit Docs Separately**: When editing documentation, `PROJECT_BOARD.md`, design specifications, plans, or handoff notes, commit those updates separately from codebase logic and styling changes. Stage files explicitly and keep documentation commits clean.
-*   **Local Testing & Auto-Fixing**: Active agents must compile code and run test suites locally (e.g., `npm test`) before submitting. The framework's `submit` command programmatically executes these tests and blocks the commit/push if they fail.
+*   **Local Testing & Auto-Fixing**: Active agents must compile code and run test suites locally (e.g., `npm test`) before submitting. The plugin's `submit` command programmatically executes these tests and blocks the commit/push if they fail.
 *   **Token Burn Protection (Debug Retry Limit)**: If local tests or compilation fail, the agent must enter an autonomous debugging loop—parsing the stderr/stdout console output, making code corrections, and rerunning the tests. To protect the user's token budget from runaway loops, the agent is restricted to a maximum of **5 debugging retries** (edit -> test -> edit) per task.
 *   **Escalation Protocol**: If the tests still fail after the 5th retry, the agent must immediately stop work. It must flag the task status on `PROJECT_BOARD.md` as `Blocked` (with the label `Blocked - Debug Retry Limit Exceeded`), append the current test/compilation logs to the task details card, and notify the user for manual intervention.
 *   **Staging First**: All features must be visually and functionally verified on staging before production promotion is requested. Do not deploy to production based on stale approvals from prior chats/days.

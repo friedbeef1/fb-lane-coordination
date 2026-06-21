@@ -6,7 +6,7 @@
 
 ---
 
-## Framework
+## Plugin
 
 This project uses the **FB-Lane Four-Lane Coordination Model**.  
 The source of truth for all active tasks and file locks is `PROJECT_BOARD.md` in the project root.
