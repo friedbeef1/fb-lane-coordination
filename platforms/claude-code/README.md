@@ -15,6 +15,49 @@ Claude Code discovers three project-local artifacts:
 > `.claude/agents/*.md` (used when this repo is opened directly as a Claude Code project). They are
 > identical copies — if you change a lane's prompt, edit both.
 
+## ⚠️ The Pain Points & Elegant Fixes in Claude Code
+
+> **Reality check (so we don't oversell):** Claude Code already gives you **context-isolated
+> subagents** — per the docs, *"each subagent runs in its own context window… and returns only the
+> summary"* — and **`claude --worktree` parallel sessions** so *"concurrent edits don't collide."*
+> So FB-Lane is **not** what makes Claude Code parallel or context-clean; those are native. The gap
+> FB-Lane fills is that those primitives **isolate work but do not coordinate it** — there is no
+> shared task state, no cross-session awareness, and no integration gate. That coordination layer is
+> the entire value here, and the pain points below are scoped to it (we deliberately do *not* claim
+> FB-Lane "fixes context bloat," because subagent isolation already does).
+
+### 1. Isolation Without Coordination (The Blind-Parallelism Pain Point)
+* **The Pain Point**: Worktrees and subagents isolate work — each session/worktree gets its own
+  checkout and context — but they are blind to each other. Two parallel lanes can edit the same
+  file, duplicate work, or build against conflicting assumptions, and nothing surfaces it until you
+  try to merge the branches together. Isolation prevents *live* collisions; it does nothing for
+  *integration* drift.
+* **The Elegant Fix**: **A Shared Board + File Claims + Integration Gate**. `PROJECT_BOARD.md` is a
+  version-controlled message bus every lane reads before writing: a lane claims its files (locking
+  them), so an overlapping claim is rejected up front instead of discovered at merge time. Each
+  lane writes a `docs/handoffs/TASK-XXX.md` card, and **FB-Product** cross-reads all submitted
+  branches to catch contract mismatches before sequencing the merges.
+
+### 2. State Amnesia Across Sessions (The Cold-Start Pain Point)
+* **The Pain Point**: A new, resumed, or auto-compacted session does not inherently know which
+  branch is active, which files are locked, or what the previous session was mid-way through. The
+  context that mattered may have been summarized away, leaving the agent to re-derive the workspace
+  state (or ask you to re-explain it).
+* **The Elegant Fix**: **A Filesystem Source of Truth**. Active branch, task, and file locks live on
+  disk in `PROJECT_BOARD.md` and `.codex/current_task.md`, not in chat memory. Typing `status` or
+  `SOP` makes any cold session inspect those files (and `git branch --show-current`) and resume with
+  full context — independent of whatever the conversation history retained.
+
+### 3. Tool Limits Are Not Domain Limits (The Scope-Bleed Pain Point)
+* **The Pain Point**: Subagents can restrict *which tools* they hold, but that is not the same as
+  restricting *which files a role owns*. An `fb-tech` subagent that legitimately needs `Edit` can
+  still edit a stylesheet; an `Edit` permission says nothing about CSS-vs-schema boundaries.
+* **The Elegant Fix**: **Lane Ownership + Board-Scoped Writes**. Each lane has explicit ownership
+  boundaries (Tech owns APIs/schemas and never touches CSS; Design owns CSS and never touches
+  backend; Business is read-only on code), and the task's claimed files on the board scope writes to
+  exactly that set — so the boundary is enforced by what the lane is allowed to claim, not just by
+  which tools it was handed.
+
 ## Install as a Claude Code plugin (recommended)
 
 This repo is also a single-plugin **marketplace** (`.claude-plugin/marketplace.json` +
