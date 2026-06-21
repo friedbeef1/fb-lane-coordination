@@ -16,6 +16,12 @@ Claude Code (CLI, web, and the desktop / IDE extensions) is supported natively. 
 > `.claude/agents/*.md` (used when this repo is opened directly as a Claude Code project). They are
 > identical copies — if you change a lane's prompt, edit both.
 
+## 📺 How-To Video
+
+> 📺 **[Watch the FB-Lane on Claude Code Video on YouTube](https://youtu.be/2QDJt3mt5P8)** (Cmd/Ctrl + click to open in a new tab)
+> 
+> [![FB-Lane on Claude Code Demo Video](https://img.youtube.com/vi/2QDJt3mt5P8/maxresdefault.jpg)](https://youtu.be/2QDJt3mt5P8)
+
 ## ⚠️ The Pain Points & Elegant Fixes in Claude Code
 
 > **Reality check (so we don't oversell):** Claude Code already gives you **context-isolated
