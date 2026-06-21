@@ -1,13 +1,19 @@
 # 🚀 FB-Lane Coordination Plugin
 
-**Run multiple AI agent threads concurrently on the same codebase — with zero merge conflicts, zero context overload, and strict scope safety.**
+**Point a swarm of AI agents at one codebase and actually get the speed-up — instead of merge conflicts, context bloat, and rework.**
 
-> 📺 **[Watch the FB-Lane Demo Video on YouTube](https://youtu.be/wry1xhaEEBg)** (Cmd/Ctrl + click to open in a new tab) — Watch the coordination loop run in real time:
+> 📺 **[Watch the FB-Lane Demo Video on YouTube](https://youtu.be/wry1xhaEEBg)** (Cmd/Ctrl + click to open in a new tab) — the coordination loop running in real time:
 [![FB-Lane Plugin Demo Video](https://img.youtube.com/vi/wry1xhaEEBg/maxresdefault.jpg)](https://youtu.be/wry1xhaEEBg)
 
-Looking for quick answers, troubleshooting tips, or details on how the coordination loops work under the hood? Check out our [Frequently Asked Questions (FAQ)](FAQ.md).
+Modern AI tools already run agents in parallel. The hard part isn't *starting* them — it's that they collide: two agents edit the same file, a "quick fix" rewrites your backend *and* your CSS, a debug loop burns tokens with no ceiling, and you only discover the API and the UI disagree at merge time. That's slower and more expensive than one careful agent.
 
-FB-Lane splits complex software development into four role-isolated workstreams (Product, Tech, Design, Business), each running in its own conversational thread. A version-controlled, markdown-based `PROJECT_BOARD.md` acts as the single source of truth and message bus for task state, branch names, and file-level resource locks.
+**FB-Lane is the coordination layer that makes parallel agent work safe.** It splits the job into four role-isolated lanes — Product, Tech, Design, Business — that claim and **lock the exact files they touch** on a shared, version-controlled `PROJECT_BOARD.md`. Lanes can't step on each other, can't drift out of their domain, and can't merge until Product cross-reads every branch. You run more agents at once and keep the speed-up.
+
+### Why it pays for itself
+- **Faster** — Lanes work at the same time without waiting on each other: each claims and locks its files on the board, so concurrent threads never collide or redo each other's work. A cleared or auto-compacted session recovers full context from the board with one command (`status`), so you never re-explain the workspace.
+- **Cheaper** — A **5-retry debug cap** stops runaway fix-loops before they drain your token budget; a **pre-submission test gate** blocks broken code from ever being pushed; role-isolated threads stay small and focused instead of dragging one bloated context across backend, CSS, and copy at once; and Product cross-reads every branch before merging, so contract drift is caught early — not as expensive rework after release.
+
+Want the details — how the loops work, the board lifecycle, or your specific platform? Start with the [FAQ](FAQ.md) or jump to the [platform guides](#-platform-integration-guides). Otherwise, the [1-Minute Setup](#-1-minute-setup) is right below.
 
 ---
 
