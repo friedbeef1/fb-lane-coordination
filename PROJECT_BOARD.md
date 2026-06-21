@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-Q-8688 | In Progress | FB-Tech | Quick-Fix | Quick test hooks | `scratch/test_quick.txt` | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-8688-quick-test-hooks) |
+| TASK-Q-8688 | Staging QA | FB-Tech | Quick-Fix | Quick test hooks | `scratch/test_quick.txt` | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-8688-quick-test-hooks) |
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) |
 | TASK-002 | Ready | FB-Tech | Core | Implement user authentication endpoints | `src/auth.ts`, `src/db.ts` | (None) |
 | TASK-003 | Ready | FB-Design | UI | Design responsive dashboard navigation | `src/navigation.css` | (None) |
@@ -238,7 +238,7 @@
 
 
 ### TASK-Q-8688 - Quick test hooks
-*   **Status**: In Progress
+*   **Status**: Staging QA
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Quick-Fix
 *   **Scope**: Quick test hooks
