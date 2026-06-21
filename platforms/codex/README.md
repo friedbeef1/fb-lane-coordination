@@ -6,6 +6,18 @@ The Codex pain point is narrower: once you start using those capabilities for re
 
 > **Codex reality check:** Codex already has concurrency and isolation primitives. FB-Lane is not what makes Codex parallel. FB-Lane is the shared-state protocol that makes parallel lane work easier to trust: lane identity, file claims, status checks, handoffs, and Product/Captain integration.
 
+## Platform Comparison Column
+
+| Difference | Codex |
+|---|---|
+| Guide | [Guide](README.md) |
+| Demo video | [Video](../../codex-lane-demo/renders/codex-lane-demo.mp4) |
+| Multi-agent orchestration | Available, but more general |
+| Lane identity | Usually skills/rules/conventions unless routed by a plugin |
+| Workspace isolation | Strong worktree support, but you compose the workflow |
+| Coordination state | Repo files, skills, MCP, board, handoffs |
+| Best fit | "Build a durable, repo-controlled operating loop" |
+
 ## ⚡ Quick Setup
 
 ### Method A: Codex Plugin (Recommended)

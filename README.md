@@ -31,11 +31,15 @@ FB-Lane fixes this by making every lane sync from the board, claim files before 
 
 Choose the guide for the AI tool you use:
 
-| Platform | Guide | Best For |
-|---|---|---|
-| Antigravity 2.0 | [platforms/antigravity/README.md](platforms/antigravity/README.md) | Native multi-agent orchestration and isolated worker lanes. |
-| Claude Code | [platforms/claude-code/README.md](platforms/claude-code/README.md) | `@agent` / `/agents` lane workflows with MCP and optional worktrees. |
-| Codex | [platforms/codex/README.md](platforms/codex/README.md) | Codex plugin, skills, MCP, subagents, and worktrees. |
+| Difference | Antigravity / AG2 | Claude Code | Codex |
+|---|---|---|---|
+| Guide | [Guide](platforms/antigravity/README.md) | [Guide](platforms/claude-code/README.md) | [Guide](platforms/codex/README.md) |
+| Demo video | [Video](platforms/antigravity/how-to-interact-demo/renders/antigravity-how-to-interact.mp4) | [Video](platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4) | [Video](codex-lane-demo/renders/codex-lane-demo.mp4) |
+| Multi-agent orchestration | Most native | Native enough via subagents | Available, but more general |
+| Lane identity | Dedicated worker agents | `@agent` / subagent personas | Usually skills/rules/conventions unless routed by a plugin |
+| Workspace isolation | More built-in/background-worker style | Optional worktrees or separate sessions | Strong worktree support, but you compose the workflow |
+| Coordination state | Agent/workflow driven | Subagents + MCP + files | Repo files, skills, MCP, board, handoffs |
+| Best fit | "Run a product team of workers" | "Talk to named specialist agents" | "Build a durable, repo-controlled operating loop" |
 
 Manual/bootstrap setup options live in [docs/setup.md](docs/setup.md).
 

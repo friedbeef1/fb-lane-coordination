@@ -16,6 +16,18 @@ Claude Code (CLI, web, and the desktop / IDE extensions) is supported natively. 
 > `.claude/agents/*.md` (used when this repo is opened directly as a Claude Code project). They are
 > identical copies — if you change a lane's prompt, edit both.
 
+## Platform Comparison Column
+
+| Difference | Claude Code |
+|---|---|
+| Guide | [Guide](README.md) |
+| Demo video | [Video](how-to-interact-demo/renders/claude-code-how-to-interact.mp4) |
+| Multi-agent orchestration | Native enough via subagents |
+| Lane identity | `@agent` / subagent personas |
+| Workspace isolation | Optional worktrees or separate sessions |
+| Coordination state | Subagents + MCP + files |
+| Best fit | "Talk to named specialist agents" |
+
 ## ⚠️ The Pain Points & Elegant Fixes in Claude Code
 
 > **Reality check (so we don't oversell):** Claude Code already gives you **context-isolated

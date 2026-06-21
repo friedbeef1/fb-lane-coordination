@@ -2,6 +2,18 @@
 
 Antigravity is a highly agentic SDK with native support for multi-agent systems, background subagent executions, task scheduling, and inter-agent messaging. This directory contains instructions and templates to leverage Antigravity's tools to automate the FB-Lane coordination model. Done right, the payoff is that you spin up all four lanes at once and keep feeding them goals, with the board making sure they never overwrite each other.
 
+## Platform Comparison Column
+
+| Difference | Antigravity / AG2 |
+|---|---|
+| Guide | [Guide](README.md) |
+| Demo video | [Video](how-to-interact-demo/renders/antigravity-how-to-interact.mp4) |
+| Multi-agent orchestration | Most native |
+| Lane identity | Dedicated worker agents |
+| Workspace isolation | More built-in/background-worker style |
+| Coordination state | Agent/workflow driven |
+| Best fit | "Run a product team of workers" |
+
 ## ⚠️ The Pain Points & Elegant Fixes in Antigravity
 
 Antigravity's highly agentic, multi-threaded nature is powerful, but complex multi-agent setups introduce specific developer pain points:
