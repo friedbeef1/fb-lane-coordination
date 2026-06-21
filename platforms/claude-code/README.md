@@ -1,8 +1,9 @@
 # FB-Lane on Claude Code
 
+> **Why it matters:** keep handing Claude Code new goals — independent ones run in parallel worktrees while the shared board stops any two from touching the same files.
+
 Claude Code (CLI, web, and the desktop / IDE extensions) is supported natively. Unlike Antigravity
-(which reads `agents/*/agent.json`) or Claude Desktop (which uses `claude_desktop_config.json`),
-Claude Code discovers three project-local artifacts:
+(which reads `agents/*/agent.json`), Claude Code discovers three project-local artifacts:
 
 | Artifact | Purpose |
 |----------|---------|

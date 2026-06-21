@@ -1,8 +1,7 @@
 # CLAUDE.md — FB-Lane Coordination Rules
 
 > **How to use this file**: Copy this file into your project root as `CLAUDE.md`.  
-> Claude Code and Claude Desktop automatically read this file on every session.  
-> For Claude web (Projects), paste the contents into your Project's Custom Instructions.
+> Claude Code automatically reads this file on every session.
 
 ---
 

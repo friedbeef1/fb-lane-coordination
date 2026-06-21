@@ -447,9 +447,9 @@ ${task.scope}
   }
   if (copied) {
     console.log('\n🚀 STARTUP PROMPT COPIED TO CLIPBOARD!');
-    console.log('   Simply open a fresh chat thread in Claude/Cursor and paste (Cmd+V) to begin.\n');
+    console.log('   Simply open a fresh chat thread in Claude Code and paste (Cmd+V) to begin.\n');
   } else {
-    console.log('\n👉 Copy-paste this startup prompt into your Claude/Cursor thread:');
+    console.log('\n👉 Copy-paste this startup prompt into your Claude Code thread:');
     console.log('-'.repeat(60));
     console.log(prompt);
     console.log('-'.repeat(60) + '\n');
@@ -629,9 +629,9 @@ ${scopeDescription} (Quick Edit)
   console.log(`   - Codex Desktop context written to .codex/current_task.md`);
   if (copied) {
     console.log('\n🚀 STARTUP PROMPT COPIED TO CLIPBOARD!');
-    console.log('   Simply open a fresh chat thread in Claude/Cursor and paste (Cmd+V) to begin.\n');
+    console.log('   Simply open a fresh chat thread in Claude Code and paste (Cmd+V) to begin.\n');
   } else {
-    console.log('\n👉 Copy-paste this startup prompt into your Claude/Cursor thread:');
+    console.log('\n👉 Copy-paste this startup prompt into your Claude Code thread:');
     console.log('-'.repeat(60));
     console.log(prompt);
     console.log('-'.repeat(60) + '\n');
@@ -1372,49 +1372,7 @@ ${FB_LANE_END}`;
     }
   }
 
-  // 6. Auto-configure Claude Desktop MCP
-  const os = require('os');
-  let claudeConfigPath = '';
-  if (process.platform === 'darwin') {
-    claudeConfigPath = path.join(os.homedir(), 'Library', 'Application Support', 'Claude', 'claude_desktop_config.json');
-  } else if (process.platform === 'win32') {
-    claudeConfigPath = path.join(process.env.APPDATA || '', 'Claude', 'claude_desktop_config.json');
-  }
-
-  if (claudeConfigPath) {
-    try {
-      const configDir = path.dirname(claudeConfigPath);
-      if (!fs.existsSync(configDir)) {
-        fs.mkdirSync(configDir, { recursive: true });
-      }
-
-      let config = { mcpServers: {} };
-      if (fs.existsSync(claudeConfigPath)) {
-        try {
-          config = JSON.parse(fs.readFileSync(claudeConfigPath, 'utf8'));
-        } catch (err) {
-          console.warn('⚠️  Could not parse existing claude_desktop_config.json. Overwriting with clean template.');
-        }
-      }
-
-      if (!config.mcpServers) {
-        config.mcpServers = {};
-      }
-
-      const scriptPath = path.join(rootDir, 'tools', 'fb-lane.cjs');
-      config.mcpServers['fb-lane'] = {
-        command: 'node',
-        args: [scriptPath, 'mcp']
-      };
-
-      fs.writeFileSync(claudeConfigPath, JSON.stringify(config, null, 2), 'utf8');
-      console.log(`🔌 Auto-configured Claude Desktop MCP server at: ${claudeConfigPath}`);
-    } catch (err) {
-      console.warn(`⚠️  Failed to automatically configure Claude Desktop MCP: ${err.message}`);
-    }
-  }
-
-  // 7. Auto-configure Claude Code MCP server (project-scoped .mcp.json — all platforms)
+  // 6. Auto-configure Claude Code MCP server (project-scoped .mcp.json — all platforms)
   const mcpJsonPath = path.join(rootDir, '.mcp.json');
   try {
     let mcpConfig = { mcpServers: {} };
@@ -1438,7 +1396,7 @@ ${FB_LANE_END}`;
     console.warn(`⚠️  Failed to configure Claude Code MCP (.mcp.json): ${err.message}`);
   }
 
-  // 8. Create Claude Code lane subagents (.claude/agents/*.md — non-destructive).
+  // 7. Create Claude Code lane subagents (.claude/agents/*.md — non-destructive).
   // Derived from the canonical `agentConfigs` above so the lanes stay in sync. Antigravity
   // tool names are mapped to Claude Code tools; FB-Business stays read-only on code.
   const claudeAgentsDir = path.join(rootDir, '.claude', 'agents');

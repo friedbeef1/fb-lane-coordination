@@ -1,10 +1,10 @@
 # FB-Lane Coordination Plugin
 
-Run Product, Tech, Design, and Business AI lanes in parallel without losing track of ownership, file claims, handoffs, or merge order.
+Keep telling your AI what you want, as fast as you think of it. FB-Lane lets Product, Tech, Design, and Business lanes work across one codebase without losing ownership, file claims, handoffs, or merge order.
 
 [Watch the demo video](https://youtu.be/wry1xhaEEBg) | [FAQ](FAQ.md) | [Setup alternatives](docs/setup.md)
 
-FB-Lane is a lightweight coordination layer for multi-agent software work. It does not replace your AI tool's native concurrency. It gives concurrent work a shared operating model:
+FB-Lane is the coordination layer for many goals arriving over time. It does not replace your AI tool's native concurrency. It gives concurrent work a shared operating model:
 
 - `PROJECT_BOARD.md` records owner, status, scope, locks, links, and QA.
 - Product/Captain sequences work and owns final integration.
@@ -18,6 +18,7 @@ Without FB-Lane, parallel AI work tends to fail in predictable ways:
 
 | Problem | What Happens |
 |---|---|
+| Goal pile-up | New ideas wait behind whatever the current thread is doing. |
 | Context overload | One chat mixes backend, design, copy, and product decisions. |
 | File collisions | Two agents edit the same component or config without knowing it. |
 | Code bleed | A styling task changes backend code, or a tech task changes copy/layout. |
@@ -34,7 +35,6 @@ Choose the guide for the AI tool you use:
 |---|---|---|
 | Antigravity 2.0 | [platforms/antigravity/README.md](platforms/antigravity/README.md) | Native multi-agent orchestration and isolated worker lanes. |
 | Claude Code | [platforms/claude-code/README.md](platforms/claude-code/README.md) | `@agent` / `/agents` lane workflows with MCP and optional worktrees. |
-| Claude Desktop / Projects | [platforms/claude/README.md](platforms/claude/README.md) | Manual or MCP-assisted lane coordination. |
 | Codex | [platforms/codex/README.md](platforms/codex/README.md) | Codex plugin, skills, MCP, subagents, and worktrees. |
 
 Manual/bootstrap setup options live in [docs/setup.md](docs/setup.md).

@@ -4,7 +4,6 @@ Use the platform guides first when possible:
 
 - [Antigravity 2.0](../platforms/antigravity/README.md)
 - [Claude Code](../platforms/claude-code/README.md)
-- [Claude Desktop / Projects](../platforms/claude/README.md)
 - [Codex](../platforms/codex/README.md)
 
 This page is for fallback setup paths when you are not installing through a platform-specific plugin flow.
@@ -17,7 +16,7 @@ If you already have an AI agent open in your target project workspace, paste thi
 I want to bootstrap the FB-Lane Coordination Plugin in this workspace.
 Read the template files and CLI utility from the fb-lane-coordination repository.
 Copy tools/fb-lane.cjs to my project's root tools/ directory.
-Run node tools/fb-lane.cjs bootstrap to set up my project board, agents, rules, and MCP configurations.
+Run node tools/fb-lane.cjs bootstrap to set up my project board, agents, rules, and MCP configuration.
 Do not overwrite existing project rules; merge with them conservatively.
 ```
 
@@ -46,7 +45,6 @@ After bootstrap, open the matching platform guide:
 
 - [Antigravity 2.0](../platforms/antigravity/README.md)
 - [Claude Code](../platforms/claude-code/README.md)
-- [Claude Desktop / Projects](../platforms/claude/README.md)
 - [Codex](../platforms/codex/README.md)
 
 ## Basic CLI Loop
