@@ -1002,12 +1002,12 @@ function handleMcpRequest(request) {
 
 // Main execution parsing
 function handleBootstrap() {
-  console.log('🚀 Bootstrapping FB-Lane Coordination Framework...\n');
+  console.log('🚀 Bootstrapping FB-Lane Coordination Plugin...\n');
   const rootDir = process.cwd();
 
   // 0. Auto-detect project metadata from package.json and git remote URL
   let projectName = path.basename(rootDir);
-  let projectDescription = 'A project using the FB-Lane coordination framework.';
+  let projectDescription = 'A project using the FB-Lane coordination plugin.';
   const pkgPath = path.join(rootDir, 'package.json');
   if (fs.existsSync(pkgPath)) {
     try {
@@ -1418,7 +1418,7 @@ ${FB_LANE_END}`;
     console.log(`🤖 Created Claude Code subagent: .claude/agents/${slug}.md`);
   }
 
-  console.log('\n🎉 FB-Lane Framework bootstrapped successfully!');
+  console.log('\n🎉 FB-Lane Plugin bootstrapped successfully!');
   console.log('👉 Antigravity 2.0: open this folder to see the lane agents in your left sidebar.');
   console.log('👉 Claude Code: reload to load .claude/agents/ (lanes) and approve the fb-lane MCP server via /mcp.\n');
 }
