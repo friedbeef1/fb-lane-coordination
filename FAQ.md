@@ -350,6 +350,8 @@ node tools/fb-lane.cjs quick Tech "src/utils.ts" "Fix db indexing"
 ```
 This automatically registers a temporary task (`TASK-Q-XXXX`) on your project board, checks out a `quick/` branch, locks the files, and immediately unlocks write capability for the `FB-Tech` agent in your active thread.
 
+Current CLI and packaged plugin tooling support generated `TASK-Q-####` IDs through `status`, `submit`, and `merge`, so quick tasks stay visible and manageable through the full board lifecycle.
+
 ### Q: What if my sidebar threads show stale info or a pending button from a background run?
 **A:** Because `PROJECT_BOARD.md` and git are the single source of truth, the threads are never actually out of sync. To force any sidebar thread to align its chat context with the actual state of your workspace instantly, just type **`status`** or **`SOP`** in that thread. The agent will read the board, detect the active branch, and update its context.
 
