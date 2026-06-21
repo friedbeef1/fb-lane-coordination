@@ -102,6 +102,8 @@ This repo doubles as a single-plugin marketplace. In Claude Code, run:
 ```
 This installs the four lane subagents, the `fb-lane` skills, and the `fb-lane` MCP server — no manual file copying. See [`platforms/claude-code/`](platforms/claude-code/README.md).
 
+Right after installing, type **`/fb-lane-coordination:quickstart`** for a 30-second orientation on how to drive the lanes — no need to read the docs first. (Or just say *"how do I use this?"* to the FB-Product thread.)
+
 ### Method D: AI-Powered Bootstrap
 If you have an active AI agent in your project workspace (such as Antigravity, Claude, or Codex), simply paste this instruction to let the agent copy and configure the plugin autonomously:
 > *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
@@ -207,7 +209,7 @@ Run from the root of your project:
 |---------|-------|-------------|
 | `node tools/fb-lane.cjs bootstrap` | Setup | Auto-generates board, rules, folder structures, and Claude configurations. |
 | `node tools/fb-lane.cjs status` | Utility | Prints all active tasks, branch mappings, and active file locks. |
-| `node tools/fb-lane.cjs claim <id> <lane> [locks]` | Workers | Checks out a task branch, locks files on the board, and prepares clipboard prompt. |
+| `node tools/fb-lane.cjs claim <id> <lane> [locks] [--worktree]` | Workers | Checks out a task branch, locks files on the board, and prepares clipboard prompt. Add `--worktree` to run concurrent lanes on separate branches in isolated dirs. |
 | `node tools/fb-lane.cjs quick <lane> <locks> [desc]` | Workers | Fast-track: creates a temporary task, checks out a quick branch, and unlocks write access. |
 | `node tools/fb-lane.cjs submit <id> [staging_url]` | Workers | Formats board updates, pushes feature branch, and moves task to `Staging QA`. |
 | `node tools/fb-lane.cjs merge <id>` | Product | Merges feature branch to main, unlocks files, and moves status to `Done`. |

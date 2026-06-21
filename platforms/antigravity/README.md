@@ -205,6 +205,13 @@ In the Main Approach, the user acts as the supervisor, interacting primarily wit
 2. **Subagent Execution**: The spawned agent operates on the checkout branch and implements the requested code changes locally.
 3. **Collaboration**: Subagents collaborate using inter-agent messaging (`send_message`).
 
+> **Concurrent lanes on separate branches:** subagents spawned here share one working tree and one
+> branch, kept apart by file locks. When you instead want each concurrent lane on its **own** branch
+> and directory, claim with `--worktree` (`node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
+> --worktree`) so the primary checkout stays put and `PROJECT_BOARD.md` remains authoritative there.
+> See the Claude Code guide's
+> [worktree section](../claude-code/README.md#run-lanes-in-parallel-with-worktrees-optional).
+
 ### Step 3: Staging Verification & Gates
 1. **Submit for QA**: When code changes are ready, the subagent (or Product) runs the submission command:
    ```bash
