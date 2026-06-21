@@ -17,6 +17,7 @@
 | TASK-002 | Ready | FB-Tech | Core | Implement user authentication endpoints | `src/auth.ts`, `src/db.ts` | (None) |
 | TASK-003 | Ready | FB-Design | UI | Design responsive dashboard navigation | `src/navigation.css` | (None) |
 | TASK-004 | Done | FB-Product | Codex | Package FB-Lane as a Codex plugin | (None) | PR #7 |
+| TASK-005 | Done | FB-Product | Codex Docs | Clarify Codex plugin pain point and value | (None) | `codex/pain-point-docs` |
 
 ---
 
@@ -104,3 +105,27 @@
     *   `platforms/codex/README.md`
 *   **Latest Update**:
     *   *2026-06-19*: Added and validated the Codex plugin package, including bundled skills and MCP workspace-path support.
+
+
+### TASK-005 - Clarify Codex plugin pain point and value
+*   **Status**: Done
+*   **Owner / Thread**: FB-Product
+*   **Area**: Codex Docs
+*   **Scope**: Update Codex-facing docs to make the real pain point explicit and avoid overstating Codex limitations.
+*   **Out of Scope**: Changing plugin code, videos, or non-Codex platform behavior.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Documentation only
+    *   **Locked Files**: (None)
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/pain-point-docs`
+    *   **Staging URL**: (None)
+*   **QA Checklist**:
+    *   [x] Codex claims are verified against current Codex docs/manual.
+    *   [x] Pain point is framed as coordination risk, not missing Codex capability.
+    *   [x] Fix/value proposition is clear and practical.
+*   **Modified Files**:
+    *   `README.md`
+    *   `FAQ.md`
+    *   `platforms/codex/README.md`
+*   **Latest Update**:
+    *   *2026-06-21*: Clarified that Codex already provides subagents/worktrees/plugins/skills/MCP; FB-Lane solves the cross-lane product coordination layer.

@@ -197,13 +197,24 @@ The human supervisor does not need technical project management expertise; they 
 **A:** The plugin operates differently based on the platform's orchestration capabilities:
 *   **Antigravity (Programmatic Multi-Agent)**: The main `FB-Product` thread runs on an agentic SDK. It uses programmatic tools (`define_subagent` and `invoke_subagent`) to spin up sandboxed background threads for `FB-Tech` and `FB-Design` autonomously. See [`platforms/antigravity/`](platforms/antigravity/README.md) and the Antigravity walkthrough video at [`platforms/antigravity/how-to-interact-demo/renders/antigravity-how-to-interact.mp4`](platforms/antigravity/how-to-interact-demo/renders/antigravity-how-to-interact.mp4).
 *   **Claude Code (Native Subagents + MCP)**: Four lane agents (`fb-product`, `fb-tech`, `fb-design`, `fb-business`) are registered as Claude Code subagents in `.claude/agents/` and invokable directly from the sidebar via `@mention`. The `fb-lane` MCP server connects all four to the same `PROJECT_BOARD.md` for real-time status and lock checks. The main session acts as FB-Product by default; open separate sidebar conversations for each lane to run them concurrently. Install as a plugin in one step: `/plugin marketplace add friedbeef1/fb-lane-coordination`. See [`platforms/claude-code/`](platforms/claude-code/README.md) and the Claude Code walkthrough video at [`platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4`](platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4).
-*   **Codex (Plugin + Local File/Git Agent)**: Install the Codex plugin with `codex plugin marketplace add friedbeef1/fb-lane-coordination` and `codex plugin add fb-lane-coordination@fb-lane`. The main benefit is that you can give multiple lane instructions at once, Codex can run them concurrently with native subagents or sidebar threads, and FB-Lane keeps those concurrent tasks from editing the same files or losing handoff context. FB-Lane's Codex value is the collision-control protocol: bundled skills, the `fb-lane` MCP server, local rules, a shared project board/current-task file, file claims, handoff docs, and Product/Captain integration gates.
+*   **Codex (Plugin + Local File/Git Agent)**: Install the Codex plugin with `codex plugin marketplace add friedbeef1/fb-lane-coordination` and `codex plugin add fb-lane-coordination@fb-lane`. Codex already has the primitives for parallel work: subagents, worktrees, plugins, skills, and MCP. FB-Lane's Codex value is the product coordination layer on top: lane ownership, shared board state, file claims, handoff docs, and Product/Captain integration gates.
 
 ### Q: What is the main benefit of FB-Lane in Codex?
-**A:** The main benefit is not that FB-Lane creates parallelism. Codex already has native subagents. The benefit is that you can give several lane instructions at once and let Codex run them concurrently without those lanes stepping on each other's files, losing context, or forcing you to manually coordinate locks and handoffs.
+**A:** The main benefit is not that FB-Lane creates parallelism. Codex already has subagents for parallel work and worktrees for isolated background tasks. The benefit is that you can use that power without becoming the human project manager for every lane.
+
+Without FB-Lane, the risky part is not "can Codex run this?" The risky part is:
+*   Who owns the task?
+*   Which files are safe to edit?
+*   Are Design and Tech both changing the same component?
+*   Did Business write copy for a feature Tech has not built?
+*   What did each lane finish, test, or leave risky?
+*   What should Product merge first?
+
+FB-Lane answers those questions with repo-visible state: board rows, lane roles, file claims, handoff docs, and Product/Captain integration.
 
 The practical Codex split is:
 *   **Concurrency engine**: Codex native subagents.
+*   **Workspace isolation option**: Codex worktrees.
 *   **Coordination safety**: FB-Lane board/status/claim/handoff protocol.
 *   **Final integration**: Product/Captain thread.
 
@@ -251,7 +262,7 @@ In a Product/Captain thread, a bundle like this means "route or spawn lanes wher
 In a persistent sidebar thread, the same tag means "this thread should adopt that lane, sync from repo state, and claim files before editing."
 
 ### Q: How do separate Codex lane threads become aware of each other?
-**A:** They do not share chat memory. They become aware through shared repo state.
+**A:** Do not rely on chat history as the coordination source. Separate Codex chats and subagent summaries are useful working contexts, but the durable source of truth should be shared repo state.
 
 The minimal automation loop is:
 1. The lane runs a status command or reads `PROJECT_BOARD.md` / `.codex/current_task.md` before editing.
