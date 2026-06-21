@@ -81,4 +81,4 @@ Branch merged to `main`, locks released, status → `Done`.
 
 ---
 
-See the full [README](../../README.md) for the complete framework documentation.
+See the full [README](../../README.md) for the complete plugin documentation.

@@ -2,7 +2,7 @@
 
 ## Skills — USE THESE FIRST
 
-**Always invoke the relevant skill before writing or modifying compositions.** Skills encode framework-specific patterns (e.g., `window.__timelines` registration, `data-*` attribute semantics, shader-compatible CSS rules) that are NOT in generic web docs. Skipping them produces broken compositions.
+**Always invoke the relevant skill before writing or modifying compositions.** Skills encode plugin-specific patterns (e.g., `window.__timelines` registration, `data-*` attribute semantics, shader-compatible CSS rules) that are NOT in generic web docs. Skipping them produces broken compositions.
 
 **Doing anything with HyperFrames?** Start at `/hyperframes` — it tells you what HyperFrames can do and which skill or workflow handles your intent (make a video, TTS / BGM, prep footage, author / animate, render, install blocks), and routes every "make me a video" request to the right workflow. Read it first, especially when there's no project context to orient you. The video workflows it routes to:
 
@@ -76,7 +76,7 @@ Fix all errors before presenting the result. Inspect warnings should be reviewed
 ## Key Rules
 
 1. Every timed element needs `data-start`, `data-duration`, and `data-track-index`
-2. Elements with timing **MUST** have `class="clip"` — the framework uses this for visibility control
+2. Elements with timing **MUST** have `class="clip"` — the plugin uses this for visibility control
 3. Timelines must be paused and registered on `window.__timelines`:
    ```js
    window.__timelines = window.__timelines || {};

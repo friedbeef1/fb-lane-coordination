@@ -35,7 +35,7 @@ The plugin does not create Codex's parallelism. Codex already has that. The plug
 
 ### Method B: AI-Powered Bootstrap
 If you have an AI agent active in your workspace, simply paste this prompt:
-> *"I want to bootstrap the FB-Lane Coordination Framework in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
+> *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
 
 ### Method C: Manual CLI Bootstrap
 1. Download the CLI script:
@@ -213,7 +213,7 @@ node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
 Add this directive to your project instructions (e.g. `.codex/rules.md` or system instructions) to instruct Codex Desktop to auto-read the context file:
 ```markdown
 # Codex Instructions
-- You operate under the FB-Lane coordination framework.
+- You operate under the FB-Lane coordination plugin.
 - If the file .codex/current_task.md exists, read it immediately.
 - Adhere strictly to the active branch, task ID, and locked files listed in that file. Do not modify files outside of the locked files or the assigned lane.
 ```

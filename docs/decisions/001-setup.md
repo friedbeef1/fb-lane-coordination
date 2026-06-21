@@ -1,7 +1,7 @@
 # Product & Technical Decision Memo: Repository Layout Bootstrapping
 
 ## Executive Summary
-We recommend establishing a standardized, modular directory layout for the FB-Lane Coordination Framework in this repository, featuring root-level placement for `AGENTS.md` and `PROJECT_BOARD.md`, alongside dedicated `templates/`, `platforms/`, `tools/`, and `docs/` directories. This structure maximizes AI agent visibility, minimizes path resolution complexity, and cleanly isolates tool dependencies.
+We recommend establishing a standardized, modular directory layout for the FB-Lane Coordination Plugin in this repository, featuring root-level placement for `AGENTS.md` and `PROJECT_BOARD.md`, alongside dedicated `templates/`, `platforms/`, `tools/`, and `docs/` directories. This structure maximizes AI agent visibility, minimizes path resolution complexity, and cleanly isolates tool dependencies.
 
 ---
 
@@ -30,7 +30,7 @@ We recommend establishing a standardized, modular directory layout for the FB-La
 
 ## Alternative Approaches Considered
 
-### Alternative A: Placing all framework files under a subfolder (e.g., `fb-lane/`)
+### Alternative A: Placing all plugin files under a subfolder (e.g., `fb-lane/`)
 *   **Pros**: Keeps the repository root perfectly clean.
 *   **Cons**:
     *   Increases path resolution complexity for CLI tools.
