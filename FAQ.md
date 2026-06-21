@@ -376,6 +376,17 @@ Current CLI and packaged plugin tooling support generated `TASK-Q-####` IDs thro
    - `Workspace: "inherit"`: Uses the parent's directory.
 3. **No Developer Overhead**: The developer does not need to run manual `git worktree` commands or manage separate project directories. Antigravity isolates and cleans up these workspaces automatically on task completion/termination.
 
+### Q: How do lifecycle hooks and Git Worktrees work together? Isn't it an either-or choice?
+**A:** **No, they are complementary layers and work together hand-in-hand.** It is not an either-or selection:
+*   **Git Worktrees (Filesystem Isolation Layer)**: Worktrees solve the physical workspace isolation problem. They give each concurrent lane/agent its own separate, physical directory on disk. This prevents checkout collisions and allows agents to run parallel development servers without overwriting each other's local states.
+*   **Lifecycle Hooks (Validation & Feedback Layer)**: Hooks solve the quality control and feedback loop problem. They execute tests, linters, or visual checkers at transition points (claim, submit, merge).
+
+**How they cooperate**:
+When an agent claims a task using worktrees (e.g. `node tools/fb-lane.cjs claim TASK-002 Tech --worktree`), the harness provisions a separate worktree directory.
+When that agent executes work inside the worktree, the harness triggers the configured **lifecycle hooks** (like `pre-submit` tests) *locally within that worktree's filesystem context*.
+Once validated, the harness pushes the changes, merges them, and cleans up the worktree.
+Worktrees provide the isolated sandbox, while hooks enforce the quality gate loops within those sandboxes.
+
 ---
 
 ## 9. Getting Started & Automation

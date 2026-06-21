@@ -116,6 +116,7 @@ This allows developers to bind their own custom loops (e.g., unit tests, visual 
 1.  **Technology Agnostic**: Works out of the box with any stack (Node/React, Python, Go, Rust, etc.) by executing standard shell commands.
 2.  **Zero-Friction Autonomy**: Prevents bad code (broken tests, visual drift, or schema mismatches) from ever reaching the staging branch or being merged, without requiring human developers to manually run checks.
 3.  **Lightweight Core**: Keeps the core framework focused on Git and task state management, letting teams customize and evolve their AI loops independently.
+4.  **Synergy with Git Worktrees**: Worktrees solve physical workspace isolation (giving each lane its own checkout directory), while hooks enforce validation loops within those sandboxes. They run together seamlessly, executing hook commands relative to each worktree's specific directory.
 
 ## More
 
