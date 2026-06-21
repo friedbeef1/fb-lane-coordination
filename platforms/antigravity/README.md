@@ -39,10 +39,10 @@ In Antigravity, **`FB-Product`** is the main agent thread (representing User Val
 
 ### Method A: AI-Powered Bootstrap (Recommended)
 If you have an AI agent active in your workspace, simply paste this prompt:
-> *"I want to bootstrap the FB-Lane Coordination Framework in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
+> *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
 
 ### Method B: Manual CLI Bootstrap
-To automatically set up the framework manually, copy `tools/fb-lane.cjs` to your repository root `tools/` folder and run:
+To automatically set up the plugin manually, copy `tools/fb-lane.cjs` to your repository root `tools/` folder and run:
 ```bash
 node tools/fb-lane.cjs bootstrap
 ```
@@ -58,7 +58,7 @@ This bootstrap command automatically creates:
 
 ## Setting Up Antigravity Skills
 
-The FB-Lane Coordination framework for Antigravity is divided into two reusable skills to optimize token efficiency:
+The FB-Lane Coordination plugin for Antigravity is divided into two reusable skills to optimize token efficiency:
 
 1.  **`project-coordination-setup`**: Handles verifying and bootstrapping the workspace files (`AGENTS.md`, `PROJECT_BOARD.md`) and programmatically registering `FB-Tech`, `FB-Design`, and `FB-Business` subagents.
     *   *Skill file:* [SKILL.md](../../skills/project-coordination-setup/SKILL.md)
@@ -148,7 +148,7 @@ These are the standard configurations Antigravity uses under the hood to instant
 
 ## Main Approach: Autonomous Background Orchestration
 
-In the Main Approach, the user acts as the supervisor, interacting primarily with the main `FB-Product` (User Value) thread. The agent framework coordinates the rest of the loop autonomously in the background using the `fb-lane-coordination` skill:
+In the Main Approach, the user acts as the supervisor, interacting primarily with the main `FB-Product` (User Value) thread. The agent plugin coordinates the rest of the loop autonomously in the background using the `fb-lane-coordination` skill:
 
 ### Step 1: Task Initialization & File Locking
 1. **User Request**: Describe a feature or bugfix to the main Antigravity thread (e.g., *"Build user signup feature"*).

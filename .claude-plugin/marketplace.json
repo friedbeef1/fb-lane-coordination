@@ -8,7 +8,7 @@
     {
       "name": "fb-lane-coordination",
       "source": "./",
-      "description": "Multi-agent coordination framework: role-isolated lane subagents (fb-product/fb-tech/fb-design/fb-business), a version-controlled project board, and the fb-lane MCP server.",
+      "description": "Multi-agent coordination plugin: role-isolated lane subagents (fb-product/fb-tech/fb-design/fb-business), a version-controlled project board, and the fb-lane MCP server.",
       "version": "1.0.0",
       "author": {
         "name": "James Yeang"

@@ -1,5 +1,5 @@
 # Project Board — todo-app-example
-> A fictional Todo App demonstrating the FB-Lane coordination framework.
+> A fictional Todo App demonstrating the FB-Lane coordination plugin.
 
 ## Statuses
 - `Inbox`: Newly requested tasks requiring triage.
