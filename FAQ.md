@@ -396,7 +396,38 @@ The agents are designed to autonomously:
 
 ---
 
-## 10. Trivia
+## 10. Pluggable Loop Harness & Custom Hooks
+
+### Q: Why is FB-Lane described as an "AI execution and loop harness"?
+**A:** FB-Lane goes beyond simple task coordination; it acts as a structured execution shell (or **harness**) for AI agents. 
+By managing out-of-band state (`PROJECT_BOARD.md`), tracking file locks, and managing branch checkout, the harness provides a safe environment where agents can run, crash, or clear their context windows without losing task state. 
+Importantly, the harness defines the strict transition points (claim, submit, merge) of an agent's lifecycle, offering the perfect opportunity to inject automated feedback loops.
+
+### Q: What are lifecycle hooks and how do they work?
+**A:** We have built-in lifecycle hooks into the CLI and MCP tools. This allows you to configure shell commands to execute automatically at specific points in the task lifecycle:
+*   **`pre-claim` / `post-claim`**: Runs before/after a task is claimed or a quick-edit is initialized.
+*   **`pre-submit` / `post-submit`**: Runs before/after a task is submitted for Staging QA. *If `pre-submit` fails (returns a non-zero exit code), the submission is blocked.*
+*   **`pre-merge` / `post-merge`**: Runs before/after a branch is merged into `main`.
+
+To use them, simply create a `.fb-lane.json` file in your project root:
+```json
+{
+  "hooks": {
+    "pre-submit": "npm run test && npm run lint",
+    "pre-merge": "node tools/visual-qa.js"
+  }
+}
+```
+
+### Q: Why is this hook architecture important for developers?
+**A:** It provides three major advantages:
+1.  **Separation of Concerns**: The FB-Lane core remains lightweight and focus-locked on branching, status, and file locks. You don't have to bloat the coordination tool with custom compiler or linter code.
+2.  **Stack Agnostic**: Since the hooks run standard terminal/shell commands, they work out of the box with any technology stack (Node/React, Python, Go, Rust, C#, etc.).
+3.  **Automated Quality Guardrails**: You can enforce strict checks (like unit tests, visual regression testing, API contract checks, or AST goal-drift checks) programmatically. If an agent tries to submit broken code or visual drift, the harness blocks it immediately, shielding the human developer from manual debugging and review.
+
+---
+
+## 11. Trivia
 
 ### Q: What does "FB" stand for?
 **A:** "FB" can stand for a variety of concepts depending on the context:

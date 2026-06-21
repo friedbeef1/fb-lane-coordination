@@ -82,6 +82,28 @@ function copyToClipboard(text) {
   return false;
 }
 
+function runHook(hookName, boardPath) {
+  if (!boardPath) return;
+  const configPath = path.join(path.dirname(boardPath), '.fb-lane.json');
+  if (!fs.existsSync(configPath)) return;
+  let config;
+  try {
+    config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  } catch (err) {
+    throw new Error(`Failed to parse .fb-lane.json: ${err.message}`);
+  }
+  if (config.hooks && config.hooks[hookName]) {
+    const command = config.hooks[hookName];
+    console.log(`🏃 Running hook: ${hookName} ("${command}")...`);
+    try {
+      execSync(command, { stdio: 'inherit', cwd: path.dirname(boardPath) });
+      console.log(`✅ Hook ${hookName} completed successfully.`);
+    } catch (err) {
+      throw new Error(`Hook ${hookName} failed: ${err.message}`);
+    }
+  }
+}
+
 // Parse PROJECT_BOARD.md tasks and details
 function parseBoard(boardPath) {
   const content = fs.readFileSync(boardPath, 'utf8');
@@ -306,6 +328,13 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
     process.exit(1);
   }
 
+  try {
+    runHook('pre-claim', boardPath);
+  } catch (err) {
+    console.error(`❌ Hook pre-claim failed: ${err.message}`);
+    process.exit(1);
+  }
+
   // Check git status
   const gitStatus = runGit('status --porcelain');
   if (gitStatus !== '') {
@@ -454,6 +483,13 @@ ${task.scope}
     console.log(prompt);
     console.log('-'.repeat(60) + '\n');
   }
+
+  try {
+    runHook('post-claim', boardPath);
+  } catch (err) {
+    console.error(`❌ Hook post-claim failed: ${err.message}`);
+    process.exit(1);
+  }
 }
 
 // Add a new task to PROJECT_BOARD.md programmatically
@@ -515,6 +551,13 @@ function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit') {
   const boardPath = findBoardPath();
   if (!boardPath) {
     console.error('❌ Error: PROJECT_BOARD.md not found.');
+    process.exit(1);
+  }
+
+  try {
+    runHook('pre-claim', boardPath);
+  } catch (err) {
+    console.error(`❌ Hook pre-claim failed: ${err.message}`);
     process.exit(1);
   }
 
@@ -636,6 +679,13 @@ ${scopeDescription} (Quick Edit)
     console.log(prompt);
     console.log('-'.repeat(60) + '\n');
   }
+
+  try {
+    runHook('post-claim', boardPath);
+  } catch (err) {
+    console.error(`❌ Hook post-claim failed: ${err.message}`);
+    process.exit(1);
+  }
 }
 
 // Run local test suite if package.json has a valid test script
@@ -699,6 +749,13 @@ function handleSubmit(taskId, stagingUrl = '') {
     console.log('⚠️  Bypassing local test run (--no-tests flag detected)...');
   }
 
+  try {
+    runHook('pre-submit', boardPath);
+  } catch (err) {
+    console.error(`❌ Hook pre-submit failed: ${err.message}`);
+    process.exit(1);
+  }
+
   const currentBranch = runGit('rev-parse --abbrev-ref HEAD || git branch --show-current');
   console.log(`Submitting task ${taskId} from branch ${currentBranch}...`);
 
@@ -726,12 +783,26 @@ Staging URL: ${stagingUrl || 'Local / CI Build'}
 Please review the changes and run the merge command:
 node tools/fb-lane.cjs merge ${taskId}`;
   copyToClipboard(reviewPrompt);
+
+  try {
+    runHook('post-submit', boardPath);
+  } catch (err) {
+    console.error(`❌ Hook post-submit failed: ${err.message}`);
+    process.exit(1);
+  }
 }
 
 function handleMerge(taskId) {
   const boardPath = findBoardPath();
   if (!boardPath) {
     console.error('❌ Error: PROJECT_BOARD.md not found.');
+    process.exit(1);
+  }
+
+  try {
+    runHook('pre-merge', boardPath);
+  } catch (err) {
+    console.error(`❌ Hook pre-merge failed: ${err.message}`);
     process.exit(1);
   }
 
@@ -808,6 +879,13 @@ function handleMerge(taskId) {
   console.log(`\n✅ Task ${taskId} is merged and completed!`);
   console.log(`   - Feature branch ${targetBranch} merged to main & deleted.`);
   console.log(`   - Board updated to Done. Locks released.\n`);
+
+  try {
+    runHook('post-merge', boardPath);
+  } catch (err) {
+    console.error(`❌ Hook post-merge failed: ${err.message}`);
+    process.exit(1);
+  }
 }
 
 // MCP Lightweight JSON-RPC Server
@@ -942,6 +1020,9 @@ function handleMcpRequest(request) {
           ).join('\n');
         } else if (name === 'fb_lane_claim') {
           const { taskId, lane, lockedFiles } = toolArgs;
+          
+          runHook('pre-claim', boardPath);
+
           // Run core claim logic
           const { tasks } = parseBoard(boardPath);
           const task = tasks.find(t => t.id === taskId);
@@ -972,9 +1053,13 @@ function handleMcpRequest(request) {
           if (!fs.existsSync(codexDir)) fs.mkdirSync(codexDir);
           fs.writeFileSync(path.join(codexDir, 'current_task.md'), `# Context\nTask: ${taskId}\nBranch: ${branchName}`, 'utf8');
 
+          runHook('post-claim', boardPath);
+
           message = `Successfully claimed ${taskId} on branch ${branchName}. Locks: ${formattedLocks}.`;
         } else if (name === 'fb_lane_submit') {
           const { taskId, stagingUrl } = toolArgs;
+
+          runHook('pre-submit', boardPath);
 
           // Run local tests first under MCP
           runTests(boardPath);
@@ -985,9 +1070,15 @@ function handleMcpRequest(request) {
           updateBoardTask(boardPath, taskId, updates);
           commitBoard(`docs: submit ${taskId} for staging qa`);
           runGit('push origin HEAD');
+
+          runHook('post-submit', boardPath);
+
           message = `Successfully submitted ${taskId} for Staging QA. Branch pushed.`;
         } else if (name === 'fb_lane_merge') {
           const { taskId } = toolArgs;
+
+          runHook('pre-merge', boardPath);
+
           const { tasks } = parseBoard(boardPath);
           const task = tasks.find(t => t.id === taskId);
           if (!task) throw new Error(`Task ${taskId} not found.`);
@@ -1021,6 +1112,8 @@ function handleMcpRequest(request) {
           if (fs.existsSync(contextPath)) {
             try { fs.unlinkSync(contextPath); } catch(e) {}
           }
+
+          runHook('post-merge', boardPath);
 
           message = `Successfully merged ${targetBranch} and completed ${taskId}. Locks released.`;
         } else {
