@@ -121,18 +121,24 @@ FB-Product merges to `main`. Full ownership boundaries and the board loop live i
 
 For most work you don't need this: lane subagents share the orchestrator's single working tree, and
 the board's **file-locks** keep them from editing the same files. Reach for worktrees only when you
-want two lanes on **different branches at the same time** — because `claim` runs an in-place
+want two lanes on **different branches at the same time** — because a plain `claim` runs an in-place
 `git checkout -b` (`tools/fb-lane.cjs`), and one working directory can only hold one branch at once.
-Claude Code supports this natively:
+
+The CLI does this in one step with `--worktree`: it claims the task and locks files on the board
+(in the current checkout) **and** creates the lane's branch in its own directory off `main`, without
+moving the primary checkout:
 
 ```bash
-# One isolated checkout per concurrently-active lane, each on its own branch
-claude --worktree tech-TASK-102      # FB-Tech session, on tech/TASK-102-...
-claude --worktree design-TASK-103    # FB-Design session, on design/TASK-103-...
+# Each command claims + locks on the board, then spins up an isolated worktree on the lane branch
+node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts" --worktree
+node tools/fb-lane.cjs claim TASK-103 Design "src/nav.css" --worktree
+# It prints the path; open a session there:  cd ../<repo>-tech-TASK-102 && claude
 ```
 
-(Equivalently, `git worktree add ../fb-tech-102 -b tech/TASK-102-... main`.) Each worktree is a
-separate directory, so the two lanes edit truly in parallel with zero physical collision.
+(Under the hood that is `git worktree add -b tech/TASK-102-… ../<repo>-tech-TASK-102 origin/main`;
+you can also run `claude --worktree <name>` directly if you don't need the board claim.) Each
+worktree is a separate directory, so the two lanes edit truly in parallel with zero physical
+collision.
 
 **Where the board lives (important):** `PROJECT_BOARD.md` stays authoritative in the **primary
 checkout — the FB-Product / main session.** Product is already the only lane that claims, merges,

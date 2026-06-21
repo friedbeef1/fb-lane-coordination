@@ -62,6 +62,14 @@ As a local, filesystem-active developer agent, Codex is prone to:
 * **Rigid Code Boundaries**: Prevents the agent from editing files or directories outside its assigned role (e.g., Tech lane cannot modify `.css` files).
 * **Simulated Tool Sandboxing**: Enforces role restrictions in Codex's system instructions (e.g. `.codex/rules.md`), strictly prohibiting the agent from running write/deploy commands or modifying files outside its domain (such as keeping `FB-Business` read-only).
 
+> **Running two lanes on different branches at once:** `claim` does an in-place `git checkout`, and
+> one working directory holds only one branch — so concurrent lanes share a tree and rely on file
+> locks. To put each concurrent lane on its own branch in its own directory, add `--worktree`:
+> `node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts" --worktree`. Keep `PROJECT_BOARD.md`
+> authoritative in the primary checkout; see the Claude Code guide's
+> [worktree section](../claude-code/README.md#run-lanes-in-parallel-with-worktrees-optional) for the
+> full rationale.
+
 ---
 
 ## Two Codex Workflows
