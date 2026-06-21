@@ -1419,8 +1419,21 @@ ${FB_LANE_END}`;
   }
 
   console.log('\n🎉 FB-Lane Plugin bootstrapped successfully!');
-  console.log('👉 Antigravity 2.0: open this folder to see the lane agents in your left sidebar.');
-  console.log('👉 Claude Code: reload to load .claude/agents/ (lanes) and approve the fb-lane MCP server via /mcp.\n');
+  console.log('======================================================================');
+  console.log('🚀 QUICK START GUIDE: HOW TO USE FB-LANE RIGHT AWAY');
+  console.log('======================================================================');
+  console.log('1. Open this workspace in Antigravity, Claude Code, or Codex.');
+  console.log('2. Start a chat with the Product agent (FB-Product) and ask it to build a feature:');
+  console.log('   e.g., "Add a login page" or "Triage our next milestones"');
+  console.log('3. Product will scope the work, create tasks in PROJECT_BOARD.md, and mark them as Ready.');
+  console.log('4. Open the corresponding worker agent thread (FB-Tech or FB-Design) to start coding:');
+  console.log('   The worker agent will automatically claim the task, checkout a branch, and implement code.');
+  console.log('5. Once done, the worker agent submits the task for QA.');
+  console.log('6. Open the Product agent again to review staging and merge the changes into main.');
+  console.log('======================================================================');
+  console.log('👉 Antigravity 2.0: The lane agents are now populated in your left sidebar!');
+  console.log('👉 Claude Code: Reload the app to load the new lanes and run `/mcp` to approve fb-lane.');
+  console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');
 }
 
 function main() {
