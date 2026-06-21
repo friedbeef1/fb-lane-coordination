@@ -6,7 +6,7 @@ Claude (via Claude Projects, Desktop, or Cursor IDE) is typically a single-threa
 
 ### Method A: AI-Powered Bootstrap (Recommended)
 If you have an AI agent active in your workspace, simply paste this prompt:
-> *"I want to bootstrap the FB-Lane Coordination Framework in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
+> *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
 
 ### Method B: Manual CLI Bootstrap
 1. Download the CLI script:

@@ -1,9 +1,9 @@
-# 🚀 FB-Lane Coordination Framework
+# 🚀 FB-Lane Coordination Plugin
 
 **Run multiple AI agent threads concurrently on the same codebase — with zero merge conflicts, zero context overload, and strict scope safety.**
 
 > 📺 **[Watch the FB-Lane Demo Video on YouTube](https://youtu.be/wry1xhaEEBg)** (Cmd/Ctrl + click to open in a new tab) — Watch the coordination loop run in real time:
-[![FB-Lane Framework Demo Video](https://img.youtube.com/vi/wry1xhaEEBg/maxresdefault.jpg)](https://youtu.be/wry1xhaEEBg)
+[![FB-Lane Plugin Demo Video](https://img.youtube.com/vi/wry1xhaEEBg/maxresdefault.jpg)](https://youtu.be/wry1xhaEEBg)
 
 Looking for quick answers, troubleshooting tips, or details on how the coordination loops work under the hood? Check out our [Frequently Asked Questions (FAQ)](FAQ.md).
 
@@ -15,14 +15,14 @@ FB-Lane splits complex software development into four role-isolated workstreams 
 
 Compare how development works on complex, multi-layered features with AI agents:
 
-| Development Challenge | Without FB-Lane Framework | With FB-Lane Framework | How the User Works Now |
+| Development Challenge | Without FB-Lane Plugin | With FB-Lane Plugin | How the User Works Now |
 | :--- | :--- | :--- | :--- |
 | **Task Coordination** | No central board; tasks are scattered across commits or external tracking tools, leading to agent alignment confusion. | **`PROJECT_BOARD.md`**: A version-controlled, git-integrated local markdown file serving as the single source of truth and message bus. | **Real-Time Board Tracking**: View task statuses, branches, locks, and pull requests directly in your code editor. |
 | **Concurrency & Collisions** | High risk of merge conflicts and regression as multiple agent threads modify the same files. | **Lightweight Resource Locking**: Tasks declare affected files on `PROJECT_BOARD.md`, establishing locks to prevent collisions. | **Concurrent Execution**: Direct multiple lanes to work at the same time; they will never step on each other's toes or collide. |
 | **Context & Token Overload** | Large, bloated chat threads discussing copy, databases, and UI style together, causing agent confusion and poor outputs. | **Role-Isolated Lanes**: Tech, Design, Business, and Product operate in specialized, isolated threads with targeted capabilities. | **Zero-Risk Chat**: Chat with different lanes concurrently in separate tabs without worrying about messing up other parts of the codebase. |
-| **Domain Safety (Code-Bleed)** | Copywriters editing React layouts or layout agents inadvertently breaking database schemas and backend models. | **State-Driven Writing Gates**: Tech cannot touch CSS/styles, Design cannot edit backend code, and Business is strictly read-only. | **Declare Intent**: Describe feature requirements; the framework automatically splits tasks and locks files programmatically. |
+| **Domain Safety (Code-Bleed)** | Copywriters editing React layouts or layout agents inadvertently breaking database schemas and backend models. | **State-Driven Writing Gates**: Tech cannot touch CSS/styles, Design cannot edit backend code, and Business is strictly read-only. | **Declare Intent**: Describe feature requirements; the plugin automatically splits tasks and locks files programmatically. |
 | **Code Reliability** | Broken or compile-failing code gets pushed to main/staging; tests are rarely run by agents. | **Pre-Submission Test Gate**: The CLI automatically executes test suites (e.g. `npm test`) and blocks pushing if tests fail. | **Smoke Testing**: Skip manual checkout and testing; you only perform a quick visual smoke test on the generated staging environment. |
-| **Token Budget Protection** | Runaway debugging loops; agents attempt infinite edits to fix a bug, burning through your tokens. | **5-Retry Debug Cap**: Strict retry threshold pauses execution and escalates to the user if a bug can't be resolved in 5 attempts. | **Passive Monitoring**: Sit back; the framework notifies you immediately if a worker agent hits the cap and goes into a `Blocked` state. |
+| **Token Budget Protection** | Runaway debugging loops; agents attempt infinite edits to fix a bug, burning through your tokens. | **5-Retry Debug Cap**: Strict retry threshold pauses execution and escalates to the user if a bug can't be resolved in 5 attempts. | **Passive Monitoring**: Sit back; the plugin notifies you immediately if a worker agent hits the cap and goes into a `Blocked` state. |
 | **Handoffs & Context Retention** | Silent handoffs; subsequent agents must blindly read repo history to understand what prior agents changed. | **Structured Handoff Cards**: Automated creation of `docs/handoffs/TASK-XXX.md` summarizing decisions, risk details, and testing. | **Review Handoffs**: Read the short markdown handoff files to inspect implementation choices and risks before merging. |
 | **Micro-Tasks & Hotfixes** | Manual branch creation, file tracking, and state sync, leading to developer overhead for simple edits. | **Fast-Track Quick Edits**: A single command (`node tools/fb-lane.cjs quick`) instantly checks out a branch and locks files for edits. | **Fast Hotfixes**: Run the `quick` command in your terminal to instantly pair-program on micro-tasks without board overhead. |
 | **Cross-Lane Consistency** | No one checks whether Tech's API contracts match Design's assumptions, or whether Business copy references features not yet built. Integration drift only surfaces at runtime — often in production. | **FB-Product Integration Gate**: Before any branch merges, FB-Product cross-reads all submitted branches and handoff cards, actively catching API/UI contract mismatches, copy referencing unbuilt features, and conflicting assumptions between lanes. | **Automatic Catch & Correct**: Product flags the inconsistency, sends the offending lane back with a specific fix request, and sequences merges so dependencies land in the right order. |
@@ -67,11 +67,11 @@ Compare how development works on complex, multi-layered features with AI agents:
 
 ## ⚡ 1-Minute Setup
 
-Get up and running with the FB-Lane framework using one of two methods:
+Get up and running with the FB-Lane plugin using one of two methods:
 
 ### Method A: AI-Powered Bootstrap (Recommended)
-If you have an active AI agent in your project workspace (such as Antigravity, Claude, or Codex), simply paste this instruction to let the agent copy and configure the framework autonomously:
-> *"I want to bootstrap the FB-Lane Coordination Framework in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
+If you have an active AI agent in your project workspace (such as Antigravity, Claude, or Codex), simply paste this instruction to let the agent copy and configure the plugin autonomously:
+> *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and Claude Desktop MCP configurations automatically."*
 
 ### Method B: Manual CLI Bootstrap
 1. **Copy the CLI tool**: From your project root, run:
@@ -211,7 +211,7 @@ To prevent accidental codebase corruption or "rogue edits" when brainstorming wi
 
 ## 📖 Platform Integration Guides
 
-Detailed walkthroughs for configuring and running the framework on specific developer platforms:
+Detailed walkthroughs for configuring and running the plugin on specific developer platforms:
 
 * **Antigravity 2.0**: [platforms/antigravity/README.md](platforms/antigravity/README.md)
 * **Claude Code**: [platforms/claude-code/README.md](platforms/claude-code/README.md) — includes the direct lane-thread demo video: [claude-code-how-to-interact.mp4](platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4)

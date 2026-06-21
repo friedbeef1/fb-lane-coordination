@@ -1,15 +1,15 @@
-# FB-Lane Coordination Framework: Frequently Asked Questions (FAQ)
+# FB-Lane Coordination Plugin: Frequently Asked Questions (FAQ)
 
 This FAQ is designed to help developers, product managers, and AI agents understand the philosophy, architecture, and daily operations of the **FB-Lane Coordination Model**.
 
-For a complete overview of the framework, key features, quickstart guides, and step-by-step lifecycles, please refer back to the main [README.md](README.md).
+For a complete overview of the plugin, key features, quickstart guides, and step-by-step lifecycles, please refer back to the main [README.md](README.md).
 
 ---
 
 ## 1. High-Level Concepts
 
-### Q: What is the FB-Lane Coordination Framework?
-**A:** It is a decentralized, role-isolated project management and execution framework. By dividing tasks into four highly bounded "lanes" (Product, Tech, Design, Business) and coordinating them via a local markdown-based project board (`PROJECT_BOARD.md`), it allows human developers and autonomous AI agents to work concurrently on the same codebase without stepping on each other's toes.
+### Q: What is the FB-Lane Coordination Plugin?
+**A:** It is a decentralized, role-isolated project management and execution plugin. By dividing tasks into four highly bounded "lanes" (Product, Tech, Design, Business) and coordinating them via a local markdown-based project board (`PROJECT_BOARD.md`), it allows human developers and autonomous AI agents to work concurrently on the same codebase without stepping on each other's toes.
 
 ### Q: What core problems does it solve?
 **A:** It solves the chaos of trying to do everything in a single, bloated developer thread. 
@@ -25,10 +25,10 @@ FB-Lane allows you to run these workstreams **concurrently** in separate, isolat
 *   **`FB-Design` (UI/UX/Styling)**: Owns styling (CSS), page layout geometry, and visual QA.
 *   **`FB-Business` (Copywriting)**: Owns positioning, pricing text, help documents, and marketing copy.
 
-### Q: Does this framework look familiar? Why does this structure feel so intuitive?
+### Q: Does this plugin look familiar? Why does this structure feel so intuitive?
 **A:** That’s because it is modeled directly after the industry-standard **cross-functional product pod structure** (Product Manager, Backend/Core Developer, UI/UX Designer, and Copywriter/Business Analyst) used by high-performing product teams worldwide.
 
-Instead of reinventing the wheel, the framework maps these familiar organizational roles directly to isolated AI agent conversational loops. This provides two major advantages without standing in the way of AI autonomy:
+Instead of reinventing the wheel, the plugin maps these familiar organizational roles directly to isolated AI agent conversational loops. This provides two major advantages without standing in the way of AI autonomy:
 1. **Strict Tool Boundaries**: Just as you wouldn't expect a copywriter to push database migrations or a developer to redesign theme stylesheets, each agent lane is sandbox-restricted to the specific tools it needs. This reduces token overhead, eliminates routing errors, and prevents "code-bleed" (e.g., agents breaking logic while editing UI classes).
 2. **Autonomy via Git Coordination**: Instead of synchronous meetings or heavy central locking systems, the lanes synchronize asynchronously using git branches and a local markdown-based `PROJECT_BOARD.md` as their message bus. This allows agents to work concurrently and autonomously in the background without stepping on each other's toes.
 
@@ -42,7 +42,7 @@ In short, it takes the best practices of human team coordination and translates 
 **A:** Business and copywriting agents are experts in messaging, not code structure. Letting them modify source files directly risks breaking CSS layout grids or React component syntax. Furthermore, new copy must pass the `FB-Design` visual check (text-containment) to ensure it doesn't break styling on smaller viewports. Business agents draft copy in markdown or the task board, and developers/designers integrate it.
 
 ### Q: What if a task requires both database changes and UI updates?
-**A:** Under the FB-Lane model, the `FB-Product` agent (or the framework orchestrator) automatically splits this task into two distinct, sequential, or parallel tasks on the project board, saving the user from having to do it manually:
+**A:** Under the FB-Lane model, the `FB-Product` agent (or the plugin orchestrator) automatically splits this task into two distinct, sequential, or parallel tasks on the project board, saving the user from having to do it manually:
 1. A **`tech/[feature]`** task (claimed by `FB-Tech`) to implement the database schema and expose the API endpoint.
 2. A **`design/[feature]`** task (claimed by `FB-Design`) to build the visual UI component and consume the new API.
 This prevents a single thread from having write-access to both backend models and styling configurations.
@@ -67,14 +67,14 @@ This prevents a single thread from having write-access to both backend models an
 
 ## 4. Conflict Resolution, Testing & Scaling
 
-### Q: How does testing and QA fit into the FB-Lane framework?
+### Q: How does testing and QA fit into the FB-Lane plugin?
 **A:** Testing is distributed across specialized lanes to keep code quality high without overloading agent threads:
 *   **`FB-Tech` (Functional Tests)**: Writes and runs unit, integration, API, and database security test suites (e.g. `npm run test` or backend linters) inside isolated `tech/` branches before pushing.
 *   **`FB-Design` (Visual QA)**: Runs layout audits across mobile/desktop viewports, checking theme styling, font loading, hover states, and ensuring zero text clipping or spill.
 *   **`FB-Product` (User Value Optimizer)**: Coordinates final staging verification. Product checks that both functional and visual test checklists are complete, reviews git diffs, and performs a smoke test on the staging build before merging.
 
 ### Q: What happens if the tests or QA checks fail?
-**A:** Depending on when the failure occurs, the framework handles it via two safety loops, enforced by programmatic gates and a token budget protection policy:
+**A:** Depending on when the failure occurs, the plugin handles it via two safety loops, enforced by programmatic gates and a token budget protection policy:
 1.  **Local Dev Failures (Before Push)**: If `FB-Tech` or `FB-Design` runs local test suites and they fail:
     *   **Auto-Fixing Loop**: The agent autonomously debugs the failure by reading error logs, editing code, and rerunning tests locally.
     *   **Pre-Submission Gate**: The `submit` command (`node tools/fb-lane.cjs submit`) automatically runs the local test suite (e.g. `npm test`) and **blocks the branch from being pushed or updated on the board** if the tests fail.
@@ -132,7 +132,7 @@ To maintain centralization, code review sanity, and staging control, you must ke
 ## 5. Orchestration & Team Workflow
 
 ### Q: Do I (the supervisor/user) only talk to FB-Product, or can I talk to individual lanes? Doesn't direct communication screw up alignment or the product's direction?
-**A:** You can do both depending on the task, and **it will not break alignment or derail the product's strategic direction**. The framework has built-in guards to maintain synchronization and protect the roadmap even during decentralized conversations:
+**A:** You can do both depending on the task, and **it will not break alignment or derail the product's strategic direction**. The plugin has built-in guards to maintain synchronization and protect the roadmap even during decentralized conversations:
 *   **High-Level Planning**: Instruct **`FB-Product`** to prioritize tasks, scope features, and review staging releases. Product retains final merge authority.
 *   **Deep-Dive Development**: Talk directly to **`FB-Tech`**, **`FB-Design`**, or **`FB-Business`** threads when you want to pair-program, refine layouts, or discuss copy options.
 *   **Why Alignment and Product Direction are Guarded**:
@@ -142,20 +142,20 @@ To maintain centralization, code review sanity, and staging control, you must ke
     4.  **Roadmap Visibility & Veto**: Because every lane immediately logs their active scope on the project board, the roadmap remains the single source of truth. Product (or the human supervisor reviewing Product) has real-time visibility and can instantly pause, re-prioritize, or flag tasks that drift from the core strategic direction.
 
 ### Q: How do we ensure the Product lane (User Value) does not become a workflow bottleneck?
-**A:** The framework is built to prevent Product from becoming a chokepoint through three mechanisms:
+**A:** The plugin is built to prevent Product from becoming a chokepoint through three mechanisms:
 1.  **Asynchronous Pull Model**: Developers and subagents do not wait for Product assignments. They pull prioritized tasks directly from the `PROJECT_BOARD.md` when they are ready, setting them to `In Progress` and locking their resources autonomously.
 2.  **Self-Reporting QA Checklists**: Each lane owns its quality checks (tests, visual QA) and documents the outcomes directly on the board card. Product's role is reduced to a quick review of the checklist and staging build, which takes minutes.
 3.  **Conflict-Free Concurrency**: Because files and screens are locked on the board, different lanes coordinate schedule conflicts automatically. A tech branch knows to work on a different endpoint if its target file is locked by design, eliminating coordination meetings.
 
 ### Q: What if Product (the human or the agent) is not technically capable of sequencing tasks or prioritizing them properly?
-**A:** The framework relies on the **`FB-Product` AI agent** to handle the heavy lifting of technical task analysis, dependency mapping, and roadmap sequencing. It acts as an autonomous co-pilot that evaluates tasks against two primary criteria:
+**A:** The plugin relies on the **`FB-Product` AI agent** to handle the heavy lifting of technical task analysis, dependency mapping, and roadmap sequencing. It acts as an autonomous co-pilot that evaluates tasks against two primary criteria:
 1.  **Goal Alignment**: It cross-checks every task claimed or created on the board back to the user's high-level goal, preventing accidental scope creep or rogue code changes.
 2.  **Optimal Sequencing (Value vs. Effort)**: The Product AI analyzes files affected, maps technical dependencies (e.g. database schema migrations must precede frontend styling components), and sequences the backlog to optimize the value-to-effort ratio (tackling quick-win, high-impact tasks first).
 
 The human supervisor does not need technical project management expertise; they simply review and sign off on the Product agent's AI-sequenced roadmap.
 
 ### Q: So there is also going to be a backlog or something? How does it map to the board?
-**A:** Yes. In the FB-Lane framework, the backlog is not stored in an external tool like Jira or Linear; it is built directly into the local **`PROJECT_BOARD.md`** file, divided into two distinct statuses:
+**A:** Yes. In the FB-Lane plugin, the backlog is not stored in an external tool like Jira or Linear; it is built directly into the local **`PROJECT_BOARD.md`** file, divided into two distinct statuses:
 1.  **`Inbox` (The Raw Backlog)**: This is where new user ideas, raw instructions, or rejected tasks requiring major re-scoping are placed first. These tasks are waiting to be triaged and analyzed.
 2.  **`Ready` (The Prioritized Backlog)**: This is where fully scoped, dependency-resolved, and value-sequenced tasks live. Lane agents pull tasks directly from here when they are ready to work.
 
@@ -194,7 +194,7 @@ The human supervisor does not need technical project management expertise; they 
 ## 6. Platform Integration (Antigravity, Claude, Codex)
 
 ### Q: How does execution differ between Antigravity, Claude Code, and Codex?
-**A:** The framework operates differently based on the platform's orchestration capabilities:
+**A:** The plugin operates differently based on the platform's orchestration capabilities:
 *   **Antigravity (Programmatic Multi-Agent)**: The main `FB-Product` thread runs on an agentic SDK. It uses programmatic tools (`define_subagent` and `invoke_subagent`) to spin up sandboxed background threads for `FB-Tech` and `FB-Design` autonomously.
 *   **Claude Code (Native Subagents + MCP)**: Four lane agents (`fb-product`, `fb-tech`, `fb-design`, `fb-business`) are registered as Claude Code subagents in `.claude/agents/` and invokable directly from the sidebar via `@mention`. The `fb-lane` MCP server connects all four to the same `PROJECT_BOARD.md` for real-time status and lock checks. The main session acts as FB-Product by default; open separate sidebar conversations for each lane to run them concurrently. Install as a plugin in one step: `/plugin marketplace add friedbeef1/fb-lane-coordination`. See [`platforms/claude-code/`](platforms/claude-code/README.md) and the Claude Code walkthrough video at [`platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4`](platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4).
 *   **Codex (Local File/Git Agent)**: The main benefit is that you can give multiple lane instructions at once, Codex can run them concurrently with native subagents or sidebar threads, and FB-Lane keeps those concurrent tasks from editing the same files or losing handoff context. FB-Lane's Codex value is the collision-control protocol: local rules (e.g., `.codex/rules.md`), a shared project board/current-task file, file claims, handoff docs, and Product/Captain integration gates.
@@ -274,7 +274,7 @@ The exact commands can be backed by `tools/fb-lane.cjs`, an MCP server, or a sma
 1.  **Reasoning Degradation**: AI models lose performance, make mistakes, and forget rules as the chat history grows.
 2.  **Scope Bleed**: The agent will start cross-modifying files from previous tasks (e.g., editing database logic while working on a styling layout).
 
-To prevent this, the FB-Lane framework enforces strict **Thread Segmentation**:
+To prevent this, the FB-Lane plugin enforces strict **Thread Segmentation**:
 *   **Claude (Projects/Cursor)**: You must start a fresh chat thread for every single task. Never discuss backend logic and styling changes in the same thread.
 *   **Antigravity**: The `FB-Product` agent runs the orchestrator thread, but automatically spawns temporary, isolated subagents (`invoke_subagent`) for each task. Once complete, that subagent's conversation thread is archived and closed, protecting Product's memory.
 *   **Codex**: Codex operates as a short-lived local execution. Because it uses file locking, it only reads the subset of files related to the active task, preventing it from sucking the entire codebase context into its window.
@@ -328,11 +328,11 @@ This automatically registers a temporary task (`TASK-Q-XXXX`) on your project bo
 
 ## 9. Getting Started & Automation
 
-### Q: Can I just ask Antigravity, Claude, or Codex to read this framework and set it up themselves?
+### Q: Can I just ask Antigravity, Claude, or Codex to read this plugin and set it up themselves?
 **A:** **Yes, absolutely!** In fact, this is the recommended way to get started. You do not need to manually copy or configure files. 
 
-Simply point your agent to this repository (or copy the framework files into a reference folder) and prompt:
-> *"I want to bootstrap the FB-Lane Coordination Framework in our project workspace. Read this framework's templates and platform guide, and configure our workspace accordingly."*
+Simply point your agent to this repository (or copy the plugin files into a reference folder) and prompt:
+> *"I want to bootstrap the FB-Lane Coordination Plugin in our project workspace. Read this plugin's templates and platform guide, and configure our workspace accordingly."*
 
 The agents are designed to autonomously:
 1.  **Copy the Templates**: Copy [templates/AGENTS.md](file:///./templates/AGENTS.md) and [templates/PROJECT_BOARD.md](file:///./templates/PROJECT_BOARD.md) directly to the root of your project repository and commit them.
