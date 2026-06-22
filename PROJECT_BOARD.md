@@ -15,7 +15,7 @@
 |---|---|---|---|---|---|---|
 | TASK-Q-8688 | Done | FB-Tech | Quick-Fix | Quick test hooks | (None) | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-8688-quick-test-hooks) |
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) |
-| TASK-002 | In Progress | FB-Tech | Core | Implement user authentication endpoints | `src/auth.ts`, `src/db.ts` | (None) |
+| TASK-002 | Staging QA | FB-Tech | Core | Implement user authentication endpoints | `src/auth.ts`, `src/db.ts` | (None) |
 | TASK-003 | Ready | FB-Design | UI | Design responsive dashboard navigation | `src/navigation.css` | (None) |
 | TASK-004 | Done | FB-Product | Codex | Package FB-Lane as a Codex plugin | (None) | PR #7 |
 | TASK-005 | Done | FB-Product | Codex Docs | Clarify Codex plugin pain point and value | (None) | `codex/pain-point-docs` |
@@ -51,7 +51,7 @@
 
 
 ### TASK-002 - Implement user authentication endpoints
-*   **Status**: In Progress
+*   **Status**: Staging QA
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Core
 *   **Scope**: Implement user registration and login API endpoints.
@@ -63,9 +63,14 @@
     *   **Git Branch / PR**: (None)
     *   **Staging URL**: (None)
 *   **QA Checklist**:
-    *   [ ] Registration works and hashes passwords.
-    *   [ ] Session tokens generated securely.
-    *   [ ] Unit tests pass.
+    *   [x] Registration works and hashes passwords.
+    *   [x] Session tokens generated securely.
+    *   [x] Unit tests pass.
+*   **Modified Files**:
+    *   `src/auth.ts`
+    *   `src/db.ts`
+*   **Latest Update**:
+    *   *2026-06-22*: Implemented password hashing, session tokens, in-memory DB interface, HTTP handlers, and self-contained integration tests.
 
 
 ### TASK-003 - Design responsive dashboard navigation
