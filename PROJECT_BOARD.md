@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-Q-5217 | Staging QA | FB-Tech | Quick-Fix | Improve Codex plugin setup UX | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/plugin.json`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `platforms/codex/README.md`, `docs/handoffs`, `PROJECT_BOARD.md` | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-5217-improve-codex-plugin-setup-ux) |
+| TASK-Q-5217 | Staging QA | FB-Tech | Quick-Fix | Improve Codex plugin setup UX | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/plugin.json`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `platforms/codex/README.md`, `docs/handoffs`, `PROJECT_BOARD.md` | [PR #17](https://github.com/friedbeef1/fb-lane-coordination/pull/17) |
 | TASK-Q-8688 | Done | FB-Tech | Quick-Fix | Quick test hooks | (None) | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-8688-quick-test-hooks) |
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) |
 | TASK-002 | Done | FB-Tech | Core | Implement user authentication endpoints | (None) | (None) |
@@ -280,7 +280,7 @@
     *   **Screens**: (None)
     *   **Locked Files**: `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/plugin.json`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `platforms/codex/README.md`, `docs/handoffs`, `PROJECT_BOARD.md`
 *   **Links & Deliverables**:
-    *   **Git Branch / PR**: [Branch Link](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-5217-improve-codex-plugin-setup-ux)
+    *   **Git Branch / PR**: [PR #17](https://github.com/friedbeef1/fb-lane-coordination/pull/17)
     *   **Staging URL**: (None)
     *   **Design Specs**: (None)
 *   **QA Checklist**:
