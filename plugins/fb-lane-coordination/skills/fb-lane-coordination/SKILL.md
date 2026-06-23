@@ -6,7 +6,7 @@ description: Coordinates task claiming, staging submissions, and merges on the p
 # FB-Lane Task Coordination Skill
 
 ## Overview
-This skill allows the Antigravity agent to manage task lifecycles, git branches, and resource locks autonomously using the local `tools/fb-lane.cjs` command-line utility. By running this CLI utility, the agent performs all git checkouts, commits, pushes, and project board markdown updates with zero external tool dependencies, saving token space compared to registering full MCP server protocols.
+This skill manages task lifecycles, git branches, and resource locks using the local `tools/fb-lane.cjs` command-line utility. In Codex, prefer the bundled MCP tools when available and use the CLI as the reliable fallback for status, claim, submit, merge, bootstrap, and setup health checks.
 
 ## Preconditions
 - The workspace must have `PROJECT_BOARD.md` and `tools/fb-lane.cjs` initialized (use `project-coordination-setup` skill to initialize if missing).
@@ -20,6 +20,18 @@ This skill allows the Antigravity agent to manage task lifecycles, git branches,
 When asked to show the board status, active locks, or workstream listings, execute:
 ```bash
 node tools/fb-lane.cjs status
+```
+
+If setup appears incomplete or the user reports that the plugin is not smooth, run the read-only health check:
+
+```bash
+node tools/fb-lane.cjs doctor
+```
+
+For Codex-only project setup, avoid writing Claude or Antigravity artifacts:
+
+```bash
+node tools/fb-lane.cjs bootstrap --platform codex
 ```
 
 ### 2. Claim a Task
