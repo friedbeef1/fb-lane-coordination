@@ -28,16 +28,18 @@ This installs:
 - the bundled `fb-lane` MCP server
 - plugin metadata for Codex's plugin browser
 
-After install, start a new Codex thread and ask for `@fb-lane`, `$fb-lane`, or a lane-specific skill. Example:
+After install, start a new Codex thread and ask for `$fb-lane` or a lane-specific skill. Natural
+language also works, and `@fb-lane` remains a useful prompt convention if you want to make the lane
+intent obvious. Example:
 
 ```text
-@fb-lane status
+$fb-lane status
 ```
 
 Then describe the work in normal language:
 
 ```text
-@fb-lane
+$fb-lane
 Split this across Product, Tech, Design, and Business.
 Use worktrees for code-writing lanes where helpful.
 Each lane should claim files, write a handoff, and return to Product.
@@ -45,6 +47,17 @@ Product should sequence the final integration and tell me what is ready to merge
 ```
 
 The plugin does not create Codex's parallelism. Codex already has that. The plugin packages the coordination layer: skills, MCP status/claim/submit/merge tools, file locks, handoffs, and Product/Captain integration.
+
+If the project itself still needs FB-Lane repo files, run the Codex-only bootstrap from the project
+root:
+
+```bash
+node tools/fb-lane.cjs bootstrap --platform codex
+node tools/fb-lane.cjs doctor
+```
+
+`doctor` is read-only. It checks the board, Codex rules, MCP config, handoff folder, active file
+locks, and git workspace before lane work starts.
 
 ### Fallback Setup
 
@@ -113,7 +126,7 @@ Use the tools this way:
 Example prompt:
 
 ```text
-@fb-lane
+$fb-lane
 Use FB-Lane with Codex worktrees for code-writing lanes.
 Product should split the work.
 Tech, Design, and Business should work separately.

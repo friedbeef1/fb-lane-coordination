@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-Q-5217 | In Progress | FB-Tech | Quick-Fix | Improve Codex plugin setup UX | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `platforms/codex/README.md`, `docs/handoffs`, `PROJECT_BOARD.md` | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-5217-improve-codex-plugin-setup-ux) |
+| TASK-Q-5217 | In Progress | FB-Tech | Quick-Fix | Improve Codex plugin setup UX | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/plugin.json`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `platforms/codex/README.md`, `docs/handoffs`, `PROJECT_BOARD.md` | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-5217-improve-codex-plugin-setup-ux) |
 | TASK-Q-8688 | Done | FB-Tech | Quick-Fix | Quick test hooks | (None) | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-8688-quick-test-hooks) |
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) |
 | TASK-002 | Done | FB-Tech | Core | Implement user authentication endpoints | (None) | (None) |
@@ -278,15 +278,26 @@
 *   **Out of Scope**: Unrelated codebase changes.
 *   **Affected Screens / Locks**:
     *   **Screens**: (None)
-    *   **Locked Files**: `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `platforms/codex/README.md`, `docs/handoffs`, `PROJECT_BOARD.md`
+    *   **Locked Files**: `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/plugin.json`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `platforms/codex/README.md`, `docs/handoffs`, `PROJECT_BOARD.md`
 *   **Links & Deliverables**:
     *   **Git Branch / PR**: [Branch Link](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-5217-improve-codex-plugin-setup-ux)
     *   **Staging URL**: (None)
     *   **Design Specs**: (None)
 *   **QA Checklist**:
-    *   [ ] Changes compile without error.
-    *   [ ] Modified files are verified and checked.
+    *   [x] Root and packaged CLI pass `node --check`.
+    *   [x] Codex plugin manifest validates.
+    *   [x] Codex-only bootstrap smoke creates no Claude or Antigravity artifacts.
+    *   [x] `git diff --check` passes.
 *   **Modified Files**:
-    *   (None)
+    *   `tools/fb-lane.cjs`
+    *   `plugins/fb-lane-coordination/tools/fb-lane.cjs`
+    *   `plugins/fb-lane-coordination/.codex-plugin/plugin.json`
+    *   `plugins/fb-lane-coordination/plugin.json`
+    *   `plugins/fb-lane-coordination/README.md`
+    *   `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`
+    *   `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`
+    *   `platforms/codex/README.md`
+    *   `docs/handoffs/TASK-Q-5217.md`
+    *   `PROJECT_BOARD.md`
 *   **Latest Update**:
-    *   *2026-06-23*: Initialized quick edit task.
+    *   *2026-06-23*: Added Codex-only bootstrap, read-only doctor, `$fb-lane` docs, plugin metadata alignment, and handoff; local verification passed.

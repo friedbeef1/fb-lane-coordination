@@ -19,20 +19,22 @@ codex plugin marketplace add friedbeef1/fb-lane-coordination
 codex plugin add fb-lane-coordination@fb-lane
 ```
 
-Then start a new Codex thread and ask for `@fb-lane` or one of the bundled skills.
+Then start a new Codex thread and ask for `$fb-lane` or one of the bundled skills. Natural
+language also works, and `@fb-lane` remains a useful human convention when you want to force the
+lane workflow in a prompt.
 
 ## Use It Immediately
 
 You do not need to read the full repo README first. After installing, start with:
 
 ```text
-@fb-lane status
+$fb-lane status
 ```
 
 Then describe the work in normal language:
 
 ```text
-@fb-lane
+$fb-lane
 Split this across Product, Tech, Design, and Business.
 Use worktrees for code-writing lanes where helpful.
 Each lane should claim files, write a handoff, and return to Product.
@@ -42,10 +44,10 @@ Product should sequence the final integration and tell me what is ready to merge
 Common prompts:
 
 ```text
-@fb-product what is ready to merge?
-@fb-design improve the prep-screen icons.
-@fb-tech check whether this auth flow is safe.
-@fb-business rewrite the onboarding copy.
+$fb-product what is ready to merge?
+$fb-design improve the prep-screen icons.
+$fb-tech check whether this auth flow is safe.
+$fb-business rewrite the onboarding copy.
 ```
 
 For depth, read the main `README.md`, `FAQ.md`, and `platforms/codex/README.md`.
@@ -53,11 +55,11 @@ For depth, read the main `README.md`, `FAQ.md`, and `platforms/codex/README.md`.
 ## Typical Prompt
 
 ```text
-@fb-lane
+$fb-lane
 Run these concurrently:
-@fb-design create prep-screen icon options.
-@fb-tech check whether the auth flow is safe.
-@fb-business rewrite the onboarding copy.
+$fb-design create prep-screen icon options.
+$fb-tech check whether the auth flow is safe.
+$fb-business rewrite the onboarding copy.
 Then have Product sequence the handoffs and flag conflicts.
 ```
 
@@ -75,3 +77,13 @@ This creates a `TASK-Q-####` board item, claims the files, and checks out a quic
 
 The target repo should have `AGENTS.md`, `PROJECT_BOARD.md`, and `tools/fb-lane.cjs`.
 If they are missing, ask Codex to bootstrap FB-Lane from this plugin before starting lane work.
+
+For a Codex-only project bootstrap, use:
+
+```bash
+node tools/fb-lane.cjs bootstrap --platform codex
+node tools/fb-lane.cjs doctor
+```
+
+`doctor` is read-only. It reports whether the board, rules, MCP config, handoff folder, active
+locks, and git workspace are ready before lane work begins.

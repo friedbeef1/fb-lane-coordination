@@ -104,6 +104,38 @@ function runHook(hookName, boardPath) {
   }
 }
 
+function parseBootstrapOptions(args = []) {
+  let platform = 'all';
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--platform') {
+      platform = args[i + 1] || platform;
+      i++;
+    } else if (arg.startsWith('--platform=')) {
+      platform = arg.slice('--platform='.length);
+    } else if (arg === '--codex-only') {
+      platform = 'codex';
+    }
+  }
+
+  platform = platform.toLowerCase();
+  if (platform === 'claude') {
+    platform = 'claude-code';
+  }
+
+  const validPlatforms = new Set(['all', 'codex', 'claude-code', 'antigravity']);
+  if (!validPlatforms.has(platform)) {
+    throw new Error(`Invalid platform "${platform}". Use all, codex, claude-code, or antigravity.`);
+  }
+
+  return {
+    platform,
+    includeAntigravity: platform === 'all' || platform === 'antigravity',
+    includeClaude: platform === 'all' || platform === 'claude-code',
+    includeCodex: platform === 'all' || platform === 'codex'
+  };
+}
+
 // Parse PROJECT_BOARD.md tasks and details
 function parseBoard(boardPath) {
   const content = fs.readFileSync(boardPath, 'utf8');
@@ -319,6 +351,134 @@ function handleStatus() {
     }
   });
   console.log('='.repeat(80) + '\n');
+}
+
+function handleDoctor() {
+  const boardPath = findBoardPath();
+  const rootDir = boardPath ? path.dirname(boardPath) : process.cwd();
+  const previousCwd = process.cwd();
+  const checks = [];
+
+  function add(level, label, detail, fix = '') {
+    checks.push({ level, label, detail, fix });
+  }
+
+  function exists(relPath) {
+    return fs.existsSync(path.join(rootDir, relPath));
+  }
+
+  try {
+    process.chdir(rootDir);
+
+    if (!boardPath) {
+      add('fail', 'PROJECT_BOARD.md', 'Not found from this directory or its parents.', 'Run: node tools/fb-lane.cjs bootstrap --platform codex');
+    } else {
+      try {
+        const { tasks } = parseBoard(boardPath);
+        if (tasks.length === 0) {
+          add('fail', 'PROJECT_BOARD.md', 'Found, but no task rows could be parsed.', 'Check the Active Workstreams table format.');
+        } else {
+          const inProgress = tasks.filter(t => t.status === 'In Progress');
+          add('ok', 'PROJECT_BOARD.md', `Parsed ${tasks.length} task(s); ${inProgress.length} in progress.`);
+
+          const activeLocks = new Map();
+          const duplicateLocks = [];
+          for (const task of inProgress) {
+            if (!task.locks || task.locks === '(None)') continue;
+            const locks = task.locks.split(',').map(f => f.trim().replace(/`/g, '')).filter(Boolean);
+            for (const lock of locks) {
+              if (activeLocks.has(lock)) {
+                duplicateLocks.push(`${lock} (${activeLocks.get(lock)} and ${task.id})`);
+              } else {
+                activeLocks.set(lock, task.id);
+              }
+            }
+          }
+          if (duplicateLocks.length > 0) {
+            add('fail', 'Active file locks', `Duplicate active locks: ${duplicateLocks.join(', ')}`, 'Ask FB-Product to split, serialize, or release one claim.');
+          } else {
+            add('ok', 'Active file locks', `${activeLocks.size} active file lock(s), no duplicate active claims.`);
+          }
+        }
+      } catch (err) {
+        add('fail', 'PROJECT_BOARD.md', `Could not parse board: ${err.message}`, 'Fix the board format or restore from git.');
+      }
+    }
+
+    if (exists('AGENTS.md')) {
+      add('ok', 'AGENTS.md', 'Repo instruction file exists.');
+    } else {
+      add('warn', 'AGENTS.md', 'Missing repo instruction file.', 'Run: node tools/fb-lane.cjs bootstrap --platform codex');
+    }
+
+    if (exists('tools/fb-lane.cjs')) {
+      add('ok', 'tools/fb-lane.cjs', 'Local lane CLI exists.');
+    } else {
+      add('fail', 'tools/fb-lane.cjs', 'Local lane CLI is missing.', 'Install or copy the FB-Lane CLI into tools/fb-lane.cjs.');
+    }
+
+    if (exists('docs/handoffs')) {
+      add('ok', 'docs/handoffs', 'Lane handoff directory exists.');
+    } else {
+      add('warn', 'docs/handoffs', 'Lane handoff directory is missing.', 'Create docs/handoffs/ before non-trivial lane work.');
+    }
+
+    if (exists('.codex/rules.md')) {
+      add('ok', '.codex/rules.md', 'Codex rules exist.');
+    } else {
+      add('warn', '.codex/rules.md', 'Codex rules are missing.', 'Run: node tools/fb-lane.cjs bootstrap --platform codex');
+    }
+
+    const mcpPath = path.join(rootDir, '.mcp.json');
+    if (fs.existsSync(mcpPath)) {
+      try {
+        const mcpConfig = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
+        if (mcpConfig.mcpServers && mcpConfig.mcpServers['fb-lane']) {
+          add('ok', '.mcp.json', 'fb-lane MCP server is configured.');
+        } else {
+          add('warn', '.mcp.json', 'File exists but fb-lane MCP server is not configured.', 'Run: node tools/fb-lane.cjs bootstrap --platform codex');
+        }
+      } catch (err) {
+        add('fail', '.mcp.json', `Invalid JSON: ${err.message}`, 'Fix .mcp.json before using MCP tools.');
+      }
+    } else {
+      add('warn', '.mcp.json', 'Missing project MCP config.', 'Run: node tools/fb-lane.cjs bootstrap --platform codex');
+    }
+
+    try {
+      runGit('rev-parse --is-inside-work-tree');
+      const branch = runGit('rev-parse --abbrev-ref HEAD');
+      const dirty = runGit('status --porcelain');
+      if (dirty) {
+        add('warn', 'Git workspace', `On ${branch} with uncommitted changes.`, 'Review git status before claiming or merging lane work.');
+      } else {
+        add('ok', 'Git workspace', `On ${branch}; working tree clean.`);
+      }
+    } catch (err) {
+      add('warn', 'Git workspace', 'Not inside a git repository.', 'FB-Lane works best in a version-controlled repo.');
+    }
+  } finally {
+    process.chdir(previousCwd);
+  }
+
+  const failCount = checks.filter(c => c.level === 'fail').length;
+  const warnCount = checks.filter(c => c.level === 'warn').length;
+  const status = failCount > 0 ? 'Blocked' : warnCount > 0 ? 'Needs attention' : 'Ready';
+
+  console.log(`\n🩺 FB-Lane doctor: ${status}`);
+  console.log('='.repeat(80));
+  for (const check of checks) {
+    const marker = check.level === 'ok' ? '✅' : check.level === 'warn' ? '⚠️ ' : '❌';
+    console.log(`${marker} ${check.label}: ${check.detail}`);
+    if (check.fix) {
+      console.log(`   Fix: ${check.fix}`);
+    }
+  }
+  console.log('='.repeat(80) + '\n');
+
+  if (failCount > 0) {
+    process.exit(1);
+  }
 }
 
 function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
@@ -1020,7 +1180,7 @@ function handleMcpRequest(request) {
           ).join('\n');
         } else if (name === 'fb_lane_claim') {
           const { taskId, lane, lockedFiles } = toolArgs;
-          
+
           runHook('pre-claim', boardPath);
 
           // Run core claim logic
@@ -1143,8 +1303,16 @@ function handleMcpRequest(request) {
 }
 
 // Main execution parsing
-function handleBootstrap() {
-  console.log('🚀 Bootstrapping FB-Lane Coordination Plugin...\n');
+function handleBootstrap(args = []) {
+  let options;
+  try {
+    options = parseBootstrapOptions(args);
+  } catch (err) {
+    console.error(`❌ Error: ${err.message}`);
+    process.exit(1);
+  }
+
+  console.log(`🚀 Bootstrapping FB-Lane Coordination Plugin (${options.platform})...\n`);
   const rootDir = process.cwd();
 
   // 0. Auto-detect project metadata from package.json and git remote URL
@@ -1260,7 +1428,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
     console.log('ℹ️  AGENTS.md already exists, skipping.');
   }
 
-  // 3. Create Agent config folders and files
+  // 3. Create Antigravity agent config folders and files when requested.
   const agentConfigs = {
     'FB-Product': {
       name: 'FB-Product',
@@ -1324,14 +1492,18 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
     }
   };
 
-  for (const [folderName, configObj] of Object.entries(agentConfigs)) {
-    const dirPath = path.join(rootDir, 'agents', folderName);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
+  if (options.includeAntigravity) {
+    for (const [folderName, configObj] of Object.entries(agentConfigs)) {
+      const dirPath = path.join(rootDir, 'agents', folderName);
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+      }
+      const agentJsonPath = path.join(dirPath, 'agent.json');
+      fs.writeFileSync(agentJsonPath, JSON.stringify(configObj, null, 2), 'utf8');
+      console.log(`📁 Created agent config: agents/${folderName}/agent.json`);
     }
-    const agentJsonPath = path.join(dirPath, 'agent.json');
-    fs.writeFileSync(agentJsonPath, JSON.stringify(configObj, null, 2), 'utf8');
-    console.log(`📁 Created agent config: agents/${folderName}/agent.json`);
+  } else {
+    console.log('ℹ️  Skipping Antigravity agent configs for this platform.');
   }
 
   // 3b. Create docs/handoffs/ directory for handoff files
@@ -1346,14 +1518,15 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
   }
 
   // 4. Inject FB-Lane section into .codex/rules.md (non-destructive)
-  const codexDir = path.join(rootDir, '.codex');
-  if (!fs.existsSync(codexDir)) {
-    fs.mkdirSync(codexDir);
-  }
-  const codexRulesPath = path.join(codexDir, 'rules.md');
-  const CODEX_FB_START = '<!-- fb-lane-start -->';
-  const CODEX_FB_END = '<!-- fb-lane-end -->';
-  const codexFbBlock = `${CODEX_FB_START}
+  if (options.includeCodex) {
+    const codexDir = path.join(rootDir, '.codex');
+    if (!fs.existsSync(codexDir)) {
+      fs.mkdirSync(codexDir);
+    }
+    const codexRulesPath = path.join(codexDir, 'rules.md');
+    const CODEX_FB_START = '<!-- fb-lane-start -->';
+    const CODEX_FB_END = '<!-- fb-lane-end -->';
+    const codexFbBlock = `${CODEX_FB_START}
 ## FB-Lane Coordination
 
 This project uses the FB-Lane Four-Lane Coordination Model.
@@ -1382,32 +1555,36 @@ This project uses the FB-Lane Four-Lane Coordination Model.
 - Max 5 debug retries before marking task \`Blocked\` and notifying the user.
 ${CODEX_FB_END}`;
 
-  if (!fs.existsSync(codexRulesPath)) {
-    fs.writeFileSync(codexRulesPath, codexFbBlock + '\n', 'utf8');
-    console.log('📝 Created .codex/rules.md with FB-Lane section.');
-  } else {
-    const existingCodex = fs.readFileSync(codexRulesPath, 'utf8');
-    if (existingCodex.includes(CODEX_FB_START)) {
-      // Update in-place — idempotent
-      const updatedCodex = existingCodex.replace(
-        new RegExp(`${CODEX_FB_START}[\\s\\S]*?${CODEX_FB_END}`),
-        codexFbBlock
-      );
-      fs.writeFileSync(codexRulesPath, updatedCodex, 'utf8');
-      console.log('🔄 Updated existing FB-Lane section in .codex/rules.md.');
+    if (!fs.existsSync(codexRulesPath)) {
+      fs.writeFileSync(codexRulesPath, codexFbBlock + '\n', 'utf8');
+      console.log('📝 Created .codex/rules.md with FB-Lane section.');
     } else {
-      // Append — never overwrite user's existing rules
-      const appendedCodex = existingCodex.trimEnd() + '\n\n---\n\n' + codexFbBlock + '\n';
-      fs.writeFileSync(codexRulesPath, appendedCodex, 'utf8');
-      console.log('✅ Appended FB-Lane section to your existing .codex/rules.md.');
+      const existingCodex = fs.readFileSync(codexRulesPath, 'utf8');
+      if (existingCodex.includes(CODEX_FB_START)) {
+        // Update in-place — idempotent
+        const updatedCodex = existingCodex.replace(
+          new RegExp(`${CODEX_FB_START}[\\s\\S]*?${CODEX_FB_END}`),
+          codexFbBlock
+        );
+        fs.writeFileSync(codexRulesPath, updatedCodex, 'utf8');
+        console.log('🔄 Updated existing FB-Lane section in .codex/rules.md.');
+      } else {
+        // Append — never overwrite user's existing rules
+        const appendedCodex = existingCodex.trimEnd() + '\n\n---\n\n' + codexFbBlock + '\n';
+        fs.writeFileSync(codexRulesPath, appendedCodex, 'utf8');
+        console.log('✅ Appended FB-Lane section to your existing .codex/rules.md.');
+      }
     }
+  } else {
+    console.log('ℹ️  Skipping Codex rules for this platform.');
   }
 
   // 5. Inject FB-Lane section into CLAUDE.md (non-destructive)
-  const claudeMdPath = path.join(rootDir, 'CLAUDE.md');
-  const FB_LANE_START = '<!-- fb-lane-start -->';
-  const FB_LANE_END = '<!-- fb-lane-end -->';
-  const fbLaneBlock = `${FB_LANE_START}
+  if (options.includeClaude) {
+    const claudeMdPath = path.join(rootDir, 'CLAUDE.md');
+    const FB_LANE_START = '<!-- fb-lane-start -->';
+    const FB_LANE_END = '<!-- fb-lane-end -->';
+    const fbLaneBlock = `${FB_LANE_START}
 ## FB-Lane Coordination
 
 This project uses the **FB-Lane Four-Lane Coordination Model**.
@@ -1444,28 +1621,31 @@ node tools/fb-lane.cjs merge <id>           # Merge to main, release locks (FB-P
 - Do not revert others — merge \`main\` into your branch to resolve conflicts.
 ${FB_LANE_END}`;
 
-  if (!fs.existsSync(claudeMdPath)) {
-    fs.writeFileSync(claudeMdPath, fbLaneBlock + '\n', 'utf8');
-    console.log('📝 Created CLAUDE.md with FB-Lane section.');
-  } else {
-    const existing = fs.readFileSync(claudeMdPath, 'utf8');
-    if (existing.includes(FB_LANE_START)) {
-      // Section already exists — update it in-place (idempotent)
-      const updated = existing.replace(
-        new RegExp(`${FB_LANE_START}[\\s\\S]*?${FB_LANE_END}`),
-        fbLaneBlock
-      );
-      fs.writeFileSync(claudeMdPath, updated, 'utf8');
-      console.log('🔄 Updated existing FB-Lane section in CLAUDE.md.');
+    if (!fs.existsSync(claudeMdPath)) {
+      fs.writeFileSync(claudeMdPath, fbLaneBlock + '\n', 'utf8');
+      console.log('📝 Created CLAUDE.md with FB-Lane section.');
     } else {
-      // Existing CLAUDE.md without FB-Lane — append, never overwrite
-      const appended = existing.trimEnd() + '\n\n---\n\n' + fbLaneBlock + '\n';
-      fs.writeFileSync(claudeMdPath, appended, 'utf8');
-      console.log('✅ Appended FB-Lane section to your existing CLAUDE.md.');
+      const existing = fs.readFileSync(claudeMdPath, 'utf8');
+      if (existing.includes(FB_LANE_START)) {
+        // Section already exists — update it in-place (idempotent)
+        const updated = existing.replace(
+          new RegExp(`${FB_LANE_START}[\\s\\S]*?${FB_LANE_END}`),
+          fbLaneBlock
+        );
+        fs.writeFileSync(claudeMdPath, updated, 'utf8');
+        console.log('🔄 Updated existing FB-Lane section in CLAUDE.md.');
+      } else {
+        // Existing CLAUDE.md without FB-Lane — append, never overwrite
+        const appended = existing.trimEnd() + '\n\n---\n\n' + fbLaneBlock + '\n';
+        fs.writeFileSync(claudeMdPath, appended, 'utf8');
+        console.log('✅ Appended FB-Lane section to your existing CLAUDE.md.');
+      }
     }
+  } else {
+    console.log('ℹ️  Skipping Claude Code files for this platform.');
   }
 
-  // 6. Auto-configure Claude Code MCP server (project-scoped .mcp.json — all platforms)
+  // 6. Auto-configure project-scoped MCP server.
   const mcpJsonPath = path.join(rootDir, '.mcp.json');
   try {
     let mcpConfig = { mcpServers: {} };
@@ -1484,55 +1664,73 @@ ${FB_LANE_END}`;
       args: ['tools/fb-lane.cjs', 'mcp']
     };
     fs.writeFileSync(mcpJsonPath, JSON.stringify(mcpConfig, null, 2) + '\n', 'utf8');
-    console.log('🔌 Configured Claude Code MCP server in .mcp.json');
+    console.log('🔌 Configured fb-lane MCP server in .mcp.json');
   } catch (err) {
-    console.warn(`⚠️  Failed to configure Claude Code MCP (.mcp.json): ${err.message}`);
+    console.warn(`⚠️  Failed to configure fb-lane MCP (.mcp.json): ${err.message}`);
   }
 
   // 7. Create Claude Code lane subagents (.claude/agents/*.md — non-destructive).
   // Derived from the canonical `agentConfigs` above so the lanes stay in sync. Antigravity
   // tool names are mapped to Claude Code tools; FB-Business stays read-only on code.
-  const claudeAgentsDir = path.join(rootDir, '.claude', 'agents');
-  if (!fs.existsSync(claudeAgentsDir)) {
-    fs.mkdirSync(claudeAgentsDir, { recursive: true });
-  }
-  const claudeLaneTools = {
-    'FB-Product': 'Read, Edit, Write, Grep, Glob, Bash',
-    'FB-Tech': 'Read, Edit, Write, Grep, Glob, Bash',
-    'FB-Design': 'Read, Edit, Write, Grep, Glob, Bash',
-    'FB-Business': 'Read, Grep, Glob, WebSearch, WebFetch'
-  };
-  for (const [folderName, configObj] of Object.entries(agentConfigs)) {
-    const slug = folderName.toLowerCase();
-    const agentMdPath = path.join(claudeAgentsDir, `${slug}.md`);
-    if (fs.existsSync(agentMdPath)) {
-      console.log(`ℹ️  .claude/agents/${slug}.md already exists, skipping.`);
-      continue;
+  if (options.includeClaude) {
+    const claudeAgentsDir = path.join(rootDir, '.claude', 'agents');
+    if (!fs.existsSync(claudeAgentsDir)) {
+      fs.mkdirSync(claudeAgentsDir, { recursive: true });
     }
-    const body = configObj.config.customAgent.systemPromptSections
-      .map((section) => section.content)
-      .join('\n\n');
-    const tools = claudeLaneTools[folderName] || 'Read, Grep, Glob';
-    const frontmatter = `---\nname: ${slug}\ndescription: ${configObj.description}\ntools: ${tools}\n---\n\n`;
-    fs.writeFileSync(agentMdPath, frontmatter + body + '\n', 'utf8');
-    console.log(`🤖 Created Claude Code subagent: .claude/agents/${slug}.md`);
+    const claudeLaneTools = {
+      'FB-Product': 'Read, Edit, Write, Grep, Glob, Bash',
+      'FB-Tech': 'Read, Edit, Write, Grep, Glob, Bash',
+      'FB-Design': 'Read, Edit, Write, Grep, Glob, Bash',
+      'FB-Business': 'Read, Grep, Glob, WebSearch, WebFetch'
+    };
+    for (const [folderName, configObj] of Object.entries(agentConfigs)) {
+      const slug = folderName.toLowerCase();
+      const agentMdPath = path.join(claudeAgentsDir, `${slug}.md`);
+      if (fs.existsSync(agentMdPath)) {
+        console.log(`ℹ️  .claude/agents/${slug}.md already exists, skipping.`);
+        continue;
+      }
+      const body = configObj.config.customAgent.systemPromptSections
+        .map((section) => section.content)
+        .join('\n\n');
+      const tools = claudeLaneTools[folderName] || 'Read, Grep, Glob';
+      const frontmatter = `---\nname: ${slug}\ndescription: ${configObj.description}\ntools: ${tools}\n---\n\n`;
+      fs.writeFileSync(agentMdPath, frontmatter + body + '\n', 'utf8');
+      console.log(`🤖 Created Claude Code subagent: .claude/agents/${slug}.md`);
+    }
+  } else {
+    console.log('ℹ️  Skipping Claude Code subagents for this platform.');
   }
 
   console.log('\n🎉 FB-Lane Plugin bootstrapped successfully!');
   console.log('======================================================================');
   console.log('🚀 QUICK START GUIDE: HOW TO USE FB-LANE RIGHT AWAY');
   console.log('======================================================================');
-  console.log('1. Open this workspace in Antigravity, Claude Code, or Codex.');
-  console.log('2. Start a chat with the Product agent (FB-Product) and ask it to build a feature:');
-  console.log('   e.g., "Add a login page" or "Triage our next milestones"');
-  console.log('3. Product will scope the work, create tasks in PROJECT_BOARD.md, and mark them as Ready.');
-  console.log('4. Open the corresponding worker agent thread (FB-Tech or FB-Design) to start coding:');
-  console.log('   The worker agent will automatically claim the task, checkout a branch, and implement code.');
-  console.log('5. Once done, the worker agent submits the task for QA.');
-  console.log('6. Open the Product agent again to review staging and merge the changes into main.');
+  if (options.platform === 'codex') {
+    console.log('1. Open this workspace in Codex.');
+    console.log('2. Start with: $fb-lane status');
+    console.log('3. Describe the work normally. Product splits the work, lanes claim files, and handoffs return to Product.');
+    console.log('4. Run health checks any time with: node tools/fb-lane.cjs doctor');
+  } else {
+    console.log('1. Open this workspace in Antigravity, Claude Code, or Codex.');
+    console.log('2. Start a chat with the Product agent (FB-Product) and ask it to build a feature:');
+    console.log('   e.g., "Add a login page" or "Triage our next milestones"');
+    console.log('3. Product will scope the work, create tasks in PROJECT_BOARD.md, and mark them as Ready.');
+    console.log('4. Open the corresponding worker agent thread (FB-Tech or FB-Design) to start coding:');
+    console.log('   The worker agent will automatically claim the task, checkout a branch, and implement code.');
+    console.log('5. Once done, the worker agent submits the task for QA.');
+    console.log('6. Open the Product agent again to review staging and merge the changes into main.');
+  }
   console.log('======================================================================');
-  console.log('👉 Antigravity 2.0: The lane agents are now populated in your left sidebar!');
-  console.log('👉 Claude Code: Reload the app to load the new lanes and run `/mcp` to approve fb-lane.');
+  if (options.includeAntigravity) {
+    console.log('👉 Antigravity 2.0: The lane agents are now populated in your left sidebar!');
+  }
+  if (options.includeClaude) {
+    console.log('👉 Claude Code: Reload the app to load the new lanes and run `/mcp` to approve fb-lane.');
+  }
+  if (options.includeCodex) {
+    console.log('👉 Codex: Start a new thread and use `$fb-lane status` or select the FB-Lane plugin prompt.');
+  }
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');
 }
 
@@ -1544,8 +1742,10 @@ function main() {
     runMcpServer();
   } else if (command === 'status') {
     handleStatus();
+  } else if (command === 'doctor') {
+    handleDoctor();
   } else if (command === 'bootstrap') {
-    handleBootstrap();
+    handleBootstrap(args.slice(1));
   } else if (command === 'claim') {
     const rest = args.slice(1);
     const useWorktree = rest.some(a => a === '--worktree' || a === '-w');
@@ -1587,10 +1787,11 @@ function main() {
 🤖 FB-Lane Automation Tool
 ==========================
 Usage:
-  node tools/fb-lane.cjs bootstrap                      - Bootstrap project board, agents, and folders
+  node tools/fb-lane.cjs bootstrap [--platform codex]   - Bootstrap project board, rules, tools, and folders
+  node tools/fb-lane.cjs doctor                         - Check FB-Lane setup health without writing files
   node tools/fb-lane.cjs status                         - Print active tasks & locks
   node tools/fb-lane.cjs claim <id> <lane> [locks] [-w] - Claim task, checkout branch (or --worktree for parallel lanes), copy prompt
-  node tools/fb-lane.cjs claim ... --worktree           - Claim into an isolated git worktree (true parallel branches; Claude Code)
+  node tools/fb-lane.cjs claim ... --worktree           - Claim into an isolated git worktree for true parallel branches
   node tools/fb-lane.cjs quick <lane> <locks> [desc]    - Create & claim a fast-track quick task
   node tools/fb-lane.cjs submit <id> [url] [--no-tests] - Run tests, submit task, update board, push branch
   node tools/fb-lane.cjs merge <id>                     - Merge branch to main, release locks, delete branch

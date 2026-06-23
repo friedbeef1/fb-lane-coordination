@@ -16,10 +16,10 @@ Codex supplies the concurrency. FB-Lane supplies shared coordination:
 
 ## User-Facing Quickstart
 
-When the user asks how to start, what to do after install, or says `@fb-lane status`, keep the answer short and immediately actionable:
+When the user asks how to start, what to do after install, or says `$fb-lane status`, keep the answer short and immediately actionable:
 
 ```text
-Start with @fb-lane status.
+Start with $fb-lane status.
 Then describe the work normally.
 Product splits the work, lanes claim files, code-writing lanes can use worktrees, each lane writes a handoff, and Product sequences what is ready to merge.
 ```
@@ -27,16 +27,16 @@ Product splits the work, lanes claim files, code-writing lanes can use worktrees
 Useful examples:
 
 ```text
-@fb-lane
+$fb-lane
 Split this across Product, Tech, Design, and Business.
 Use worktrees for code-writing lanes where helpful.
 Each lane should claim files, write a handoff, and return to Product.
 Product should sequence the final integration and tell me what is ready to merge.
 
-@fb-product what is ready to merge?
-@fb-design improve the prep-screen icons.
-@fb-tech check whether this auth flow is safe.
-@fb-business rewrite the onboarding copy.
+$fb-product what is ready to merge?
+$fb-design improve the prep-screen icons.
+$fb-tech check whether this auth flow is safe.
+$fb-business rewrite the onboarding copy.
 ```
 
 ## Start Of Work
@@ -45,19 +45,20 @@ Product should sequence the final integration and tell me what is ready to merge
 2. Run or request FB-Lane status:
    - MCP: call `fb_lane_status` with `workspacePath` set to the active repo root when needed.
    - CLI fallback: `node tools/fb-lane.cjs status`.
-3. Identify whether the user is asking Product to orchestrate lanes or directly addressing lane threads.
-4. Before any write, claim or create one scoped board item and declare locked files.
-5. Do not modify files locked by another active lane.
+3. If setup looks suspect, run `node tools/fb-lane.cjs doctor` before claiming work.
+4. Identify whether the user is asking Product to orchestrate lanes or directly addressing lane threads.
+5. Before any write, claim or create one scoped board item and declare locked files.
+6. Do not modify files locked by another active lane.
 
 ## Direct Lane Prompt Convention
 
 Treat prompts like these as lane routing instructions:
 
 ```text
-@fb-design create prep-screen icon options.
-@fb-tech check whether the auth flow is safe.
-@fb-business rewrite onboarding copy.
-@fb-product decide whether this should go to staging.
+$fb-design create prep-screen icon options.
+$fb-tech check whether the auth flow is safe.
+$fb-business rewrite onboarding copy.
+$fb-product decide whether this should go to staging.
 ```
 
 Codex may run safe independent pieces concurrently. Product/Captain remains responsible for sequencing, conflict resolution, staging decisions, and final merge.
