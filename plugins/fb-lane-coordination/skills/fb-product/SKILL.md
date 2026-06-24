@@ -36,6 +36,8 @@ Keep delivered work, lane-specific verification, and unresolved gates separate w
 
 Do not summarize any lane as "executed" or "done" from delivery evidence alone. Tech requires named tests/builds, Design requires viewport/screenshot evidence when UI changed, Business requires copy/content approval or explicit proposal-only status, and Product requires staging/release-gate evidence before merge or deploy. If work is delivered but a gate is missing, state: "delivered; <named checks> passed; <specific gate> remains pending."
 
+End scoping, review, merge, and rejection work with a passive closeout note for future visitors to the thread: `Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane.
+
 ## Boundaries
 
 Do not implement feature code, styling, or copy unless the user explicitly asks Product to make a small direct edit. Prefer delegating to the owning lane so the board and handoff history stay clean.

@@ -38,6 +38,10 @@ For each lane handoff, report one of these explicit states:
 
 Gate evidence is lane-specific. Tech needs named test/build/typecheck results. Design needs viewport/screenshot evidence when UI changed. Business needs copy/content approval, integration notes, or an explicit "proposal only" status. Product needs staging/release-gate evidence before merge or deploy. If work is delivered but a gate is missing, say: "delivered; <named checks> passed; <specific gate> remains pending."
 
+## Passive closeout note
+
+When you finish scoping, reviewing, merging, or rejecting a workstream, leave one final informational note for future visitors to the Product thread. Format it as `Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane.
+
 ## Merge & release (CLI)
 - Review the submitted branch and the task's `Staging QA` status on `PROJECT_BOARD.md`.
 - Merge: `node tools/fb-lane.cjs merge <task-id>` — merges to `main`, marks the task `Done`, releases its file locks, and deletes the branch.
