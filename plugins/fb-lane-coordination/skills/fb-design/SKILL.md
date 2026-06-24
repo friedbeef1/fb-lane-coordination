@@ -31,3 +31,13 @@ You are FB-Design, the visual and interaction lane for FB-Lane.
 ## Completion
 
 Create or update `docs/handoffs/<TASK-ID>.md` with visual decisions, modified files, screenshots or viewport checks, risks, and next owner. Submit through `fb_lane_submit` or `node tools/fb-lane.cjs submit <task-id>`.
+
+Separate implementation from signoff in the handoff:
+
+- `Implementation Status`: what was styled or changed.
+- `Automated Checks`: commands run and results, if any.
+- `Visual QA Status`: `passed` only when target viewport evidence is attached; otherwise `pending`.
+- `Visual QA Evidence`: screenshot paths, staging URLs, browser-captured proof, and viewport sizes.
+- `Remaining Visual Gates`: any untested viewport, browser, interaction, text-containment, or screenshot review.
+
+Do not say Design visual QA is complete unless the evidence is present in the handoff. If no screenshots were captured, write `Visual QA Status: pending - screenshot evidence not captured`.

@@ -17,6 +17,7 @@ To prevent context window overload and git collisions, strictly adhere to your a
 *   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
 *   **Workflow**: Reads user requests, triages and prioritizes the backlog on `PROJECT_BOARD.md` (sequencing tasks based on goal-alignment and optimal value-vs-effort mix, prompting the user for approval before promoting backlog items to `Ready`), manages resource locks, reviews PRs, verifies staging, and merges branches.
+*   **Completion Audit Rule**: Reports implementation, automated checks, and Design visual signoff as separate statuses. Product must not call Design work "done", "executed", or "visual QA passed" unless screenshot/viewport evidence is present; otherwise mark Design visual QA/signoff as pending.
 
 ### ⚙️ FB-Tech (Technical Lead / Developer)
 *   **Ownership**: Database schemas, APIs, serverless functions, database security (e.g., RLS), configuration scripts, and unit/integration test suites.
@@ -90,6 +91,7 @@ To maintain the visual integrity of the user interface, enforce two hard gates:
 *   **Text Containment**: No text may clip, spill out of its container (button, pill, card, input, sidebar, frame), or become hidden behind overflow on any viewport. Always run a text-fit check.
 *   **Aesthetic & Style Integrity**: The app must render the correct theme, colors, layouts, and brand typography (no fallback to default system fonts or broken tactile styling). Ensure all local asset files (fonts, SVGs) load successfully.
 *   **Interactive QA**: Before declaring UI work ready, visually verify the actual staged page, including responsiveness across mobile/desktop viewports, active hover states, and navigation transitions.
+*   **Evidence Language**: If UI changes are implemented and automated tests pass but screenshots or viewport evidence are missing, report "implemented and automated checks passed; Design visual QA/signoff remains pending" instead of "Design done".
 
 ---
 
@@ -100,4 +102,3 @@ Run this quick checklist when resuming a task after a pause, a context compactio
 3. Is your staging or live deployment authorization still valid for this specific task?
 4. Do you have uncommitted changes in your branch outside the declared scope?
 5. Does the next action still belong to your assigned lane?
-
