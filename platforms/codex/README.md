@@ -6,6 +6,10 @@ The Codex pain point is narrower: once you start using those capabilities for re
 
 > **Codex reality check:** Codex already has concurrency and isolation primitives. FB-Lane is not what makes Codex parallel. FB-Lane is the shared-state protocol that makes parallel lane work easier to trust: lane identity, file claims, status checks, handoffs, and Product/Captain integration.
 
+Use that protocol only when it reduces coordination risk. For a one-thread fix, a read-only answer,
+or independent work where Codex worktrees already provide enough isolation, use Codex directly and
+skip the board/handoff ceremony.
+
 ## 📺 How-To Video
 
 > 📺 **[Watch the FB-Lane on Codex Video on YouTube](https://youtu.be/nVEGruk2R7Y)** (Cmd/Ctrl + click to open in a new tab)
@@ -122,6 +126,7 @@ Use the tools this way:
 - **Use Codex worktrees alone** when the tasks are technically independent and you are comfortable reviewing branches and merge order yourself.
 - **Use FB-Lane alone** for planning, copy, design review, product decisions, small edits, or one Product/Captain thread coordinating native Codex subagents.
 - **Use both together** for bigger code-writing work: Product splits the work, each implementation lane works in its own Codex worktree, every lane claims files in the board, each lane writes a handoff, and Product/Captain sequences the final integration.
+- **Use neither FB-Lane nor extra worktrees** when one local Codex thread can safely complete and verify the task.
 
 Example prompt:
 

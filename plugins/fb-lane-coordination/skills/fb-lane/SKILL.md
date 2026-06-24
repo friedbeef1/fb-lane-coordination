@@ -14,6 +14,12 @@ Codex supplies the concurrency. FB-Lane supplies shared coordination:
 - `docs/handoffs/` carries lane output back to Product/Captain.
 - The `fb-lane` MCP server or `node tools/fb-lane.cjs` commands perform status, claim, submit, and merge operations.
 
+## Scope Boundary
+
+FB-Lane is a thin coordination protocol, not a default wrapper for all Codex work.
+
+Use it when there are 2+ active lanes, overlapping file risk, staging/live gates, or handoffs that must survive context loss. Skip it for one-thread fixes, read-only questions, simple code explanations, or independent work where Codex worktrees are enough. When skipping, use ordinary Codex workflow and avoid creating board noise.
+
 ## User-Facing Quickstart
 
 When the user asks how to start, what to do after install, or says `$fb-lane status`, keep the answer short and immediately actionable:

@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-Q-5217 | Staging QA | FB-Tech | Quick-Fix | Improve Codex plugin setup UX | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/plugin.json`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `platforms/codex/README.md`, `docs/handoffs`, `PROJECT_BOARD.md` | [PR #17](https://github.com/friedbeef1/fb-lane-coordination/pull/17) |
+| TASK-Q-5217 | Staging QA | FB-Tech | Quick-Fix | Improve Codex plugin setup UX | `README.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/plugin.json`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `platforms/codex/README.md`, `docs/handoffs`, `PROJECT_BOARD.md` | [PR #17](https://github.com/friedbeef1/fb-lane-coordination/pull/17) |
 | TASK-Q-8688 | Done | FB-Tech | Quick-Fix | Quick test hooks | (None) | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-8688-quick-test-hooks) |
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) |
 | TASK-002 | Done | FB-Tech | Core | Implement user authentication endpoints | (None) | (None) |
@@ -278,7 +278,7 @@
 *   **Out of Scope**: Unrelated codebase changes.
 *   **Affected Screens / Locks**:
     *   **Screens**: (None)
-    *   **Locked Files**: `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/plugin.json`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `platforms/codex/README.md`, `docs/handoffs`, `PROJECT_BOARD.md`
+    *   **Locked Files**: `README.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/plugin.json`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `platforms/codex/README.md`, `docs/handoffs`, `PROJECT_BOARD.md`
 *   **Links & Deliverables**:
     *   **Git Branch / PR**: [PR #17](https://github.com/friedbeef1/fb-lane-coordination/pull/17)
     *   **Staging URL**: (None)
@@ -295,9 +295,12 @@
     *   `plugins/fb-lane-coordination/plugin.json`
     *   `plugins/fb-lane-coordination/README.md`
     *   `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`
+    *   `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`
     *   `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`
     *   `platforms/codex/README.md`
+    *   `README.md`
     *   `docs/handoffs/TASK-Q-5217.md`
     *   `PROJECT_BOARD.md`
 *   **Latest Update**:
     *   *2026-06-23*: Added Codex-only bootstrap, read-only doctor, `$fb-lane` docs, plugin metadata alignment, and handoff; local verification passed.
+    *   *2026-06-24*: Added thin-protocol guidance so FB-Lane is optional and skipped for simple single-thread Codex work.

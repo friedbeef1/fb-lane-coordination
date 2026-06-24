@@ -13,6 +13,8 @@
 - Synced the root CLI into the packaged Codex plugin CLI.
 - Updated Codex-facing docs, skill prompts, and plugin default prompts to prefer `$fb-lane`.
 - Aligned legacy plugin metadata with `.codex-plugin/plugin.json` at version `0.1.2`.
+- Added thin-protocol positioning so FB-Lane is framed as optional coordination,
+  not as the layer that makes Codex parallel.
 
 ## Modified Files
 
@@ -22,8 +24,10 @@
 - `plugins/fb-lane-coordination/plugin.json`
 - `plugins/fb-lane-coordination/README.md`
 - `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`
+- `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`
 - `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`
 - `platforms/codex/README.md`
+- `README.md`
 - `PROJECT_BOARD.md`
 
 ## Verification
