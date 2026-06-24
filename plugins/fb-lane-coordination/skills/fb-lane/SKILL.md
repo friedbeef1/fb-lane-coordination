@@ -82,6 +82,19 @@ Any non-trivial lane output must create or update `docs/handoffs/<TASK-ID>.md` w
 
 Product must read handoffs before integration.
 
+## Product Completion Audit
+
+Product/Captain must report lane status with separate evidence buckets:
+
+- implementation present
+- automated checks passed
+- Design visual QA passed with screenshot/viewport evidence
+- Design visual QA pending
+- blocked
+- superseded
+
+Do not collapse those into a generic "executed" or "done" label. UI work can be implemented and test-verified while Design signoff remains pending; Product must state that distinction clearly before merge or staging recommendations.
+
 ## Finish
 
 End by updating `PROJECT_BOARD.md` with status, modified files, checks, links, risks, and next owner. Use Product/Captain as the final endpoint for multi-lane work.
