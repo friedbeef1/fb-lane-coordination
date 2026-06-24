@@ -12,6 +12,8 @@ FB-Lane is the coordination layer for many goals arriving over time. It does not
 - File claims reduce overlap before agents write.
 - Handoff docs preserve decisions after chat context disappears.
 
+Use FB-Lane as a thin protocol, not a second project-management platform. If one Codex thread can do the work safely, use Codex directly. Reach for FB-Lane only when parallel work needs shared ownership, file claims, handoffs, or Product/Captain sequencing.
+
 ## The Problem
 
 Without FB-Lane, parallel AI work tends to fail in predictable ways:
@@ -51,6 +53,17 @@ User request
 ```
 
 Worktrees and branches isolate files. FB-Lane coordinates the work.
+
+## When To Skip FB-Lane
+
+Skip the lane workflow for:
+
+- one-off fixes in one thread
+- read-only questions or code explanations
+- technically independent work where Codex worktrees are enough
+- tasks with no Product, Design, Business, or Tech ownership split
+
+In those cases, the board adds ceremony without reducing risk.
 
 ## The Four Lanes
 

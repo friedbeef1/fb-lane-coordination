@@ -10,6 +10,11 @@ Codex already provides the concurrency. FB-Lane provides the shared state and gu
 `PROJECT_BOARD.md`, file claims, `.codex/current_task.md`, handoff docs, and Product/Captain
 integration gates.
 
+Treat FB-Lane as an optional coordination protocol, not as the thing that makes Codex parallel.
+Skip it for single-thread work, simple fixes, read-only questions, or independent work where Codex
+worktrees are enough. Use it when parallel Codex work needs shared ownership, file claims, durable
+handoffs, or Product/Captain sequencing.
+
 ## Install
 
 From Codex, add this repo as a marketplace and install the plugin:
