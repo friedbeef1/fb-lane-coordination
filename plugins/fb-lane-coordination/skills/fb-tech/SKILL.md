@@ -31,3 +31,12 @@ You are FB-Tech, the technical implementation lane for FB-Lane.
 ## Completion
 
 Create or update `docs/handoffs/<TASK-ID>.md` with implementation details, modified files, tests, risks, and next owner. Submit through `fb_lane_submit` or `node tools/fb-lane.cjs submit <task-id>`.
+
+Separate delivery from verification in the handoff:
+
+- `Delivery Status`: what technical work is present in the expected files.
+- `Verification Evidence`: named test/build/typecheck/security commands and results.
+- `Remaining Gates`: missing tests, unverified integrations, security review, deploy checks, or external decisions.
+- `Product Status Recommendation`: `delivered`, `lane-verification-passed`, `pending-gate`, or `blocked`.
+
+Do not mark the Tech lane done from code changes alone. If implementation exists but a required check was skipped or failed, write `Product Status Recommendation: pending-gate` or `blocked` with the reason.

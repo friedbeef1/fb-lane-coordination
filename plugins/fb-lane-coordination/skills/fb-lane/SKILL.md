@@ -86,14 +86,13 @@ Product must read handoffs before integration.
 
 Product/Captain must report lane status with separate evidence buckets:
 
-- implementation present
-- automated checks passed
-- Design visual QA passed with screenshot/viewport evidence
-- Design visual QA pending
+- delivered work present
+- lane-specific verification passed with named evidence
+- required lane gate pending
 - blocked
 - superseded
 
-Do not collapse those into a generic "executed" or "done" label. UI work can be implemented and test-verified while Design signoff remains pending; Product must state that distinction clearly before merge or staging recommendations.
+Do not collapse those into a generic "executed" or "done" label. A lane can deliver work while its required gate remains pending: Tech may still lack tests, Design may still lack screenshot/viewport evidence, Business may still need copy approval or integration, and Product may still need staging/release evidence. Product must state that distinction clearly before merge or staging recommendations.
 
 ## Finish
 
