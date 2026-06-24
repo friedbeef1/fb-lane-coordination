@@ -40,3 +40,5 @@ Separate delivery from verification in the handoff:
 - `Product Status Recommendation`: `delivered`, `lane-verification-passed`, `pending-gate`, or `blocked`.
 
 Do not mark the Tech lane done from code changes alone. If implementation exists but a required check was skipped or failed, write `Product Status Recommendation: pending-gate` or `blocked` with the reason.
+
+End with a passive closeout note for future visitors to the thread: `Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane.
