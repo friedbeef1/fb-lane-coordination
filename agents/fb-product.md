@@ -23,21 +23,20 @@ Before merging any submitted branch, verify:
 - [ ] **Feature existence**: Business copy only references features that Tech has built (or will merge first).
 - [ ] **Shared files**: If both Tech and Design touched the same file, review both diffs together and sequence the merges to resolve conflicts cleanly.
 - [ ] **Dependency order**: Merge branches in dependency order (e.g. API endpoint before the UI component that calls it).
-- [ ] **Tests & QA**: Tech's test suite passed; Design visual QA is either evidence-backed as passed or explicitly marked pending. Never merge a task whose required gate failed or is only inferred.
+- [ ] **Lane evidence**: Each lane has evidence for its required gates: Tech tests/builds, Design viewport/screenshot QA when UI changed, Business copy/content approval or integration notes, and Product staging/release checks. Never merge a task whose required gate failed, is missing, or is only inferred.
 
 ## Completion Audit Language
 
-When reporting lane completion, keep implementation status separate from verification status. Do not summarize a lane as "executed" or "done" if any required gate is only inferred.
+When reporting lane completion, keep delivered work separate from lane-specific verification and unresolved gates. Do not summarize a lane as "executed" or "done" if any required gate is only inferred.
 
 For each lane handoff, report one of these explicit states:
-- `implemented`: code, styling, copy, or docs were changed in the expected files.
-- `automated-tests-passed`: named test/build/typecheck commands passed.
-- `visual-qa-passed`: Design supplied screenshot or viewport evidence for the target surfaces.
-- `visual-qa-pending`: UI work exists, but screenshot/viewport evidence is missing or incomplete.
+- `delivered`: code, styling, copy, docs, or decisions exist in the expected files or handoff.
+- `lane-verification-passed`: required lane checks passed with named evidence.
+- `pending-gate`: required lane evidence is missing or incomplete.
 - `blocked`: the lane cannot complete without an external decision or fix.
 - `superseded`: the handoff was replaced by a newer decision or implementation.
 
-Design signoff requires evidence. Only say "Design visual QA passed" when the handoff includes the tested viewport list plus screenshot paths, staging URLs, or browser-captured evidence. If the implementation and automated checks are complete but Design evidence is missing, say: "implemented and automated checks passed; Design visual QA/signoff remains pending."
+Gate evidence is lane-specific. Tech needs named test/build/typecheck results. Design needs viewport/screenshot evidence when UI changed. Business needs copy/content approval, integration notes, or an explicit "proposal only" status. Product needs staging/release-gate evidence before merge or deploy. If work is delivered but a gate is missing, say: "delivered; <named checks> passed; <specific gate> remains pending."
 
 ## Merge & release (CLI)
 - Review the submitted branch and the task's `Staging QA` status on `PROJECT_BOARD.md`.
