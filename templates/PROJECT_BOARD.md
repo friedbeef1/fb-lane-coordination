@@ -45,7 +45,7 @@
     *   *2026-06-14*: Scoped task and marked ready for execution.
 
 ### Goal Alignment (non-trivial tasks only)
-Use one canonical `Working Goal` per task in the detail block above, together with `Success Measure` and `Gate / Review Point`. Product/BFM owns that goal and updates it in place when it changes: `Goal changed from X to Y because Z.`
+Use one canonical Goal Alignment block per task in the detail block above, with `Working Goal`, `Success Measure`, and `Gate / Review Point`. Product/BFM owns that block and updates it in place when it changes: `Goal changed from X to Y because Z.`
 
 Lane handoffs stay compact and use a real heading:
 

@@ -358,7 +358,7 @@
     *   `PROJECT_BOARD.md`
 *   **Latest Update**:
     *   *2026-06-25*: Product claimed the goal-alignment loop implementation and locked the skill, bootstrap, CLI, and handoff files.
-    *   *2026-06-25*: Implemented lightweight Goal Alignment guidance, BFM reconciliation, generated/static bootstrap updates, doctor warnings, metadata bump, and handoff evidence; final review fixes now require real `## Goal Alignment` handoff headings and keep worker lanes out of canonical board-goal edits.
+    *   *2026-06-25*: Implemented lightweight Goal Alignment guidance, BFM reconciliation, generated/static bootstrap updates, doctor warnings, metadata bump, and handoff evidence; final review fixes now require real `## Goal Alignment` handoff headings, keep worker lanes out of canonical board-goal edits, name the full board block (`Working Goal`, `Success Measure`, `Gate / Review Point`), and make doctor warn on wrong heading levels.
     *   *2026-06-25*: Addressed final review gaps in the manual board template and quickstart entrypoint.
     *   *2026-06-25*: Backfilled legacy TASK-002/TASK-003 handoffs and completed setup skill example alignment so `doctor` can stay warning-clean.
     *   *2026-06-25*: Tightened generated prompts so Product/BFM owns board goal updates and worker lanes report goal feedback only in handoffs.
