@@ -334,9 +334,15 @@
     *   `templates/AGENTS.md`
     *   `templates/CLAUDE.md`
     *   `templates/PROJECT_BOARD.md`
+    *   `README.md`
+    *   `platforms/codex/README.md`
+    *   `platforms/codex/workflow-rules.md`
+    *   `platforms/antigravity/README.md`
+    *   `agents/fb-product.md`
     *   `skills/fb-lane-coordination/SKILL.md`
     *   `skills/project-coordination-setup/SKILL.md`
     *   `skills/quickstart/SKILL.md`
+    *   `plugins/fb-lane-coordination/README.md`
     *   `plugins/fb-lane-coordination/agents/FB-Business/agent.json`
     *   `plugins/fb-lane-coordination/agents/FB-Design/agent.json`
     *   `plugins/fb-lane-coordination/agents/FB-Product/agent.json`
@@ -362,3 +368,5 @@
     *   *2026-06-25*: Addressed final review gaps in the manual board template and quickstart entrypoint.
     *   *2026-06-25*: Backfilled legacy TASK-002/TASK-003 handoffs and completed setup skill example alignment so `doctor` can stay warning-clean.
     *   *2026-06-25*: Tightened generated prompts so Product/BFM owns board goal updates and worker lanes report goal feedback only in handoffs.
+    *   *2026-06-26*: Tightened Product/Lane execution boundaries: Product gives direction, sets goals, assigns lanes, reviews handoffs, and integrates; individual Tech/Design/Business lanes claim and execute their own task/files. Added advisory doctor checks for stale Git lock files and long-running local lane git/test/build processes so Product can record a blocked/pending gate instead of looping on execution.
+    *   *2026-06-26*: Follow-up Product/Lane boundary checks passed: skill/plugin/CLI validation, source/package CLI parity, JSON manifest parse, `git diff --check`, stale-lock doctor fixture, and repo doctor process/lock check.

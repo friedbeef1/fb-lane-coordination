@@ -1,12 +1,13 @@
 ---
 name: bfm
-description: Use when Product/Captain must take prepared FB-Lane handoff markdowns through full review, sequencing, lane routing, execution, verification, and closeout. Triggers include "BFM", "build from markdown", "process all handoffs", "sequence prepared handoffs", and "execute these handoffs to completion".
+description: Use when Product/Captain must review, sequence, route, integrate, or close out prepared FB-Lane handoff markdowns. Triggers include "BFM", "build from markdown", "process all handoffs", "sequence prepared handoffs", and "execute these handoffs to completion".
 ---
 
 # BFM
 
 BFM is the Product/Captain mode for turning prepared lane handoffs into an executable sequence.
 It does not replace lane ownership: Product decides order and gates; Tech, Design, and Business own their surfaces.
+Product gives direction and owns integration. Individual lanes claim and execute their own work.
 
 ## Required Sub-Skills
 
@@ -59,12 +60,14 @@ Produce the next execution order before changing files:
 
 Proceed through the sequence without asking for repeated permission when authority is clear.
 
-- Claim or create scoped board items before durable writes.
+- Product/BFM creates or scopes board items, sets direction, and assigns an owning lane.
+- The owning lane claims its own task/files before durable writes and executes the work in that lane context.
 - Respect active locks; do not edit files owned by another active lane.
 - Use the owning lane for implementation: Tech for app logic/tests, Design for UI/visual QA, Business for copy/positioning, Product for sequencing/merge/release decisions.
-- For code-writing work, use worktrees or isolated branches when overlap risk exists.
+- For source-changing work, prefer lane-owned worktrees or isolated branches so Product stays available for direction, integration, and merge gates.
 - After each lane finishes, update its handoff and board status before moving to the next dependent step.
 - Product reads all resulting handoffs together, reconciles Goal Alignment, and only then sequences merges.
+- If a lane's tests, build, Git staging, or browser verification hangs, stop the Product retry loop and record the task as `pending-gate` or `blocked` with the exact runner/process evidence. Return the fix to the owning lane.
 - Do not deploy live, add production secrets, change payment credentials, or run destructive operations without explicit current approval.
 
 ## Completion Contract
