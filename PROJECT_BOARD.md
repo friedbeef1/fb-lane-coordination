@@ -356,3 +356,4 @@
     *   *2026-06-25*: Implemented lightweight Goal Alignment guidance, BFM reconciliation, generated bootstrap updates, doctor warnings, metadata bump, and handoff evidence; final whole-branch review remains.
     *   *2026-06-25*: Addressed final review gaps in the manual board template and quickstart entrypoint.
     *   *2026-06-25*: Backfilled legacy TASK-002/TASK-003 handoffs and completed setup skill example alignment so `doctor` can stay warning-clean.
+    *   *2026-06-25*: Tightened generated prompts so Product/BFM owns board goal updates and worker lanes report goal feedback only in handoffs.
