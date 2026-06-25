@@ -32,6 +32,17 @@ This installs:
 - the bundled `fb-lane` MCP server
 - plugin metadata for Codex's plugin browser
 
+To upgrade an existing install after this repo changes:
+
+```bash
+codex plugin add fb-lane-coordination@fb-lane
+codex plugin list | rg "fb-lane-coordination"
+```
+
+Start a new Codex thread after reinstalling. Existing threads can retain skill
+context that was loaded before the upgrade. Older cache folders may remain on
+disk, but Codex uses the installed version shown by `codex plugin list`.
+
 After install, start a new Codex thread and ask for `$fb-lane` or a lane-specific skill. Natural
 language also works, and `@fb-lane` remains a useful prompt convention if you want to make the lane
 intent obvious. Example:

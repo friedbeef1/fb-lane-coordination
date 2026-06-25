@@ -84,10 +84,9 @@
 - Follow-up Product/Lane boundary checks passed: root and packaged CLI syntax, CLI parity, plugin validation, modified skill validation, JSON manifest parse, `git diff --check`, stale `.git/index.lock` doctor fixture, and repo `doctor` confirming no stale Git locks or long-running lane git/test/build processes.
 
 ## Remaining Gates
-- Branch push / PR review by Product before merge to `main`.
-- Installed plugin cache refresh after merge.
+- None. PR #19 is merged, local `main` is synced, the FB-Lane marketplace source is refreshed, and `codex plugin add fb-lane-coordination@fb-lane` reinstalled active cache version `0.1.2+codex.20260625082239`.
 
 ## Product Status Recommendation
 lane-verification-passed
 
-Closeout note - TASK-010: lane-verification-passed. Delivered: lightweight Goal Alignment guidance, BFM reconciliation rules, generated/static bootstrap guidance, plugin metadata bump, exact-heading doctor advisory warnings, and Product/Lane execution-boundary guidance. Evidence: skill/plugin/CLI validation, stricter doctor fixture matrix, bootstrap smoke, stale-lock doctor fixture, repo doctor process check, and clean final subagent review. Remaining: branch push/PR, merge, and installed plugin cache refresh. Handoff: docs/handoffs/TASK-010.md.
+Closeout note - TASK-010: done. Delivered: lightweight Goal Alignment guidance, BFM reconciliation rules, generated/static bootstrap guidance, plugin metadata bump, exact-heading doctor advisory warnings, and Product/Lane execution-boundary guidance. Evidence: PR #19 merged, plugin/skill/CLI validation, stricter doctor fixture matrix, bootstrap smoke, stale-lock doctor fixture, repo doctor process check, marketplace source refresh, and `codex plugin add fb-lane-coordination@fb-lane` reinstall. Remaining: none. Handoff: docs/handoffs/TASK-010.md.

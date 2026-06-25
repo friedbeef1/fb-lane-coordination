@@ -2,7 +2,7 @@
 
 Keep telling your AI what you want, as fast as you think of it. FB-Lane lets Product, Tech, Design, and Business lanes work across one codebase without losing ownership, file claims, handoffs, or merge order.
 
-[Watch the demo video](https://youtu.be/wry1xhaEEBg) | [FAQ](FAQ.md) | [Setup alternatives](docs/setup.md)
+[Watch the demo video](https://youtu.be/wry1xhaEEBg) | [FAQ](FAQ.md) | [Setup alternatives](docs/setup.md) | [Changelog](CHANGELOG.md)
 
 FB-Lane is the coordination layer for many goals arriving over time. It does not replace your AI tool's native concurrency. It gives concurrent work a shared operating model:
 
@@ -40,6 +40,7 @@ Choose the guide for the AI tool you use:
 | Codex | [platforms/codex/README.md](platforms/codex/README.md) | [📺 Video](https://youtu.be/nVEGruk2R7Y) | Codex plugin, skills, MCP, subagents, and worktrees. |
 
 Manual/bootstrap setup options live in [docs/setup.md](docs/setup.md).
+Release notes live in [CHANGELOG.md](CHANGELOG.md).
 
 ## Quick Mental Model
 
@@ -101,6 +102,20 @@ Run from the project root:
 | `node tools/fb-lane.cjs merge <id>` | Product/Captain merge path after review. |
 | `node tools/fb-lane.cjs bootstrap` | Manual/bootstrap setup path. See [docs/setup.md](docs/setup.md). |
 
+## Codex Plugin Upgrades
+
+For an existing Codex install, refresh from the FB-Lane marketplace:
+
+```bash
+codex plugin add fb-lane-coordination@fb-lane
+```
+
+Start a new Codex thread after reinstalling so newly loaded skills and MCP tools pick up the updated plugin context. Codex may keep older cache folders on disk; the active version is the one shown by:
+
+```bash
+codex plugin list | rg "fb-lane-coordination"
+```
+
 ## 🔧 Extensible Loop Harness & Lifecycle Hooks
 
 FB-Lane operates as a pluggable **execution and loop harness**. Instead of hardcoding opinionated testing or QA tools directly into the core scripts, FB-Lane provides core coordination (branching, status, and file locking) and exposes lifecycle hooks.
@@ -137,6 +152,7 @@ This allows developers to bind their own custom loops (e.g., unit tests, visual 
 
 - [FAQ](FAQ.md)
 - [Setup alternatives](docs/setup.md)
+- [Changelog](CHANGELOG.md)
 - [Example app](examples/my-app/README.md)
 - [Plugin package](plugins/fb-lane-coordination/README.md)
 - [License](LICENSE)
