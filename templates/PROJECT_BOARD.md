@@ -47,7 +47,12 @@
 ### Goal Alignment (non-trivial tasks only)
 Use one canonical `Working Goal` per task in the detail block above, together with `Success Measure` and `Gate / Review Point`. Product/BFM owns that goal and updates it in place when it changes: `Goal changed from X to Y because Z.`
 
-Lane handoffs stay compact:
-- `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
-- `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
-- `Evidence Against Goal`: lane evidence that proves, weakens, or blocks the current goal
+Lane handoffs stay compact and use a real heading:
+
+```md
+## Goal Alignment
+
+Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+Goal Challenge / Caveat: <real caveat> | No caveat identified
+Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
+```

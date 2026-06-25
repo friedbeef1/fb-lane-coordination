@@ -61,11 +61,15 @@ $fb-business rewrite the onboarding copy.
 3. If setup looks suspect, run `node tools/fb-lane.cjs doctor` before claiming work.
 4. Identify whether the user is asking Product to orchestrate lanes or directly addressing lane threads.
 5. Before any write, claim or create one scoped board item and declare locked files.
-6. For non-trivial work, write one canonical `Working Goal` in the task detail block in `PROJECT_BOARD.md`.
-7. Keep lane handoffs compact:
-   - `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
-   - `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
-   - `Evidence Against Goal`: lane evidence that proves, weakens, or blocks the current goal
+6. For non-trivial work, confirm the task detail block has one canonical `Working Goal` in `PROJECT_BOARD.md`. Product/BFM writes or changes that goal; worker lanes report missing, unclear, or misaligned goals in handoffs.
+7. Keep lane handoffs compact and include a real Markdown heading so `doctor` can validate it:
+   ```md
+   ## Goal Alignment
+
+   Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+   Goal Challenge / Caveat: <real caveat> | No caveat identified
+   Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
+   ```
 8. Product/BFM reconciles those fields before sequencing execution or merge. If the goal changes, record: `Goal changed from X to Y because Z.`
 9. Do not modify files locked by another active lane.
 
@@ -87,7 +91,7 @@ Codex may run safe independent pieces concurrently. Product/Captain remains resp
 Any non-trivial lane output must create or update `docs/handoffs/<TASK-ID>.md` with:
 
 - task ID and scope
-- goal alignment fields from `AGENTS.md`
+- `## Goal Alignment` with the compact fields from `AGENTS.md`
 - files changed or proposed
 - checks performed
 - decisions and tradeoffs

@@ -24,7 +24,7 @@
 | TASK-007 | Done | FB-Tech | CLI | Fix quick-task ID parsing for `TASK-Q-####` board rows | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | `codex/quick-task-id-parser-fix` |
 | TASK-008 | Done | FB-Product | Documentation | Refresh plugin docs after merged Codex and quick-task work | `README.md`, `FAQ.md`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `PROJECT_BOARD.md` | `codex/docs-refresh-after-merges` |
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
-| TASK-010 | In Progress | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | `AGENTS.md`, `templates/AGENTS.md`, `templates/PROJECT_BOARD.md`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `plugins/fb-lane-coordination/skills`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `docs/handoffs/TASK-002.md`, `docs/handoffs/TASK-003.md`, `docs/handoffs/TASK-010.md`, `PROJECT_BOARD.md` | `product/TASK-010-lightweight-goal-alignment` |
+| TASK-010 | In Progress | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | `AGENTS.md`, `templates/AGENTS.md`, `templates/CLAUDE.md`, `templates/PROJECT_BOARD.md`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `plugins/fb-lane-coordination/agents`, `plugins/fb-lane-coordination/skills`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `docs/handoffs/TASK-002.md`, `docs/handoffs/TASK-003.md`, `docs/handoffs/TASK-010.md`, `PROJECT_BOARD.md` | `product/TASK-010-lightweight-goal-alignment` |
 
 ---
 
@@ -319,7 +319,7 @@
     *   **Gate / Review Point**: Source validation, plugin validation, CLI syntax checks, and doctor fixture checks pass before submit.
 *   **Affected Screens / Locks**:
     *   **Screens**: Documentation and CLI behavior only
-    *   **Locked Files**: `AGENTS.md`, `templates/AGENTS.md`, `templates/PROJECT_BOARD.md`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `plugins/fb-lane-coordination/skills`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `docs/handoffs/TASK-002.md`, `docs/handoffs/TASK-003.md`, `docs/handoffs/TASK-010.md`, `PROJECT_BOARD.md`
+    *   **Locked Files**: `AGENTS.md`, `templates/AGENTS.md`, `templates/CLAUDE.md`, `templates/PROJECT_BOARD.md`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `plugins/fb-lane-coordination/agents`, `plugins/fb-lane-coordination/skills`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `docs/handoffs/TASK-002.md`, `docs/handoffs/TASK-003.md`, `docs/handoffs/TASK-010.md`, `PROJECT_BOARD.md`
 *   **Links & Deliverables**:
     *   **Git Branch / PR**: `product/TASK-010-lightweight-goal-alignment`
     *   **Staging URL**: (None)
@@ -332,10 +332,15 @@
 *   **Modified Files**:
     *   `AGENTS.md`
     *   `templates/AGENTS.md`
+    *   `templates/CLAUDE.md`
     *   `templates/PROJECT_BOARD.md`
     *   `skills/fb-lane-coordination/SKILL.md`
     *   `skills/project-coordination-setup/SKILL.md`
     *   `skills/quickstart/SKILL.md`
+    *   `plugins/fb-lane-coordination/agents/FB-Business/agent.json`
+    *   `plugins/fb-lane-coordination/agents/FB-Design/agent.json`
+    *   `plugins/fb-lane-coordination/agents/FB-Product/agent.json`
+    *   `plugins/fb-lane-coordination/agents/FB-Tech/agent.json`
     *   `plugins/fb-lane-coordination/.codex-plugin/plugin.json`
     *   `plugins/fb-lane-coordination/plugin.json`
     *   `plugins/fb-lane-coordination/skills/bfm/SKILL.md`
@@ -353,7 +358,7 @@
     *   `PROJECT_BOARD.md`
 *   **Latest Update**:
     *   *2026-06-25*: Product claimed the goal-alignment loop implementation and locked the skill, bootstrap, CLI, and handoff files.
-    *   *2026-06-25*: Implemented lightweight Goal Alignment guidance, BFM reconciliation, generated bootstrap updates, doctor warnings, metadata bump, and handoff evidence; final whole-branch review remains.
+    *   *2026-06-25*: Implemented lightweight Goal Alignment guidance, BFM reconciliation, generated/static bootstrap updates, doctor warnings, metadata bump, and handoff evidence; final review fixes now require real `## Goal Alignment` handoff headings and keep worker lanes out of canonical board-goal edits.
     *   *2026-06-25*: Addressed final review gaps in the manual board template and quickstart entrypoint.
     *   *2026-06-25*: Backfilled legacy TASK-002/TASK-003 handoffs and completed setup skill example alignment so `doctor` can stay warning-clean.
     *   *2026-06-25*: Tightened generated prompts so Product/BFM owns board goal updates and worker lanes report goal feedback only in handoffs.

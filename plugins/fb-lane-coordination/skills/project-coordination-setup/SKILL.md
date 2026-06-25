@@ -101,10 +101,14 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 - Product/BFM owns one canonical `Working Goal` per task, ideally in `PROJECT_BOARD.md`.
 - Good: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 - Bad: `Working Goal: finish the feature.`
-- Lane handoffs stay compact:
-  - `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
-  - `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
-  - `Evidence Against Goal`: lane evidence that proves, weakens, or blocks the current goal
+- Lane handoffs stay compact and use a real heading:
+  ```md
+  ## Goal Alignment
+
+  Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+  Goal Challenge / Caveat: <real caveat> | No caveat identified
+  Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
+  ```
 ```
 
 ### Phase 4: Register the Subagents
