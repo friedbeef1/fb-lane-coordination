@@ -80,9 +80,12 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 *   - Status: Ready
 *   - Owner / Thread: FB-Product
 *   - Area: Setup
-*   - Working Goal: Bootstrap FB-Lane safely so future non-trivial tasks have one canonical goal, clear locks, and durable handoffs.
 *   - Scope: Create initial files, initialize repository layout.
 *   - Out of Scope: Writing application business logic.
+*   - Goal Alignment:
+*       - Working Goal: Bootstrap FB-Lane safely so future non-trivial tasks have one canonical goal, clear locks, and durable handoffs.
+*       - Success Measure: The board, rules, CLI, and handoff folder are present and ready for lane claims.
+*       - Gate / Review Point: Setup is ready when `node tools/fb-lane.cjs doctor` reports no blocking setup errors.
 *   - Affected Screens / Locks:
 *       - Screens: (None)
 *       - Locked Files: `AGENTS.md`, `PROJECT_BOARD.md`
