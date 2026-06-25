@@ -15,7 +15,7 @@ Give the user a concise orientation. Do **not** read files first — just explai
 - **FB-Design** — CSS, layout, design tokens, visual QA.
 - **FB-Business** — copy, docs, positioning (read-only on code).
 
-**The loop:** describe a feature to FB-Product → it splits the work, claims tasks and locks files on `PROJECT_BOARD.md`, and delegates to the lanes → you smoke-test → FB-Product merges in dependency order.
+**The loop:** describe a feature to FB-Product → it sets one Working Goal for non-trivial work, splits the work, claims tasks and locks files on `PROJECT_BOARD.md`, and delegates to the lanes → lanes report compact Goal Alignment in handoffs → you smoke-test → FB-Product merges in dependency order.
 
 **Two ways to work:**
 1. **Hands-off** — just tell FB-Product what you want; approve the plan at the start and smoke-test at the end.

@@ -26,6 +26,7 @@
 - `templates/PROJECT_BOARD.md`
 - `skills/fb-lane-coordination/SKILL.md`
 - `skills/project-coordination-setup/SKILL.md`
+- `skills/quickstart/SKILL.md`
 - `plugins/fb-lane-coordination/.codex-plugin/plugin.json`
 - `plugins/fb-lane-coordination/plugin.json`
 - `plugins/fb-lane-coordination/skills/bfm/SKILL.md`
@@ -55,9 +56,10 @@
 - Subagent review approved the CLI doctor slice.
 - Subagent review flagged one minor missing example in the root coordination skill; fixed in `693fddf`.
 - Subagent review approved the generated bootstrap guidance slice.
+- Final whole-branch review found two consistency gaps; both were addressed in the manual board template and quickstart skill.
 
 ## Remaining Gates
-- Final whole-branch review.
+- Re-run final whole-branch review after the consistency fixes.
 - Branch push / PR review by Product before merge to `main`.
 - Installed plugin cache refresh after merge.
 
