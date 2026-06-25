@@ -24,6 +24,7 @@
 | TASK-007 | Done | FB-Tech | CLI | Fix quick-task ID parsing for `TASK-Q-####` board rows | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | `codex/quick-task-id-parser-fix` |
 | TASK-008 | Done | FB-Product | Documentation | Refresh plugin docs after merged Codex and quick-task work | `README.md`, `FAQ.md`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `PROJECT_BOARD.md` | `codex/docs-refresh-after-merges` |
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
+| TASK-010 | In Progress | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | `AGENTS.md`, `templates/AGENTS.md`, `templates/PROJECT_BOARD.md`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `plugins/fb-lane-coordination/skills`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `docs/handoffs/TASK-010.md`, `PROJECT_BOARD.md` | `product/TASK-010-lightweight-goal-alignment` |
 
 ---
 
@@ -304,3 +305,31 @@
 *   **Latest Update**:
     *   *2026-06-23*: Added Codex-only bootstrap, read-only doctor, `$fb-lane` docs, plugin metadata alignment, and handoff; local verification passed.
     *   *2026-06-24*: Added thin-protocol guidance so FB-Lane is optional and skipped for simple single-thread Codex work.
+
+
+### TASK-010 - Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Product
+*   **Area**: Coordination
+*   **Scope**: Add a canonical Working Goal loop to non-trivial FB-Lane tasks, keep lane handoffs lightweight, and make BFM reconcile goal drift before sequencing execution.
+*   **Out of Scope**: Hard-blocking `submit`, changing quick-task behavior, or creating a standalone goal-management framework.
+*   **Goal Alignment**:
+    *   **Working Goal**: Make non-trivial FB-Lane handoffs preserve a clear Product/BFM-owned Working Goal while preserving lane caveats and evidence.
+    *   **Success Measure**: Skills, bootstrap guidance, packaged plugin files, and doctor checks all consistently express the Goal Alignment contract, with quick tasks exempt.
+    *   **Gate / Review Point**: Source validation, plugin validation, CLI syntax checks, and doctor fixture checks pass before submit.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Documentation and CLI behavior only
+    *   **Locked Files**: `AGENTS.md`, `templates/AGENTS.md`, `templates/PROJECT_BOARD.md`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `plugins/fb-lane-coordination/skills`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `docs/handoffs/TASK-010.md`, `PROJECT_BOARD.md`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `product/TASK-010-lightweight-goal-alignment`
+    *   **Staging URL**: (None)
+    *   **Design Specs**: (None)
+*   **QA Checklist**:
+    *   [ ] Modified skills validate.
+    *   [ ] Plugin manifest validates.
+    *   [ ] Root and packaged CLI pass syntax checks.
+    *   [ ] `doctor` warns for missing Goal Alignment on non-quick handoffs and exempts `TASK-Q-*`.
+*   **Modified Files**:
+    *   (Pending)
+*   **Latest Update**:
+    *   *2026-06-25*: Product claimed the goal-alignment loop implementation and locked the skill, bootstrap, CLI, and handoff files.
