@@ -325,11 +325,29 @@
     *   **Staging URL**: (None)
     *   **Design Specs**: (None)
 *   **QA Checklist**:
-    *   [ ] Modified skills validate.
-    *   [ ] Plugin manifest validates.
-    *   [ ] Root and packaged CLI pass syntax checks.
-    *   [ ] `doctor` warns for missing Goal Alignment on non-quick handoffs and exempts `TASK-Q-*`.
+    *   [x] Modified skills validate.
+    *   [x] Plugin manifest validates.
+    *   [x] Root and packaged CLI pass syntax checks.
+    *   [x] `doctor` warns for missing Goal Alignment on non-quick handoffs and exempts `TASK-Q-*`.
 *   **Modified Files**:
-    *   (Pending)
+    *   `AGENTS.md`
+    *   `templates/AGENTS.md`
+    *   `templates/PROJECT_BOARD.md`
+    *   `skills/fb-lane-coordination/SKILL.md`
+    *   `skills/project-coordination-setup/SKILL.md`
+    *   `plugins/fb-lane-coordination/.codex-plugin/plugin.json`
+    *   `plugins/fb-lane-coordination/plugin.json`
+    *   `plugins/fb-lane-coordination/skills/bfm/SKILL.md`
+    *   `plugins/fb-lane-coordination/skills/fb-business/SKILL.md`
+    *   `plugins/fb-lane-coordination/skills/fb-design/SKILL.md`
+    *   `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`
+    *   `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`
+    *   `plugins/fb-lane-coordination/skills/fb-tech/SKILL.md`
+    *   `plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md`
+    *   `tools/fb-lane.cjs`
+    *   `plugins/fb-lane-coordination/tools/fb-lane.cjs`
+    *   `docs/handoffs/TASK-010.md`
+    *   `PROJECT_BOARD.md`
 *   **Latest Update**:
     *   *2026-06-25*: Product claimed the goal-alignment loop implementation and locked the skill, bootstrap, CLI, and handoff files.
+    *   *2026-06-25*: Implemented lightweight Goal Alignment guidance, BFM reconciliation, generated bootstrap updates, doctor warnings, metadata bump, and handoff evidence; final whole-branch review remains.
