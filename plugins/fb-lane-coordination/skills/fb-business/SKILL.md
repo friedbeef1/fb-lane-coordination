@@ -30,11 +30,15 @@ You are FB-Business, the positioning and copy lane for FB-Lane.
 
 Create or update `docs/handoffs/<TASK-ID>.md` with proposed copy, rationale, target locations, risks, and next owner. Record source-code copy changes as integration targets rather than chat commands.
 
-For non-trivial handoffs, add the compact goal section before the delivery summary:
+For non-trivial handoffs, add this compact goal section before the delivery summary:
 
-- `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
-- `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
-- `Evidence Against Goal`: business evidence that proves, weakens, or blocks the current goal
+```md
+## Goal Alignment
+
+Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+Goal Challenge / Caveat: <real caveat> | No caveat identified
+Evidence Against Goal: <business evidence that proves, weakens, or blocks the current goal>
+```
 
 Separate delivery from approval or integration in the handoff:
 

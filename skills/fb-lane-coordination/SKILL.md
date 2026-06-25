@@ -72,8 +72,12 @@ Use lightweight goal alignment for non-trivial handoffs only. Do not create extr
 - Product/BFM owns one canonical `Working Goal` per task, ideally in `PROJECT_BOARD.md`.
 - Good: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 - Bad: `Working Goal: finish the feature.`
-- Lane handoffs stay compact:
-  - `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
-  - `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
-  - `Evidence Against Goal`: lane evidence that proves, weakens, or blocks the current goal
+- Lane handoffs stay compact and use a real heading:
+  ```md
+  ## Goal Alignment
+
+  Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+  Goal Challenge / Caveat: <real caveat> | No caveat identified
+  Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
+  ```
 - If Product changes the goal after reconciliation, record: `Goal changed from X to Y because Z.`

@@ -38,16 +38,21 @@ To prevent context window overload and git collisions, strictly adhere to your a
 Every lane must leave a final informational closeout note in its thread when it stops work on a task. The note records task ID, status, delivered work, evidence, remaining gates, and the handoff path. It must not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane; `PROJECT_BOARD.md` and `docs/handoffs/` remain the trigger source.
 
 ### 🎯 Lightweight Goal Alignment
-Use goal alignment for non-trivial handoffs and sequencing work. Keep one canonical `Working Goal` per task, ideally in the task detail block in `PROJECT_BOARD.md`. Do not turn quick micro-tasks into a new ceremony.
+Use goal alignment for non-trivial handoffs and sequencing work. Product/BFM owns one canonical `Working Goal` per task, ideally in the task detail block in `PROJECT_BOARD.md`. Worker lanes read that goal and challenge it in handoffs instead of rewriting it. Do not turn quick micro-tasks into a new ceremony.
 
 Good goal example: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 
 Bad goal example: `Working Goal: finish the feature.`
 
 Lane handoffs should use this compact form instead of a long SMART template:
-- `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
-- `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
-- `Evidence Against Goal`: lane evidence that proves, weakens, or blocks the current goal
+
+```md
+## Goal Alignment
+
+Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+Goal Challenge / Caveat: <real caveat> | No caveat identified
+Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
+```
 
 ### 💬 The User's Role: Supervisor & Reviewer
 
@@ -78,7 +83,7 @@ All internal coordination—including running drift audits, checking/asserting r
 
 All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate concurrent workstreams:
 1. **Drift Audit**: Before starting, run the drift checklist to verify workspace state.
-2. **Claim & Lock**: Claim or create an item in `PROJECT_BOARD.md`. For non-trivial tasks, set one canonical `Working Goal` before implementation. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
+2. **Claim & Lock**: Claim or create an item in `PROJECT_BOARD.md`. For non-trivial tasks, Product/BFM sets or confirms one canonical `Working Goal` before implementation. Worker lanes flag missing or unclear goals in handoffs instead of rewriting the board. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
 3. **Commit**: Work in an isolated branch (`tech/...` or `design/...`). Do not touch files locked by other active threads.
 4. **QA**: Once complete, push your branch, set status to `Staging QA`, and document the modified files and QA verification results.
 5. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.
