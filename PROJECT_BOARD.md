@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-Q-5624 | Staging QA | FB-Product | Quick-Fix | Document plugin upgrade process and changelog | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-Q-5624.md`, `docs/handoffs/TASK-010.md` | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-5624-document-plugin-upgrade-process-and-changelog) |
+| TASK-Q-5624 | Done | FB-Product | Quick-Fix | Document plugin upgrade process and changelog | (None) | [PR #20](https://github.com/friedbeef1/fb-lane-coordination/pull/20) |
 | TASK-Q-5217 | Done | FB-Tech | Quick-Fix | Improve Codex plugin setup UX | (None) | [PR #17](https://github.com/friedbeef1/fb-lane-coordination/pull/17) |
 | TASK-Q-8688 | Done | FB-Tech | Quick-Fix | Quick test hooks | (None) | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-8688-quick-test-hooks) |
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) |
@@ -375,16 +375,16 @@
 
 
 ### TASK-Q-5624 - Document plugin upgrade process and changelog
-*   **Status**: Staging QA
+*   **Status**: Done
 *   **Owner / Thread**: FB-Product
 *   **Area**: Quick-Fix
 *   **Scope**: Document plugin upgrade process and changelog
 *   **Out of Scope**: Unrelated codebase changes.
 *   **Affected Screens / Locks**:
     *   **Screens**: (None)
-    *   **Locked Files**: `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-Q-5624.md`, `docs/handoffs/TASK-010.md`
+    *   **Locked Files**: (None)
 *   **Links & Deliverables**:
-    *   **Git Branch / PR**: [Branch Link](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-5624-document-plugin-upgrade-process-and-changelog)
+    *   **Git Branch / PR**: [PR #20](https://github.com/friedbeef1/fb-lane-coordination/pull/20)
     *   **Staging URL**: (None)
     *   **Design Specs**: (None)
 *   **QA Checklist**:
@@ -401,3 +401,4 @@
 *   **Latest Update**:
     *   *2026-06-25*: Initialized quick edit task.
     *   *2026-06-26*: Added changelog and documented the Codex plugin upgrade/reinstall process.
+    *   *2026-06-26*: PR #20 merged to `main`; locks released.
