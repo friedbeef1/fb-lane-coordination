@@ -6,7 +6,7 @@ description: Coordinates task claiming, staging submissions, and merges on the p
 # FB-Lane Task Coordination Skill
 
 ## Overview
-This skill manages task lifecycles, git branches, and resource locks using the local `tools/fb-lane.cjs` command-line utility. In Codex, prefer the bundled MCP tools when available and use the CLI as the reliable fallback for status, claim, submit, merge, bootstrap, and setup health checks. For non-trivial tasks, Product/BFM keeps one canonical `Working Goal` in `PROJECT_BOARD.md`, lanes use compact goal-alignment fields in handoffs, and Product records any goal change in place.
+This skill manages task lifecycles, git branches, and resource locks using the local `tools/fb-lane.cjs` command-line utility. In Codex, prefer the bundled MCP tools when available and use the CLI as the reliable fallback for status, claim, submit, merge, bootstrap, and setup health checks. For non-trivial tasks, Product/BFM keeps one canonical Goal Alignment block in `PROJECT_BOARD.md` with `Working Goal`, `Success Measure`, and `Gate / Review Point`; lanes use compact goal-alignment fields in handoffs, and Product records any goal change in place.
 
 ## Preconditions
 - The workspace must have `PROJECT_BOARD.md` and `tools/fb-lane.cjs` initialized (use `project-coordination-setup` skill to initialize if missing).
@@ -43,7 +43,7 @@ When claiming a task (e.g. `TASK-102`) for a specific lane (e.g., `Tech`, `Desig
    *Example*: `node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts, src/db.ts"`
 2. Verify that the command succeeds, which checks out the feature branch, locks the files on the board, and commits the board update separately.
 3. Note: The CLI claim command also automatically writes task context to `.codex/current_task.md` for local editors.
-4. For non-trivial tasks, confirm the board item has one canonical `Working Goal` before implementation begins.
+4. For non-trivial tasks, confirm the board item has one canonical Goal Alignment block (`Working Goal`, `Success Measure`, `Gate / Review Point`) before implementation begins.
 
 ### 3. Submit a Task for Staging QA
 When a task's implementation is complete and ready for review:
@@ -81,7 +81,7 @@ When executing code updates and running test/lint commands:
 
 Use lightweight goal alignment for non-trivial handoffs only. Do not create extra ceremony for micro quick tasks.
 
-- Product/BFM owns one canonical `Working Goal` per task, ideally in `PROJECT_BOARD.md`.
+- Product/BFM owns one canonical Goal Alignment block per task in `PROJECT_BOARD.md`, ideally with `Working Goal`, `Success Measure`, and `Gate / Review Point`.
 - Good: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 - Bad: `Working Goal: finish the feature.`
 - Lane handoffs stay compact and use a real heading:
