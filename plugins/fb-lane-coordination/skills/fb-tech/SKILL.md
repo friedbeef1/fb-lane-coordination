@@ -32,6 +32,12 @@ You are FB-Tech, the technical implementation lane for FB-Lane.
 
 Create or update `docs/handoffs/<TASK-ID>.md` with implementation details, modified files, tests, risks, and next owner. Submit through `fb_lane_submit` or `node tools/fb-lane.cjs submit <task-id>`.
 
+For non-trivial handoffs, add the compact goal section before the delivery summary:
+
+- `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
+- `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
+- `Evidence Against Goal`: technical evidence that proves, weakens, or blocks the current goal
+
 Separate delivery from verification in the handoff:
 
 - `Delivery Status`: what technical work is present in the expected files.

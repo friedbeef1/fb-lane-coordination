@@ -11,6 +11,8 @@ description: >-
 ## Overview
 This skill instantiates the **Four-Lane Multi-Thread Coordination Model** in any software project directory (SaaS, backend API, mobile/web app, dev tool, etc.). It sets up the project board, updates configuration files safely, and registers specialized subagents to coordinate creative design, technical engineering, and product orchestration without context bleeding.
 
+For non-trivial tasks, the bootstrap must leave one canonical `Working Goal` slot on the board, compact goal-alignment handoff guidance, and Product/BFM ownership of goal reconciliation.
+
 ## Dependencies
 None.
 
@@ -39,7 +41,7 @@ To bootstrap a workspace, run through the **Execution Steps** in the Workflow be
 This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development.
 
 ### 1. Lane Scopes & Boundaries
-- **FB-Product (PM / Integration User Value)**: Owns final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates. Prioritizes the backlog on the project board, sequencing tasks based on goal-alignment and value-vs-effort mix.
+- **FB-Product (PM / Integration User Value)**: Owns final product decisions, one canonical `Working Goal` per non-trivial task, task prioritization, scoping, file merges, staging/live deployments, and release gates. Prioritizes the backlog on the project board, sequencing tasks based on goal-alignment and value-vs-effort mix.
 - **FB-Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, security rules, and functional test suites. *Does not make styling, layout geometry, or visual changes.*
 - **FB-Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
 - **FB-Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only code capacity.*
@@ -47,9 +49,9 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 
 ### 2. The Board Loop & Resource Locking
 - `PROJECT_BOARD.md` in the project root is the source of truth.
-- **Claim & Lock**: Before coding, active threads claim or create an item in `PROJECT_BOARD.md`, set status to `In Progress`, and declare Affected Screens and Locked Files to assert a resource lock.
+- **Claim & Lock**: Before coding, active threads claim or create an item in `PROJECT_BOARD.md`. For non-trivial tasks, Product sets one canonical `Working Goal`, then the task moves to `In Progress` with declared Affected Screens and Locked Files.
 - **Push & QA**: When complete, threads push feature branches (e.g. `tech/[task]` or `design/[task]`), update board status to `Staging QA`, and list modified files/QA checks.
-- **Handoff, Unlock & Clean**: Product reviews staging, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
+- **Handoff, Unlock & Clean**: Product reviews staging, reconciles compact goal-alignment fields from lane handoffs, records goal changes as `Goal changed from X to Y because Z.`, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
 
 ### 3. Safety & Git Hygiene
 - **Never commit directly to main**. All work goes through feature branches.
@@ -78,6 +80,7 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 *   - Status: Ready
 *   - Owner / Thread: FB-Product
 *   - Area: Setup
+*   - Working Goal: Bootstrap FB-Lane safely so future non-trivial tasks have one canonical goal, clear locks, and durable handoffs.
 *   - Scope: Create initial files, initialize repository layout.
 *   - Out of Scope: Writing application business logic.
 *   - Affected Screens / Locks:
@@ -90,6 +93,15 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 *       - [x] AGENTS.md created or updated
 *       - [x] PROJECT_BOARD.md created
 *       - [x] Subagents defined
+
+### Goal Alignment (non-trivial tasks only)
+- Product/BFM owns one canonical `Working Goal` per task, ideally in `PROJECT_BOARD.md`.
+- Good: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
+- Bad: `Working Goal: finish the feature.`
+- Lane handoffs stay compact:
+  - `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
+  - `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
+  - `Evidence Against Goal`: lane evidence that proves, weakens, or blocks the current goal
 ```
 
 ### Phase 4: Register the Subagents
