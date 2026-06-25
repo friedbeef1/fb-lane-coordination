@@ -15,9 +15,9 @@
 ## Verification Evidence
 - `git diff --check` passed.
 - `node tools/fb-lane.cjs doctor` passed all setup/lock/handoff checks; only expected uncommitted-branch warning remained before commit.
-- `rg` check confirmed the mistaken `TASK-Q-9001` lock reference and obsolete TASK-010 remaining-gate wording were removed.
+- `rg` check confirmed the mistaken quick-task lock reference and obsolete TASK-010 remaining-gate wording were removed.
 
 ## Product Status Recommendation
 lane-verification-passed
 
-Closeout note - TASK-Q-5624: lane-verification-passed. Delivered: changelog and Codex plugin upgrade documentation. Evidence: `git diff --check`, `node tools/fb-lane.cjs doctor`, and stale-reference `rg` check passed. Remaining: branch submit, PR, and merge. Handoff: docs/handoffs/TASK-Q-5624.md.
+Closeout note - TASK-Q-5624: done. Delivered: changelog and Codex plugin upgrade documentation. Evidence: PR #20 merged, `git diff --check`, `node tools/fb-lane.cjs doctor`, and stale-reference `rg` check passed. Remaining: none. Handoff: docs/handoffs/TASK-Q-5624.md.
