@@ -48,9 +48,10 @@ Split this across Product, Tech, Design, and Business.
 Use worktrees for code-writing lanes where helpful.
 Each lane should claim files, write a handoff, and return to Product.
 Product should sequence the final integration and tell me what is ready to merge.
+Product should not claim or execute Tech/Design/Business source changes for the lanes.
 ```
 
-When handoffs already exist and Product/Captain needs to sequence and execute them, use:
+When handoffs already exist and Product/Captain needs to sequence and route execution, use:
 
 ```text
 $bfm process the prepared handoffs for this task and execute the sequence to completion.
@@ -131,7 +132,7 @@ Use the tools this way:
 
 - **Use Codex worktrees alone** when the tasks are technically independent and you are comfortable reviewing branches and merge order yourself.
 - **Use FB-Lane alone** for planning, copy, design review, product decisions, small edits, or one Product/Captain thread coordinating native Codex subagents.
-- **Use both together** for bigger code-writing work: Product splits the work, each implementation lane works in its own Codex worktree, every lane claims files in the board, each lane writes a handoff, and Product/Captain sequences the final integration.
+- **Use both together** for bigger code-writing work: Product gives direction and splits the work, each implementation lane claims its own files in the board and works in its own Codex worktree, each lane writes a handoff, and Product/Captain sequences the final integration.
 - **Use neither FB-Lane nor extra worktrees** when one local Codex thread can safely complete and verify the task.
 
 Example prompt:
@@ -143,6 +144,7 @@ Product should split the work.
 Tech, Design, and Business should work separately.
 Each lane should claim files, write a handoff, and return to Product.
 Product should sequence the final integration and tell me what is ready to merge.
+Product should not claim or execute Tech/Design/Business source changes for the lanes.
 ```
 
 If Codex asks before creating worktrees, pushing branches, or merging, approve only when the lane scope and affected files are clear on the board.

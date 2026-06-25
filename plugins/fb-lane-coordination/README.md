@@ -44,6 +44,7 @@ Split this across Product, Tech, Design, and Business.
 Use worktrees for code-writing lanes where helpful.
 Each lane should claim files, write a handoff, and return to Product.
 Product should sequence the final integration and tell me what is ready to merge.
+Product should not claim or execute Tech/Design/Business source changes for the lanes.
 ```
 
 Common prompts:
