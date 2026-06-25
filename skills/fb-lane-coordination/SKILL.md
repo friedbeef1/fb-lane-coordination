@@ -6,7 +6,7 @@ description: Coordinates task claiming, staging submissions, and merges on the p
 # FB-Lane Task Coordination Skill
 
 ## Overview
-This skill allows the Antigravity agent to manage task lifecycles, git branches, and resource locks autonomously using the local `tools/fb-lane.cjs` command-line utility. By running this CLI utility, the agent performs all git checkouts, commits, pushes, and project board markdown updates with zero external tool dependencies, saving token space compared to registering full MCP server protocols.
+This skill manages FB-Lane task lifecycles, git branches, and resource locks with the local `tools/fb-lane.cjs` utility. For non-trivial tasks, Product/BFM keeps one canonical `Working Goal` in `PROJECT_BOARD.md`, lanes use compact goal-alignment fields in handoffs, and Product records any goal change in place.
 
 ## Preconditions
 - The workspace must have `PROJECT_BOARD.md` and `tools/fb-lane.cjs` initialized (use `project-coordination-setup` skill to initialize if missing).
@@ -31,6 +31,7 @@ When claiming a task (e.g. `TASK-102`) for a specific lane (e.g., `Tech`, `Desig
    *Example*: `node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts, src/db.ts"`
 2. Verify that the command succeeds, which checks out the feature branch, locks the files on the board, and commits the board update separately.
 3. Note: The CLI claim command also automatically writes task context to `.codex/current_task.md` for local editors.
+4. For non-trivial tasks, confirm the board item has one canonical `Working Goal` before implementation begins.
 
 ### 3. Submit a Task for Staging QA
 When a task's implementation is complete and ready for review:
@@ -63,3 +64,14 @@ When executing code updates and running test/lint commands:
    - Update the task status in `PROJECT_BOARD.md` to `Blocked` (marked as `Blocked - Debug Retry Limit Exceeded`), appending the current failure logs.
    - Notify the user of the blockage.
 4. **Auto-Proceed Loop**: Immediately scan the `PROJECT_BOARD.md` `Ready` queue and claim the **next independent task** (verifying that it does not edit locked files or depend on the blocked task). Checkout a new branch for the new task and continue development.
+
+## Goal Alignment Notes
+
+Use lightweight goal alignment for non-trivial handoffs only. Do not create extra ceremony for micro quick tasks.
+
+- Product/BFM owns one canonical `Working Goal` per task, ideally in `PROJECT_BOARD.md`.
+- Lane handoffs stay compact:
+  - `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
+  - `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
+  - `Evidence Against Goal`: lane evidence that proves, weakens, or blocks the current goal
+- If Product changes the goal after reconciliation, record: `Goal changed from X to Y because Z.`

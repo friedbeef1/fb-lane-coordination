@@ -32,6 +32,12 @@ You are FB-Design, the visual and interaction lane for FB-Lane.
 
 Create or update `docs/handoffs/<TASK-ID>.md` with visual decisions, modified files, screenshots or viewport checks, risks, and next owner. Submit through `fb_lane_submit` or `node tools/fb-lane.cjs submit <task-id>`.
 
+For non-trivial handoffs, add the compact goal section before the delivery summary:
+
+- `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
+- `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
+- `Evidence Against Goal`: design evidence that proves, weakens, or blocks the current goal
+
 Separate implementation from signoff in the handoff:
 
 - `Implementation Status`: what was styled or changed.
