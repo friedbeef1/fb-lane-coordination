@@ -29,28 +29,31 @@ Use these skills before acting, in this order:
    - handoffs named in the target board item's Links, QA, Modified Files, or Latest Update
    - linked `docs/superpowers/plans/` and `docs/superpowers/specs/`
 5. If the target is ambiguous, read active `Ready`, `In Progress`, and `Staging QA` board items before choosing.
+6. For non-trivial work, read the canonical `Working Goal` from `PROJECT_BOARD.md` first and treat it as the source of truth.
 
 ## Five-Lane Review
 
 Create a short internal review with these slots:
 
 - `FB-Lane`: task state, locks, branch/PR, handoff set, conflicts, missing owner.
-- `FB-Product`: user value, sequencing, scope, merge/release gate, beta/staging/live decision.
+- `FB-Product`: user value, canonical Working Goal, sequencing, scope, merge/release gate, beta/staging/live decision.
 - `FB-Tech`: implementation dependencies, tests/builds, reliability/security, blocked integrations.
 - `FB-Design`: UI/UX dependencies, responsive/visual QA, screenshot evidence, unresolved visual gates.
 - `FB-Business`: positioning/copy/pricing/privacy claims, approval state, source integration target.
 
 Do not summarize a lane as done from delivery evidence alone. Use `delivered`, `lane-verification-passed`, `pending-gate`, `blocked`, or `superseded`.
+Reconcile every lane's `Goal Alignment`, `Goal Challenge / Caveat`, and `Evidence Against Goal` before deciding sequence.
 
 ## Sequence
 
 Produce the next execution order before changing files:
 
-1. Prerequisite gate decisions Product must make first.
-2. Work that can run in parallel because locks do not overlap.
-3. Work that must run serially because it changes shared files or depends on another lane.
-4. Verification gates required before merge, staging, or live deploy.
-5. Explicit stop points needing user approval, especially live deploys, secrets, payment credentials, or destructive changes.
+1. Reconcile whether the current `Working Goal` is still aligned. If not, update the board and record: `Goal changed from X to Y because Z.`
+2. Prerequisite gate decisions Product must make first.
+3. Work that can run in parallel because locks do not overlap.
+4. Work that must run serially because it changes shared files or depends on another lane.
+5. Verification gates required before merge, staging, or live deploy.
+6. Explicit stop points needing user approval, especially live deploys, secrets, payment credentials, or destructive changes.
 
 ## Execute
 
@@ -61,7 +64,7 @@ Proceed through the sequence without asking for repeated permission when authori
 - Use the owning lane for implementation: Tech for app logic/tests, Design for UI/visual QA, Business for copy/positioning, Product for sequencing/merge/release decisions.
 - For code-writing work, use worktrees or isolated branches when overlap risk exists.
 - After each lane finishes, update its handoff and board status before moving to the next dependent step.
-- Product reads all resulting handoffs together before sequencing merges.
+- Product reads all resulting handoffs together, reconciles Goal Alignment, and only then sequences merges.
 - Do not deploy live, add production secrets, change payment credentials, or run destructive operations without explicit current approval.
 
 ## Completion Contract
