@@ -82,6 +82,18 @@ Any non-trivial lane output must create or update `docs/handoffs/<TASK-ID>.md` w
 
 Product must read handoffs before integration.
 
+## Product Completion Audit
+
+Product/Captain must report lane status with separate evidence buckets:
+
+- delivered work present
+- lane-specific verification passed with named evidence
+- required lane gate pending
+- blocked
+- superseded
+
+Do not collapse those into a generic "executed" or "done" label. A lane can deliver work while its required gate remains pending: Tech may still lack tests, Design may still lack screenshot/viewport evidence, Business may still need copy approval or integration, and Product may still need staging/release evidence. Product must state that distinction clearly before merge or staging recommendations.
+
 ## Finish
 
 End by updating `PROJECT_BOARD.md` with status, modified files, checks, links, risks, and next owner. Use Product/Captain as the final endpoint for multi-lane work.

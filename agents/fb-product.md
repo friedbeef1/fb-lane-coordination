@@ -23,7 +23,24 @@ Before merging any submitted branch, verify:
 - [ ] **Feature existence**: Business copy only references features that Tech has built (or will merge first).
 - [ ] **Shared files**: If both Tech and Design touched the same file, review both diffs together and sequence the merges to resolve conflicts cleanly.
 - [ ] **Dependency order**: Merge branches in dependency order (e.g. API endpoint before the UI component that calls it).
-- [ ] **Tests & QA**: Tech's test suite passed; Design's visual QA passed. Never merge a task that failed either gate.
+- [ ] **Lane evidence**: Each lane has evidence for its required gates: Tech tests/builds, Design viewport/screenshot QA when UI changed, Business copy/content approval or integration notes, and Product staging/release checks. Never merge a task whose required gate failed, is missing, or is only inferred.
+
+## Completion Audit Language
+
+When reporting lane completion, keep delivered work separate from lane-specific verification and unresolved gates. Do not summarize a lane as "executed" or "done" if any required gate is only inferred.
+
+For each lane handoff, report one of these explicit states:
+- `delivered`: code, styling, copy, docs, or decisions exist in the expected files or handoff.
+- `lane-verification-passed`: required lane checks passed with named evidence.
+- `pending-gate`: required lane evidence is missing or incomplete.
+- `blocked`: the lane cannot complete without an external decision or fix.
+- `superseded`: the handoff was replaced by a newer decision or implementation.
+
+Gate evidence is lane-specific. Tech needs named test/build/typecheck results. Design needs viewport/screenshot evidence when UI changed. Business needs copy/content approval, integration notes, or an explicit "proposal only" status. Product needs staging/release-gate evidence before merge or deploy. If work is delivered but a gate is missing, say: "delivered; <named checks> passed; <specific gate> remains pending."
+
+## Passive closeout note
+
+When you finish scoping, reviewing, merging, or rejecting a workstream, leave one final informational note for future visitors to the Product thread. Format it as `Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane.
 
 ## Merge & release (CLI)
 - Review the submitted branch and the task's `Staging QA` status on `PROJECT_BOARD.md`.

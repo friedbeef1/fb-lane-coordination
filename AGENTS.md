@@ -17,21 +17,25 @@ To prevent context window overload and git collisions, strictly adhere to your a
 *   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
 *   **Workflow**: Reads user requests, triages and prioritizes the backlog on `PROJECT_BOARD.md` (sequencing tasks based on goal-alignment and optimal value-vs-effort mix, prompting the user for approval before promoting backlog items to `Ready`), manages resource locks, reviews PRs, verifies staging, and merges branches.
+*   **Completion Audit Rule**: Reports delivered work, lane-specific verification, and unresolved gates as separate statuses for every lane. Product must not call any workstream "done" or "executed" unless the required evidence exists for that lane; otherwise mark the missing gate as pending or blocked.
 
 ### ⚙️ FB-Tech (Technical Lead / Developer)
 *   **Ownership**: Database schemas, APIs, serverless functions, database security (e.g., RLS), configuration scripts, and unit/integration test suites.
 *   **Rule**: *Does not make styling, layout geometry, font, or UI appearance changes.*
-*   **Workflow**: Creates feature branch (`tech/[feature-name]`), implements logic, runs tests, pushes, updates `PROJECT_BOARD.md` to `Staging QA`, and requests merge from `FB-Product`.
+*   **Workflow**: Creates feature branch (`tech/[feature-name]`), implements logic, runs tests, pushes, updates `PROJECT_BOARD.md` to `Staging QA`, writes the handoff, and leaves a passive closeout note.
 
 ### 🎨 FB-Design (UI/UX Designer / QA Auditor)
 *   **Ownership**: CSS files, theme tokens, styling classes, asset management (SVGs, icons), page layout geometry, and visual viewports.
 *   **Rule**: *Does not edit database schemas, API routes, or backend app logic.*
-*   **Workflow**: Creates style branch (`design/[feature-name]`), modifies styling, performs visual checks on target viewports (mobile and desktop), updates `PROJECT_BOARD.md` to `Staging QA`, and requests merge.
+*   **Workflow**: Creates style branch (`design/[feature-name]`), modifies styling, performs visual checks on target viewports (mobile and desktop), updates `PROJECT_BOARD.md` to `Staging QA`, writes the handoff, and leaves a passive closeout note.
 
 ### 📝 FB-Business (Copywriter / Positioning)
 *   **Ownership**: Pricing text, copywriting, onboarding copy, documentation, help desks, FAQs, and marketing text.
 *   **Rule**: *Operates in a READ-ONLY capacity on application code.* Cannot modify source files or run deployments.
-*   **Workflow**: Drafts proposed text directly in markdown documentation or inside `PROJECT_BOARD.md` entries, then requests `FB-Product` or `FB-Design` to apply it.
+*   **Workflow**: Drafts proposed text directly in markdown documentation or inside `PROJECT_BOARD.md` entries, records the target integration owner, and leaves a passive closeout note.
+
+### 🧾 Passive Closeout Notes
+Every lane must leave a final informational closeout note in its thread when it stops work on a task. The note records task ID, status, delivered work, evidence, remaining gates, and the handoff path. It must not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane; `PROJECT_BOARD.md` and `docs/handoffs/` remain the trigger source.
 
 ### 💬 The User's Role: Supervisor & Reviewer
 
@@ -66,7 +70,7 @@ All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate
 3. **Commit**: Work in an isolated branch (`tech/...` or `design/...`). Do not touch files locked by other active threads.
 4. **QA**: Once complete, push your branch, set status to `Staging QA`, and document the modified files and QA verification results.
 5. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.
-6. **Handoff, Unlock & Clean**: Report the work item to `FB-Product` for staging review. Product merges the branch, removes the resource locks (marking the task `Done`), and notifies the lane thread. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
+6. **Handoff, Unlock & Clean**: Write the structured handoff and passive closeout note. Product reads `PROJECT_BOARD.md` / `docs/handoffs/`, merges approved branches, removes resource locks (marking the task `Done`), and records its own passive closeout note. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
 
 ---
 
@@ -90,6 +94,7 @@ To maintain the visual integrity of the user interface, enforce two hard gates:
 *   **Text Containment**: No text may clip, spill out of its container (button, pill, card, input, sidebar, frame), or become hidden behind overflow on any viewport. Always run a text-fit check.
 *   **Aesthetic & Style Integrity**: The app must render the correct theme, colors, layouts, and brand typography (no fallback to default system fonts or broken tactile styling). Ensure all local asset files (fonts, SVGs) load successfully.
 *   **Interactive QA**: Before declaring UI work ready, visually verify the actual staged page, including responsiveness across mobile/desktop viewports, active hover states, and navigation transitions.
+*   **Evidence Language**: If a lane delivered work but a required gate lacks evidence, report the precise split: "delivered; <named checks> passed; <specific gate> remains pending." Do not collapse implementation, tests, visual QA, copy approval, staging review, or release gates into a generic "done".
 
 ---
 
@@ -100,4 +105,3 @@ Run this quick checklist when resuming a task after a pause, a context compactio
 3. Is your staging or live deployment authorization still valid for this specific task?
 4. Do you have uncommitted changes in your branch outside the declared scope?
 5. Does the next action still belong to your assigned lane?
-

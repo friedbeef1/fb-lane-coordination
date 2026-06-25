@@ -2,7 +2,7 @@
 
 This Codex plugin packages the FB-Lane coordination workflow:
 
-- skills for Product, Tech, Design, Business, and overall lane coordination
+- skills for BFM, Product, Tech, Design, Business, and overall lane coordination
 - an `fb-lane` MCP server backed by `tools/fb-lane.cjs`
 - a repo marketplace entry at `.agents/plugins/marketplace.json`
 
@@ -49,6 +49,7 @@ Product should sequence the final integration and tell me what is ready to merge
 Common prompts:
 
 ```text
+$bfm process the prepared handoffs for this task and sequence execution.
 $fb-product what is ready to merge?
 $fb-design improve the prep-screen icons.
 $fb-tech check whether this auth flow is safe.
@@ -66,6 +67,10 @@ $fb-design create prep-screen icon options.
 $fb-tech check whether the auth flow is safe.
 $fb-business rewrite the onboarding copy.
 Then have Product sequence the handoffs and flag conflicts.
+
+$bfm
+Read the prepared handoff markdowns for the active task, gather the Product, Tech, Design,
+Business, and lane-coordination view, then sequence and execute to completion.
 ```
 
 ## Quick Edits
