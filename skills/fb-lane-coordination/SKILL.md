@@ -70,6 +70,8 @@ When executing code updates and running test/lint commands:
 Use lightweight goal alignment for non-trivial handoffs only. Do not create extra ceremony for micro quick tasks.
 
 - Product/BFM owns one canonical `Working Goal` per task, ideally in `PROJECT_BOARD.md`.
+- Good: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
+- Bad: `Working Goal: finish the feature.`
 - Lane handoffs stay compact:
   - `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
   - `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
