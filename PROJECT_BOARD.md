@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-Q-5624 | In Progress | FB-Product | Quick-Fix | Document plugin upgrade process and changelog | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-Q-9001.md`, `docs/handoffs/TASK-010.md` | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-5624-document-plugin-upgrade-process-and-changelog) |
 | TASK-Q-5217 | Done | FB-Tech | Quick-Fix | Improve Codex plugin setup UX | (None) | [PR #17](https://github.com/friedbeef1/fb-lane-coordination/pull/17) |
 | TASK-Q-8688 | Done | FB-Tech | Quick-Fix | Quick test hooks | (None) | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-8688-quick-test-hooks) |
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) |
@@ -370,3 +371,25 @@
     *   *2026-06-25*: Tightened generated prompts so Product/BFM owns board goal updates and worker lanes report goal feedback only in handoffs.
     *   *2026-06-26*: Tightened Product/Lane execution boundaries: Product gives direction, sets goals, assigns lanes, reviews handoffs, and integrates; individual Tech/Design/Business lanes claim and execute their own task/files. Added advisory doctor checks for stale Git lock files and long-running local lane git/test/build processes so Product can record a blocked/pending gate instead of looping on execution.
     *   *2026-06-26*: Follow-up Product/Lane boundary checks passed: skill/plugin/CLI validation, source/package CLI parity, JSON manifest parse, `git diff --check`, stale-lock doctor fixture, and repo doctor process/lock check.
+
+
+### TASK-Q-5624 - Document plugin upgrade process and changelog
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Product
+*   **Area**: Quick-Fix
+*   **Scope**: Document plugin upgrade process and changelog
+*   **Out of Scope**: Unrelated codebase changes.
+*   **Affected Screens / Locks**:
+    *   **Screens**: (None)
+    *   **Locked Files**: `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-Q-9001.md`, `docs/handoffs/TASK-010.md`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: [Branch Link](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-5624-document-plugin-upgrade-process-and-changelog)
+    *   **Staging URL**: (None)
+    *   **Design Specs**: (None)
+*   **QA Checklist**:
+    *   [ ] Changes compile without error.
+    *   [ ] Modified files are verified and checked.
+*   **Modified Files**:
+    *   (None)
+*   **Latest Update**:
+    *   *2026-06-25*: Initialized quick edit task.
