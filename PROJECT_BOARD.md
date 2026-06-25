@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-Q-5624 | In Progress | FB-Product | Quick-Fix | Document plugin upgrade process and changelog | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-Q-9001.md`, `docs/handoffs/TASK-010.md` | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-5624-document-plugin-upgrade-process-and-changelog) |
+| TASK-Q-5624 | Staging QA | FB-Product | Quick-Fix | Document plugin upgrade process and changelog | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-Q-5624.md`, `docs/handoffs/TASK-010.md` | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-5624-document-plugin-upgrade-process-and-changelog) |
 | TASK-Q-5217 | Done | FB-Tech | Quick-Fix | Improve Codex plugin setup UX | (None) | [PR #17](https://github.com/friedbeef1/fb-lane-coordination/pull/17) |
 | TASK-Q-8688 | Done | FB-Tech | Quick-Fix | Quick test hooks | (None) | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-8688-quick-test-hooks) |
 | TASK-001 | Done | FB-Tech | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) |
@@ -25,7 +25,7 @@
 | TASK-007 | Done | FB-Tech | CLI | Fix quick-task ID parsing for `TASK-Q-####` board rows | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | `codex/quick-task-id-parser-fix` |
 | TASK-008 | Done | FB-Product | Documentation | Refresh plugin docs after merged Codex and quick-task work | `README.md`, `FAQ.md`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `PROJECT_BOARD.md` | `codex/docs-refresh-after-merges` |
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
-| TASK-010 | Staging QA | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | `AGENTS.md`, `templates/AGENTS.md`, `templates/CLAUDE.md`, `templates/PROJECT_BOARD.md`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `plugins/fb-lane-coordination/agents`, `plugins/fb-lane-coordination/skills`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `docs/handoffs/TASK-002.md`, `docs/handoffs/TASK-003.md`, `docs/handoffs/TASK-010.md`, `PROJECT_BOARD.md` | `product/TASK-010-lightweight-goal-alignment` |
+| TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 
 ---
 
@@ -264,8 +264,8 @@
     *   **Staging URL**: (None)
     *   **Design Specs**: (None)
 *   **QA Checklist**:
-    *   [ ] Changes compile without error.
-    *   [ ] Modified files are verified and checked.
+    *   [x] Changes compile without error.
+    *   [x] Modified files are verified and checked.
 *   **Modified Files**:
     *   (None)
 *   **Latest Update**:
@@ -309,7 +309,7 @@
 
 
 ### TASK-010 - Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing
-*   **Status**: Staging QA
+*   **Status**: Done
 *   **Owner / Thread**: FB-Product
 *   **Area**: Coordination
 *   **Scope**: Add a canonical Working Goal loop to non-trivial FB-Lane tasks, keep lane handoffs lightweight, and make BFM reconcile goal drift before sequencing execution.
@@ -320,9 +320,9 @@
     *   **Gate / Review Point**: Source validation, plugin validation, CLI syntax checks, and doctor fixture checks pass before submit.
 *   **Affected Screens / Locks**:
     *   **Screens**: Documentation and CLI behavior only
-    *   **Locked Files**: `AGENTS.md`, `templates/AGENTS.md`, `templates/CLAUDE.md`, `templates/PROJECT_BOARD.md`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `plugins/fb-lane-coordination/agents`, `plugins/fb-lane-coordination/skills`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `docs/handoffs/TASK-002.md`, `docs/handoffs/TASK-003.md`, `docs/handoffs/TASK-010.md`, `PROJECT_BOARD.md`
+    *   **Locked Files**: (None)
 *   **Links & Deliverables**:
-    *   **Git Branch / PR**: `product/TASK-010-lightweight-goal-alignment`
+    *   **Git Branch / PR**: [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19)
     *   **Staging URL**: (None)
     *   **Design Specs**: (None)
 *   **QA Checklist**:
@@ -371,17 +371,18 @@
     *   *2026-06-25*: Tightened generated prompts so Product/BFM owns board goal updates and worker lanes report goal feedback only in handoffs.
     *   *2026-06-26*: Tightened Product/Lane execution boundaries: Product gives direction, sets goals, assigns lanes, reviews handoffs, and integrates; individual Tech/Design/Business lanes claim and execute their own task/files. Added advisory doctor checks for stale Git lock files and long-running local lane git/test/build processes so Product can record a blocked/pending gate instead of looping on execution.
     *   *2026-06-26*: Follow-up Product/Lane boundary checks passed: skill/plugin/CLI validation, source/package CLI parity, JSON manifest parse, `git diff --check`, stale-lock doctor fixture, and repo doctor process/lock check.
+    *   *2026-06-26*: PR #19 merged to `main`, local marketplace source refreshed, and `codex plugin add fb-lane-coordination@fb-lane` reinstalled active cache version `0.1.2+codex.20260625082239`.
 
 
 ### TASK-Q-5624 - Document plugin upgrade process and changelog
-*   **Status**: In Progress
+*   **Status**: Staging QA
 *   **Owner / Thread**: FB-Product
 *   **Area**: Quick-Fix
 *   **Scope**: Document plugin upgrade process and changelog
 *   **Out of Scope**: Unrelated codebase changes.
 *   **Affected Screens / Locks**:
     *   **Screens**: (None)
-    *   **Locked Files**: `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-Q-9001.md`, `docs/handoffs/TASK-010.md`
+    *   **Locked Files**: `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-Q-5624.md`, `docs/handoffs/TASK-010.md`
 *   **Links & Deliverables**:
     *   **Git Branch / PR**: [Branch Link](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-5624-document-plugin-upgrade-process-and-changelog)
     *   **Staging URL**: (None)
@@ -390,6 +391,13 @@
     *   [ ] Changes compile without error.
     *   [ ] Modified files are verified and checked.
 *   **Modified Files**:
-    *   (None)
+    *   `README.md`
+    *   `docs/setup.md`
+    *   `platforms/codex/README.md`
+    *   `CHANGELOG.md`
+    *   `PROJECT_BOARD.md`
+    *   `docs/handoffs/TASK-Q-5624.md`
+    *   `docs/handoffs/TASK-010.md`
 *   **Latest Update**:
     *   *2026-06-25*: Initialized quick edit task.
+    *   *2026-06-26*: Added changelog and documented the Codex plugin upgrade/reinstall process.
