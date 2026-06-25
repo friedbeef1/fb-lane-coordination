@@ -388,8 +388,8 @@
     *   **Staging URL**: (None)
     *   **Design Specs**: (None)
 *   **QA Checklist**:
-    *   [ ] Changes compile without error.
-    *   [ ] Modified files are verified and checked.
+    *   [x] Changes compile without error.
+    *   [x] Modified files are verified and checked.
 *   **Modified Files**:
     *   `README.md`
     *   `docs/setup.md`
