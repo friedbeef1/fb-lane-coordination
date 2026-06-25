@@ -24,7 +24,7 @@
 | TASK-007 | Done | FB-Tech | CLI | Fix quick-task ID parsing for `TASK-Q-####` board rows | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | `codex/quick-task-id-parser-fix` |
 | TASK-008 | Done | FB-Product | Documentation | Refresh plugin docs after merged Codex and quick-task work | `README.md`, `FAQ.md`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `PROJECT_BOARD.md` | `codex/docs-refresh-after-merges` |
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
-| TASK-010 | In Progress | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | `AGENTS.md`, `templates/AGENTS.md`, `templates/CLAUDE.md`, `templates/PROJECT_BOARD.md`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `plugins/fb-lane-coordination/agents`, `plugins/fb-lane-coordination/skills`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `docs/handoffs/TASK-002.md`, `docs/handoffs/TASK-003.md`, `docs/handoffs/TASK-010.md`, `PROJECT_BOARD.md` | `product/TASK-010-lightweight-goal-alignment` |
+| TASK-010 | Staging QA | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | `AGENTS.md`, `templates/AGENTS.md`, `templates/CLAUDE.md`, `templates/PROJECT_BOARD.md`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `plugins/fb-lane-coordination/agents`, `plugins/fb-lane-coordination/skills`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `docs/handoffs/TASK-002.md`, `docs/handoffs/TASK-003.md`, `docs/handoffs/TASK-010.md`, `PROJECT_BOARD.md` | `product/TASK-010-lightweight-goal-alignment` |
 
 ---
 
@@ -308,7 +308,7 @@
 
 
 ### TASK-010 - Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing
-*   **Status**: In Progress
+*   **Status**: Staging QA
 *   **Owner / Thread**: FB-Product
 *   **Area**: Coordination
 *   **Scope**: Add a canonical Working Goal loop to non-trivial FB-Lane tasks, keep lane handoffs lightweight, and make BFM reconcile goal drift before sequencing execution.
