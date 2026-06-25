@@ -38,6 +38,8 @@
 - `plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md`
 - `tools/fb-lane.cjs`
 - `plugins/fb-lane-coordination/tools/fb-lane.cjs`
+- `docs/handoffs/TASK-002.md`
+- `docs/handoffs/TASK-003.md`
 - `docs/handoffs/TASK-010.md`
 - `PROJECT_BOARD.md`
 
@@ -57,9 +59,10 @@
 - Subagent review flagged one minor missing example in the root coordination skill; fixed in `693fddf`.
 - Subagent review approved the generated bootstrap guidance slice.
 - Final whole-branch review found two consistency gaps; both were addressed in the manual board template and quickstart skill.
+- Updated legacy TASK-002/TASK-003 handoffs with compact `Goal Alignment` sections so `doctor` stays useful on this repository.
 
 ## Remaining Gates
-- Re-run final whole-branch review after the consistency fixes.
+- Re-run final whole-branch review after the legacy handoff/setup-example fixes.
 - Branch push / PR review by Product before merge to `main`.
 - Installed plugin cache refresh after merge.
 

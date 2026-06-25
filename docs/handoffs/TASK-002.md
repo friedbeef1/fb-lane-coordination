@@ -6,6 +6,13 @@
 
 ---
 
+## Goal Alignment
+- `Goal Alignment`: aligned
+- `Goal Challenge / Caveat`: Legacy handoff predates the Goal Alignment loop; goal is inferred from the task scope.
+- `Evidence Against Goal`: Authentication endpoints, database interfaces, and Node integration tests support the original authentication goal; in-memory persistence remains a known caveat for production use.
+
+---
+
 ## What Was Built
 1. **Database Interfaces (`src/db.ts`)**:
    - Implemented in-memory Maps representing database collections for `User` and `Session`.
