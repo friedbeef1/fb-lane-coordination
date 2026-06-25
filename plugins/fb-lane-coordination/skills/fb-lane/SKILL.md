@@ -29,7 +29,7 @@ When the user asks how to start, what to do after install, or says `$fb-lane sta
 ```text
 Start with $fb-lane status.
 Then describe the work normally.
-Product splits the work, lanes claim files, code-writing lanes can use worktrees, each lane writes a handoff, and Product sequences what is ready to merge.
+Product gives direction and splits the work. Individual lanes claim and execute their own files, code-writing lanes can use worktrees, each lane writes a handoff, and Product sequences what is ready to merge.
 ```
 
 Goal examples:
@@ -45,6 +45,7 @@ Split this across Product, Tech, Design, and Business.
 Use worktrees for code-writing lanes where helpful.
 Each lane should claim files, write a handoff, and return to Product.
 Product should sequence the final integration and tell me what is ready to merge.
+Product should not claim or execute Tech/Design/Business source changes for the lanes.
 
 $fb-product what is ready to merge?
 $fb-design improve the prep-screen icons.
@@ -60,7 +61,7 @@ $fb-business rewrite the onboarding copy.
    - CLI fallback: `node tools/fb-lane.cjs status`.
 3. If setup looks suspect, run `node tools/fb-lane.cjs doctor` before claiming work.
 4. Identify whether the user is asking Product to orchestrate lanes or directly addressing lane threads.
-5. Before any write, claim or create one scoped board item and declare locked files.
+5. Before any write, claim or create one scoped board item and declare locked files. If acting as Product, assign source-changing execution to the owning lane; do not claim Tech/Design/Business files on that lane's behalf.
 6. For non-trivial work, confirm the task detail block has one canonical Goal Alignment block in `PROJECT_BOARD.md` with `Working Goal`, `Success Measure`, and `Gate / Review Point`. Product/BFM writes or changes that block; worker lanes report missing, unclear, or misaligned goals in handoffs.
 7. Keep lane handoffs compact and include a real Markdown heading so `doctor` can validate it:
    ```md
@@ -84,7 +85,7 @@ $fb-business rewrite onboarding copy.
 $fb-product decide whether this should go to staging.
 ```
 
-Codex may run safe independent pieces concurrently. Product/Captain remains responsible for sequencing, conflict resolution, staging decisions, and final merge.
+Codex may run safe independent pieces concurrently. Product/Captain remains responsible for sequencing, conflict resolution, staging decisions, and final merge. Individual lanes remain responsible for their own claim, execution, verification, handoff, and closeout.
 
 ## Handoff Rule
 

@@ -158,6 +158,105 @@ function collectGoalAlignmentWarnings(handoffsDir) {
   return warnings;
 }
 
+function collectGitLockWarnings(rootDir) {
+  const gitDir = path.join(rootDir, '.git');
+  if (!fs.existsSync(gitDir)) {
+    return [];
+  }
+
+  const warnings = [];
+  function scan(dir, depth = 0) {
+    if (depth > 4 || !fs.existsSync(dir)) return;
+    let entries = [];
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch (err) {
+      return;
+    }
+
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === 'objects') continue;
+        scan(fullPath, depth + 1);
+      } else if (entry.name.endsWith('.lock')) {
+        warnings.push(path.relative(rootDir, fullPath));
+      }
+    }
+  }
+
+  scan(gitDir);
+  return warnings;
+}
+
+function parseElapsedSeconds(etime) {
+  const daySplit = etime.trim().split('-');
+  let days = 0;
+  let timePart = daySplit[0];
+  if (daySplit.length === 2) {
+    days = Number(daySplit[0]) || 0;
+    timePart = daySplit[1];
+  }
+
+  const parts = timePart.split(':').map(p => Number(p) || 0);
+  if (parts.length === 2) {
+    return days * 86400 + parts[0] * 60 + parts[1];
+  }
+  if (parts.length === 3) {
+    return days * 86400 + parts[0] * 3600 + parts[1] * 60 + parts[2];
+  }
+  return days * 86400;
+}
+
+function processCwd(pid) {
+  try {
+    const output = execSync(`lsof -a -p ${pid} -d cwd -Fn`, {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    });
+    const cwdLine = output.split(/\r?\n/).find(line => line.startsWith('n'));
+    return cwdLine ? cwdLine.slice(1) : '';
+  } catch (err) {
+    return '';
+  }
+}
+
+function collectLongRunningLaneProcesses(rootDir, thresholdSeconds = 60) {
+  if (process.platform === 'win32') {
+    return [];
+  }
+
+  let output = '';
+  try {
+    output = execSync('ps -axo pid=,etime=,command=', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    });
+  } catch (err) {
+    return [];
+  }
+
+  const interesting = /\b(npm test|vitest|npm run build|tsc -b|playwright test|git add|git commit)\b/;
+  const rootWithSep = rootDir.endsWith(path.sep) ? rootDir : `${rootDir}${path.sep}`;
+  const rows = [];
+
+  for (const line of output.split(/\r?\n/)) {
+    const match = line.trim().match(/^(\d+)\s+(\S+)\s+(.+)$/);
+    if (!match) continue;
+    const [, pid, elapsed, command] = match;
+    if (!interesting.test(command)) continue;
+    if (command.includes('fb-lane.cjs doctor') || command.includes('ps -axo')) continue;
+    if (parseElapsedSeconds(elapsed) < thresholdSeconds) continue;
+
+    const cwd = processCwd(pid);
+    const inWorkspace = cwd === rootDir || cwd.startsWith(rootWithSep) || command.includes(rootDir);
+    if (!inWorkspace) continue;
+    rows.push(`${pid} ${elapsed} ${command}`);
+  }
+
+  return rows;
+}
+
 // Parse PROJECT_BOARD.md tasks and details
 function parseBoard(boardPath) {
   const content = fs.readFileSync(boardPath, 'utf8');
@@ -352,7 +451,8 @@ function getRoleInstructions(lane) {
     return `- Read-only code access. You can write recommendations in markdown files but cannot modify application code files.
 - Draft copy recommendations and let Design or Tech integrate them.`;
   } else {
-    return `- Central orchestrator. Oversee file locks, coordinate task triages, review PRs, and run staging gate checks.`;
+    return `- Product direction only. Scope the work, set the goal, assign lanes, review handoffs, sequence integration, and run merge/release gates.
+- Do not claim or execute Tech/Design/Business source changes on their behalf. Individual lanes must claim and execute their own task/files.`;
   }
 }
 
@@ -476,6 +576,30 @@ function handleDoctor() {
       }
     } else {
       add('warn', '.mcp.json', 'Missing project MCP config.', 'Run: node tools/fb-lane.cjs bootstrap --platform codex');
+    }
+
+    const gitLockFiles = collectGitLockWarnings(rootDir);
+    if (gitLockFiles.length > 0) {
+      add(
+        'warn',
+        'Git lock files',
+        `Found possible stale lock file(s): ${gitLockFiles.join(', ')}`,
+        'Confirm no git command is active, then remove stale lock files before Product claims, stages, or merges.'
+      );
+    } else {
+      add('ok', 'Git lock files', 'No git lock files found.');
+    }
+
+    const longRunningProcesses = collectLongRunningLaneProcesses(rootDir);
+    if (longRunningProcesses.length > 0) {
+      add(
+        'warn',
+        'Local lane processes',
+        `Long-running git/test/build process(es): ${longRunningProcesses.join('; ')}`,
+        'Stop stale runners or move execution into the owning lane worktree; Product should record a blocked verification gate instead of spinning.'
+      );
+    } else {
+      add('ok', 'Local lane processes', 'No long-running lane git/test/build processes detected.');
     }
 
     try {
@@ -1448,7 +1572,7 @@ function handleBootstrap(args = []) {
 This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development.
 
 ### 1. Lane Scopes & Boundaries
-*   **FB-Product (PM / Integration User Value)**: Owns final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates. Product writes one canonical Goal Alignment block per non-trivial task in \`PROJECT_BOARD.md\` (\`Working Goal\`, \`Success Measure\`, \`Gate / Review Point\`) and records goal drift as \`Goal changed from X to Y because Z.\` when it changes.
+*   **FB-Product (PM / Integration User Value)**: Owns final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates. Product writes one canonical Goal Alignment block per non-trivial task in \`PROJECT_BOARD.md\` (\`Working Goal\`, \`Success Measure\`, \`Gate / Review Point\`) and records goal drift as \`Goal changed from X to Y because Z.\` when it changes. Product gives direction and integration; the owning lane claims and executes its own task/files.
 *   **Completion Audit Rule**: Product reports delivered work, lane-specific verification, and unresolved gates as separate statuses for every lane. Do not call any workstream "done" or "executed" unless required evidence exists; otherwise mark the missing gate as pending or blocked.
 *   **FB-Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, database security, configuration scripts, and unit/integration test suites. *Does not make styling, layout geometry, or UI changes.*
 *   **FB-Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
@@ -1457,8 +1581,8 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 *   **Lightweight Goal Alignment**: For non-trivial tasks, Product/BFM owns one canonical Goal Alignment block in the board detail block with \`Working Goal\`, \`Success Measure\`, and \`Gate / Review Point\` where practical. Worker lanes challenge that goal in handoffs instead of rewriting it. Good goal: \`Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.\` Bad goal: \`Working Goal: finish the feature.\` Skip this extra ceremony for micro quick tasks.
 
 ### 2. The Board Loop & Resource Locking
-1. **Claim**: A thread claims or creates an item on the board, and for non-trivial tasks Product sets one canonical Goal Alignment block (\`Working Goal\`, \`Success Measure\`, \`Gate / Review Point\`) before the work starts. Micro quick tasks can skip this extra ceremony.
-2. **Execute**: The thread works in an isolated branch (\`tech/[feature]\` or \`design/[feature]\`).
+1. **Claim**: Product scopes the item; the owning lane claims its own task/files on the board. For non-trivial tasks Product sets one canonical Goal Alignment block (\`Working Goal\`, \`Success Measure\`, \`Gate / Review Point\`) before the work starts. Micro quick tasks can skip this extra ceremony.
+2. **Execute**: The owning lane works in an isolated branch or worktree (\`tech/[feature]\` or \`design/[feature]\`).
 3. **Audit**: When complete, the thread pushes the branch, moves the board item to \`Staging QA\` using \`node tools/fb-lane.cjs submit\`, records delivered work, lane-specific verification, unresolved gates, plus a \`## Goal Alignment\` handoff section with compact fields, and leaves a passive closeout note.
 4. **Merge**: \`FB-Product\` runs verification/release gates, reconciles lane Goal Alignment before merge, records \`Goal changed from X to Y because Z.\` if the canonical goal changed, verifies required evidence for every lane, merges the branch to main using \`node tools/fb-lane.cjs merge\`, and releases locks.
 `;
@@ -1472,13 +1596,13 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
   const agentConfigs = {
     'FB-Product': {
       name: 'FB-Product',
-      description: 'Product Manager optimizing User Value. Scopes tasks, reviews handoff files, merges branches, and runs release gates.',
+      description: 'Product Manager optimizing User Value. Directs work, reviews handoff files, merges branches, and runs release gates.',
       config: {
         customAgent: {
           systemPromptSections: [
             {
               title: 'Agent System Instructions',
-              content: 'You are FB-Product, the PM optimizing User Value.\n\n### MANDATORY — On Every Session Start (SOP):\nIMMEDIATELY read PROJECT_BOARD.md. Do not wait to be asked. Then:\n- If the user gave you a feature request: break it into scoped tasks, assign lanes, and for each non-trivial task write one canonical Goal Alignment block in PROJECT_BOARD.md with `Working Goal`, `Success Measure`, and `Gate / Review Point` where practical.\n- If any tasks are in `Staging QA`: read the handoff file at `docs/handoffs/TASK-XXX.md`, review the branch diff, reconcile the lane `## Goal Alignment` sections, verify scope compliance, then merge or reject.\n- Summarise the board state to the user and recommend next actions.\n\n### Role & Responsibilities:\n1. **Scoping**: Break user requests into tasks on PROJECT_BOARD.md. Assign to FB-Tech, FB-Design, or FB-Business. Set status `Ready`. For non-trivial tasks, Product owns the single canonical board Goal Alignment block (`Working Goal`, `Success Measure`, `Gate / Review Point`). Micro quick tasks can skip this extra ceremony.\n2. **DO NOT spawn subagents or execute work**: After scoping, record assigned lanes and board status. Do not put sidebar-opening instructions in the passive closeout note.\n3. **Review & Merge**: For each `Staging QA` task, read `docs/handoffs/TASK-XXX.md` for full context (what was built, decisions, test results, risks). Reconcile every lane `## Goal Alignment` section before sequencing execution or merge. If the canonical goal changes, update PROJECT_BOARD.md and record `Goal changed from X to Y because Z.` there; handoffs may reference the board change but do not replace it. Review the git branch diff. If approved, run `node tools/fb-lane.cjs merge <task-id>`. If rejected, set status to `Blocked` with notes in the handoff file.\n4. **Authority**: Only you may merge branches and deploy to staging/production.\n\n### Lightweight Goal Alignment:\nUse goal alignment for non-trivial tasks only. Good goal: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.` Bad goal: `Working Goal: finish the feature.`\n\n### Completion Audit Language:\nReport delivered work, lane-specific verification, and unresolved gates separately for every lane. Do not describe any lane as "executed" or "done" unless required evidence exists for that lane: Tech needs named tests/builds, Design needs viewport/screenshot evidence when UI changed, Business needs approval or integration status, and Product needs staging/release-gate evidence. If work is delivered but a gate is missing, say: "delivered; <named checks> passed; <specific gate> remains pending."\n\n### Passive Closeout Note:\nWhen you finish scoping, reviewing, merging, or rejecting a workstream, leave one final informational note for future visitors. Format it as `Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, @/$ invocations, or instructions to open, start, run, or ask another lane.'
+              content: 'You are FB-Product, the PM optimizing User Value.\n\n### MANDATORY — On Every Session Start (SOP):\nIMMEDIATELY read PROJECT_BOARD.md. Do not wait to be asked. Then:\n- If the user gave you a feature request: break it into scoped tasks, assign lanes, and for each non-trivial task write one canonical Goal Alignment block in PROJECT_BOARD.md with `Working Goal`, `Success Measure`, and `Gate / Review Point` where practical.\n- If any tasks are in `Staging QA`: read the handoff file at `docs/handoffs/TASK-XXX.md`, review the branch diff, reconcile the lane `## Goal Alignment` sections, verify scope compliance, then merge or reject.\n- Summarise the board state to the user and recommend next actions.\n\n### Role & Responsibilities:\n1. **Scoping**: Break user requests into tasks on PROJECT_BOARD.md. Assign to FB-Tech, FB-Design, or FB-Business. Set status `Ready`. For non-trivial tasks, Product owns the single canonical board Goal Alignment block (`Working Goal`, `Success Measure`, `Gate / Review Point`). Micro quick tasks can skip this extra ceremony.\n2. **Direction, not execution**: Product gives direction, invokes or assigns lanes where the platform supports it, and records assigned lanes and board status. Individual lanes must claim and execute their own task/files. Product does not claim or execute Tech/Design/Business source changes on their behalf.\n3. **Review & Merge**: For each `Staging QA` task, read `docs/handoffs/TASK-XXX.md` for full context (what was built, decisions, test results, risks). Reconcile every lane `## Goal Alignment` section before sequencing execution or merge. If the canonical goal changes, update PROJECT_BOARD.md and record `Goal changed from X to Y because Z.` there; handoffs may reference the board change but do not replace it. Review the git branch diff. If approved, run `node tools/fb-lane.cjs merge <task-id>`. If rejected, set status to `Blocked` with notes in the handoff file.\n4. **Runner hang boundary**: If tests, builds, Git staging, or browser checks hang while Product is reviewing, run doctor where available, record `pending-gate` or `blocked` with exact evidence, and return execution to the owning lane.\n5. **Authority**: Only you may merge branches and deploy to staging/production.\n\n### Lightweight Goal Alignment:\nUse goal alignment for non-trivial tasks only. Good goal: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.` Bad goal: `Working Goal: finish the feature.`\n\n### Completion Audit Language:\nReport delivered work, lane-specific verification, and unresolved gates separately for every lane. Do not describe any lane as "executed" or "done" unless required evidence exists for that lane: Tech needs named tests/builds, Design needs viewport/screenshot evidence when UI changed, Business needs approval or integration status, and Product needs staging/release-gate evidence. If work is delivered but a gate is missing, say: "delivered; <named checks> passed; <specific gate> remains pending."\n\n### Passive Closeout Note:\nWhen you finish scoping, reviewing, merging, or rejecting a workstream, leave one final informational note for future visitors. Format it as `Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, @/$ invocations, or instructions to open, start, run, or ask another lane.'
             }
           ],
           toolNames: ['run_command', 'write_to_file', 'replace_file_content', 'view_file', 'list_dir', 'grep_search', 'multi_replace_file_content']
@@ -1581,7 +1705,7 @@ This project uses the FB-Lane Four-Lane Coordination Model.
 - **FB-Tech**: backend, APIs, schemas, tests only. Never touch CSS or layout.
 - **FB-Design**: CSS, tokens, layout only. Never touch backend logic or schemas.
 - **FB-Business**: read-only on source code. Write to markdown docs only.
-- **FB-Product**: orchestrates merges and deployments only.
+- **FB-Product**: direction, sequencing, integration, merges, and deployments. Product does not claim or execute Tech/Design/Business source changes.
 
 ### Lightweight Goal Alignment
 - For non-trivial tasks, FB-Product owns one canonical Goal Alignment block in \`PROJECT_BOARD.md\` with \`Working Goal\`, \`Success Measure\`, and \`Gate / Review Point\`.
@@ -1593,7 +1717,7 @@ This project uses the FB-Lane Four-Lane Coordination Model.
 
 ### CLI commands (run from project root)
 - \`node tools/fb-lane.cjs status\` — view all tasks and locks
-- \`node tools/fb-lane.cjs claim <id> <lane>\` — claim task, checkout branch, lock files
+- \`node tools/fb-lane.cjs claim <id> <lane>\` — owning lane claims task, checkout branch, lock files
 - \`node tools/fb-lane.cjs submit <id>\` — run tests, push branch, mark Staging QA
 - \`node tools/fb-lane.cjs merge <id>\` — merge to main, release locks (FB-Product only)
 
@@ -1601,6 +1725,7 @@ This project uses the FB-Lane Four-Lane Coordination Model.
 - Never commit directly to \`main\`.
 - Commit \`PROJECT_BOARD.md\` updates in a separate commit from code changes.
 - Max 5 debug retries before marking task \`Blocked\` and notifying the user.
+- If tests, builds, browser checks, \`git add\`, or \`.git/*.lock\` files stall Product, record \`pending-gate\` or \`blocked\` and return execution to the owning lane.
 ${CODEX_FB_END}`;
 
     if (!fs.existsSync(codexRulesPath)) {
@@ -1642,7 +1767,7 @@ Source of truth for active tasks and file locks: \`PROJECT_BOARD.md\`.
 
 | Lane | Owns | Never touches |
 |------|------|--------------|
-| **FB-Product** | Backlog, merges, deployments, release gates | Feature code |
+| **FB-Product** | Direction, backlog, merges, deployments, release gates | Feature code or lane-owned source changes |
 | **FB-Tech** | APIs, DB schemas, serverless functions, tests | CSS, layout, copy |
 | **FB-Design** | CSS, tokens, layout geometry, visual QA | Backend, schemas |
 | **FB-Business** | Copy, docs, marketing text | Source code (read-only) |
@@ -1664,7 +1789,7 @@ Source of truth for active tasks and file locks: \`PROJECT_BOARD.md\`.
 ### CLI Commands
 \`\`\`bash
 node tools/fb-lane.cjs status               # View all tasks and locks
-node tools/fb-lane.cjs claim <id> <lane>    # Claim a task, checkout branch, lock files
+node tools/fb-lane.cjs claim <id> <lane>    # Owning lane claims task, checkout branch, lock files
 node tools/fb-lane.cjs submit <id>          # Submit for QA, push branch
 node tools/fb-lane.cjs merge <id>           # Merge to main, release locks (FB-Product only)
 \`\`\`
@@ -1673,6 +1798,7 @@ node tools/fb-lane.cjs merge <id>           # Merge to main, release locks (FB-P
 - Never commit directly to \`main\` — always use a feature branch.
 - Commit docs separately from code changes.
 - Run tests before submitting — the \`submit\` command does this automatically.
+- Product gives direction and integration; Tech, Design, and Business claim and execute their own task/files.
 - Max 5 debug retries — if still failing, mark task \`Blocked\` and notify the user.
 - Do not revert others — merge \`main\` into your branch to resolve conflicts.
 ${FB_LANE_END}`;
@@ -1765,13 +1891,13 @@ ${FB_LANE_END}`;
   if (options.platform === 'codex') {
     console.log('1. Open this workspace in Codex.');
     console.log('2. Start with: $fb-lane status');
-    console.log('3. Describe the work normally. Product splits the work, lanes claim files, and handoffs return to Product.');
+    console.log('3. Describe the work normally. Product gives direction; each owning lane claims and executes its own files.');
     console.log('4. Run health checks any time with: node tools/fb-lane.cjs doctor');
   } else {
     console.log('1. Open this workspace in Antigravity, Claude Code, or Codex.');
     console.log('2. Start a chat with the Product agent (FB-Product) and ask it to build a feature:');
     console.log('   e.g., "Add a login page" or "Triage our next milestones"');
-    console.log('3. Product will scope the work, create tasks in PROJECT_BOARD.md, and mark them as Ready.');
+    console.log('3. Product will scope the work, create tasks in PROJECT_BOARD.md, assign lanes, and mark them as Ready.');
     console.log('4. Open the corresponding worker agent thread (FB-Tech or FB-Design) to start coding:');
     console.log('   The worker agent will automatically claim the task, checkout a branch, and implement code.');
     console.log('5. Once done, the worker agent submits the task for QA.');

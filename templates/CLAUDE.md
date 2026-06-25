@@ -76,5 +76,6 @@ invoke any of them directly, or let the main session delegate to them:
 - **`fb-business`** — copy/docs/positioning; read-only on code (CLI lane `Business`)
 
 The **main session acts as FB-Product** (the orchestrator): scope tasks on `PROJECT_BOARD.md`,
-delegate to a lane subagent, review the result, then merge. Full lane ownership boundaries and
+assign execution to the owning lane, review the result, then merge. Individual lanes claim their
+own files and execute in their own context. Full lane ownership boundaries and
 the board/locking protocol live in `AGENTS.md`.

@@ -46,7 +46,7 @@ Manual/bootstrap setup options live in [docs/setup.md](docs/setup.md).
 ```text
 User request
   -> FB-Product scopes and sequences
-  -> FB-Tech / FB-Design / FB-Business work in bounded lanes
+  -> FB-Tech / FB-Design / FB-Business claim and work in bounded lanes
   -> PROJECT_BOARD.md tracks claims, status, and locks
   -> docs/handoffs/ carries non-trivial lane output
   -> FB-Product integrates and decides what is ready to merge
@@ -69,7 +69,7 @@ In those cases, the board adds ceremony without reducing risk.
 
 | Lane | Owns | Boundary |
 |---|---|---|
-| FB-Product | Scoping, priorities, sequencing, staging/live decisions, merge gates. | Does not casually rewrite lane implementation work. |
+| FB-Product | Scoping, priorities, sequencing, staging/live decisions, merge gates. | Does not claim or execute Tech/Design/Business source changes. |
 | FB-Tech | Backend, APIs, schemas, auth, migrations, tests, reliability. | Does not own visual styling or product copy. |
 | FB-Design | UI, CSS, layout, icons, visual QA, responsive behavior. | Does not own backend logic, data schemas, or auth. |
 | FB-Business | Positioning, onboarding copy, help text, pricing, marketing docs. | Read-only on application code unless explicitly assigned. |
@@ -81,10 +81,12 @@ Inbox -> Ready -> In Progress -> Staging QA -> Done
 ```
 
 1. Product scopes the task and chooses lane ownership.
-2. The lane claims files or surfaces before editing.
+2. The owning lane claims files or surfaces before editing.
 3. The lane works on an isolated branch or worktree where useful.
 4. The lane submits checks and handoff notes.
 5. Product/Captain reviews, resolves conflicts, and merges.
+
+Product gives direction; lanes execute. If Product sees hung tests, builds, browser checks, `git add`, or stale `.git/*.lock` files, it should record the blocked or pending gate and send execution back to the owning lane instead of continuing the implementation loop.
 
 ## CLI Quick Reference
 

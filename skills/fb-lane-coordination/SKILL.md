@@ -23,7 +23,7 @@ node tools/fb-lane.cjs status
 ```
 
 ### 2. Claim a Task
-When claiming a task (e.g. `TASK-102`) for a specific lane (e.g., `Tech`, `Design`, `Business`) and locking specific files (e.g., `src/auth.ts, src/db.ts`):
+When the owning lane claims a task (e.g. `TASK-102`) for that lane (e.g., `Tech`, `Design`, `Business`) and locks specific files (e.g., `src/auth.ts, src/db.ts`):
 1. Execute the claim command:
    ```bash
    node tools/fb-lane.cjs claim <task-id> <lane> "[locked_files]"
@@ -31,7 +31,8 @@ When claiming a task (e.g. `TASK-102`) for a specific lane (e.g., `Tech`, `Desig
    *Example*: `node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts, src/db.ts"`
 2. Verify that the command succeeds, which checks out the feature branch, locks the files on the board, and commits the board update separately.
 3. Note: The CLI claim command also automatically writes task context to `.codex/current_task.md` for local editors.
-4. For non-trivial tasks, confirm the board item has one canonical Goal Alignment block (`Working Goal`, `Success Measure`, `Gate / Review Point`) before implementation begins.
+4. For source-changing lane work, prefer `--worktree` when Product must stay free for direction, review, or integration.
+5. For non-trivial tasks, confirm the board item has one canonical Goal Alignment block (`Working Goal`, `Success Measure`, `Gate / Review Point`) before implementation begins.
 
 ### 3. Submit a Task for Staging QA
 When a task's implementation is complete and ready for review:
@@ -64,6 +65,8 @@ When executing code updates and running test/lint commands:
    - Update the task status in `PROJECT_BOARD.md` to `Blocked` (marked as `Blocked - Debug Retry Limit Exceeded`), appending the current failure logs.
    - Notify the user of the blockage.
 4. **Auto-Proceed Loop**: Immediately scan the `PROJECT_BOARD.md` `Ready` queue and claim the **next independent task** (verifying that it does not edit locked files or depend on the blocked task). Checkout a new branch for the new task and continue development.
+
+Product does not run this implementation loop for Tech, Design, or Business. If Product sees repeated runner hangs, stale `.git/*.lock` files, or stuck `git add` / test / build processes, run `node tools/fb-lane.cjs doctor`, mark the relevant lane gate `pending-gate` or `blocked`, and return execution to the owning lane.
 
 ## Goal Alignment Notes
 

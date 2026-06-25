@@ -20,11 +20,12 @@ Before executing any file modifications or running setup scripts:
 *   **FB-Tech**: Only modify backend code, API endpoints, serverless functions, database schemas, and migration files. Do not touch stylesheets, UI layouts, or page style classes.
 *   **FB-Design**: Only modify styling files (CSS), components layout geometry, design tokens, and static UI assets. Do not modify database schemas, API routes, or backend functions.
 *   **FB-Business**: Read-only access. You may draft text recommendations in markdown files but cannot modify application code or run deployment commands.
-*   **FB-Product**: Central orchestrator. Responsible for task board updates, merging branches, promoting staging builds, and managing/releasing resource locks.
+*   **FB-Product**: Direction and integration owner. Responsible for task scoping, sequencing, board goal updates, merge gates, staging/live decisions, and releasing resource locks. Product does not claim or execute Tech/Design/Business source changes for the lanes.
 
 ## 3. Git Commits & Board Updates
 *   **Isolate Commits**: Commit documentation updates (e.g. `PROJECT_BOARD.md` or markdown files) separately from codebase logic and styling changes.
-*   **Self-Update the Board**: Update `PROJECT_BOARD.md` status to `In Progress` when starting a task, **declaring your Affected Screens and Locked Files** to establish the resource lock. Update status to `Staging QA` when pushing the final branch, documenting the exact files modified and QA results.
+*   **Self-Update the Board**: The owning lane updates `PROJECT_BOARD.md` status to `In Progress` when starting a task, **declaring its Affected Screens and Locked Files** to establish the resource lock. Update status to `Staging QA` when pushing the final branch, documenting the exact files modified and QA results.
+*   **Runner Hangs**: If tests, builds, browser checks, `git add`, or `.git/*.lock` files stall Product, Product records `pending-gate` or `blocked` and returns execution to the owning lane instead of continuing the implementation loop.
 *   **Branch Naming**: Prefix your feature branches with your lane:
     - Tech: `tech/[task-id]-[feature]`
     - Design: `design/[task-id]-[style-change]`

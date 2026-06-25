@@ -20,9 +20,16 @@
 - Added advisory `doctor` warnings for non-quick handoffs missing a `## Goal Alignment` heading while exempting `TASK-Q-*` handoffs.
 - Tightened final review findings so the handoff instructions now require an actual `## Goal Alignment` Markdown heading, worker lanes report goal feedback only in handoffs, and the static Claude/Antigravity templates inherit the same rule.
 - Bumped plugin metadata to `0.1.2+codex.20260625082239` so installs can distinguish this build after merge.
+- Tightened Product/Lane execution boundaries across skills, prompts, platform docs, generated bootstrap templates, and both CLI copies: Product gives direction, sets goals, assigns lanes, reviews handoffs, and integrates; individual Tech/Design/Business lanes claim and execute their own task/files.
+- Added advisory `doctor` diagnostics for stale Git lock files and long-running local lane git/test/build processes so Product can record a blocked or pending gate instead of absorbing execution work.
 
 ## Modified Files
 - `AGENTS.md`
+- `README.md`
+- `platforms/antigravity/README.md`
+- `platforms/codex/README.md`
+- `platforms/codex/workflow-rules.md`
+- `agents/fb-product.md`
 - `templates/AGENTS.md`
 - `templates/CLAUDE.md`
 - `templates/PROJECT_BOARD.md`
@@ -31,6 +38,7 @@
 - `skills/quickstart/SKILL.md`
 - `plugins/fb-lane-coordination/.codex-plugin/plugin.json`
 - `plugins/fb-lane-coordination/plugin.json`
+- `plugins/fb-lane-coordination/README.md`
 - `plugins/fb-lane-coordination/agents/FB-Business/agent.json`
 - `plugins/fb-lane-coordination/agents/FB-Design/agent.json`
 - `plugins/fb-lane-coordination/agents/FB-Product/agent.json`
@@ -73,6 +81,7 @@
 - Fresh post-fix checks passed: packaged plugin skill validation, root coordination/setup skill validation, plugin manifest validation, CLI syntax/parity, `git diff --check`, bootstrap smoke for generated prompt text, and doctor fixture matrix.
 - Stricter doctor matrix passed: valid `## Goal Alignment` no warning; missing heading warns; `# Goal Alignment` warns; `### Goal Alignment` warns; `TASK-Q-*` remains exempt.
 - Final whole-branch review passed with no remaining actionable issues.
+- Follow-up Product/Lane boundary checks passed: root and packaged CLI syntax, CLI parity, plugin validation, modified skill validation, JSON manifest parse, `git diff --check`, stale `.git/index.lock` doctor fixture, and repo `doctor` confirming no stale Git locks or long-running lane git/test/build processes.
 
 ## Remaining Gates
 - Branch push / PR review by Product before merge to `main`.
@@ -81,4 +90,4 @@
 ## Product Status Recommendation
 lane-verification-passed
 
-Closeout note - TASK-010: lane-verification-passed. Delivered: lightweight Goal Alignment guidance, BFM reconciliation rules, generated/static bootstrap guidance, plugin metadata bump, and exact-heading doctor advisory warnings. Evidence: skill/plugin/CLI validation, stricter doctor fixture matrix, bootstrap smoke, and clean final subagent review. Remaining: branch push/PR, merge, and installed plugin cache refresh. Handoff: docs/handoffs/TASK-010.md.
+Closeout note - TASK-010: lane-verification-passed. Delivered: lightweight Goal Alignment guidance, BFM reconciliation rules, generated/static bootstrap guidance, plugin metadata bump, exact-heading doctor advisory warnings, and Product/Lane execution-boundary guidance. Evidence: skill/plugin/CLI validation, stricter doctor fixture matrix, bootstrap smoke, stale-lock doctor fixture, repo doctor process check, and clean final subagent review. Remaining: branch push/PR, merge, and installed plugin cache refresh. Handoff: docs/handoffs/TASK-010.md.
