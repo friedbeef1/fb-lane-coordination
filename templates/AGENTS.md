@@ -16,7 +16,7 @@ To prevent context window overload and git collisions, strictly adhere to your a
 ### 👑 FB-Product (Product Manager / User Value Optimizer)
 *   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
-*   **Workflow**: Reads user requests, triages and prioritizes the backlog on `PROJECT_BOARD.md` (sequencing tasks based on goal-alignment and optimal value-vs-effort mix, prompting the user for approval before promoting backlog items to `Ready`), manages resource locks, reviews PRs, verifies staging, and merges branches.
+*   **Workflow**: Reads user requests, writes one canonical `Working Goal` for each non-trivial task in `PROJECT_BOARD.md`, sequences tasks against that goal and value-vs-effort mix, records goal changes as `Goal changed from X to Y because Z.`, prompts the user for approval before promoting backlog items to `Ready`, manages resource locks, reviews PRs, verifies staging, and merges branches.
 *   **Completion Audit Rule**: Reports delivered work, lane-specific verification, and unresolved gates as separate statuses for every lane. Product must not call any workstream "done" or "executed" unless the required evidence exists for that lane; otherwise mark the missing gate as pending or blocked.
 
 ### ⚙️ FB-Tech (Technical Lead / Developer)
@@ -36,6 +36,18 @@ To prevent context window overload and git collisions, strictly adhere to your a
 
 ### 🧾 Passive Closeout Notes
 Every lane must leave a final informational closeout note in its thread when it stops work on a task. The note records task ID, status, delivered work, evidence, remaining gates, and the handoff path. It must not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane; `PROJECT_BOARD.md` and `docs/handoffs/` remain the trigger source.
+
+### 🎯 Lightweight Goal Alignment
+Use goal alignment for non-trivial handoffs and sequencing work. Keep one canonical `Working Goal` per task, ideally in the task detail block in `PROJECT_BOARD.md`. Do not turn quick micro-tasks into a new ceremony.
+
+Good goal example: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
+
+Bad goal example: `Working Goal: finish the feature.`
+
+Lane handoffs should use this compact form instead of a long SMART template:
+- `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
+- `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
+- `Evidence Against Goal`: lane evidence that proves, weakens, or blocks the current goal
 
 ### 💬 The User's Role: Supervisor & Reviewer
 
@@ -66,11 +78,11 @@ All internal coordination—including running drift audits, checking/asserting r
 
 All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate concurrent workstreams:
 1. **Drift Audit**: Before starting, run the drift checklist to verify workspace state.
-2. **Claim & Lock**: Claim or create an item in `PROJECT_BOARD.md`. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
+2. **Claim & Lock**: Claim or create an item in `PROJECT_BOARD.md`. For non-trivial tasks, set one canonical `Working Goal` before implementation. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
 3. **Commit**: Work in an isolated branch (`tech/...` or `design/...`). Do not touch files locked by other active threads.
 4. **QA**: Once complete, push your branch, set status to `Staging QA`, and document the modified files and QA verification results.
 5. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.
-6. **Handoff, Unlock & Clean**: Write the structured handoff and passive closeout note. Product reads `PROJECT_BOARD.md` / `docs/handoffs/`, merges approved branches, removes resource locks (marking the task `Done`), and records its own passive closeout note. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
+6. **Handoff, Unlock & Clean**: Write the structured handoff and passive closeout note. Product reads `PROJECT_BOARD.md` / `docs/handoffs/`, reconciles every lane's Goal Alignment before sequencing execution or merge, records any goal drift as `Goal changed from X to Y because Z.`, merges approved branches, removes resource locks (marking the task `Done`), and records its own passive closeout note. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
 
 ---
 

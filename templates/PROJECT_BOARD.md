@@ -21,6 +21,7 @@
 *   **Status**: Ready
 *   **Owner / Thread**: FB-Product
 *   **Area**: Setup
+*   **Working Goal**: Bootstrap FB-Lane safely so future non-trivial tasks have one canonical goal, clear locks, and durable handoffs.
 *   **Scope**: Create initial files, initialize repository layout.
 *   **Out of Scope**: Writing application business logic.
 *   **Affected Screens / Locks**:
@@ -40,3 +41,10 @@
 *   **Latest Update**:
     *   *2026-06-14*: Scoped task and marked ready for execution.
 
+### Goal Alignment (non-trivial tasks only)
+Use one canonical `Working Goal` per task in the detail block above. Product/BFM owns that goal and updates it in place when it changes: `Goal changed from X to Y because Z.`
+
+Lane handoffs stay compact:
+- `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
+- `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
+- `Evidence Against Goal`: lane evidence that proves, weakens, or blocks the current goal
