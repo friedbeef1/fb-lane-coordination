@@ -21,9 +21,12 @@
 *   **Status**: Ready
 *   **Owner / Thread**: FB-Product
 *   **Area**: Setup
-*   **Working Goal**: Bootstrap FB-Lane safely so future non-trivial tasks have one canonical goal, clear locks, and durable handoffs.
 *   **Scope**: Create initial files, initialize repository layout.
 *   **Out of Scope**: Writing application business logic.
+*   **Goal Alignment**:
+    *   **Working Goal**: Bootstrap FB-Lane safely so future non-trivial tasks have one canonical goal, clear locks, and durable handoffs.
+    *   **Success Measure**: The board, rules, CLI, and handoff folder are present and ready for lane claims.
+    *   **Gate / Review Point**: Setup is ready when `node tools/fb-lane.cjs doctor` reports no blocking setup errors.
 *   **Affected Screens / Locks**:
     *   **Screens**: (None)
     *   **Locked Files**: `AGENTS.md`, `PROJECT_BOARD.md`
@@ -42,7 +45,7 @@
     *   *2026-06-14*: Scoped task and marked ready for execution.
 
 ### Goal Alignment (non-trivial tasks only)
-Use one canonical `Working Goal` per task in the detail block above. Product/BFM owns that goal and updates it in place when it changes: `Goal changed from X to Y because Z.`
+Use one canonical `Working Goal` per task in the detail block above, together with `Success Measure` and `Gate / Review Point`. Product/BFM owns that goal and updates it in place when it changes: `Goal changed from X to Y because Z.`
 
 Lane handoffs stay compact:
 - `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
