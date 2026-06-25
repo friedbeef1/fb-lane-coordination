@@ -136,6 +136,28 @@ function parseBootstrapOptions(args = []) {
   };
 }
 
+function collectGoalAlignmentWarnings(handoffsDir) {
+  if (!fs.existsSync(handoffsDir)) {
+    return [];
+  }
+
+  const entries = fs.readdirSync(handoffsDir, { withFileTypes: true });
+  const warnings = [];
+
+  for (const entry of entries) {
+    if (!entry.isFile()) continue;
+    if (!/^TASK-(?!Q-)[A-Za-z0-9-]+\.md$/.test(entry.name)) continue;
+
+    const handoffPath = path.join(handoffsDir, entry.name);
+    const markdown = fs.readFileSync(handoffPath, 'utf8');
+    if (!/^#{1,6}\s+Goal Alignment\b/m.test(markdown)) {
+      warnings.push(entry.name);
+    }
+  }
+
+  return warnings;
+}
+
 // Parse PROJECT_BOARD.md tasks and details
 function parseBoard(boardPath) {
   const content = fs.readFileSync(boardPath, 'utf8');
@@ -419,6 +441,17 @@ function handleDoctor() {
 
     if (exists('docs/handoffs')) {
       add('ok', 'docs/handoffs', 'Lane handoff directory exists.');
+      const missingGoalAlignment = collectGoalAlignmentWarnings(path.join(rootDir, 'docs', 'handoffs'));
+      if (missingGoalAlignment.length > 0) {
+        add(
+          'warn',
+          'Goal Alignment handoffs',
+          `Missing Goal Alignment section in: ${missingGoalAlignment.join(', ')}`,
+          'Add a "## Goal Alignment" section to each non-quick handoff.'
+        );
+      } else {
+        add('ok', 'Goal Alignment handoffs', 'All non-quick handoffs include a Goal Alignment section.');
+      }
     } else {
       add('warn', 'docs/handoffs', 'Lane handoff directory is missing.', 'Create docs/handoffs/ before non-trivial lane work.');
     }
