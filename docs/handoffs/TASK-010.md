@@ -69,14 +69,16 @@
 - Updated legacy TASK-002/TASK-003 handoffs with compact `Goal Alignment` sections so `doctor` stays useful on this repository.
 - Final review found generated prompt ownership drift; fixed so Product/BFM updates board Goal Alignment and worker lanes report goal feedback only in handoffs.
 - Follow-up final review found heading/template consistency gaps; fixed by requiring `## Goal Alignment` in skill/prompt/template handoff guidance, updating static `templates/CLAUDE.md`, and refreshing packaged Antigravity agent prompts.
+- Final follow-up review found board-side wording still over-focused on `Working Goal` and doctor accepted wrong heading levels; fixed by naming the full board Goal Alignment block (`Working Goal`, `Success Measure`, `Gate / Review Point`) in Product/BFM-facing guidance and requiring an exact `## Goal Alignment` handoff heading.
 - Fresh post-fix checks passed: packaged plugin skill validation, root coordination/setup skill validation, plugin manifest validation, CLI syntax/parity, `git diff --check`, bootstrap smoke for generated prompt text, and doctor fixture matrix.
+- Stricter doctor matrix passed: valid `## Goal Alignment` no warning; missing heading warns; `# Goal Alignment` warns; `### Goal Alignment` warns; `TASK-Q-*` remains exempt.
 
 ## Remaining Gates
-- Re-run final whole-branch review after the heading/template consistency fixes.
+- Re-run final whole-branch review after the full board-block wording and exact-heading fixes.
 - Branch push / PR review by Product before merge to `main`.
 - Installed plugin cache refresh after merge.
 
 ## Product Status Recommendation
 lane-verification-passed
 
-Closeout note - TASK-010: lane-verification-passed. Delivered: lightweight Goal Alignment guidance, BFM reconciliation rules, generated/static bootstrap guidance, plugin metadata bump, and doctor advisory warnings. Evidence: skill/plugin/CLI validation, doctor fixture matrix, bootstrap smoke, and focused subagent reviews. Remaining: final branch review, branch push/PR, merge, and installed plugin cache refresh. Handoff: docs/handoffs/TASK-010.md.
+Closeout note - TASK-010: lane-verification-passed. Delivered: lightweight Goal Alignment guidance, BFM reconciliation rules, generated/static bootstrap guidance, plugin metadata bump, and exact-heading doctor advisory warnings. Evidence: skill/plugin/CLI validation, stricter doctor fixture matrix, bootstrap smoke, and focused subagent reviews. Remaining: final branch review, branch push/PR, merge, and installed plugin cache refresh. Handoff: docs/handoffs/TASK-010.md.

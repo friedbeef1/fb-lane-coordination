@@ -20,7 +20,7 @@ FB-Lane is a thin coordination protocol, not a default wrapper for all Codex wor
 
 Use it when there are 2+ active lanes, overlapping file risk, staging/live gates, or handoffs that must survive context loss. Skip it for one-thread fixes, read-only questions, simple code explanations, or independent work where Codex worktrees are enough. When skipping, use ordinary Codex workflow and avoid creating board noise.
 
-For non-trivial lane work, keep one canonical `Working Goal` in `PROJECT_BOARD.md`. Product/BFM owns that goal. Do not apply this ceremony to micro quick tasks.
+For non-trivial lane work, keep one canonical Goal Alignment block in `PROJECT_BOARD.md` with `Working Goal`, `Success Measure`, and `Gate / Review Point`. Product/BFM owns that block. Do not apply this ceremony to micro quick tasks.
 
 ## User-Facing Quickstart
 
@@ -61,7 +61,7 @@ $fb-business rewrite the onboarding copy.
 3. If setup looks suspect, run `node tools/fb-lane.cjs doctor` before claiming work.
 4. Identify whether the user is asking Product to orchestrate lanes or directly addressing lane threads.
 5. Before any write, claim or create one scoped board item and declare locked files.
-6. For non-trivial work, confirm the task detail block has one canonical `Working Goal` in `PROJECT_BOARD.md`. Product/BFM writes or changes that goal; worker lanes report missing, unclear, or misaligned goals in handoffs.
+6. For non-trivial work, confirm the task detail block has one canonical Goal Alignment block in `PROJECT_BOARD.md` with `Working Goal`, `Success Measure`, and `Gate / Review Point`. Product/BFM writes or changes that block; worker lanes report missing, unclear, or misaligned goals in handoffs.
 7. Keep lane handoffs compact and include a real Markdown heading so `doctor` can validate it:
    ```md
    ## Goal Alignment
