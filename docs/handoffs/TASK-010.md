@@ -60,9 +60,10 @@
 - Subagent review approved the generated bootstrap guidance slice.
 - Final whole-branch review found two consistency gaps; both were addressed in the manual board template and quickstart skill.
 - Updated legacy TASK-002/TASK-003 handoffs with compact `Goal Alignment` sections so `doctor` stays useful on this repository.
+- Final review found generated prompt ownership drift; fixed so Product/BFM updates board Goal Alignment and worker lanes report goal feedback only in handoffs.
 
 ## Remaining Gates
-- Re-run final whole-branch review after the legacy handoff/setup-example fixes.
+- Re-run final whole-branch review after the generated prompt ownership fix.
 - Branch push / PR review by Product before merge to `main`.
 - Installed plugin cache refresh after merge.
 
