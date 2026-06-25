@@ -28,7 +28,7 @@ codex plugin add fb-lane-coordination@fb-lane
 
 This installs:
 
-- `fb-lane`, `fb-product`, `fb-tech`, `fb-design`, and `fb-business` Codex skills
+- `bfm`, `fb-lane`, `fb-product`, `fb-tech`, `fb-design`, and `fb-business` Codex skills
 - the bundled `fb-lane` MCP server
 - plugin metadata for Codex's plugin browser
 
@@ -48,6 +48,12 @@ Split this across Product, Tech, Design, and Business.
 Use worktrees for code-writing lanes where helpful.
 Each lane should claim files, write a handoff, and return to Product.
 Product should sequence the final integration and tell me what is ready to merge.
+```
+
+When handoffs already exist and Product/Captain needs to sequence and execute them, use:
+
+```text
+$bfm process the prepared handoffs for this task and execute the sequence to completion.
 ```
 
 The plugin does not create Codex's parallelism. Codex already has that. The plugin packages the coordination layer: skills, MCP status/claim/submit/merge tools, file locks, handoffs, and Product/Captain integration.
