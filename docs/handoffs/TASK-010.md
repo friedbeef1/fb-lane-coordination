@@ -72,13 +72,13 @@
 - Final follow-up review found board-side wording still over-focused on `Working Goal` and doctor accepted wrong heading levels; fixed by naming the full board Goal Alignment block (`Working Goal`, `Success Measure`, `Gate / Review Point`) in Product/BFM-facing guidance and requiring an exact `## Goal Alignment` handoff heading.
 - Fresh post-fix checks passed: packaged plugin skill validation, root coordination/setup skill validation, plugin manifest validation, CLI syntax/parity, `git diff --check`, bootstrap smoke for generated prompt text, and doctor fixture matrix.
 - Stricter doctor matrix passed: valid `## Goal Alignment` no warning; missing heading warns; `# Goal Alignment` warns; `### Goal Alignment` warns; `TASK-Q-*` remains exempt.
+- Final whole-branch review passed with no remaining actionable issues.
 
 ## Remaining Gates
-- Re-run final whole-branch review after the full board-block wording and exact-heading fixes.
 - Branch push / PR review by Product before merge to `main`.
 - Installed plugin cache refresh after merge.
 
 ## Product Status Recommendation
 lane-verification-passed
 
-Closeout note - TASK-010: lane-verification-passed. Delivered: lightweight Goal Alignment guidance, BFM reconciliation rules, generated/static bootstrap guidance, plugin metadata bump, and exact-heading doctor advisory warnings. Evidence: skill/plugin/CLI validation, stricter doctor fixture matrix, bootstrap smoke, and focused subagent reviews. Remaining: final branch review, branch push/PR, merge, and installed plugin cache refresh. Handoff: docs/handoffs/TASK-010.md.
+Closeout note - TASK-010: lane-verification-passed. Delivered: lightweight Goal Alignment guidance, BFM reconciliation rules, generated/static bootstrap guidance, plugin metadata bump, and exact-heading doctor advisory warnings. Evidence: skill/plugin/CLI validation, stricter doctor fixture matrix, bootstrap smoke, and clean final subagent review. Remaining: branch push/PR, merge, and installed plugin cache refresh. Handoff: docs/handoffs/TASK-010.md.
