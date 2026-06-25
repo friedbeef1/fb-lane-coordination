@@ -16,7 +16,8 @@ To prevent context window overload and git collisions, strictly adhere to your a
 ### 👑 FB-Product (Product Manager / User Value Optimizer)
 *   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
-*   **Workflow**: Reads user requests, writes one canonical Goal Alignment block for each non-trivial task in `PROJECT_BOARD.md` (`Working Goal`, `Success Measure`, `Gate / Review Point`), sequences tasks against that goal and value-vs-effort mix, records goal changes as `Goal changed from X to Y because Z.`, prompts the user for approval before promoting backlog items to `Ready`, manages resource locks, reviews PRs, verifies staging, and merges branches.
+*   **Workflow**: Reads user requests, writes one canonical Goal Alignment block for each non-trivial task in `PROJECT_BOARD.md` (`Working Goal`, `Success Measure`, `Gate / Review Point`), sequences tasks against that goal and value-vs-effort mix, records goal changes as `Goal changed from X to Y because Z.`, prompts the user for approval before promoting backlog items to `Ready`, assigns execution to the owning lanes, reviews PRs, verifies staging, and merges branches.
+*   **Boundary**: Product gives direction and owns integration. Product does not claim or execute Tech/Design/Business source changes on their behalf; individual lanes claim and execute their own task/files.
 *   **Completion Audit Rule**: Reports delivered work, lane-specific verification, and unresolved gates as separate statuses for every lane. Product must not call any workstream "done" or "executed" unless the required evidence exists for that lane; otherwise mark the missing gate as pending or blocked.
 
 ### ⚙️ FB-Tech (Technical Lead / Developer)
@@ -60,7 +61,7 @@ The user (acting as the external supervisor) is shielded from manual project coo
 
 #### Main Approach: Autonomous Background Orchestration (<20% Involvement - Optimized Mode)
 * **Status**: **Primary/Recommended**. This is the mode the plugin is designed and optimized for.
-* **Workflow**: The user talks only to the main **`FB-Product`** thread to describe features and milestones. Product automatically handles task planning, claiming, file locking, branch checkouts, and spawns background subagents (`FB-Tech`, `FB-Design`, `FB-Business`) in the background to execute work in parallel.
+* **Workflow**: The user talks only to the main **`FB-Product`** thread to describe features and milestones. Product handles task planning and direction, then each owning lane claims its own files/branch and executes work in parallel where safe.
 * **User Touchpoints**: Restricted to reviewing plans (Plan Gate) and verifying staging environments (Staging Gate) before final merges.
 * **Sidebar Threads**: Used passively as detail desks. If the user opens a sidebar thread to check technical details, the agent reads local handoff files and schema states to present an update.
 
@@ -75,7 +76,7 @@ Because the project board and git branch are the single source of truth:
 * Sidebar threads do not get out of sync.
 * If a thread shows stale history or a pending button from a background run, typing `status` or `SOP` in that thread forces the agent to read `PROJECT_BOARD.md` and instantly update its chat context.
 
-All internal coordination—including running drift audits, checking/asserting resource locks on `PROJECT_BOARD.md`, checking out branches, writing code, executing verification tests, and pushing PRs—is **fully automated by the agents**. Product remains the User Value Optimizer who reviews staging and merges the final code, ensuring all changes align with the product's strategic direction and do not cause scope drift.
+Internal coordination is automated by the agents, but ownership stays split: Product scopes, sequences, and reviews; individual lanes claim files, check out branches or worktrees, write code/copy/styling, run verification, and push PRs. Product remains the User Value Optimizer who reviews staging and merges the final code, ensuring all changes align with the product's strategic direction and do not cause scope drift.
 
 ---
 
@@ -83,7 +84,7 @@ All internal coordination—including running drift audits, checking/asserting r
 
 All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate concurrent workstreams:
 1. **Drift Audit**: Before starting, run the drift checklist to verify workspace state.
-2. **Claim & Lock**: Claim or create an item in `PROJECT_BOARD.md`. For non-trivial tasks, Product/BFM sets or confirms one canonical Goal Alignment block before implementation (`Working Goal`, `Success Measure`, `Gate / Review Point`). Worker lanes flag missing or unclear goals in handoffs instead of rewriting the board. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
+2. **Claim & Lock**: Product creates or scopes the item; the owning lane claims its own task/files before implementation. For non-trivial tasks, Product/BFM sets or confirms one canonical Goal Alignment block before implementation (`Working Goal`, `Success Measure`, `Gate / Review Point`). Worker lanes flag missing or unclear goals in handoffs instead of rewriting the board. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
 3. **Commit**: Work in an isolated branch (`tech/...` or `design/...`). Do not touch files locked by other active threads.
 4. **QA**: Once complete, push your branch, set status to `Staging QA`, and document the modified files and QA verification results.
 5. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.
@@ -93,6 +94,7 @@ All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate
 
 ## 3. Safety & Git Hygiene
 *   **State-Driven Writing Gates**: In active chat sessions, worker agents (`FB-Tech`, `FB-Design`) operate strictly as read-only consultants by default. They are only authorized to use code-writing tools once a task is actively claimed (indicated by the presence of `.codex/current_task.md` matching their lane). If no task is claimed, they must suggest changes in markdown blocks only.
+*   **Product Direction / Lane Execution**: Product should stop retrying implementation if tests, builds, Git staging, or browser checks hang. Record `pending-gate` or `blocked` with evidence and return the fix to the owning lane.
 *   **File Lock Boundary**: Once a task is claimed and writing is unlocked, the agent must strictly restrict its edits/writes only to the files listed under "Locked Files" in `.codex/current_task.md`. Editing files outside of this declared lock is a boundary violation.
 *   **Fast-Track Quick Edits**: For micro-edits (such as simple typos or minor styling tweaks), you can bypass the main Product triage and planning process. Run `node tools/fb-lane.cjs quick <lane> <locks> [desc]` to instantly generate a temporary task on the board, checkout a `quick/` branch, and unlock the lane agent's write ability in the sidebar for those locked files.
 *   **Never commit directly to main**. All work must go through a branch.
