@@ -28,6 +28,25 @@ When you are invoked in a lane thread, you will be told your lane at the top of 
 3. Confirm your branch: `git rev-parse --abbrev-ref HEAD`.
 4. Never modify files that are locked by another active task.
 
+## Lightweight Goal Alignment
+
+Use goal alignment for non-trivial handoffs and sequencing work only. Product/BFM owns one canonical `Working Goal` per task in `PROJECT_BOARD.md` where practical, with `Success Measure` and `Gate / Review Point`. Worker lanes read that goal and challenge it in handoffs instead of rewriting it.
+
+- Good: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
+- Bad: `Working Goal: finish the feature.`
+
+Lane handoffs should include:
+
+```md
+## Goal Alignment
+
+Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+Goal Challenge / Caveat: <real caveat> | No caveat identified
+Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
+```
+
+Product/BFM reconciles those fields before sequencing execution or merge. If the canonical goal changes, update `PROJECT_BOARD.md` and record: `Goal changed from X to Y because Z.`
+
 ## CLI Tool
 
 Use `node tools/fb-lane.cjs` for all task lifecycle management:

@@ -18,20 +18,27 @@
 - Added lightweight Goal Alignment guidance to Product, BFM, lane skills, root coordination skills, project setup guidance, and AGENTS/templates.
 - Updated generated CLI bootstrap guidance in both root and packaged CLI copies so new projects inherit the Working Goal, compact lane handoff fields, goal drift record, good/bad examples, and micro quick-task exemption.
 - Added advisory `doctor` warnings for non-quick handoffs missing a `## Goal Alignment` heading while exempting `TASK-Q-*` handoffs.
+- Tightened final review findings so the handoff instructions now require an actual `## Goal Alignment` Markdown heading, worker lanes report goal feedback only in handoffs, and the static Claude/Antigravity templates inherit the same rule.
 - Bumped plugin metadata to `0.1.2+codex.20260625082239` so installs can distinguish this build after merge.
 
 ## Modified Files
 - `AGENTS.md`
 - `templates/AGENTS.md`
+- `templates/CLAUDE.md`
 - `templates/PROJECT_BOARD.md`
 - `skills/fb-lane-coordination/SKILL.md`
 - `skills/project-coordination-setup/SKILL.md`
 - `skills/quickstart/SKILL.md`
 - `plugins/fb-lane-coordination/.codex-plugin/plugin.json`
 - `plugins/fb-lane-coordination/plugin.json`
+- `plugins/fb-lane-coordination/agents/FB-Business/agent.json`
+- `plugins/fb-lane-coordination/agents/FB-Design/agent.json`
+- `plugins/fb-lane-coordination/agents/FB-Product/agent.json`
+- `plugins/fb-lane-coordination/agents/FB-Tech/agent.json`
 - `plugins/fb-lane-coordination/skills/bfm/SKILL.md`
 - `plugins/fb-lane-coordination/skills/fb-business/SKILL.md`
 - `plugins/fb-lane-coordination/skills/fb-design/SKILL.md`
+- `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`
 - `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`
 - `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`
 - `plugins/fb-lane-coordination/skills/fb-tech/SKILL.md`
@@ -61,13 +68,15 @@
 - Final whole-branch review found two consistency gaps; both were addressed in the manual board template and quickstart skill.
 - Updated legacy TASK-002/TASK-003 handoffs with compact `Goal Alignment` sections so `doctor` stays useful on this repository.
 - Final review found generated prompt ownership drift; fixed so Product/BFM updates board Goal Alignment and worker lanes report goal feedback only in handoffs.
+- Follow-up final review found heading/template consistency gaps; fixed by requiring `## Goal Alignment` in skill/prompt/template handoff guidance, updating static `templates/CLAUDE.md`, and refreshing packaged Antigravity agent prompts.
+- Fresh post-fix checks passed: packaged plugin skill validation, root coordination/setup skill validation, plugin manifest validation, CLI syntax/parity, `git diff --check`, bootstrap smoke for generated prompt text, and doctor fixture matrix.
 
 ## Remaining Gates
-- Re-run final whole-branch review after the generated prompt ownership fix.
+- Re-run final whole-branch review after the heading/template consistency fixes.
 - Branch push / PR review by Product before merge to `main`.
 - Installed plugin cache refresh after merge.
 
 ## Product Status Recommendation
 lane-verification-passed
 
-Closeout note - TASK-010: lane-verification-passed. Delivered: lightweight Goal Alignment guidance, BFM reconciliation rules, generated bootstrap guidance, plugin metadata bump, and doctor advisory warnings. Evidence: skill/plugin/CLI validation, doctor fixture matrix, and focused subagent reviews. Remaining: final branch review, branch push/PR, merge, and installed plugin cache refresh. Handoff: docs/handoffs/TASK-010.md.
+Closeout note - TASK-010: lane-verification-passed. Delivered: lightweight Goal Alignment guidance, BFM reconciliation rules, generated/static bootstrap guidance, plugin metadata bump, and doctor advisory warnings. Evidence: skill/plugin/CLI validation, doctor fixture matrix, bootstrap smoke, and focused subagent reviews. Remaining: final branch review, branch push/PR, merge, and installed plugin cache refresh. Handoff: docs/handoffs/TASK-010.md.

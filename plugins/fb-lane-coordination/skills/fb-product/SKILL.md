@@ -48,9 +48,13 @@ End scoping, review, merge, and rejection work with a passive closeout note for 
 
 For non-trivial handoffs, require this compact goal section instead of a full SMART template:
 
-- `Goal Alignment`: `aligned`, `suggest change: <proposed goal>`, or `blocked by goal ambiguity: <reason>`
-- `Goal Challenge / Caveat`: a real caveat, or `No caveat identified`
-- `Evidence Against Goal`: lane evidence that proves, weakens, or blocks the current goal
+```md
+## Goal Alignment
+
+Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+Goal Challenge / Caveat: <real caveat> | No caveat identified
+Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
+```
 
 ## Boundaries
 
