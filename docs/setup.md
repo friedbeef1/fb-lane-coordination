@@ -47,6 +47,26 @@ After bootstrap, open the matching platform guide:
 - [Claude Code](../platforms/claude-code/README.md)
 - [Codex](../platforms/codex/README.md)
 
+## Upgrade Existing Codex Plugin Install
+
+When the plugin source has been updated and merged, reinstall the plugin from the
+configured FB-Lane marketplace:
+
+```bash
+codex plugin add fb-lane-coordination@fb-lane
+```
+
+Verify the active install:
+
+```bash
+codex plugin list | rg "fb-lane-coordination"
+```
+
+Codex may leave older cache folders under `~/.codex/plugins/cache/`. They are
+not the active install unless `codex plugin list` points at that version. Start a
+new Codex thread after reinstalling so updated skills and MCP tools are loaded
+from the refreshed plugin cache.
+
 ## Basic CLI Loop
 
 ```bash
