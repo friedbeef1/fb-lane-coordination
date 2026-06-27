@@ -8,7 +8,7 @@ Product Lead to approve the goal, let specialist lanes execute, and force the
 work back through evidence before anything is called done.
 
 [Loop Engineering deep dive](docs/loop-engineering.md) | [FAQ](FAQ.md) |
-[Setup](docs/setup.md) | [Changelog](CHANGELOG.md)
+[Setup](docs/setup.md) | [Maintenance](docs/maintenance.md) | [Changelog](CHANGELOG.md)
 
 ## The Thesis
 
@@ -140,11 +140,11 @@ Skip it for:
 
 Choose the platform guide for your tool:
 
-| Platform | Guide | Best for |
-|---|---|---|
-| Antigravity 2.0 | [platforms/antigravity/README.md](platforms/antigravity/README.md) | Native multi-agent orchestration and isolated worker lanes. |
-| Claude Code | [platforms/claude-code/README.md](platforms/claude-code/README.md) | `@agent` / `/agents` lane workflows with MCP and optional worktrees. |
-| Codex | [platforms/codex/README.md](platforms/codex/README.md) | Codex plugin, skills, MCP, subagents, and worktrees. |
+| Platform | Maturity | Guide | Best for |
+|---|---|---|---|
+| Antigravity 2.0 | Alpha | [platforms/antigravity/README.md](platforms/antigravity/README.md) | Native multi-agent orchestration and isolated worker lanes. |
+| Claude Code | Alpha | [platforms/claude-code/README.md](platforms/claude-code/README.md) | `@agent` / `/agents` lane workflows with MCP and optional worktrees. |
+| Codex | Public beta | [platforms/codex/README.md](platforms/codex/README.md) | Codex plugin, skills, MCP, subagents, and worktrees. |
 
 Fallback bootstrap options live in [docs/setup.md](docs/setup.md). The operating
 model lives in [docs/loop-engineering.md](docs/loop-engineering.md).

@@ -120,9 +120,9 @@ copy, sequencing, or Product approval.
 
 Start with the platform guide:
 
-- [Antigravity](platforms/antigravity/README.md)
-- [Claude Code](platforms/claude-code/README.md)
-- [Codex](platforms/codex/README.md)
+- [Antigravity](platforms/antigravity/README.md) - Alpha
+- [Claude Code](platforms/claude-code/README.md) - Alpha
+- [Codex](platforms/codex/README.md) - Public beta
 
 Fallback bootstrap paths are in [docs/setup.md](docs/setup.md).
 

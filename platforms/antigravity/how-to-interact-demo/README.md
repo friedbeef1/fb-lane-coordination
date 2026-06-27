@@ -9,7 +9,7 @@ This HyperFrames composition explains how FB-Lane works with Antigravity 2.0:
 
 ## Output
 
-- Final MP4: [`renders/antigravity-how-to-interact.mp4`](renders/antigravity-how-to-interact.mp4)
+- Final MP4: [GitHub release asset](https://github.com/friedbeef1/fb-lane-coordination/releases/download/demo-assets-2026-06-27/antigravity-how-to-interact.mp4)
 - Source composition: [`index.html`](index.html)
 - Expanded prompt: [`.hyperframes/expanded-prompt.md`](.hyperframes/expanded-prompt.md)
 

@@ -9,7 +9,7 @@ This HyperFrames composition explains how to interact with FB-Lane in Claude Cod
 
 ## Output
 
-- Final MP4: [`renders/claude-code-how-to-interact.mp4`](renders/claude-code-how-to-interact.mp4)
+- Final MP4: [GitHub release asset](https://github.com/friedbeef1/fb-lane-coordination/releases/download/demo-assets-2026-06-27/claude-code-how-to-interact.mp4)
 - Source composition: [`index.html`](index.html)
 - Expanded prompt: [`.hyperframes/expanded-prompt.md`](.hyperframes/expanded-prompt.md)
 
