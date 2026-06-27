@@ -2,6 +2,17 @@
 
 ## Unreleased - 2026-06-27
 
+- Loop Engineering: clarified OKRs as stable Product/workstream and lane
+  alignment anchors, not per-task planning churn. Mini-loops now return
+  `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`
+  against the approved OKR tree, and Product/BFM must stop for explicit user
+  approval before any OKR addition or change.
+- Doctor: kept checks advisory while warning when non-quick handoffs lack
+  alignment to approved OKRs or imply a new/changed OKR without an approved
+  board update. `TASK-Q-*` quick tasks remain exempt, and `submit` behavior is
+  unchanged.
+- Plugin: bumped the Codex plugin build suffix to
+  `0.1.2+codex.20260627191525`.
 - Docs/plugin metadata: replaced user-specific approval wording with generic
   `the user` language, moved plugin display ownership to `FB-Lane Contributors`,
   and bumped the Codex plugin build suffix to `0.1.2+codex.20260627183826`.

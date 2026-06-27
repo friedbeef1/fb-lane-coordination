@@ -7,8 +7,8 @@ the approved goal, evidence, board state, and repo truth before Product calls it
 complete.
 
 The board matters because agents need durable state. It is not the product. The
-product is the loop: approved OKRs, lane execution, evidence return, BFM
-reconciliation, and clean closeout.
+product is the loop: approved Product/workstream OKRs, stable lane OKRs,
+mini-loop evidence return, BFM reconciliation, and clean closeout.
 
 ## Does Codex, Claude Code, or Antigravity already do this?
 
@@ -49,8 +49,9 @@ or release evidence matter.
 
 ## What does Product approve?
 
-For non-quick BFM runs, Product proposes and the user approves the Goal Alignment
-Session OKRs on `PROJECT_BOARD.md`:
+For non-quick BFM runs, Product and the user discuss the Product/workstream OKR
+first. After explicit user approval, Product records the Goal Alignment Session
+on `PROJECT_BOARD.md`:
 
 - `Objective`
 - `Key Results`
@@ -59,8 +60,14 @@ Session OKRs on `PROJECT_BOARD.md`:
 - `Approval`
 - `Justification`
 
+Stable lane OKRs are the standing Tech, Design, Business, and Product quality
+anchors that lanes use while executing their slice. Mini-loop evidence is the
+proof each lane returns from its smallest real check, review, or smoke.
+
 Once approved, BFM should change the approach, scope, or sequence to fit the
-OKR. It should not silently rewrite the approved OKR.
+Product/workstream OKR. It should not silently rewrite the approved OKR or
+dynamically create a new one during execution. OKRs are added or changed only
+after discussion and explicit user approval.
 
 ## What does `doctor` check?
 
@@ -71,8 +78,9 @@ node tools/fb-lane.cjs doctor
 ```
 
 It checks whether the repo's loop state looks healthy: board files, rules,
-handoff folder, active locks, git state, non-quick handoff `OKR Fit`, and
-approved Goal Alignment Session OKRs for non-quick BFM targets.
+handoff folder, active locks, git state, non-quick handoff `Lane OKR Fit`,
+`Mini-loop Evidence`, `Evidence Against Product OKR`, approved Goal Alignment
+Session OKRs, and handoffs that imply unapproved OKR changes.
 
 In v1 it warns. It does not change `submit` behavior and does not hard-block
 quick `TASK-Q-*` work.

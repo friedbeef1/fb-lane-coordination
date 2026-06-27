@@ -35,9 +35,9 @@ For non-trivial handoffs, add this compact Goal Alignment Session section before
 ```md
 ## Goal Alignment Session
 
-OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
-Goal Challenge / Caveat: <real caveat> | No caveat identified
-Definition of Done Evidence: <business evidence that proves, weakens, or blocks the approved OKR>
+Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+Mini-loop Evidence: <business evidence from its smallest real verification loop>
+Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
 ```
 
 Separate delivery from approval or integration in the handoff:

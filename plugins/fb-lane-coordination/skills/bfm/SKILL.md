@@ -30,30 +30,30 @@ Use these skills before acting, in this order:
    - handoffs named in the target board item's Links, QA, Modified Files, or Latest Update
    - linked `docs/superpowers/plans/` and `docs/superpowers/specs/`
 5. If the target is ambiguous, read active `Ready`, `In Progress`, and `Staging QA` board items before choosing.
-6. For non-trivial work, read the canonical `Goal Alignment Session` block from `PROJECT_BOARD.md` first and treat its `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, approved `Approval`, and `Justification` as the source of truth.
-7. If the block is missing or pending, propose `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, and `Justification` to the user, record `Approval: pending`, and stop until the user explicitly approves.
-8. Block before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR.
+6. For non-trivial work, read the approved `Goal Alignment Session` block from `PROJECT_BOARD.md` first and treat its Product/workstream OKR plus stable lane OKRs as the source of truth.
+7. If the block is missing, stale, pending, or blocking clarity, propose the smallest OKR addition or change in plain language, and stop until the user explicitly approves. Add or change board OKRs only after that approval.
+8. Block before execution when approval is missing, OKRs are unclear, a handoff implies an unapproved OKR change, or handoffs conflict with the approved OKR tree.
 
 ## Five-Lane Review
 
 Create a short internal review with these slots:
 
 - `FB-Lane`: task state, locks, branch/PR, handoff set, conflicts, missing owner.
-- `FB-Product`: user value, canonical Goal Alignment Session block (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`), sequencing, scope, merge/release gate, beta/staging/live decision.
+- `FB-Product`: user value, approved Product/workstream OKR, stable lane OKRs, sequencing, scope, merge/release gate, beta/staging/live decision.
 - `FB-Tech`: implementation dependencies, tests/builds, reliability/security, blocked integrations.
 - `FB-Design`: UI/UX dependencies, responsive/visual QA, screenshot evidence, unresolved visual gates.
 - `FB-Business`: positioning/copy/pricing/privacy claims, approval state, source integration target.
 
 Do not summarize a lane as done from delivery evidence alone. Use `delivered`, `lane-verification-passed`, `pending-gate`, `blocked`, or `superseded`.
-Reconcile every lane's `OKR Fit`, `Goal Challenge / Caveat`, and `Definition of Done Evidence` before deciding sequence.
+Reconcile every lane's `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` before deciding sequence.
 Every handoff BFM reads must end with one closeout status: `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
 
 ## Sequence
 
 Produce the next execution order before changing files:
 
-1. Reconcile whether the current approved Goal Alignment Session OKR is still aligned.
-2. If work conflicts with approved OKRs, propose alternative approaches, scope, or sequence that align to the OKR and recommend one. Do not edit approved OKRs.
+1. Reconcile whether the current approved Product/workstream OKR and stable lane OKRs are still aligned.
+2. If work conflicts with approved OKRs, propose alternative approaches, scope, or sequence that align to the existing OKR tree and recommend one. Do not dynamically create or edit OKRs during execution.
 3. Prerequisite gate decisions Product must make first.
 4. Work that can run in parallel because locks do not overlap.
 5. Work that must run serially because it changes shared files or depends on another lane.
@@ -65,13 +65,13 @@ Produce the next execution order before changing files:
 Proceed through the sequence without asking for repeated permission when authority is clear.
 
 - Product/BFM creates or scopes board items, sets direction, and assigns an owning lane.
-- Product/BFM blocks before execution if the board Goal Alignment Session is missing, has unclear OKRs, has `Approval: pending`, lacks the user's explicit approval, or a handoff is blocked by OKR ambiguity.
+- Product/BFM blocks before execution if the board Goal Alignment Session is missing, has unclear OKRs, has `Approval: pending`, lacks the user's explicit approval, implies an unapproved OKR change, or a handoff is blocked by OKR ambiguity.
 - The owning lane claims its own task/files before durable writes and executes the work in that lane context.
 - Respect active locks; do not edit files owned by another active lane.
 - Use the owning lane for implementation: Tech for app logic/tests, Design for UI/visual QA, Business for copy/positioning, Product for sequencing/merge/release decisions.
 - For source-changing work, prefer lane-owned worktrees or isolated branches so Product stays available for direction, integration, and merge gates.
 - After each lane finishes, update its handoff and board status before moving to the next dependent step.
-- Product reads all resulting handoffs together, reconciles OKR Fit, and only then sequences merges.
+- Product reads all resulting handoffs together, reconciles `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`, and only then sequences merges.
 - If a lane's tests, build, Git staging, or browser verification hangs, stop the Product retry loop and record the task as `pending-gate` or `blocked` with the exact runner/process evidence. Return the fix to the owning lane.
 - Do not deploy live, add production secrets, change payment credentials, or run destructive operations without explicit current approval.
 

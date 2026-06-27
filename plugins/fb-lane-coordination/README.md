@@ -7,8 +7,8 @@ This Codex plugin packages FB-Lane's Loop Engineering workflow:
 - a repo marketplace entry at `.agents/plugins/marketplace.json`
 
 Codex already provides the concurrency. FB-Lane provides the Product Lead loop
-around it: approved goals, lane execution, evidence return, BFM reconciliation,
-and clean closeout. The full operating model lives in
+around it: approved Product/workstream OKRs, lane execution, evidence return,
+BFM reconciliation, and clean closeout. The full operating model lives in
 [`docs/loop-engineering.md`](../../docs/loop-engineering.md).
 
 Treat FB-Lane as an optional coordination protocol, not as the thing that makes Codex parallel.
@@ -102,5 +102,5 @@ node tools/fb-lane.cjs doctor
 ```
 
 `doctor` is read-only. It reports whether the board, rules, MCP config, handoff folder, active
-locks, git workspace, non-quick handoff `OKR Fit`, and approved Goal Alignment Session OKRs are
+locks, git workspace, non-quick handoff `Lane OKR Fit`, and approved Goal Alignment Session OKRs are
 ready before lane work begins.

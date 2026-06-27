@@ -30,7 +30,9 @@ When you are invoked in a lane thread, you will be told your lane at the top of 
 
 ## Goal Alignment Session
 
-Use a Goal Alignment Session for non-trivial handoffs and sequencing work only. Product/BFM owns one canonical OKR block per task in `PROJECT_BOARD.md` where practical, with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Worker lanes read that block and report `OKR Fit` in handoffs instead of rewriting it.
+Use a Goal Alignment Session for non-trivial handoffs and sequencing work only. Product/BFM owns one approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream OKR with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`, plus stable lane OKRs where relevant.
+
+Worker lanes read the approved OKR tree first. Mini-loops do not create new OKRs; they return evidence against the lane OKR and the Product/workstream OKR. Product/BFM may propose an OKR addition or change only when the current OKRs are missing, stale, or blocking clarity, and must stop for explicit user approval before applying it.
 
 - Good: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 - Bad: `Objective: finish the feature.`
@@ -40,12 +42,12 @@ Lane handoffs should include:
 ```md
 ## Goal Alignment Session
 
-OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
-Goal Challenge / Caveat: <real caveat> | No caveat identified
-Definition of Done Evidence: <lane evidence that proves, weakens, or blocks the approved OKR>
+Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+Mini-loop Evidence: <lane evidence from its smallest real verification loop>
+Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
 ```
 
-Product/BFM reconciles those fields before sequencing execution or merge. BFM blocks before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR. If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the OKR and recommends one; it must not edit approved OKRs.
+Product/BFM reconciles those fields before sequencing execution or merge. BFM blocks before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR tree. If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the existing OKRs and recommends one; it must not dynamically create or edit OKRs during execution.
 
 ## BFM Return Loop
 
