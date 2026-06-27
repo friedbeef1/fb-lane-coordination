@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-013 | In Progress | FB-Product | CI | Add CI readiness automation loop for FB-Lane validation evidence | `.github/workflows/fb-lane-readiness.yml`, `tools/fb-lane.validate.cjs`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-013.md` | `codex/ci-readiness-loop` |
+| TASK-013 | Done | FB-Product | CI | Add CI readiness automation loop for FB-Lane validation evidence | `.github/workflows/fb-lane-readiness.yml`, `tools/fb-lane.validate.cjs`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-013.md` | `codex/ci-readiness-loop`, `docs/handoffs/TASK-013.md` |
 | TASK-012 | Done | FB-Product | Coordination | Clarify stable OKR alignment so OKRs anchor the loop instead of multiplying during execution | `AGENTS.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/loop-engineering.md`, `docs/handoffs/TASK-012.md`, `templates/*.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/**`, `skills/**/*.md`, `agents/**`, `.claude/agents/**` | `codex/stable-okr-alignment`, `docs/handoffs/TASK-012.md` |
 | TASK-011 | Done | FB-Product | Coordination | Add BFM return-loop closeout checks | `AGENTS.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/loop-engineering.md`, `docs/setup.md`, `docs/handoffs/TASK-011.md`, `templates/*.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/**`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `agents/**`, `.claude/agents/**`, `platforms/*/README.md` | [PR #25](https://github.com/friedbeef1/fb-lane-coordination/pull/25), `docs/handoffs/TASK-011.md` |
 | TASK-Q-5624 | Done | FB-Product | Quick-Fix | Document plugin upgrade process and changelog | (None) | [PR #20](https://github.com/friedbeef1/fb-lane-coordination/pull/20) |
@@ -34,7 +34,7 @@
 ---
 
 ### TASK-013 - Add FB-Lane CI readiness automation loop
-*   **Status**: In Progress
+*   **Status**: Done
 *   **Owner / Thread**: FB-Product
 *   **Area**: CI
 *   **Scope**: Add a GitHub Actions CI readiness loop that runs the repo's FB-Lane validation evidence on pull requests and pushes to `main`.
@@ -57,15 +57,22 @@
     *   **Staging URL**: (None)
     *   **Design Specs**: (None)
 *   **QA Checklist**:
-    *   [ ] Local CI runner passes.
-    *   [ ] CI runner syntax check passes.
-    *   [ ] Repo doctor passes.
-    *   [ ] Git diff whitespace check passes.
-    *   [ ] Workflow has no secrets requirement.
+    *   [x] Local CI runner passes.
+    *   [x] CI runner syntax check passes.
+    *   [x] Repo doctor passes.
+    *   [x] Git diff whitespace check passes.
+    *   [x] Workflow has no secrets requirement.
 *   **Modified Files**:
-    *   Pending implementation.
+    *   `.github/workflows/fb-lane-readiness.yml`
+    *   `tools/fb-lane.validate.cjs`
+    *   `README.md`
+    *   `FAQ.md`
+    *   `docs/loop-engineering.md`
+    *   `CHANGELOG.md`
+    *   `docs/handoffs/TASK-013.md`
+    *   `PROJECT_BOARD.md`
 *   **Latest Update**:
-    *   *2026-06-27*: Product claimed the CI readiness automation loop and locked workflow, runner, docs, changelog, board, and handoff files.
+    *   *2026-06-27*: Implemented the CI readiness automation loop. `node tools/fb-lane.validate.cjs`, runner syntax, repo doctor, workflow sanity, and whitespace checks passed.
 
 
 ### TASK-012 - Clarify stable OKR alignment in FB-Lane
