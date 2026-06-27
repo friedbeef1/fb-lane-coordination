@@ -1,5 +1,8 @@
 # FB-Lane on Antigravity
 
+This page is the tactical Antigravity setup and usage guide. For the Product
+Lead operating model, read [Loop Engineering](../../docs/loop-engineering.md).
+
 Antigravity is a highly agentic SDK with native support for multi-agent systems, background subagent executions, task scheduling, and inter-agent messaging. This directory contains instructions and templates to leverage Antigravity's tools to automate the FB-Lane coordination model. Done right, the payoff is that you spin up all four lanes at once and keep feeding them goals, with the board making sure they never overwrite each other.
 
 ## ⚠️ The Pain Points & Elegant Fixes in Antigravity

@@ -2,6 +2,9 @@
 
 ## 0.1.2+codex.20260627174151 - 2026-06-27
 
+- Reframed the public GitHub docs around Loop Engineering for Product Leads:
+  concise README thesis, `docs/loop-engineering.md` deep dive, shorter FAQ, and
+  tactical setup/platform pages.
 - Added the BFM Goal Alignment Session with approved OKRs on `PROJECT_BOARD.md`
   for non-quick/non-trivial BFM runs: `Objective`, `Key Results`, `Definition
   of Done`, `Gate / Review Point`, `Approval`, and `Justification`.

@@ -1,14 +1,15 @@
 # FB-Lane Coordination for Codex
 
-This Codex plugin packages the FB-Lane coordination workflow:
+This Codex plugin packages FB-Lane's Loop Engineering workflow:
 
 - skills for BFM, Product, Tech, Design, Business, and overall lane coordination
 - an `fb-lane` MCP server backed by `tools/fb-lane.cjs`
 - a repo marketplace entry at `.agents/plugins/marketplace.json`
 
-Codex already provides the concurrency. FB-Lane provides the shared state and guardrails:
-`PROJECT_BOARD.md`, file claims, `.codex/current_task.md`, handoff docs, and Product/Captain
-integration gates.
+Codex already provides the concurrency. FB-Lane provides the Product Lead loop
+around it: approved goals, lane execution, evidence return, BFM reconciliation,
+and clean closeout. The full operating model lives in
+[`docs/loop-engineering.md`](../../docs/loop-engineering.md).
 
 Treat FB-Lane as an optional coordination protocol, not as the thing that makes Codex parallel.
 Skip it for single-thread work, simple fixes, read-only questions, or independent work where Codex
@@ -57,7 +58,8 @@ $fb-tech check whether this auth flow is safe.
 $fb-business rewrite the onboarding copy.
 ```
 
-For depth, read the main `README.md`, `FAQ.md`, and `platforms/codex/README.md`.
+For depth, read the main `README.md`, `FAQ.md`, `docs/loop-engineering.md`, and
+`platforms/codex/README.md`.
 
 ## Typical Prompt
 
@@ -74,32 +76,8 @@ Read the prepared handoff markdowns for the active task, gather the Product, Tec
 Business, and lane-coordination view, then sequence and execute to completion.
 ```
 
-For non-trivial BFM work, Product records approved OKRs in a `Goal Alignment Session` block on
-`PROJECT_BOARD.md`: `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`,
-`Approval: pending|approved`, and `Justification`. BFM blocks before execution if approval is
-missing, OKRs are unclear, or a handoff is blocked by OKR ambiguity. If a handoff conflicts with
-approved OKRs, BFM proposes aligned approaches, scope, or sequence and recommends one; it does not
-edit approved OKRs.
-
-BFM closes only after every handoff is marked `implemented`, `already done`, `blocked`,
-`out of scope`, or `explicitly deferred`, and board/source/docs/tests agree or the gap is named.
-
-```mermaid
-flowchart TD
-    A["Read intent and handoffs"] --> B["Return to PROJECT_BOARD.md"]
-    B --> C["Reconcile repo truth<br/>source, docs, tests, locks"]
-    C --> D["Prioritize and route lane work"]
-    D --> E["Execute next slice"]
-    E --> F["Verify smallest real gate"]
-    F --> G{"Board, source, docs, tests agree?"}
-    G -- "No" --> H["Fix gap or mark<br/>blocked, out of scope, deferred"]
-    H --> B
-    G -- "Yes" --> I["Update board, handoffs, closeout"]
-    I --> J{"Clean git state and gates explicit?"}
-    J -- "No" --> H
-    J -- "Yes" --> K["Close BFM"]
-    K -. "next handoff batch" .-> A
-```
+For non-trivial BFM work, use the Goal Alignment Session and return-loop rules
+described in [`docs/loop-engineering.md`](../../docs/loop-engineering.md).
 
 ## Quick Edits
 

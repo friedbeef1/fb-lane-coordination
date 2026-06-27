@@ -1,5 +1,8 @@
 # FB-Lane on Claude Code
 
+This page is the tactical Claude Code setup and usage guide. For the Product
+Lead operating model, read [Loop Engineering](../../docs/loop-engineering.md).
+
 > **Why it matters:** keep handing Claude Code new goals — independent ones run in parallel worktrees while the shared board stops any two from touching the same files.
 
 Claude Code (CLI, web, and the desktop / IDE extensions) is supported natively. Unlike Antigravity

@@ -30,6 +30,9 @@ Every handoff/accounting disagreement must now be marked:
 - Updated the Codex plugin metadata and default prompts so installing the plugin exposes the BFM return-loop behavior directly.
 - Renamed the canonical Goal Alignment evidence field to `Definition of Done` across docs, skills, templates, generated prompts, packaged plugin copies, and CLI output.
 - Implemented Goal Alignment Session OKRs with approved per-run board fields, BFM blocking rules, `OKR Fit` handoffs, and warning-only doctor checks for missing/unapproved non-quick OKRs.
+- Rewrote the public GitHub docs around Loop Engineering as the Product Lead operating model.
+- Added `docs/loop-engineering.md` as the deep-dive operating guide for Goal Alignment Sessions, OKRs, Definition of Done, lane handoffs, BFM return checks, `doctor`, and closeout statuses.
+- Shortened `FAQ.md` around the main objections and kept setup/platform/plugin pages tactical with links back to the loop model.
 
 ## Verification Evidence
 
@@ -42,6 +45,9 @@ Every handoff/accounting disagreement must now be marked:
 - Temporary doctor fixture confirmed missing non-quick Goal Alignment Session/OKR Fit/board OKRs warn, approved OKRs do not warn, and `TASK-Q-*` remains exempt.
 - `git diff --check`
 - `node tools/fb-lane.cjs doctor`
+- Markdown link check for rewritten docs
+- Stale primary-positioning wording scan
+- Install/bootstrap command retention scan for setup and platform docs
 
 ## Remaining Gates
 
@@ -52,4 +58,4 @@ Every handoff/accounting disagreement must now be marked:
 
 lane-verification-passed; pending Product merge.
 
-Closeout note - TASK-011: implemented. Delivered: BFM return-loop closeout checks, Goal Alignment Session OKRs, `OKR Fit` handoffs, plugin metadata/default prompts, and warning-only doctor OKR checks across skills, docs, templates, generated prompts, and packaged plugin files. Evidence: CLI syntax, manifest/agent JSON parse, doctor OKR fixture, repo doctor setup/OKR checks, CLI parity, whitespace checks, and PR #25. Remaining: Product merge and plugin reinstall/refresh after merge. Handoff: docs/handoffs/TASK-011.md.
+Closeout note - TASK-011: implemented. Delivered: BFM return-loop closeout checks, Goal Alignment Session OKRs, `OKR Fit` handoffs, warning-only doctor OKR checks, and a public GitHub docs rewrite centered on Loop Engineering for Product Leads. Evidence: CLI syntax, manifest/agent JSON parse, doctor OKR fixture, repo doctor setup/OKR checks, CLI parity, Markdown link check, stale-positioning scan, install-command retention scan, whitespace checks, and PR #25. Remaining: Product merge and plugin reinstall/refresh after merge. Handoff: docs/handoffs/TASK-011.md.
