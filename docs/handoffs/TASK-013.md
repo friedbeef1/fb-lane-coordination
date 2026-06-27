@@ -17,6 +17,7 @@ Evidence Against Product OKR: No blocking evidence identified.
 
 - Added `tools/fb-lane.validate.cjs` as the shared local/CI readiness runner.
 - Added `.github/workflows/fb-lane-readiness.yml` for pull requests and pushes to `main`.
+- Tracked `.codex/rules.md` so CI doctor sees the same Codex rules file as local validation.
 - Documented that FB-Lane is not CI/CD, but now includes a CI readiness automation loop that feeds Loop Engineering closeout evidence.
 - Updated the changelog and project board for the CI readiness workstream.
 
