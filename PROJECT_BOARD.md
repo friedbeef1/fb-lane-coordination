@@ -55,17 +55,31 @@
     *   **Locked Files**: `codex-lane-demo/renders/*.mp4`, `platforms/*/how-to-interact-demo/renders/*.mp4`, `.gitignore`, `README.md`, `CHANGELOG.md`, `docs/maintenance.md`, `codex-lane-demo/README.md`, `platforms/claude-code/how-to-interact-demo/README.md`, `platforms/antigravity/how-to-interact-demo/README.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-014.md`
 *   **Links & Deliverables**:
     *   **Git Branch / PR**: `codex/ponytail-cleanup-fb-lane`
-    *   **GitHub Release Assets**: (pending)
+    *   **GitHub Release Assets**:
+        *   [codex-lane-demo.mp4](https://github.com/friedbeef1/fb-lane-coordination/releases/download/demo-assets-2026-06-27/codex-lane-demo.mp4)
+        *   [claude-code-how-to-interact.mp4](https://github.com/friedbeef1/fb-lane-coordination/releases/download/demo-assets-2026-06-27/claude-code-how-to-interact.mp4)
+        *   [antigravity-how-to-interact.mp4](https://github.com/friedbeef1/fb-lane-coordination/releases/download/demo-assets-2026-06-27/antigravity-how-to-interact.mp4)
 *   **QA Checklist**:
-    *   [ ] Demo release asset links resolve.
-    *   [ ] No tracked MP4 render outputs remain.
-    *   [ ] CI readiness validator passes.
-    *   [ ] Repo doctor passes.
-    *   [ ] Git diff whitespace check passes.
+    *   [x] Demo release asset links resolve.
+    *   [x] No tracked MP4 render outputs remain.
+    *   [ ] CI readiness validator passes on a clean worktree.
+    *   [ ] Repo doctor passes on a clean worktree.
+    *   [x] Git diff whitespace check passes.
 *   **Modified Files**:
-    *   (pending)
+    *   `codex-lane-demo/README.md`
+    *   `platforms/claude-code/how-to-interact-demo/README.md`
+    *   `platforms/antigravity/how-to-interact-demo/README.md`
+    *   `codex-lane-demo/renders/codex-lane-demo.mp4`
+    *   `platforms/claude-code/how-to-interact-demo/renders/claude-code-how-to-interact.mp4`
+    *   `platforms/antigravity/how-to-interact-demo/renders/antigravity-how-to-interact.mp4`
+    *   `.gitignore`
+    *   `docs/maintenance.md`
+    *   `README.md`
+    *   `CHANGELOG.md`
+    *   `PROJECT_BOARD.md`
+    *   `docs/handoffs/TASK-014.md`
 *   **Latest Update**:
-    *   *2026-06-27*: Product claimed the Ponytail cleanup pass and scoped it to repo weight plus maintenance guidance only.
+    *   *2026-06-27*: Demo MP4 outputs now live in GitHub release assets and demo READMEs link them directly. Tracked render MP4 files were removed, render folders are ignored, and maintenance parity guidance was added. Release asset checks and `git diff --check` passed; clean-worktree validation remains pending.
 
 
 ### TASK-013 - Add FB-Lane CI readiness automation loop

@@ -4,7 +4,7 @@ This HyperFrames composition explains the Codex value of FB-Lane: start from a P
 
 ## Output
 
-- Final MP4: [`renders/codex-lane-demo.mp4`](renders/codex-lane-demo.mp4)
+- Final MP4: [GitHub release asset](https://github.com/friedbeef1/fb-lane-coordination/releases/download/demo-assets-2026-06-27/codex-lane-demo.mp4)
 - Source composition: [`index.html`](index.html)
 - Expanded prompt: [`.hyperframes/expanded-prompt.md`](.hyperframes/expanded-prompt.md)
 

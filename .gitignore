@@ -30,3 +30,11 @@ jspm_packages/
 !.codex/rules.md
 .gemini/
 scratch/
+
+# Demo renders (video outputs and contact sheets)
+codex-lane-demo/renders/*.mp4
+codex-lane-demo/renders/*contact*
+platforms/claude-code/how-to-interact-demo/renders/*.mp4
+platforms/claude-code/how-to-interact-demo/renders/*contact*
+platforms/antigravity/how-to-interact-demo/renders/*.mp4
+platforms/antigravity/how-to-interact-demo/renders/*contact*

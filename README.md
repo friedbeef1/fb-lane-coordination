@@ -8,7 +8,7 @@ Product Lead to approve the goal, let specialist lanes execute, and force the
 work back through evidence before anything is called done.
 
 [Loop Engineering deep dive](docs/loop-engineering.md) | [FAQ](FAQ.md) |
-[Setup](docs/setup.md) | [Changelog](CHANGELOG.md)
+[Setup](docs/setup.md) | [Maintenance](docs/maintenance.md) | [Changelog](CHANGELOG.md)
 
 ## The Thesis
 
