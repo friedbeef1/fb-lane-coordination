@@ -10,7 +10,7 @@
 ## Goal Alignment Session
 
 Lane OKR Fit: aligned
-Mini-loop Evidence: The workflow and local validator run the same FB-Lane readiness checks, giving Product/BFM a repeatable automation signal before merge decisions.
+Mini-loop Evidence: The workflow and local validator run the same FB-Lane readiness checks, giving Product/BFM a repeatable automation signal before merge decisions. CI passing is required before merge once `main` branch protection is enabled, creating automated merge safety with manual release control; staging, live deploy, plugin release, and publish decisions remain manual Product decisions.
 Evidence Against Product OKR: No blocking evidence identified.
 
 ## What Changed

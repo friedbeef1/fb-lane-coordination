@@ -5,7 +5,8 @@
 - CI readiness: added a GitHub Actions automation loop for pull requests and
   pushes to `main`, plus a local `tools/fb-lane.validate.cjs` runner so agents
   and CI use the same FB-Lane validation evidence. This is CI readiness only;
-  CD/publish automation remains intentionally deferred.
+  CI passing is required before merge once `main` branch protection is enabled,
+  and CD/publish automation remains intentionally deferred.
 - Loop Engineering: clarified OKRs as stable Product/workstream and lane
   alignment anchors, not per-task planning churn. Mini-loops now return
   `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`

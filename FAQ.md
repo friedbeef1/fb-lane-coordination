@@ -40,8 +40,10 @@ No. FB-Lane is a coordination loop, not a CI/CD system. It now has a CI
 readiness automation loop: run `node tools/fb-lane.validate.cjs` locally, and
 use `.github/workflows/fb-lane-readiness.yml` in GitHub Actions for the same
 readiness signal. Loop Engineering feeds that evidence into Product/BFM
-closeout. CD is intentionally deferred until there is a real publish or deploy
-target.
+closeout. Once `main` branch protection is enabled, CI passing is required
+before merge. This is automated merge safety with manual release control; staging,
+live deploy, plugin release, and publish decisions remain manual Product
+decisions.
 
 ## When should I skip FB-Lane?
 
