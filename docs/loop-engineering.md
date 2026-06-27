@@ -18,6 +18,7 @@ The loop exists to prevent these failures:
 - a handoff is written but never wired into source
 - tests pass while copy, visual QA, or release gates are still pending
 - Product marks work complete without reconciling every handoff
+- normal workstream chat turns into unsequenced source edits
 - chat context disappears and the next thread repeats or contradicts the work
 
 The core rule:
@@ -35,8 +36,8 @@ flowchart TD
     B --> C["Run Goal Alignment Session"]
     C --> D{"OKRs approved?"}
     D -- "No" --> C
-    D -- "Yes" --> E["Sequence lane execution"]
-    E --> F["Execute next slice"]
+    D -- "Yes" --> E["Sequence approved markdown plans"]
+    E --> F["BFM executes next slice"]
     F --> G["Verify evidence"]
     G --> H["Return to handoffs, source, docs, tests, and board"]
     H --> I{"Everything agrees?"}
@@ -91,6 +92,23 @@ Rules:
 - If a new or changed OKR seems necessary, Product/BFM explains why in plain
   language and stops for explicit approval before applying it.
 
+## Plan-Only Workstreams
+
+Product, Tech, Design, and Business workstream threads are read-only planning
+lanes by default. They may ask questions, investigate, critique, and write
+markdown plans or handoffs. They must not edit application/source code, create
+implementation branches, commit, submit, merge, deploy, or change provider state
+from ordinary workstream chat.
+
+Product may edit coordination markdown: `PROJECT_BOARD.md`, plans, handoffs,
+OKRs, Definition of Done, sequencing notes, and closeout notes. Product must not
+edit application/source code directly.
+
+Execution begins only when Product launches **BFM (Build Flow Manager)**. During
+that run, BFM reads the approved plans, sequences work, claims files, dispatches
+implementation workers, verifies evidence, and returns to board/docs/source/git
+state before closeout.
+
 Good objective:
 
 ```md
@@ -130,10 +148,10 @@ wording scans, or Product approval.
 Lanes do not own the Product/workstream OKR. Product/BFM owns it. Lanes own
 evidence against their lane OKR and the Product/workstream OKR.
 
-Mini-loops are the small execution cycles inside a lane:
+Mini-loops are the small evidence cycles inside a lane:
 
 ```text
-lane OKR -> task slice -> verify -> return evidence -> update handoff
+lane OKR -> plan/task slice -> verify assumptions -> return evidence -> update handoff
 ```
 
 They should make progress clearer, not add more goals.
@@ -150,7 +168,7 @@ Evidence Against Product OKR: <evidence that weakens or blocks the approved Prod
 
 What each value means:
 
-- `aligned`: the lane can execute against the approved lane OKR.
+- `aligned`: the lane plan fits the approved lane OKR.
 - `suggest approach change`: the OKR tree is valid, but the lane recommends a
   different path to satisfy it.
 - `blocked by OKR ambiguity`: the lane cannot safely proceed until Product or
@@ -206,12 +224,10 @@ turning every mismatch into a hard block.
 
 ## CI Readiness
 
-FB-Lane is not CI/CD. Its CI readiness loop turns validation evidence into
-Product/BFM closeout input: run `node tools/fb-lane.validate.cjs` locally, then
-compare the GitHub Actions signal from `.github/workflows/fb-lane-readiness.yml`.
-Once `main` branch protection is enabled, CI passing is required before merge.
-This creates automated merge safety with manual release control: staging, live
-deploy, plugin release, and publish decisions remain manual Product decisions.
+FB-Lane is not CI/CD. Its CI readiness loop gives Product/BFM closeout evidence:
+local validation plus the GitHub Actions readiness signal. CI can be required
+before merge while staging, live deploy, plugin release, and publish decisions
+remain manual.
 
 ## Closeout Standard
 

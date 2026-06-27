@@ -72,6 +72,9 @@ from the refreshed plugin cache.
 
 ## Basic CLI Loop
 
+Run `claim` only after Product launches BFM execution. Ordinary workstream
+threads should write markdown plans or handoffs first.
+
 ```bash
 node tools/fb-lane.cjs status
 node tools/fb-lane.cjs claim TASK-001 Tech "src/api.ts"
@@ -79,14 +82,17 @@ node tools/fb-lane.cjs submit TASK-001
 node tools/fb-lane.cjs merge TASK-001
 ```
 
-For concurrent code-writing lanes, prefer worktrees:
+For concurrent BFM execution workers, prefer worktrees:
 
 ```bash
 node tools/fb-lane.cjs claim TASK-001 Tech "src/api.ts" --worktree
 ```
 
-For tiny changes:
+For a tiny BFM execution slice:
 
 ```bash
 node tools/fb-lane.cjs quick Tech "src/utils.ts" "Fix db indexing"
 ```
+
+Quick tasks skip the OKR approval gate; they do not bypass the BFM source-change
+boundary.

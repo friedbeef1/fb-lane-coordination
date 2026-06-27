@@ -20,12 +20,13 @@ Before executing any file modifications or running setup scripts:
 *   **FB-Tech**: Only modify backend code, API endpoints, serverless functions, database schemas, and migration files. Do not touch stylesheets, UI layouts, or page style classes.
 *   **FB-Design**: Only modify styling files (CSS), components layout geometry, design tokens, and static UI assets. Do not modify database schemas, API routes, or backend functions.
 *   **FB-Business**: Read-only access. You may draft text recommendations in markdown files but cannot modify application code or run deployment commands.
-*   **FB-Product**: Direction and integration owner. Responsible for task scoping, sequencing, board goal updates, merge gates, staging/live decisions, and releasing resource locks. Product does not claim or execute Tech/Design/Business source changes for the lanes.
+*   **FB-Product**: Direction and integration owner. Responsible for task scoping, sequencing, board goal updates, merge gates, staging/live decisions, and releasing resource locks. Product is read-only on application/source code and may write coordination markdown only.
+*   **All Workstreams**: Plan-only by default. You may ask questions, inspect context, and write markdown plans/handoffs. Do not edit source, branch, commit, submit, merge, deploy, or change provider state from ordinary workstream chat. Source changes happen only inside a Product-launched BFM execution run.
 
 ## 3. Git Commits & Board Updates
 *   **Isolate Commits**: Commit documentation updates (e.g. `PROJECT_BOARD.md` or markdown files) separately from codebase logic and styling changes.
-*   **Self-Update the Board**: The owning lane updates `PROJECT_BOARD.md` status to `In Progress` when starting a task, **declaring its Affected Screens and Locked Files** to establish the resource lock. Update status to `Staging QA` when pushing the final branch, documenting the exact files modified and QA results.
-*   **Runner Hangs**: If tests, builds, browser checks, `git add`, or `.git/*.lock` files stall Product, Product records `pending-gate` or `blocked` and returns execution to the owning lane instead of continuing the implementation loop.
+*   **BFM Updates the Board**: Workstreams propose board/handoff changes in markdown. During approved execution, the BFM execution worker updates `PROJECT_BOARD.md` status to `In Progress`, declares Affected Screens and Locked Files, and later records `Staging QA`, modified files, and QA results.
+*   **Runner Hangs**: If tests, builds, browser checks, `git add`, or `.git/*.lock` files stall Product/BFM, record `pending-gate` or `blocked` with exact evidence instead of patching from ordinary workstream chat.
 *   **Branch Naming**: Prefix your feature branches with your lane:
     - Tech: `tech/[task-id]-[feature]`
     - Design: `design/[task-id]-[style-change]`

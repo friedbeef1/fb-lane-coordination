@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-015 | Staging QA | FB-Product | Coordination | Make workstream threads read-only planning lanes and gate source changes through Product-launched BFM execution | `AGENTS.md`, `CLAUDE.md`, `.codex/rules.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `templates/*.md`, `skills/**/*.md`, `agents/**`, `.claude/agents/**`, `plugins/fb-lane-coordination/**`, `tools/fb-lane.cjs` | `codex/workstream-plan-only-bfm` |
 | TASK-014 | Done | FB-Product | Cleanup | Ponytail cleanup: move rendered demo videos out of git and clarify canonical/generated maintenance surfaces | `codex-lane-demo/renders/*.mp4`, `platforms/*/how-to-interact-demo/renders/*.mp4`, `.gitignore`, `README.md`, `CHANGELOG.md`, `docs/maintenance.md`, `codex-lane-demo/README.md`, `platforms/claude-code/how-to-interact-demo/README.md`, `platforms/antigravity/how-to-interact-demo/README.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-014.md` | [PR #28](https://github.com/friedbeef1/fb-lane-coordination/pull/28) |
 | TASK-013 | Done | FB-Product | CI | Add CI readiness automation loop for FB-Lane validation evidence | `.github/workflows/fb-lane-readiness.yml`, `tools/fb-lane.validate.cjs`, `.gitignore`, `.codex/rules.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-013.md` | `codex/ci-readiness-loop`, `docs/handoffs/TASK-013.md` |
 | TASK-012 | Done | FB-Product | Coordination | Clarify stable OKR alignment so OKRs anchor the loop instead of multiplying during execution | `AGENTS.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/loop-engineering.md`, `docs/handoffs/TASK-012.md`, `templates/*.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/**`, `skills/**/*.md`, `agents/**`, `.claude/agents/**` | `codex/stable-okr-alignment`, `docs/handoffs/TASK-012.md` |
@@ -33,6 +34,45 @@
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
 
 ---
+
+### TASK-015 - Workstream plan-only BFM gate
+*   **Status**: Staging QA
+*   **Owner / Thread**: FB-Product
+*   **Area**: Coordination
+*   **Scope**: Make Product, Tech, Design, and Business workstream threads read-only planning/conversation lanes by default, with all source-code changes happening only inside a Product-launched BFM execution run.
+*   **Out of Scope**: Changing CLI command behavior, removing lane ownership, changing CI/CD, or removing BFM return checks.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce accidental source edits and lane drift by making markdown plans the normal workstream output and BFM the deliberate execution gate.
+    *   **Key Results**:
+        *   Workstream docs, skills, templates, and generated prompts say normal lanes may investigate, ask questions, and write markdown plans/handoffs only.
+        *   Product is source-read-only but may edit board, plan, handoff, OKR, Definition of Done, sequencing, and closeout markdown.
+        *   Source changes, branches, commits, verification, PRs, merges, and deployments are described as BFM-run execution activities.
+    *   **Definition of Done**: Durable docs, templates, skills, generated agent JSON, and packaged plugin copies carry the same plan-only workstream rule, and validation/parity checks pass or are explicitly reported as dirty-worktree expected.
+    *   **Gate / Review Point**: User reviews staged diff before commit/PR.
+    *   **Approval**: approved
+    *   **Justification**: The user approved replacing direct workstream execution with markdown planning plus Product-launched BFM execution.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Documentation and plugin instructions only
+    *   **Locked Files**: `AGENTS.md`, `CLAUDE.md`, `.codex/rules.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `templates/*.md`, `skills/**/*.md`, `agents/**`, `.claude/agents/**`, `plugins/fb-lane-coordination/**`, `tools/fb-lane.cjs`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/workstream-plan-only-bfm`
+*   **QA Checklist**:
+    *   [x] Wording scan confirms plan-only workstream rule.
+    *   [x] Root/package CLI parity passes.
+    *   [x] Generated agent JSON parses.
+    *   [x] Skill metadata validation passes.
+    *   [x] Repo doctor status is reviewed.
+    *   [x] Git diff whitespace check passes.
+*   **Modified Files**:
+    *   Core rules/docs: `AGENTS.md`, `CLAUDE.md`, `.codex/rules.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `docs/loop-engineering.md`, `docs/setup.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-015.md`
+    *   Platform docs/templates: `platforms/codex/README.md`, `platforms/codex/workflow-rules.md`, `platforms/claude-code/README.md`, `platforms/antigravity/README.md`, `templates/AGENTS.md`, `templates/CLAUDE.md`
+    *   Skills/agents: `skills/**`, `agents/**`, `.claude/agents/**`, `plugins/fb-lane-coordination/skills/**`, `plugins/fb-lane-coordination/agents/**`
+    *   Packaged plugin/CLI: `.claude-plugin/**`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/plugin.json`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`
+*   **Latest Update**:
+    *   *2026-06-27*: Product claimed the plan-only workstream / BFM execution gate wording update for staging.
+    *   *2026-06-27*: Implemented plan-only workstream and Product-launched BFM source-change gate across docs, skills, templates, generated agents, packaged plugin copies, and platform docs. Verification passed for CLI syntax, root/package parity, generated JSON parity, JSON parsing, skill metadata, regression tests, stale wording scan, and `git diff --check`; `doctor` only reports the expected uncommitted local patch before staging.
+    *   *2026-06-27*: Ran Ponytail documentation clarity pass: shortened Codex, Claude Code, and Antigravity platform docs; removed stale direct-lane execution tutorials; clarified quick tasks as BFM execution slices, not a source-change bypass.
+
 
 ### TASK-014 - Ponytail cleanup pass
 *   **Status**: Done
@@ -539,7 +579,7 @@
     *   *2026-06-25*: Addressed final review gaps in the manual board template and quickstart entrypoint.
     *   *2026-06-25*: Backfilled legacy TASK-002/TASK-003 handoffs and completed setup skill example alignment so `doctor` can stay warning-clean.
     *   *2026-06-25*: Tightened generated prompts so Product/BFM owns board goal updates and worker lanes report goal feedback only in handoffs.
-    *   *2026-06-26*: Tightened Product/Lane execution boundaries: Product gives direction, sets goals, assigns lanes, reviews handoffs, and integrates; individual Tech/Design/Business lanes claim and execute their own task/files. Added advisory doctor checks for stale Git lock files and long-running local lane git/test/build processes so Product can record a blocked/pending gate instead of looping on execution.
+    *   *2026-06-26*: Tightened Product/Lane execution boundaries for the then-current model; this direct lane execution rule is superseded by TASK-015, where normal workstream threads become plan-only and source changes move behind Product-launched BFM execution. Added advisory doctor checks for stale Git lock files and long-running local lane git/test/build processes so Product can record a blocked/pending gate instead of looping on execution.
     *   *2026-06-26*: Follow-up Product/Lane boundary checks passed: skill/plugin/CLI validation, source/package CLI parity, JSON manifest parse, `git diff --check`, stale-lock doctor fixture, and repo doctor process/lock check.
     *   *2026-06-26*: PR #19 merged to `main`, local marketplace source refreshed, and `codex plugin add fb-lane-coordination@fb-lane` reinstalled active cache version `0.1.2+codex.20260625082239`.
 

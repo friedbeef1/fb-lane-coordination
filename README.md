@@ -4,8 +4,9 @@ AI agents execute fast. Product work still fails when they do not return to the
 goal, the evidence, the board, and the real repo state.
 
 FB-Lane is a lightweight implementation of **Loop Engineering**: a way for a
-Product Lead to approve the goal, let specialist lanes execute, and force the
-work back through evidence before anything is called done.
+Product Lead to approve the goal, let specialist lanes plan, launch BFM for
+execution, and force the work back through evidence before anything is called
+done.
 
 [Loop Engineering deep dive](docs/loop-engineering.md) | [FAQ](FAQ.md) |
 [Setup](docs/setup.md) | [Maintenance](docs/maintenance.md) | [Changelog](CHANGELOG.md)
@@ -26,21 +27,17 @@ Without a loop, parallel AI work drifts:
 Loop Engineering keeps five things aligned:
 
 1. the approved goal
-2. the work that lanes execute
+2. the work that BFM executes from approved lane plans
 3. the evidence they return
 4. the board state Product uses to sequence
 5. the repo truth in source, docs, tests, and git
 
 FB-Lane gives that loop a small set of files and commands: `PROJECT_BOARD.md`,
-lane handoffs, file claims, `doctor`, and BFM/Product closeout checks.
+lane plans/handoffs, file claims during BFM execution, `doctor`, and
+BFM/Product closeout checks.
 
-FB-Lane is not CI/CD. It now includes a CI readiness loop that runs local
-validation with `node tools/fb-lane.validate.cjs` and mirrors it in GitHub
-Actions at `.github/workflows/fb-lane-readiness.yml`; Loop Engineering feeds
-that evidence into Product/BFM closeout. Once `main` branch protection is
-enabled, CI passing is required before merge. This is automated merge safety
-with manual release control: staging, live deploy, plugin release, and publish
-decisions remain manual Product decisions.
+FB-Lane is not CI/CD. It includes CI readiness evidence for Product/BFM
+closeout: automated merge safety, manual release control.
 
 ## The Core Loop
 
@@ -49,9 +46,10 @@ flowchart TD
     A["Product captures intent"] --> B["Goal Alignment Session"]
     B --> C{"Product/workstream OKR approved?"}
     C -- "No" --> B
-    C -- "Yes" --> D["Lane execution"]
-    D --> E["Handoff evidence"]
-    E --> F["BFM return check"]
+    C -- "Yes" --> D["Workstream markdown plans"]
+    D --> E["Product launches BFM execution"]
+    E --> H0["Handoff evidence"]
+    H0 --> F["BFM return check"]
     F --> G{"Goal, work, evidence, board, repo agree?"}
     G -- "No" --> H["Fix gap or mark blocked, out of scope, or deferred"]
     H --> F
@@ -71,11 +69,28 @@ Alignment Session**:
 - The user explicitly approves or changes it
 - Product records the approved OKR in the board
 - Lane mini-loops return evidence against their lane OKR and the Product/workstream OKR
-- BFM executes only against that stable OKR tree
+- BFM executes approved markdown plans only against that stable OKR tree
 
 After approval, BFM changes approach, scope, or sequence to fit the OKRs. It does
 not dynamically create or rewrite OKRs during execution; any OKR change requires
 discussion and explicit user approval.
+
+## Plan-Only Workstreams
+
+Normal workstream threads are read-only planning lanes. Product, Tech, Design,
+and Business may ask questions, investigate, critique, and write markdown
+plans/handoffs. They must not edit application/source code, create implementation
+branches, commit, submit, merge, deploy, or change provider state from ordinary
+workstream chat.
+
+Product is source-read-only too. Product may edit coordination markdown:
+`PROJECT_BOARD.md`, plans, handoffs, OKRs, Definition of Done, sequencing notes,
+and closeout notes.
+
+Source changes happen only inside a Product-launched **BFM (Build Flow
+Manager)** execution run. BFM reads the approved plans, sequences work, claims
+files, dispatches implementation workers, verifies evidence, and returns to the
+board/docs/source/git state before closeout.
 
 ## Why Product Leads Care
 
@@ -103,9 +118,10 @@ or tests say otherwise.
 | Stable lane OKRs | Standing Tech, Design, Business, and Product quality anchors |
 | Role clarity | FB-Product, FB-Tech, FB-Design, and FB-Business lanes |
 | Collision control | File claims and optional worktrees |
-| Durable handoff | `docs/handoffs/<task-id>.md` |
+| Durable plan/handoff | `docs/handoffs/<task-id>.md` or project plan markdown |
 | Evidence return | `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` |
 | Health check | `node tools/fb-lane.cjs doctor` |
+| Execution gate | Product-launched BFM run |
 | Integration | BFM/Product reconciliation before sequencing or merge |
 | Closeout | Explicit status: implemented, already done, blocked, out of scope, or explicitly deferred |
 
@@ -113,10 +129,10 @@ or tests say otherwise.
 
 | Lane | Owns | Boundary |
 |---|---|---|
-| FB-Product / BFM | Goal approval, sequencing, tradeoffs, integration, staging/live decisions. | Gives direction and owns closeout; does not execute other lanes' source work by default. |
-| FB-Tech | App logic, APIs, schemas, auth, integrations, migrations, tests, reliability. | Does not own product copy or visual design decisions. |
-| FB-Design | UI, CSS, layout, icons, responsive behavior, visual QA. | Does not own backend logic, schemas, or auth. |
-| FB-Business | Positioning, onboarding copy, pricing, marketing text, docs. | Read-only on application code unless Product explicitly assigns implementation. |
+| FB-Product / BFM | Goal approval, sequencing, tradeoffs, integration, staging/live decisions. | Product is source-read-only; source changes start only through a Product-launched BFM run. |
+| FB-Tech | Technical investigation, risks, implementation plans, tests to run. | Plan-only in normal workstream chat; source edits only as a BFM execution worker. |
+| FB-Design | UI critique, layout plans, visual QA plans, asset guidance. | Plan-only in normal workstream chat; source edits only as a BFM execution worker. |
+| FB-Business | Positioning, onboarding copy, pricing, marketing text, docs. | Read-only on application/source code; records integration targets for BFM. |
 
 ## When To Use It
 
@@ -157,8 +173,8 @@ Run from a project root that has been bootstrapped with FB-Lane:
 |---|---|
 | `node tools/fb-lane.cjs status` | Show tasks, owners, and file claims. |
 | `node tools/fb-lane.cjs doctor` | Read-only loop health check for board, rules, locks, handoffs, and OKR approval. |
-| `node tools/fb-lane.cjs claim <id> <lane> [locks] [--worktree]` | Claim work and lock files. |
-| `node tools/fb-lane.cjs quick <lane> <locks> [desc]` | Create and claim a quick `TASK-Q-####` task. |
+| `node tools/fb-lane.cjs claim <id> <lane> [locks] [--worktree]` | BFM execution worker claims work and locks files. |
+| `node tools/fb-lane.cjs quick <lane> <locks> [desc]` | Create a tiny BFM execution task; skips OKR approval, not the source-change boundary. |
 | `node tools/fb-lane.cjs submit <id> [staging_url]` | Submit work for Product/Captain review. |
 | `node tools/fb-lane.cjs merge <id>` | Product/Captain merge path after review. |
 | `node tools/fb-lane.cjs bootstrap` | Manual setup path. See [docs/setup.md](docs/setup.md). |

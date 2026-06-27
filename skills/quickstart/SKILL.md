@@ -8,22 +8,22 @@ disable-model-invocation: true
 
 Give the user a concise orientation. Do **not** read files first — just explain this, then offer to start.
 
-**FB-Lane runs your work as four role-isolated lanes so concurrent AI threads never step on each other:**
+**FB-Lane organizes work as four role-isolated planning lanes plus a Product-launched BFM execution gate, so concurrent AI threads do not step on each other:**
 
 - **FB-Product** — the orchestrator (normally the main thread). Scopes tasks, reviews, and merges. Talk to it to drive everything.
 - **FB-Tech** — backend, APIs, schemas, migrations, tests.
 - **FB-Design** — CSS, layout, design tokens, visual QA.
 - **FB-Business** — copy, docs, positioning (read-only on code).
 
-**The loop:** describe a feature to FB-Product → it runs a Goal Alignment Session for non-trivial work, records approved Product/workstream OKRs and relevant stable lane OKRs on `PROJECT_BOARD.md`, splits the work, claims tasks and locks files, and delegates to the lanes → lanes report `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` in handoffs → FB-Product marks each handoff `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred` → you smoke-test → FB-Product merges in dependency order.
+**The loop:** describe a feature to FB-Product → it runs a Goal Alignment Session for non-trivial work, records approved Product/workstream OKRs and relevant stable lane OKRs on `PROJECT_BOARD.md`, splits the work into markdown plans/handoffs, and launches BFM when execution is approved → BFM claims tasks and locks files, dispatches implementation workers, and verifies evidence → lanes report `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` in handoffs → FB-Product marks each handoff `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred` → you smoke-test → FB-Product merges in dependency order.
 
 **Two ways to work:**
 1. **Hands-off** — just tell FB-Product what you want; approve the plan at the start and smoke-test at the end.
-2. **Hands-on** — talk to a lane directly, e.g. *"use the fb-design subagent to warm up the prep screen."* It claims and locks files itself before editing.
+2. **Hands-on planning** — talk to a lane directly, e.g. *"use the fb-design subagent to plan how to warm up the prep screen."* It answers questions and writes markdown plans; source edits wait for Product-launched BFM execution.
 
 **Handy commands:**
 - `status` — show the board (active tasks, owners, file locks) anytime.
-- `node tools/fb-lane.cjs claim <id> <lane> "[files]"` — claim a task and lock files. Add `--worktree` to run concurrent lanes on separate branches in isolated directories.
+- `node tools/fb-lane.cjs claim <id> <lane> "[files]"` — BFM execution worker claims a task and locks files. Add `--worktree` to run concurrent execution workers on separate branches in isolated directories.
 - `node tools/fb-lane.cjs submit <id>` → `merge <id>` — submit for QA, then (FB-Product) merge.
 
 Then ask: **"Want me to scope your first task now?"**
