@@ -2,7 +2,7 @@
   "mcpServers": {
     "fb-lane": {
       "command": "node",
-      "args": ["tools/fb-lane.cjs", "mcp"]
+      "args": ["${CLAUDE_PROJECT_DIR:-.}/tools/fb-lane.cjs", "mcp"]
     }
   }
 }

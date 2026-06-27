@@ -22,6 +22,7 @@ function resolveWorkspaceStart(options = {}) {
   const candidate =
     options.workspacePath ||
     process.env.FB_LANE_WORKSPACE ||
+    process.env.CLAUDE_PROJECT_DIR ||
     process.env.CODEX_WORKSPACE_ROOT ||
     process.env.CODEX_PROJECT_ROOT ||
     process.env.WORKSPACE_ROOT ||

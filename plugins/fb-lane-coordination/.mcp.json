@@ -2,8 +2,8 @@
   "mcpServers": {
     "fb-lane": {
       "command": "node",
-      "args": ["./tools/fb-lane.cjs", "mcp"],
-      "cwd": "."
+      "args": ["${CLAUDE_PLUGIN_ROOT}/tools/fb-lane.cjs", "mcp"],
+      "cwd": "${CLAUDE_PLUGIN_ROOT}"
     }
   }
 }
