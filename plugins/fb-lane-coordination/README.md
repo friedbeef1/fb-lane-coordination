@@ -74,6 +74,8 @@ Business, and lane-coordination view, then sequence and execute to completion.
 
 For non-trivial BFM work, use the Goal Alignment Session and return-loop rules
 described in [`docs/loop-engineering.md`](../../docs/loop-engineering.md).
+If the same loop failure repeats, add a small Markdown eval scorecard; do not
+install an eval framework by default.
 
 ## Quick Edits
 
