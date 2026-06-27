@@ -64,7 +64,7 @@ Key Results:
 - <measurable result>
 - <measurable result>
 Definition of Done: <what must be true before closeout>
-Gate / Review Point: <where James or Product reviews>
+Gate / Review Point: <where the user or Product reviews>
 Approval: pending | approved
 Justification: <why this OKR fits the request and repo truth>
 ```
@@ -133,11 +133,11 @@ What each value means:
 - `suggest approach change`: the OKR is valid, but the lane recommends a
   different path to satisfy it.
 - `blocked by OKR ambiguity`: the lane cannot safely proceed until Product or
-  James clarifies the goal.
+  the user clarifies the goal.
 
 ## BFM Return Loop
 
-When James says "run BFM" or "process all lane handoffs", BFM/Product reads all
+When the user says "run BFM" or "process all lane handoffs", BFM/Product reads all
 prepared handoffs, returns to the board, reconciles them against repo truth, and
 then sequences execution.
 

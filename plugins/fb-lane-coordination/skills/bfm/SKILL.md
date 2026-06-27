@@ -31,7 +31,7 @@ Use these skills before acting, in this order:
    - linked `docs/superpowers/plans/` and `docs/superpowers/specs/`
 5. If the target is ambiguous, read active `Ready`, `In Progress`, and `Staging QA` board items before choosing.
 6. For non-trivial work, read the canonical `Goal Alignment Session` block from `PROJECT_BOARD.md` first and treat its `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, approved `Approval`, and `Justification` as the source of truth.
-7. If the block is missing or pending, propose `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, and `Justification` to James, record `Approval: pending`, and stop until James explicitly approves.
+7. If the block is missing or pending, propose `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, and `Justification` to the user, record `Approval: pending`, and stop until the user explicitly approves.
 8. Block before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR.
 
 ## Five-Lane Review
@@ -65,7 +65,7 @@ Produce the next execution order before changing files:
 Proceed through the sequence without asking for repeated permission when authority is clear.
 
 - Product/BFM creates or scopes board items, sets direction, and assigns an owning lane.
-- Product/BFM blocks before execution if the board Goal Alignment Session is missing, has unclear OKRs, has `Approval: pending`, lacks James's explicit approval, or a handoff is blocked by OKR ambiguity.
+- Product/BFM blocks before execution if the board Goal Alignment Session is missing, has unclear OKRs, has `Approval: pending`, lacks the user's explicit approval, or a handoff is blocked by OKR ambiguity.
 - The owning lane claims its own task/files before durable writes and executes the work in that lane context.
 - Respect active locks; do not edit files owned by another active lane.
 - Use the owning lane for implementation: Tech for app logic/tests, Design for UI/visual QA, Business for copy/positioning, Product for sequencing/merge/release decisions.

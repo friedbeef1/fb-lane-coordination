@@ -50,7 +50,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 
 ### 2. The Board Loop & Resource Locking
 - `PROJECT_BOARD.md` in the project root is the source of truth.
-- **Claim & Lock**: Product scopes the item; before coding, the owning lane claims its own task/files in `PROJECT_BOARD.md`. For non-trivial tasks, Product drafts one Goal Alignment Session block (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending`, `Justification`), asks James to approve it, then marks `Approval: approved` before the task moves to `In Progress` with declared Affected Screens and Locked Files.
+- **Claim & Lock**: Product scopes the item; before coding, the owning lane claims its own task/files in `PROJECT_BOARD.md`. For non-trivial tasks, Product drafts one Goal Alignment Session block (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending`, `Justification`), asks the user to approve it, then marks `Approval: approved` before the task moves to `In Progress` with declared Affected Screens and Locked Files.
 - **Push & QA**: When complete, threads push feature branches (e.g. `tech/[task]` or `design/[task]`), update board status to `Staging QA`, and list modified files/QA checks.
 - **Handoff, Unlock & Clean**: Product reviews staging, reconciles `OKR Fit` from lane handoffs, proposes aligned alternatives when work conflicts with approved OKRs, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
 

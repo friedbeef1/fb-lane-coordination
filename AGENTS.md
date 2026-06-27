@@ -16,7 +16,7 @@ To prevent context window overload and git collisions, strictly adhere to your a
 ### 👑 FB-Product (Product Manager / User Value Optimizer)
 *   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
-*   **Workflow**: Reads user requests, runs a Goal Alignment Session for each non-trivial task, drafts OKRs in `PROJECT_BOARD.md` (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending`, `Justification`), asks James to approve them, marks `Approval: approved` only after explicit approval, sequences tasks against those OKRs and value-vs-effort mix, assigns execution to the owning lanes, reviews PRs, verifies staging, and merges branches.
+*   **Workflow**: Reads user requests, runs a Goal Alignment Session for each non-trivial task, drafts OKRs in `PROJECT_BOARD.md` (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending`, `Justification`), asks the user to approve them, marks `Approval: approved` only after explicit approval, sequences tasks against those OKRs and value-vs-effort mix, assigns execution to the owning lanes, reviews PRs, verifies staging, and merges branches.
 *   **Boundary**: Product gives direction and owns integration. Product does not claim or execute Tech/Design/Business source changes on their behalf; individual lanes claim and execute their own task/files.
 *   **Completion Audit Rule**: Reports delivered work, lane-specific verification, and unresolved gates as separate statuses for every lane. Product must not call any workstream "done" or "executed" unless the required evidence exists for that lane; otherwise mark the missing gate as pending or blocked.
 
@@ -58,7 +58,7 @@ Definition of Done Evidence: <lane evidence that proves, weakens, or blocks the 
 BFM blocks before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR. If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the OKR and recommends one; it must not edit approved OKRs.
 
 ### 🔁 BFM Return Loop
-When James says "run BFM" or "process all lane handoffs", Product/BFM must not close until every discovered handoff has one explicit status:
+When the user says "run BFM" or "process all lane handoffs", Product/BFM must not close until every discovered handoff has one explicit status:
 
 - `implemented`
 - `already done`
@@ -104,7 +104,7 @@ Internal coordination is automated by the agents, but ownership stays split: Pro
 
 All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate concurrent workstreams:
 1. **Drift Audit**: Before starting, run the drift checklist to verify workspace state.
-2. **Claim & Lock**: Product creates or scopes the item; the owning lane claims its own task/files before implementation. For non-trivial tasks, Product/BFM drafts or confirms one Goal Alignment Session block before implementation (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) and blocks until James explicitly approves it. Worker lanes flag missing or unclear OKRs in handoffs instead of rewriting the board. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
+2. **Claim & Lock**: Product creates or scopes the item; the owning lane claims its own task/files before implementation. For non-trivial tasks, Product/BFM drafts or confirms one Goal Alignment Session block before implementation (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) and blocks until the user explicitly approves it. Worker lanes flag missing or unclear OKRs in handoffs instead of rewriting the board. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
 3. **Commit**: Work in an isolated branch (`tech/...` or `design/...`). Do not touch files locked by other active threads.
 4. **QA**: Once complete, push your branch, set status to `Staging QA`, and document the modified files and QA verification results.
 5. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.

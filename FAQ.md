@@ -49,7 +49,7 @@ or release evidence matter.
 
 ## What does Product approve?
 
-For non-quick BFM runs, Product proposes and James approves the Goal Alignment
+For non-quick BFM runs, Product proposes and the user approves the Goal Alignment
 Session OKRs on `PROJECT_BOARD.md`:
 
 - `Objective`
