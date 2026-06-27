@@ -1,0 +1,46 @@
+---
+type: fb-lane-handoff-index
+status: active
+purpose: Read this before opening detailed handoffs.
+---
+
+# Handoff Index
+
+Use this file as the first read for handoff discovery. `PROJECT_BOARD.md` remains the source of truth for task status, ownership, sequencing, and file locks. Open a detailed handoff only when its task is active, linked from the board item being processed, or needed as evidence for Product/BFM closeout.
+
+## Active / Decision-Relevant
+
+| Task / Topic | Lane | Status | Fit | Detail |
+|---|---|---|---|---|
+| TASK-016 - Codex plugin handoff index | FB-Product | Done | Token-saving progressive disclosure | [TASK-016.md](TASK-016.md) |
+| CI readiness automation loop | FB-Product | Done | CI evidence model | [TASK-013.md](TASK-013.md) |
+| Ponytail cleanup pass | FB-Product | Done | Maintenance guidance | [TASK-014.md](TASK-014.md) |
+| Stable OKR alignment | FB-Product | Done | Loop Engineering model | [TASK-012.md](TASK-012.md) |
+
+## Historical Evidence
+
+Open these only when investigating the named area or reconciling old Product decisions.
+
+| Topic | Area | Detail |
+|---|---|---|
+| Plugin upgrade docs | Codex plugin | [TASK-Q-5624.md](TASK-Q-5624.md) |
+| BFM return-loop closeout | Coordination | [TASK-011.md](TASK-011.md) |
+| CI readiness automation loop | CI | [TASK-013.md](TASK-013.md) |
+| Stable OKR alignment | Coordination | [TASK-012.md](TASK-012.md) |
+| Maintenance cleanup | Cleanup | [TASK-014.md](TASK-014.md) |
+
+## Lightweight Handoff Metadata
+
+For new handoffs, add a short frontmatter block when useful:
+
+```md
+---
+type: fb-lane-handoff
+task: TASK-...
+lane: fb-product | fb-tech | fb-design | fb-business
+status: ready | implemented | blocked | deferred | done
+okr_fit: aligned | suggest approach change | blocked by OKR ambiguity
+---
+```
+
+Do not retrofit old handoffs unless Product/BFM is already touching them.

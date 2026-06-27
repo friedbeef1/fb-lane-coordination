@@ -11,6 +11,7 @@ Codex supplies the concurrency. FB-Lane supplies shared coordination:
 
 - `PROJECT_BOARD.md` is the source of truth for tasks, owners, locks, links, and QA state.
 - `.codex/current_task.md` records the active claimed task for a lane.
+- `docs/handoffs/index.md` is the first-read lookup table for handoff discovery.
 - `docs/handoffs/` carries lane plans and evidence back to Product/Captain.
 - The `fb-lane` MCP server or `node tools/fb-lane.cjs` commands perform status, claim, submit, and merge operations.
 
@@ -75,6 +76,10 @@ $fb-business rewrite the onboarding copy.
    ```
 8. Product/BFM reconciles those fields before sequencing execution or merge. If a handoff conflicts with approved OKRs, BFM proposes aligned alternatives for approach, scope, or sequence and recommends one; it does not dynamically create or edit OKRs during execution.
 9. Do not modify files locked by another active lane.
+
+## Handoff Lookup
+
+Use progressive disclosure. `PROJECT_BOARD.md` stays the source of truth for current status, ownership, sequencing, and file locks. Read `docs/handoffs/index.md` before opening detailed handoffs, then open only the files relevant to the active task unless Product/BFM is doing a full closeout audit.
 
 ## Direct Lane Prompt Convention
 

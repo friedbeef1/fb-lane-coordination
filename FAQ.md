@@ -109,12 +109,18 @@ node tools/fb-lane.cjs doctor
 ```
 
 It checks whether the repo's loop state looks healthy: board files, rules,
-handoff folder, active locks, git state, non-quick handoff `Lane OKR Fit`,
-`Mini-loop Evidence`, `Evidence Against Product OKR`, approved Goal Alignment
-Session OKRs, and handoffs that imply unapproved OKR changes.
+handoff folder, handoff index, active locks, git state, non-quick handoff
+`Lane OKR Fit`, `Mini-loop Evidence`, `Evidence Against Product OKR`, approved
+Goal Alignment Session OKRs, and handoffs that imply unapproved OKR changes.
 
 In v1 it warns. It does not change `submit` behavior and does not hard-block
 quick `TASK-Q-*` work.
+
+## Why is there a handoff index?
+
+To avoid token waste. `PROJECT_BOARD.md` stays the source of truth. The index is
+just a cheap lookup table so agents can find the one or two relevant handoffs
+without reading every historical closeout.
 
 ## Are the lanes mandatory?
 

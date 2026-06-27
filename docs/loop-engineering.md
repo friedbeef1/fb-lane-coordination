@@ -176,9 +176,18 @@ What each value means:
 
 ## BFM Return Loop
 
-When the user says "run BFM" or "process all lane handoffs", BFM/Product reads all
-prepared handoffs, returns to the board, reconciles them against repo truth, and
-then sequences execution.
+When the user says "run BFM" or "process all lane handoffs", BFM/Product reads
+the prepared handoffs for the target, returns to the board, reconciles them
+against repo truth, and then sequences execution.
+
+Use progressive disclosure:
+
+1. Read `PROJECT_BOARD.md` for current task state, ownership, sequencing, and locks.
+2. Read `docs/handoffs/index.md` to find the target handoffs.
+3. Open only the detailed handoffs relevant to the target, unless Product/BFM is doing a full closeout audit.
+
+The index is not a second board. It is a cheap lookup table so agents do not
+burn context reading every historical handoff.
 
 BFM must not close until every discovered handoff has one explicit status:
 
@@ -213,6 +222,7 @@ non-quick work has the expected loop state. It can warn about issues such as:
 
 - missing board or rules files
 - missing handoff directory
+- missing `docs/handoffs/index.md` once the project has enough handoffs to need one
 - active locks with unclear state
 - non-quick handoffs missing `Lane OKR Fit`, `Mini-loop Evidence`, or `Evidence Against Product OKR`
 - non-quick BFM targets with missing or unapproved Goal Alignment Session OKRs

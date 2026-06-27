@@ -23,6 +23,7 @@ const {
 } = require('./fb-lane.cjs');
 
 let passed = 0;
+const cliPath = path.join(__dirname, 'fb-lane.cjs');
 function test(name, fn) {
   fn();
   passed += 1;
@@ -100,5 +101,93 @@ try {
   process.chdir(prevCwd);
   fs.rmSync(tmp, { recursive: true, force: true });
 }
+
+console.log('handoff index');
+function writeDoctorFixture(root, handoffCount = 4) {
+  fs.mkdirSync(path.join(root, 'docs', 'handoffs'), { recursive: true });
+  fs.mkdirSync(path.join(root, '.codex'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'tools'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'AGENTS.md'), '# Agents\n');
+  fs.writeFileSync(path.join(root, '.codex', 'rules.md'), '# Rules\n');
+  fs.writeFileSync(path.join(root, '.mcp.json'), JSON.stringify({ mcpServers: { 'fb-lane': {} } }, null, 2));
+  fs.writeFileSync(path.join(root, 'tools', 'fb-lane.cjs'), '// fixture\n');
+  fs.writeFileSync(path.join(root, 'PROJECT_BOARD.md'), `# Project Board
+
+## Active Workstreams
+
+| ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
+|---|---|---|---|---|---|---|
+| TASK-001 | Ready | FB-Tech | Test | Test task | (None) | [Handoff](docs/handoffs/TASK-001.md) |
+
+### TASK-001 - Test task
+* **Status**: Ready
+* **Goal Alignment Session**:
+  * **Objective**: Keep handoff lookup cheap.
+  * **Key Results**:
+    * Agents can find the active handoff from an index.
+  * **Definition of Done**: Doctor reports the index state.
+  * **Gate / Review Point**: Product review.
+  * **Approval**: approved
+  * **Justification**: The task has multiple handoffs.
+`);
+  for (let i = 1; i <= handoffCount; i += 1) {
+    const name = i === 1 ? 'TASK-001.md' : `TASK-${String(i).padStart(3, '0')}.md`;
+    fs.writeFileSync(path.join(root, 'docs', 'handoffs', name), `# ${name}
+
+## Goal Alignment Session
+
+Lane OKR Fit: aligned
+Mini-loop Evidence: fixture evidence
+Evidence Against Product OKR: None identified
+`);
+  }
+}
+
+test('bootstrap creates docs/handoffs/index.md', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-bootstrap-'));
+  try {
+    execFileSync('node', [cliPath, 'bootstrap', '--platform', 'codex'], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+    const indexPath = path.join(root, 'docs', 'handoffs', 'index.md');
+    assert.ok(fs.existsSync(indexPath), 'expected bootstrap to create docs/handoffs/index.md');
+    assert.match(fs.readFileSync(indexPath, 'utf8'), /type: fb-lane-handoff-index/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('doctor warns when many handoffs have no index', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-doctor-'));
+  try {
+    writeDoctorFixture(root, 4);
+    const output = execFileSync('node', [cliPath, 'doctor'], { cwd: root, encoding: 'utf8' });
+    assert.match(output, /Handoff index/);
+    assert.match(output, /docs\/handoffs\/index\.md/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('doctor accepts many handoffs with an index', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-doctor-'));
+  try {
+    writeDoctorFixture(root, 4);
+    fs.writeFileSync(path.join(root, 'docs', 'handoffs', 'index.md'), `---
+type: fb-lane-handoff-index
+status: active
+---
+
+# Handoff Index
+`);
+    const output = execFileSync('node', [cliPath, 'doctor'], { cwd: root, encoding: 'utf8' });
+    assert.match(output, /Handoff index/);
+    assert.doesNotMatch(output, /Missing docs\/handoffs\/index\.md/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
 
 console.log(`\n✅ ${passed} checks passed.`);

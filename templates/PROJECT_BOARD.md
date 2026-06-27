@@ -61,3 +61,8 @@ Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
 Mini-loop Evidence: <lane evidence from its smallest real verification loop>
 Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
 ```
+
+### Handoff Index
+- `PROJECT_BOARD.md` stays the source of truth for current status, sequencing, ownership, and file locks.
+- `docs/handoffs/index.md` is the first-read lookup table for handoff discovery.
+- Open detailed handoffs only when they are relevant to the active task or Product/BFM closeout.

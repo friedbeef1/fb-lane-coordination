@@ -11,6 +11,11 @@ around it: approved Product/workstream OKRs, plan-only workstreams, BFM executio
 BFM reconciliation, and clean closeout. The full operating model lives in
 [`docs/loop-engineering.md`](../../docs/loop-engineering.md).
 
+Bootstrapped projects use `PROJECT_BOARD.md` as the source of truth and
+`docs/handoffs/index.md` as the first-read lookup table. Read the index before
+opening detailed handoffs so Codex does not load stale historical closeouts by
+default.
+
 Treat FB-Lane as an optional coordination protocol, not as the thing that makes Codex parallel.
 Skip it for single-thread work, simple fixes, read-only questions, or independent work where Codex
 worktrees are enough. Use it when parallel Codex work needs shared ownership, markdown
@@ -101,6 +106,6 @@ node tools/fb-lane.cjs bootstrap --platform codex
 node tools/fb-lane.cjs doctor
 ```
 
-`doctor` is read-only. It reports whether the board, rules, MCP config, handoff folder, active
-locks, git workspace, non-quick handoff `Lane OKR Fit`, and approved Goal Alignment Session OKRs are
-ready before lane work begins.
+`doctor` is read-only. It reports whether the board, rules, MCP config, handoff folder/index,
+active locks, git workspace, non-quick handoff `Lane OKR Fit`, and approved Goal Alignment Session
+OKRs are ready before lane work begins.

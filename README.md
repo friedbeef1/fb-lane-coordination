@@ -33,8 +33,8 @@ Loop Engineering keeps five things aligned:
 5. the repo truth in source, docs, tests, and git
 
 FB-Lane gives that loop a small set of files and commands: `PROJECT_BOARD.md`,
-lane plans/handoffs, file claims during BFM execution, `doctor`, and
-BFM/Product closeout checks.
+`docs/handoffs/index.md`, lane plans/handoffs, file claims during BFM execution,
+`doctor`, and BFM/Product closeout checks.
 
 FB-Lane is not CI/CD. It includes CI readiness evidence for Product/BFM
 closeout: automated merge safety, manual release control.
@@ -122,6 +122,7 @@ or tests say otherwise.
 | Stable lane OKRs | Standing Tech, Design, Business, and Product quality anchors |
 | Role clarity | FB-Product, FB-Tech, FB-Design, and FB-Business lanes |
 | Collision control | File claims and optional worktrees |
+| Cheap context lookup | `docs/handoffs/index.md` before detailed handoff files |
 | Durable plan/handoff | `docs/handoffs/<task-id>.md` or project plan markdown |
 | Evidence return | `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` |
 | Health check | `node tools/fb-lane.cjs doctor` |
@@ -177,7 +178,7 @@ Run from a project root that has been bootstrapped with FB-Lane:
 | Command | Purpose |
 |---|---|
 | `node tools/fb-lane.cjs status` | Show tasks, owners, and file claims. |
-| `node tools/fb-lane.cjs doctor` | Read-only loop health check for board, rules, locks, handoffs, and OKR approval. |
+| `node tools/fb-lane.cjs doctor` | Read-only loop health check for board, rules, handoff index, locks, handoffs, and OKR approval. |
 | `node tools/fb-lane.cjs claim <id> <lane> [locks] [--worktree]` | BFM execution worker claims work and locks files. |
 | `node tools/fb-lane.cjs quick <lane> <locks> [desc]` | Create a tiny BFM execution task; skips OKR approval, not the source-change boundary. |
 | `node tools/fb-lane.cjs submit <id> [staging_url]` | Submit work for Product/Captain review. |

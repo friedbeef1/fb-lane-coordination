@@ -2,6 +2,11 @@
 
 ## Unreleased - 2026-06-27
 
+- Handoff context: added OKF-lite progressive disclosure for Codex plugin projects.
+  Bootstrap now creates `docs/handoffs/index.md`, `doctor` warns once a project
+  has enough handoffs to need an index, BFM/Product skills read the index before
+  detailed handoffs, and docs explain that `PROJECT_BOARD.md` remains the source
+  of truth.
 - CI readiness: added a GitHub Actions automation loop for pull requests and
   pushes to `main`, plus a local `tools/fb-lane.validate.cjs` runner so agents
   and CI use the same FB-Lane validation evidence. This is CI readiness only;

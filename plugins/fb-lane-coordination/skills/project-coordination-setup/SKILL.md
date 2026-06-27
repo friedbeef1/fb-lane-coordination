@@ -11,7 +11,7 @@ description: >-
 ## Overview
 This skill instantiates the **Four-Lane Multi-Thread Coordination Model** in any software project directory (SaaS, backend API, mobile/web app, dev tool, etc.). It sets up the project board, updates configuration files safely, and registers specialized subagents to coordinate creative design, technical engineering, and product orchestration without context bleeding.
 
-For non-trivial tasks, the bootstrap must leave one approved OKR tree slot on the board: a Product/workstream OKR (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) plus stable lane OKRs where relevant. Handoffs use compact `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` fields. Product/BFM owns OKR reconciliation and changes OKRs only after discussion and explicit user approval.
+For non-trivial tasks, the bootstrap must leave one approved OKR tree slot on the board: a Product/workstream OKR (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) plus stable lane OKRs where relevant. Handoffs use compact `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` fields. Product/BFM owns OKR reconciliation and changes OKRs only after discussion and explicit user approval. Bootstrap also creates `docs/handoffs/index.md` so agents discover handoffs through a small lookup table before opening detailed files.
 For BFM/all-handoff processing, Product must also leave the return loop: every handoff is `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`, and board/source/docs/tests agree before closeout.
 
 ## Dependencies
@@ -123,6 +123,11 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 - Every processed handoff is marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
 - Product/BFM returns to board, handoffs, source/docs/tests, lane status, and git status before closeout.
 - Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded.
+
+### Handoff Index
+- `PROJECT_BOARD.md` stays the source of truth for current status, sequencing, ownership, and file locks.
+- `docs/handoffs/index.md` is the first-read lookup table for handoff discovery.
+- Open detailed handoffs only when they are relevant to the active task or Product/BFM closeout.
 ```
 
 ### Phase 4: Register the Subagents

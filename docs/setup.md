@@ -41,6 +41,7 @@ What bootstrap creates:
 - lane boundary rules in `AGENTS.md`
 - local Codex rules in `.codex/rules.md`
 - Claude configuration in `CLAUDE.md`
+- handoff lookup in `docs/handoffs/index.md`
 - MCP configuration where supported
 - lane agent definitions where supported
 

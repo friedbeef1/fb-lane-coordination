@@ -35,6 +35,13 @@ edit application/source code directly.
 
 Source changes happen only inside a Product-launched BFM execution run.
 
+## Handoff Index
+
+`PROJECT_BOARD.md` stays the source of truth for status, sequencing, ownership,
+and file locks. Read `docs/handoffs/index.md` before opening detailed handoffs,
+then open only the files relevant to the active task unless Product/BFM is doing
+a full closeout audit.
+
 ## Starting a Session
 
 1. Read `PROJECT_BOARD.md` to understand the current task state and active file locks.

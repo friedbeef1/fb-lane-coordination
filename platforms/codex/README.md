@@ -86,9 +86,9 @@ node tools/fb-lane.cjs bootstrap --platform codex
 node tools/fb-lane.cjs doctor
 ```
 
-`doctor` is read-only. It checks the board, Codex rules, MCP config, handoff folder, active file
-locks, git workspace, non-quick handoff `OKR Fit`, and approved Goal Alignment Session OKRs before
-lane work starts.
+`doctor` is read-only. It checks the board, Codex rules, MCP config, handoff folder/index,
+active file locks, git workspace, non-quick handoff `OKR Fit`, and approved Goal Alignment
+Session OKRs before lane work starts.
 
 ### Fallback Setup
 

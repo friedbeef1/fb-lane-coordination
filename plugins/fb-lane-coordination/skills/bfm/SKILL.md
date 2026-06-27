@@ -23,12 +23,12 @@ Use these skills before acting, in this order:
 1. Read `AGENTS.md`, `PROJECT_BOARD.md`, and `.codex/current_task.md` if present.
 2. Run `fb_lane_status` or `node tools/fb-lane.cjs status`.
 3. Identify the target task from the user request, current task file, board item, or handoff names.
-4. Read all prepared markdown that belongs to the target:
+4. Read `docs/handoffs/index.md` if present, then read only prepared markdown that belongs to the target:
    - board-linked files under `docs/handoffs/`
    - `docs/handoffs/<TASK-ID>.md`
    - handoffs named in the target board item's Links, QA, Modified Files, or Latest Update
    - linked `docs/superpowers/plans/` and `docs/superpowers/specs/`
-5. If the target is ambiguous, read active `Ready`, `In Progress`, and `Staging QA` board items before choosing.
+5. If the target is ambiguous, read active `Ready`, `In Progress`, and `Staging QA` board items before choosing; do not read every historical handoff unless Product/BFM is doing a full closeout audit.
 6. For non-trivial work, read the approved `Goal Alignment Session` block from `PROJECT_BOARD.md` first and treat its Product/workstream OKR plus stable lane OKRs as the source of truth.
 7. If the block is missing, stale, pending, or blocking clarity, propose the smallest OKR addition or change in plain language, and stop until the user explicitly approves. Add or change board OKRs only after that approval.
 8. Block before execution when approval is missing, OKRs are unclear, a handoff implies an unapproved OKR change, or handoffs conflict with the approved OKR tree.

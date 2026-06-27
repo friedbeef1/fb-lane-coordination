@@ -80,6 +80,7 @@ function runGit(args) {
 // CLI argv and from MCP tool arguments, so both entry points validate.
 const TASK_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const LANE_PATTERN = /^[A-Za-z][A-Za-z-]*$/;
+const HANDOFF_INDEX_THRESHOLD = 4;
 
 function assertSafeTaskId(taskId) {
   if (typeof taskId !== 'string' || !TASK_ID_PATTERN.test(taskId)) {
@@ -210,6 +211,61 @@ function boardRecordsApprovedOkrChange(markdown) {
   }
   const recordsChange = /(?:\*\*(?:OKR|Goal) (?:Update|Change)(?: Approval)?\*\*|(?:OKR|Goal) (?:Update|Change)(?: Approval)?):|(?:Goal|OKR) changed from .* to .* because/i.test(markdown);
   return recordsChange && /(?:\*\*Approval\*\*|Approval):\s*approved\b/i.test(markdown);
+}
+
+function handoffIndexTemplate() {
+  return `---
+type: fb-lane-handoff-index
+status: active
+purpose: Read this before opening detailed handoffs.
+---
+
+# Handoff Index
+
+Use this file as the first read for handoff discovery. \`PROJECT_BOARD.md\` remains the source of truth for task status, ownership, sequencing, and file locks. Open a detailed handoff only when its task is active, linked from the board item being processed, or needed as evidence for Product/BFM closeout.
+
+## Active / Decision-Relevant
+
+| Task / Topic | Lane | Status | Fit | Detail |
+|---|---|---|---|---|
+| TASK-001 - Project setup | FB-Product | Ready | Bootstrap baseline | See \`PROJECT_BOARD.md\` |
+
+## Historical Evidence
+
+Open historical handoffs only when investigating the named area or reconciling old Product decisions.
+
+## Lightweight Handoff Metadata
+
+For new handoffs, add a short frontmatter block when useful:
+
+\`\`\`md
+---
+type: fb-lane-handoff
+task: TASK-...
+lane: fb-product | fb-tech | fb-design | fb-business
+status: ready | implemented | blocked | deferred | done
+okr_fit: aligned | suggest approach change | blocked by OKR ambiguity
+---
+\`\`\`
+
+Do not retrofit old handoffs unless Product/BFM is already touching them.
+`;
+}
+
+function collectHandoffIndexWarning(handoffsDir) {
+  if (!fs.existsSync(handoffsDir)) {
+    return null;
+  }
+  const entries = fs.readdirSync(handoffsDir, { withFileTypes: true })
+    .filter(entry => entry.isFile() && entry.name.endsWith('.md') && entry.name !== 'index.md');
+  const indexPath = path.join(handoffsDir, 'index.md');
+  if (entries.length >= HANDOFF_INDEX_THRESHOLD && !fs.existsSync(indexPath)) {
+    return {
+      handoffCount: entries.length,
+      threshold: HANDOFF_INDEX_THRESHOLD
+    };
+  }
+  return null;
 }
 
 function collectGoalAlignmentSessionWarnings(handoffsDir, tasks = []) {
@@ -655,6 +711,17 @@ function handleDoctor() {
 
     if (exists('docs/handoffs')) {
       add('ok', 'docs/handoffs', 'Lane handoff directory exists.');
+      const handoffIndexWarning = collectHandoffIndexWarning(path.join(rootDir, 'docs', 'handoffs'));
+      if (handoffIndexWarning) {
+        add(
+          'warn',
+          'Handoff index',
+          `Missing docs/handoffs/index.md with ${handoffIndexWarning.handoffCount} handoff file(s).`,
+          'Create docs/handoffs/index.md so agents read the lookup table before detailed handoffs.'
+        );
+      } else {
+        add('ok', 'Handoff index', 'Handoff lookup is present or not needed yet.');
+      }
       const goalAlignmentSessionWarnings = collectGoalAlignmentSessionWarnings(path.join(rootDir, 'docs', 'handoffs'), parsedTasks);
       if (goalAlignmentSessionWarnings.missingSession.length > 0) {
         add(
@@ -1923,6 +1990,13 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
   } else {
     console.log('ℹ️  docs/handoffs/ already exists, skipping.');
   }
+  const handoffIndexPath = path.join(handoffsDir, 'index.md');
+  if (!fs.existsSync(handoffIndexPath)) {
+    fs.writeFileSync(handoffIndexPath, handoffIndexTemplate(), 'utf8');
+    console.log('📝 Created docs/handoffs/index.md (handoff lookup table)');
+  } else {
+    console.log('ℹ️  docs/handoffs/index.md already exists, skipping.');
+  }
 
   // 4. Inject FB-Lane section into .codex/rules.md (non-destructive)
   if (options.includeCodex) {
@@ -1943,12 +2017,14 @@ This project uses the FB-Lane Four-Lane Coordination Model.
 2. Read \`.codex/current_task.md\` if it exists — it contains your task ID, branch, and locked files. Follow it exactly.
 3. Confirm your active branch matches the task. If not, stop and notify the user.
 4. Never modify files that are locked by another active task.
+5. For handoff discovery, read \`docs/handoffs/index.md\` first and open only the relevant detailed handoff files.
 
 ### Lane boundaries
 - **FB-Tech**: backend, APIs, schemas, tests only. Never touch CSS or layout.
 - **FB-Design**: CSS, tokens, layout only. Never touch backend logic or schemas.
 - **FB-Business**: read-only on source code. Write to markdown docs only.
 - **FB-Product**: direction, sequencing, BFM launch, integration, merges, and deployments. Product is read-only on application/source code and may write coordination markdown only.
+- **All workstreams**: plan-only by default. They may ask questions, investigate, and write markdown plans/handoffs. Source changes happen only inside a Product-launched BFM execution run.
 
 ### Goal Alignment Session
 - For non-trivial tasks, FB-Product/BFM owns one approved OKR tree in \`PROJECT_BOARD.md\`: a Product/workstream OKR plus stable lane OKRs where relevant.
@@ -2009,6 +2085,7 @@ ${CODEX_FB_END}`;
 
 This project uses the **FB-Lane Four-Lane Coordination Model**.
 Source of truth for active tasks and file locks: \`PROJECT_BOARD.md\`.
+First-read lookup for handoff discovery: \`docs/handoffs/index.md\`.
 
 ### Lane Boundaries
 
@@ -2036,6 +2113,7 @@ Source of truth for active tasks and file locks: \`PROJECT_BOARD.md\`.
 2. Read \`.codex/current_task.md\` if it exists — it has your exact branch and locked files.
 3. Confirm your branch: \`git rev-parse --abbrev-ref HEAD\`.
 4. Never modify files locked by another active task.
+5. For handoff discovery, read \`docs/handoffs/index.md\` first and open only the relevant detailed handoff files.
 
 ### CLI Commands
 \`\`\`bash
@@ -2094,7 +2172,7 @@ ${FB_LANE_END}`;
     }
     mcpConfig.mcpServers['fb-lane'] = {
       command: 'node',
-      args: ['tools/fb-lane.cjs', 'mcp']
+      args: ['${CLAUDE_PROJECT_DIR:-.}/tools/fb-lane.cjs', 'mcp']
     };
     fs.writeFileSync(mcpJsonPath, JSON.stringify(mcpConfig, null, 2) + '\n', 'utf8');
     console.log('🔌 Configured fb-lane MCP server in .mcp.json');
@@ -2149,10 +2227,9 @@ ${FB_LANE_END}`;
     console.log('2. Start a chat with the Product agent (FB-Product) and ask it to build a feature:');
     console.log('   e.g., "Add a login page" or "Triage our next milestones"');
     console.log('3. Product will scope the work, create tasks in PROJECT_BOARD.md, assign lanes, and mark them as Ready.');
-    console.log('4. Open the corresponding worker agent thread (FB-Tech or FB-Design) to start coding:');
-    console.log('   The worker agent will automatically claim the task, checkout a branch, and implement code.');
-    console.log('5. Once done, the worker agent submits the task for QA.');
-    console.log('6. Open the Product agent again to review staging and merge the changes into main.');
+    console.log('4. Workstream lanes write markdown plans/handoffs; they do not edit source from ordinary lane chat.');
+    console.log('5. Product launches BFM when source-changing execution should begin.');
+    console.log('6. Product reviews evidence, staging, and merge/release decisions.');
   }
   console.log('======================================================================');
   if (options.includeAntigravity) {

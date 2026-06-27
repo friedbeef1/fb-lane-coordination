@@ -59,6 +59,9 @@ Evidence Against Product OKR: <evidence that weakens or blocks the approved Prod
 
 BFM blocks before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR tree. If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the existing OKRs and recommends one. It must not add, change, or edit approved OKRs during execution.
 
+### 🗂 Handoff Index
+`PROJECT_BOARD.md` stays the source of truth for current status, sequencing, ownership, and file locks. `docs/handoffs/index.md` is the first-read lookup table for handoff discovery. Read the index before opening detailed handoffs, then open only the files relevant to the active task unless Product/BFM is doing a full closeout audit.
+
 ### 🧱 Plan-Only Workstream Rule
 Workstream threads are read-only planning lanes by default. Product, Tech, Design, and Business may converse, ask questions, investigate, and write markdown plans or handoffs. They must not edit application/source code, create implementation branches, commit, submit, merge, deploy, or change provider state from ordinary workstream chat.
 

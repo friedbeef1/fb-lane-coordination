@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-016 | Done | FB-Product | Codex Plugin | Add handoff index progressive-disclosure support to the Codex plugin | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/skills/**`, `templates/*.md`, `docs/**`, `README.md`, `FAQ.md`, `CHANGELOG.md` | [Handoff](docs/handoffs/TASK-016.md) |
 | TASK-Q-20260627223437 | Done | FB-Product | Documentation | Document FB-Lane evals as lightweight agent-behavior scorecards | `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `plugins/fb-lane-coordination/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | `codex/evals-docs` |
 | TASK-015 | Done | FB-Product | Coordination | Make workstream threads read-only planning lanes and gate source changes through Product-launched BFM execution | `AGENTS.md`, `CLAUDE.md`, `.codex/rules.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `templates/*.md`, `skills/**/*.md`, `agents/**`, `.claude/agents/**`, `plugins/fb-lane-coordination/**`, `tools/fb-lane.cjs` | [PR #29](https://github.com/friedbeef1/fb-lane-coordination/pull/29) |
 | TASK-014 | Done | FB-Product | Cleanup | Ponytail cleanup: move rendered demo videos out of git and clarify canonical/generated maintenance surfaces | `codex-lane-demo/renders/*.mp4`, `platforms/*/how-to-interact-demo/renders/*.mp4`, `.gitignore`, `README.md`, `CHANGELOG.md`, `docs/maintenance.md`, `codex-lane-demo/README.md`, `platforms/claude-code/how-to-interact-demo/README.md`, `platforms/antigravity/how-to-interact-demo/README.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-014.md` | [PR #28](https://github.com/friedbeef1/fb-lane-coordination/pull/28) |
@@ -35,6 +36,45 @@
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
 
 ---
+
+### TASK-016 - Codex plugin handoff index progressive disclosure
+*   **Status**: Done
+*   **Owner / Thread**: FB-Product
+*   **Area**: Codex Plugin
+*   **Scope**: Add OKF-lite handoff-index behavior to the Codex plugin so projects keep `PROJECT_BOARD.md` central while agents use `docs/handoffs/index.md` before opening detailed handoffs.
+*   **Out of Scope**: Chrome/browser plugin changes, full OKF import, retrofitting every historical handoff with frontmatter, or changing `submit` behavior.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce token waste from historical handoffs without weakening board-based Product sequencing.
+    *   **Key Results**:
+        *   Bootstrap creates `docs/handoffs/index.md`.
+        *   `doctor` warns when projects have enough handoffs to need an index.
+        *   BFM/Product guidance reads the index before detailed handoffs.
+    *   **Definition of Done**: Root and packaged CLI copies match, docs and Codex plugin skills mention index-first lookup, and validation passes.
+    *   **Gate / Review Point**: Product review of this branch/PR.
+    *   **Approval**: approved
+    *   **Justification**: MirrorCam showed naive board-plus-all-handoffs reads can burn tens of thousands of tokens.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Documentation and Codex plugin behavior only
+    *   **Locked Files**: `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/skills/**`, `skills/**`, `templates/*.md`, `docs/**`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/okf-lite-handoff-index`
+    *   **Handoff**: [TASK-016](docs/handoffs/TASK-016.md)
+*   **QA Checklist**:
+    *   [x] Bootstrap creates the handoff index.
+    *   [x] `doctor` warns only when enough handoffs exist and no index is present.
+    *   [x] Root/package CLI parity passes.
+    *   [x] Docs and Codex plugin skills use index-first handoff lookup language.
+*   **Modified Files**:
+    *   `tools/fb-lane.cjs`
+    *   `plugins/fb-lane-coordination/tools/fb-lane.cjs`
+    *   `tools/fb-lane.test.cjs`
+    *   `docs/handoffs/index.md`
+    *   `docs/handoffs/TASK-016.md`
+    *   `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `platforms/codex/README.md`, `plugins/fb-lane-coordination/README.md`
+    *   `AGENTS.md`, `CLAUDE.md`, `.codex/rules.md`, `templates/*.md`, `skills/**`, `plugins/fb-lane-coordination/skills/**`
+*   **Latest Update**:
+    *   *2026-06-27*: Added OKF-lite handoff index behavior for Codex plugin projects and documented the index-first read path. Chrome/browser plugin remains unchanged.
+
 
 ### TASK-015 - Workstream plan-only BFM gate
 *   **Status**: Done
