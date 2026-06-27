@@ -6,10 +6,10 @@
 
 ---
 
-## Goal Alignment
-- `Goal Alignment`: aligned
+## Goal Alignment Session
+OKR Fit: aligned
 - `Goal Challenge / Caveat`: Legacy handoff predates the Goal Alignment loop; goal is inferred from the task scope.
-- `Evidence Against Goal`: Authentication endpoints, database interfaces, and Node integration tests support the original authentication goal; in-memory persistence remains a known caveat for production use.
+- `Definition of Done Evidence`: Authentication endpoints, database interfaces, and Node integration tests support the approved auth OKR; in-memory persistence remains a known caveat for production use.
 
 ---
 

@@ -1,27 +1,70 @@
-# CLAUDE.md
+# CLAUDE.md — FB-Lane Coordination Rules
 
-<!-- fb-lane-start -->
-## FB-Lane Coordination
+> **How to use this file**: Copy this file into your project root as `CLAUDE.md`.
+> Claude Code automatically reads this file on every session.
+
+---
+
+## Plugin
 
 This project uses the **FB-Lane Four-Lane Coordination Model**.
-Source of truth for active tasks and file locks: `PROJECT_BOARD.md`.
+The source of truth for all active tasks and file locks is `PROJECT_BOARD.md` in the project root.
 
-### Lane Boundaries
+## Your Lane
 
-| Lane | Owns | Never touches |
-|------|------|--------------|
+When you are invoked in a lane thread, you will be told your lane at the top of the conversation (e.g. `You are FB-Tech`). Operate strictly within your lane's boundaries:
+
+| Lane | You own | You never touch |
+|------|---------|----------------|
 | **FB-Product** | Backlog, merges, deployments, release gates | Feature code |
 | **FB-Tech** | APIs, DB schemas, serverless functions, tests | CSS, layout, copy |
 | **FB-Design** | CSS, tokens, layout geometry, visual QA | Backend, schemas |
 | **FB-Business** | Copy, docs, marketing text | Source code (read-only) |
 
-### Starting a Session
-1. Read `PROJECT_BOARD.md` — check active tasks and file locks.
-2. Read `.codex/current_task.md` if it exists — it has your exact branch and locked files.
-3. Confirm your branch: `git rev-parse --abbrev-ref HEAD`.
-4. Never modify files locked by another active task.
+## Starting a Session
 
-### CLI Commands
+1. Read `PROJECT_BOARD.md` to understand the current task state and active file locks.
+2. Read `.codex/current_task.md` if it exists — it contains your exact task, branch, and locked files.
+3. Confirm your branch: `git rev-parse --abbrev-ref HEAD`.
+4. Never modify files that are locked by another active task.
+
+## Goal Alignment Session
+
+Use a Goal Alignment Session for non-trivial handoffs and sequencing work only. Product/BFM owns one canonical OKR block per task in `PROJECT_BOARD.md` where practical, with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Worker lanes read that block and report `OKR Fit` in handoffs instead of rewriting it.
+
+- Good: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
+- Bad: `Objective: finish the feature.`
+
+Lane handoffs should include:
+
+```md
+## Goal Alignment Session
+
+OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+Goal Challenge / Caveat: <real caveat> | No caveat identified
+Definition of Done Evidence: <lane evidence that proves, weakens, or blocks the approved OKR>
+```
+
+Product/BFM reconciles those fields before sequencing execution or merge. BFM blocks before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR. If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the OKR and recommends one; it must not edit approved OKRs.
+
+## BFM Return Loop
+
+When processing all lane handoffs, Product/BFM must not close until every handoff is marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+
+Return to:
+
+- `PROJECT_BOARD.md` after reading handoffs.
+- Each handoff after coding.
+- Source, docs, and board after tests.
+- Lane status after board/doc updates.
+- `git status` after commit/push.
+
+Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded.
+
+## CLI Tool
+
+Use `node tools/fb-lane.cjs` for all task lifecycle management:
+
 ```bash
 node tools/fb-lane.cjs status               # View all tasks and locks
 node tools/fb-lane.cjs claim <id> <lane>    # Claim a task, checkout branch, lock files
@@ -29,13 +72,13 @@ node tools/fb-lane.cjs submit <id>          # Submit for QA, push branch
 node tools/fb-lane.cjs merge <id>           # Merge to main, release locks (FB-Product only)
 ```
 
-### Rules
-- Never commit directly to `main` — always use a feature branch.
-- Commit docs separately from code changes.
-- Run tests before submitting — the `submit` command does this automatically.
-- Max 5 debug retries — if still failing, mark task `Blocked` and notify the user.
-- Do not revert others — merge `main` into your branch to resolve conflicts.
-<!-- fb-lane-end -->
+## Rules
+
+- **Never commit directly to `main`** — always work on a feature branch.
+- **Commit docs separately** — keep `PROJECT_BOARD.md` updates in their own commit.
+- **Run tests before submitting** — the `submit` command does this automatically.
+- **Max 5 debug retries** — if tests still fail after 5 attempts, mark task `Blocked` and notify the user.
+- **Do not revert others** — if another lane touched a shared file, merge `main` into your branch first.
 
 ## Lane Subagents (Claude Code)
 
@@ -47,5 +90,6 @@ invoke any of them directly, or let the main session delegate to them:
 - **`fb-business`** — copy/docs/positioning; read-only on code (CLI lane `Business`)
 
 The **main session acts as FB-Product** (the orchestrator): scope tasks on `PROJECT_BOARD.md`,
-delegate to a lane subagent, review the result, then merge. Full lane ownership boundaries and
+assign execution to the owning lane, review the result, then merge. Individual lanes claim their
+own files and execute in their own context. Full lane ownership boundaries and
 the board/locking protocol live in `AGENTS.md`.

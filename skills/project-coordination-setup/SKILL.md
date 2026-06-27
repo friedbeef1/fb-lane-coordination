@@ -11,7 +11,8 @@ description: >-
 ## Overview
 This skill instantiates the **Four-Lane Multi-Thread Coordination Model** in any software project directory (SaaS, backend API, mobile/web app, dev tool, etc.). It sets up the project board, updates configuration files safely, and registers specialized subagents to coordinate creative design, technical engineering, and product orchestration without context bleeding.
 
-For non-trivial tasks, the bootstrap must leave one canonical Goal Alignment slot on the board (`Working Goal`, `Success Measure`, `Gate / Review Point`), compact goal-alignment handoff guidance, and Product/BFM ownership of goal reconciliation.
+For non-trivial tasks, the bootstrap must leave one canonical Goal Alignment Session slot on the board (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`), compact `OKR Fit` handoff guidance, and Product/BFM ownership of OKR reconciliation.
+For BFM/all-handoff processing, Product must also leave the return loop: every handoff is `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`, and board/source/docs/tests agree before closeout.
 
 ## Dependencies
 None.
@@ -41,7 +42,7 @@ To bootstrap a workspace, run through the **Execution Steps** in the Workflow be
 This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development.
 
 ### 1. Lane Scopes & Boundaries
-- **FB-Product (PM / Integration User Value)**: Owns final product decisions, one canonical Goal Alignment block per non-trivial task (`Working Goal`, `Success Measure`, `Gate / Review Point`), task prioritization, scoping, file merges, staging/live deployments, and release gates. Prioritizes the backlog on the project board, sequencing tasks based on goal-alignment and value-vs-effort mix. Product gives direction and integration; the owning lane claims and executes its own task/files.
+- **FB-Product (PM / Integration User Value)**: Owns final product decisions, one canonical Goal Alignment Session block per non-trivial task (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`), task prioritization, scoping, file merges, staging/live deployments, and release gates. Prioritizes the backlog on the project board, sequencing tasks based on OKR fit and value-vs-effort mix. Product gives direction and integration; the owning lane claims and executes its own task/files.
 - **FB-Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, security rules, and functional test suites. *Does not make styling, layout geometry, or visual changes.*
 - **FB-Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
 - **FB-Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only code capacity.*
@@ -49,9 +50,9 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 
 ### 2. The Board Loop & Resource Locking
 - `PROJECT_BOARD.md` in the project root is the source of truth.
-- **Claim & Lock**: Product scopes the item; before coding, the owning lane claims its own task/files in `PROJECT_BOARD.md`. For non-trivial tasks, Product sets one canonical Goal Alignment block (`Working Goal`, `Success Measure`, `Gate / Review Point`), then the task moves to `In Progress` with declared Affected Screens and Locked Files.
+- **Claim & Lock**: Product scopes the item; before coding, the owning lane claims its own task/files in `PROJECT_BOARD.md`. For non-trivial tasks, Product drafts one Goal Alignment Session block (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending`, `Justification`), asks James to approve it, then marks `Approval: approved` before the task moves to `In Progress` with declared Affected Screens and Locked Files.
 - **Push & QA**: When complete, threads push feature branches (e.g. `tech/[task]` or `design/[task]`), update board status to `Staging QA`, and list modified files/QA checks.
-- **Handoff, Unlock & Clean**: Product reviews staging, reconciles compact goal-alignment fields from lane handoffs, records goal changes as `Goal changed from X to Y because Z.`, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
+- **Handoff, Unlock & Clean**: Product reviews staging, reconciles `OKR Fit` from lane handoffs, proposes aligned alternatives when work conflicts with approved OKRs, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
 
 ### 3. Safety & Git Hygiene
 - **Never commit directly to main**. All work goes through feature branches.
@@ -83,10 +84,15 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 *   - Area: Setup
 *   - Scope: Create initial files, initialize repository layout.
 *   - Out of Scope: Writing application business logic.
-*   - Goal Alignment:
-*       - Working Goal: Bootstrap FB-Lane safely so future non-trivial tasks have one canonical goal, clear locks, and durable handoffs.
-*       - Success Measure: The board, rules, CLI, and handoff folder are present and ready for lane claims.
-*       - Gate / Review Point: Setup is ready when `node tools/fb-lane.cjs doctor` reports no blocking setup errors.
+*   - Goal Alignment Session:
+*       - Objective: Bootstrap FB-Lane safely so future non-trivial tasks have one approved OKR, clear locks, and durable handoffs.
+*       - Key Results:
+*           - Board, rules, CLI, and handoff folder exist.
+*           - `doctor` reports no blocking setup errors.
+*       - Definition of Done: The board, rules, CLI, and handoff folder are present and ready for lane claims.
+*       - Gate / Review Point: Product confirms setup is ready to move into the first non-trivial task.
+*       - Approval: approved
+*       - Justification: Setup work needs a small approved OKR so future lanes can see the expected coordination baseline.
 *   - Affected Screens / Locks:
 *       - Screens: (None)
 *       - Locked Files: `AGENTS.md`, `PROJECT_BOARD.md`
@@ -98,18 +104,23 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 *       - [x] PROJECT_BOARD.md created
 *       - [x] Subagents defined
 
-### Goal Alignment (non-trivial tasks only)
-- Product/BFM owns one canonical Goal Alignment block per task in `PROJECT_BOARD.md`, ideally with `Working Goal`, `Success Measure`, and `Gate / Review Point`.
-- Good: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
-- Bad: `Working Goal: finish the feature.`
+### Goal Alignment Session (non-trivial tasks only)
+- Product/BFM owns one canonical Goal Alignment Session block per task in `PROJECT_BOARD.md`, with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`.
+- Good: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
+- Bad: `Objective: finish the feature.`
 - Lane handoffs stay compact and use a real heading:
   ```md
-  ## Goal Alignment
+  ## Goal Alignment Session
 
-  Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+  OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
   Goal Challenge / Caveat: <real caveat> | No caveat identified
-  Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
+  Definition of Done Evidence: <lane evidence that proves, weakens, or blocks the approved OKR>
   ```
+
+### BFM Return Loop
+- Every processed handoff is marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+- Product/BFM returns to board, handoffs, source/docs/tests, lane status, and git status before closeout.
+- Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded.
 ```
 
 ### Phase 4: Register the Subagents

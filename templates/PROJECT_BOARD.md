@@ -23,10 +23,15 @@
 *   **Area**: Setup
 *   **Scope**: Create initial files, initialize repository layout.
 *   **Out of Scope**: Writing application business logic.
-*   **Goal Alignment**:
-    *   **Working Goal**: Bootstrap FB-Lane safely so future non-trivial tasks have one canonical goal, clear locks, and durable handoffs.
-    *   **Success Measure**: The board, rules, CLI, and handoff folder are present and ready for lane claims.
-    *   **Gate / Review Point**: Setup is ready when `node tools/fb-lane.cjs doctor` reports no blocking setup errors.
+*   **Goal Alignment Session**:
+    *   **Objective**: Bootstrap FB-Lane safely so future non-trivial tasks have one approved OKR, clear locks, and durable handoffs.
+    *   **Key Results**:
+        *   Board, rules, CLI, and handoff folder exist.
+        *   `doctor` reports no blocking setup errors.
+    *   **Definition of Done**: The board, rules, CLI, and handoff folder are present and ready for lane claims.
+    *   **Gate / Review Point**: Product confirms setup is ready to move into the first non-trivial task.
+    *   **Approval**: approved
+    *   **Justification**: Setup work needs a small approved OKR so future lanes can see the expected coordination baseline.
 *   **Affected Screens / Locks**:
     *   **Screens**: (None)
     *   **Locked Files**: `AGENTS.md`, `PROJECT_BOARD.md`
@@ -44,15 +49,15 @@
 *   **Latest Update**:
     *   *2026-06-14*: Scoped task and marked ready for execution.
 
-### Goal Alignment (non-trivial tasks only)
-Use one canonical Goal Alignment block per task in the detail block above, with `Working Goal`, `Success Measure`, and `Gate / Review Point`. Product/BFM owns that block and updates it in place when it changes: `Goal changed from X to Y because Z.`
+### Goal Alignment Session (non-trivial tasks only)
+Use one canonical Goal Alignment Session block per task in the detail block above, with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Product/BFM owns that block. BFM blocks before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR.
 
 Lane handoffs stay compact and use a real heading:
 
 ```md
-## Goal Alignment
+## Goal Alignment Session
 
-Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
 Goal Challenge / Caveat: <real caveat> | No caveat identified
-Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
+Definition of Done Evidence: <lane evidence that proves, weakens, or blocks the approved OKR>
 ```

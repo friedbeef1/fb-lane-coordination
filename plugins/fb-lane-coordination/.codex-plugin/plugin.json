@@ -1,6 +1,6 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.1.2+codex.20260625082239",
+  "version": "0.1.2+codex.20260627174151",
   "description": "Codex plugin for safe concurrent lane work using FB-Lane board claims, handoffs, and Product integration gates.",
   "author": {
     "name": "James Yeang",
@@ -22,7 +22,7 @@
   "interface": {
     "displayName": "FB-Lane Coordination",
     "shortDescription": "Run concurrent Codex lanes without file collisions",
-    "longDescription": "FB-Lane Coordination packages Codex skills and an MCP server for lane-based project work. Codex supplies native concurrency; FB-Lane supplies the shared board, file claims, handoff docs, and Product/Captain integration gate so multiple lane instructions can run at the same time without overwriting each other.",
+    "longDescription": "FB-Lane Coordination packages Codex skills and an MCP server for lane-based project work. Codex supplies native concurrency; FB-Lane supplies the shared board, file claims, handoff docs, Product/Captain integration gate, approved Goal Alignment Session OKRs, and BFM return loop so multiple lane instructions can run at the same time without overwriting each other or closing before board, source, docs, tests, OKRs, and git state agree.",
     "developerName": "James Yeang",
     "category": "Developer Tools",
     "capabilities": [
@@ -36,7 +36,8 @@
     "defaultPrompt": [
       "Start here: use $fb-lane, run doctor if setup looks incomplete, show current status and file claims, then ask what I want to build.",
       "Use $fb-lane to split this work across Product, Tech, Design, and Business. Use worktrees for code-writing lanes where helpful. Each lane should claim files, write handoffs, and return to Product for sequencing.",
-      "What is ready to merge? Read the board, lane handoffs, and current file claims before answering.",
+      "Run BFM as a Goal Alignment Session return loop: read the board OKRs and handoffs, block if approval is missing or OKRs are unclear, reconcile OKR Fit/source/docs/tests, sequence the next slice, verify it, update durable state, and close only when every handoff is implemented, already done, blocked, out of scope, or explicitly deferred.",
+      "What is ready to merge? Read the board, lane handoffs, current file claims, verification evidence, and remaining gates before answering.",
       "Bootstrap this repo for Codex only, then run doctor and report whether FB-Lane is ready."
     ],
     "brandColor": "#0F766E"

@@ -1,5 +1,8 @@
 # FB-Lane on Codex
 
+This page is the tactical Codex setup and usage guide. For the Product Lead
+operating model, read [Loop Engineering](../../docs/loop-engineering.md).
+
 Codex is a local developer agent that operates directly on your filesystem and git workspace. It already supports native subagents for parallel work, worktrees for isolated background tasks, plugins for reusable workflows, skills for task-specific instructions, and MCP servers for shared tools and context. FB-Lane does not replace those capabilities.
 
 The Codex pain point is narrower: once you start using those capabilities for real product work, someone still has to answer "who owns this?", "which files are safe to edit?", "what finished?", "what must Product integrate first?", and "what did the other lane decide?". FB-Lane gives Codex a lightweight product-coordination contract for that layer.
@@ -68,7 +71,11 @@ When handoffs already exist and Product/Captain needs to sequence and route exec
 $bfm process the prepared handoffs for this task and execute the sequence to completion.
 ```
 
-The plugin does not create Codex's parallelism. Codex already has that. The plugin packages the coordination layer: skills, MCP status/claim/submit/merge tools, file locks, handoffs, and Product/Captain integration.
+For non-trivial BFM work, use the Goal Alignment Session and return-loop rules
+described in [Loop Engineering](../../docs/loop-engineering.md). The plugin does
+not create Codex's parallelism. Codex already has that. The plugin packages the
+coordination layer: skills, MCP status/claim/submit/merge tools, file locks,
+handoffs, and Product/Captain integration.
 
 If the project itself still needs FB-Lane repo files, run the Codex-only bootstrap from the project
 root:
@@ -79,7 +86,8 @@ node tools/fb-lane.cjs doctor
 ```
 
 `doctor` is read-only. It checks the board, Codex rules, MCP config, handoff folder, active file
-locks, and git workspace before lane work starts.
+locks, git workspace, non-quick handoff `OKR Fit`, and approved Goal Alignment Session OKRs before
+lane work starts.
 
 ### Fallback Setup
 

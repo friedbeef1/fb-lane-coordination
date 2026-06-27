@@ -1,14 +1,15 @@
 # FB-Lane Coordination for Codex
 
-This Codex plugin packages the FB-Lane coordination workflow:
+This Codex plugin packages FB-Lane's Loop Engineering workflow:
 
 - skills for BFM, Product, Tech, Design, Business, and overall lane coordination
 - an `fb-lane` MCP server backed by `tools/fb-lane.cjs`
 - a repo marketplace entry at `.agents/plugins/marketplace.json`
 
-Codex already provides the concurrency. FB-Lane provides the shared state and guardrails:
-`PROJECT_BOARD.md`, file claims, `.codex/current_task.md`, handoff docs, and Product/Captain
-integration gates.
+Codex already provides the concurrency. FB-Lane provides the Product Lead loop
+around it: approved goals, lane execution, evidence return, BFM reconciliation,
+and clean closeout. The full operating model lives in
+[`docs/loop-engineering.md`](../../docs/loop-engineering.md).
 
 Treat FB-Lane as an optional coordination protocol, not as the thing that makes Codex parallel.
 Skip it for single-thread work, simple fixes, read-only questions, or independent work where Codex
@@ -57,7 +58,8 @@ $fb-tech check whether this auth flow is safe.
 $fb-business rewrite the onboarding copy.
 ```
 
-For depth, read the main `README.md`, `FAQ.md`, and `platforms/codex/README.md`.
+For depth, read the main `README.md`, `FAQ.md`, `docs/loop-engineering.md`, and
+`platforms/codex/README.md`.
 
 ## Typical Prompt
 
@@ -73,6 +75,9 @@ $bfm
 Read the prepared handoff markdowns for the active task, gather the Product, Tech, Design,
 Business, and lane-coordination view, then sequence and execute to completion.
 ```
+
+For non-trivial BFM work, use the Goal Alignment Session and return-loop rules
+described in [`docs/loop-engineering.md`](../../docs/loop-engineering.md).
 
 ## Quick Edits
 
@@ -97,4 +102,5 @@ node tools/fb-lane.cjs doctor
 ```
 
 `doctor` is read-only. It reports whether the board, rules, MCP config, handoff folder, active
-locks, and git workspace are ready before lane work begins.
+locks, git workspace, non-quick handoff `OKR Fit`, and approved Goal Alignment Session OKRs are
+ready before lane work begins.

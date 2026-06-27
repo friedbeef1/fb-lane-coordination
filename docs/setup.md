@@ -1,5 +1,8 @@
 # Setup Alternatives
 
+This page is tactical. For the operating model behind these commands, read
+[Loop Engineering](loop-engineering.md).
+
 Use the platform guides first when possible:
 
 - [Antigravity 2.0](../platforms/antigravity/README.md)
