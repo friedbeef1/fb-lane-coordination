@@ -6,7 +6,7 @@ description: Coordinates task claiming, staging submissions, and merges on the p
 # FB-Lane Task Coordination Skill
 
 ## Overview
-This skill manages FB-Lane task lifecycles, git branches, and resource locks with the local `tools/fb-lane.cjs` utility. For non-trivial tasks, Product/BFM keeps one stable Product/workstream OKR block in `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, and `Justification`; lanes report `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` in handoffs.
+This skill manages FB-Lane task lifecycles, git branches, and resource locks with the local `tools/fb-lane.cjs` utility. Normal workstream threads are plan-only: they may investigate and write markdown plans/handoffs, but source changes happen only inside a Product-launched BFM execution run. For non-trivial tasks, Product/BFM keeps one stable Product/workstream OKR block in `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, and `Justification`; lanes report `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` in handoffs.
 
 ## Preconditions
 - The workspace must have `PROJECT_BOARD.md` and `tools/fb-lane.cjs` initialized (use `project-coordination-setup` skill to initialize if missing).
@@ -23,7 +23,7 @@ node tools/fb-lane.cjs status
 ```
 
 ### 2. Claim a Task
-When the owning lane claims a task (e.g. `TASK-102`) for that lane (e.g., `Tech`, `Design`, `Business`) and locks specific files (e.g., `src/auth.ts, src/db.ts`):
+Only do this inside a Product-launched BFM execution run. When the BFM execution worker claims a task (e.g. `TASK-102`) for a lane (e.g., `Tech`, `Design`, `Business`) and locks specific files (e.g., `src/auth.ts, src/db.ts`):
 1. Execute the claim command:
    ```bash
    node tools/fb-lane.cjs claim <task-id> <lane> "[locked_files]"
@@ -31,7 +31,7 @@ When the owning lane claims a task (e.g. `TASK-102`) for that lane (e.g., `Tech`
    *Example*: `node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts, src/db.ts"`
 2. Verify that the command succeeds, which checks out the feature branch, locks the files on the board, and commits the board update separately.
 3. Note: The CLI claim command also automatically writes task context to `.codex/current_task.md` for local editors.
-4. For source-changing lane work, prefer `--worktree` when Product must stay free for direction, review, or integration.
+4. For source-changing BFM execution work, prefer `--worktree` when Product must stay free for direction, review, or integration.
 5. For non-trivial tasks, confirm the board item has one approved `Goal Alignment Session` block (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) before implementation begins. Do not create or change OKRs during execution.
 
 ### 3. Submit a Task for Staging QA
@@ -66,7 +66,7 @@ When executing code updates and running test/lint commands:
    - Notify the user of the blockage.
 4. **Auto-Proceed Loop**: Immediately scan the `PROJECT_BOARD.md` `Ready` queue and claim the **next independent task** (verifying that it does not edit locked files or depend on the blocked task). Checkout a new branch for the new task and continue development.
 
-Product does not run this implementation loop for Tech, Design, or Business. If Product sees repeated runner hangs, stale `.git/*.lock` files, or stuck `git add` / test / build processes, run `node tools/fb-lane.cjs doctor`, mark the relevant lane gate `pending-gate` or `blocked`, and return execution to the owning lane.
+Product and normal workstream threads do not run this implementation loop. If Product sees repeated runner hangs, stale `.git/*.lock` files, or stuck `git add` / test / build processes, run `node tools/fb-lane.cjs doctor`, mark the relevant gate `pending-gate` or `blocked`, and return sequencing to BFM.
 
 ## Goal Alignment Session Notes
 

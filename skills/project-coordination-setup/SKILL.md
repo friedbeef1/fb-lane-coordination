@@ -11,7 +11,7 @@ description: >-
 ## Overview
 This skill instantiates the **Four-Lane Multi-Thread Coordination Model** in any software project directory (SaaS, backend API, mobile/web app, dev tool, etc.). It sets up the project board, updates configuration files safely, and registers specialized subagents to coordinate creative design, technical engineering, and product orchestration without context bleeding.
 
-For non-trivial tasks, the bootstrap must leave one approved OKR tree slot on the board: a Product/workstream OKR (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) plus stable lane OKRs where relevant. Handoffs use compact `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` fields. Product/BFM owns OKR reconciliation and changes OKRs only after discussion and explicit user approval.
+For non-trivial tasks, the bootstrap must leave one approved OKR tree slot on the board: a Product/workstream OKR (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) plus stable lane OKRs where relevant. Handoffs use compact `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` fields. Product/BFM owns OKR reconciliation and changes OKRs only after discussion and explicit user approval. Workstream threads are plan-only by default; source changes happen only inside Product-launched BFM execution runs.
 For BFM/all-handoff processing, Product must also leave the return loop: every handoff is `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`, and board/source/docs/tests agree before closeout.
 
 ## Dependencies
@@ -42,7 +42,7 @@ To bootstrap a workspace, run through the **Execution Steps** in the Workflow be
 This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development.
 
 ### 1. Lane Scopes & Boundaries
-- **FB-Product (PM / Integration User Value)**: Owns final product decisions, the approved Product/workstream OKR and relevant stable lane OKRs, task prioritization, scoping, file merges, staging/live deployments, and release gates. Prioritizes the backlog on the project board, sequencing tasks based on OKR alignment and value-vs-effort mix. Product gives direction and integration; the owning lane claims and executes its own task/files.
+- **FB-Product (PM / Integration User Value)**: Owns final product decisions, the approved Product/workstream OKR and relevant stable lane OKRs, task prioritization, scoping, file merges, staging/live deployments, and release gates. Prioritizes the backlog on the project board, sequencing tasks based on OKR alignment and value-vs-effort mix. Product is source-read-only; it writes coordination markdown and launches BFM for source-changing execution.
 - **FB-Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, security rules, and functional test suites. *Does not make styling, layout geometry, or visual changes.*
 - **FB-Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
 - **FB-Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only code capacity.*
@@ -50,14 +50,15 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 
 ### 2. The Board Loop & Resource Locking
 - `PROJECT_BOARD.md` in the project root is the source of truth.
-- **Claim & Lock**: Product scopes the item; before coding, the owning lane claims its own task/files in `PROJECT_BOARD.md`. For non-trivial tasks, Product reads existing approved OKRs first, proposes only missing Product/workstream or lane OKRs needed for clarity, and records or changes them only after the user explicitly approves before the task moves to `In Progress` with declared Affected Screens and Locked Files.
+- **Plan First**: Product scopes the item; workstreams write markdown plans/handoffs. For non-trivial tasks, Product reads existing approved OKRs first, proposes only missing Product/workstream or lane OKRs needed for clarity, and records or changes them only after the user explicitly approves.
+- **BFM Claim & Lock**: After Product launches BFM, the BFM execution worker claims task/files in `PROJECT_BOARD.md`, moves the task to `In Progress`, and declares Affected Screens and Locked Files.
 - **Push & QA**: When complete, threads push feature branches (e.g. `tech/[task]` or `design/[task]`), update board status to `Staging QA`, and list modified files/QA checks.
 - **Handoff, Unlock & Clean**: Product reviews staging, reconciles `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` from lane handoffs, proposes aligned alternatives when work conflicts with approved OKRs, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
 
 ### 3. Safety & Git Hygiene
 - **Never commit directly to main**. All work goes through feature branches.
 - **Commit Docs Separately**: Commit updates to `PROJECT_BOARD.md` and documentation files in separate commits from codebase logic and styling changes.
-- **Product Direction / Lane Execution**: If tests, builds, Git staging, or browser verification hang in Product, stop the retry loop, record `pending-gate` or `blocked` with evidence, and return execution to the owning lane.
+- **Product Direction / BFM Execution**: If tests, builds, Git staging, or browser verification hang in Product, stop the retry loop, record `pending-gate` or `blocked` with evidence, and return execution to BFM sequencing.
 - **Rejection & Rectification**: If Product rejects a branch due to failing test suites, visual QA issues, or strategic misalignment, Product marks the task `Blocked` or `Rejected` on `PROJECT_BOARD.md` (attaching the failure logs) and alerts the user and the lane agent. The lane agent then resolves the bugs locally on its feature branch until all tests pass before resubmitting. If the changes are permanently rejected, Product closes the PR, deletes the feature branch, and removes the task and resource locks from the board.
 ```
 
@@ -128,9 +129,9 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 ### Phase 4: Register the Subagents
 Run the `define_subagent` tool to register the four specialized workstreams in the current workspace using these definitions:
 
-1.  **FB-Product**: PM and Integration User Value Optimizer. Scopes tasks, spawns subagent threads, merges code, runs release gates, and manages deployments.
-2.  **FB-Tech**: Tech Lead and Core Developer. Implements backend migrations, serverless functions, security logic, and runs development tests.
-3.  **FB-Design**: UI/UX Designer and Layout Auditor. Edits frontend styles, handles page geometry layout, and performs visual audits on staging.
+1.  **FB-Product**: PM and Integration User Value Optimizer. Scopes tasks, approves goals, writes coordination markdown, launches BFM, runs release gates, and manages deployments.
+2.  **FB-Tech**: Technical planning lane. Investigates, asks questions, and writes markdown technical plans/handoffs; source edits only when explicitly acting as a BFM execution worker.
+3.  **FB-Design**: UI/UX planning lane. Investigates, critiques, and writes markdown design/visual QA plans; source edits only when explicitly acting as a BFM execution worker.
 4.  **FB-Business**: Business copywriter and positioning strategist. Focuses on onboarding text, documentation, user-facing messaging, and pricing/marketing copy. (Set `enable_write_tools = false`).
 
 ---

@@ -7,14 +7,14 @@ This Codex plugin packages FB-Lane's Loop Engineering workflow:
 - a repo marketplace entry at `.agents/plugins/marketplace.json`
 
 Codex already provides the concurrency. FB-Lane provides the Product Lead loop
-around it: approved Product/workstream OKRs, lane execution, evidence return,
+around it: approved Product/workstream OKRs, plan-only workstreams, BFM execution, evidence return,
 BFM reconciliation, and clean closeout. The full operating model lives in
 [`docs/loop-engineering.md`](../../docs/loop-engineering.md).
 
 Treat FB-Lane as an optional coordination protocol, not as the thing that makes Codex parallel.
 Skip it for single-thread work, simple fixes, read-only questions, or independent work where Codex
-worktrees are enough. Use it when parallel Codex work needs shared ownership, file claims, durable
-handoffs, or Product/Captain sequencing.
+worktrees are enough. Use it when parallel Codex work needs shared ownership, markdown
+handoffs, BFM execution claims, or Product/Captain sequencing.
 
 ## Install
 
@@ -42,10 +42,9 @@ Then describe the work in normal language:
 ```text
 $fb-lane
 Split this across Product, Tech, Design, and Business.
-Use worktrees for code-writing lanes where helpful.
-Each lane should claim files, write a handoff, and return to Product.
+Ask each workstream for a markdown plan or handoff.
+Launch BFM when source-changing execution is approved.
 Product should sequence the final integration and tell me what is ready to merge.
-Product should not claim or execute Tech/Design/Business source changes for the lanes.
 ```
 
 Common prompts:
@@ -53,22 +52,19 @@ Common prompts:
 ```text
 $bfm process the prepared handoffs for this task and sequence execution.
 $fb-product what is ready to merge?
-$fb-design improve the prep-screen icons.
+$fb-design plan prep-screen icon options.
 $fb-tech check whether this auth flow is safe.
-$fb-business rewrite the onboarding copy.
+$fb-business draft onboarding copy options.
 ```
-
-For depth, read the main `README.md`, `FAQ.md`, `docs/loop-engineering.md`, and
-`platforms/codex/README.md`.
 
 ## Typical Prompt
 
 ```text
 $fb-lane
 Run these concurrently:
-$fb-design create prep-screen icon options.
+$fb-design plan prep-screen icon options.
 $fb-tech check whether the auth flow is safe.
-$fb-business rewrite the onboarding copy.
+$fb-business draft onboarding copy options.
 Then have Product sequence the handoffs and flag conflicts.
 
 $bfm
@@ -81,13 +77,15 @@ described in [`docs/loop-engineering.md`](../../docs/loop-engineering.md).
 
 ## Quick Edits
 
-For small changes, use the fast-track task command:
+For a tiny BFM execution slice, use the fast-track task command:
 
 ```bash
 node tools/fb-lane.cjs quick Tech "src/utils.ts" "Fix db indexing"
 ```
 
-This creates a `TASK-Q-####` board item, claims the files, and checks out a quick branch. Current plugin tooling supports these generated quick-task IDs in `status`, `submit`, and `merge`.
+This creates a `TASK-Q-####` board item, claims the files, and checks out a
+quick branch. Quick tasks skip the OKR approval gate; they do not bypass the BFM
+source-change boundary.
 
 ## Workspace Requirement
 

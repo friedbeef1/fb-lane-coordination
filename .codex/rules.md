@@ -13,7 +13,8 @@ This project uses the FB-Lane Four-Lane Coordination Model.
 - **FB-Tech**: backend, APIs, schemas, tests only. Never touch CSS or layout.
 - **FB-Design**: CSS, tokens, layout only. Never touch backend logic or schemas.
 - **FB-Business**: read-only on source code. Write to markdown docs only.
-- **FB-Product**: direction, Goal Alignment Session OKRs, sequencing, integration, merges, and deployments. Product does not claim or execute Tech/Design/Business source changes.
+- **FB-Product**: direction, Goal Alignment Session OKRs, sequencing, integration, merges, and deployments. Product is read-only on application/source code and may write coordination markdown only.
+- **All workstreams**: plan-only by default. They may ask questions, investigate, and write markdown plans/handoffs. Source changes happen only inside a Product-launched BFM execution run.
 
 ### Goal Alignment Session
 - For non-trivial tasks, FB-Product/BFM owns one canonical Goal Alignment Session block in `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`.
@@ -24,8 +25,8 @@ This project uses the FB-Lane Four-Lane Coordination Model.
 
 ### CLI commands (run from project root)
 - `node tools/fb-lane.cjs status` — view all tasks and locks
-- `node tools/fb-lane.cjs claim <id> <lane>` — claim task, checkout branch, lock files
-- `node tools/fb-lane.cjs submit <id>` — run tests, push branch, mark Staging QA
+- `node tools/fb-lane.cjs claim <id> <lane>` — BFM execution worker claims task, branch, and locks
+- `node tools/fb-lane.cjs submit <id>` — BFM execution worker runs tests, pushes branch, marks Staging QA
 - `node tools/fb-lane.cjs merge <id>` — merge to main, release locks (FB-Product only)
 
 ### Product completion audit
