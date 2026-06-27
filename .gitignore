@@ -26,6 +26,7 @@ node_modules/
 jspm_packages/
 
 # Local Dev Agents and Scratch Configs
-.codex/
+.codex/*
+!.codex/rules.md
 .gemini/
 scratch/

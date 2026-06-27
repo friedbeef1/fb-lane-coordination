@@ -209,7 +209,9 @@ turning every mismatch into a hard block.
 FB-Lane is not CI/CD. Its CI readiness loop turns validation evidence into
 Product/BFM closeout input: run `node tools/fb-lane.validate.cjs` locally, then
 compare the GitHub Actions signal from `.github/workflows/fb-lane-readiness.yml`.
-CD is intentionally deferred until there is a real publish or deploy target.
+Once `main` branch protection is enabled, CI passing is required before merge.
+This creates automated merge safety with manual release control: staging, live
+deploy, plugin release, and publish decisions remain manual Product decisions.
 
 ## Closeout Standard
 
