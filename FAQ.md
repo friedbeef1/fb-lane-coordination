@@ -39,6 +39,15 @@ No. FB-Lane is a coordination loop. It has CI readiness evidence for Product/BFM
 closeout, and CI can be required before merge. Staging, live deploy, plugin
 release, and publish decisions remain manual Product decisions.
 
+## What are evals here?
+
+Evals are checks for agent behavior. They ask whether Product/BFM ran the loop
+properly: approved goal, plan-only lanes, accounted handoffs, matching evidence,
+and honest blockers.
+
+Do not start with an eval framework. Use a short Markdown scorecard when the
+same agent mistake repeats.
+
 ## When should I skip FB-Lane?
 
 Skip it when the loop adds more weight than risk reduction:

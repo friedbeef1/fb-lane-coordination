@@ -229,6 +229,36 @@ local validation plus the GitHub Actions readiness signal. CI can be required
 before merge while staging, live deploy, plugin release, and publish decisions
 remain manual.
 
+## Evals
+
+Evals check whether the agent followed the loop. They are different from tests:
+
+- tests check product/code behavior
+- `doctor` checks repo coordination health
+- CI checks merge readiness
+- evals check agent behavior and judgment
+
+Use evals when the same agent failure repeats, such as:
+
+- BFM closes without accounting for every handoff
+- Product changes scope without updating the approved OKR
+- lanes edit source outside BFM execution
+- closeout says "done" without evidence
+
+Start with a Markdown scorecard, not a framework:
+
+```md
+# BFM Closeout Eval
+
+- [ ] Approved OKR exists before execution.
+- [ ] Every handoff is implemented, already done, blocked, out of scope, or deferred.
+- [ ] Evidence matches board, source, docs, tests, and git state.
+- [ ] Missing gates are named instead of hidden.
+- [ ] Closeout note is passive and non-triggering.
+```
+
+Automate only after the scorecard proves useful.
+
 ## Closeout Standard
 
 A good closeout names:

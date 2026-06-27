@@ -13,7 +13,8 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-015 | Staging QA | FB-Product | Coordination | Make workstream threads read-only planning lanes and gate source changes through Product-launched BFM execution | `AGENTS.md`, `CLAUDE.md`, `.codex/rules.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `templates/*.md`, `skills/**/*.md`, `agents/**`, `.claude/agents/**`, `plugins/fb-lane-coordination/**`, `tools/fb-lane.cjs` | `codex/workstream-plan-only-bfm` |
+| TASK-Q-20260627223437 | Done | FB-Product | Documentation | Document FB-Lane evals as lightweight agent-behavior scorecards | `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `plugins/fb-lane-coordination/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | `codex/evals-docs` |
+| TASK-015 | Done | FB-Product | Coordination | Make workstream threads read-only planning lanes and gate source changes through Product-launched BFM execution | `AGENTS.md`, `CLAUDE.md`, `.codex/rules.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `templates/*.md`, `skills/**/*.md`, `agents/**`, `.claude/agents/**`, `plugins/fb-lane-coordination/**`, `tools/fb-lane.cjs` | [PR #29](https://github.com/friedbeef1/fb-lane-coordination/pull/29) |
 | TASK-014 | Done | FB-Product | Cleanup | Ponytail cleanup: move rendered demo videos out of git and clarify canonical/generated maintenance surfaces | `codex-lane-demo/renders/*.mp4`, `platforms/*/how-to-interact-demo/renders/*.mp4`, `.gitignore`, `README.md`, `CHANGELOG.md`, `docs/maintenance.md`, `codex-lane-demo/README.md`, `platforms/claude-code/how-to-interact-demo/README.md`, `platforms/antigravity/how-to-interact-demo/README.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-014.md` | [PR #28](https://github.com/friedbeef1/fb-lane-coordination/pull/28) |
 | TASK-013 | Done | FB-Product | CI | Add CI readiness automation loop for FB-Lane validation evidence | `.github/workflows/fb-lane-readiness.yml`, `tools/fb-lane.validate.cjs`, `.gitignore`, `.codex/rules.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-013.md` | `codex/ci-readiness-loop`, `docs/handoffs/TASK-013.md` |
 | TASK-012 | Done | FB-Product | Coordination | Clarify stable OKR alignment so OKRs anchor the loop instead of multiplying during execution | `AGENTS.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/loop-engineering.md`, `docs/handoffs/TASK-012.md`, `templates/*.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/**`, `skills/**/*.md`, `agents/**`, `.claude/agents/**` | `codex/stable-okr-alignment`, `docs/handoffs/TASK-012.md` |
@@ -36,7 +37,7 @@
 ---
 
 ### TASK-015 - Workstream plan-only BFM gate
-*   **Status**: Staging QA
+*   **Status**: Done
 *   **Owner / Thread**: FB-Product
 *   **Area**: Coordination
 *   **Scope**: Make Product, Tech, Design, and Business workstream threads read-only planning/conversation lanes by default, with all source-code changes happening only inside a Product-launched BFM execution run.
@@ -55,7 +56,7 @@
     *   **Screens**: Documentation and plugin instructions only
     *   **Locked Files**: `AGENTS.md`, `CLAUDE.md`, `.codex/rules.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `templates/*.md`, `skills/**/*.md`, `agents/**`, `.claude/agents/**`, `plugins/fb-lane-coordination/**`, `tools/fb-lane.cjs`
 *   **Links & Deliverables**:
-    *   **Git Branch / PR**: `codex/workstream-plan-only-bfm`
+    *   **Git Branch / PR**: [PR #29](https://github.com/friedbeef1/fb-lane-coordination/pull/29)
 *   **QA Checklist**:
     *   [x] Wording scan confirms plan-only workstream rule.
     *   [x] Root/package CLI parity passes.
@@ -72,6 +73,43 @@
     *   *2026-06-27*: Product claimed the plan-only workstream / BFM execution gate wording update for staging.
     *   *2026-06-27*: Implemented plan-only workstream and Product-launched BFM source-change gate across docs, skills, templates, generated agents, packaged plugin copies, and platform docs. Verification passed for CLI syntax, root/package parity, generated JSON parity, JSON parsing, skill metadata, regression tests, stale wording scan, and `git diff --check`; `doctor` only reports the expected uncommitted local patch before staging.
     *   *2026-06-27*: Ran Ponytail documentation clarity pass: shortened Codex, Claude Code, and Antigravity platform docs; removed stale direct-lane execution tutorials; clarified quick tasks as BFM execution slices, not a source-change bypass.
+    *   *2026-06-27*: PR #29 merged to `main`; `doctor` reported Ready on clean `main`.
+
+
+### TASK-Q-20260627223437 - Document evals as lightweight scorecards
+*   **Status**: Done
+*   **Owner / Thread**: FB-Product
+*   **Area**: Documentation
+*   **Scope**: Explain evals as lightweight checks for agent behavior in the FB-Lane loop.
+*   **Out of Scope**: Adding eval tooling, CI jobs, dependencies, or formal scorecard templates.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make evals understandable without adding a new framework.
+    *   **Key Results**:
+        *   README, FAQ, loop deep dive, and plugin README explain evals in plain language.
+        *   Docs distinguish evals from tests, doctor, CI, and Definition of Done.
+        *   Docs recommend Markdown scorecards only after repeated agent-behavior failures.
+    *   **Definition of Done**: Documentation names what evals are, when to use them, and where they fit in the loop.
+    *   **Gate / Review Point**: Documentation diff review.
+    *   **Approval**: approved
+    *   **Justification**: The user asked to ensure evals are part of the documentation.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Documentation only
+    *   **Locked Files**: `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `plugins/fb-lane-coordination/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/evals-docs`
+*   **QA Checklist**:
+    *   [x] Documentation uses lightweight eval language.
+    *   [x] No eval framework, package, CI job, or new tool was added.
+    *   [x] `git diff --check` passes.
+*   **Modified Files**:
+    *   `README.md`
+    *   `FAQ.md`
+    *   `docs/loop-engineering.md`
+    *   `plugins/fb-lane-coordination/README.md`
+    *   `CHANGELOG.md`
+    *   `PROJECT_BOARD.md`
+*   **Latest Update**:
+    *   *2026-06-27*: Added lightweight evals documentation as agent-behavior scorecards, distinct from tests, doctor, CI, and Definition of Done.
 
 
 ### TASK-014 - Ponytail cleanup pass
