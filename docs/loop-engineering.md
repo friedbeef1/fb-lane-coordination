@@ -204,6 +204,13 @@ non-quick work has the expected loop state. It can warn about issues such as:
 In v1, `doctor` is advisory. It warns so Product can correct drift without
 turning every mismatch into a hard block.
 
+## CI Readiness
+
+FB-Lane is not CI/CD. Its CI readiness loop turns validation evidence into
+Product/BFM closeout input: run `node tools/fb-lane.validate.cjs` locally, then
+compare the GitHub Actions signal from `.github/workflows/fb-lane-readiness.yml`.
+CD is intentionally deferred until there is a real publish or deploy target.
+
 ## Closeout Standard
 
 A good closeout names:

@@ -34,6 +34,15 @@ Loop Engineering is the practice of keeping five things aligned:
 
 Read the full model in [docs/loop-engineering.md](docs/loop-engineering.md).
 
+## Is FB-Lane CI/CD?
+
+No. FB-Lane is a coordination loop, not a CI/CD system. It now has a CI
+readiness automation loop: run `node tools/fb-lane.validate.cjs` locally, and
+use `.github/workflows/fb-lane-readiness.yml` in GitHub Actions for the same
+readiness signal. Loop Engineering feeds that evidence into Product/BFM
+closeout. CD is intentionally deferred until there is a real publish or deploy
+target.
+
 ## When should I skip FB-Lane?
 
 Skip it when the loop adds more weight than risk reduction:
