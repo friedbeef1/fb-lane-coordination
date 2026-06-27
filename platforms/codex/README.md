@@ -3,6 +3,8 @@
 This page is the tactical Codex setup and usage guide. For the Product Lead
 operating model, read [Loop Engineering](../../docs/loop-engineering.md).
 
+> **Status:** FB-Lane on Codex is a public beta.
+
 Codex is a local developer agent that operates directly on your filesystem and git workspace. It already supports native subagents for parallel work, worktrees for isolated background tasks, plugins for reusable workflows, skills for task-specific instructions, and MCP servers for shared tools and context. FB-Lane does not replace those capabilities.
 
 The Codex pain point is narrower: once you start using those capabilities for real product work, someone still has to answer "who owns this?", "which files are safe to edit?", "what finished?", "what must Product integrate first?", and "what did the other lane decide?". FB-Lane gives Codex a lightweight product-coordination contract for that layer.

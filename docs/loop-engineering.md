@@ -243,7 +243,7 @@ phrases, or instructions that start another lane by accident.
 
 Loop Engineering is the operating model. Platform setup is tactical:
 
-- [Antigravity](../platforms/antigravity/README.md)
-- [Claude Code](../platforms/claude-code/README.md)
-- [Codex](../platforms/codex/README.md)
+- [Antigravity](../platforms/antigravity/README.md) - Alpha
+- [Claude Code](../platforms/claude-code/README.md) - Alpha
+- [Codex](../platforms/codex/README.md) - Public beta
 - [Setup alternatives](setup.md)
