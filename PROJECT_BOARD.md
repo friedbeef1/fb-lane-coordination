@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-011 | In Progress | FB-Product | Coordination | Add BFM return-loop closeout checks | Documentation and plugin guidance only / `AGENTS.md`, `.codex/rules.md`, `templates/AGENTS.md`, `templates/CLAUDE.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/skills/bfm/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-tech/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-design/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-business/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `PROJECT_BOARD.md`, `CHANGELOG.md`, `docs/handoffs/TASK-011.md` | `codex/bfm-return-loop` |
 | TASK-Q-5624 | Done | FB-Product | Quick-Fix | Document plugin upgrade process and changelog | (None) | [PR #20](https://github.com/friedbeef1/fb-lane-coordination/pull/20) |
 | TASK-Q-5217 | Done | FB-Tech | Quick-Fix | Improve Codex plugin setup UX | (None) | [PR #17](https://github.com/friedbeef1/fb-lane-coordination/pull/17) |
 | TASK-Q-8688 | Done | FB-Tech | Quick-Fix | Quick test hooks | (None) | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-8688-quick-test-hooks) |
@@ -402,3 +403,32 @@
     *   *2026-06-25*: Initialized quick edit task.
     *   *2026-06-26*: Added changelog and documented the Codex plugin upgrade/reinstall process.
     *   *2026-06-26*: PR #20 merged to `main`; locks released.
+
+
+### TASK-011 - Add BFM return-loop closeout checks
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Product
+*   **Area**: Coordination
+*   **Scope**: Make BFM and lane execution close only after every relevant handoff has an explicit status that agrees with board, source, docs, and test evidence, or the mismatch is named.
+*   **Out of Scope**: Changing submit behavior, adding a new framework, or requiring return-loop ceremony for quick micro-tasks.
+*   **Goal Alignment**:
+    *   **Working Goal**: BFM and lane closeouts behave like a real loop: read handoffs, execute/route work, return to board/source/docs/tests, and close only when all handoffs are accounted for.
+    *   **Success Measure**: Skills, bootstrap guidance, generated CLI prompts, packaged plugin copies, changelog, and handoff docs consistently require explicit handoff status plus return checks.
+    *   **Gate / Review Point**: Wording scans, skill/manifest validation, CLI syntax checks, and source/package parity checks pass before commit.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Documentation and plugin behavior guidance only
+    *   **Locked Files**: `AGENTS.md`, `.codex/rules.md`, `templates/AGENTS.md`, `templates/CLAUDE.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/skills/bfm/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-tech/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-design/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-business/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `PROJECT_BOARD.md`, `CHANGELOG.md`, `docs/handoffs/TASK-011.md`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/bfm-return-loop`
+    *   **Staging URL**: (None)
+    *   **Design Specs**: (None)
+*   **QA Checklist**:
+    *   [ ] Modified skills validate.
+    *   [ ] Plugin manifests parse.
+    *   [ ] Root and packaged CLI pass syntax checks.
+    *   [ ] Source/package CLI copies stay byte-identical.
+    *   [ ] Wording scan finds the return-loop standard in BFM/Product/lane/bootstrap guidance.
+*   **Modified Files**:
+    *   (Pending)
+*   **Latest Update**:
+    *   *2026-06-27*: Product claimed the return-loop coordination update and locked the process docs, skill files, bootstrap templates, generated CLI prompts, packaged CLI copy, changelog, handoff, and board.
