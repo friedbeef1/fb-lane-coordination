@@ -45,6 +45,10 @@
         *   PRs and pushes to `main` run the same local validation script.
         *   The validation script covers CLI syntax, source/package parity, JSON parsing, skill metadata, regression tests, `doctor`, and whitespace checks.
         *   Docs explain that FB-Lane is not CI/CD, but now includes a CI readiness automation loop.
+        *   CI passing is required before merge once `main` branch protection is enabled;
+            the intended operating model is automated merge safety with manual release
+            control (staging, live deploy, plugin release, and publish remain manual
+            Product decisions).
     *   **Definition of Done**: The workflow and local runner pass locally without new dependencies or secrets, and docs/board/handoff record CI readiness as part of Loop Engineering evidence.
     *   **Gate / Review Point**: `node tools/fb-lane.validate.cjs`, `node --check tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check` pass before closeout.
     *   **Approval**: approved
