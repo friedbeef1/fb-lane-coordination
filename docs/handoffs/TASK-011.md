@@ -39,10 +39,11 @@ Every handoff/accounting disagreement must now be marked:
 
 ## Remaining Gates
 
-- Final post-commit `doctor` and `git status` clean-state check.
+- Product review/merge of PR #25.
+- Plugin marketplace refresh/reinstall after merge.
 
 ## Product Status Recommendation
 
-lane-verification-passed once the post-commit clean-state check passes.
+lane-verification-passed; pending Product merge.
 
-Closeout note - TASK-011: implemented. Delivered: BFM return-loop closeout checks across skills, docs, templates, generated prompts, and packaged plugin files. Evidence: CLI syntax, manifest/agent JSON parse, bootstrap smoke, doctor setup checks, CLI parity, and whitespace checks. Remaining: final clean-state check after commit. Handoff: docs/handoffs/TASK-011.md.
+Closeout note - TASK-011: implemented. Delivered: BFM return-loop closeout checks across skills, docs, templates, generated prompts, and packaged plugin files. Evidence: CLI syntax, manifest/agent JSON parse, bootstrap smoke, doctor setup checks, CLI parity, whitespace checks, and PR #25. Remaining: Product merge and plugin reinstall/refresh after merge. Handoff: docs/handoffs/TASK-011.md.
