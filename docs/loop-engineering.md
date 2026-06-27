@@ -52,13 +52,16 @@ flowchart TD
 ## Goal Alignment Session
 
 For non-trivial BFM runs, Product/BFM starts with a Goal Alignment Session before
-sequencing execution.
+sequencing execution. The session is not a request for the Product Manager to
+write OKRs from scratch. BFM proposes plain-language OKRs for approval or
+discussion.
 
-The canonical OKR block lives on `PROJECT_BOARD.md` for that run:
+The approved OKR tree lives on `PROJECT_BOARD.md`:
 
 ```md
 ## Goal Alignment Session
 
+Product / Workstream OKR:
 Objective: <the outcome Product wants>
 Key Results:
 - <measurable result>
@@ -67,16 +70,26 @@ Definition of Done: <what must be true before closeout>
 Gate / Review Point: <where the user or Product reviews>
 Approval: pending | approved
 Justification: <why this OKR fits the request and repo truth>
+
+Lane OKRs:
+- Product: <how sequencing, tradeoffs, or release gates support the Product/workstream OKR>
+- Tech: <how implementation, reliability, or tests support the Product/workstream OKR>
+- Design: <how UI, usability, or visual QA support the Product/workstream OKR>
+- Business: <how copy, positioning, or go-to-market support the Product/workstream OKR>
 ```
 
 Rules:
 
 - `TASK-Q-*` quick tasks are exempt from the approval gate.
-- BFM stops before execution when approval is missing.
-- BFM stops when OKRs are unclear.
-- BFM stops when a handoff conflicts with the approved OKR.
-- After approval, BFM may change approach, scope, or sequence to fit the OKR.
-- BFM does not silently edit approved OKRs.
+- Product/workstream OKRs are the top-level outcome.
+- Lane OKRs are stable lane-specific contributions to that outcome.
+- Mini-loops produce evidence against lane OKRs; they do not create new OKRs.
+- BFM stops before execution when approval is missing, OKRs are unclear, or a
+  handoff conflicts with the approved OKR tree.
+- After approval, BFM may change approach, scope, or sequence to fit the OKRs.
+- BFM does not dynamically create, add, edit, or replace approved OKRs during execution.
+- If a new or changed OKR seems necessary, Product/BFM explains why in plain
+  language and stops for explicit approval before applying it.
 
 Good objective:
 
@@ -112,25 +125,33 @@ red-green-refactor loop. For docs, copy, sequencing, or visual work, the
 Definition of Done may be better proven by link checks, screenshot evidence,
 wording scans, or Product approval.
 
-## Lane Handoffs And OKR Fit
+## Lane Handoffs And Lane OKR Fit
 
-Lanes do not own the canonical goal. Product/BFM owns it. Lanes challenge it,
-align to it, and return evidence against it.
+Lanes do not own the Product/workstream OKR. Product/BFM owns it. Lanes own
+evidence against their lane OKR and the Product/workstream OKR.
+
+Mini-loops are the small execution cycles inside a lane:
+
+```text
+lane OKR -> task slice -> verify -> return evidence -> update handoff
+```
+
+They should make progress clearer, not add more goals.
 
 For non-trivial handoffs, use this compact form:
 
 ```md
 ## Goal Alignment Session
 
-OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
-Goal Challenge / Caveat: <real caveat> | No caveat identified
-Definition of Done Evidence: <lane evidence that proves, weakens, or blocks the approved OKR>
+Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+Mini-loop Evidence: <lane evidence from its smallest real verification loop>
+Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
 ```
 
 What each value means:
 
-- `aligned`: the lane can execute against the approved OKR.
-- `suggest approach change`: the OKR is valid, but the lane recommends a
+- `aligned`: the lane can execute against the approved lane OKR.
+- `suggest approach change`: the OKR tree is valid, but the lane recommends a
   different path to satisfy it.
 - `blocked by OKR ambiguity`: the lane cannot safely proceed until Product or
   the user clarifies the goal.
@@ -175,8 +196,9 @@ non-quick work has the expected loop state. It can warn about issues such as:
 - missing board or rules files
 - missing handoff directory
 - active locks with unclear state
-- non-quick handoffs missing `OKR Fit`
+- non-quick handoffs missing `Lane OKR Fit`, `Mini-loop Evidence`, or `Evidence Against Product OKR`
 - non-quick BFM targets with missing or unapproved Goal Alignment Session OKRs
+- handoffs that imply a new or changed OKR without a board-approved OKR update
 - dirty git state that Product should name before closeout
 
 In v1, `doctor` is advisory. It warns so Product can correct drift without

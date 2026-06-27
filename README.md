@@ -39,7 +39,7 @@ lane handoffs, file claims, `doctor`, and BFM/Product closeout checks.
 ```mermaid
 flowchart TD
     A["Product captures intent"] --> B["Goal Alignment Session"]
-    B --> C{"OKRs approved?"}
+    B --> C{"Product/workstream OKR approved?"}
     C -- "No" --> B
     C -- "Yes" --> D["Lane execution"]
     D --> E["Handoff evidence"]
@@ -55,16 +55,19 @@ flowchart TD
 For non-trivial work, BFM does not start by coding. It starts with a **Goal
 Alignment Session**:
 
-- Product proposes an `Objective`
-- Product proposes measurable `Key Results`
+- Product discusses a Product/workstream `Objective`
+- Product discusses measurable `Key Results`
 - Product defines the `Definition of Done`
 - Product names the `Gate / Review Point`
-- Product records `Approval: pending`
-- The user approves or changes it
-- BFM executes only after `Approval: approved`
+- Product/BFM proposes stable lane OKRs where lanes are relevant
+- The user explicitly approves or changes it
+- Product records the approved OKR in the board
+- Lane mini-loops return evidence against their lane OKR and the Product/workstream OKR
+- BFM executes only against that stable OKR tree
 
-After approval, BFM changes approach, scope, or sequence to fit the OKR. It does
-not silently rewrite the approved goal.
+After approval, BFM changes approach, scope, or sequence to fit the OKRs. It does
+not dynamically create or rewrite OKRs during execution; any OKR change requires
+discussion and explicit user approval.
 
 ## Why Product Leads Care
 
@@ -88,11 +91,12 @@ or tests say otherwise.
 
 | Loop need | FB-Lane mechanism |
 |---|---|
-| Approved goal | `Goal Alignment Session` block in `PROJECT_BOARD.md` |
+| Approved Product/workstream OKR | `Goal Alignment Session` block in `PROJECT_BOARD.md` |
+| Stable lane OKRs | Standing Tech, Design, Business, and Product quality anchors |
 | Role clarity | FB-Product, FB-Tech, FB-Design, and FB-Business lanes |
 | Collision control | File claims and optional worktrees |
 | Durable handoff | `docs/handoffs/<task-id>.md` |
-| Evidence return | `OKR Fit`, caveats, and Definition of Done evidence |
+| Evidence return | `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` |
 | Health check | `node tools/fb-lane.cjs doctor` |
 | Integration | BFM/Product reconciliation before sequencing or merge |
 | Closeout | Explicit status: implemented, already done, blocked, out of scope, or explicitly deferred |

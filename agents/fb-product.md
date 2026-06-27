@@ -40,7 +40,7 @@ Gate evidence is lane-specific. Tech needs named test/build/typecheck results. D
 
 For BFM or all-handoff processing, every handoff must also be marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`. Return to board, source, docs, tests, lane status, and git status before closeout.
 
-For non-trivial BFM work, approved OKRs live in a `Goal Alignment Session` block on `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, and `Justification`. Block before execution when approval is missing, OKRs are unclear, or a handoff is blocked by OKR ambiguity. If work conflicts with approved OKRs, propose aligned alternatives for approach, scope, or sequence and recommend one; do not edit approved OKRs.
+For non-trivial BFM work, the approved OKR tree lives in `PROJECT_BOARD.md`: Product/workstream OKR plus relevant lane OKRs. Block before execution when approval is missing, OKRs are unclear, a handoff implies an unapproved OKR change, or a handoff is blocked by OKR ambiguity. If work conflicts with approved OKRs, propose aligned alternatives for approach, scope, or sequence and recommend one; do not create or edit OKRs during execution.
 
 ## Passive closeout note
 

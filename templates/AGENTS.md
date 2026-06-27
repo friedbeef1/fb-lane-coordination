@@ -16,7 +16,7 @@ To prevent context window overload and git collisions, strictly adhere to your a
 ### 👑 FB-Product (Product Manager / User Value Optimizer)
 *   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
-*   **Workflow**: Reads user requests, runs a Goal Alignment Session for each non-trivial task, drafts OKRs in `PROJECT_BOARD.md` (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending`, `Justification`), asks the user to approve them, marks `Approval: approved` only after explicit approval, sequences tasks against those OKRs and value-vs-effort mix, assigns execution to the owning lanes, reviews PRs, verifies staging, and merges branches.
+*   **Workflow**: Reads user requests, runs a Goal Alignment Session for each non-trivial task, discusses the Product/workstream OKR with the user (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Justification`), records or changes OKRs only after explicit user approval, sequences tasks against those stable anchors and value-vs-effort mix, assigns execution to the owning lanes, reviews PRs, verifies staging, and merges branches.
 *   **Boundary**: Product gives direction and owns integration. Product does not claim or execute Tech/Design/Business source changes on their behalf; individual lanes claim and execute their own task/files.
 *   **Completion Audit Rule**: Reports delivered work, lane-specific verification, and unresolved gates as separate statuses for every lane. Product must not call any workstream "done" or "executed" unless the required evidence exists for that lane; otherwise mark the missing gate as pending or blocked.
 
@@ -39,7 +39,9 @@ To prevent context window overload and git collisions, strictly adhere to your a
 Every lane must leave a final informational closeout note in its thread when it stops work on a task. The note records task ID, status, delivered work, evidence, remaining gates, and the handoff path. It must not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane; `PROJECT_BOARD.md` and `docs/handoffs/` remain the trigger source.
 
 ### 🎯 Goal Alignment Session
-Use a Goal Alignment Session for non-trivial handoffs and sequencing work. Product/BFM owns one canonical OKR block per BFM run in `PROJECT_BOARD.md`, with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Worker lanes read that block and report OKR fit in handoffs instead of rewriting it. Do not turn `TASK-Q-*` quick tasks into a new ceremony.
+Use a Goal Alignment Session for non-trivial handoffs and sequencing work. Product/BFM owns one approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream OKR with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`, plus stable lane OKRs for Product, Tech, Design, and Business where those lanes are relevant. Keep every OKR plain enough for a Product Manager to skim and approve.
+
+Worker lanes read the approved OKR tree first. Their mini-loops do not create new OKRs; they return evidence against the relevant lane OKR and the Product/workstream OKR. OKRs are added or changed only after Product/BFM explains the need in plain language and the user explicitly approves the change. Do not turn `TASK-Q-*` quick tasks into a new ceremony.
 
 Good objective example: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 
@@ -50,12 +52,12 @@ Lane handoffs should use this compact form instead of a long SMART template:
 ```md
 ## Goal Alignment Session
 
-OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
-Goal Challenge / Caveat: <real caveat> | No caveat identified
-Definition of Done Evidence: <lane evidence that proves, weakens, or blocks the approved OKR>
+Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+Mini-loop Evidence: <lane evidence from its smallest real verification loop>
+Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
 ```
 
-BFM blocks before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR. If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the OKR and recommends one; it must not edit approved OKRs.
+BFM blocks before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR tree. If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the existing OKRs and recommends one. It must not add, change, or edit approved OKRs during execution.
 
 ### 🔁 BFM Return Loop
 When the user says "run BFM" or "process all lane handoffs", Product/BFM must not close until every discovered handoff has one explicit status:
@@ -104,11 +106,11 @@ Internal coordination is automated by the agents, but ownership stays split: Pro
 
 All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate concurrent workstreams:
 1. **Drift Audit**: Before starting, run the drift checklist to verify workspace state.
-2. **Claim & Lock**: Product creates or scopes the item; the owning lane claims its own task/files before implementation. For non-trivial tasks, Product/BFM drafts or confirms one Goal Alignment Session block before implementation (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) and blocks until the user explicitly approves it. Worker lanes flag missing or unclear OKRs in handoffs instead of rewriting the board. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
+2. **Claim & Lock**: Product creates or scopes the item; the owning lane claims its own task/files before implementation. For non-trivial tasks, Product/BFM reads the existing approved OKR tree first, proposes only missing Product/workstream or lane OKRs needed for clarity, and records or changes them only after the user explicitly approves. Worker lanes flag missing, stale, or unclear OKRs in handoffs instead of rewriting the board. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
 3. **Commit**: Work in an isolated branch (`tech/...` or `design/...`). Do not touch files locked by other active threads.
 4. **QA**: Once complete, push your branch, set status to `Staging QA`, and document the modified files and QA verification results.
 5. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.
-6. **Handoff, Unlock & Clean**: Write the structured handoff and passive closeout note. Product reads `PROJECT_BOARD.md` / `docs/handoffs/`, reconciles every lane's `OKR Fit` before sequencing execution or merge, proposes aligned alternatives for OKR conflicts, merges approved branches, removes resource locks (marking the task `Done`), and records its own passive closeout note. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
+6. **Handoff, Unlock & Clean**: Write the structured handoff and passive closeout note. Product reads `PROJECT_BOARD.md` / `docs/handoffs/`, reconciles every lane's `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` before sequencing execution or merge, proposes aligned alternatives for OKR conflicts, merges approved branches, removes resource locks (marking the task `Done`), and records its own passive closeout note. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
 
 ---
 
