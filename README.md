@@ -39,6 +39,10 @@ BFM/Product closeout checks.
 FB-Lane is not CI/CD. It includes CI readiness evidence for Product/BFM
 closeout: automated merge safety, manual release control.
 
+FB-Lane evals are lightweight behavior checks for the agents themselves. They
+answer: did Product/BFM run the loop correctly? Keep them as Markdown
+scorecards until repeated failures justify automation.
+
 ## The Core Loop
 
 ```mermaid
@@ -121,6 +125,7 @@ or tests say otherwise.
 | Durable plan/handoff | `docs/handoffs/<task-id>.md` or project plan markdown |
 | Evidence return | `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` |
 | Health check | `node tools/fb-lane.cjs doctor` |
+| Agent behavior evals | Optional Markdown scorecards for repeated loop failures |
 | Execution gate | Product-launched BFM run |
 | Integration | BFM/Product reconciliation before sequencing or merge |
 | Closeout | Explicit status: implemented, already done, blocked, out of scope, or explicitly deferred |
