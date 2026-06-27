@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased - 2026-06-27
+
+- Reliability: the `fb-lane` MCP server now resolves `PROJECT_BOARD.md`
+  independent of the launcher's working directory. `resolveWorkspaceStart`
+  honors `CLAUDE_PROJECT_DIR` (which Claude Code injects into the spawned
+  server's environment), the root `.mcp.json` uses
+  `${CLAUDE_PROJECT_DIR:-.}/tools/fb-lane.cjs`, and the plugin `.mcp.json`
+  uses `${CLAUDE_PLUGIN_ROOT}`. This addresses intermittent "Could not attach
+  to MCP server fb-lane" failures when the server was started from a different
+  directory.
+- Security: hardened the `fb-lane` CLI against shell command injection. `runGit`
+  now executes `git` with `execFileSync` and an argument array instead of
+  building a `git ${args}` string for a shell, so task IDs, lane names, branch
+  names, and commit messages — including values supplied as MCP tool arguments —
+  can no longer inject commands. Task IDs and lane names are validated against
+  strict allowlists at the CLI and MCP entry points, and option-like
+  (`-`-prefixed) branch names are refused before reaching git.
+- Added `tools/fb-lane.test.cjs`, a dependency-free regression suite covering the
+  validators and proving shell metacharacters in arguments are inert. The CLI is
+  now importable (guarded `main()`, exported helpers) so it can be unit-tested.
+- Added `docs/fb-lane-upstream/` holding the change as a `git format-patch`
+  (`0001-harden-fb-lane-cli.patch`) for upstream contribution.
+
 ## 0.1.2+codex.20260627174151 - 2026-06-27
 
 - Reframed the public GitHub docs around Loop Engineering for Product Leads:

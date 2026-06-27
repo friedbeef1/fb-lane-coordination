@@ -27,6 +27,7 @@
 | TASK-008 | Done | FB-Product | Documentation | Refresh plugin docs after merged Codex and quick-task work | `README.md`, `FAQ.md`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `PROJECT_BOARD.md` | `codex/docs-refresh-after-merges` |
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
+| TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
 
 ---
 
@@ -400,6 +401,40 @@
     *   *2026-06-26*: Follow-up Product/Lane boundary checks passed: skill/plugin/CLI validation, source/package CLI parity, JSON manifest parse, `git diff --check`, stale-lock doctor fixture, and repo doctor process/lock check.
     *   *2026-06-26*: PR #19 merged to `main`, local marketplace source refreshed, and `codex plugin add fb-lane-coordination@fb-lane` reinstalled active cache version `0.1.2+codex.20260625082239`.
 
+
+### TASK-011 - Harden fb-lane CLI against shell command injection
+*   **Status**: Done
+*   **Owner / Thread**: FB-Tech
+*   **Area**: Security
+*   **Scope**: Stop running `git` through a shell in `fb-lane.cjs`, and validate task IDs and lane names so attacker-controlled values (including MCP tool arguments) can no longer inject commands.
+*   **Out of Scope**: Changing the coordination model, lane boundaries, or board protocol.
+*   **Goal Alignment**:
+    *   **Working Goal**: Remove the command-injection surface in the CLI without changing legitimate behavior.
+    *   **Success Measure**: `git` runs with no shell, untrusted values are validated, and a regression suite proves shell metacharacters are inert.
+    *   **Gate / Review Point**: CLI syntax check, regression tests, and source/packaged CLI parity pass before merge.
+*   **Affected Screens / Locks**:
+    *   **Screens**: CLI behavior only
+    *   **Locked Files**: (None)
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21)
+    *   **Staging URL**: (None)
+    *   **Design Specs**: (None)
+*   **QA Checklist**:
+    *   [x] `git` is invoked via `execFileSync` with an args array (no shell).
+    *   [x] Task IDs and lane names are validated at the CLI and MCP entry points.
+    *   [x] `node tools/fb-lane.test.cjs` passes (validators + no-shell proofs).
+    *   [x] Root and packaged CLI stay byte-identical and pass syntax checks.
+*   **Modified Files**:
+    *   `tools/fb-lane.cjs`
+    *   `tools/fb-lane.test.cjs`
+    *   `plugins/fb-lane-coordination/tools/fb-lane.cjs`
+    *   `plugins/fb-lane-coordination/tools/fb-lane.test.cjs`
+    *   `docs/fb-lane-upstream/0001-harden-fb-lane-cli.patch`
+    *   `docs/fb-lane-upstream/README.md`
+    *   `CHANGELOG.md`
+    *   `PROJECT_BOARD.md`
+*   **Latest Update**:
+    *   *2026-06-27*: Replaced shell `git ${args}` execution with `execFileSync('git', argv)`, de-shelled the `submit` fallback and `lsof` lookup, added task ID / lane allowlists and an option-like branch-name guard, made the CLI importable, and added `tools/fb-lane.test.cjs` (10 checks pass). Resynced the bundled plugin copy and captured the change as an upstream `git format-patch`.
 
 ### TASK-Q-5624 - Document plugin upgrade process and changelog
 *   **Status**: Done
