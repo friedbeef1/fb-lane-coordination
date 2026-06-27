@@ -81,6 +81,23 @@ Treat BFM as a loop, not a one-way pipeline:
 - After board/doc updates, run status again and confirm lane state reflects reality.
 - After commit/push, return to `git status` and close only with a clean worktree or a named dirty state.
 
+```mermaid
+flowchart TD
+    A["Read intent and handoffs"] --> B["Return to PROJECT_BOARD.md"]
+    B --> C["Reconcile repo truth<br/>source, docs, tests, locks"]
+    C --> D["Prioritize and route lane work"]
+    D --> E["Execute next slice"]
+    E --> F["Verify smallest real gate"]
+    F --> G{"Board, source, docs, tests agree?"}
+    G -- "No" --> H["Fix gap or mark<br/>blocked, out of scope, deferred"]
+    H --> B
+    G -- "Yes" --> I["Update board, handoffs, closeout"]
+    I --> J{"Clean git state and gates explicit?"}
+    J -- "No" --> H
+    J -- "Yes" --> K["Close BFM"]
+    K -. "next handoff batch" .-> A
+```
+
 ## Completion Contract
 
 Finish with a Product closeout note:

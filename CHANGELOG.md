@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2+codex.20260627163830 - 2026-06-27
+
+- Added the visible BFM return-loop Mermaid diagram to the root README, packaged
+  plugin README, and BFM skill so the loop is captured in reusable FB-Lane
+  guidance.
+
 ## 0.1.2+codex.20260627161927 - 2026-06-27
 
 - Added the BFM return-loop closeout standard: every processed handoff must be

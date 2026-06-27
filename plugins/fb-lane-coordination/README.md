@@ -77,6 +77,23 @@ Business, and lane-coordination view, then sequence and execute to completion.
 BFM closes only after every handoff is marked `implemented`, `already done`, `blocked`,
 `out of scope`, or `explicitly deferred`, and board/source/docs/tests agree or the gap is named.
 
+```mermaid
+flowchart TD
+    A["Read intent and handoffs"] --> B["Return to PROJECT_BOARD.md"]
+    B --> C["Reconcile repo truth<br/>source, docs, tests, locks"]
+    C --> D["Prioritize and route lane work"]
+    D --> E["Execute next slice"]
+    E --> F["Verify smallest real gate"]
+    F --> G{"Board, source, docs, tests agree?"}
+    G -- "No" --> H["Fix gap or mark<br/>blocked, out of scope, deferred"]
+    H --> B
+    G -- "Yes" --> I["Update board, handoffs, closeout"]
+    I --> J{"Clean git state and gates explicit?"}
+    J -- "No" --> H
+    J -- "Yes" --> K["Close BFM"]
+    K -. "next handoff batch" .-> A
+```
+
 ## Quick Edits
 
 For small changes, use the fast-track task command:
