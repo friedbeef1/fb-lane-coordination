@@ -2,6 +2,14 @@
 
 ## Unreleased - 2026-06-27
 
+- Reliability: the `fb-lane` MCP server now resolves `PROJECT_BOARD.md`
+  independent of the launcher's working directory. `resolveWorkspaceStart`
+  honors `CLAUDE_PROJECT_DIR` (which Claude Code injects into the spawned
+  server's environment), the root `.mcp.json` uses
+  `${CLAUDE_PROJECT_DIR:-.}/tools/fb-lane.cjs`, and the plugin `.mcp.json`
+  uses `${CLAUDE_PLUGIN_ROOT}`. This addresses intermittent "Could not attach
+  to MCP server fb-lane" failures when the server was started from a different
+  directory.
 - Security: hardened the `fb-lane` CLI against shell command injection. `runGit`
   now executes `git` with `execFileSync` and an argument array instead of
   building a `git ${args}` string for a shell, so task IDs, lane names, branch
