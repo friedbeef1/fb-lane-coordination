@@ -18,16 +18,15 @@ They already provide a lot of the execution machinery:
 - Claude Code has subagents, MCP, slash commands, and worktrees.
 - Antigravity has native multi-agent orchestration.
 
-FB-Lane does not claim to replace those primitives. It adds the coordination
-contract around them: who owns the work, what goal was approved, what files are
-claimed, what evidence came back, and what Product can safely merge or defer.
+FB-Lane does not replace those primitives. It adds the coordination contract:
+approved goal, owner, evidence, merge/defer decision, and BFM source-change gate.
 
 ## What is Loop Engineering?
 
 Loop Engineering is the practice of keeping five things aligned:
 
 1. the approved goal
-2. the work that agents execute
+2. the work that BFM executes from approved plans
 3. the evidence they return
 4. the board state Product uses to sequence
 5. the repo truth in source, docs, tests, and git
@@ -36,14 +35,9 @@ Read the full model in [docs/loop-engineering.md](docs/loop-engineering.md).
 
 ## Is FB-Lane CI/CD?
 
-No. FB-Lane is a coordination loop, not a CI/CD system. It now has a CI
-readiness automation loop: run `node tools/fb-lane.validate.cjs` locally, and
-use `.github/workflows/fb-lane-readiness.yml` in GitHub Actions for the same
-readiness signal. Loop Engineering feeds that evidence into Product/BFM
-closeout. Once `main` branch protection is enabled, CI passing is required
-before merge. This is automated merge safety with manual release control; staging,
-live deploy, plugin release, and publish decisions remain manual Product
-decisions.
+No. FB-Lane is a coordination loop. It has CI readiness evidence for Product/BFM
+closeout, and CI can be required before merge. Staging, live deploy, plugin
+release, and publish decisions remain manual Product decisions.
 
 ## When should I skip FB-Lane?
 
@@ -57,6 +51,23 @@ Skip it when the loop adds more weight than risk reduction:
 
 Use it when multiple lanes, shared files, durable handoffs, Product sequencing,
 or release evidence matter.
+
+## Are workstream threads read-only?
+
+Yes. Product, Tech, Design, and Business workstream threads are planning lanes
+by default. They can ask questions, inspect context, critique, and write
+markdown plans or handoffs. They do not edit source code, branch, commit,
+submit, merge, deploy, or change provider state from ordinary workstream chat.
+
+Product can edit coordination markdown such as the board, plans, handoffs, OKRs,
+Definition of Done, sequencing notes, and closeout notes. Source changes happen
+only after Product launches BFM.
+
+## How does code change if lanes are read-only?
+
+Product launches **BFM (Build Flow Manager)**. BFM reads the approved markdown
+plans, sequences the work, claims files, dispatches implementation workers, runs
+verification, and returns evidence before closeout.
 
 ## What does Product approve?
 
@@ -72,7 +83,7 @@ on `PROJECT_BOARD.md`:
 - `Justification`
 
 Stable lane OKRs are the standing Tech, Design, Business, and Product quality
-anchors that lanes use while executing their slice. Mini-loop evidence is the
+anchors that lanes use while planning or proving their slice. Mini-loop evidence is the
 proof each lane returns from its smallest real check, review, or smoke.
 
 Once approved, BFM should change the approach, scope, or sequence to fit the
@@ -101,9 +112,9 @@ quick `TASK-Q-*` work.
 No. The lanes are roles inside the loop:
 
 - Product/BFM owns goals, sequencing, and closeout.
-- Tech owns logic, data, integrations, reliability, and tests.
-- Design owns UI, layout, visual QA, and assets.
-- Business owns positioning, onboarding copy, pricing, and marketing text.
+- Tech owns technical plans, logic risks, data/integration recommendations, reliability, and test strategy.
+- Design owns UI plans, layout critique, visual QA plans, and asset guidance.
+- Business owns positioning, onboarding copy, pricing, and marketing text plans.
 
 If one thread can safely do the work, use one thread. If ownership is split,
 lanes keep the split visible.

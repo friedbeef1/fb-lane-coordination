@@ -18,9 +18,10 @@
   board update. `TASK-Q-*` quick tasks remain exempt, and `submit` behavior is
   unchanged.
 - Plugin: bumped the Codex plugin build suffix to
-  `0.1.2+codex.20260627191525`.
+  `0.1.2+codex.20260627210000`.
 - Maintenance cleanup: moved tracked demo MP4 assets out of git into GitHub release assets, added release asset links in demo READMEs, and documented canonical vs packaged maintenance boundaries in `docs/maintenance.md`.
 - Docs: labeled Codex support as public beta and Claude Code / Antigravity support as alpha.
+- Coordination: made normal workstream threads plan-only and documented Product-launched BFM as the source-change execution gate.
 - Docs/plugin metadata: replaced user-specific approval wording with generic
   `the user` language, moved plugin display ownership to `FB-Lane Contributors`,
   and bumped the Codex plugin build suffix to `0.1.2+codex.20260627183826`.
@@ -101,8 +102,8 @@
 - Added the BFM skill for Product/Captain review, sequencing, routing, and
   integration of prepared handoffs.
 - Clarified the Product/Lane execution boundary: Product gives direction and
-  integration, while Tech, Design, and Business claim and execute their own
-  task/files.
+  integration, ordinary workstreams produce markdown plans/handoffs, and
+  source changes happen only inside Product-launched BFM execution.
 - Added `doctor` warnings for missing exact `## Goal Alignment` sections on
   non-quick handoffs. `TASK-Q-*` quick tasks remain exempt.
 - Added `doctor` checks for stale Git lock files and long-running local lane
