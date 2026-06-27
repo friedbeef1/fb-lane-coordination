@@ -2,9 +2,9 @@
 
 ## Goal Alignment Session
 
-OKR Fit: aligned
-Goal Challenge / Caveat: No caveat identified
-Definition of Done Evidence: The follow-up covers Goal Alignment Session OKRs, BFM blocking, OKR Fit handoffs, and return-loop evidence without changing submit behavior.
+Lane OKR Fit: aligned
+Mini-loop Evidence: The follow-up covers Goal Alignment Session OKRs, BFM blocking, Lane OKR Fit handoffs, and return-loop evidence without changing submit behavior.
+Evidence Against Product OKR: No blocking evidence identified.
 
 ## Closeout Status
 
@@ -29,7 +29,7 @@ Every handoff/accounting disagreement must now be marked:
 - Added the visible Mermaid return-loop diagram to the root README, packaged plugin README, and BFM skill so the loop is captured in the reusable FB-Lane repo, not only in project handoffs.
 - Updated the Codex plugin metadata and default prompts so installing the plugin exposes the BFM return-loop behavior directly.
 - Renamed the canonical Goal Alignment evidence field to `Definition of Done` across docs, skills, templates, generated prompts, packaged plugin copies, and CLI output.
-- Implemented Goal Alignment Session OKRs with approved per-run board fields, BFM blocking rules, `OKR Fit` handoffs, and warning-only doctor checks for missing/unapproved non-quick OKRs.
+- Implemented Goal Alignment Session OKRs with approved per-run board fields, BFM blocking rules, `Lane OKR Fit` handoffs, and warning-only doctor checks for missing/unapproved non-quick OKRs.
 - Rewrote the public GitHub docs around Loop Engineering as the Product Lead operating model.
 - Added `docs/loop-engineering.md` as the deep-dive operating guide for Goal Alignment Sessions, OKRs, Definition of Done, lane handoffs, BFM return checks, `doctor`, and closeout statuses.
 - Shortened `FAQ.md` around the main objections and kept setup/platform/plugin pages tactical with links back to the loop model.
@@ -43,7 +43,7 @@ Every handoff/accounting disagreement must now be marked:
 - JSON parse check for plugin manifests and generated source/package agent JSON files
 - Codex bootstrap smoke in a temporary repo confirmed generated `AGENTS.md`, `PROJECT_BOARD.md`, and `.codex/rules.md` include the return-loop wording
 - `node tools/fb-lane.cjs doctor` passed setup checks; the only warning was expected while TASK-011 had uncommitted in-progress changes
-- Temporary doctor fixture confirmed missing non-quick Goal Alignment Session/OKR Fit/board OKRs warn, approved OKRs do not warn, and `TASK-Q-*` remains exempt.
+- Temporary doctor fixture confirmed missing non-quick Goal Alignment Session/Lane OKR Fit/board OKRs warn, approved OKRs do not warn, and `TASK-Q-*` remains exempt.
 - `git diff --check`
 - `node tools/fb-lane.cjs doctor`
 - Markdown link check for rewritten docs
@@ -59,4 +59,4 @@ Every handoff/accounting disagreement must now be marked:
 
 implemented; merged to `main`.
 
-Closeout note - TASK-011: implemented. Delivered: BFM return-loop closeout checks, Goal Alignment Session OKRs, `OKR Fit` handoffs, warning-only doctor OKR checks, public GitHub docs centered on Loop Engineering for Product Leads, and user-agnostic approval wording. Evidence: CLI syntax, manifest/agent JSON parse, doctor OKR fixture, repo doctor setup/OKR checks, CLI parity, Markdown link check, stale-positioning scan, install-command retention scan, user-specific wording scan, whitespace checks, and PR #25. Remaining: None. Handoff: docs/handoffs/TASK-011.md.
+Closeout note - TASK-011: implemented. Delivered: BFM return-loop closeout checks, Goal Alignment Session OKRs, `Lane OKR Fit` handoffs, warning-only doctor OKR checks, public GitHub docs centered on Loop Engineering for Product Leads, and user-agnostic approval wording. Evidence: CLI syntax, manifest/agent JSON parse, doctor OKR fixture, repo doctor setup/OKR checks, CLI parity, Markdown link check, stale-positioning scan, install-command retention scan, user-specific wording scan, whitespace checks, and PR #25. Remaining: None. Handoff: docs/handoffs/TASK-011.md.

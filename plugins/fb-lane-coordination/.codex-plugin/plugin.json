@@ -1,6 +1,6 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.1.2+codex.20260627183826",
+  "version": "0.1.2+codex.20260627191525",
   "description": "Codex plugin for safe concurrent lane work using FB-Lane board claims, handoffs, and Product integration gates.",
   "author": {
     "name": "FB-Lane Contributors",
@@ -22,7 +22,7 @@
   "interface": {
     "displayName": "FB-Lane Coordination",
     "shortDescription": "Run concurrent Codex lanes without file collisions",
-    "longDescription": "FB-Lane Coordination packages Codex skills and an MCP server for lane-based project work. Codex supplies native concurrency; FB-Lane supplies the shared board, file claims, handoff docs, Product/Captain integration gate, approved Goal Alignment Session OKRs, and BFM return loop so multiple lane instructions can run at the same time without overwriting each other or closing before board, source, docs, tests, OKRs, and git state agree.",
+    "longDescription": "FB-Lane Coordination packages Codex skills and an MCP server for lane-based project work. Codex supplies native concurrency; FB-Lane supplies the shared board, file claims, handoff docs, Product/Captain integration gate, approved stable OKR tree, and BFM return loop so multiple lane instructions can run at the same time without overwriting each other or closing before board, source, docs, tests, OKRs, and git state agree.",
     "developerName": "FB-Lane Contributors",
     "category": "Developer Tools",
     "capabilities": [
