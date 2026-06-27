@@ -44,6 +44,7 @@ Create a short internal review with these slots:
 
 Do not summarize a lane as done from delivery evidence alone. Use `delivered`, `lane-verification-passed`, `pending-gate`, `blocked`, or `superseded`.
 Reconcile every lane's `Goal Alignment`, `Goal Challenge / Caveat`, and `Evidence Against Goal` before deciding sequence.
+Every handoff BFM reads must end with one closeout status: `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
 
 ## Sequence
 
@@ -70,6 +71,16 @@ Proceed through the sequence without asking for repeated permission when authori
 - If a lane's tests, build, Git staging, or browser verification hangs, stop the Product retry loop and record the task as `pending-gate` or `blocked` with the exact runner/process evidence. Return the fix to the owning lane.
 - Do not deploy live, add production secrets, change payment credentials, or run destructive operations without explicit current approval.
 
+## Return Checks
+
+Treat BFM as a loop, not a one-way pipeline:
+
+- After reading handoffs, return to `PROJECT_BOARD.md` and confirm every handoff is sequenced, represented, or intentionally deferred.
+- After source changes, return to each handoff and confirm the source satisfies the requested contract.
+- After tests, return to source, docs, and board; stale copy, missing wiring, or bad assumptions become follow-up work or blockers.
+- After board/doc updates, run status again and confirm lane state reflects reality.
+- After commit/push, return to `git status` and close only with a clean worktree or a named dirty state.
+
 ## Completion Contract
 
 Finish with a Product closeout note:
@@ -78,3 +89,4 @@ Finish with a Product closeout note:
 
 Also update `PROJECT_BOARD.md` with final status, links, modified files, checks, risks, and next owner.
 If completion is blocked, record the exact blocker and the lane responsible for clearing it.
+Do not close BFM until board, source, docs, and tests agree, or every disagreement is marked `blocked`, `out of scope`, or `explicitly deferred`.

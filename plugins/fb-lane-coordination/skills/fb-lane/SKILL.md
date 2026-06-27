@@ -101,6 +101,20 @@ Any non-trivial lane output must create or update `docs/handoffs/<TASK-ID>.md` w
 
 Product must read handoffs before integration.
 
+## Return-Loop Rule
+
+When the user says "run BFM" or "process all lane handoffs", Product must not close until every discovered handoff has one explicit status: `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+
+Return checks are mandatory for non-trivial handoff execution:
+
+- after handoff intake, return to `PROJECT_BOARD.md`;
+- after coding, return to the handoff contracts;
+- after tests, return to source, docs, and board;
+- after board/doc updates, return to lane status;
+- after commit/push, return to `git status`.
+
+Close only when board, source, docs, and tests agree, or the disagreement is explicitly recorded.
+
 ## Product Completion Audit
 
 Product/Captain must report lane status with separate evidence buckets:

@@ -84,3 +84,17 @@ Use lightweight goal alignment for non-trivial handoffs only. Do not create extr
   Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
   ```
 - If Product changes the goal after reconciliation, record: `Goal changed from X to Y because Z.`
+
+## BFM Return Loop
+
+When Product/BFM processes all lane handoffs, do not close until every handoff has one explicit status: `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+
+Return checks:
+
+- after reading handoffs, return to `PROJECT_BOARD.md`;
+- after coding, return to each handoff;
+- after tests, return to source, docs, and board;
+- after board/doc updates, return to `node tools/fb-lane.cjs status`;
+- after commit/push, return to `git status`.
+
+Close only when board, source, docs, and tests agree, or every disagreement is explicitly marked.

@@ -74,6 +74,9 @@ Read the prepared handoff markdowns for the active task, gather the Product, Tec
 Business, and lane-coordination view, then sequence and execute to completion.
 ```
 
+BFM closes only after every handoff is marked `implemented`, `already done`, `blocked`,
+`out of scope`, or `explicitly deferred`, and board/source/docs/tests agree or the gap is named.
+
 ## Quick Edits
 
 For small changes, use the fast-track task command:

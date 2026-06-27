@@ -51,5 +51,6 @@ Separate implementation from signoff in the handoff:
 - `Remaining Visual Gates`: any untested viewport, browser, interaction, text-containment, or screenshot review.
 
 Do not say Design visual QA is complete unless the evidence is present in the handoff. If no screenshots were captured, write `Visual QA Status: pending - screenshot evidence not captured`.
+Before closeout, return to the design intent, current UI, screenshot/viewport evidence, and `PROJECT_BOARD.md`. If the visual slice does not satisfy the handoff, fix it or mark `blocked`, `out of scope`, or `explicitly deferred`.
 
 End with a passive closeout note for future visitors to the thread: `Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane.

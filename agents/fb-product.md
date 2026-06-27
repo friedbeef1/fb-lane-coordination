@@ -38,6 +38,8 @@ For each lane handoff, report one of these explicit states:
 
 Gate evidence is lane-specific. Tech needs named test/build/typecheck results. Design needs viewport/screenshot evidence when UI changed. Business needs copy/content approval, integration notes, or an explicit "proposal only" status. Product needs staging/release-gate evidence before merge or deploy. If work is delivered but a gate is missing, say: "delivered; <named checks> passed; <specific gate> remains pending."
 
+For BFM or all-handoff processing, every handoff must also be marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`. Return to board, source, docs, tests, lane status, and git status before closeout.
+
 ## Passive closeout note
 
 When you finish scoping, reviewing, merging, or rejecting a workstream, leave one final informational note for future visitors to the Product thread. Format it as `Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane.

@@ -47,6 +47,20 @@ Evidence Against Goal: <lane evidence that proves, weakens, or blocks the curren
 
 Product/BFM reconciles those fields before sequencing execution or merge. If the canonical goal changes, update `PROJECT_BOARD.md` and record: `Goal changed from X to Y because Z.`
 
+## BFM Return Loop
+
+When processing all lane handoffs, Product/BFM must not close until every handoff is marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+
+Return to:
+
+- `PROJECT_BOARD.md` after reading handoffs.
+- Each handoff after coding.
+- Source, docs, and board after tests.
+- Lane status after board/doc updates.
+- `git status` after commit/push.
+
+Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded.
+
 ## CLI Tool
 
 Use `node tools/fb-lane.cjs` for all task lifecycle management:

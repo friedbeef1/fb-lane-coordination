@@ -12,6 +12,7 @@ description: >-
 This skill instantiates the **Four-Lane Multi-Thread Coordination Model** in any software project directory (SaaS, backend API, mobile/web app, dev tool, etc.). It sets up the project board, updates configuration files safely, and registers specialized subagents to coordinate creative design, technical engineering, and product orchestration without context bleeding.
 
 For non-trivial tasks, the bootstrap must leave one canonical Goal Alignment slot on the board (`Working Goal`, `Success Measure`, `Gate / Review Point`), compact goal-alignment handoff guidance, and Product/BFM ownership of goal reconciliation.
+For BFM/all-handoff processing, Product must also leave the return loop: every handoff is `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`, and board/source/docs/tests agree before closeout.
 
 ## Dependencies
 None.
@@ -110,6 +111,11 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
   Goal Challenge / Caveat: <real caveat> | No caveat identified
   Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
   ```
+
+### BFM Return Loop
+- Every processed handoff is marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+- Product/BFM returns to board, handoffs, source/docs/tests, lane status, and git status before closeout.
+- Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded.
 ```
 
 ### Phase 4: Register the Subagents

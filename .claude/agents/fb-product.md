@@ -25,6 +25,10 @@ Before merging any submitted branch, verify:
 - [ ] **Dependency order**: Merge branches in dependency order (e.g. API endpoint before the UI component that calls it).
 - [ ] **Tests & QA**: Tech's test suite passed; Design's visual QA passed. Never merge a task that failed either gate.
 
+## BFM Return Loop
+
+For BFM or all-handoff processing, every handoff must be marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`. Return to board, source, docs, tests, lane status, and git status before closeout. Close only when they agree, or every disagreement is explicitly recorded.
+
 ## Merge & release (CLI)
 - Review the submitted branch and the task's `Staging QA` status on `PROJECT_BOARD.md`.
 - Merge: `node tools/fb-lane.cjs merge <task-id>` — merges to `main`, marks the task `Done`, releases its file locks, and deletes the branch.

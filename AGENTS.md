@@ -55,6 +55,24 @@ Goal Challenge / Caveat: <real caveat> | No caveat identified
 Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
 ```
 
+### 🔁 BFM Return Loop
+When James says "run BFM" or "process all lane handoffs", Product/BFM must not close until every discovered handoff has one explicit status:
+
+- `implemented`
+- `already done`
+- `blocked`
+- `out of scope`
+- `explicitly deferred`
+
+That status must match `PROJECT_BOARD.md`, source files, docs, and test evidence. If they disagree, mark the disagreement as blocked, out of scope, or explicitly deferred before closeout.
+
+Return checks for non-trivial handoff execution:
+1. After reading handoffs, return to `PROJECT_BOARD.md` and confirm every handoff is represented, sequenced, or deferred.
+2. After coding, return to each handoff and confirm the source satisfies the requested contract.
+3. After tests, return to source, docs, and board to catch stale copy, missing wiring, or bad assumptions.
+4. After board/doc updates, return to `node tools/fb-lane.cjs status`.
+5. After commit/push, return to `git status` and close only with a clean worktree or named dirty state.
+
 ### 💬 The User's Role: Supervisor & Reviewer
 
 The user (acting as the external supervisor) is shielded from manual project coordination, task tracking, or Git management. The plugin is optimized for **Main Approach: Autonomous Background Orchestration**, with **Optional Interaction: Interactive Direct Control** serving as a manual escape hatch or fallback mode for single-threaded platforms.

@@ -68,6 +68,9 @@ When handoffs already exist and Product/Captain needs to sequence and route exec
 $bfm process the prepared handoffs for this task and execute the sequence to completion.
 ```
 
+BFM closes only after every handoff is marked `implemented`, `already done`, `blocked`,
+`out of scope`, or `explicitly deferred`, and board/source/docs/tests agree or the gap is named.
+
 The plugin does not create Codex's parallelism. Codex already has that. The plugin packages the coordination layer: skills, MCP status/claim/submit/merge tools, file locks, handoffs, and Product/Captain integration.
 
 If the project itself still needs FB-Lane repo files, run the Codex-only bootstrap from the project

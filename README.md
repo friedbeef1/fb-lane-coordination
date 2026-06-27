@@ -89,6 +89,8 @@ Inbox -> Ready -> In Progress -> Staging QA -> Done
 
 Product gives direction; lanes execute. If Product sees hung tests, builds, browser checks, `git add`, or stale `.git/*.lock` files, it should record the blocked or pending gate and send execution back to the owning lane instead of continuing the implementation loop.
 
+When BFM processes lane handoffs, it closes only after every handoff is marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`, and board/source/docs/tests agree or the gap is named.
+
 ## CLI Quick Reference
 
 Run from the project root:

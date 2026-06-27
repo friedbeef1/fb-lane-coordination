@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.2+codex.20260627161927 - 2026-06-27
+
+- Added the BFM return-loop closeout standard: every processed handoff must be
+  marked `implemented`, `already done`, `blocked`, `out of scope`, or
+  `explicitly deferred`.
+- Added return checks across BFM/Product and lane guidance so agents return to
+  board, handoffs, source/docs/tests, lane status, and git status before
+  closeout.
+- Updated bootstrap templates, generated CLI prompts, and packaged plugin agent
+  files so newly bootstrapped projects inherit the return-loop rule.
+
 ## 0.1.2+codex.20260625082239 - 2026-06-26
 
 - Added lightweight Goal Alignment guidance for non-trivial FB-Lane work:
