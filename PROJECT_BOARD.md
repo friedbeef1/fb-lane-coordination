@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-012 | Done | FB-Product | Coordination | Clarify stable OKR alignment so OKRs anchor the loop instead of multiplying during execution | `AGENTS.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/loop-engineering.md`, `docs/handoffs/TASK-012.md`, `templates/*.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/**`, `skills/**/*.md`, `agents/**`, `.claude/agents/**` | `codex/stable-okr-alignment`, `docs/handoffs/TASK-012.md` |
 | TASK-011 | Done | FB-Product | Coordination | Add BFM return-loop closeout checks | `AGENTS.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/loop-engineering.md`, `docs/setup.md`, `docs/handoffs/TASK-011.md`, `templates/*.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/**`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `agents/**`, `.claude/agents/**`, `platforms/*/README.md` | [PR #25](https://github.com/friedbeef1/fb-lane-coordination/pull/25), `docs/handoffs/TASK-011.md` |
 | TASK-Q-5624 | Done | FB-Product | Quick-Fix | Document plugin upgrade process and changelog | (None) | [PR #20](https://github.com/friedbeef1/fb-lane-coordination/pull/20) |
 | TASK-Q-5217 | Done | FB-Tech | Quick-Fix | Improve Codex plugin setup UX | (None) | [PR #17](https://github.com/friedbeef1/fb-lane-coordination/pull/17) |
@@ -30,6 +31,48 @@
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
 
 ---
+
+### TASK-012 - Clarify stable OKR alignment in FB-Lane
+*   **Status**: Done
+*   **Owner / Thread**: FB-Product
+*   **Area**: Coordination
+*   **Scope**: Refine Loop Engineering so Product/workstream OKRs and lane OKRs stay stable, mini-loops produce evidence against those OKRs, and BFM stops for explicit approval before any OKR addition or change.
+*   **Out of Scope**: Creating more per-task OKR ceremony, changing submit behavior, hard-blocking work, or adding dynamic OKR generation during execution.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make FB-Lane treat OKRs as stable, plain-English alignment anchors that reduce rework instead of becoming dynamic planning clutter.
+    *   **Key Results**:
+        *   Docs, skills, templates, generated prompts, and packaged plugin copies distinguish Product/workstream OKRs, lane OKRs, and mini-loop evidence.
+        *   Handoff guidance uses `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`.
+        *   `doctor` remains advisory, warns on missing approved OKR alignment or implied unapproved new goals, and keeps `TASK-Q-*` quick tasks exempt.
+    *   **Definition of Done**: Source and packaged guidance consistently require stable OKR reuse, explicit approval before OKR additions/changes, PM-readable wording, and mini-loop evidence instead of dynamic OKR creation.
+    *   **Gate / Review Point**: Wording scans, CLI syntax/parity, manifest/generated JSON parsing, doctor fixture checks, repo doctor, and `git diff --check` pass before closeout.
+    *   **Approval**: approved
+    *   **Justification**: The user approved the implementation plan after clarifying that OKRs should be for everyone, stable by default, and added only when they make clarity better after discussion.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Documentation and plugin coordination behavior only
+    *   **Locked Files**: `AGENTS.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/loop-engineering.md`, `docs/handoffs/TASK-012.md`, `templates/*.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/**`, `skills/**/*.md`, `agents/**`, `.claude/agents/**`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/stable-okr-alignment`
+    *   **Staging URL**: (None)
+    *   **Design Specs**: (None)
+*   **QA Checklist**:
+    *   [x] Stable OKR wording scan passes.
+    *   [x] Root and packaged CLI pass syntax checks.
+    *   [x] Root and packaged CLI stay byte-identical.
+    *   [x] `doctor` fixture checks cover aligned, implied new goal, and quick-task cases.
+    *   [x] Plugin manifests and generated agent JSON parse.
+    *   [x] Repo `doctor` and `git diff --check` pass.
+*   **Modified Files**:
+    *   `README.md`, `FAQ.md`, `docs/loop-engineering.md`
+    *   `AGENTS.md`, `CLAUDE.md`, `templates/AGENTS.md`, `templates/CLAUDE.md`, `templates/PROJECT_BOARD.md`
+    *   `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`
+    *   `plugins/fb-lane-coordination/skills/**`, `plugins/fb-lane-coordination/agents/**`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/plugin.json`, `plugins/fb-lane-coordination/README.md`
+    *   `tools/fb-lane.cjs`, `agents/**`, `.claude/agents/**`
+    *   `docs/handoffs/TASK-002.md`, `docs/handoffs/TASK-003.md`, `docs/handoffs/TASK-010.md`, `docs/handoffs/TASK-011.md`, `docs/handoffs/TASK-012.md`
+    *   `CHANGELOG.md`, `PROJECT_BOARD.md`
+*   **Latest Update**:
+    *   *2026-06-27*: Implemented stable OKR alignment across docs, skills, templates, generated prompts, packaged plugin files, and advisory doctor checks. Verification passed: wording scan, CLI syntax/parity, doctor fixture matrix, JSON parse, skill validation, repo doctor, regression tests, and `git diff --check`.
+
 
 ### TASK-001 - Project Setup & Bootstrap
 *   **Status**: Done
