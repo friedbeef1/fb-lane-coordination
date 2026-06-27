@@ -1,75 +1,28 @@
 # FB-Lane on Antigravity
 
-This page is the tactical Antigravity setup and usage guide. For the Product
-Lead operating model, read [Loop Engineering](../../docs/loop-engineering.md).
+This page is the tactical Antigravity setup guide. For the Product Lead
+operating model, read [Loop Engineering](../../docs/loop-engineering.md).
 
 > **Status:** FB-Lane on Antigravity is alpha.
 
-Antigravity is a highly agentic SDK with native support for multi-agent systems, background subagent executions, task scheduling, and inter-agent messaging. This directory contains instructions and templates to leverage Antigravity's tools to automate the FB-Lane coordination model. Done right, the payoff is that you spin up all four lanes at once and keep feeding them goals, with the board making sure they never overwrite each other.
+## What FB-Lane Adds
 
-## ⚠️ The Pain Points & Elegant Fixes in Antigravity
+Antigravity already has native multi-agent execution. FB-Lane adds the loop
+around that execution:
 
-Antigravity's highly agentic, multi-threaded nature is powerful, but complex multi-agent setups introduce specific developer pain points:
+- Product approves the Product/workstream OKR.
+- Tech, Design, and Business workstreams produce markdown plans or handoffs.
+- Product launches BFM when source-changing execution is approved.
+- BFM execution workers claim files, verify, and return evidence.
+- Product/BFM closes only when board, source, docs, tests, and git state agree.
 
-### 1. Memory Bloat & Conversation Degradation (The Bloat Pain Point)
-* **The Pain Point**: Spawning background subagents that remain active indefinitely, or running multiple tasks in a single long-running subagent conversation, causes rapid context window bloat. The subagent's memory footprint grows, leading to degraded reasoning, slower response times, and increased token costs.
-* **The Elegant Fix**: **Disposable Worker Subagents**. The main `FB-Product` lane orchestrator spawns highly focused, temporary subagents using `invoke_subagent` for each specific task (e.g., spawning `FB-Tech` for a database migration). Once the task is complete and submitted, that subagent's thread is terminated (via `manage_subagents` with action `kill`), keeping the orchestrator's and subagents' memory footprints clean and protecting performance.
+Normal workstream chats do not edit source, branch, submit, merge, deploy, or
+change provider state. They plan.
 
-### 2. Session Reset & Loss of Context (The State Loss & Lane Identity Pain Point)
-* **The Pain Point**: If the main orchestrator thread is cleared (`/clear`), restarted, or crashes mid-sprint, does the agent lose its identity, active branch, file locks, and current task? If the user is forced to re-explain the workspace state and manually align the agent to its specific lane role, it introduces severe friction.
-* **The Verification & Elegant Fix**:
-  1. **Lane Identity is Persistent**: In Antigravity, each lane (Product, Tech, Design, Business) is a separate, dedicated background subagent thread defined with distinct agent configurations (`agent.json`). A `/clear` command in a thread only clears the conversation history, not the underlying system instructions (e.g., *"You are FB-Tech"*). Therefore, the subagent always retains its role identity. For single-agent environments (like Codex/Claude), the active lane is written directly to the filesystem on claim and read on startup.
-  2. **Instant Recovery**: Since `PROJECT_BOARD.md` and `.codex/current_task.md` serve as the local, filesystem-level source of truth, the agent has zero dependency on persistent chat session memory. Simply typing `status` or `SOP` forces the orchestrator to inspect the local project board, read `.codex/current_task.md` (which explicitly stores the active task, lane, feature branch, and locks), and instantly resume control with full context.
+## Install
 
-### 3. Tool Overload & Routing Confusion
-* **The Pain Point**: Giving a single developer agent access to all tools (database, styling, web browser, file writes) leads to tool-routing errors, slower responses, and dangerous boundary violations (e.g., an agent modifying database schemas while trying to edit a CSS file).
-* **The Elegant Fix**: **Strict Tool Sandboxing**. Antigravity subagents are registered with restricted tool subsets (e.g., `FB-Design` only gets UI/styling tools, `FB-Business` is strictly read-only on code). This keeps routing execution fast, cheap, and safe.
+Add this plugin to your workspace marketplace:
 
-## 📺 How-To Video
-
-> 📺 **[Watch the FB-Lane on Antigravity 2.0 Video on YouTube](https://youtu.be/jbyiGyguZHU)** (Cmd/Ctrl + click to open in a new tab)
-> 
-> [![FB-Lane on Antigravity 2.0 Demo Video](https://img.youtube.com/vi/jbyiGyguZHU/maxresdefault.jpg)](https://youtu.be/jbyiGyguZHU)
-
-The Antigravity 2.0 interaction demo lives in [`how-to-interact-demo/`](how-to-interact-demo/).
-It shows the recommended workflow: let Antigravity provide native background subagents, let FB-Product define and invoke bounded Tech / Design / Business lanes, and use `PROJECT_BOARD.md` claims plus Product's merge gate to keep concurrent work safe.
-
-Watch the rendered MP4:
-[GitHub release asset](https://github.com/friedbeef1/fb-lane-coordination/releases/download/demo-assets-2026-06-27/antigravity-how-to-interact.mp4).
-
-## Orchestration Concept
-
-In Antigravity, **`FB-Product`** is the main agent thread (representing User Value). It uses Antigravity tools to spawn and manage specialized subagents:
-
-```
-                  +-------------+
-                  |  FB-Product  | (User Value / Main Thread)
-                  +------+------+
-                         |
-      +------------------+------------------+
-      |                  |                  |
-      v                  v                  v
-+-----+------+     +-----+------+     +-----+------+
-|   FB-Tech   |     |  FB-Design  |     | FB-Business | (Background Subagents)
-+------------+     +------------+     +------------+
-```
-
-1. **`define_subagent`**: Registers the subagents (`FB-Tech`, `FB-Design`, `FB-Business`) with specific tools, systems prompts, and access controls.
-2. **`invoke_subagent`**: Launches the subagents concurrently in the background.
-   * **Native Workspace Isolation (Git Worktree / Clones)**: When invoking subagents, Antigravity 2.0 does not suffer from branch collisions or file overrides. The `Workspace` parameter in `invoke_subagent` natively isolates the directories:
-     * `Workspace: "share"`: Automatically creates and runs the subagent in a shared repository directory (equivalent to a **Git Worktree**), allowing independent branching without duplicating storage.
-     * `Workspace: "branch"`: Automatically creates a cloned, isolated workspace.
-     * `Workspace: "inherit"`: Uses the parent's directory.
-     * This eliminates the need for manual git worktree setups (which Codex or Claude require) and makes concurrent multi-agent executions completely safe and transparent.
-3. **`send_message`**: Sends instructions or reviews code updates.
-4. **`schedule`**: Sets reminders or background checking loops.
-
----
-
-## Quick Start: Bootstrapping a Project
-
-### Method A: Antigravity Plugin (Recommended)
-You can load the FB-Lane Coordination plugin directly in Antigravity by referencing it in your workspace's `.agents/plugins/marketplace.json` file:
 ```json
 {
   "plugins": [
@@ -83,204 +36,52 @@ You can load the FB-Lane Coordination plugin directly in Antigravity by referenc
   ]
 }
 ```
-This automatically registers the `fb-lane-coordination` and `project-coordination-setup` skills, as well as the four lane subagents (`FB-Product`, `FB-Tech`, `FB-Design`, and `FB-Business`) directly in your workspace.
 
-### Method B: AI-Powered Bootstrap
-If you have an AI agent active in your workspace, simply paste this prompt:
-> *"I want to bootstrap the FB-Lane Coordination Plugin in this workspace. Read the template files and CLI utility from the `fb-lane-coordination` repository, copy `tools/fb-lane.cjs` to my project's root `tools/` directory, and run `node tools/fb-lane.cjs bootstrap` to set up my project board, agents, rules, and MCP configuration automatically."*
+This registers the FB-Lane skills and the Product, Tech, Design, and Business
+lane agents.
 
-### Method C: Manual CLI Bootstrap
-To automatically set up the plugin manually, copy `tools/fb-lane.cjs` to your repository root `tools/` folder and run:
+## Bootstrap A Project
+
+From the target project root:
+
 ```bash
 node tools/fb-lane.cjs bootstrap
+node tools/fb-lane.cjs doctor
 ```
 
-This bootstrap command automatically creates:
-- `PROJECT_BOARD.md` (Project Task Board)
-- `AGENTS.md` (Lane Boundaries & Rules)
-- The agent configuration directories (`agents/FB-Product/agent.json`, `agents/FB-Tech/agent.json`, `agents/FB-Design/agent.json`, `agents/FB-Business/agent.json`)
+Bootstrap creates or updates the board, lane rules, MCP config, and lane agent
+definitions. It should not overwrite existing project rules without merging
+them conservatively.
 
-**Next Step**: Open the project folder in **Antigravity 2.0**. The lane agents will automatically populate on your left sidebar!
+## Recommended Prompt
 
----
-
-## Setting Up Antigravity Skills
-
-The FB-Lane Coordination plugin for Antigravity is divided into two reusable skills to optimize token efficiency:
-
-1.  **`project-coordination-setup`**: Handles verifying and bootstrapping the workspace files (`AGENTS.md`, `PROJECT_BOARD.md`) and programmatically registering `FB-Tech`, `FB-Design`, and `FB-Business` subagents.
-    *   *Skill file:* [SKILL.md](../../skills/project-coordination-setup/SKILL.md)
-2.  **`fb-lane-coordination`**: Guides the agent on how to use the local `tools/fb-lane.cjs` utility to claim, submit, and merge tasks autonomously using simple `run_command` invocations. This avoids having to register heavy MCP tool schemas, saving thousands of context window tokens.
-    *   *Skill file:* [SKILL.md](../../skills/fb-lane-coordination/SKILL.md)
-
----
-
-## Custom Subagent JSON Configurations
-These are the standard configurations Antigravity uses under the hood to instantiate the agents:
-
-### 👑 FB-Product Config (`agents/FB-Product/agent.json`)
-```json
-{
-  "name": "FB-Product",
-  "description": "Product Manager optimizing User Value. Direction and integration owner. Scopes tasks, assigns lanes, merges code, runs release gates, and manages deployments.",
-  "config": {
-    "customAgent": {
-      "systemPromptSections": [
-        {
-          "title": "Agent System Instructions",
-          "content": "You are FB-Product, the PM optimizing User Value.\n\n### Role & Responsibilities:\n1. **Direction**: Create/update scoped tasks in PROJECT_BOARD.md and assign the owning lane.\n2. **Lane execution boundary**: Spawn or route FB-Tech, FB-Design, or FB-Business subagents using `invoke_subagent`, but each lane claims and executes its own task/files. Do not claim or execute Tech/Design/Business source changes on their behalf.\n3. **Integrations**: Review PRs, merge git branches, and run release gates.\n4. **Authority**: Only you are authorized to run staging/production deployment scripts."
-        }
-      ],
-      "toolNames": ["send_message", "invoke_subagent", "define_subagent", "manage_subagents", "run_command", "write_to_file", "replace_file_content", "view_file"]
-    }
-  }
-}
+```text
+Use FB-Lane.
+Ask Tech, Design, and Business for markdown plans or handoffs.
+Do not edit source from normal workstream chats.
+When the plans are approved, Product should launch BFM for execution.
 ```
 
-### ⚙️ FB-Tech Config (`agents/FB-Tech/agent.json`)
-```json
-{
-  "name": "FB-Tech",
-  "description": "Tech Lead and Core Developer. Implements backend migrations, APIs, core app logic, and runs development tests.",
-  "config": {
-    "customAgent": {
-      "systemPromptSections": [
-        {
-          "title": "Agent System Instructions",
-          "content": "You are FB-Tech, the Tech Lead and Core Developer.\n\n### Role & Responsibilities:\n1. **Core Development**: Implement backend code, APIs, schemas, migrations, and third-party integrations.\n2. **Security**: Own database permissions (RLS/policies), credentials, and secret hygiene.\n3. **Verification**: Run tests (e.g. npm run test) and compilation checks.\n4. **Boundary**: Do not modify UI styling, CSS layouts, or frontend design classes."
-        }
-      ],
-      "toolNames": ["send_message", "run_command", "write_to_file", "replace_file_content", "view_file", "list_dir", "grep_search"]
-    }
-  }
-}
-```
+## BFM Execution
 
-### 🎨 FB-Design Config (`agents/FB-Design/agent.json`)
-```json
-{
-  "name": "FB-Design",
-  "description": "UI/UX Designer and Layout Auditor. Edits frontend styles, handles page geometry layout, and performs visual audits on staging.",
-  "config": {
-    "customAgent": {
-      "systemPromptSections": [
-        {
-          "title": "Agent System Instructions",
-          "content": "You are FB-Design, the UI/UX Designer and Layout Auditor.\n\n### Role & Responsibilities:\n1. **Frontend Styling**: Modify CSS/HTML/JS styles for responsive, premium layouts.\n2. **Quality Gates**: Enforce strict text containment (no spill/clip) and typography integrity (correct font loading).\n3. **Visual QA**: Use browser tools to capture screenshots and verify layouts across mobile and desktop viewports.\n4. **Boundary**: Do not edit database schemas, API routes, or backend server logic."
-        }
-      ],
-      "toolNames": ["send_message", "run_command", "write_to_file", "replace_file_content", "view_file", "list_dir", "call_mcp_tool"]
-    }
-  }
-}
-```
+Use claim/submit/merge only after Product launches BFM execution:
 
-### 📝 FB-Business Config (`agents/FB-Business/agent.json`)
-```json
-{
-  "name": "FB-Business",
-  "description": "Business copywriter and positioning strategist. Focuses on onboarding text, documentation, user-facing messaging, and pricing/marketing copy.",
-  "config": {
-    "customAgent": {
-      "systemPromptSections": [
-        {
-          "title": "Agent System Instructions",
-          "content": "You are FB-Business, the copywriter and positioning strategist.\n\n### Role & Responsibilities:\n1. **Positioning**: Align copy with target audiences, write pricing cards and product benefits.\n2. **Copywriting**: Write onboarding copy, help center/FAQs, system documentation, and interface text.\n3. **Boundary (Read-Only)**: Propose copy updates to FB-Product or FB-Design; do not write code or run deployment commands."
-        }
-      ],
-      "toolNames": ["send_message", "view_file", "list_dir", "grep_search", "search_web"]
-    }
-  }
-}
-```
-
-## Main Approach: Autonomous Background Orchestration
-
-In the Main Approach, the user acts as the supervisor, interacting primarily with the main `FB-Product` (User Value) thread. The agent plugin coordinates the rest of the loop autonomously in the background using the `fb-lane-coordination` skill:
-
-### Step 1: Task Initialization & File Locking
-1. **User Request**: Describe a feature or bugfix to the main Antigravity thread (e.g., *"Build user signup feature"*).
-2. **Scoping**: `FB-Product` reviews requirements and updates `PROJECT_BOARD.md` to add the new tasks (e.g., `TASK-102`).
-3. **Claiming**: Before spawning subagents, `FB-Product` executes the claim command via the skill:
-   ```bash
-   node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
-   ```
-   This checks out the feature branch, updates the board to `In Progress`, and commits the board changes separately.
-
-### Step 2: Parallel Spawning (Concurrent Execution)
-1. **Spawning**: `FB-Product` uses `invoke_subagent` to spawn background tasks for `FB-Tech` (or `FB-Design`) on the active branch.
-2. **Subagent Execution**: The spawned agent operates on the checkout branch and implements the requested code changes locally.
-3. **Collaboration**: Subagents collaborate using inter-agent messaging (`send_message`).
-
-> **Concurrent lanes on separate branches:** subagents spawned here share one working tree and one
-> branch, kept apart by file locks. When you instead want each concurrent lane on its **own** branch
-> and directory, claim with `--worktree` (`node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
-> --worktree`) so the primary checkout stays put and `PROJECT_BOARD.md` remains authoritative there.
-> See the Claude Code guide's
-> [worktree section](../claude-code/README.md#run-lanes-in-parallel-with-worktrees-optional).
-
-### Step 3: Staging Verification & Gates
-1. **Submit for QA**: When code changes are ready, the subagent (or Product) runs the submission command:
-   ```bash
-   node tools/fb-lane.cjs submit TASK-102 "https://staging.example.com"
-   ```
-   This commits the board update, pushes the branch to remote origin, and marks the status as `Staging QA`.
-2. **Quality Gates**: `FB-Product` checks that functional test suites pass and runs visual audits to ensure viewport styling and text containment are correct.
-
-### Step 4: Integration, Unlock & Completion
-1. **Merge & Completion**: Once verified, `FB-Product` runs the merge command:
-   ```bash
-   node tools/fb-lane.cjs merge TASK-102
-   ```
-   This merges the branch to `main`, deletes the feature branch, releases the locked files on the board, commits the board changes, and pushes to remote.
-2. **Notification**: Product notifies the user that the task is complete.
-
----
-
-## Optional Interaction: Interactive Direct Control (Direct Lane Threads)
-
-In addition to autonomous background subagent delegation orchestrated by `FB-Product` (Main Approach), Antigravity supports running specialized lane agents directly on **main threads** (interactive terminal sessions or dedicated IDE sidebar threads). This allows developers to interact directly with `FB-Tech`, `FB-Design`, `FB-Business`, or `FB-Product` in their workspace while automatically maintaining the underlying board updates, git branching, and lock mechanics.
-
-### 🔑 Authentication Prerequisite
-Make sure you have a valid Gemini API key set in your environment:
 ```bash
-export GEMINI_API_KEY="your-api-key-here"
+node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
+node tools/fb-lane.cjs submit TASK-102 "https://staging.example.com"
+node tools/fb-lane.cjs merge TASK-102
 ```
-If you do not have an API key, you can obtain one from [Google AI Studio](https://aistudio.google.com/app/api-keys).
 
-### 🚀 Running a Direct Lane Thread
-Execute the `tools/run_lane.py` runner script to start an interactive lane agent loop:
+Use `--worktree` when two BFM execution workers need separate branches:
+
 ```bash
-python tools/run_lane.py <lane> <task-id> [locked_files]
+node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts" --worktree
 ```
-*   **`<lane>`**: The target lane to run (`Tech`, `Design`, `Business`, or `Product`).
-*   **`<task-id>`**: The task ID from `PROJECT_BOARD.md` (e.g., `TASK-102`).
-*   **`[locked_files]`**: An optional comma-separated list of files to lock (e.g., `src/db.ts,src/auth.ts`).
 
-#### Examples:
-1. **Tech Lane**:
-   ```bash
-   python tools/run_lane.py Tech TASK-102 "src/api.ts"
-   ```
-2. **Design Lane**:
-   ```bash
-   python tools/run_lane.py Design TASK-103 "src/App.css"
-   ```
-3. **Business Lane (Read-Only)**:
-   ```bash
-   python tools/run_lane.py Business TASK-104
-   ```
+## Demo
 
-### 🛡️ How It Coordinates Internally
-When you run the `run_lane.py` script:
-1. **Board Claim Hook**: The script programmatically executes `node tools/fb-lane.cjs claim` to checkout the appropriate branch, declare locks, and commit the board.
-2. **Strict Sandbox Configuration**: It maps the target lane to the corresponding rules defined in the coordination model, configuring the agent's system prompt and capabilities (e.g. read-only tool limits for `Business`).
-3. **Interactive Prompt**: It starts the conversational loop using the standard `User:` and `Agent:` terminal prompts.
-4. **Command Approval**: When the agent requests a shell command execution (such as `npm test` or compilation checks), the safety policy will present an interactive `y/n` confirmation prompt to you before running the command.
+The Antigravity demo lives in
+[how-to-interact-demo/](how-to-interact-demo/).
 
-> [!NOTE]
-> **Thread Initialization & Context Clearing**: The parent integration agent (or assistant) cannot programmatically spawn a new conversation UI thread in the IDE panel for you. When working across multiple lanes in the IDE, you should start the conversation thread manually for each lane (e.g. `FB-Tech` or `FB-Design`) from the sidebar, and let the agents coordinate the work.
-> 
-> Furthermore, **clearing the thread (e.g., via `/clear` or starting a fresh chat window) is highly encouraged** for each new task to avoid context bloat and reasoning degradation. Because all threads operate on the same local workspace files and share the exact same git branch, `.codex/current_task.md`, and `PROJECT_BOARD.md`, the different sessions remain fully in sync.
-> 
-> If you clear context, simply typing `status` or `SOP` in the fresh thread prompts the agent to inspect the local files (like `.codex/current_task.md` and `PROJECT_BOARD.md`) and run Git queries (like `git branch --show-current`) to immediately determine its active lane, task ID, and locked files, resuming control instantly.
+Rendered MP4:
+[GitHub release asset](https://github.com/friedbeef1/fb-lane-coordination/releases/download/demo-assets-2026-06-27/antigravity-how-to-interact.mp4).

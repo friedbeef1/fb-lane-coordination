@@ -21,6 +21,20 @@ When you are invoked in a lane thread, you will be told your lane at the top of 
 | **FB-Design** | CSS, tokens, layout geometry, visual QA | Backend, schemas |
 | **FB-Business** | Copy, docs, marketing text | Source code (read-only) |
 
+## Plan-Only Workstreams
+
+Normal workstream threads are read-only planning lanes. Product, Tech, Design,
+and Business may ask questions, investigate, critique, and write markdown
+plans/handoffs. They must not edit application/source code, create
+implementation branches, commit, submit, merge, deploy, or change provider state
+from ordinary workstream chat.
+
+Product may edit coordination markdown: `PROJECT_BOARD.md`, plans, handoffs,
+OKRs, Definition of Done, sequencing notes, and closeout notes. Product must not
+edit application/source code directly.
+
+Source changes happen only inside a Product-launched BFM execution run.
+
 ## Starting a Session
 
 1. Read `PROJECT_BOARD.md` to understand the current task state and active file locks.
@@ -69,8 +83,8 @@ Use `node tools/fb-lane.cjs` for all task lifecycle management:
 
 ```bash
 node tools/fb-lane.cjs status               # View all tasks and locks
-node tools/fb-lane.cjs claim <id> <lane>    # Claim a task, checkout branch, lock files
-node tools/fb-lane.cjs submit <id>          # Submit for QA, push branch
+node tools/fb-lane.cjs claim <id> <lane>    # BFM execution worker claims task, branch, locks
+node tools/fb-lane.cjs submit <id>          # BFM execution worker submits for QA
 node tools/fb-lane.cjs merge <id>           # Merge to main, release locks (FB-Product only)
 ```
 
@@ -92,6 +106,6 @@ invoke any of them directly, or let the main session delegate to them:
 - **`fb-business`** — copy/docs/positioning; read-only on code (CLI lane `Business`)
 
 The **main session acts as FB-Product** (the orchestrator): scope tasks on `PROJECT_BOARD.md`,
-assign execution to the owning lane, review the result, then merge. Individual lanes claim their
-own files and execute in their own context. Full lane ownership boundaries and
-the board/locking protocol live in `AGENTS.md`.
+collect markdown plans from the owning lanes, launch BFM for execution, review the result, then
+merge. Individual workstream threads stay plan-only unless they are explicitly acting as BFM
+execution workers. Full lane ownership boundaries and the board/locking protocol live in `AGENTS.md`.

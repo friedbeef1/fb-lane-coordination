@@ -16,24 +16,24 @@ To prevent context window overload and git collisions, strictly adhere to your a
 ### 👑 FB-Product (Product Manager / User Value Optimizer)
 *   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
-*   **Workflow**: Reads user requests, runs a Goal Alignment Session for each non-trivial task, discusses the Product/workstream OKR with the user (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Justification`), records or changes OKRs only after explicit user approval, sequences tasks against those stable anchors and value-vs-effort mix, assigns execution to the owning lanes, reviews PRs, verifies staging, and merges branches.
-*   **Boundary**: Product gives direction and owns integration. Product does not claim or execute Tech/Design/Business source changes on their behalf; individual lanes claim and execute their own task/files.
+*   **Workflow**: Reads user requests, runs a Goal Alignment Session for each non-trivial task, discusses the Product/workstream OKR with the user (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Justification`), records or changes OKRs only after explicit user approval, sequences tasks against those stable anchors and value-vs-effort mix, turns change requests into markdown plans/handoffs, launches BFM when execution is approved, reviews PRs, verifies staging, and merges branches.
+*   **Boundary**: Product is read-only on application/source code. Product may edit coordination markdown (`PROJECT_BOARD.md`, plans, handoffs, OKRs, Definition of Done, sequencing, and closeout notes). Source changes happen only inside a Product-launched BFM execution run.
 *   **Completion Audit Rule**: Reports delivered work, lane-specific verification, and unresolved gates as separate statuses for every lane. Product must not call any workstream "done" or "executed" unless the required evidence exists for that lane; otherwise mark the missing gate as pending or blocked.
 
 ### ⚙️ FB-Tech (Technical Lead / Developer)
 *   **Ownership**: Database schemas, APIs, serverless functions, database security (e.g., RLS), configuration scripts, and unit/integration test suites.
 *   **Rule**: *Does not make styling, layout geometry, font, or UI appearance changes.*
-*   **Workflow**: Creates feature branch (`tech/[feature-name]`), implements logic, runs tests, pushes, updates `PROJECT_BOARD.md` to `Staging QA`, writes the handoff, and leaves a passive closeout note.
+*   **Workflow**: In normal workstream threads, asks questions, investigates, and writes markdown technical plans/handoffs only. It must not edit source, branch, commit, or submit work unless Product has launched a BFM execution run and the agent is acting as an explicit BFM execution worker.
 
 ### 🎨 FB-Design (UI/UX Designer / QA Auditor)
 *   **Ownership**: CSS files, theme tokens, styling classes, asset management (SVGs, icons), page layout geometry, and visual viewports.
 *   **Rule**: *Does not edit database schemas, API routes, or backend app logic.*
-*   **Workflow**: Creates style branch (`design/[feature-name]`), modifies styling, performs visual checks on target viewports (mobile and desktop), updates `PROJECT_BOARD.md` to `Staging QA`, writes the handoff, and leaves a passive closeout note.
+*   **Workflow**: In normal workstream threads, asks questions, investigates, and writes markdown design plans/handoffs only. It must not edit source, branch, commit, or submit work unless Product has launched a BFM execution run and the agent is acting as an explicit BFM execution worker.
 
 ### 📝 FB-Business (Copywriter / Positioning)
 *   **Ownership**: Pricing text, copywriting, onboarding copy, documentation, help desks, FAQs, and marketing text.
 *   **Rule**: *Operates in a READ-ONLY capacity on application code.* Cannot modify source files or run deployments.
-*   **Workflow**: Drafts proposed text directly in markdown documentation or inside `PROJECT_BOARD.md` entries, records the target integration owner, and leaves a passive closeout note.
+*   **Workflow**: Drafts proposed text directly in markdown documentation or inside `PROJECT_BOARD.md` entries, records target source locations for later BFM execution, and leaves a passive closeout note.
 
 ### 🧾 Passive Closeout Notes
 Every lane must leave a final informational closeout note in its thread when it stops work on a task. The note records task ID, status, delivered work, evidence, remaining gates, and the handoff path. It must not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane; `PROJECT_BOARD.md` and `docs/handoffs/` remain the trigger source.
@@ -59,6 +59,11 @@ Evidence Against Product OKR: <evidence that weakens or blocks the approved Prod
 
 BFM blocks before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR tree. If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the existing OKRs and recommends one. It must not add, change, or edit approved OKRs during execution.
 
+### 🧱 Plan-Only Workstream Rule
+Workstream threads are read-only planning lanes by default. Product, Tech, Design, and Business may converse, ask questions, investigate, and write markdown plans or handoffs. They must not edit application/source code, create implementation branches, commit, submit, merge, deploy, or change provider state from ordinary workstream chat.
+
+Execution starts only when Product explicitly launches BFM. During that BFM run, implementation workers may claim files, create branches/worktrees, edit source, run verification, commit, submit PRs, and perform approved merge/deploy steps. The BFM return loop remains responsible for proving that board, source, docs, tests, and git state agree before closeout.
+
 ### 🔁 BFM Return Loop
 When the user says "run BFM" or "process all lane handoffs", Product/BFM must not close until every discovered handoff has one explicit status:
 
@@ -83,13 +88,13 @@ The user (acting as the external supervisor) is shielded from manual project coo
 
 #### Main Approach: Autonomous Background Orchestration (<20% Involvement - Optimized Mode)
 * **Status**: **Primary/Recommended**. This is the mode the plugin is designed and optimized for.
-* **Workflow**: The user talks only to the main **`FB-Product`** thread to describe features and milestones. Product handles task planning and direction, then each owning lane claims its own files/branch and executes work in parallel where safe.
+* **Workflow**: The user talks only to the main **`FB-Product`** thread to describe features and milestones. Product handles task planning and direction, workstreams produce markdown plans/handoffs, and Product launches BFM when execution should begin.
 * **User Touchpoints**: Restricted to reviewing plans (Plan Gate) and verifying staging environments (Staging Gate) before final merges.
 * **Sidebar Threads**: Used passively as detail desks. If the user opens a sidebar thread to check technical details, the agent reads local handoff files and schema states to present an update.
 
 #### Optional Interaction: Interactive Direct Control (Pair-programming / Escape Hatch)
 * **Status**: **Fallback/Manual**. Used when the user explicitly wishes to manually pair-program or debug code rather than delegate to background orchestration.
-* **Workflow**: The user manually instructs and chats directly with individual sidebar threads (e.g. asking Tech to build a feature, or Design to update a button). 
+* **Workflow**: The user manually instructs and chats directly with individual sidebar threads for questions, investigation, critique, and markdown plans. Direct sidebar threads still do not edit source; they package requested changes as plans for Product/BFM.
 * **User Touchpoints**: Higher involvement; the user reviews plans and approves task executions directly within the specific lane thread.
 * **Multi-thread Crossing**: Lanes synchronize via `PROJECT_BOARD.md` and `docs/handoffs/`. When a lane finishes, they write a structured handoff document that the next lane automatically reads on session start.
 
@@ -98,7 +103,7 @@ Because the project board and git branch are the single source of truth:
 * Sidebar threads do not get out of sync.
 * If a thread shows stale history or a pending button from a background run, typing `status` or `SOP` in that thread forces the agent to read `PROJECT_BOARD.md` and instantly update its chat context.
 
-Internal coordination is automated by the agents, but ownership stays split: Product scopes, sequences, and reviews; individual lanes claim files, check out branches or worktrees, write code/copy/styling, run verification, and push PRs. Product remains the User Value Optimizer who reviews staging and merges the final code, ensuring all changes align with the product's strategic direction and do not cause scope drift.
+Internal coordination is automated by the agents, but ownership stays split: Product scopes, sequences, approves goals, and launches BFM; workstream lanes plan and return evidence; BFM execution workers claim files, check out branches or worktrees, write code/copy/styling, run verification, and push PRs. Product remains the User Value Optimizer who reviews staging and merge/release decisions, ensuring all changes align with the product's strategic direction and do not cause scope drift.
 
 ---
 
@@ -106,17 +111,17 @@ Internal coordination is automated by the agents, but ownership stays split: Pro
 
 All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate concurrent workstreams:
 1. **Drift Audit**: Before starting, run the drift checklist to verify workspace state.
-2. **Claim & Lock**: Product creates or scopes the item; the owning lane claims its own task/files before implementation. For non-trivial tasks, Product/BFM reads the existing approved OKR tree first, proposes only missing Product/workstream or lane OKRs needed for clarity, and records or changes them only after the user explicitly approves. Worker lanes flag missing, stale, or unclear OKRs in handoffs instead of rewriting the board. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
-3. **Commit**: Work in an isolated branch (`tech/...` or `design/...`). Do not touch files locked by other active threads.
-4. **QA**: Once complete, push your branch, set status to `Staging QA`, and document the modified files and QA verification results.
+2. **Plan First**: Product creates or scopes the item; workstreams discuss and write markdown plans/handoffs. For non-trivial tasks, Product/BFM reads the existing approved OKR tree first, proposes only missing Product/workstream or lane OKRs needed for clarity, and records or changes them only after the user explicitly approves. Worker lanes flag missing, stale, or unclear OKRs in handoffs instead of rewriting the board.
+3. **BFM Claim & Lock**: After Product launches BFM, the BFM execution worker claims the task/files, changes status to `In Progress`, and declares the exact **Affected Screens** and **Locked Files**.
+4. **Commit / QA**: BFM execution work runs in an isolated branch or worktree, verifies the slice, pushes the branch, sets status to `Staging QA`, and documents modified files and QA evidence.
 5. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.
 6. **Handoff, Unlock & Clean**: Write the structured handoff and passive closeout note. Product reads `PROJECT_BOARD.md` / `docs/handoffs/`, reconciles every lane's `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` before sequencing execution or merge, proposes aligned alternatives for OKR conflicts, merges approved branches, removes resource locks (marking the task `Done`), and records its own passive closeout note. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
 
 ---
 
 ## 3. Safety & Git Hygiene
-*   **State-Driven Writing Gates**: In active chat sessions, worker agents (`FB-Tech`, `FB-Design`) operate strictly as read-only consultants by default. They are only authorized to use code-writing tools once a task is actively claimed (indicated by the presence of `.codex/current_task.md` matching their lane). If no task is claimed, they must suggest changes in markdown blocks only.
-*   **Product Direction / Lane Execution**: Product should stop retrying implementation if tests, builds, Git staging, or browser checks hang. Record `pending-gate` or `blocked` with evidence and return the fix to the owning lane.
+*   **State-Driven Writing Gates**: In normal workstream chat, worker agents operate strictly as read-only planning lanes. They may write markdown plans/handoffs, but must not edit application/source files. A matching `.codex/current_task.md` unlocks source writes only inside an explicit Product-launched BFM execution run.
+*   **Product Direction / BFM Execution**: Product should stop retrying implementation if tests, builds, Git staging, or browser checks hang. Record `pending-gate` or `blocked` with evidence and return the fix to BFM sequencing instead of patching from Product chat.
 *   **File Lock Boundary**: Once a task is claimed and writing is unlocked, the agent must strictly restrict its edits/writes only to the files listed under "Locked Files" in `.codex/current_task.md`. Editing files outside of this declared lock is a boundary violation.
 *   **Fast-Track Quick Edits**: For micro-edits (such as simple typos or minor styling tweaks), you can bypass the main Product triage and planning process. Run `node tools/fb-lane.cjs quick <lane> <locks> [desc]` to instantly generate a temporary task on the board, checkout a `quick/` branch, and unlock the lane agent's write ability in the sidebar for those locked files.
 *   **Never commit directly to main**. All work must go through a branch.

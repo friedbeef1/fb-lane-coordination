@@ -5,9 +5,8 @@ description: Use when Product/Captain must review, sequence, route, integrate, o
 
 # BFM
 
-BFM is the Product/Captain mode for turning prepared lane handoffs into an executable sequence.
-It does not replace lane ownership: Product decides order and gates; Tech, Design, and Business own their surfaces.
-Product gives direction and owns integration. Individual lanes claim and execute their own work.
+BFM is the Build Flow Manager: the Product/Captain mode for turning approved markdown lane plans and handoffs into an executable sequence.
+Normal workstream threads are plan-only. Product decides order and gates; Tech, Design, and Business own their planning surfaces. Source changes happen only inside this Product-launched BFM execution run.
 
 ## Required Sub-Skills
 
@@ -64,15 +63,15 @@ Produce the next execution order before changing files:
 
 Proceed through the sequence without asking for repeated permission when authority is clear.
 
-- Product/BFM creates or scopes board items, sets direction, and assigns an owning lane.
+- Product/BFM creates or scopes board items, sets direction, and reconciles approved markdown plans.
 - Product/BFM blocks before execution if the board Goal Alignment Session is missing, has unclear OKRs, has `Approval: pending`, lacks the user's explicit approval, implies an unapproved OKR change, or a handoff is blocked by OKR ambiguity.
-- The owning lane claims its own task/files before durable writes and executes the work in that lane context.
+- The BFM execution worker claims task/files before durable writes and executes the work in the owning lane context.
 - Respect active locks; do not edit files owned by another active lane.
 - Use the owning lane for implementation: Tech for app logic/tests, Design for UI/visual QA, Business for copy/positioning, Product for sequencing/merge/release decisions.
 - For source-changing work, prefer lane-owned worktrees or isolated branches so Product stays available for direction, integration, and merge gates.
 - After each lane finishes, update its handoff and board status before moving to the next dependent step.
 - Product reads all resulting handoffs together, reconciles `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`, and only then sequences merges.
-- If a lane's tests, build, Git staging, or browser verification hangs, stop the Product retry loop and record the task as `pending-gate` or `blocked` with the exact runner/process evidence. Return the fix to the owning lane.
+- If a lane's tests, build, Git staging, or browser verification hangs, stop the BFM retry loop and record the task as `pending-gate` or `blocked` with the exact runner/process evidence before resequencing.
 - Do not deploy live, add production secrets, change payment credentials, or run destructive operations without explicit current approval.
 
 ## Return Checks
