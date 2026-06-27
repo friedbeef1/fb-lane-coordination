@@ -1,0 +1,434 @@
+From 64b17e1ea7c8e42ce92fcc54c34309c4a60f4371 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 27 Jun 2026 00:57:52 +0000
+Subject: [PATCH] fix(cli): harden fb-lane against shell command injection
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+runGit() built commands as `git ${args}` and handed them to execSync,
+so anything woven into a branch name, commit message, task ID, or lane —
+including values that arrive over the MCP server as untrusted tool
+arguments — was interpreted by a shell. A lane like "tech;rm -rf ~ #"
+became a branch name and then executed arbitrary commands.
+
+- Run git via execFileSync('git', argv) with no shell; convert every
+  call site that interpolates caller data to pass an args array.
+- Replace the shell `||` fallback in submit with a JS try/catch.
+- Run the doctor's lsof lookup through execFileSync as well.
+- Validate task IDs and lane names against strict allowlists at both the
+  CLI and MCP entry points, and refuse option-like ("-"-prefixed) branch
+  names before they reach git.
+- Make the script importable (guard main(), export helpers) and add
+  tools/fb-lane.test.cjs covering the validators and proving shell
+  metacharacters in arguments are inert.
+- Resync the bundled plugin copy.
+
+Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_015d6nhofKQPZcEt15XBePE1
+---
+ tools/fb-lane.cjs      | 130 +++++++++++++++++++++++++++++++++++------
+ tools/fb-lane.test.cjs | 104 +++++++++++++++++++++++++++++++++
+ 2 files changed, 215 insertions(+), 19 deletions(-)
+ create mode 100644 tools/fb-lane.test.cjs
+
+diff --git a/tools/fb-lane.cjs b/tools/fb-lane.cjs
+index fe8599b..67de911 100755
+--- a/tools/fb-lane.cjs
++++ b/tools/fb-lane.cjs
+@@ -2,7 +2,7 @@
+ 
+ const fs = require('fs');
+ const path = require('path');
+-const { execSync } = require('child_process');
++const { execSync, execFileSync } = require('child_process');
+ const readline = require('readline');
+ 
+ function expandHome(filePath) {
+@@ -52,14 +52,61 @@ function logError(...args) {
+   console.error(...args);
+ }
+ 
++// Run a git command WITHOUT a shell. `args` may be an array of arguments
++// (preferred for any command that interpolates task IDs, lane names, branch
++// names, commit messages, or other caller-supplied data) or a string of
++// literal, trusted arguments. Passing values through execFileSync('git', argv)
++// means git receives each token verbatim, so shell metacharacters in
++// untrusted input (`;`, `$()`, backticks, `&&`, quotes, …) can never be
++// interpreted by a shell. This closes the command-injection hole that existed
++// when commands were built as `git ${args}` and handed to execSync.
+ function runGit(args) {
++  const argv = Array.isArray(args)
++    ? args.map(String)
++    : String(args).trim().split(/\s+/).filter(Boolean);
+   try {
+-    return execSync(`git ${args}`, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
++    return execFileSync('git', argv, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+   } catch (err) {
+-    throw new Error(err.stderr ? err.stderr.trim() : err.message);
++    const stderr = err.stderr ? err.stderr.toString().trim() : '';
++    throw new Error(stderr || err.message);
+   }
+ }
+ 
++// Allowlists for the few values that get woven into branch names and git
++// refs. Even though runGit no longer uses a shell, validating here keeps
++// branch names well-formed and prevents a leading "-" from being mistaken
++// for a git option (argument injection). Task IDs and lanes come from the
++// CLI argv and from MCP tool arguments, so both entry points validate.
++const TASK_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
++const LANE_PATTERN = /^[A-Za-z][A-Za-z-]*$/;
++
++function assertSafeTaskId(taskId) {
++  if (typeof taskId !== 'string' || !TASK_ID_PATTERN.test(taskId)) {
++    throw new Error(
++      `Invalid task ID ${JSON.stringify(taskId)}: expected letters, digits, '.', '_' or '-' (not starting with '-').`
++    );
++  }
++  return taskId;
++}
++
++function assertSafeLane(lane) {
++  if (typeof lane !== 'string' || !LANE_PATTERN.test(lane)) {
++    throw new Error(
++      `Invalid lane ${JSON.stringify(lane)}: expected a name like "Tech", "Design", "Product" or "Business".`
++    );
++  }
++  return lane;
++}
++
++// A branch name is safe to hand to git as a positional ref when it is
++// non-empty and does not begin with "-" (which git would treat as a flag).
++function assertSafeBranchName(branchName) {
++  if (typeof branchName !== 'string' || branchName === '' || branchName.startsWith('-')) {
++    throw new Error(`Refusing to run git on unsafe branch name ${JSON.stringify(branchName)}.`);
++  }
++  return branchName;
++}
++
+ function copyToClipboard(text) {
+   // Pick clipboard commands by platform. `spawn('pbcopy')` emits an async 'error' event that a
+   // try/catch can't catch, so a missing binary (e.g. on Linux/CI) used to crash the whole process.
+@@ -210,7 +257,7 @@ function parseElapsedSeconds(etime) {
+ 
+ function processCwd(pid) {
+   try {
+-    const output = execSync(`lsof -a -p ${pid} -d cwd -Fn`, {
++    const output = execFileSync('lsof', ['-a', '-p', String(Number(pid)), '-d', 'cwd', '-Fn'], {
+       encoding: 'utf8',
+       stdio: ['ignore', 'pipe', 'ignore']
+     });
+@@ -639,6 +686,14 @@ function handleDoctor() {
+ }
+ 
+ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
++  try {
++    assertSafeTaskId(taskId);
++    assertSafeLane(lane);
++  } catch (err) {
++    console.error(`❌ Error: ${err.message}`);
++    process.exit(1);
++  }
++
+   const boardPath = findBoardPath();
+   if (!boardPath) {
+     console.error('❌ Error: PROJECT_BOARD.md not found.');
+@@ -708,11 +763,11 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
+     }
+     try {
+       console.log(`Creating worktree at ${worktreePath} on new branch ${branchName}...`);
+-      runGit(`worktree add -b ${branchName} "${worktreePath}" ${baseRef}`);
++      runGit(['worktree', 'add', '-b', branchName, worktreePath, baseRef]);
+     } catch (err) {
+       console.log(`Branch might exist. Attaching a worktree to: ${branchName}...`);
+       try {
+-        runGit(`worktree add "${worktreePath}" ${branchName}`);
++        runGit(['worktree', 'add', worktreePath, branchName]);
+       } catch (err2) {
+         console.error(`❌ Error creating worktree: ${err2.message}`);
+         process.exit(1);
+@@ -730,11 +785,11 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
+     }
+     try {
+       console.log(`Checking out branch: ${branchName}...`);
+-      runGit(`checkout -b ${branchName}`);
++      runGit(["checkout", "-b", assertSafeBranchName(branchName)]);
+     } catch (err) {
+       console.log(`Branch might exist. Attempting to switch to: ${branchName}...`);
+       try {
+-        runGit(`checkout ${branchName}`);
++        runGit(["checkout", assertSafeBranchName(branchName)]);
+       } catch (err2) {
+         console.error(`❌ Error switching branch: ${err2.message}`);
+         process.exit(1);
+@@ -910,11 +965,11 @@ function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit') {
+   }
+   try {
+     console.log(`Checking out quick branch: ${branchName}...`);
+-    runGit(`checkout -b ${branchName}`);
++    runGit(["checkout", "-b", assertSafeBranchName(branchName)]);
+   } catch (err) {
+     console.log(`Branch might exist. Attempting to switch to: ${branchName}...`);
+     try {
+-      runGit(`checkout ${branchName}`);
++      runGit(["checkout", assertSafeBranchName(branchName)]);
+     } catch (err2) {
+       console.error(`❌ Error switching branch: ${err2.message}`);
+       process.exit(1);
+@@ -1037,7 +1092,7 @@ function commitBoard(message) {
+   try {
+     const staged = runGit('diff --cached --name-only PROJECT_BOARD.md');
+     if (staged.trim() !== '') {
+-      runGit(`commit -m "${message}"`);
++      runGit(['commit', '-m', message]);
+       return true;
+     }
+   } catch (err) {}
+@@ -1046,6 +1101,13 @@ function commitBoard(message) {
+ }
+ 
+ function handleSubmit(taskId, stagingUrl = '') {
++  try {
++    assertSafeTaskId(taskId);
++  } catch (err) {
++    console.error(`❌ Error: ${err.message}`);
++    process.exit(1);
++  }
++
+   const boardPath = findBoardPath();
+   if (!boardPath) {
+     console.error('❌ Error: PROJECT_BOARD.md not found.');
+@@ -1073,7 +1135,12 @@ function handleSubmit(taskId, stagingUrl = '') {
+     process.exit(1);
+   }
+ 
+-  const currentBranch = runGit('rev-parse --abbrev-ref HEAD || git branch --show-current');
++  let currentBranch;
++  try {
++    currentBranch = runGit(['rev-parse', '--abbrev-ref', 'HEAD']);
++  } catch (err) {
++    currentBranch = runGit(['branch', '--show-current']);
++  }
+   console.log(`Submitting task ${taskId} from branch ${currentBranch}...`);
+ 
+   // Update board
+@@ -1110,6 +1177,13 @@ node tools/fb-lane.cjs merge ${taskId}`;
+ }
+ 
+ function handleMerge(taskId) {
++  try {
++    assertSafeTaskId(taskId);
++  } catch (err) {
++    console.error(`❌ Error: ${err.message}`);
++    process.exit(1);
++  }
++
+   const boardPath = findBoardPath();
+   if (!boardPath) {
+     console.error('❌ Error: PROJECT_BOARD.md not found.');
+@@ -1156,7 +1230,7 @@ function handleMerge(taskId) {
+   try {
+     runGit('checkout main');
+     runGit('pull origin main');
+-    runGit(`merge ${targetBranch}`);
++    runGit(["merge", assertSafeBranchName(targetBranch)]);
+   } catch (err) {
+     console.error(`\n❌ Error: Merge conflict or checkout failure detected while merging ${targetBranch} into main.`);
+     console.error(`⚠️  Aborting merge safely to protect your workspace...`);
+@@ -1182,7 +1256,7 @@ function handleMerge(taskId) {
+ 
+   // Delete branch
+   try {
+-    runGit(`branch -d ${targetBranch}`);
++    runGit(["branch", "-d", assertSafeBranchName(targetBranch)]);
+   } catch (err) {
+     console.warn(`⚠️  Could not delete local branch ${targetBranch}: ${err.message}`);
+   }
+@@ -1337,6 +1411,8 @@ function handleMcpRequest(request) {
+           ).join('\n');
+         } else if (name === 'fb_lane_claim') {
+           const { taskId, lane, lockedFiles } = toolArgs;
++          assertSafeTaskId(taskId);
++          assertSafeLane(lane);
+ 
+           runHook('pre-claim', boardPath);
+ 
+@@ -1349,9 +1425,9 @@ function handleMcpRequest(request) {
+           const branchName = `${lane.toLowerCase()}/${taskId}-${slug}`;
+ 
+           try {
+-            runGit(`checkout -b ${branchName}`);
++            runGit(["checkout", "-b", assertSafeBranchName(branchName)]);
+           } catch (e) {
+-            runGit(`checkout ${branchName}`);
++            runGit(["checkout", assertSafeBranchName(branchName)]);
+           }
+ 
+           const formattedLocks = !lockedFiles ? '(None)' : lockedFiles.split(',').map(f => `\`${f.trim()}\``).join(', ');
+@@ -1375,6 +1451,7 @@ function handleMcpRequest(request) {
+           message = `Successfully claimed ${taskId} on branch ${branchName}. Locks: ${formattedLocks}.`;
+         } else if (name === 'fb_lane_submit') {
+           const { taskId, stagingUrl } = toolArgs;
++          assertSafeTaskId(taskId);
+ 
+           runHook('pre-submit', boardPath);
+ 
+@@ -1393,6 +1470,7 @@ function handleMcpRequest(request) {
+           message = `Successfully submitted ${taskId} for Staging QA. Branch pushed.`;
+         } else if (name === 'fb_lane_merge') {
+           const { taskId } = toolArgs;
++          assertSafeTaskId(taskId);
+ 
+           runHook('pre-merge', boardPath);
+ 
+@@ -1413,7 +1491,7 @@ function handleMcpRequest(request) {
+ 
+           runGit('checkout main');
+           runGit('pull origin main');
+-          runGit(`merge ${targetBranch}`);
++          runGit(["merge", assertSafeBranchName(targetBranch)]);
+ 
+           updateBoardTask(boardPath, taskId, {
+             status: 'Done',
+@@ -1424,7 +1502,7 @@ function handleMcpRequest(request) {
+           commitBoard(`docs: complete ${taskId} and release locks`);
+           runGit('push origin main');
+ 
+-          try { runGit(`branch -d ${targetBranch}`); } catch (e) {}
++          try { runGit(["branch", "-d", assertSafeBranchName(targetBranch)]); } catch (e) {}
+           const contextPath = path.join(path.dirname(boardPath), '.codex', 'current_task.md');
+           if (fs.existsSync(contextPath)) {
+             try { fs.unlinkSync(contextPath); } catch(e) {}
+@@ -1982,4 +2060,18 @@ Usage:
+   }
+ }
+ 
+-main();
++// Only run the CLI when executed directly. When required as a module (e.g. by
++// the regression tests) the hardened helpers are exported instead, so they can
++// be exercised without spawning a shell or touching git.
++if (require.main === module) {
++  main();
++}
++
++module.exports = {
++  runGit,
++  assertSafeTaskId,
++  assertSafeLane,
++  assertSafeBranchName,
++  TASK_ID_PATTERN,
++  LANE_PATTERN,
++};
+diff --git a/tools/fb-lane.test.cjs b/tools/fb-lane.test.cjs
+new file mode 100644
+index 0000000..04e5892
+--- /dev/null
++++ b/tools/fb-lane.test.cjs
+@@ -0,0 +1,104 @@
++#!/usr/bin/env node
++'use strict';
++
++// Regression tests for the fb-lane CLI hardening.
++//
++// These cover the command-injection fix: runGit must never hand
++// caller-supplied data to a shell, and task IDs / lane names that flow into
++// branch names are validated up front. Run with:  node tools/fb-lane.test.cjs
++//
++// No external test runner or dependencies — just node's built-in assert.
++
++const assert = require('assert');
++const fs = require('fs');
++const os = require('os');
++const path = require('path');
++const { execFileSync } = require('child_process');
++
++const {
++  runGit,
++  assertSafeTaskId,
++  assertSafeLane,
++  assertSafeBranchName,
++} = require('./fb-lane.cjs');
++
++let passed = 0;
++function test(name, fn) {
++  fn();
++  passed += 1;
++  console.log(`  ✓ ${name}`);
++}
++
++console.log('assertSafeTaskId');
++test('accepts conventional task IDs', () => {
++  ['TASK-001', 'TASK-Q-5624', 'task_42', 'A.1'].forEach(id =>
++    assert.strictEqual(assertSafeTaskId(id), id)
++  );
++});
++test('rejects shell metacharacters', () => {
++  ['TASK; rm -rf ~', 'a$(touch x)', 'a`id`', 'a&&b', 'a|b', 'a b', '', '--upload-pack=x']
++    .forEach(id => assert.throws(() => assertSafeTaskId(id), /Invalid task ID/));
++});
++test('rejects non-strings', () => {
++  [undefined, null, 42, {}].forEach(id =>
++    assert.throws(() => assertSafeTaskId(id), /Invalid task ID/));
++});
++
++console.log('assertSafeLane');
++test('accepts the known lanes', () => {
++  ['Tech', 'Design', 'Business', 'Product', 'tech'].forEach(l =>
++    assert.strictEqual(assertSafeLane(l), l));
++});
++test('rejects injection payloads', () => {
++  ['tech; rm -rf ~ #', 'a/b', 'a b', '1tech', '', '-x']
++    .forEach(l => assert.throws(() => assertSafeLane(l), /Invalid lane/));
++});
++
++console.log('assertSafeBranchName');
++test('rejects empty or option-like names', () => {
++  ['', '-d', '--force'].forEach(b =>
++    assert.throws(() => assertSafeBranchName(b), /unsafe branch name/));
++  assert.strictEqual(assertSafeBranchName('tech/TASK-001-fix'), 'tech/TASK-001-fix');
++});
++
++console.log('runGit (no shell)');
++// Build a throwaway git repo so runGit has something real to talk to.
++const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-test-'));
++const prevCwd = process.cwd();
++try {
++  process.chdir(tmp);
++  execFileSync('git', ['init', '-q'], { stdio: 'ignore' });
++  execFileSync('git', ['config', 'user.email', 't@t'], { stdio: 'ignore' });
++  execFileSync('git', ['config', 'user.name', 't'], { stdio: 'ignore' });
++  fs.writeFileSync(path.join(tmp, 'f'), 'x');
++  execFileSync('git', ['add', 'f'], { stdio: 'ignore' });
++  execFileSync('git', ['commit', '-qm', 'init'], { stdio: 'ignore' });
++
++  test('runs a normal command via an args array', () => {
++    assert.strictEqual(runGit(['rev-parse', '--is-inside-work-tree']), 'true');
++  });
++
++  test('a string of literal args still works', () => {
++    assert.strictEqual(runGit('rev-parse --is-inside-work-tree'), 'true');
++  });
++
++  test('shell metacharacters in an argument are NOT executed', () => {
++    const sentinel = path.join(tmp, 'PWNED');
++    // If a shell were involved, "; touch PWNED" would create the sentinel.
++    // With execFileSync the whole string is one git revision argument, so git
++    // simply fails to resolve it and the sentinel is never created.
++    assert.throws(() => runGit(['rev-parse', '--verify', 'HEAD; touch PWNED']));
++    assert.ok(!fs.existsSync(sentinel), 'expected no shell-created sentinel file');
++  });
++
++  test('command-substitution payloads are inert', () => {
++    const sentinel = path.join(tmp, 'SUBST');
++    assert.throws(() => runGit(['rev-parse', '--verify', '$(touch SUBST)']));
++    assert.ok(!fs.existsSync(sentinel), 'expected no command-substitution side effect');
++  });
++} finally {
++  process.chdir(prevCwd);
++  fs.rmSync(tmp, { recursive: true, force: true });
++}
++
++console.log(`\n✅ ${passed} checks passed.`);
+-- 
+2.43.0
+
