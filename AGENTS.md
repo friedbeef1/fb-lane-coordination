@@ -16,7 +16,7 @@ To prevent context window overload and git collisions, strictly adhere to your a
 ### 👑 FB-Product (Product Manager / User Value Optimizer)
 *   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
-*   **Workflow**: Reads user requests, writes one canonical Goal Alignment block for each non-trivial task in `PROJECT_BOARD.md` (`Working Goal`, `Success Measure`, `Gate / Review Point`), sequences tasks against that goal and value-vs-effort mix, records goal changes as `Goal changed from X to Y because Z.`, prompts the user for approval before promoting backlog items to `Ready`, assigns execution to the owning lanes, reviews PRs, verifies staging, and merges branches.
+*   **Workflow**: Reads user requests, writes one canonical Goal Alignment block for each non-trivial task in `PROJECT_BOARD.md` (`Working Goal`, `Definition of Done`, `Gate / Review Point`), sequences tasks against that goal and value-vs-effort mix, records goal changes as `Goal changed from X to Y because Z.`, prompts the user for approval before promoting backlog items to `Ready`, assigns execution to the owning lanes, reviews PRs, verifies staging, and merges branches.
 *   **Boundary**: Product gives direction and owns integration. Product does not claim or execute Tech/Design/Business source changes on their behalf; individual lanes claim and execute their own task/files.
 *   **Completion Audit Rule**: Reports delivered work, lane-specific verification, and unresolved gates as separate statuses for every lane. Product must not call any workstream "done" or "executed" unless the required evidence exists for that lane; otherwise mark the missing gate as pending or blocked.
 
@@ -39,7 +39,7 @@ To prevent context window overload and git collisions, strictly adhere to your a
 Every lane must leave a final informational closeout note in its thread when it stops work on a task. The note records task ID, status, delivered work, evidence, remaining gates, and the handoff path. It must not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane; `PROJECT_BOARD.md` and `docs/handoffs/` remain the trigger source.
 
 ### 🎯 Lightweight Goal Alignment
-Use goal alignment for non-trivial handoffs and sequencing work. Product/BFM owns one canonical Goal Alignment block per task, ideally in the task detail block in `PROJECT_BOARD.md`, with `Working Goal`, `Success Measure`, and `Gate / Review Point`. Worker lanes read that block and challenge it in handoffs instead of rewriting it. Do not turn quick micro-tasks into a new ceremony.
+Use goal alignment for non-trivial handoffs and sequencing work. Product/BFM owns one canonical Goal Alignment block per task, ideally in the task detail block in `PROJECT_BOARD.md`, with `Working Goal`, `Definition of Done`, and `Gate / Review Point`. Worker lanes read that block and challenge it in handoffs instead of rewriting it. Do not turn quick micro-tasks into a new ceremony.
 
 Good goal example: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 
@@ -102,7 +102,7 @@ Internal coordination is automated by the agents, but ownership stays split: Pro
 
 All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate concurrent workstreams:
 1. **Drift Audit**: Before starting, run the drift checklist to verify workspace state.
-2. **Claim & Lock**: Product creates or scopes the item; the owning lane claims its own task/files before implementation. For non-trivial tasks, Product/BFM sets or confirms one canonical Goal Alignment block before implementation (`Working Goal`, `Success Measure`, `Gate / Review Point`). Worker lanes flag missing or unclear goals in handoffs instead of rewriting the board. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
+2. **Claim & Lock**: Product creates or scopes the item; the owning lane claims its own task/files before implementation. For non-trivial tasks, Product/BFM sets or confirms one canonical Goal Alignment block before implementation (`Working Goal`, `Definition of Done`, `Gate / Review Point`). Worker lanes flag missing or unclear goals in handoffs instead of rewriting the board. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
 3. **Commit**: Work in an isolated branch (`tech/...` or `design/...`). Do not touch files locked by other active threads.
 4. **QA**: Once complete, push your branch, set status to `Staging QA`, and document the modified files and QA verification results.
 5. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.

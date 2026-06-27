@@ -1,6 +1,6 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.1.2+codex.20260627164153",
+  "version": "0.1.2+codex.20260627171622",
   "description": "Codex plugin for safe concurrent lane work using FB-Lane board claims, handoffs, and Product integration gates.",
   "author": {
     "name": "James Yeang",

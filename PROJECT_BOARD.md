@@ -317,7 +317,7 @@
 *   **Out of Scope**: Hard-blocking `submit`, changing quick-task behavior, or creating a standalone goal-management framework.
 *   **Goal Alignment**:
     *   **Working Goal**: Make non-trivial FB-Lane handoffs preserve a clear Product/BFM-owned Working Goal while preserving lane caveats and evidence.
-    *   **Success Measure**: Skills, bootstrap guidance, packaged plugin files, and doctor checks all consistently express the Goal Alignment contract, with quick tasks exempt.
+    *   **Definition of Done**: Skills, bootstrap guidance, packaged plugin files, and doctor checks all consistently express the Goal Alignment contract, with quick tasks exempt.
     *   **Gate / Review Point**: Source validation, plugin validation, CLI syntax checks, and doctor fixture checks pass before submit.
 *   **Affected Screens / Locks**:
     *   **Screens**: Documentation and CLI behavior only
@@ -366,7 +366,7 @@
     *   `PROJECT_BOARD.md`
 *   **Latest Update**:
     *   *2026-06-25*: Product claimed the goal-alignment loop implementation and locked the skill, bootstrap, CLI, and handoff files.
-    *   *2026-06-25*: Implemented lightweight Goal Alignment guidance, BFM reconciliation, generated/static bootstrap updates, doctor warnings, metadata bump, and handoff evidence; final review passed after fixes requiring real `## Goal Alignment` handoff headings, worker handoff-only goal feedback, full board-block wording (`Working Goal`, `Success Measure`, `Gate / Review Point`), and doctor warnings for wrong heading levels.
+    *   *2026-06-25*: Implemented lightweight Goal Alignment guidance, BFM reconciliation, generated/static bootstrap updates, doctor warnings, metadata bump, and handoff evidence; final review passed after fixes requiring real `## Goal Alignment` handoff headings, worker handoff-only goal feedback, full board-block wording (`Working Goal`, `Definition of Done`, `Gate / Review Point`), and doctor warnings for wrong heading levels.
     *   *2026-06-25*: Addressed final review gaps in the manual board template and quickstart entrypoint.
     *   *2026-06-25*: Backfilled legacy TASK-002/TASK-003 handoffs and completed setup skill example alignment so `doctor` can stay warning-clean.
     *   *2026-06-25*: Tightened generated prompts so Product/BFM owns board goal updates and worker lanes report goal feedback only in handoffs.
@@ -413,7 +413,7 @@
 *   **Out of Scope**: Changing submit behavior, adding a new framework, or requiring return-loop ceremony for quick micro-tasks.
 *   **Goal Alignment**:
     *   **Working Goal**: BFM and lane closeouts behave like a real loop: read handoffs, execute/route work, return to board/source/docs/tests, and close only when all handoffs are accounted for.
-    *   **Success Measure**: Skills, bootstrap guidance, generated CLI prompts, packaged plugin copies, changelog, and handoff docs consistently require explicit handoff status plus return checks.
+    *   **Definition of Done**: Skills, bootstrap guidance, generated CLI prompts, packaged plugin copies, changelog, and handoff docs consistently require explicit handoff status plus return checks.
     *   **Gate / Review Point**: Wording scans, skill/manifest validation, CLI syntax checks, and source/package parity checks pass before commit.
 *   **Affected Screens / Locks**:
     *   **Screens**: Documentation and plugin behavior guidance only
@@ -475,3 +475,4 @@
     *   *2026-06-27*: Opened PR #25 for Product review; remaining gate is merge and plugin reinstall/refresh after merge.
     *   *2026-06-27*: Added the visible BFM return-loop Mermaid diagram to the root README, packaged plugin README, and BFM skill; bumped the Codex plugin build suffix to `0.1.2+codex.20260627163830`.
     *   *2026-06-27*: Updated Codex plugin metadata/default prompts so installed plugin users see BFM as a return loop; bumped the Codex plugin build suffix to `0.1.2+codex.20260627164153`.
+    *   *2026-06-27*: Renamed the canonical Goal Alignment evidence field to `Definition of Done` across docs, skills, templates, generated prompts, packaged plugin copies, and CLI output; bumped the Codex plugin build suffix to `0.1.2+codex.20260627171622`.

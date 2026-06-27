@@ -30,14 +30,14 @@ Use these skills before acting, in this order:
    - handoffs named in the target board item's Links, QA, Modified Files, or Latest Update
    - linked `docs/superpowers/plans/` and `docs/superpowers/specs/`
 5. If the target is ambiguous, read active `Ready`, `In Progress`, and `Staging QA` board items before choosing.
-6. For non-trivial work, read the canonical Goal Alignment block from `PROJECT_BOARD.md` first and treat its `Working Goal`, `Success Measure`, and `Gate / Review Point` as the source of truth.
+6. For non-trivial work, read the canonical Goal Alignment block from `PROJECT_BOARD.md` first and treat its `Working Goal`, `Definition of Done`, and `Gate / Review Point` as the source of truth.
 
 ## Five-Lane Review
 
 Create a short internal review with these slots:
 
 - `FB-Lane`: task state, locks, branch/PR, handoff set, conflicts, missing owner.
-- `FB-Product`: user value, canonical Goal Alignment block (`Working Goal`, `Success Measure`, `Gate / Review Point`), sequencing, scope, merge/release gate, beta/staging/live decision.
+- `FB-Product`: user value, canonical Goal Alignment block (`Working Goal`, `Definition of Done`, `Gate / Review Point`), sequencing, scope, merge/release gate, beta/staging/live decision.
 - `FB-Tech`: implementation dependencies, tests/builds, reliability/security, blocked integrations.
 - `FB-Design`: UI/UX dependencies, responsive/visual QA, screenshot evidence, unresolved visual gates.
 - `FB-Business`: positioning/copy/pricing/privacy claims, approval state, source integration target.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2+codex.20260627171622 - 2026-06-27
+
+- Renamed the canonical Goal Alignment evidence field to `Definition of Done`
+  across docs, skills, bootstrap templates, generated prompts, packaged plugin
+  copies, and CLI output.
+
 ## 0.1.2+codex.20260627164153 - 2026-06-27
 
 - Updated the Codex plugin metadata/default prompts so the installed plugin
@@ -27,7 +33,7 @@
 ## 0.1.2+codex.20260625082239 - 2026-06-26
 
 - Added lightweight Goal Alignment guidance for non-trivial FB-Lane work:
-  `Working Goal`, `Success Measure`, and `Gate / Review Point` stay canonical on
+  `Working Goal`, `Definition of Done`, and `Gate / Review Point` stay canonical on
   `PROJECT_BOARD.md`, while lane handoffs report compact alignment, caveats, and
   evidence.
 - Added the BFM skill for Product/Captain review, sequencing, routing, and

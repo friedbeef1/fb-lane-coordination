@@ -30,7 +30,7 @@ When you are invoked in a lane thread, you will be told your lane at the top of 
 
 ## Lightweight Goal Alignment
 
-Use goal alignment for non-trivial handoffs and sequencing work only. Product/BFM owns one canonical Goal Alignment block per task in `PROJECT_BOARD.md` where practical, with `Working Goal`, `Success Measure`, and `Gate / Review Point`. Worker lanes read that block and challenge it in handoffs instead of rewriting it.
+Use goal alignment for non-trivial handoffs and sequencing work only. Product/BFM owns one canonical Goal Alignment block per task in `PROJECT_BOARD.md` where practical, with `Working Goal`, `Definition of Done`, and `Gate / Review Point`. Worker lanes read that block and challenge it in handoffs instead of rewriting it.
 
 - Good: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 - Bad: `Working Goal: finish the feature.`
