@@ -45,4 +45,4 @@ Evidence Against Product OKR: No blocking evidence identified.
 
 implemented
 
-Closeout note - TASK-014: implemented. Delivered: asset unlinking, release-asset documentation, maintenance guidance, `.gitignore` updates, and evidence updates in changelog/board/handoff. Evidence: release asset checks, render file removal check, `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check`. Remaining: PR publication and CI confirmation.
+Closeout note - TASK-014: implemented. Delivered: asset unlinking, release-asset documentation, maintenance guidance, `.gitignore` updates, and evidence updates in changelog/board/handoff. Evidence: release asset checks, render file removal check, `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check`. PR: https://github.com/friedbeef1/fb-lane-coordination/pull/28. Remaining: CI confirmation and merge decision.
