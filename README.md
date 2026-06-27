@@ -1,108 +1,157 @@
-# FB-Lane Coordination Plugin
+# FB-Lane: Loop Engineering for AI Work
 
-Keep telling your AI what you want, as fast as you think of it. FB-Lane lets Product, Tech, Design, and Business lanes work across one codebase without losing ownership, file claims, handoffs, or merge order.
+AI agents execute fast. Product work still fails when they do not return to the
+goal, the evidence, the board, and the real repo state.
 
-[Watch the demo video](https://youtu.be/wry1xhaEEBg) | [FAQ](FAQ.md) | [Setup alternatives](docs/setup.md) | [Changelog](CHANGELOG.md)
+FB-Lane is a lightweight implementation of **Loop Engineering**: a way for a
+Product Lead to approve the goal, let specialist lanes execute, and force the
+work back through evidence before anything is called done.
 
-FB-Lane is the coordination layer for many goals arriving over time. It does not replace your AI tool's native concurrency. It gives concurrent work a shared operating model:
+[Loop Engineering deep dive](docs/loop-engineering.md) | [FAQ](FAQ.md) |
+[Setup](docs/setup.md) | [Changelog](CHANGELOG.md)
 
-- `PROJECT_BOARD.md` records owner, status, scope, locks, links, and QA.
-- Product/Captain sequences work and owns final integration.
-- Tech, Design, and Business stay in their own lanes.
-- File claims reduce overlap before agents write.
-- Handoff docs preserve decisions after chat context disappears.
+## The Thesis
 
-Use FB-Lane as a thin protocol, not a second project-management platform. If one Codex thread can do the work safely, use Codex directly. Reach for FB-Lane only when parallel work needs shared ownership, file claims, handoffs, or Product/Captain sequencing.
+Codex, Claude Code, and Antigravity already provide powerful agent execution.
+The missing layer is usually not speed. It is alignment.
 
-## The Problem
+Without a loop, parallel AI work drifts:
 
-Without FB-Lane, parallel AI work tends to fail in predictable ways:
+- goals change in chat but not in the repo
+- Design, Tech, and Business make different assumptions
+- handoffs exist but are not reflected in source
+- tests pass while the product promise remains incomplete
+- Product has to reconstruct status from chat history
 
-| Problem | What Happens |
-|---|---|
-| Goal pile-up | New ideas wait behind whatever the current thread is doing. |
-| Context overload | One chat mixes backend, design, copy, and product decisions. |
-| File collisions | Two agents edit the same component or config without knowing it. |
-| Code bleed | A styling task changes backend code, or a tech task changes copy/layout. |
-| Lost handoffs | Product has to reconstruct what each lane did from chat history. |
-| Merge confusion | The user becomes the traffic controller for every lane. |
+Loop Engineering keeps five things aligned:
 
-FB-Lane fixes this by making every lane sync from the board, claim files before editing, and return work to Product/Captain for sequencing.
+1. the approved goal
+2. the work that lanes execute
+3. the evidence they return
+4. the board state Product uses to sequence
+5. the repo truth in source, docs, tests, and git
 
-## Platform Guides
+FB-Lane gives that loop a small set of files and commands: `PROJECT_BOARD.md`,
+lane handoffs, file claims, `doctor`, and BFM/Product closeout checks.
 
-Choose the guide for the AI tool you use:
+## The Core Loop
 
-| Platform | Guide | Demo Video | Best For |
-|---|---|---|---|
-| Antigravity 2.0 | [platforms/antigravity/README.md](platforms/antigravity/README.md) | [📺 Video](https://youtu.be/jbyiGyguZHU) | Native multi-agent orchestration and isolated worker lanes. |
-| Claude Code | [platforms/claude-code/README.md](platforms/claude-code/README.md) | [📺 Video](https://youtu.be/2QDJt3mt5P8) | `@agent` / `/agents` lane workflows with MCP and optional worktrees. |
-| Codex | [platforms/codex/README.md](platforms/codex/README.md) | [📺 Video](https://youtu.be/nVEGruk2R7Y) | Codex plugin, skills, MCP, subagents, and worktrees. |
-
-Manual/bootstrap setup options live in [docs/setup.md](docs/setup.md).
-Release notes live in [CHANGELOG.md](CHANGELOG.md).
-
-## Quick Mental Model
-
-```text
-User request
-  -> FB-Product scopes and sequences
-  -> FB-Tech / FB-Design / FB-Business claim and work in bounded lanes
-  -> PROJECT_BOARD.md tracks claims, status, and locks
-  -> docs/handoffs/ carries non-trivial lane output
-  -> FB-Product integrates and decides what is ready to merge
+```mermaid
+flowchart TD
+    A["Product captures intent"] --> B["Goal Alignment Session"]
+    B --> C{"OKRs approved?"}
+    C -- "No" --> B
+    C -- "Yes" --> D["Lane execution"]
+    D --> E["Handoff evidence"]
+    E --> F["BFM return check"]
+    F --> G{"Goal, work, evidence, board, repo agree?"}
+    G -- "No" --> H["Fix gap or mark blocked, out of scope, or deferred"]
+    H --> F
+    G -- "Yes" --> I["Clean closeout"]
+    I --> J["Next handoff batch"]
+    J --> A
 ```
 
-Worktrees and branches isolate files. FB-Lane coordinates the work.
+For non-trivial work, BFM does not start by coding. It starts with a **Goal
+Alignment Session**:
 
-## When To Skip FB-Lane
+- Product proposes an `Objective`
+- Product proposes measurable `Key Results`
+- Product defines the `Definition of Done`
+- Product names the `Gate / Review Point`
+- Product records `Approval: pending`
+- James approves or changes it
+- BFM executes only after `Approval: approved`
 
-Skip the lane workflow for:
+After approval, BFM changes approach, scope, or sequence to fit the OKR. It does
+not silently rewrite the approved goal.
 
-- one-off fixes in one thread
-- read-only questions or code explanations
-- technically independent work where Codex worktrees are enough
-- tasks with no Product, Design, Business, or Tech ownership split
+## Why Product Leads Care
 
-In those cases, the board adds ceremony without reducing risk.
+FB-Lane is for the Product Lead who wants agent speed without becoming the human
+traffic controller.
 
-## The Four Lanes
+It makes these questions visible in the repo:
+
+- What are we trying to achieve?
+- Who owns this slice?
+- Which files are safe to edit?
+- What evidence proves the work met the goal?
+- What is blocked, deferred, or out of scope?
+- What can Product merge or release?
+
+The point is not to add ceremony. The point is to make the return loop explicit
+enough that agents cannot finish by saying "done" when the board, source, docs,
+or tests say otherwise.
+
+## How FB-Lane Implements The Loop
+
+| Loop need | FB-Lane mechanism |
+|---|---|
+| Approved goal | `Goal Alignment Session` block in `PROJECT_BOARD.md` |
+| Role clarity | FB-Product, FB-Tech, FB-Design, and FB-Business lanes |
+| Collision control | File claims and optional worktrees |
+| Durable handoff | `docs/handoffs/<task-id>.md` |
+| Evidence return | `OKR Fit`, caveats, and Definition of Done evidence |
+| Health check | `node tools/fb-lane.cjs doctor` |
+| Integration | BFM/Product reconciliation before sequencing or merge |
+| Closeout | Explicit status: implemented, already done, blocked, out of scope, or explicitly deferred |
+
+## Roles Inside The Loop
 
 | Lane | Owns | Boundary |
 |---|---|---|
-| FB-Product | Scoping, priorities, sequencing, staging/live decisions, merge gates. | Does not claim or execute Tech/Design/Business source changes. |
-| FB-Tech | Backend, APIs, schemas, auth, migrations, tests, reliability. | Does not own visual styling or product copy. |
-| FB-Design | UI, CSS, layout, icons, visual QA, responsive behavior. | Does not own backend logic, data schemas, or auth. |
-| FB-Business | Positioning, onboarding copy, help text, pricing, marketing docs. | Read-only on application code unless explicitly assigned. |
+| FB-Product / BFM | Goal approval, sequencing, tradeoffs, integration, staging/live decisions. | Gives direction and owns closeout; does not execute other lanes' source work by default. |
+| FB-Tech | App logic, APIs, schemas, auth, integrations, migrations, tests, reliability. | Does not own product copy or visual design decisions. |
+| FB-Design | UI, CSS, layout, icons, responsive behavior, visual QA. | Does not own backend logic, schemas, or auth. |
+| FB-Business | Positioning, onboarding copy, pricing, marketing text, docs. | Read-only on application code unless Product explicitly assigns implementation. |
 
-## Core Loop
+## When To Use It
 
-```text
-Inbox -> Ready -> In Progress -> Staging QA -> Done
-```
+Use FB-Lane when the work has any of these risks:
 
-1. Product scopes the task and chooses lane ownership.
-2. The owning lane claims files or surfaces before editing.
-3. The lane works on an isolated branch or worktree where useful.
-4. The lane submits checks and handoff notes.
-5. Product/Captain reviews, resolves conflicts, and merges.
+- multiple agent threads or worktrees are active
+- Tech, Design, Business, and Product concerns are mixed
+- file collisions are plausible
+- handoffs need to survive context loss
+- Product must sequence multiple lane outputs
+- you need evidence before merge or release
 
-Product gives direction; lanes execute. If Product sees hung tests, builds, browser checks, `git add`, or stale `.git/*.lock` files, it should record the blocked or pending gate and send execution back to the owning lane instead of continuing the implementation loop.
+Skip it for:
+
+- one-thread fixes
+- read-only questions
+- tiny quick edits with no ownership split
+- independent experiments where native worktrees are enough
+
+## Start Here
+
+Choose the platform guide for your tool:
+
+| Platform | Guide | Best for |
+|---|---|---|
+| Antigravity 2.0 | [platforms/antigravity/README.md](platforms/antigravity/README.md) | Native multi-agent orchestration and isolated worker lanes. |
+| Claude Code | [platforms/claude-code/README.md](platforms/claude-code/README.md) | `@agent` / `/agents` lane workflows with MCP and optional worktrees. |
+| Codex | [platforms/codex/README.md](platforms/codex/README.md) | Codex plugin, skills, MCP, subagents, and worktrees. |
+
+Fallback bootstrap options live in [docs/setup.md](docs/setup.md). The operating
+model lives in [docs/loop-engineering.md](docs/loop-engineering.md).
 
 ## CLI Quick Reference
 
-Run from the project root:
+Run from a project root that has been bootstrapped with FB-Lane:
 
 | Command | Purpose |
 |---|---|
 | `node tools/fb-lane.cjs status` | Show tasks, owners, and file claims. |
-| `node tools/fb-lane.cjs claim <id> <lane> [locks] [--worktree]` | Claim work and lock files. Use `--worktree` for isolated parallel code-writing lanes. |
-| `node tools/fb-lane.cjs quick <lane> <locks> [desc]` | Create and claim a fast-track `TASK-Q-####` task. |
+| `node tools/fb-lane.cjs doctor` | Read-only loop health check for board, rules, locks, handoffs, and OKR approval. |
+| `node tools/fb-lane.cjs claim <id> <lane> [locks] [--worktree]` | Claim work and lock files. |
+| `node tools/fb-lane.cjs quick <lane> <locks> [desc]` | Create and claim a quick `TASK-Q-####` task. |
 | `node tools/fb-lane.cjs submit <id> [staging_url]` | Submit work for Product/Captain review. |
 | `node tools/fb-lane.cjs merge <id>` | Product/Captain merge path after review. |
-| `node tools/fb-lane.cjs bootstrap` | Manual/bootstrap setup path. See [docs/setup.md](docs/setup.md). |
+| `node tools/fb-lane.cjs bootstrap` | Manual setup path. See [docs/setup.md](docs/setup.md). |
 
-## Codex Plugin Upgrades
+## Codex Plugin Upgrade
 
 For an existing Codex install, refresh from the FB-Lane marketplace:
 
@@ -110,49 +159,19 @@ For an existing Codex install, refresh from the FB-Lane marketplace:
 codex plugin add fb-lane-coordination@fb-lane
 ```
 
-Start a new Codex thread after reinstalling so newly loaded skills and MCP tools pick up the updated plugin context. Codex may keep older cache folders on disk; the active version is the one shown by:
+Start a new Codex thread after reinstalling so newly loaded skills and MCP tools
+pick up the refreshed plugin context. Codex may keep older cache folders on disk;
+the active version is the one shown by:
 
 ```bash
 codex plugin list | rg "fb-lane-coordination"
 ```
 
-## 🔧 Extensible Loop Harness & Lifecycle Hooks
-
-FB-Lane operates as a pluggable **execution and loop harness**. Instead of hardcoding opinionated testing or QA tools directly into the core scripts, FB-Lane provides core coordination (branching, status, and file locking) and exposes lifecycle hooks.
-
-This allows developers to bind their own custom loops (e.g., unit tests, visual regression checkers, AST validators, API contract checkers) using a simple local `.fb-lane.json` configuration file in the project root.
-
-### Config Example (`.fb-lane.json`)
-
-```json
-{
-  "hooks": {
-    "pre-claim": "echo 'Checking workspace sanity...'",
-    "pre-submit": "npm test && npm run lint",
-    "post-submit": "curl -X POST https://hooks.slack.com/services/... -d '{\"text\":\"Task submitted for QA\"}'",
-    "pre-merge": "node tools/ast-drift-check.js"
-  }
-}
-```
-
-### Supported Hooks
-
-*   **`pre-claim` / `post-claim`**: Runs before/after a task or quick-edit is claimed and locked. Perfect for environment setup.
-*   **`pre-submit` / `post-submit`**: Runs before/after task submission. *If `pre-submit` exits with a non-zero code, the submission is blocked.* Perfect for custom test suites and notifications.
-*   **`pre-merge` / `post-merge`**: Runs before/after merging. Perfect for goal-drift checkers and cache cleaning.
-
-### Why This Is Important
-
-1.  **Technology Agnostic**: Works out of the box with any stack (Node/React, Python, Go, Rust, etc.) by executing standard shell commands.
-2.  **Zero-Friction Autonomy**: Prevents bad code (broken tests, visual drift, or schema mismatches) from ever reaching the staging branch or being merged, without requiring human developers to manually run checks.
-3.  **Lightweight Core**: Keeps the core framework focused on Git and task state management, letting teams customize and evolve their AI loops independently.
-4.  **Synergy with Git Worktrees**: Worktrees solve physical workspace isolation (giving each lane its own checkout directory), while hooks enforce validation loops within those sandboxes. They run together seamlessly, executing hook commands relative to each worktree's specific directory.
-
 ## More
 
-- [FAQ](FAQ.md)
+- [Loop Engineering deep dive](docs/loop-engineering.md)
 - [Setup alternatives](docs/setup.md)
-- [Changelog](CHANGELOG.md)
-- [Example app](examples/my-app/README.md)
+- [FAQ](FAQ.md)
 - [Plugin package](plugins/fb-lane-coordination/README.md)
+- [Example app](examples/my-app/README.md)
 - [License](LICENSE)

@@ -6,7 +6,7 @@ description: Coordinates task claiming, staging submissions, and merges on the p
 # FB-Lane Task Coordination Skill
 
 ## Overview
-This skill manages FB-Lane task lifecycles, git branches, and resource locks with the local `tools/fb-lane.cjs` utility. For non-trivial tasks, Product/BFM keeps one canonical Goal Alignment block in `PROJECT_BOARD.md` with `Working Goal`, `Success Measure`, and `Gate / Review Point`; lanes use compact goal-alignment fields in handoffs, and Product records any goal change in place.
+This skill manages FB-Lane task lifecycles, git branches, and resource locks with the local `tools/fb-lane.cjs` utility. For non-trivial tasks, Product/BFM keeps one canonical `Goal Alignment Session` block in `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, and `Justification`; lanes report `OKR Fit` in handoffs.
 
 ## Preconditions
 - The workspace must have `PROJECT_BOARD.md` and `tools/fb-lane.cjs` initialized (use `project-coordination-setup` skill to initialize if missing).
@@ -32,7 +32,7 @@ When the owning lane claims a task (e.g. `TASK-102`) for that lane (e.g., `Tech`
 2. Verify that the command succeeds, which checks out the feature branch, locks the files on the board, and commits the board update separately.
 3. Note: The CLI claim command also automatically writes task context to `.codex/current_task.md` for local editors.
 4. For source-changing lane work, prefer `--worktree` when Product must stay free for direction, review, or integration.
-5. For non-trivial tasks, confirm the board item has one canonical Goal Alignment block (`Working Goal`, `Success Measure`, `Gate / Review Point`) before implementation begins.
+5. For non-trivial tasks, confirm the board item has one approved `Goal Alignment Session` block (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) before implementation begins.
 
 ### 3. Submit a Task for Staging QA
 When a task's implementation is complete and ready for review:
@@ -68,19 +68,33 @@ When executing code updates and running test/lint commands:
 
 Product does not run this implementation loop for Tech, Design, or Business. If Product sees repeated runner hangs, stale `.git/*.lock` files, or stuck `git add` / test / build processes, run `node tools/fb-lane.cjs doctor`, mark the relevant lane gate `pending-gate` or `blocked`, and return execution to the owning lane.
 
-## Goal Alignment Notes
+## Goal Alignment Session Notes
 
-Use lightweight goal alignment for non-trivial handoffs only. Do not create extra ceremony for micro quick tasks.
+Use a Goal Alignment Session for non-trivial handoffs only. Do not create extra ceremony for `TASK-Q-*` quick tasks.
 
-- Product/BFM owns one canonical Goal Alignment block per task in `PROJECT_BOARD.md`, ideally with `Working Goal`, `Success Measure`, and `Gate / Review Point`.
-- Good: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
-- Bad: `Working Goal: finish the feature.`
+- Product/BFM owns one canonical Goal Alignment Session block per task in `PROJECT_BOARD.md`, with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`.
+- Good: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
+- Bad: `Objective: finish the feature.`
 - Lane handoffs stay compact and use a real heading:
   ```md
-  ## Goal Alignment
+  ## Goal Alignment Session
 
-  Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+  OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
   Goal Challenge / Caveat: <real caveat> | No caveat identified
-  Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
+  Definition of Done Evidence: <lane evidence that proves, weakens, or blocks the approved OKR>
   ```
-- If Product changes the goal after reconciliation, record: `Goal changed from X to Y because Z.`
+- If a handoff conflicts with approved OKRs, BFM proposes aligned alternatives for approach, scope, or sequence and recommends one. BFM does not edit approved OKRs.
+
+## BFM Return Loop
+
+When Product/BFM processes all lane handoffs, do not close until every handoff has one explicit status: `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+
+Return checks:
+
+- after reading handoffs, return to `PROJECT_BOARD.md`;
+- after coding, return to each handoff;
+- after tests, return to source, docs, and board;
+- after board/doc updates, return to `node tools/fb-lane.cjs status`;
+- after commit/push, return to `git status`.
+
+Close only when board, source, docs, and tests agree, or every disagreement is explicitly marked.

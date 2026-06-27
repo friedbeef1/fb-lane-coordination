@@ -23,10 +23,57 @@
 - Added `docs/fb-lane-upstream/` holding the change as a `git format-patch`
   (`0001-harden-fb-lane-cli.patch`) for upstream contribution.
 
+## 0.1.2+codex.20260627174151 - 2026-06-27
+
+- Reframed the public GitHub docs around Loop Engineering for Product Leads:
+  concise README thesis, `docs/loop-engineering.md` deep dive, shorter FAQ, and
+  tactical setup/platform pages.
+- Added the BFM Goal Alignment Session with approved OKRs on `PROJECT_BOARD.md`
+  for non-quick/non-trivial BFM runs: `Objective`, `Key Results`, `Definition
+  of Done`, `Gate / Review Point`, `Approval`, and `Justification`.
+- Updated BFM guidance to block before execution when OKR approval is missing,
+  OKRs are unclear, or handoffs conflict with approved OKRs; conflicting work
+  now routes to recommended aligned approach/scope/sequence alternatives.
+- Updated lane handoffs to report `OKR Fit: aligned | suggest approach change |
+  blocked by OKR ambiguity`.
+- Added warning-only `doctor` checks for missing Goal Alignment Session sections,
+  missing `OKR Fit`, and missing/unapproved board OKRs on non-quick handoff
+  targets. `TASK-Q-*` remains exempt and `submit` behavior is unchanged.
+
+## 0.1.2+codex.20260627171622 - 2026-06-27
+
+- Renamed the canonical Goal Alignment evidence field to `Definition of Done`
+  across docs, skills, bootstrap templates, generated prompts, packaged plugin
+  copies, and CLI output.
+
+## 0.1.2+codex.20260627164153 - 2026-06-27
+
+- Updated the Codex plugin metadata/default prompts so the installed plugin
+  explicitly presents BFM as a return loop: board and handoffs first,
+  source/docs/tests reconciliation, durable state update, and no close until each
+  handoff has an explicit final status.
+
+## 0.1.2+codex.20260627163830 - 2026-06-27
+
+- Added the visible BFM return-loop Mermaid diagram to the root README, packaged
+  plugin README, and BFM skill so the loop is captured in reusable FB-Lane
+  guidance.
+
+## 0.1.2+codex.20260627161927 - 2026-06-27
+
+- Added the BFM return-loop closeout standard: every processed handoff must be
+  marked `implemented`, `already done`, `blocked`, `out of scope`, or
+  `explicitly deferred`.
+- Added return checks across BFM/Product and lane guidance so agents return to
+  board, handoffs, source/docs/tests, lane status, and git status before
+  closeout.
+- Updated bootstrap templates, generated CLI prompts, and packaged plugin agent
+  files so newly bootstrapped projects inherit the return-loop rule.
+
 ## 0.1.2+codex.20260625082239 - 2026-06-26
 
 - Added lightweight Goal Alignment guidance for non-trivial FB-Lane work:
-  `Working Goal`, `Success Measure`, and `Gate / Review Point` stay canonical on
+  `Working Goal`, `Definition of Done`, and `Gate / Review Point` stay canonical on
   `PROJECT_BOARD.md`, while lane handoffs report compact alignment, caveats, and
   evidence.
 - Added the BFM skill for Product/Captain review, sequencing, routing, and

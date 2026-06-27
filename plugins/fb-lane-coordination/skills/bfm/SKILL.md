@@ -30,45 +30,77 @@ Use these skills before acting, in this order:
    - handoffs named in the target board item's Links, QA, Modified Files, or Latest Update
    - linked `docs/superpowers/plans/` and `docs/superpowers/specs/`
 5. If the target is ambiguous, read active `Ready`, `In Progress`, and `Staging QA` board items before choosing.
-6. For non-trivial work, read the canonical Goal Alignment block from `PROJECT_BOARD.md` first and treat its `Working Goal`, `Success Measure`, and `Gate / Review Point` as the source of truth.
+6. For non-trivial work, read the canonical `Goal Alignment Session` block from `PROJECT_BOARD.md` first and treat its `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, approved `Approval`, and `Justification` as the source of truth.
+7. If the block is missing or pending, propose `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, and `Justification` to James, record `Approval: pending`, and stop until James explicitly approves.
+8. Block before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR.
 
 ## Five-Lane Review
 
 Create a short internal review with these slots:
 
 - `FB-Lane`: task state, locks, branch/PR, handoff set, conflicts, missing owner.
-- `FB-Product`: user value, canonical Goal Alignment block (`Working Goal`, `Success Measure`, `Gate / Review Point`), sequencing, scope, merge/release gate, beta/staging/live decision.
+- `FB-Product`: user value, canonical Goal Alignment Session block (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`), sequencing, scope, merge/release gate, beta/staging/live decision.
 - `FB-Tech`: implementation dependencies, tests/builds, reliability/security, blocked integrations.
 - `FB-Design`: UI/UX dependencies, responsive/visual QA, screenshot evidence, unresolved visual gates.
 - `FB-Business`: positioning/copy/pricing/privacy claims, approval state, source integration target.
 
 Do not summarize a lane as done from delivery evidence alone. Use `delivered`, `lane-verification-passed`, `pending-gate`, `blocked`, or `superseded`.
-Reconcile every lane's `Goal Alignment`, `Goal Challenge / Caveat`, and `Evidence Against Goal` before deciding sequence.
+Reconcile every lane's `OKR Fit`, `Goal Challenge / Caveat`, and `Definition of Done Evidence` before deciding sequence.
+Every handoff BFM reads must end with one closeout status: `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
 
 ## Sequence
 
 Produce the next execution order before changing files:
 
-1. Reconcile whether the current Goal Alignment block is still aligned. If not, update the board and record: `Goal changed from X to Y because Z.`
-2. Prerequisite gate decisions Product must make first.
-3. Work that can run in parallel because locks do not overlap.
-4. Work that must run serially because it changes shared files or depends on another lane.
-5. Verification gates required before merge, staging, or live deploy.
-6. Explicit stop points needing user approval, especially live deploys, secrets, payment credentials, or destructive changes.
+1. Reconcile whether the current approved Goal Alignment Session OKR is still aligned.
+2. If work conflicts with approved OKRs, propose alternative approaches, scope, or sequence that align to the OKR and recommend one. Do not edit approved OKRs.
+3. Prerequisite gate decisions Product must make first.
+4. Work that can run in parallel because locks do not overlap.
+5. Work that must run serially because it changes shared files or depends on another lane.
+6. Verification gates required before merge, staging, or live deploy.
+7. Explicit stop points needing user approval, especially unapproved OKRs, live deploys, secrets, payment credentials, or destructive changes.
 
 ## Execute
 
 Proceed through the sequence without asking for repeated permission when authority is clear.
 
 - Product/BFM creates or scopes board items, sets direction, and assigns an owning lane.
+- Product/BFM blocks before execution if the board Goal Alignment Session is missing, has unclear OKRs, has `Approval: pending`, lacks James's explicit approval, or a handoff is blocked by OKR ambiguity.
 - The owning lane claims its own task/files before durable writes and executes the work in that lane context.
 - Respect active locks; do not edit files owned by another active lane.
 - Use the owning lane for implementation: Tech for app logic/tests, Design for UI/visual QA, Business for copy/positioning, Product for sequencing/merge/release decisions.
 - For source-changing work, prefer lane-owned worktrees or isolated branches so Product stays available for direction, integration, and merge gates.
 - After each lane finishes, update its handoff and board status before moving to the next dependent step.
-- Product reads all resulting handoffs together, reconciles Goal Alignment, and only then sequences merges.
+- Product reads all resulting handoffs together, reconciles OKR Fit, and only then sequences merges.
 - If a lane's tests, build, Git staging, or browser verification hangs, stop the Product retry loop and record the task as `pending-gate` or `blocked` with the exact runner/process evidence. Return the fix to the owning lane.
 - Do not deploy live, add production secrets, change payment credentials, or run destructive operations without explicit current approval.
+
+## Return Checks
+
+Treat BFM as a loop, not a one-way pipeline:
+
+- After reading handoffs, return to `PROJECT_BOARD.md` and confirm every handoff is sequenced, represented, or intentionally deferred.
+- After source changes, return to each handoff and confirm the source satisfies the requested contract.
+- After tests, return to source, docs, and board; stale copy, missing wiring, or bad assumptions become follow-up work or blockers.
+- After board/doc updates, run status again and confirm lane state reflects reality.
+- After commit/push, return to `git status` and close only with a clean worktree or a named dirty state.
+
+```mermaid
+flowchart TD
+    A["Read intent and handoffs"] --> B["Return to PROJECT_BOARD.md"]
+    B --> C["Reconcile repo truth<br/>source, docs, tests, locks"]
+    C --> D["Prioritize and route lane work"]
+    D --> E["Execute next slice"]
+    E --> F["Verify smallest real gate"]
+    F --> G{"Board, source, docs, tests agree?"}
+    G -- "No" --> H["Fix gap or mark<br/>blocked, out of scope, deferred"]
+    H --> B
+    G -- "Yes" --> I["Update board, handoffs, closeout"]
+    I --> J{"Clean git state and gates explicit?"}
+    J -- "No" --> H
+    J -- "Yes" --> K["Close BFM"]
+    K -. "next handoff batch" .-> A
+```
 
 ## Completion Contract
 
@@ -78,3 +110,4 @@ Finish with a Product closeout note:
 
 Also update `PROJECT_BOARD.md` with final status, links, modified files, checks, risks, and next owner.
 If completion is blocked, record the exact blocker and the lane responsible for clearing it.
+Do not close BFM until board, source, docs, and tests agree, or every disagreement is marked `blocked`, `out of scope`, or `explicitly deferred`.

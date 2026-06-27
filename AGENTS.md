@@ -16,7 +16,7 @@ To prevent context window overload and git collisions, strictly adhere to your a
 ### 👑 FB-Product (Product Manager / User Value Optimizer)
 *   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
-*   **Workflow**: Reads user requests, writes one canonical Goal Alignment block for each non-trivial task in `PROJECT_BOARD.md` (`Working Goal`, `Success Measure`, `Gate / Review Point`), sequences tasks against that goal and value-vs-effort mix, records goal changes as `Goal changed from X to Y because Z.`, prompts the user for approval before promoting backlog items to `Ready`, assigns execution to the owning lanes, reviews PRs, verifies staging, and merges branches.
+*   **Workflow**: Reads user requests, runs a Goal Alignment Session for each non-trivial task, drafts OKRs in `PROJECT_BOARD.md` (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending`, `Justification`), asks James to approve them, marks `Approval: approved` only after explicit approval, sequences tasks against those OKRs and value-vs-effort mix, assigns execution to the owning lanes, reviews PRs, verifies staging, and merges branches.
 *   **Boundary**: Product gives direction and owns integration. Product does not claim or execute Tech/Design/Business source changes on their behalf; individual lanes claim and execute their own task/files.
 *   **Completion Audit Rule**: Reports delivered work, lane-specific verification, and unresolved gates as separate statuses for every lane. Product must not call any workstream "done" or "executed" unless the required evidence exists for that lane; otherwise mark the missing gate as pending or blocked.
 
@@ -38,22 +38,42 @@ To prevent context window overload and git collisions, strictly adhere to your a
 ### 🧾 Passive Closeout Notes
 Every lane must leave a final informational closeout note in its thread when it stops work on a task. The note records task ID, status, delivered work, evidence, remaining gates, and the handoff path. It must not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane; `PROJECT_BOARD.md` and `docs/handoffs/` remain the trigger source.
 
-### 🎯 Lightweight Goal Alignment
-Use goal alignment for non-trivial handoffs and sequencing work. Product/BFM owns one canonical Goal Alignment block per task, ideally in the task detail block in `PROJECT_BOARD.md`, with `Working Goal`, `Success Measure`, and `Gate / Review Point`. Worker lanes read that block and challenge it in handoffs instead of rewriting it. Do not turn quick micro-tasks into a new ceremony.
+### 🎯 Goal Alignment Session
+Use a Goal Alignment Session for non-trivial handoffs and sequencing work. Product/BFM owns one canonical OKR block per BFM run in `PROJECT_BOARD.md`, with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Worker lanes read that block and report OKR fit in handoffs instead of rewriting it. Do not turn `TASK-Q-*` quick tasks into a new ceremony.
 
-Good goal example: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
+Good objective example: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 
-Bad goal example: `Working Goal: finish the feature.`
+Bad objective example: `Objective: finish the feature.`
 
 Lane handoffs should use this compact form instead of a long SMART template:
 
 ```md
-## Goal Alignment
+## Goal Alignment Session
 
-Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
 Goal Challenge / Caveat: <real caveat> | No caveat identified
-Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
+Definition of Done Evidence: <lane evidence that proves, weakens, or blocks the approved OKR>
 ```
+
+BFM blocks before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR. If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the OKR and recommends one; it must not edit approved OKRs.
+
+### 🔁 BFM Return Loop
+When James says "run BFM" or "process all lane handoffs", Product/BFM must not close until every discovered handoff has one explicit status:
+
+- `implemented`
+- `already done`
+- `blocked`
+- `out of scope`
+- `explicitly deferred`
+
+That status must match `PROJECT_BOARD.md`, source files, docs, and test evidence. If they disagree, mark the disagreement as blocked, out of scope, or explicitly deferred before closeout.
+
+Return checks for non-trivial handoff execution:
+1. After reading handoffs, return to `PROJECT_BOARD.md` and confirm every handoff is represented, sequenced, or deferred.
+2. After coding, return to each handoff and confirm the source satisfies the requested contract.
+3. After tests, return to source, docs, and board to catch stale copy, missing wiring, or bad assumptions.
+4. After board/doc updates, return to `node tools/fb-lane.cjs status`.
+5. After commit/push, return to `git status` and close only with a clean worktree or named dirty state.
 
 ### 💬 The User's Role: Supervisor & Reviewer
 
@@ -84,11 +104,11 @@ Internal coordination is automated by the agents, but ownership stays split: Pro
 
 All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate concurrent workstreams:
 1. **Drift Audit**: Before starting, run the drift checklist to verify workspace state.
-2. **Claim & Lock**: Product creates or scopes the item; the owning lane claims its own task/files before implementation. For non-trivial tasks, Product/BFM sets or confirms one canonical Goal Alignment block before implementation (`Working Goal`, `Success Measure`, `Gate / Review Point`). Worker lanes flag missing or unclear goals in handoffs instead of rewriting the board. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
+2. **Claim & Lock**: Product creates or scopes the item; the owning lane claims its own task/files before implementation. For non-trivial tasks, Product/BFM drafts or confirms one Goal Alignment Session block before implementation (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) and blocks until James explicitly approves it. Worker lanes flag missing or unclear OKRs in handoffs instead of rewriting the board. Change status to `In Progress`. Declare the exact **Affected Screens** and **Locked Files** to establish a resource lock.
 3. **Commit**: Work in an isolated branch (`tech/...` or `design/...`). Do not touch files locked by other active threads.
 4. **QA**: Once complete, push your branch, set status to `Staging QA`, and document the modified files and QA verification results.
 5. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.
-6. **Handoff, Unlock & Clean**: Write the structured handoff and passive closeout note. Product reads `PROJECT_BOARD.md` / `docs/handoffs/`, reconciles every lane's Goal Alignment before sequencing execution or merge, records any goal drift as `Goal changed from X to Y because Z.`, merges approved branches, removes resource locks (marking the task `Done`), and records its own passive closeout note. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
+6. **Handoff, Unlock & Clean**: Write the structured handoff and passive closeout note. Product reads `PROJECT_BOARD.md` / `docs/handoffs/`, reconciles every lane's `OKR Fit` before sequencing execution or merge, proposes aligned alternatives for OKR conflicts, merges approved branches, removes resource locks (marking the task `Done`), and records its own passive closeout note. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
 
 ---
 
