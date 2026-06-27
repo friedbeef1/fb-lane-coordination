@@ -19,6 +19,8 @@
   unchanged.
 - Plugin: bumped the Codex plugin build suffix to
   `0.1.2+codex.20260627191525`.
+- Maintenance cleanup: moved tracked demo MP4 assets out of git into GitHub release assets, added release asset links in demo READMEs, and documented canonical vs packaged maintenance boundaries in `docs/maintenance.md`.
+- Docs: labeled Codex support as public beta and Claude Code / Antigravity support as alpha.
 - Docs/plugin metadata: replaced user-specific approval wording with generic
   `the user` language, moved plugin display ownership to `FB-Lane Contributors`,
   and bumped the Codex plugin build suffix to `0.1.2+codex.20260627183826`.

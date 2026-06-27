@@ -5,9 +5,9 @@ This page is tactical. For the operating model behind these commands, read
 
 Use the platform guides first when possible:
 
-- [Antigravity 2.0](../platforms/antigravity/README.md)
-- [Claude Code](../platforms/claude-code/README.md)
-- [Codex](../platforms/codex/README.md)
+- [Antigravity 2.0](../platforms/antigravity/README.md) - Alpha
+- [Claude Code](../platforms/claude-code/README.md) - Alpha
+- [Codex](../platforms/codex/README.md) - Public beta
 
 This page is for fallback setup paths when you are not installing through a platform-specific plugin flow.
 
@@ -46,9 +46,9 @@ What bootstrap creates:
 
 After bootstrap, open the matching platform guide:
 
-- [Antigravity 2.0](../platforms/antigravity/README.md)
-- [Claude Code](../platforms/claude-code/README.md)
-- [Codex](../platforms/codex/README.md)
+- [Antigravity 2.0](../platforms/antigravity/README.md) - Alpha
+- [Claude Code](../platforms/claude-code/README.md) - Alpha
+- [Codex](../platforms/codex/README.md) - Public beta
 
 ## Upgrade Existing Codex Plugin Install
 
