@@ -49,3 +49,24 @@ invoke any of them directly, or let the main session delegate to them:
 The **main session acts as FB-Product** (the orchestrator): scope tasks on `PROJECT_BOARD.md`,
 delegate to a lane subagent, review the result, then merge. Full lane ownership boundaries and
 the board/locking protocol live in `AGENTS.md`.
+
+## Default Coding Style: Ponytail (auto-active)
+
+The vendored `ponytail` skill (`.claude/skills/ponytail/`) is the **default coding posture**.
+Apply it at `full` intensity whenever you write or change code — you decide, no `/ponytail`
+needed. Climb the ladder (YAGNI → reuse → stdlib → native → one line → minimum) and ship the
+shortest diff that actually works.
+
+Apply it when:
+- writing new code, refactoring, or fixing a bug (any lane that edits source — FB-Tech, FB-Design).
+
+Do **not** apply it when:
+- the task is copy, docs, or positioning (FB-Business), or pure config/data;
+- the user explicitly asks for the full/thorough version, or says "stop ponytail" / "normal mode";
+- it would trade away correctness, input validation, error handling, security, or accessibility —
+  ponytail never simplifies these away.
+
+Escalate to `ultra` only when the user signals heavy over-engineering; drop to `lite` when they
+want to see the lazier option but keep the fuller build. The `ponytail-review` / `-audit` /
+`-debt` skills stay on-demand (invoke when reviewing a diff, auditing the repo, or listing
+deferred shortcuts).
