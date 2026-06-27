@@ -474,3 +474,4 @@
     *   *2026-06-27*: Implemented BFM return-loop guidance across skills, docs, bootstrap templates, generated prompts, and packaged plugin files; syntax, manifest parse, CLI parity, Codex bootstrap smoke, doctor setup checks, and whitespace checks passed.
     *   *2026-06-27*: Opened PR #25 for Product review; remaining gate is merge and plugin reinstall/refresh after merge.
     *   *2026-06-27*: Added the visible BFM return-loop Mermaid diagram to the root README, packaged plugin README, and BFM skill; bumped the Codex plugin build suffix to `0.1.2+codex.20260627163830`.
+    *   *2026-06-27*: Updated Codex plugin metadata/default prompts so installed plugin users see BFM as a return loop; bumped the Codex plugin build suffix to `0.1.2+codex.20260627164153`.

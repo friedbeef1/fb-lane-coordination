@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2+codex.20260627164153 - 2026-06-27
+
+- Updated the Codex plugin metadata/default prompts so the installed plugin
+  explicitly presents BFM as a return loop: board and handoffs first,
+  source/docs/tests reconciliation, durable state update, and no close until each
+  handoff has an explicit final status.
+
 ## 0.1.2+codex.20260627163830 - 2026-06-27
 
 - Added the visible BFM return-loop Mermaid diagram to the root README, packaged

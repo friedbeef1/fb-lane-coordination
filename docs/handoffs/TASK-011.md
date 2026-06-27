@@ -24,9 +24,10 @@ Every handoff/accounting disagreement must now be marked:
 - Added lane return checks for Tech, Design, and Business closeouts.
 - Updated bootstrap templates and generated CLI prompts so new projects inherit the rule.
 - Regenerated source and packaged Antigravity agent JSON from the patched CLI.
-- Bumped the Codex plugin build suffix to `0.1.2+codex.20260627163830`.
+- Bumped the Codex plugin build suffix to `0.1.2+codex.20260627164153`.
 - Updated README, Codex guide, plugin README, changelog, and quickstart/setup guidance.
 - Added the visible Mermaid return-loop diagram to the root README, packaged plugin README, and BFM skill so the loop is captured in the reusable FB-Lane repo, not only in project handoffs.
+- Updated the Codex plugin metadata and default prompts so installing the plugin exposes the BFM return-loop behavior directly.
 
 ## Verification Evidence
 
@@ -48,4 +49,4 @@ Every handoff/accounting disagreement must now be marked:
 
 lane-verification-passed; pending Product merge.
 
-Closeout note - TASK-011: implemented. Delivered: BFM return-loop closeout checks and visible return-loop diagram across skills, docs, templates, generated prompts, and packaged plugin files. Evidence: CLI syntax, manifest/agent JSON parse, bootstrap smoke, doctor setup checks, CLI parity, whitespace checks, and PR #25. Remaining: Product merge and plugin reinstall/refresh after merge. Handoff: docs/handoffs/TASK-011.md.
+Closeout note - TASK-011: implemented. Delivered: BFM return-loop closeout checks, visible return-loop diagram, and plugin metadata/default prompts across skills, docs, templates, generated prompts, and packaged plugin files. Evidence: CLI syntax, manifest/agent JSON parse, bootstrap smoke, doctor setup checks, CLI parity, whitespace checks, and PR #25. Remaining: Product merge and plugin reinstall/refresh after merge. Handoff: docs/handoffs/TASK-011.md.
