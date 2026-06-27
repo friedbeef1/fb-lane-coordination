@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-013 | In Progress | FB-Product | CI | Add CI readiness automation loop for FB-Lane validation evidence | `.github/workflows/fb-lane-readiness.yml`, `tools/fb-lane.validate.cjs`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-013.md` | `codex/ci-readiness-loop` |
 | TASK-012 | Done | FB-Product | Coordination | Clarify stable OKR alignment so OKRs anchor the loop instead of multiplying during execution | `AGENTS.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/loop-engineering.md`, `docs/handoffs/TASK-012.md`, `templates/*.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/**`, `skills/**/*.md`, `agents/**`, `.claude/agents/**` | `codex/stable-okr-alignment`, `docs/handoffs/TASK-012.md` |
 | TASK-011 | Done | FB-Product | Coordination | Add BFM return-loop closeout checks | `AGENTS.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/loop-engineering.md`, `docs/setup.md`, `docs/handoffs/TASK-011.md`, `templates/*.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/**`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `agents/**`, `.claude/agents/**`, `platforms/*/README.md` | [PR #25](https://github.com/friedbeef1/fb-lane-coordination/pull/25), `docs/handoffs/TASK-011.md` |
 | TASK-Q-5624 | Done | FB-Product | Quick-Fix | Document plugin upgrade process and changelog | (None) | [PR #20](https://github.com/friedbeef1/fb-lane-coordination/pull/20) |
@@ -31,6 +32,41 @@
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
 
 ---
+
+### TASK-013 - Add FB-Lane CI readiness automation loop
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Product
+*   **Area**: CI
+*   **Scope**: Add a GitHub Actions CI readiness loop that runs the repo's FB-Lane validation evidence on pull requests and pushes to `main`.
+*   **Out of Scope**: Publishing packages, deploying docs, auto-tagging releases, or adding secrets-backed CD.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make FB-Lane produce automatic CI readiness evidence before Product/BFM uses a branch as merge-ready.
+    *   **Key Results**:
+        *   PRs and pushes to `main` run the same local validation script.
+        *   The validation script covers CLI syntax, source/package parity, JSON parsing, skill metadata, regression tests, `doctor`, and whitespace checks.
+        *   Docs explain that FB-Lane is not CI/CD, but now includes a CI readiness automation loop.
+    *   **Definition of Done**: The workflow and local runner pass locally without new dependencies or secrets, and docs/board/handoff record CI readiness as part of Loop Engineering evidence.
+    *   **Gate / Review Point**: `node tools/fb-lane.validate.cjs`, `node --check tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check` pass before closeout.
+    *   **Approval**: approved
+    *   **Justification**: The user approved adding a real automation loop after choosing CI readiness on PR and `main` pushes, with CD intentionally deferred.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Documentation and CI only
+    *   **Locked Files**: `.github/workflows/fb-lane-readiness.yml`, `tools/fb-lane.validate.cjs`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-013.md`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/ci-readiness-loop`
+    *   **Staging URL**: (None)
+    *   **Design Specs**: (None)
+*   **QA Checklist**:
+    *   [ ] Local CI runner passes.
+    *   [ ] CI runner syntax check passes.
+    *   [ ] Repo doctor passes.
+    *   [ ] Git diff whitespace check passes.
+    *   [ ] Workflow has no secrets requirement.
+*   **Modified Files**:
+    *   Pending implementation.
+*   **Latest Update**:
+    *   *2026-06-27*: Product claimed the CI readiness automation loop and locked workflow, runner, docs, changelog, board, and handoff files.
+
 
 ### TASK-012 - Clarify stable OKR alignment in FB-Lane
 *   **Status**: Done
