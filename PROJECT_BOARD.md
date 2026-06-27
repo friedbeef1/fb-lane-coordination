@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-014 | In Progress | FB-Product | Cleanup | Ponytail cleanup: move rendered demo videos out of git and clarify canonical/generated maintenance surfaces | `codex-lane-demo/renders/*.mp4`, `platforms/*/how-to-interact-demo/renders/*.mp4`, `.gitignore`, `README.md`, `CHANGELOG.md`, `docs/maintenance.md`, `codex-lane-demo/README.md`, `platforms/claude-code/how-to-interact-demo/README.md`, `platforms/antigravity/how-to-interact-demo/README.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-014.md` | `codex/ponytail-cleanup-fb-lane` |
+| TASK-014 | Done | FB-Product | Cleanup | Ponytail cleanup: move rendered demo videos out of git and clarify canonical/generated maintenance surfaces | `codex-lane-demo/renders/*.mp4`, `platforms/*/how-to-interact-demo/renders/*.mp4`, `.gitignore`, `README.md`, `CHANGELOG.md`, `docs/maintenance.md`, `codex-lane-demo/README.md`, `platforms/claude-code/how-to-interact-demo/README.md`, `platforms/antigravity/how-to-interact-demo/README.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-014.md` | `codex/ponytail-cleanup-fb-lane` |
 | TASK-013 | Done | FB-Product | CI | Add CI readiness automation loop for FB-Lane validation evidence | `.github/workflows/fb-lane-readiness.yml`, `tools/fb-lane.validate.cjs`, `.gitignore`, `.codex/rules.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-013.md` | `codex/ci-readiness-loop`, `docs/handoffs/TASK-013.md` |
 | TASK-012 | Done | FB-Product | Coordination | Clarify stable OKR alignment so OKRs anchor the loop instead of multiplying during execution | `AGENTS.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/loop-engineering.md`, `docs/handoffs/TASK-012.md`, `templates/*.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/**`, `skills/**/*.md`, `agents/**`, `.claude/agents/**` | `codex/stable-okr-alignment`, `docs/handoffs/TASK-012.md` |
 | TASK-011 | Done | FB-Product | Coordination | Add BFM return-loop closeout checks | `AGENTS.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/loop-engineering.md`, `docs/setup.md`, `docs/handoffs/TASK-011.md`, `templates/*.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/**`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `agents/**`, `.claude/agents/**`, `platforms/*/README.md` | [PR #25](https://github.com/friedbeef1/fb-lane-coordination/pull/25), `docs/handoffs/TASK-011.md` |
@@ -35,7 +35,7 @@
 ---
 
 ### TASK-014 - Ponytail cleanup pass
-*   **Status**: In Progress
+*   **Status**: Done
 *   **Owner / Thread**: FB-Product
 *   **Area**: Cleanup
 *   **Scope**: Keep FB-Lane behavior intact while moving rendered demo MP4s out of git and documenting the canonical vs packaged/generated maintenance surfaces.
@@ -62,8 +62,8 @@
 *   **QA Checklist**:
     *   [x] Demo release asset links resolve.
     *   [x] No tracked MP4 render outputs remain.
-    *   [ ] CI readiness validator passes on a clean worktree.
-    *   [ ] Repo doctor passes on a clean worktree.
+    *   [x] CI readiness validator passes on a clean worktree.
+    *   [x] Repo doctor passes on a clean worktree.
     *   [x] Git diff whitespace check passes.
 *   **Modified Files**:
     *   `codex-lane-demo/README.md`
@@ -79,7 +79,7 @@
     *   `PROJECT_BOARD.md`
     *   `docs/handoffs/TASK-014.md`
 *   **Latest Update**:
-    *   *2026-06-27*: Demo MP4 outputs now live in GitHub release assets and demo READMEs link them directly. Tracked render MP4 files were removed, render folders are ignored, and maintenance parity guidance was added. Release asset checks and `git diff --check` passed; clean-worktree validation remains pending.
+    *   *2026-06-27*: Demo MP4 outputs now live in GitHub release assets and demo READMEs link them directly. Tracked render MP4 files were removed, render folders are ignored, and maintenance parity guidance was added. Release asset checks returned HTTP 200, `git ls-files '*renders/*.mp4'` returned no matches, `node tools/fb-lane.validate.cjs` passed, `node tools/fb-lane.cjs doctor` passed, and `git diff --check` passed.
 
 
 ### TASK-013 - Add FB-Lane CI readiness automation loop

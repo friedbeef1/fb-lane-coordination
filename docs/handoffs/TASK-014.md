@@ -34,15 +34,15 @@ Evidence Against Product OKR: No blocking evidence identified.
 
 ## Verification Evidence
 
-- `curl -I` checks for all three release asset URLs passed.
+- `curl -L --head` checks for all three release asset URLs returned HTTP 200.
 - `git ls-files '*renders/*.mp4'` returned no matches.
-- `node tools/fb-lane.validate.cjs` ran; it fails only because doctor reports a dirty workspace with uncommitted changes.
-- `node tools/fb-lane.cjs doctor` reports all checks passing with an expected dirty-workspace warning.
+- `node tools/fb-lane.validate.cjs` passed.
+- `node tools/fb-lane.cjs doctor` passed.
 - `git diff --check` passed.
 - No tracked changes outside the allowed file set were made.
 
 ## Product Status Recommendation
 
-in progress
+implemented
 
-Closeout note - TASK-014: in progress. Delivered so far: asset unlinking, release-asset documentation, maintenance guidance, `.gitignore` updates, and evidence updates in changelog/board/handoff. Evidence so far: curl checks, render file removal check, and `git diff --check`. Remaining: clean-worktree validation, doctor, final closeout, and PR publication.
+Closeout note - TASK-014: implemented. Delivered: asset unlinking, release-asset documentation, maintenance guidance, `.gitignore` updates, and evidence updates in changelog/board/handoff. Evidence: release asset checks, render file removal check, `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check`. Remaining: PR publication and CI confirmation.
