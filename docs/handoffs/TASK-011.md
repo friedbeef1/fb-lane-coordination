@@ -33,6 +33,7 @@ Every handoff/accounting disagreement must now be marked:
 - Rewrote the public GitHub docs around Loop Engineering as the Product Lead operating model.
 - Added `docs/loop-engineering.md` as the deep-dive operating guide for Goal Alignment Sessions, OKRs, Definition of Done, lane handoffs, BFM return checks, `doctor`, and closeout statuses.
 - Shortened `FAQ.md` around the main objections and kept setup/platform/plugin pages tactical with links back to the loop model.
+- Replaced user-specific approval wording with generic `the user` language, moved plugin display ownership to `FB-Lane Contributors`, and bumped the packaged plugin build suffix to `0.1.2+codex.20260627183826`.
 
 ## Verification Evidence
 
@@ -48,14 +49,14 @@ Every handoff/accounting disagreement must now be marked:
 - Markdown link check for rewritten docs
 - Stale primary-positioning wording scan
 - Install/bootstrap command retention scan for setup and platform docs
+- User-specific wording scan; remaining personal name references are limited to legal copyright metadata.
 
 ## Remaining Gates
 
-- Product review/merge of PR #25.
-- Plugin marketplace refresh/reinstall after merge.
+- None.
 
 ## Product Status Recommendation
 
-lane-verification-passed; pending Product merge.
+implemented; merged to `main`.
 
-Closeout note - TASK-011: implemented. Delivered: BFM return-loop closeout checks, Goal Alignment Session OKRs, `OKR Fit` handoffs, warning-only doctor OKR checks, and a public GitHub docs rewrite centered on Loop Engineering for Product Leads. Evidence: CLI syntax, manifest/agent JSON parse, doctor OKR fixture, repo doctor setup/OKR checks, CLI parity, Markdown link check, stale-positioning scan, install-command retention scan, whitespace checks, and PR #25. Remaining: Product merge and plugin reinstall/refresh after merge. Handoff: docs/handoffs/TASK-011.md.
+Closeout note - TASK-011: implemented. Delivered: BFM return-loop closeout checks, Goal Alignment Session OKRs, `OKR Fit` handoffs, warning-only doctor OKR checks, public GitHub docs centered on Loop Engineering for Product Leads, and user-agnostic approval wording. Evidence: CLI syntax, manifest/agent JSON parse, doctor OKR fixture, repo doctor setup/OKR checks, CLI parity, Markdown link check, stale-positioning scan, install-command retention scan, user-specific wording scan, whitespace checks, and PR #25. Remaining: None. Handoff: docs/handoffs/TASK-011.md.

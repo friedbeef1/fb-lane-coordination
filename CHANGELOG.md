@@ -2,6 +2,9 @@
 
 ## Unreleased - 2026-06-27
 
+- Docs/plugin metadata: replaced user-specific approval wording with generic
+  `the user` language, moved plugin display ownership to `FB-Lane Contributors`,
+  and bumped the Codex plugin build suffix to `0.1.2+codex.20260627183826`.
 - Reliability: the `fb-lane` MCP server now resolves `PROJECT_BOARD.md`
   independent of the launcher's working directory. `resolveWorkspaceStart`
   honors `CLAUDE_PROJECT_DIR` (which Claude Code injects into the spawned

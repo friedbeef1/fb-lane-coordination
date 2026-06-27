@@ -60,7 +60,7 @@ Alignment Session**:
 - Product defines the `Definition of Done`
 - Product names the `Gate / Review Point`
 - Product records `Approval: pending`
-- James approves or changes it
+- The user approves or changes it
 - BFM executes only after `Approval: approved`
 
 After approval, BFM changes approach, scope, or sequence to fit the OKR. It does

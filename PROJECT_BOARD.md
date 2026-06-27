@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-011 | Staging QA | FB-Product | Coordination | Add BFM return-loop closeout checks | `AGENTS.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/loop-engineering.md`, `docs/setup.md`, `docs/handoffs/TASK-011.md`, `templates/*.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/**`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `agents/**`, `.claude/agents/**`, `platforms/*/README.md` | [PR #25](https://github.com/friedbeef1/fb-lane-coordination/pull/25), `docs/handoffs/TASK-011.md` |
+| TASK-011 | Done | FB-Product | Coordination | Add BFM return-loop closeout checks | `AGENTS.md`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `docs/loop-engineering.md`, `docs/setup.md`, `docs/handoffs/TASK-011.md`, `templates/*.md`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/**`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `agents/**`, `.claude/agents/**`, `platforms/*/README.md` | [PR #25](https://github.com/friedbeef1/fb-lane-coordination/pull/25), `docs/handoffs/TASK-011.md` |
 | TASK-Q-5624 | Done | FB-Product | Quick-Fix | Document plugin upgrade process and changelog | (None) | [PR #20](https://github.com/friedbeef1/fb-lane-coordination/pull/20) |
 | TASK-Q-5217 | Done | FB-Tech | Quick-Fix | Improve Codex plugin setup UX | (None) | [PR #17](https://github.com/friedbeef1/fb-lane-coordination/pull/17) |
 | TASK-Q-8688 | Done | FB-Tech | Quick-Fix | Quick test hooks | (None) | [Branch](https://github.com/friedbeef1/fb-lane-coordination/tree/quick/TASK-Q-8688-quick-test-hooks) |
@@ -467,7 +467,7 @@
 
 
 ### TASK-011 - Add BFM return-loop closeout checks
-*   **Status**: Staging QA
+*   **Status**: Done
 *   **Owner / Thread**: FB-Product
 *   **Area**: Coordination
 *   **Scope**: Make BFM and lane execution close only after every relevant handoff has an explicit status that agrees with board, source, docs, and test evidence, or the mismatch is named; frame the public docs around Loop Engineering as the Product Lead operating model.
@@ -559,3 +559,4 @@
     *   *2026-06-27*: Renamed the canonical Goal Alignment evidence field to `Definition of Done` across docs, skills, templates, generated prompts, packaged plugin copies, and CLI output; bumped the Codex plugin build suffix to `0.1.2+codex.20260627171622`.
     *   *2026-06-27*: Implemented the BFM Goal Alignment Session with approved OKRs, `OKR Fit` handoffs, warning-only `doctor` checks for missing/unapproved non-quick OKRs, and packaged plugin build suffix `0.1.2+codex.20260627174151`.
     *   *2026-06-27*: Reframed the public GitHub docs around Loop Engineering for Product Leads, added `docs/loop-engineering.md`, shortened `FAQ.md`, and kept setup/platform pages tactical.
+    *   *2026-06-27*: Merged PR #25, refreshed the Codex plugin, replaced user-specific approval wording with generic `the user` language, moved plugin display ownership to `FB-Lane Contributors`, and bumped the packaged plugin build suffix to `0.1.2+codex.20260627183826`.
