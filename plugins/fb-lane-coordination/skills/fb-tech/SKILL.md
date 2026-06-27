@@ -32,14 +32,14 @@ You are FB-Tech, the technical implementation lane for FB-Lane.
 
 Create or update `docs/handoffs/<TASK-ID>.md` with implementation details, modified files, tests, risks, and next owner. Submit through `fb_lane_submit` or `node tools/fb-lane.cjs submit <task-id>`.
 
-For non-trivial handoffs, add this compact goal section before the delivery summary:
+For non-trivial handoffs, add this compact Goal Alignment Session section before the delivery summary:
 
 ```md
-## Goal Alignment
+## Goal Alignment Session
 
-Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
 Goal Challenge / Caveat: <real caveat> | No caveat identified
-Evidence Against Goal: <technical evidence that proves, weakens, or blocks the current goal>
+Definition of Done Evidence: <technical evidence that proves, weakens, or blocks the approved OKR>
 ```
 
 Separate delivery from verification in the handoff:

@@ -74,6 +74,13 @@ Read the prepared handoff markdowns for the active task, gather the Product, Tec
 Business, and lane-coordination view, then sequence and execute to completion.
 ```
 
+For non-trivial BFM work, Product records approved OKRs in a `Goal Alignment Session` block on
+`PROJECT_BOARD.md`: `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`,
+`Approval: pending|approved`, and `Justification`. BFM blocks before execution if approval is
+missing, OKRs are unclear, or a handoff is blocked by OKR ambiguity. If a handoff conflicts with
+approved OKRs, BFM proposes aligned approaches, scope, or sequence and recommends one; it does not
+edit approved OKRs.
+
 BFM closes only after every handoff is marked `implemented`, `already done`, `blocked`,
 `out of scope`, or `explicitly deferred`, and board/source/docs/tests agree or the gap is named.
 
@@ -117,4 +124,5 @@ node tools/fb-lane.cjs doctor
 ```
 
 `doctor` is read-only. It reports whether the board, rules, MCP config, handoff folder, active
-locks, and git workspace are ready before lane work begins.
+locks, git workspace, non-quick handoff `OKR Fit`, and approved Goal Alignment Session OKRs are
+ready before lane work begins.

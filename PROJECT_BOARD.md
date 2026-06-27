@@ -60,6 +60,16 @@
 *   **Area**: Core
 *   **Scope**: Implement user registration and login API endpoints.
 *   **Out of Scope**: Unrelated styling edits.
+*   **Goal Alignment Session**:
+    *   **Objective**: Provide a minimal local authentication surface for registration, login, logout, and current-session lookup.
+    *   **Key Results**:
+        *   Auth routes validate input and return expected success/error states.
+        *   Passwords are hashed and session tokens expire.
+        *   A self-contained auth smoke passes.
+    *   **Definition of Done**: `src/auth.ts` and `src/db.ts` support the documented auth endpoints with runnable local verification.
+    *   **Gate / Review Point**: FB-Tech verification evidence is present in `docs/handoffs/TASK-002.md`.
+    *   **Approval**: approved
+    *   **Justification**: Legacy completed work needs approved OKRs so non-quick handoff doctor checks remain actionable.
 *   **Affected Screens / Locks**:
     *   **Screens**: (None)
     *   **Locked Files**: (None)
@@ -83,6 +93,16 @@
 *   **Area**: UI
 *   **Scope**: Design a responsive sidebar navigation menu.
 *   **Out of Scope**: Editing database schemas or APIs.
+*   **Goal Alignment Session**:
+    *   **Objective**: Provide responsive dashboard sidebar styling that stays contained across desktop, tablet, and mobile widths.
+    *   **Key Results**:
+        *   Sidebar desktop, collapsed, and mobile states are documented.
+        *   Text containment rules prevent label spill.
+        *   Visual QA notes cover representative viewport sizes.
+    *   **Definition of Done**: `src/navigation.css` contains the responsive sidebar styling and the handoff records viewport evidence.
+    *   **Gate / Review Point**: FB-Design verification evidence is present in `docs/handoffs/TASK-003.md`.
+    *   **Approval**: approved
+    *   **Justification**: Legacy completed work needs approved OKRs so non-quick handoff doctor checks remain actionable.
 *   **Affected Screens / Locks**:
     *   **Screens**: Dashboard
     *   **Locked Files**: (None)
@@ -315,10 +335,16 @@
 *   **Area**: Coordination
 *   **Scope**: Add a canonical Working Goal loop to non-trivial FB-Lane tasks, keep lane handoffs lightweight, and make BFM reconcile goal drift before sequencing execution.
 *   **Out of Scope**: Hard-blocking `submit`, changing quick-task behavior, or creating a standalone goal-management framework.
-*   **Goal Alignment**:
-    *   **Working Goal**: Make non-trivial FB-Lane handoffs preserve a clear Product/BFM-owned Working Goal while preserving lane caveats and evidence.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make non-trivial FB-Lane handoffs preserve a clear Product/BFM-owned OKR while preserving lane caveats and evidence.
+    *   **Key Results**:
+        *   Skills and bootstrap guidance describe the board OKR contract.
+        *   Lane handoffs report fit without rewriting board OKRs.
+        *   `doctor` warns on missing non-quick handoff alignment and keeps `TASK-Q-*` exempt.
     *   **Definition of Done**: Skills, bootstrap guidance, packaged plugin files, and doctor checks all consistently express the Goal Alignment contract, with quick tasks exempt.
     *   **Gate / Review Point**: Source validation, plugin validation, CLI syntax checks, and doctor fixture checks pass before submit.
+    *   **Approval**: approved
+    *   **Justification**: This merged coordination change established the predecessor contract this follow-up replaces with OKR language.
 *   **Affected Screens / Locks**:
     *   **Screens**: Documentation and CLI behavior only
     *   **Locked Files**: (None)
@@ -411,10 +437,17 @@
 *   **Area**: Coordination
 *   **Scope**: Make BFM and lane execution close only after every relevant handoff has an explicit status that agrees with board, source, docs, and test evidence, or the mismatch is named.
 *   **Out of Scope**: Changing submit behavior, adding a new framework, or requiring return-loop ceremony for quick micro-tasks.
-*   **Goal Alignment**:
-    *   **Working Goal**: BFM and lane closeouts behave like a real loop: read handoffs, execute/route work, return to board/source/docs/tests, and close only when all handoffs are accounted for.
-    *   **Definition of Done**: Skills, bootstrap guidance, generated CLI prompts, packaged plugin copies, changelog, and handoff docs consistently require explicit handoff status plus return checks.
+*   **Goal Alignment Session**:
+    *   **Objective**: BFM and lane closeouts behave like a real loop: read handoffs, execute/route work, return to board/source/docs/tests, and close only when all handoffs are accounted for under approved OKRs.
+    *   **Key Results**:
+        *   BFM blocks before execution when OKR approval is missing, OKRs are unclear, or handoffs conflict with approved OKRs.
+        *   Lane handoffs report `OKR Fit`.
+        *   Skills, docs, templates, generated prompts, packaged plugin copies, changelog, and handoff docs consistently use `Goal Alignment Session`.
+        *   `doctor` warns, without blocking, for missing/unapproved non-quick OKRs and missing handoff OKR Fit.
+    *   **Definition of Done**: Skills, bootstrap guidance, generated CLI prompts, packaged plugin copies, changelog, and handoff docs consistently require approved Goal Alignment Session OKRs, explicit handoff status, and return checks.
     *   **Gate / Review Point**: Wording scans, skill/manifest validation, CLI syntax checks, and source/package parity checks pass before commit.
+    *   **Approval**: approved
+    *   **Justification**: This follow-up tightens BFM sequencing around approved OKRs without changing submit behavior or quick-task flow.
 *   **Affected Screens / Locks**:
     *   **Screens**: Documentation and plugin behavior guidance only
     *   **Locked Files**: `.claude/agents/fb-business.md`, `.claude/agents/fb-design.md`, `.claude/agents/fb-product.md`, `.claude/agents/fb-tech.md`, `AGENTS.md`, `CHANGELOG.md`, `README.md`, `agents/FB-Business/agent.json`, `agents/FB-Design/agent.json`, `agents/FB-Product/agent.json`, `agents/FB-Tech/agent.json`, `agents/fb-business.md`, `agents/fb-design.md`, `agents/fb-product.md`, `agents/fb-tech.md`, `docs/handoffs/TASK-011.md`, `platforms/codex/README.md`, `plugins/fb-lane-coordination/.codex-plugin/plugin.json`, `plugins/fb-lane-coordination/README.md`, `plugins/fb-lane-coordination/agents/FB-Business/agent.json`, `plugins/fb-lane-coordination/agents/FB-Design/agent.json`, `plugins/fb-lane-coordination/agents/FB-Product/agent.json`, `plugins/fb-lane-coordination/agents/FB-Tech/agent.json`, `plugins/fb-lane-coordination/plugin.json`, `plugins/fb-lane-coordination/skills/bfm/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-business/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-design/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-tech/SKILL.md`, `plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `skills/quickstart/SKILL.md`, `templates/AGENTS.md`, `templates/CLAUDE.md`, `tools/fb-lane.cjs`, `PROJECT_BOARD.md`
@@ -435,6 +468,7 @@
     *   `.claude/agents/fb-tech.md`
     *   `AGENTS.md`
     *   `CHANGELOG.md`
+    *   `CLAUDE.md`
     *   `README.md`
     *   `agents/FB-Business/agent.json`
     *   `agents/FB-Design/agent.json`
@@ -444,6 +478,9 @@
     *   `agents/fb-design.md`
     *   `agents/fb-product.md`
     *   `agents/fb-tech.md`
+    *   `docs/handoffs/TASK-002.md`
+    *   `docs/handoffs/TASK-003.md`
+    *   `docs/handoffs/TASK-010.md`
     *   `docs/handoffs/TASK-011.md`
     *   `platforms/codex/README.md`
     *   `plugins/fb-lane-coordination/.codex-plugin/plugin.json`
@@ -467,6 +504,7 @@
     *   `skills/quickstart/SKILL.md`
     *   `templates/AGENTS.md`
     *   `templates/CLAUDE.md`
+    *   `templates/PROJECT_BOARD.md`
     *   `tools/fb-lane.cjs`
     *   `PROJECT_BOARD.md`
 *   **Latest Update**:
@@ -476,3 +514,4 @@
     *   *2026-06-27*: Added the visible BFM return-loop Mermaid diagram to the root README, packaged plugin README, and BFM skill; bumped the Codex plugin build suffix to `0.1.2+codex.20260627163830`.
     *   *2026-06-27*: Updated Codex plugin metadata/default prompts so installed plugin users see BFM as a return loop; bumped the Codex plugin build suffix to `0.1.2+codex.20260627164153`.
     *   *2026-06-27*: Renamed the canonical Goal Alignment evidence field to `Definition of Done` across docs, skills, templates, generated prompts, packaged plugin copies, and CLI output; bumped the Codex plugin build suffix to `0.1.2+codex.20260627171622`.
+    *   *2026-06-27*: Implemented the BFM Goal Alignment Session with approved OKRs, `OKR Fit` handoffs, warning-only `doctor` checks for missing/unapproved non-quick OKRs, and packaged plugin build suffix `0.1.2+codex.20260627174151`.

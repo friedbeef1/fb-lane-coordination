@@ -20,7 +20,7 @@ FB-Lane is a thin coordination protocol, not a default wrapper for all Codex wor
 
 Use it when there are 2+ active lanes, overlapping file risk, staging/live gates, or handoffs that must survive context loss. Skip it for one-thread fixes, read-only questions, simple code explanations, or independent work where Codex worktrees are enough. When skipping, use ordinary Codex workflow and avoid creating board noise.
 
-For non-trivial lane work, keep one canonical Goal Alignment block in `PROJECT_BOARD.md` with `Working Goal`, `Definition of Done`, and `Gate / Review Point`. Product/BFM owns that block. Do not apply this ceremony to micro quick tasks.
+For non-trivial lane work, keep one canonical `Goal Alignment Session` block in `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Product/BFM owns that block. Do not apply this ceremony to `TASK-Q-*` quick tasks.
 
 ## User-Facing Quickstart
 
@@ -32,10 +32,10 @@ Then describe the work normally.
 Product gives direction and splits the work. Individual lanes claim and execute their own files, code-writing lanes can use worktrees, each lane writes a handoff, and Product sequences what is ready to merge.
 ```
 
-Goal examples:
+Objective examples:
 
-- Good: `Working Goal: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
-- Bad: `Working Goal: finish the feature.`
+- Good: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
+- Bad: `Objective: finish the feature.`
 
 Useful examples:
 
@@ -62,16 +62,16 @@ $fb-business rewrite the onboarding copy.
 3. If setup looks suspect, run `node tools/fb-lane.cjs doctor` before claiming work.
 4. Identify whether the user is asking Product to orchestrate lanes or directly addressing lane threads.
 5. Before any write, claim or create one scoped board item and declare locked files. If acting as Product, assign source-changing execution to the owning lane; do not claim Tech/Design/Business files on that lane's behalf.
-6. For non-trivial work, confirm the task detail block has one canonical Goal Alignment block in `PROJECT_BOARD.md` with `Working Goal`, `Definition of Done`, and `Gate / Review Point`. Product/BFM writes or changes that block; worker lanes report missing, unclear, or misaligned goals in handoffs.
+6. For non-trivial work, confirm the task detail block has one approved `Goal Alignment Session` block in `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, and `Justification`. Product/BFM writes or changes that block; worker lanes report missing, unclear, or misaligned OKRs in handoffs.
 7. Keep lane handoffs compact and include a real Markdown heading so `doctor` can validate it:
    ```md
-   ## Goal Alignment
+   ## Goal Alignment Session
 
-   Goal Alignment: aligned | suggest change: <proposed goal> | blocked by goal ambiguity: <reason>
+   OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
    Goal Challenge / Caveat: <real caveat> | No caveat identified
-   Evidence Against Goal: <lane evidence that proves, weakens, or blocks the current goal>
+   Definition of Done Evidence: <lane evidence that proves, weakens, or blocks the approved OKR>
    ```
-8. Product/BFM reconciles those fields before sequencing execution or merge. If the goal changes, record: `Goal changed from X to Y because Z.`
+8. Product/BFM reconciles those fields before sequencing execution or merge. If a handoff conflicts with approved OKRs, BFM proposes aligned alternatives for approach, scope, or sequence and recommends one; it does not edit approved OKRs.
 9. Do not modify files locked by another active lane.
 
 ## Direct Lane Prompt Convention
@@ -92,7 +92,7 @@ Codex may run safe independent pieces concurrently. Product/Captain remains resp
 Any non-trivial lane output must create or update `docs/handoffs/<TASK-ID>.md` with:
 
 - task ID and scope
-- `## Goal Alignment` with the compact fields from `AGENTS.md`
+- `## Goal Alignment Session` with `OKR Fit` from `AGENTS.md`
 - files changed or proposed
 - checks performed
 - decisions and tradeoffs

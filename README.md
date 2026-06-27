@@ -89,6 +89,8 @@ Inbox -> Ready -> In Progress -> Staging QA -> Done
 
 Product gives direction; lanes execute. If Product sees hung tests, builds, browser checks, `git add`, or stale `.git/*.lock` files, it should record the blocked or pending gate and send execution back to the owning lane instead of continuing the implementation loop.
 
+For non-trivial BFM work, Product records approved OKRs in a `Goal Alignment Session` block on `PROJECT_BOARD.md`: `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. BFM blocks before execution if approval is missing, OKRs are unclear, or a handoff is blocked by OKR ambiguity. If a handoff conflicts with approved OKRs, BFM proposes aligned approaches, scope, or sequence and recommends one; it does not edit approved OKRs.
+
 When BFM processes lane handoffs, it closes only after every handoff is marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`, and board/source/docs/tests agree or the gap is named.
 
 ```mermaid

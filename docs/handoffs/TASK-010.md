@@ -6,13 +6,17 @@
 - **Scope**: Add one canonical Working Goal per non-trivial FB-Lane task, keep lane handoffs lightweight, and make BFM reconcile goal drift before sequencing work.
 - **Out of Scope**: Hard-blocking `submit`, changing quick-task behavior, or creating a standalone goal-management framework.
 
-## Goal Alignment
-- **Goal Alignment**: aligned
-- **Working Goal**: Make non-trivial FB-Lane handoffs preserve a clear Product/BFM-owned Working Goal while preserving lane caveats and evidence.
+## Goal Alignment Session
+OKR Fit: aligned
+- **Objective**: Make non-trivial FB-Lane handoffs preserve a clear Product/BFM-owned OKR while preserving lane caveats and evidence.
+- **Key Results**:
+  - Skills and bootstrap guidance describe the board OKR contract.
+  - Lane handoffs report fit without rewriting board OKRs.
+  - `doctor` warns on missing non-quick handoff alignment and keeps `TASK-Q-*` exempt.
 - **Definition of Done**: Skills, bootstrap guidance, packaged plugin files, and doctor checks consistently express the Goal Alignment contract, with quick tasks exempt.
 - **Gate / Review Point**: Source validation, plugin validation, CLI syntax checks, and doctor fixture checks pass before submit.
 - **Goal Challenge / Caveat**: No caveat identified.
-- **Evidence Against Goal**: The implemented guidance and doctor fixture checks prove the goal-alignment loop is present without changing `submit` behavior.
+- **Definition of Done Evidence**: The implemented guidance and doctor fixture checks prove the Goal Alignment Session loop is present without changing `submit` behavior.
 
 ## What Changed
 - Added lightweight Goal Alignment guidance to Product, BFM, lane skills, root coordination skills, project setup guidance, and AGENTS/templates.

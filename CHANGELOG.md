@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.2+codex.20260627174151 - 2026-06-27
+
+- Added the BFM Goal Alignment Session with approved OKRs on `PROJECT_BOARD.md`
+  for non-quick/non-trivial BFM runs: `Objective`, `Key Results`, `Definition
+  of Done`, `Gate / Review Point`, `Approval`, and `Justification`.
+- Updated BFM guidance to block before execution when OKR approval is missing,
+  OKRs are unclear, or handoffs conflict with approved OKRs; conflicting work
+  now routes to recommended aligned approach/scope/sequence alternatives.
+- Updated lane handoffs to report `OKR Fit: aligned | suggest approach change |
+  blocked by OKR ambiguity`.
+- Added warning-only `doctor` checks for missing Goal Alignment Session sections,
+  missing `OKR Fit`, and missing/unapproved board OKRs on non-quick handoff
+  targets. `TASK-Q-*` remains exempt and `submit` behavior is unchanged.
+
 ## 0.1.2+codex.20260627171622 - 2026-06-27
 
 - Renamed the canonical Goal Alignment evidence field to `Definition of Done`
