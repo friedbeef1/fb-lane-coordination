@@ -24,14 +24,14 @@
 *   **Scope**: Create initial files, initialize repository layout.
 *   **Out of Scope**: Writing application business logic.
 *   **Goal Alignment Session**:
-    *   **Objective**: Bootstrap FB-Lane safely so future non-trivial tasks have one approved OKR, clear locks, and durable handoffs.
+    *   **Objective**: Bootstrap FB-Lane safely so future non-trivial tasks have a stable Product/workstream OKR, relevant lane OKRs, clear locks, and durable handoffs.
     *   **Key Results**:
         *   Board, rules, CLI, and handoff folder exist.
         *   `doctor` reports no blocking setup errors.
     *   **Definition of Done**: The board, rules, CLI, and handoff folder are present and ready for lane claims.
     *   **Gate / Review Point**: Product confirms setup is ready to move into the first non-trivial task.
     *   **Approval**: approved
-    *   **Justification**: Setup work needs a small approved OKR so future lanes can see the expected coordination baseline.
+    *   **Justification**: Setup work needs a small approved Product/workstream OKR so future lanes can see the expected coordination baseline.
 *   **Affected Screens / Locks**:
     *   **Screens**: (None)
     *   **Locked Files**: `AGENTS.md`, `PROJECT_BOARD.md`
@@ -50,14 +50,14 @@
     *   *2026-06-14*: Scoped task and marked ready for execution.
 
 ### Goal Alignment Session (non-trivial tasks only)
-Use one canonical Goal Alignment Session block per task in the detail block above, with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Product/BFM owns that block. BFM blocks before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR.
+Use one stable Product/workstream OKR block per non-trivial task in the detail block above, with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Stable lane OKRs are standing Product, Tech, Design, and Business quality anchors. Product/BFM owns the OKR tree and records additions or changes only after discussion and explicit user approval. BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree.
 
 Lane handoffs stay compact and use a real heading:
 
 ```md
 ## Goal Alignment Session
 
-OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
-Goal Challenge / Caveat: <real caveat> | No caveat identified
-Definition of Done Evidence: <lane evidence that proves, weakens, or blocks the approved OKR>
+Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+Mini-loop Evidence: <lane evidence from its smallest real verification loop>
+Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
 ```
