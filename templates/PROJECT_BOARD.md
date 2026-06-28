@@ -70,5 +70,14 @@ Evidence Against Product OKR: <evidence that weakens or blocks the approved Prod
 - Do not put full OKRs, full QA checklists, plans, logs, rationale, copy variants, or implementation detail in the index.
 - Open detailed handoffs only when they are relevant to the active task or Product/BFM closeout.
 
+### Awareness, Isolation, Integration
+- `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup.
+- Branches/worktrees isolate execution like separate desks.
+- BFM integrates outcomes like Product/release review.
+- Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
+- Before source execution, read board/status/locks and the relevant handoff index.
+- During isolated work, name the task, branch/worktree, lane, and locked files.
+- At closeout, report whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
+
 ### Loop Health Flag
 At closeout, Product/BFM records one flag: `healthy`, `watch`, `needs Product review`, or `blocked`. Use this instead of numeric loop scoring.

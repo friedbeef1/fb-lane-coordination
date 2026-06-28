@@ -10,6 +10,8 @@ This skill manages FB-Lane task lifecycles, git branches, and resource locks wit
 
 Default to normal/simple coding when the request is one-thread and has no listed coordination trigger. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 
+Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
+
 ## Preconditions
 - The workspace must have `PROJECT_BOARD.md` and `tools/fb-lane.cjs` initialized (use `project-coordination-setup` skill to initialize if missing).
 - The agent must have permission to run `run_command` to execute node scripts.
@@ -33,7 +35,7 @@ When Product launches BFM execution and the BFM execution worker claims a task (
    *Example*: `node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts, src/db.ts"`
 2. Verify that the command succeeds, which checks out the feature branch, locks the files on the board, and commits the board update separately.
 3. Note: The CLI claim command also automatically writes task context to `.codex/current_task.md` for local editors.
-4. For source-changing BFM execution, prefer `--worktree` when Product must stay free for direction, review, or integration.
+4. For source-changing BFM execution, prefer `--worktree` when Product must stay free for direction, review, or integration. Before source execution, read board/status/locks and the relevant handoff index; during isolated work, name the task, branch/worktree, lane, and locked files.
 5. For non-trivial tasks, confirm the board item has one approved `Goal Alignment Session` block (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) before implementation begins. Do not create or change OKRs during execution.
 
 ### 3. Submit a Task for Staging QA
@@ -103,6 +105,6 @@ Return checks:
 - after coding, return to each handoff;
 - after tests, return to source, docs, and board;
 - after board/doc updates, return to `node tools/fb-lane.cjs status`;
-- after commit/push, return to `git status`.
+- after commit/push, return to `git status` and name whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
 
 Close only when board, source, docs, and tests agree, or every disagreement is explicitly marked. Add one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`; do not numeric-score the loop.

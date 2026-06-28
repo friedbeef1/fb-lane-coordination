@@ -64,12 +64,22 @@ columns: `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`,
 `Checks / Evidence`, and `Detail`. Do not put full OKRs, full QA checklists,
 plans, logs, rationale, copy variants, or implementation detail in the index.
 
+Awareness, isolation, integration: `PROJECT_BOARD.md` and
+`docs/handoffs/index.md` create shared awareness like a standup;
+branches/worktrees isolate execution like separate desks; BFM integrates
+outcomes like Product/release review. Worktrees do not replace coordination: no
+private-worktree disappearance, no huge unannounced diff, no source edits
+without board/lock awareness, and no closeout without BFM reconciliation when
+multiple outputs exist.
+
 ## Starting a Session
 
 1. Read `PROJECT_BOARD.md` to understand the current task state and active file locks.
 2. Read `.codex/current_task.md` if it exists — it contains your exact task, branch, and locked files.
 3. Confirm your branch: `git rev-parse --abbrev-ref HEAD`.
 4. Never modify files that are locked by another active task.
+5. Before source execution, read board/status/locks and the relevant handoff index.
+6. During isolated work, name the task, branch/worktree, lane, and locked files.
 
 ## Goal Alignment Session
 
@@ -102,9 +112,9 @@ Return to:
 - Each handoff after coding.
 - Source, docs, and board after tests.
 - Lane status after board/doc updates.
-- `git status` after commit/push.
+- `git status` after commit/push, plus branch/worktree state.
 
-Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded. Add one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`; do not numeric-score the loop.
+Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded. Report whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open. Add one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`; do not numeric-score the loop.
 
 ## CLI Tool
 

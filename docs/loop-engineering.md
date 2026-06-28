@@ -28,6 +28,18 @@ No closeout until goal, work, evidence, board state, and repo truth agree,
 or every disagreement is explicitly marked blocked, out of scope, or deferred.
 ```
 
+The practical rule is awareness, isolation, integration:
+
+- `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a
+  standup.
+- Branches/worktrees isolate execution like separate desks.
+- BFM integrates outcomes like Product/release review.
+
+Worktrees do not replace coordination. A lane should not disappear into a
+private worktree, produce a huge unannounced diff, edit source without
+board/lock awareness, or close without BFM reconciliation when multiple outputs
+exist.
+
 ## FB-Lane Framework OKR
 
 This OKR governs FB-Lane itself. It is not copied into every project as
@@ -231,6 +243,8 @@ Use progressive disclosure:
 3. Open only the detailed handoffs relevant to the target, unless Product/BFM is doing a full closeout audit.
 4. Before non-quick sequencing, create or refresh `docs/handoffs/index.md` when handoffs exist and the lookup layer is missing, stale, or too vague.
 5. Keep the index compact with `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`. Keep full OKRs, QA checklists, plans, logs, rationale, copy variants, and implementation detail in the detailed handoffs.
+6. Before source execution, confirm board/status/locks and the relevant index;
+   during isolated work, name the task, branch/worktree, lane, and locked files.
 
 The index is not a second board. It is a compact routing layer so agents do not
 burn context reading every historical handoff.
@@ -340,7 +354,7 @@ A good closeout names:
 - evidence and checks run
 - board updates
 - remaining gates
-- clean git state, or the named dirty state
+- branch/worktree state: clean, merged, stale, blocked, or intentionally left open
 
 Passive closeout note shape:
 

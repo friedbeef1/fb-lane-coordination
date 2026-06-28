@@ -39,7 +39,7 @@
 ---
 
 ### TASK-017 - Generic progressive disclosure hardening
-*   **Status**: In Progress
+*   **Status**: Staging QA
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Coordination
 *   **Scope**: Harden the generic handoff-index progressive-disclosure contract so future projects inherit `PROJECT_BOARD.md` as truth, `docs/handoffs/index.md` as routing, detailed handoffs as evidence/detail, one FB-Lane framework OKR, and lightweight Product/BFM loop health flags.
@@ -52,7 +52,7 @@
         *   Product/BFM guidance creates or refreshes the index before non-quick sequencing when handoffs exist and lookup state is missing, stale, or too vague.
         *   Product/BFM guidance uses `healthy`, `watch`, `needs Product review`, and `blocked` health flags instead of per-task OKRs or numeric loop scoring.
     *   **Definition of Done**: Root and packaged CLI copies match, docs/templates/skills/package copies carry the board/index/handoff contract, relevant checks pass, and remaining risks are named.
-    *   **Gate / Review Point**: User reviews the unstaged diff and validation output.
+    *   **Gate / Review Point**: Product reviews PR #31 and CI readiness before merge.
     *   **Approval**: approved
     *   **Justification**: The user explicitly assigned Worker B to implement generic FB-Lane plugin/source hardening for future projects.
 *   **Affected Screens / Locks**:
@@ -64,8 +64,8 @@
 *   **QA Checklist**:
     *   [x] Root and packaged CLI syntax checks pass.
     *   [x] Root/package CLI parity passes.
-    *   [x] Regression tests pass; full validator reaches `doctor` and then fails only on expected dirty-worktree state.
-    *   [x] `doctor` remains read-only and reports only expected local dirty-state warnings.
+    *   [x] Regression tests pass; full validator passes on a clean worktree.
+    *   [x] `doctor` remains read-only and reports `Ready`.
     *   [x] `git diff --check` passes.
 *   **Modified Files**:
     *   `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`
@@ -81,6 +81,7 @@
     *   *2026-06-28*: Implemented the board/index/detail hardening across CLI bootstrap output, packaged plugin copies, templates, docs, Product/BFM skills, and Product prompt artifacts. Syntax, parity, regression tests, `doctor`, and `git diff --check` passed; `node tools/fb-lane.validate.cjs` failed only because the validator expects `doctor` to report `Ready` on a clean worktree.
     *   *2026-06-28*: Added the FB-Lane framework OKR, directional health flags (`healthy`, `watch`, `needs Product review`, `blocked`), and anti-bloat guidance that replaces per-task OKRs, numeric scoring, giant `doctor` behavior, second-board indexes, and quick-task ceremony. Syntax, parity, JSON parse, regression tests, stale-wording scan, `doctor`, and `git diff --check` passed; `node tools/fb-lane.validate.cjs` still fails only on the expected dirty-worktree doctor gate.
     *   *2026-06-28*: Added objective mode-selection guidance across docs, templates, skills, generated bootstrap text, Product prompts, and packaged plugin mirrors so agents default to normal/simple coding unless FB-Lane light or Product/BFM triggers appear.
+    *   *2026-06-28*: Added the awareness/isolation/integration rule across docs, templates, Product/BFM skills, generated Product prompts, CLI bootstrap text, and packaged plugin mirrors. Syntax, parity, regression tests, JSON parse, lane status, clean-worktree validator, `doctor`, and `git diff --check` passed.
 
 
 ---

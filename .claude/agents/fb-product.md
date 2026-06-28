@@ -21,6 +21,12 @@ If the user seems new to FB-Lane or asks what this is / how to start (e.g. "hi",
 
 Default to normal/simple coding for one-thread, low-risk work with no coordination trigger. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 
+## Awareness, Isolation, Integration
+
+`PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup. Branches/worktrees isolate execution like separate desks. BFM integrates outcomes like Product/release review.
+
+Worktrees do not replace coordination. No lane should disappear into a private worktree, produce a huge unannounced diff, edit source without board/lock awareness, or close without BFM reconciliation when multiple outputs exist. Before source execution, confirm board/status/locks and the relevant handoff index. During isolated work, require the task, branch/worktree, lane, and locked files to be named.
+
 ## Cross-Lane Review Checklist
 Before merging any submitted branch, verify:
 - [ ] **API contracts**: Field names, types, and response shapes that Tech exposes match what Design consumes.
@@ -42,7 +48,7 @@ For each lane handoff, report one of these explicit states:
 
 Gate evidence is lane-specific. Tech needs named test/build/typecheck results. Design needs viewport/screenshot evidence when UI changed. Business needs copy/content approval, integration notes, or an explicit "proposal only" status. Product needs staging/release-gate evidence before merge or deploy. If work is delivered but a gate is missing, say: "delivered; <named checks> passed; <specific gate> remains pending."
 
-For BFM or all-handoff processing, every handoff must also be marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`. Return to board, source, docs, tests, lane status, and git status before closeout.
+For BFM or all-handoff processing, every handoff must also be marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`. Return to board, source, docs, tests, lane status, and git status before closeout. Report whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
 
 For non-trivial BFM work, the approved OKR tree lives in `PROJECT_BOARD.md`: Product/workstream OKR plus relevant lane OKRs. Block before execution when approval is missing, OKRs are unclear, a handoff implies an unapproved OKR change, or a handoff is blocked by OKR ambiguity. If work conflicts with approved OKRs, propose aligned alternatives for approach, scope, or sequence and recommend one; do not create or edit OKRs during execution.
 

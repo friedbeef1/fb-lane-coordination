@@ -29,6 +29,8 @@ For non-trivial lane work, use the approved Product/workstream or BFM-target OKR
 
 Normal workstream threads are read-only planning lanes. Product, Tech, Design, and Business may ask questions, investigate, critique, and write markdown plans/handoffs. Source changes happen only inside a Product-launched BFM execution run.
 
+Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no disappearing into a private worktree, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
+
 ## User-Facing Quickstart
 
 When the user asks how to start, what to do after install, or says `$fb-lane status`, keep the answer short and immediately actionable:
@@ -36,7 +38,7 @@ When the user asks how to start, what to do after install, or says `$fb-lane sta
 ```text
 Start with $fb-lane status.
 Then describe the work normally.
-Product gives direction and splits the work. Workstreams write markdown plans/handoffs. Product launches BFM when execution should begin; BFM execution workers claim files, use worktrees where helpful, verify, and return evidence for Product sequencing.
+Product gives direction and splits the work. Workstreams write markdown plans/handoffs. Product launches BFM when execution should begin; BFM execution workers read board/status/locks and the handoff index, claim files, name the task/branch/worktree/lane/locks, use worktrees where helpful, verify, and return evidence for Product sequencing.
 ```
 
 Objective examples:
@@ -124,7 +126,7 @@ Return checks are mandatory for non-trivial handoff execution:
 - after coding, return to the handoff contracts;
 - after tests, return to source, docs, and board;
 - after board/doc updates, return to lane status;
-- after commit/push, return to `git status`.
+- after commit/push, return to `git status` and name whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
 
 Close only when board, source, docs, and tests agree, or the disagreement is explicitly recorded.
 Add one loop health flag at closeout: `healthy`, `watch`, `needs Product review`, or `blocked`. Use this instead of numeric loop scoring.

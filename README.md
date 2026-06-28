@@ -36,6 +36,14 @@ FB-Lane gives that loop a small set of files and commands: `PROJECT_BOARD.md`,
 `docs/handoffs/index.md`, lane plans/handoffs, file claims during BFM execution,
 `doctor`, and BFM/Product closeout checks.
 
+The operating rule is awareness, isolation, integration: `PROJECT_BOARD.md` and
+`docs/handoffs/index.md` create shared awareness like a standup;
+branches/worktrees isolate execution like separate desks; BFM integrates
+outcomes like Product/release review. Worktrees do not replace coordination: no
+private worktree should produce a huge unannounced diff, edit source without
+board/lock awareness, or close while multiple outputs still need BFM
+reconciliation.
+
 FB-Lane is not CI/CD. It includes CI readiness evidence for Product/BFM
 closeout: automated merge safety, manual release control.
 
@@ -147,7 +155,7 @@ or tests say otherwise.
 | Approved Product/workstream OKR | `Goal Alignment Session` block in `PROJECT_BOARD.md` |
 | Stable lane OKRs | Standing Tech, Design, Business, and Product quality anchors |
 | Role clarity | FB-Product, FB-Tech, FB-Design, and FB-Business lanes |
-| Collision control | File claims and optional worktrees |
+| Collision control | File claims plus named branches/worktrees for isolated execution |
 | Cheap context lookup | `docs/handoffs/index.md` routes to detailed handoff files |
 | Durable plan/handoff | `docs/handoffs/<task-id>.md` or project plan markdown |
 | Evidence return | `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` |
@@ -224,6 +232,11 @@ routing; detailed handoffs are detail. The index should stay compact with
 `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`,
 `Checks / Evidence`, and `Detail`. Keep full OKRs, QA checklists, plans, logs,
 rationale, copy variants, and implementation detail in detailed handoffs.
+
+Before source execution, read board/status/locks and the relevant handoff index.
+During isolated work, name the task, branch/worktree, lane, and locked files in
+the handoff or board update. At closeout, report whether the branch/worktree is
+clean, merged, stale, blocked, or intentionally left open.
 
 ## Codex Plugin Upgrade
 

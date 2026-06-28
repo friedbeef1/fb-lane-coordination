@@ -75,10 +75,14 @@ BFM blocks before execution when approval is missing, OKRs are unclear, or hando
 
 Read or refresh the index before opening detailed handoffs, then open only the files relevant to the active task unless Product/BFM is doing a full closeout audit. Before non-quick Product/BFM sequencing, create or refresh the index when handoffs exist and the lookup layer is missing, stale, or too vague. The compact index columns are `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`. Do not put full OKRs, full QA checklists, plans, logs, rationale, copy variants, or implementation detail in the index.
 
+Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no disappearing into a private worktree, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
+
 ### 🧱 Plan-Only Workstream Rule
 Workstream threads are read-only planning lanes by default. Product, Tech, Design, and Business may converse, ask questions, investigate, and write markdown plans or handoffs. They must not edit application/source code, create implementation branches, commit, submit, merge, deploy, or change provider state from ordinary workstream chat.
 
 Execution starts only when Product explicitly launches BFM. During that BFM run, implementation workers may claim files, create branches/worktrees, edit source, run verification, commit, submit PRs, and perform approved merge/deploy steps. The BFM return loop remains responsible for proving that board, source, docs, tests, and git state agree before closeout.
+
+Before source execution, read board/status/locks and the relevant handoff index. During isolated work, name the task, branch/worktree, lane, and locked files in the board update or handoff. At closeout, report whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
 
 ### 🔁 BFM Return Loop
 When the user says "run BFM" or "process all lane handoffs", Product/BFM must not close until every discovered handoff has one explicit status:
@@ -98,7 +102,7 @@ Return checks for non-trivial handoff execution:
 2. After coding, return to each handoff and confirm the source satisfies the requested contract.
 3. After tests, return to source, docs, and board to catch stale copy, missing wiring, or bad assumptions.
 4. After board/doc updates, return to `node tools/fb-lane.cjs status`.
-5. After commit/push, return to `git status` and close only with a clean worktree or named dirty state.
+5. After commit/push, return to `git status` and close only with the branch/worktree named as clean, merged, stale, blocked, or intentionally left open.
 
 ### 💬 The User's Role: Supervisor & Reviewer
 
@@ -118,7 +122,7 @@ The user (acting as the external supervisor) is shielded from manual project coo
 
 #### Thread Synchronization & SOP alignment
 Because the project board and git branch are the single source of truth:
-* Sidebar threads do not get out of sync.
+* Sidebar threads do not get out of sync because they return to the board and handoff index before acting.
 * If a thread shows stale history or a pending button from a background run, typing `status` or `SOP` in that thread forces the agent to read `PROJECT_BOARD.md` and instantly update its chat context.
 
 Internal coordination is automated by the agents, but ownership stays split: Product scopes, sequences, approves goals, and launches BFM; workstream lanes plan and return evidence; BFM execution workers claim files, check out branches or worktrees, write code/copy/styling, run verification, and push PRs. Product remains the User Value Optimizer who reviews staging and merge/release decisions, ensuring all changes align with the product's strategic direction and do not cause scope drift.
@@ -131,7 +135,7 @@ All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate
 1. **Drift Audit**: Before starting, run the drift checklist to verify workspace state.
 2. **Plan First**: Product creates or scopes the item; workstreams discuss and write markdown plans/handoffs. For non-trivial tasks, Product/BFM reads the existing approved OKR tree first, proposes only missing Product/workstream or lane OKRs needed for clarity, and records or changes them only after the user explicitly approves. Worker lanes flag missing, stale, or unclear OKRs in handoffs instead of rewriting the board.
 3. **BFM Claim & Lock**: After Product launches BFM, the BFM execution worker claims the task/files, changes status to `In Progress`, and declares the exact **Affected Screens** and **Locked Files**.
-4. **Commit / QA**: BFM execution work runs in an isolated branch or worktree, verifies the slice, pushes the branch, sets status to `Staging QA`, and documents modified files and QA evidence.
+4. **Commit / QA**: BFM execution work runs in a named isolated branch or worktree, verifies the slice, pushes the branch, sets status to `Staging QA`, and documents modified files, QA evidence, lane, locked files, and branch/worktree state.
 5. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.
 6. **Handoff, Unlock & Clean**: Write the structured handoff and passive closeout note. Product reads `PROJECT_BOARD.md` / `docs/handoffs/`, reconciles every lane's `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` before sequencing execution or merge, proposes aligned alternatives for OKR conflicts, merges approved branches, removes resource locks (marking the task `Done`), and records its own passive closeout note. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
 

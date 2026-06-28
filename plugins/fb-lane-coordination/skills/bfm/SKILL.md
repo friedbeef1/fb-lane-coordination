@@ -37,6 +37,8 @@ Use these skills before acting, in this order:
 
 BFM is not the default mode for simple coding. It is triggered when the objective requires sequencing, approval, merge/release, staging/live, secrets, payments, auth/privacy/analytics, core product flows such as camera/capture/save/export, board-locked files, durable multi-thread context, or multiple lane outputs reconciled before source changes.
 
+Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no disappearing into a private worktree, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
+
 ## Five-Lane Review
 
 Create a short internal review with these slots:
@@ -74,6 +76,7 @@ Proceed through the sequence without asking for repeated permission when authori
 - Respect active locks; do not edit files owned by another active lane.
 - Use the owning lane for implementation: Tech for app logic/tests, Design for UI/visual QA, Business for copy/positioning, Product for sequencing/merge/release decisions.
 - For source-changing work, prefer lane-owned worktrees or isolated branches so Product stays available for direction, integration, and merge gates.
+- Before source execution, confirm board/status/locks and the relevant handoff index; during isolated work, name the task, branch/worktree, lane, and locked files.
 - After each lane finishes, update its handoff and board status before moving to the next dependent step.
 - Product reads all resulting handoffs together, reconciles `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`, and only then sequences merges.
 - If a lane's tests, build, Git staging, or browser verification hangs, stop the BFM retry loop and record the task as `pending-gate` or `blocked` with the exact runner/process evidence before resequencing.
@@ -87,7 +90,7 @@ Treat BFM as a loop, not a one-way pipeline:
 - After source changes, return to each handoff and confirm the source satisfies the requested contract.
 - After tests, return to source, docs, and board; stale copy, missing wiring, or bad assumptions become follow-up work or blockers.
 - After board/doc updates, run status again and confirm lane state reflects reality.
-- After commit/push, return to `git status` and close only with a clean worktree or a named dirty state.
+- After commit/push, return to `git status` and close only with the branch/worktree named as clean, merged, stale, blocked, or intentionally left open.
 
 ```mermaid
 flowchart TD

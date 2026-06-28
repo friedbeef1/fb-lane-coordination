@@ -14,6 +14,7 @@ Use **FB-Lane light** for narrow triggered work: read the board/locks, keep the 
 3. Confirm your active branch matches the task. If not, stop and notify the user.
 4. Never modify files that are locked by another active task.
 5. For handoff discovery, read `docs/handoffs/index.md` first and open only the relevant detailed handoff files. If non-quick handoffs exist and the index is missing, stale, or too vague, Product/BFM should create or refresh the compact lookup before sequencing.
+6. Before source execution, confirm board/status/locks and the relevant handoff index.
 
 ### Lane boundaries
 - **FB-Tech**: backend, APIs, schemas, tests only. Never touch CSS or layout.
@@ -21,6 +22,13 @@ Use **FB-Lane light** for narrow triggered work: read the board/locks, keep the 
 - **FB-Business**: read-only on source code. Write to markdown docs only.
 - **FB-Product**: direction, sequencing, BFM launch, integration, merges, and deployments. Product is read-only on application/source code and may write coordination markdown only.
 - **All workstreams**: plan-only by default. They may ask questions, investigate, and write markdown plans/handoffs. Source changes happen only inside a Product-launched BFM execution run.
+
+### Awareness, isolation, integration
+- `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup.
+- Branches/worktrees isolate execution like separate desks.
+- BFM integrates outcomes like Product/release review.
+- Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
+- During isolated work, name the task, branch/worktree, lane, and locked files. At closeout, report whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
 
 ### Goal Alignment Session
 - For non-trivial work, FB-Product/BFM owns the approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant.
@@ -31,7 +39,7 @@ Use **FB-Lane light** for narrow triggered work: read the board/locks, keep the 
 
 ### BFM return loop
 - When processing all lane handoffs, Product/BFM must mark every handoff `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
-- Return to `PROJECT_BOARD.md` after reading handoffs, to each handoff after coding, to source/docs/board after tests, to lane status after board/doc updates, and to `git status` after commit/push.
+- Return to `PROJECT_BOARD.md` after reading handoffs, to each handoff after coding, to source/docs/board after tests, to lane status after board/doc updates, and to `git status` after commit/push with branch/worktree state named.
 - Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded.
 - Add one loop health flag at closeout: `healthy`, `watch`, `needs Product review`, or `blocked`. Do not numeric-score the loop.
 

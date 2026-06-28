@@ -2,6 +2,11 @@
 
 ## Unreleased - 2026-06-27
 
+- Coordination: added the awareness/isolation/integration rule across docs,
+  templates, skills, generated prompts, and packaged plugin mirrors. Board plus
+  handoff index provide shared awareness, branches/worktrees isolate execution,
+  and BFM integrates outcomes; worktrees no longer read as a replacement for
+  board/lock awareness or BFM reconciliation.
 - Docs/plugin guidance: added the objective mode-selection trigger rule. Agents
   now default to normal/simple coding unless the objective triggers FB-Lane
   light or Product/BFM through coordination files, lane/board/handoff mentions,

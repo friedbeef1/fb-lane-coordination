@@ -30,6 +30,9 @@ Harden FB-Lane progressive disclosure so bootstrapped projects keep:
 - Explicitly avoid per-task OKR generation, giant `doctor` behavior, second-board handoff indexes, and quick-task ceremony.
 - Add objective mode selection so future agents default to normal/simple coding unless coordination, Product/BFM, security/payment/release, core product flow, lock, multi-thread, or durable-context triggers appear.
 - Clarify the escalation ladder: normal/simple coding, FB-Lane light, then Product/BFM.
+- Add the awareness/isolation/integration rule: board plus handoff index create shared awareness, branches/worktrees isolate execution, and BFM integrates outcomes.
+- Make clear that worktrees do not replace coordination: no private-worktree disappearance, huge unannounced diff, source edits without board/lock awareness, or closeout without BFM reconciliation when multiple outputs exist.
+- Require closeout to name whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
 
 ## Verification
 
@@ -40,12 +43,13 @@ Harden FB-Lane progressive disclosure so bootstrapped projects keep:
 - `node tools/fb-lane.test.cjs` -> 15 checks passed
 - Product agent JSON and plugin manifests parse
 - Stale wording scan for per-task OKRs, old Goal/Success terms, and hard numeric scoring -> no matches
-- `node tools/fb-lane.validate.cjs` -> failed only because `doctor` reports the expected dirty-worktree warning on this in-progress branch
-- `node tools/fb-lane.cjs doctor` -> read-only, no coordination drift beyond the expected uncommitted-worktree warning
+- `node tools/fb-lane.validate.cjs` -> passed on a clean worktree
+- `node tools/fb-lane.cjs doctor` -> `Ready`
 - `git diff --check`
 
 ## Closeout
 
-Status: lane-verification-passed.
-Health: watch.
-Remaining: user diff review, commit/stage decision, and clean-worktree rerun so `node tools/fb-lane.validate.cjs` can pass its final doctor gate.
+Status: lane-verification-passed; board moved to `Staging QA`.
+Health: healthy.
+Branch/worktree state: clean on `codex/okf-lite-handoff-index` after commit.
+Remaining: Product review of PR #31 before merge.

@@ -21,6 +21,10 @@ They already provide a lot of the execution machinery:
 FB-Lane does not replace those primitives. It adds the coordination contract:
 approved goal, owner, evidence, merge/defer decision, and BFM source-change gate.
 
+Think of it as awareness, isolation, integration: the board and handoff index are
+the shared standup, branches/worktrees are separate desks for execution, and BFM
+is Product/release review.
+
 ## What is Loop Engineering?
 
 Loop Engineering is the practice of keeping five things aligned:
@@ -101,6 +105,11 @@ Product launches **BFM (Build Flow Manager)**. BFM reads the approved markdown
 plans, sequences the work, claims files, dispatches implementation workers, runs
 verification, and returns evidence before closeout.
 
+Before source execution, the worker reads board/status/locks plus the relevant
+handoff index. During isolated work, it names the task, branch/worktree, lane,
+and locked files. At closeout, it reports whether the branch/worktree is clean,
+merged, stale, blocked, or intentionally left open.
+
 ## What does Product approve?
 
 For non-quick BFM runs, Product and the user discuss the Product/workstream OKR
@@ -159,6 +168,10 @@ implementation detail in the detailed handoff files.
 
 If the index starts duplicating the board, it is wrong. The board is truth; the
 index is lookup.
+
+Worktrees do not replace this lookup. No lane should disappear into a private
+worktree, build a huge unannounced diff, edit source without board/lock
+awareness, or close without BFM reconciliation when multiple outputs exist.
 
 ## Are the lanes mandatory?
 

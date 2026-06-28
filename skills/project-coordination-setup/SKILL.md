@@ -16,6 +16,8 @@ For BFM/all-handoff processing, Product must also leave the return loop: every h
 
 Bootstrap guidance must also include objective mode selection: default to normal/simple coding unless the objective mentions coordination triggers. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 
+Bootstrap guidance must include awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
+
 ## Dependencies
 None.
 
@@ -59,7 +61,8 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 - `PROJECT_BOARD.md` in the project root is the source of truth.
 - **Plan First / BFM Claim & Lock**: Product scopes the item; workstreams write markdown plans or handoffs instead of editing source. BFM execution workers claim task/files in `PROJECT_BOARD.md` only after Product launches execution. For non-trivial tasks, Product reads existing approved OKRs first, proposes only missing Product/workstream or lane OKRs needed for clarity, and records or changes them only after the user explicitly approves before execution moves to `In Progress` with declared Affected Screens and Locked Files.
 - **Push & QA**: When complete, BFM execution workers push feature branches (e.g. `bfm/[task]`, `tech/[task]`, or `design/[task]`), update board status to `Staging QA`, and list modified files/QA checks.
-- **Handoff, Unlock & Clean**: Product reviews staging, reconciles `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` from lane handoffs, proposes aligned alternatives when work conflicts with approved OKRs, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
+- **Isolated Execution Naming**: Before source execution, workers read board/status/locks and the relevant handoff index. During isolated work, they name the task, branch/worktree, lane, and locked files.
+- **Handoff, Unlock & Clean**: Product reviews staging, reconciles `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` from lane handoffs, proposes aligned alternatives when work conflicts with approved OKRs, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. Closeout names whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
 
 ### 3. Safety & Git Hygiene
 - **Never commit directly to main**. All work goes through feature branches.
@@ -129,7 +132,7 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 ### BFM Return Loop
 - Every processed handoff is marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
 - Product/BFM returns to board, handoffs, source/docs/tests, lane status, and git status before closeout.
-- Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded.
+- Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded. Name whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
 - Add one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`; do not numeric-score the loop.
 
 ### Handoff Index
@@ -139,6 +142,12 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 - Product/BFM should create or refresh the index before non-quick sequencing when handoffs exist and the lookup layer is missing, stale, or too vague.
 - Do not put full OKRs, full QA checklists, plans, logs, rationale, copy variants, or implementation detail in the index.
 - Open detailed handoffs only when they are relevant to the active task or Product/BFM closeout.
+
+### Awareness, Isolation, Integration
+- `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup.
+- Branches/worktrees isolate execution like separate desks.
+- BFM integrates outcomes like Product/release review.
+- Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
 ```
 
 ### Phase 4: Register the Subagents

@@ -23,6 +23,14 @@ Codex does not load stale historical closeouts by default. Keep the index
 compact with `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`,
 `Checks / Evidence`, and `Detail`.
 
+Use the awareness, isolation, integration rule: `PROJECT_BOARD.md` and
+`docs/handoffs/index.md` create shared awareness like a standup;
+branches/worktrees isolate execution like separate desks; BFM integrates
+outcomes like Product/release review. Worktrees do not replace coordination: no
+private worktree should produce a huge unannounced diff, edit source without
+board/lock awareness, or close without BFM reconciliation when multiple outputs
+exist.
+
 Treat FB-Lane as an optional coordination protocol, not as the thing that makes Codex parallel.
 Default to normal/simple coding for single-thread work, simple fixes, read-only questions, code
 explanations, isolated edits, or independent work where Codex worktrees are enough.
@@ -114,6 +122,11 @@ source-change boundary.
 
 The target repo should have `AGENTS.md`, `PROJECT_BOARD.md`, and `tools/fb-lane.cjs`.
 If they are missing, ask Codex to bootstrap FB-Lane from this plugin before starting lane work.
+
+Before source execution, read board/status/locks and the relevant handoff index.
+During isolated work, name the task, branch/worktree, lane, and locked files. At
+closeout, report whether the branch/worktree is clean, merged, stale, blocked,
+or intentionally left open.
 
 For a Codex-only project bootstrap, use:
 
