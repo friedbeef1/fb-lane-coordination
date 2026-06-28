@@ -30,6 +30,9 @@
   unchanged.
 - Plugin: bumped the Codex plugin build suffix to
   `0.1.2+codex.20260627210000`.
+- Upgrade notice: after this branch merges, reinstall the Codex plugin so local
+  plugin caches pick up the packaged skill, template, and prompt changes:
+  `codex plugin add fb-lane-coordination@fb-lane`.
 - Maintenance cleanup: moved tracked demo MP4 assets out of git into GitHub release assets, added release asset links in demo READMEs, and documented canonical vs packaged maintenance boundaries in `docs/maintenance.md`.
 - Docs: labeled Codex support as public beta and Claude Code / Antigravity support as alpha.
 - Coordination: made normal workstream threads plan-only and documented Product-launched BFM as the source-change execution gate.
