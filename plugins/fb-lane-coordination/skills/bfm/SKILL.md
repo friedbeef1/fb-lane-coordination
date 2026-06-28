@@ -28,10 +28,12 @@ Use these skills before acting, in this order:
    - `docs/handoffs/<TASK-ID>.md`
    - handoffs named in the target board item's Links, QA, Modified Files, or Latest Update
    - linked `docs/superpowers/plans/` and `docs/superpowers/specs/`
-5. If the target is ambiguous, read active `Ready`, `In Progress`, and `Staging QA` board items before choosing; do not read every historical handoff unless Product/BFM is doing a full closeout audit.
-6. For non-trivial work, read the approved `Goal Alignment Session` block from `PROJECT_BOARD.md` first and treat its Product/workstream OKR plus stable lane OKRs as the source of truth.
-7. If the block is missing, stale, pending, or blocking clarity, propose the smallest OKR addition or change in plain language, and stop until the user explicitly approves. Add or change board OKRs only after that approval.
-8. Block before execution when approval is missing, OKRs are unclear, a handoff implies an unapproved OKR change, or handoffs conflict with the approved OKR tree.
+5. Before non-quick sequencing, create or refresh `docs/handoffs/index.md` when handoffs exist and the lookup layer is missing, stale, or too vague. Keep `PROJECT_BOARD.md` as truth, the index as routing, and detailed handoffs as detail.
+6. Keep the index compact with `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`. Do not put full OKRs, full QA checklists, plans, logs, rationale, copy variants, or implementation detail in the index.
+7. If the target is ambiguous, read active `Ready`, `In Progress`, and `Staging QA` board items before choosing; do not read every historical handoff unless Product/BFM is doing a full closeout audit.
+8. For non-trivial work, read the approved `Goal Alignment Session` block from `PROJECT_BOARD.md` first and treat its Product/workstream OKR plus stable lane OKRs as the source of truth.
+9. If the block is missing, stale, pending, or blocking clarity, propose the smallest OKR addition or change in plain language, and stop until the user explicitly approves. Add or change board OKRs only after that approval.
+10. Block before execution when approval is missing, OKRs are unclear, a handoff implies an unapproved OKR change, or handoffs conflict with the approved OKR tree. Reuse or clarify the approved OKR; do not generate a fresh OKR for every task.
 
 ## Five-Lane Review
 
@@ -46,6 +48,7 @@ Create a short internal review with these slots:
 Do not summarize a lane as done from delivery evidence alone. Use `delivered`, `lane-verification-passed`, `pending-gate`, `blocked`, or `superseded`.
 Reconcile every lane's `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` before deciding sequence.
 Every handoff BFM reads must end with one closeout status: `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+Also assign one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`. Use this instead of numeric loop scoring.
 
 ## Sequence
 
@@ -105,7 +108,7 @@ flowchart TD
 
 Finish with a Product closeout note:
 
-`Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.`
+`Closeout note - <TASK-ID>: <status>. Health: <healthy|watch|needs Product review|blocked>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.`
 
 Also update `PROJECT_BOARD.md` with final status, links, modified files, checks, risks, and next owner.
 If completion is blocked, record the exact blocker and the lane responsible for clearing it.

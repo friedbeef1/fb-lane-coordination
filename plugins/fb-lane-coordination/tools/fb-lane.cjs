@@ -80,8 +80,6 @@ function runGit(args) {
 // CLI argv and from MCP tool arguments, so both entry points validate.
 const TASK_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 const LANE_PATTERN = /^[A-Za-z][A-Za-z-]*$/;
-const HANDOFF_INDEX_THRESHOLD = 4;
-
 function assertSafeTaskId(taskId) {
   if (typeof taskId !== 'string' || !TASK_ID_PATTERN.test(taskId)) {
     throw new Error(
@@ -222,17 +220,21 @@ purpose: Read this before opening detailed handoffs.
 
 # Handoff Index
 
-Use this file as the first read for handoff discovery. \`PROJECT_BOARD.md\` remains the source of truth for task status, ownership, sequencing, and file locks. Open a detailed handoff only when its task is active, linked from the board item being processed, or needed as evidence for Product/BFM closeout.
+Use this file as the first read for handoff discovery. \`PROJECT_BOARD.md\` remains the source of truth for task status, ownership, sequencing, gates, and file locks. This index is routing only; detailed handoffs hold plans, rationale, logs, full QA, copy variants, and implementation detail.
 
 ## Active / Decision-Relevant
 
-| Task / Topic | Lane | Status | Fit | Detail |
-|---|---|---|---|---|
-| TASK-001 - Project setup | FB-Product | Ready | Bootstrap baseline | See \`PROJECT_BOARD.md\` |
+| Task / Topic | Lane | Status | Depends / Blocks / Gate | Checks / Evidence | Detail |
+|---|---|---|---|---|---|
+| TASK-001 - Project setup | FB-Product | Ready | Product bootstrap gate | Doctor after bootstrap | See \`PROJECT_BOARD.md\` |
 
 ## Historical Evidence
 
 Open historical handoffs only when investigating the named area or reconciling old Product decisions.
+
+## Index Limits
+
+Keep this index compact. Do not put full OKRs, full QA checklists, plans, logs, rationale, copy variants, or implementation detail here. Put those in the detailed handoff and link it from the Detail column.
 
 ## Lightweight Handoff Metadata
 
@@ -258,12 +260,24 @@ function collectHandoffIndexWarning(handoffsDir) {
   }
   const entries = fs.readdirSync(handoffsDir, { withFileTypes: true })
     .filter(entry => entry.isFile() && entry.name.endsWith('.md') && entry.name !== 'index.md');
+  const nonQuickEntries = entries.filter(entry => !/^TASK-Q-/i.test(entry.name));
   const indexPath = path.join(handoffsDir, 'index.md');
-  if (entries.length >= HANDOFF_INDEX_THRESHOLD && !fs.existsSync(indexPath)) {
+  if (nonQuickEntries.length > 0 && !fs.existsSync(indexPath)) {
     return {
-      handoffCount: entries.length,
-      threshold: HANDOFF_INDEX_THRESHOLD
+      type: 'missing',
+      handoffCount: nonQuickEntries.length
     };
+  }
+  if (fs.existsSync(indexPath) && nonQuickEntries.length > 0) {
+    const markdown = fs.readFileSync(indexPath, 'utf8');
+    const hasDependencyGateColumn = /\|\s*Depends\s*\/\s*Blocks\s*\/\s*Gate\s*\|/i.test(markdown);
+    const hasEvidenceColumn = /\|\s*Checks\s*\/\s*Evidence\s*\|/i.test(markdown);
+    if (!hasDependencyGateColumn || !hasEvidenceColumn) {
+      return {
+        type: 'old-style',
+        handoffCount: nonQuickEntries.length
+      };
+    }
   }
   return null;
 }
@@ -712,12 +726,19 @@ function handleDoctor() {
     if (exists('docs/handoffs')) {
       add('ok', 'docs/handoffs', 'Lane handoff directory exists.');
       const handoffIndexWarning = collectHandoffIndexWarning(path.join(rootDir, 'docs', 'handoffs'));
-      if (handoffIndexWarning) {
+      if (handoffIndexWarning && handoffIndexWarning.type === 'missing') {
         add(
           'warn',
           'Handoff index',
-          `Missing docs/handoffs/index.md with ${handoffIndexWarning.handoffCount} handoff file(s).`,
-          'Create docs/handoffs/index.md so agents read the lookup table before detailed handoffs.'
+          `Missing docs/handoffs/index.md with ${handoffIndexWarning.handoffCount} non-quick handoff file(s).`,
+          'Run bootstrap to create the index, or have Product/BFM add a compact lookup before sequencing handoffs.'
+        );
+      } else if (handoffIndexWarning && handoffIndexWarning.type === 'old-style') {
+        add(
+          'warn',
+          'Handoff index',
+          'docs/handoffs/index.md is old-style and lacks dependency/gate or evidence columns.',
+          'Have Product/BFM refresh the lookup with Task / Topic, Lane, Status, Depends / Blocks / Gate, Checks / Evidence, and Detail columns.'
         );
       } else {
         add('ok', 'Handoff index', 'Handoff lookup is present or not needed yet.');
@@ -1833,6 +1854,29 @@ function handleBootstrap(args = []) {
     *   (None)
 *   **Latest Update**:
     *   *2026-06-15*: Scoped task and marked ready for execution.
+
+### Goal Alignment Session (non-trivial tasks only)
+- Product/BFM owns the approved OKR tree in \`PROJECT_BOARD.md\`: a Product/workstream or BFM-target OKR with \`Objective\`, \`Key Results\`, \`Definition of Done\`, \`Gate / Review Point\`, \`Approval: pending|approved\`, and \`Justification\`, plus stable lane OKRs where relevant.
+- Mini-loops produce evidence against existing lane OKRs; they do not create new OKRs.
+- OKRs are added or changed only after discussion and explicit user approval. Do not generate a fresh OKR for every task.
+- Good: \`Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.\`
+- Bad: \`Objective: finish the feature.\`
+- Lane handoffs stay compact and use a real heading:
+  \`\`\`md
+  ## Goal Alignment Session
+
+  Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+  Mini-loop Evidence: <lane evidence from its smallest real verification loop>
+  Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
+  \`\`\`
+
+### Handoff Index
+- \`PROJECT_BOARD.md\` stays the source of truth for current status, sequencing, gates, ownership, and file locks.
+- \`docs/handoffs/index.md\` is the first-read routing table for handoff discovery.
+- Use compact index columns: \`Task / Topic\`, \`Lane\`, \`Status\`, \`Depends / Blocks / Gate\`, \`Checks / Evidence\`, and \`Detail\`.
+- Product/BFM should create or refresh the index before non-quick sequencing when handoffs exist and the lookup layer is missing, stale, or too vague.
+- Do not put full OKRs, full QA checklists, plans, logs, rationale, copy variants, or implementation detail in the index.
+- Open detailed handoffs only when they are relevant to the active task or Product/BFM closeout.
 `;
     fs.writeFileSync(boardPath, boardTemplate, 'utf8');
     console.log('📝 Created PROJECT_BOARD.md');
@@ -1848,18 +1892,19 @@ function handleBootstrap(args = []) {
 This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development.
 
 ### 1. Lane Scopes & Boundaries
-*   **FB-Product (PM / Integration User Value)**: Owns final product decisions, task prioritization, scoping, BFM launch, staging/live deployments, and release gates. Product owns the stable Product/workstream OKR plus relevant stable lane OKRs in \`PROJECT_BOARD.md\`. Product is read-only on application/source code and may write coordination markdown only. Source changes happen only inside a Product-launched BFM execution run.
-*   **Completion Audit Rule**: Product reports delivered work, lane-specific verification, and unresolved gates as separate statuses for every lane. Do not call any workstream "done" or "executed" unless required evidence exists; otherwise mark the missing gate as pending or blocked.
+*   **FB-Product (PM / Integration User Value)**: Owns final product decisions, task prioritization, scoping, BFM launch, staging/live deployments, and release gates. Product owns the approved Product/workstream or BFM-target OKR plus relevant stable lane OKRs in \`PROJECT_BOARD.md\`. Product is read-only on application/source code and may write coordination markdown only. Source changes happen only inside a Product-launched BFM execution run.
+*   **Completion Audit Rule**: Product reports delivered work, lane-specific verification, unresolved gates, and one loop health flag (\`healthy\`, \`watch\`, \`needs Product review\`, or \`blocked\`) as separate statuses for every lane. Do not call any workstream "done" or "executed" unless required evidence exists; otherwise mark the missing gate as pending or blocked.
 *   **FB-Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, database security, configuration scripts, and unit/integration test suites. *Does not make styling, layout geometry, or UI changes.*
 *   **FB-Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
 *   **FB-Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only capacity.*
-*   **Passive Closeout Notes**: Every lane leaves a final informational note in its thread when it stops work. The note records task ID, status, delivered work, evidence, remaining gates, and handoff path, without commands, @/$ invocations, or instructions to open, start, run, or ask another lane.
-*   **Goal Alignment Session**: For non-trivial tasks, Product/BFM owns one approved OKR tree in the board detail block: a Product/workstream OKR plus stable lane OKRs where relevant. Worker lanes report \`Lane OKR Fit\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\` in handoffs instead of rewriting OKRs. Good objective: \`Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.\` Bad objective: \`Objective: finish the feature.\` Skip this extra ceremony for \`TASK-Q-*\` quick tasks.
+*   **Passive Closeout Notes**: Every lane leaves a final informational note in its thread when it stops work. The note records task ID, status, delivered work, evidence, remaining gates, and handoff path; Product/BFM closeouts also record one loop health flag. Notes must avoid commands, @/$ invocations, or instructions to open, start, run, or ask another lane.
+*   **Goal Alignment Session**: For non-trivial work, Product/BFM owns the approved OKR tree in the board detail block: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant. Worker lanes report \`Lane OKR Fit\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\` in handoffs instead of rewriting OKRs. Do not generate a fresh OKR for every task. Good objective: \`Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.\` Bad objective: \`Objective: finish the feature.\` Skip this extra ceremony for \`TASK-Q-*\` quick tasks.
+*   **Handoff Index**: \`PROJECT_BOARD.md\` is truth for status, sequencing, gates, ownership, and file locks. \`docs/handoffs/index.md\` is routing. Detailed handoffs are detail. Before non-quick Product/BFM sequencing, create or refresh the index if handoffs exist and the lookup is missing, stale, or too vague. Keep the index compact with \`Task / Topic\`, \`Lane\`, \`Status\`, \`Depends / Blocks / Gate\`, \`Checks / Evidence\`, and \`Detail\`; do not put full OKRs, QA checklists, plans, logs, rationale, copy variants, or implementation detail there.
 *   **BFM OKR Gate**: BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree. If work conflicts with approved OKRs, BFM proposes aligned approaches, scope, or sequence and recommends one; it does not dynamically create or edit OKRs during execution.
-*   **BFM Return Loop**: When Product/BFM processes all lane handoffs, every handoff must be marked \`implemented\`, \`already done\`, \`blocked\`, \`out of scope\`, or \`explicitly deferred\`. Return to board, handoffs, source/docs/tests, lane status, and git status before closeout.
+*   **BFM Return Loop**: When Product/BFM processes all lane handoffs, every handoff must be marked \`implemented\`, \`already done\`, \`blocked\`, \`out of scope\`, or \`explicitly deferred\`. Return to board, handoffs, source/docs/tests, lane status, and git status before closeout. Add one loop health flag: \`healthy\`, \`watch\`, \`needs Product review\`, or \`blocked\`; do not numeric-score the loop.
 
 ### 2. The Board Loop & Resource Locking
-1. **Plan**: Product scopes the item; workstreams produce markdown plans or handoffs instead of editing source. For non-trivial tasks Product reads existing approved OKRs first, proposes only missing Product/workstream or lane OKRs needed for clarity, asks the user to approve them, and starts execution only after marking \`Approval: approved\`. \`TASK-Q-*\` quick tasks can skip this extra ceremony.
+1. **Plan**: Product scopes the item; workstreams produce markdown plans or handoffs instead of editing source. For non-trivial work Product reads existing approved OKRs first, proposes only missing Product/workstream or lane OKRs needed for clarity, asks the user to approve them, and starts execution only after marking \`Approval: approved\`. Do not generate a fresh OKR for every task. \`TASK-Q-*\` quick tasks can skip this extra ceremony.
 2. **Execute**: Product launches BFM. BFM execution workers claim task/files on the board and work in isolated branches or worktrees (\`bfm/[feature]\`, \`tech/[feature]\`, or \`design/[feature]\`).
 3. **Audit**: When complete, the BFM execution worker pushes the branch, moves the board item to \`Staging QA\` using \`node tools/fb-lane.cjs submit\`, records delivered work, lane-specific verification, unresolved gates, plus a \`## Goal Alignment Session\` handoff section with \`Lane OKR Fit\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\`, and leaves a passive closeout note.
 4. **Merge**: \`FB-Product\` runs verification/release gates, reconciles lane \`Lane OKR Fit\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\` before merge, verifies required evidence for every lane, merges the branch to main using \`node tools/fb-lane.cjs merge\`, and releases locks.
@@ -1880,7 +1925,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
           "systemPromptSections": [
             {
               "title": "Agent System Instructions",
-              "content": "You are FB-Product, the PM optimizing User Value.\n\n### MANDATORY — On Every Session Start (SOP):\nIMMEDIATELY read PROJECT_BOARD.md. Do not wait to be asked. Then:\n- If the user gave you a feature request: break it into scoped tasks, assign lanes, and for each non-trivial task discuss the Product/workstream OKR with the user, add any needed stable lane OKRs only when relevant, and record or change OKRs in PROJECT_BOARD.md only after explicit user approval.\n- If any tasks are in `Staging QA`: read the handoff file at `docs/handoffs/TASK-XXX.md`, review the branch diff, reconcile the lane `## Goal Alignment Session` sections, `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`, verify scope compliance, then merge or reject.\n- Summarise the board state to the user and recommend next actions.\n\n### Role & Responsibilities:\n1. **Scoping**: Break user requests into tasks on PROJECT_BOARD.md. Assign to FB-Tech, FB-Design, or FB-Business. Set status `Ready`. For non-trivial tasks, Product owns the stable Product/workstream OKR plus relevant stable lane OKRs in the board Goal Alignment Session. `TASK-Q-*` quick tasks can skip this extra ceremony.\n2. **Direction, not execution**: Product gives direction, asks workstreams for markdown plans/handoffs, records assigned lanes and board status, and launches BFM when execution is approved. Product is read-only on application/source code and may write coordination markdown only. Source changes happen only inside a Product-launched BFM execution run.\n3. **Review & Merge**: For each `Staging QA` task, read `docs/handoffs/TASK-XXX.md` for full context (what was built, decisions, test results, risks). Reconcile every lane `## Goal Alignment Session` section, `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` before sequencing execution or merge. If approved OKRs conflict with delivered work, propose aligned approach, scope, or sequence changes and recommend one; do not dynamically create or edit OKRs during execution. Review the git branch diff. If approved, run `node tools/fb-lane.cjs merge <task-id>`. If rejected, set status to `Blocked` with notes in the handoff file.\n4. **Runner hang boundary**: If tests, builds, Git staging, or browser checks hang while Product/BFM is reviewing, run doctor where available, record `pending-gate` or `blocked` with exact evidence, and return execution to BFM sequencing instead of patching from Product chat.\n5. **Authority**: Only Product/BFM may launch source-changing execution, merge branches, and deploy to staging/production after the required gates pass.\n\n### Goal Alignment Session:\nUse a Goal Alignment Session for non-trivial tasks only. Product/workstream OKRs and stable lane OKRs are alignment anchors, not goals to recreate during execution. Good objective: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.` Bad objective: `Objective: finish the feature.` BFM blocks when approval is missing, OKRs are unclear, or handoffs conflict with approved OKRs; OKRs are added or changed only after discussion and explicit user approval.\n\n### Completion Audit Language:\nReport delivered work, lane-specific verification, and unresolved gates separately for every lane. Do not describe any lane as \"executed\" or \"done\" unless required evidence exists for that lane: Tech needs named tests/builds, Design needs viewport/screenshot evidence when UI changed, Business needs approval or integration status, and Product needs staging/release-gate evidence. If work is delivered but a gate is missing, say: \"delivered; <named checks> passed; <specific gate> remains pending.\"\n\n### BFM Return Loop:\nFor BFM or all-handoff processing, every handoff must be marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`. Return to board, source, docs, tests, lane status, and git status before closeout.\n\n### Passive Closeout Note:\nWhen you finish scoping, reviewing, merging, or rejecting a workstream, leave one final informational note for future visitors. Format it as `Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, @/$ invocations, or instructions to open, start, run, or ask another lane."
+              "content": "You are FB-Product, the PM optimizing User Value.\n\n### MANDATORY — On Every Session Start (SOP):\nIMMEDIATELY read PROJECT_BOARD.md. Do not wait to be asked. Then:\n- If the user gave you a feature request: break it into scoped tasks, assign lanes, and for non-trivial work discuss or reuse the Product/workstream OKR with the user, add any needed stable lane OKRs only when relevant, and record or change OKRs in PROJECT_BOARD.md only after explicit user approval.\n- If any tasks are in `Staging QA`: read `docs/handoffs/index.md` first, create or refresh it before non-quick sequencing when handoffs exist and the lookup is missing, stale, or too vague, then open only the relevant `docs/handoffs/TASK-XXX.md` files, review the branch diff, reconcile the lane `## Goal Alignment Session` sections, `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`, verify scope compliance, then merge or reject.\n- Summarise the board state to the user and recommend next actions.\n\n### Role & Responsibilities:\n1. **Scoping**: Break user requests into tasks on PROJECT_BOARD.md. Assign to FB-Tech, FB-Design, or FB-Business. Set status `Ready`. For non-trivial work, Product uses the approved Product/workstream or BFM-target OKR plus relevant stable lane OKRs in the board Goal Alignment Session. `TASK-Q-*` quick tasks can skip this extra ceremony.\n2. **Direction, not execution**: Product gives direction, asks workstreams for markdown plans/handoffs, records assigned lanes and board status, and launches BFM when execution is approved. Product is read-only on application/source code and may write coordination markdown only. Source changes happen only inside a Product-launched BFM execution run.\n3. **Review & Merge**: Before non-quick sequencing, create or refresh `docs/handoffs/index.md` when handoffs exist and the lookup layer is missing, stale, or too vague. Keep `PROJECT_BOARD.md` as truth, the index as routing, and detailed handoffs as detail. Keep the index compact with `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`; do not put full OKRs, full QA checklists, plans, logs, rationale, copy variants, or implementation detail in the index. For each `Staging QA` task, read only the relevant detailed handoffs for full context (what was built, decisions, test results, risks). Reconcile every lane `## Goal Alignment Session` section, `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` before sequencing execution or merge. If approved OKRs conflict with delivered work, propose aligned approach, scope, or sequence changes and recommend one; do not dynamically create or edit OKRs during execution. Review the git branch diff. If approved, run `node tools/fb-lane.cjs merge <task-id>`. If rejected, set status to `Blocked` with notes in the handoff file.\n4. **Runner hang boundary**: If tests, builds, Git staging, or browser checks hang while Product/BFM is reviewing, run doctor where available, record `pending-gate` or `blocked` with exact evidence, and return execution to BFM sequencing instead of patching from Product chat.\n5. **Authority**: Only Product/BFM may launch source-changing execution, merge branches, and deploy to staging/production after the required gates pass.\n\n### Goal Alignment Session:\nUse a Goal Alignment Session for non-trivial work only. Product/workstream OKRs and stable lane OKRs are alignment anchors, not goals to recreate during execution. Do not generate a fresh OKR for every task. Good objective: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.` Bad objective: `Objective: finish the feature.` BFM blocks when approval is missing, OKRs are unclear, or handoffs conflict with approved OKRs; OKRs are added or changed only after discussion and explicit user approval.\n\n### Completion Audit Language:\nReport delivered work, lane-specific verification, unresolved gates, and one loop health flag separately for every lane: `healthy`, `watch`, `needs Product review`, or `blocked`. Do not describe any lane as \"executed\" or \"done\" unless required evidence exists for that lane: Tech needs named tests/builds, Design needs viewport/screenshot evidence when UI changed, Business needs approval or integration status, and Product needs staging/release-gate evidence. If work is delivered but a gate is missing, say: \"delivered; <named checks> passed; <specific gate> remains pending.\"\n\n### BFM Return Loop:\nFor BFM or all-handoff processing, every handoff must be marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`. Return to board, source, docs, tests, lane status, and git status before closeout. Add one loop health flag at closeout; do not numeric-score the loop.\n\n### Passive Closeout Note:\nWhen you finish scoping, reviewing, merging, or rejecting a workstream, leave one final informational note for future visitors. Format it as `Closeout note - <TASK-ID>: <status>. Health: <healthy|watch|needs Product review|blocked>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, @/$ invocations, or instructions to open, start, run, or ask another lane."
             }
           ],
           "toolNames": [
@@ -1993,7 +2038,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
   const handoffIndexPath = path.join(handoffsDir, 'index.md');
   if (!fs.existsSync(handoffIndexPath)) {
     fs.writeFileSync(handoffIndexPath, handoffIndexTemplate(), 'utf8');
-    console.log('📝 Created docs/handoffs/index.md (handoff lookup table)');
+    console.log('📝 Created docs/handoffs/index.md (handoff routing index)');
   } else {
     console.log('ℹ️  docs/handoffs/index.md already exists, skipping.');
   }
@@ -2017,7 +2062,7 @@ This project uses the FB-Lane Four-Lane Coordination Model.
 2. Read \`.codex/current_task.md\` if it exists — it contains your task ID, branch, and locked files. Follow it exactly.
 3. Confirm your active branch matches the task. If not, stop and notify the user.
 4. Never modify files that are locked by another active task.
-5. For handoff discovery, read \`docs/handoffs/index.md\` first and open only the relevant detailed handoff files.
+5. For handoff discovery, read \`docs/handoffs/index.md\` first and open only the relevant detailed handoff files. If non-quick handoffs exist and the index is missing, stale, or too vague, Product/BFM should create or refresh the compact lookup before sequencing.
 
 ### Lane boundaries
 - **FB-Tech**: backend, APIs, schemas, tests only. Never touch CSS or layout.
@@ -2027,16 +2072,17 @@ This project uses the FB-Lane Four-Lane Coordination Model.
 - **All workstreams**: plan-only by default. They may ask questions, investigate, and write markdown plans/handoffs. Source changes happen only inside a Product-launched BFM execution run.
 
 ### Goal Alignment Session
-- For non-trivial tasks, FB-Product/BFM owns one approved OKR tree in \`PROJECT_BOARD.md\`: a Product/workstream OKR plus stable lane OKRs where relevant.
+- For non-trivial work, FB-Product/BFM owns the approved OKR tree in \`PROJECT_BOARD.md\`: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant.
 - BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree.
 - If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the existing OKR tree and recommends one; it does not dynamically create or edit OKRs during execution.
 - Lane handoffs include \`## Goal Alignment Session\`, \`Lane OKR Fit\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\`.
-- Skip this ceremony for \`TASK-Q-*\` quick tasks.
+- Reuse or clarify approved OKRs; do not generate one per task. Skip this ceremony for \`TASK-Q-*\` quick tasks.
 
 ### BFM return loop
 - When processing all lane handoffs, Product/BFM must mark every handoff \`implemented\`, \`already done\`, \`blocked\`, \`out of scope\`, or \`explicitly deferred\`.
 - Return to \`PROJECT_BOARD.md\` after reading handoffs, to each handoff after coding, to source/docs/board after tests, to lane status after board/doc updates, and to \`git status\` after commit/push.
 - Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded.
+- Add one loop health flag at closeout: \`healthy\`, \`watch\`, \`needs Product review\`, or \`blocked\`. Do not numeric-score the loop.
 
 ### CLI commands (run from project root)
 - \`node tools/fb-lane.cjs status\` — view all tasks and locks
@@ -2085,7 +2131,7 @@ ${CODEX_FB_END}`;
 
 This project uses the **FB-Lane Four-Lane Coordination Model**.
 Source of truth for active tasks and file locks: \`PROJECT_BOARD.md\`.
-First-read lookup for handoff discovery: \`docs/handoffs/index.md\`.
+First-read lookup for handoff discovery: \`docs/handoffs/index.md\` (routing only; \`PROJECT_BOARD.md\` is truth, detailed handoffs are detail).
 
 ### Lane Boundaries
 
@@ -2097,11 +2143,11 @@ First-read lookup for handoff discovery: \`docs/handoffs/index.md\`.
 | **FB-Business** | Copy, docs, marketing text | Source code (read-only) |
 
 ### Goal Alignment Session
-- For non-trivial tasks, FB-Product/BFM owns one approved OKR tree in \`PROJECT_BOARD.md\`: a Product/workstream OKR plus stable lane OKRs where relevant.
+- For non-trivial work, FB-Product/BFM owns the approved OKR tree in \`PROJECT_BOARD.md\`: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant.
 - BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree.
 - If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the existing OKR tree and recommends one; it does not dynamically create or edit OKRs during execution.
 - Lane handoffs include \`## Goal Alignment Session\`, \`Lane OKR Fit\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\`.
-- Skip this ceremony for \`TASK-Q-*\` quick tasks.
+- Reuse or clarify approved OKRs; do not generate one per task. Skip this ceremony for \`TASK-Q-*\` quick tasks.
 
 ### BFM Return Loop
 - When processing all lane handoffs, Product/BFM must mark every handoff \`implemented\`, \`already done\`, \`blocked\`, \`out of scope\`, or \`explicitly deferred\`.
@@ -2113,7 +2159,7 @@ First-read lookup for handoff discovery: \`docs/handoffs/index.md\`.
 2. Read \`.codex/current_task.md\` if it exists — it has your exact branch and locked files.
 3. Confirm your branch: \`git rev-parse --abbrev-ref HEAD\`.
 4. Never modify files locked by another active task.
-5. For handoff discovery, read \`docs/handoffs/index.md\` first and open only the relevant detailed handoff files.
+5. For handoff discovery, read \`docs/handoffs/index.md\` first and open only the relevant detailed handoff files. If non-quick handoffs exist and the index is missing, stale, or too vague, Product/BFM should create or refresh the compact lookup before sequencing.
 
 ### CLI Commands
 \`\`\`bash

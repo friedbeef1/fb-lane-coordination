@@ -11,10 +11,17 @@ around it: approved Product/workstream OKRs, plan-only workstreams, BFM executio
 BFM reconciliation, and clean closeout. The full operating model lives in
 [`docs/loop-engineering.md`](../../docs/loop-engineering.md).
 
+FB-Lane's framework OKR is simple: help Product Leads run multi-agent work
+without losing alignment between goals, evidence, board state, and repo truth.
+Use closeout health flags (`healthy`, `watch`, `needs Product review`,
+`blocked`) instead of per-task OKRs or numeric loop scoring.
+
 Bootstrapped projects use `PROJECT_BOARD.md` as the source of truth and
-`docs/handoffs/index.md` as the first-read lookup table. Read the index before
-opening detailed handoffs so Codex does not load stale historical closeouts by
-default.
+`docs/handoffs/index.md` as the first-read routing layer. Detailed handoffs are
+the detail layer. Read or refresh the index before opening detailed handoffs so
+Codex does not load stale historical closeouts by default. Keep the index
+compact with `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`,
+`Checks / Evidence`, and `Detail`.
 
 Treat FB-Lane as an optional coordination protocol, not as the thing that makes Codex parallel.
 Skip it for single-thread work, simple fixes, read-only questions, or independent work where Codex
@@ -106,6 +113,8 @@ node tools/fb-lane.cjs bootstrap --platform codex
 node tools/fb-lane.cjs doctor
 ```
 
-`doctor` is read-only. It reports whether the board, rules, MCP config, handoff folder/index,
-active locks, git workspace, non-quick handoff `Lane OKR Fit`, and approved Goal Alignment Session
-OKRs are ready before lane work begins.
+`doctor` is read-only. It reports whether the board, rules, MCP config, handoff
+folder/index, active locks, git workspace, non-quick handoff `Lane OKR Fit`,
+and approved Goal Alignment Session OKRs are ready before lane work begins. If
+the index is missing or old-style, fix it through bootstrap or Product/BFM
+lookup repair; `doctor` does not silently create files.

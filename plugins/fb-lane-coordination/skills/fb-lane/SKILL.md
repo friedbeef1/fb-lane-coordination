@@ -11,7 +11,7 @@ Codex supplies the concurrency. FB-Lane supplies shared coordination:
 
 - `PROJECT_BOARD.md` is the source of truth for tasks, owners, locks, links, and QA state.
 - `.codex/current_task.md` records the active claimed task for a lane.
-- `docs/handoffs/index.md` is the first-read lookup table for handoff discovery.
+- `docs/handoffs/index.md` is the first-read routing table for handoff discovery.
 - `docs/handoffs/` carries lane plans and evidence back to Product/Captain.
 - The `fb-lane` MCP server or `node tools/fb-lane.cjs` commands perform status, claim, submit, and merge operations.
 
@@ -21,7 +21,7 @@ FB-Lane is a thin coordination protocol, not a default wrapper for all Codex wor
 
 Use it when there are 2+ active lanes, overlapping file risk, staging/live gates, or handoffs that must survive context loss. Skip it for one-thread fixes, read-only questions, simple code explanations, or independent work where Codex worktrees are enough. When skipping, use ordinary Codex workflow and avoid creating board noise.
 
-For non-trivial lane work, keep one stable Product/workstream OKR block in `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Stable lane OKRs are standing Product, Tech, Design, and Business quality anchors. Product/BFM owns that OKR tree and adds or changes it only after discussion and explicit user approval. Do not apply this ceremony to `TASK-Q-*` quick tasks.
+For non-trivial lane work, use the approved Product/workstream or BFM-target OKR in `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Stable lane OKRs are standing Product, Tech, Design, and Business quality anchors. Product/BFM owns that OKR tree and adds or changes it only after discussion and explicit user approval. Do not generate a fresh OKR for every task, and do not apply this ceremony to `TASK-Q-*` quick tasks.
 
 Normal workstream threads are read-only planning lanes. Product, Tech, Design, and Business may ask questions, investigate, critique, and write markdown plans/handoffs. Source changes happen only inside a Product-launched BFM execution run.
 
@@ -79,7 +79,9 @@ $fb-business rewrite the onboarding copy.
 
 ## Handoff Lookup
 
-Use progressive disclosure. `PROJECT_BOARD.md` stays the source of truth for current status, ownership, sequencing, and file locks. Read `docs/handoffs/index.md` before opening detailed handoffs, then open only the files relevant to the active task unless Product/BFM is doing a full closeout audit.
+Use progressive disclosure. `PROJECT_BOARD.md` stays the source of truth for current status, ownership, sequencing, gates, and file locks. `docs/handoffs/index.md` is routing, and detailed handoffs are detail. Read or refresh the index before opening detailed handoffs, then open only the files relevant to the active task unless Product/BFM is doing a full closeout audit.
+
+Before non-quick Product/BFM sequencing, create or refresh the index when handoffs exist and the lookup layer is missing, stale, or too vague. Keep the index compact with `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`. Do not put full OKRs, full QA checklists, plans, logs, rationale, copy variants, or implementation detail in the index.
 
 ## Direct Lane Prompt Convention
 
@@ -121,6 +123,7 @@ Return checks are mandatory for non-trivial handoff execution:
 - after commit/push, return to `git status`.
 
 Close only when board, source, docs, and tests agree, or the disagreement is explicitly recorded.
+Add one loop health flag at closeout: `healthy`, `watch`, `needs Product review`, or `blocked`. Use this instead of numeric loop scoring.
 
 ## Product Completion Audit
 
@@ -133,6 +136,7 @@ Product/Captain must report lane status with separate evidence buckets:
 - superseded
 
 Do not collapse those into a generic "executed" or "done" label. A lane can deliver work while its required gate remains pending: Tech may still lack tests, Design may still lack screenshot/viewport evidence, Business may still need copy approval or integration, and Product may still need staging/release evidence. Product must state that distinction clearly before merge or staging recommendations.
+Product must also state the loop health flag so directional misses are visible without turning the loop into a scorecard.
 
 ## Finish
 

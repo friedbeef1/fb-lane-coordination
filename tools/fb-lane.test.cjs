@@ -162,7 +162,7 @@ test('bootstrap creates docs/handoffs/index.md', () => {
 test('doctor warns when many handoffs have no index', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-doctor-'));
   try {
-    writeDoctorFixture(root, 4);
+    writeDoctorFixture(root, 1);
     const output = execFileSync('node', [cliPath, 'doctor'], { cwd: root, encoding: 'utf8' });
     assert.match(output, /Handoff index/);
     assert.match(output, /docs\/handoffs\/index\.md/);
@@ -171,7 +171,30 @@ test('doctor warns when many handoffs have no index', () => {
   }
 });
 
-test('doctor accepts many handoffs with an index', () => {
+test('doctor warns when index lacks dependency gate columns', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-doctor-'));
+  try {
+    writeDoctorFixture(root, 1);
+    fs.writeFileSync(path.join(root, 'docs', 'handoffs', 'index.md'), `---
+type: fb-lane-handoff-index
+status: active
+---
+
+# Handoff Index
+
+| Task / Topic | Lane | Status | Fit | Detail |
+|---|---|---|---|---|
+| TASK-001 | FB-Tech | Ready | aligned | [TASK-001.md](TASK-001.md) |
+`);
+    const output = execFileSync('node', [cliPath, 'doctor'], { cwd: root, encoding: 'utf8' });
+    assert.match(output, /old-style/);
+    assert.match(output, /Depends \/ Blocks \/ Gate/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('doctor accepts non-quick handoffs with compact index columns', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-doctor-'));
   try {
     writeDoctorFixture(root, 4);
@@ -181,9 +204,27 @@ status: active
 ---
 
 # Handoff Index
+
+| Task / Topic | Lane | Status | Depends / Blocks / Gate | Checks / Evidence | Detail |
+|---|---|---|---|---|---|
+| TASK-001 | FB-Tech | Ready | Product gate | Doctor fixture | [TASK-001.md](TASK-001.md) |
 `);
     const output = execFileSync('node', [cliPath, 'doctor'], { cwd: root, encoding: 'utf8' });
     assert.match(output, /Handoff index/);
+    assert.doesNotMatch(output, /Missing docs\/handoffs\/index\.md/);
+    assert.doesNotMatch(output, /old-style/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('doctor does not require an index for quick-only handoffs', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-doctor-'));
+  try {
+    writeDoctorFixture(root, 0);
+    fs.writeFileSync(path.join(root, 'docs', 'handoffs', 'TASK-Q-1234.md'), '# quick\n');
+    const output = execFileSync('node', [cliPath, 'doctor'], { cwd: root, encoding: 'utf8' });
+    assert.match(output, /Handoff lookup is present or not needed yet/);
     assert.doesNotMatch(output, /Missing docs\/handoffs\/index\.md/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });

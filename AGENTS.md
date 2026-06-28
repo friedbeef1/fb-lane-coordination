@@ -16,9 +16,9 @@ To prevent context window overload and git collisions, strictly adhere to your a
 ### 👑 FB-Product (Product Manager / User Value Optimizer)
 *   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
-*   **Workflow**: Reads user requests, runs a Goal Alignment Session for each non-trivial task, discusses the Product/workstream OKR with the user (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Justification`), records or changes OKRs only after explicit user approval, sequences tasks against those stable anchors and value-vs-effort mix, turns change requests into markdown plans/handoffs, launches BFM when execution is approved, reviews PRs, verifies staging, and merges branches.
+*   **Workflow**: Reads user requests, runs a Goal Alignment Session for non-trivial work, discusses or reuses the Product/workstream OKR with the user (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Justification`), records or changes OKRs only after explicit user approval, sequences tasks against those stable anchors and value-vs-effort mix, turns change requests into markdown plans/handoffs, launches BFM when execution is approved, reviews PRs, verifies staging, and merges branches.
 *   **Boundary**: Product is read-only on application/source code. Product may edit coordination markdown (`PROJECT_BOARD.md`, plans, handoffs, OKRs, Definition of Done, sequencing, and closeout notes). Source changes happen only inside a Product-launched BFM execution run.
-*   **Completion Audit Rule**: Reports delivered work, lane-specific verification, and unresolved gates as separate statuses for every lane. Product must not call any workstream "done" or "executed" unless the required evidence exists for that lane; otherwise mark the missing gate as pending or blocked.
+*   **Completion Audit Rule**: Reports delivered work, lane-specific verification, unresolved gates, and one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`. Product must not call any workstream "done" or "executed" unless the required evidence exists for that lane; otherwise mark the missing gate as pending or blocked.
 
 ### ⚙️ FB-Tech (Technical Lead / Developer)
 *   **Ownership**: Database schemas, APIs, serverless functions, database security (e.g., RLS), configuration scripts, and unit/integration test suites.
@@ -36,12 +36,12 @@ To prevent context window overload and git collisions, strictly adhere to your a
 *   **Workflow**: Drafts proposed text directly in markdown documentation or inside `PROJECT_BOARD.md` entries, records target source locations for later BFM execution, and leaves a passive closeout note.
 
 ### 🧾 Passive Closeout Notes
-Every lane must leave a final informational closeout note in its thread when it stops work on a task. The note records task ID, status, delivered work, evidence, remaining gates, and the handoff path. It must not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane; `PROJECT_BOARD.md` and `docs/handoffs/` remain the trigger source.
+Every lane must leave a final informational closeout note in its thread when it stops work on a task. The note records task ID, status, delivered work, evidence, remaining gates, and the handoff path. Product/BFM closeouts also record one loop health flag. The note must not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane; `PROJECT_BOARD.md` and `docs/handoffs/` remain the trigger source.
 
 ### 🎯 Goal Alignment Session
-Use a Goal Alignment Session for non-trivial handoffs and sequencing work. Product/BFM owns one approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream OKR with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`, plus stable lane OKRs for Product, Tech, Design, and Business where those lanes are relevant. Keep every OKR plain enough for a Product Manager to skim and approve.
+Use a Goal Alignment Session for non-trivial handoffs and sequencing work. Product/BFM owns the approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream or BFM-target OKR with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`, plus stable lane OKRs for Product, Tech, Design, and Business where those lanes are relevant. Keep every OKR plain enough for a Product Manager to skim and approve.
 
-Worker lanes read the approved OKR tree first. Their mini-loops do not create new OKRs; they return evidence against the relevant lane OKR and the Product/workstream OKR. OKRs are added or changed only after Product/BFM explains the need in plain language and the user explicitly approves the change. Do not turn `TASK-Q-*` quick tasks into a new ceremony.
+Worker lanes read the approved OKR tree first. Their mini-loops do not create new OKRs; they return evidence against the relevant lane OKR and the Product/workstream OKR. Reuse or clarify the approved OKR instead of generating one per task. OKRs are added or changed only after Product/BFM explains the need in plain language and the user explicitly approves the change. Do not turn `TASK-Q-*` quick tasks into a new ceremony.
 
 Good objective example: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 
@@ -60,7 +60,9 @@ Evidence Against Product OKR: <evidence that weakens or blocks the approved Prod
 BFM blocks before execution when approval is missing, OKRs are unclear, or handoffs conflict with the approved OKR tree. If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the existing OKRs and recommends one. It must not add, change, or edit approved OKRs during execution.
 
 ### 🗂 Handoff Index
-`PROJECT_BOARD.md` stays the source of truth for current status, sequencing, ownership, and file locks. `docs/handoffs/index.md` is the first-read lookup table for handoff discovery. Read the index before opening detailed handoffs, then open only the files relevant to the active task unless Product/BFM is doing a full closeout audit.
+`PROJECT_BOARD.md` stays the source of truth for current status, sequencing, gates, ownership, and file locks. `docs/handoffs/index.md` is the first-read routing layer for handoff discovery. Detailed handoffs are the detail layer for plans, rationale, logs, full QA, copy variants, and implementation notes.
+
+Read or refresh the index before opening detailed handoffs, then open only the files relevant to the active task unless Product/BFM is doing a full closeout audit. Before non-quick Product/BFM sequencing, create or refresh the index when handoffs exist and the lookup layer is missing, stale, or too vague. The compact index columns are `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`. Do not put full OKRs, full QA checklists, plans, logs, rationale, copy variants, or implementation detail in the index.
 
 ### 🧱 Plan-Only Workstream Rule
 Workstream threads are read-only planning lanes by default. Product, Tech, Design, and Business may converse, ask questions, investigate, and write markdown plans or handoffs. They must not edit application/source code, create implementation branches, commit, submit, merge, deploy, or change provider state from ordinary workstream chat.
@@ -77,6 +79,8 @@ When the user says "run BFM" or "process all lane handoffs", Product/BFM must no
 - `explicitly deferred`
 
 That status must match `PROJECT_BOARD.md`, source files, docs, and test evidence. If they disagree, mark the disagreement as blocked, out of scope, or explicitly deferred before closeout.
+
+Product/BFM also records one loop health flag: `healthy` when the loop is safe, `watch` when a target miss is safe but worth noticing, `needs Product review` when sequencing or closeout safety may be affected, and `blocked` when work cannot proceed safely. Do not replace this with numeric loop scoring.
 
 Return checks for non-trivial handoff execution:
 1. After reading handoffs, return to `PROJECT_BOARD.md` and confirm every handoff is represented, sequenced, or deferred.

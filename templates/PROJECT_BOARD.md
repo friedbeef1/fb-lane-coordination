@@ -50,7 +50,7 @@
     *   *2026-06-14*: Scoped task and marked ready for execution.
 
 ### Goal Alignment Session (non-trivial tasks only)
-Use one stable Product/workstream OKR block per non-trivial task in the detail block above, with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Stable lane OKRs are standing Product, Tech, Design, and Business quality anchors. Product/BFM owns the OKR tree and records additions or changes only after discussion and explicit user approval. BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree.
+Use the approved Product/workstream or BFM-target OKR as the stable anchor, with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Stable lane OKRs are standing Product, Tech, Design, and Business quality anchors. Product/BFM owns the OKR tree and records additions or changes only after discussion and explicit user approval. Do not generate a fresh OKR for every task. BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree.
 
 Lane handoffs stay compact and use a real heading:
 
@@ -63,6 +63,12 @@ Evidence Against Product OKR: <evidence that weakens or blocks the approved Prod
 ```
 
 ### Handoff Index
-- `PROJECT_BOARD.md` stays the source of truth for current status, sequencing, ownership, and file locks.
-- `docs/handoffs/index.md` is the first-read lookup table for handoff discovery.
+- `PROJECT_BOARD.md` stays the source of truth for current status, sequencing, gates, ownership, and file locks.
+- `docs/handoffs/index.md` is the first-read routing table for handoff discovery.
+- Use compact index columns: `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`.
+- Product/BFM should create or refresh the index before non-quick sequencing when handoffs exist and the lookup layer is missing, stale, or too vague.
+- Do not put full OKRs, full QA checklists, plans, logs, rationale, copy variants, or implementation detail in the index.
 - Open detailed handoffs only when they are relevant to the active task or Product/BFM closeout.
+
+### Loop Health Flag
+At closeout, Product/BFM records one flag: `healthy`, `watch`, `needs Product review`, or `blocked`. Use this instead of numeric loop scoring.

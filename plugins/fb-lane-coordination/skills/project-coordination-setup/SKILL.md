@@ -11,8 +11,8 @@ description: >-
 ## Overview
 This skill instantiates the **Four-Lane Multi-Thread Coordination Model** in any software project directory (SaaS, backend API, mobile/web app, dev tool, etc.). It sets up the project board, updates configuration files safely, and registers specialized subagents to coordinate creative design, technical engineering, and product orchestration without context bleeding.
 
-For non-trivial tasks, the bootstrap must leave one approved OKR tree slot on the board: a Product/workstream OKR (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) plus stable lane OKRs where relevant. Handoffs use compact `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` fields. Product/BFM owns OKR reconciliation and changes OKRs only after discussion and explicit user approval. Bootstrap also creates `docs/handoffs/index.md` so agents discover handoffs through a small lookup table before opening detailed files.
-For BFM/all-handoff processing, Product must also leave the return loop: every handoff is `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`, and board/source/docs/tests agree before closeout.
+For non-trivial work, the bootstrap must leave an approved OKR tree slot on the board: a Product/workstream or BFM-target OKR (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) plus stable lane OKRs where relevant. Handoffs use compact `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` fields. Product/BFM owns OKR reconciliation and changes OKRs only after discussion and explicit user approval; do not generate a fresh OKR for every task. Bootstrap also creates `docs/handoffs/index.md` so agents discover handoffs through a compact routing table before opening detailed files; `PROJECT_BOARD.md` is truth, the index is routing, and detailed handoffs are detail.
+For BFM/all-handoff processing, Product must also leave the return loop: every handoff is `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`, board/source/docs/tests agree before closeout, and the closeout includes one health flag: `healthy`, `watch`, `needs Product review`, or `blocked`.
 
 ## Dependencies
 None.
@@ -105,9 +105,9 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 *       - [x] Subagents defined
 
 ### Goal Alignment Session (non-trivial tasks only)
-- Product/BFM owns one approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream OKR with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`, plus stable lane OKRs where relevant.
+- Product/BFM owns the approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream or BFM-target OKR with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`, plus stable lane OKRs where relevant.
 - Mini-loops produce evidence against existing lane OKRs; they do not create new OKRs.
-- OKRs are added or changed only after discussion and explicit user approval.
+- OKRs are added or changed only after discussion and explicit user approval. Do not generate a fresh OKR for every task.
 - Good: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 - Bad: `Objective: finish the feature.`
 - Lane handoffs stay compact and use a real heading:
@@ -123,10 +123,14 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 - Every processed handoff is marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
 - Product/BFM returns to board, handoffs, source/docs/tests, lane status, and git status before closeout.
 - Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded.
+- Add one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`; do not numeric-score the loop.
 
 ### Handoff Index
-- `PROJECT_BOARD.md` stays the source of truth for current status, sequencing, ownership, and file locks.
-- `docs/handoffs/index.md` is the first-read lookup table for handoff discovery.
+- `PROJECT_BOARD.md` stays the source of truth for current status, sequencing, gates, ownership, and file locks.
+- `docs/handoffs/index.md` is the first-read routing table for handoff discovery.
+- Use compact index columns: `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`.
+- Product/BFM should create or refresh the index before non-quick sequencing when handoffs exist and the lookup layer is missing, stale, or too vague.
+- Do not put full OKRs, full QA checklists, plans, logs, rationale, copy variants, or implementation detail in the index.
 - Open detailed handoffs only when they are relevant to the active task or Product/BFM closeout.
 ```
 

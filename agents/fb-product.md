@@ -40,11 +40,13 @@ Gate evidence is lane-specific. Tech needs named test/build/typecheck results. D
 
 For BFM or all-handoff processing, every handoff must also be marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`. Return to board, source, docs, tests, lane status, and git status before closeout.
 
+Add one loop health flag at closeout: `healthy`, `watch`, `needs Product review`, or `blocked`. Use this instead of numeric loop scoring.
+
 For non-trivial BFM work, the approved OKR tree lives in `PROJECT_BOARD.md`: Product/workstream OKR plus relevant lane OKRs. Block before execution when approval is missing, OKRs are unclear, a handoff implies an unapproved OKR change, or a handoff is blocked by OKR ambiguity. If work conflicts with approved OKRs, propose aligned alternatives for approach, scope, or sequence and recommend one; do not create or edit OKRs during execution.
 
 ## Passive closeout note
 
-When you finish scoping, reviewing, merging, or rejecting a workstream, leave one final informational note for future visitors to the Product thread. Format it as `Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane.
+When you finish scoping, reviewing, merging, or rejecting a workstream, leave one final informational note for future visitors to the Product thread. Format it as `Closeout note - <TASK-ID>: <status>. Health: <healthy|watch|needs Product review|blocked>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane.
 
 ## Merge & release (CLI)
 - Review the submitted branch and the task's `Staging QA` status on `PROJECT_BOARD.md`.

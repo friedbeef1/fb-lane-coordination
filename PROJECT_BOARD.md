@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-017 | In Progress | FB-Tech | Coordination | Harden progressive-disclosure handoff index semantics plus FB-Lane framework OKR and drift health guardrails | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `tools/fb-lane.test.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.test.cjs`, `AGENTS.md`, `.codex/rules.md`, `templates/*.md`, `skills/**`, `plugins/fb-lane-coordination/skills/**`, `agents/fb-product.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `platforms/codex/README.md`, `plugins/fb-lane-coordination/README.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-017.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | [Handoff](docs/handoffs/TASK-017.md) |
 | TASK-016 | Done | FB-Product | Codex Plugin | Add handoff index progressive-disclosure support to the Codex plugin | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/skills/**`, `templates/*.md`, `docs/**`, `README.md`, `FAQ.md`, `CHANGELOG.md` | [Handoff](docs/handoffs/TASK-016.md) |
 | TASK-Q-20260627223437 | Done | FB-Product | Documentation | Document FB-Lane evals as lightweight agent-behavior scorecards | `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `plugins/fb-lane-coordination/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | `codex/evals-docs` |
 | TASK-015 | Done | FB-Product | Coordination | Make workstream threads read-only planning lanes and gate source changes through Product-launched BFM execution | `AGENTS.md`, `CLAUDE.md`, `.codex/rules.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `templates/*.md`, `skills/**/*.md`, `agents/**`, `.claude/agents/**`, `plugins/fb-lane-coordination/**`, `tools/fb-lane.cjs` | [PR #29](https://github.com/friedbeef1/fb-lane-coordination/pull/29) |
@@ -34,6 +35,52 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-017 - Generic progressive disclosure hardening
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Tech
+*   **Area**: Coordination
+*   **Scope**: Harden the generic handoff-index progressive-disclosure contract so future projects inherit `PROJECT_BOARD.md` as truth, `docs/handoffs/index.md` as routing, detailed handoffs as evidence/detail, one FB-Lane framework OKR, and lightweight Product/BFM loop health flags.
+*   **Out of Scope**: Live deploys, plugin publish/reinstall, hard-blocking `submit`, requiring this for `TASK-Q-*` quick tasks, or silently creating missing handoff index files from `doctor`.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make future FB-Lane projects route through compact handoff indexes without weakening board-based sequencing.
+    *   **Key Results**:
+        *   Bootstrap templates and generated CLI output use compact index columns: Task / Topic, Lane, Status, Depends / Blocks / Gate, Checks / Evidence, Detail.
+        *   `doctor` remains read-only and warns when the handoff index is missing or old-style without dependency/gate columns.
+        *   Product/BFM guidance creates or refreshes the index before non-quick sequencing when handoffs exist and lookup state is missing, stale, or too vague.
+        *   Product/BFM guidance uses `healthy`, `watch`, `needs Product review`, and `blocked` health flags instead of per-task OKRs or numeric loop scoring.
+    *   **Definition of Done**: Root and packaged CLI copies match, docs/templates/skills/package copies carry the board/index/handoff contract, relevant checks pass, and remaining risks are named.
+    *   **Gate / Review Point**: User reviews the unstaged diff and validation output.
+    *   **Approval**: approved
+    *   **Justification**: The user explicitly assigned Worker B to implement generic FB-Lane plugin/source hardening for future projects.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Documentation, generated bootstrap output, generated Product agent prompts, and CLI diagnostics only
+    *   **Locked Files**: `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `tools/fb-lane.test.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.test.cjs`, `AGENTS.md`, `.codex/rules.md`, `templates/*.md`, `skills/**`, `plugins/fb-lane-coordination/skills/**`, `agents/fb-product.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `platforms/codex/README.md`, `plugins/fb-lane-coordination/README.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-017.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/okf-lite-handoff-index`
+    *   **Handoff**: [TASK-017](docs/handoffs/TASK-017.md)
+*   **QA Checklist**:
+    *   [x] Root and packaged CLI syntax checks pass.
+    *   [x] Root/package CLI parity passes.
+    *   [x] Regression tests pass; full validator reaches `doctor` and then fails only on expected dirty-worktree state.
+    *   [x] `doctor` remains read-only and reports only expected local dirty-state warnings.
+    *   [x] `git diff --check` passes.
+*   **Modified Files**:
+    *   `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`
+    *   `tools/fb-lane.test.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.test.cjs`
+    *   `AGENTS.md`, `.codex/rules.md`, `CLAUDE.md`, `templates/AGENTS.md`, `templates/CLAUDE.md`, `templates/PROJECT_BOARD.md`
+    *   `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `plugins/fb-lane-coordination/README.md`
+    *   `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `plugins/fb-lane-coordination/skills/bfm/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`, `plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md`
+    *   `agents/FB-Product/agent.json`, `plugins/fb-lane-coordination/agents/FB-Product/agent.json`
+    *   `agents/fb-product.md`
+    *   `docs/handoffs/index.md`, `docs/handoffs/TASK-017.md`, `PROJECT_BOARD.md`
+*   **Latest Update**:
+    *   *2026-06-28*: Worker B claimed the generic progressive-disclosure hardening slice on the existing handoff-index branch.
+    *   *2026-06-28*: Implemented the board/index/detail hardening across CLI bootstrap output, packaged plugin copies, templates, docs, Product/BFM skills, and Product prompt artifacts. Syntax, parity, regression tests, `doctor`, and `git diff --check` passed; `node tools/fb-lane.validate.cjs` failed only because the validator expects `doctor` to report `Ready` on a clean worktree.
+    *   *2026-06-28*: Added the FB-Lane framework OKR, directional health flags (`healthy`, `watch`, `needs Product review`, `blocked`), and anti-bloat guidance that replaces per-task OKRs, numeric scoring, giant `doctor` behavior, second-board indexes, and quick-task ceremony. Syntax, parity, JSON parse, regression tests, stale-wording scan, `doctor`, and `git diff --check` passed; `node tools/fb-lane.validate.cjs` still fails only on the expected dirty-worktree doctor gate.
+
 
 ---
 
@@ -594,7 +641,7 @@
 *   **Status**: Done
 *   **Owner / Thread**: FB-Product
 *   **Area**: Coordination
-*   **Scope**: Add a canonical Working Goal loop to non-trivial FB-Lane tasks, keep lane handoffs lightweight, and make BFM reconcile goal drift before sequencing execution.
+*   **Scope**: Add canonical Goal Alignment to non-trivial FB-Lane work, keep lane handoffs lightweight, and make BFM reconcile goal drift before sequencing execution.
 *   **Out of Scope**: Hard-blocking `submit`, changing quick-task behavior, or creating a standalone goal-management framework.
 *   **Goal Alignment Session**:
     *   **Objective**: Make non-trivial FB-Lane handoffs preserve a clear Product/BFM-owned OKR while preserving lane caveats and evidence.
@@ -653,7 +700,7 @@
     *   `PROJECT_BOARD.md`
 *   **Latest Update**:
     *   *2026-06-25*: Product claimed the goal-alignment loop implementation and locked the skill, bootstrap, CLI, and handoff files.
-    *   *2026-06-25*: Implemented lightweight Goal Alignment guidance, BFM reconciliation, generated/static bootstrap updates, doctor warnings, metadata bump, and handoff evidence; final review passed after fixes requiring real `## Goal Alignment` handoff headings, worker handoff-only goal feedback, full board-block wording (`Working Goal`, `Definition of Done`, `Gate / Review Point`), and doctor warnings for wrong heading levels.
+    *   *2026-06-25*: Implemented lightweight Goal Alignment guidance, BFM reconciliation, generated/static bootstrap updates, doctor warnings, metadata bump, and handoff evidence; final review passed after fixes requiring real `## Goal Alignment` handoff headings, worker handoff-only goal feedback, full board-block wording (`Objective`, `Definition of Done`, `Gate / Review Point`), and doctor warnings for wrong heading levels.
     *   *2026-06-25*: Addressed final review gaps in the manual board template and quickstart entrypoint.
     *   *2026-06-25*: Backfilled legacy TASK-002/TASK-003 handoffs and completed setup skill example alignment so `doctor` can stay warning-clean.
     *   *2026-06-25*: Tightened generated prompts so Product/BFM owns board goal updates and worker lanes report goal feedback only in handoffs.
@@ -669,8 +716,8 @@
 *   **Scope**: Stop running `git` through a shell in `fb-lane.cjs`, and validate task IDs and lane names so attacker-controlled values (including MCP tool arguments) can no longer inject commands.
 *   **Out of Scope**: Changing the coordination model, lane boundaries, or board protocol.
 *   **Goal Alignment**:
-    *   **Working Goal**: Remove the command-injection surface in the CLI without changing legitimate behavior.
-    *   **Success Measure**: `git` runs with no shell, untrusted values are validated, and a regression suite proves shell metacharacters are inert.
+    *   **Objective**: Remove the command-injection surface in the CLI without changing legitimate behavior.
+    *   **Definition of Done**: `git` runs with no shell, untrusted values are validated, and a regression suite proves shell metacharacters are inert.
     *   **Gate / Review Point**: CLI syntax check, regression tests, and source/packaged CLI parity pass before merge.
 *   **Affected Screens / Locks**:
     *   **Screens**: CLI behavior only

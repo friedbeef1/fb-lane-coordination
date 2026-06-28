@@ -37,10 +37,17 @@ Source changes happen only inside a Product-launched BFM execution run.
 
 ## Handoff Index
 
-`PROJECT_BOARD.md` stays the source of truth for status, sequencing, ownership,
-and file locks. Read `docs/handoffs/index.md` before opening detailed handoffs,
-then open only the files relevant to the active task unless Product/BFM is doing
-a full closeout audit.
+`PROJECT_BOARD.md` stays the source of truth for status, sequencing, gates,
+ownership, and file locks. `docs/handoffs/index.md` is routing, and detailed
+handoffs are detail.
+
+Read or refresh the index before opening detailed handoffs, then open only the
+files relevant to the active task unless Product/BFM is doing a full closeout
+audit. Before non-quick Product/BFM sequencing, create or refresh the index when
+handoffs exist and the lookup is missing, stale, or too vague. Use compact
+columns: `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`,
+`Checks / Evidence`, and `Detail`. Do not put full OKRs, full QA checklists,
+plans, logs, rationale, copy variants, or implementation detail in the index.
 
 ## Starting a Session
 
@@ -51,9 +58,9 @@ a full closeout audit.
 
 ## Goal Alignment Session
 
-Use a Goal Alignment Session for non-trivial handoffs and sequencing work only. Product/BFM owns one approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream OKR with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`, plus stable lane OKRs where relevant.
+Use a Goal Alignment Session for non-trivial handoffs and sequencing work only. Product/BFM owns the approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream or BFM-target OKR with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`, plus stable lane OKRs where relevant.
 
-Worker lanes read the approved OKR tree first. Mini-loops do not create new OKRs; they return evidence against the lane OKR and the Product/workstream OKR. Product/BFM may propose an OKR addition or change only when the current OKRs are missing, stale, or blocking clarity, and must stop for explicit user approval before applying it.
+Worker lanes read the approved OKR tree first. Mini-loops do not create new OKRs; they return evidence against the lane OKR and the Product/workstream OKR. Product/BFM may propose an OKR addition or change only when the current OKRs are missing, stale, or blocking clarity, and must stop for explicit user approval before applying it. Do not generate a fresh OKR for every task.
 
 - Good: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 - Bad: `Objective: finish the feature.`
@@ -82,7 +89,7 @@ Return to:
 - Lane status after board/doc updates.
 - `git status` after commit/push.
 
-Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded.
+Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded. Add one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`; do not numeric-score the loop.
 
 ## CLI Tool
 

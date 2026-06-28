@@ -43,6 +43,28 @@ FB-Lane evals are lightweight behavior checks for the agents themselves. They
 answer: did Product/BFM run the loop correctly? Keep them as Markdown
 scorecards until repeated failures justify automation.
 
+## FB-Lane Framework OKR
+
+This is the framework north star, not a project ritual.
+
+**Objective:** Help Product Leads run multi-agent work without losing alignment
+between goals, evidence, board state, and repo truth.
+
+**Directional Key Results:**
+
+- Reduce serious coordination startup context by roughly 60-70% when it is safe
+  to do so, while preserving blockers, gates, and dependencies.
+- Account for every non-quick BFM handoff at closeout as `implemented`,
+  `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+- Keep new bootstrapped projects on the simple contract:
+  `PROJECT_BOARD.md` is truth, `docs/handoffs/index.md` is routing, and detailed
+  handoffs are detail.
+
+**Definition of Done:** FB-Lane docs, skills, bootstrap templates, `doctor`, and
+Product/BFM closeout guidance all support the return loop without per-task OKR
+generation, numeric loop scoring, a giant `doctor`, a second-board handoff
+index, or quick-task ceremony.
+
 ## The Core Loop
 
 ```mermaid
@@ -78,6 +100,10 @@ Alignment Session**:
 After approval, BFM changes approach, scope, or sequence to fit the OKRs. It does
 not dynamically create or rewrite OKRs during execution; any OKR change requires
 discussion and explicit user approval.
+
+Directional targets are not hard pass/fail numbers. Product/BFM uses a loop
+health flag at closeout: `healthy`, `watch`, `needs Product review`, or
+`blocked`.
 
 ## Plan-Only Workstreams
 
@@ -122,14 +148,14 @@ or tests say otherwise.
 | Stable lane OKRs | Standing Tech, Design, Business, and Product quality anchors |
 | Role clarity | FB-Product, FB-Tech, FB-Design, and FB-Business lanes |
 | Collision control | File claims and optional worktrees |
-| Cheap context lookup | `docs/handoffs/index.md` before detailed handoff files |
+| Cheap context lookup | `docs/handoffs/index.md` routes to detailed handoff files |
 | Durable plan/handoff | `docs/handoffs/<task-id>.md` or project plan markdown |
 | Evidence return | `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` |
 | Health check | `node tools/fb-lane.cjs doctor` |
 | Agent behavior evals | Optional Markdown scorecards for repeated loop failures |
 | Execution gate | Product-launched BFM run |
 | Integration | BFM/Product reconciliation before sequencing or merge |
-| Closeout | Explicit status: implemented, already done, blocked, out of scope, or explicitly deferred |
+| Closeout | Explicit status plus loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked` |
 
 ## Roles Inside The Loop
 
@@ -184,6 +210,13 @@ Run from a project root that has been bootstrapped with FB-Lane:
 | `node tools/fb-lane.cjs submit <id> [staging_url]` | Submit work for Product/Captain review. |
 | `node tools/fb-lane.cjs merge <id>` | Product/Captain merge path after review. |
 | `node tools/fb-lane.cjs bootstrap` | Manual setup path. See [docs/setup.md](docs/setup.md). |
+
+The board/index/handoff split is deliberate: `PROJECT_BOARD.md` is truth for
+status, sequencing, gates, ownership, and locks; `docs/handoffs/index.md` is
+routing; detailed handoffs are detail. The index should stay compact with
+`Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`,
+`Checks / Evidence`, and `Detail`. Keep full OKRs, QA checklists, plans, logs,
+rationale, copy variants, and implementation detail in detailed handoffs.
 
 ## Codex Plugin Upgrade
 

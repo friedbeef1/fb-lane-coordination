@@ -33,6 +33,17 @@ Loop Engineering is the practice of keeping five things aligned:
 
 Read the full model in [docs/loop-engineering.md](docs/loop-engineering.md).
 
+## Does FB-Lane have its own OKR?
+
+Yes. The framework OKR is the north star: help Product Leads run multi-agent
+work without losing alignment between goals, evidence, board state, and repo
+truth.
+
+The numbers are directional. If a context-saving target is missed but the work
+is still safe, Product/BFM flags `watch`. If the miss can affect sequencing,
+scope, or closeout safety, Product/BFM flags `needs Product review` or
+`blocked`.
+
 ## Is FB-Lane CI/CD?
 
 No. FB-Lane is a coordination loop. It has CI readiness evidence for Product/BFM
@@ -100,6 +111,10 @@ Product/workstream OKR. It should not silently rewrite the approved OKR or
 dynamically create a new one during execution. OKRs are added or changed only
 after discussion and explicit user approval.
 
+Do not generate a fresh OKR for every task. Reuse or clarify the approved
+Product/workstream or BFM-target OKR, and let tasks report fit, caveats, and
+evidence.
+
 ## What does `doctor` check?
 
 `doctor` is read-only:
@@ -116,11 +131,22 @@ Goal Alignment Session OKRs, and handoffs that imply unapproved OKR changes.
 In v1 it warns. It does not change `submit` behavior and does not hard-block
 quick `TASK-Q-*` work.
 
+It should not become a giant rule engine. Use `doctor` for obvious missing or
+stale structure; use Product/BFM judgment for loop health.
+
 ## Why is there a handoff index?
 
 To avoid token waste. `PROJECT_BOARD.md` stays the source of truth. The index is
-just a cheap lookup table so agents can find the one or two relevant handoffs
+a compact routing layer so agents can find the one or two relevant handoffs
 without reading every historical closeout.
+
+The index is routing, not detail. Use compact columns: `Task / Topic`, `Lane`,
+`Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`. Keep
+full OKRs, QA checklists, plans, logs, rationale, copy variants, and
+implementation detail in the detailed handoff files.
+
+If the index starts duplicating the board, it is wrong. The board is truth; the
+index is lookup.
 
 ## Are the lanes mandatory?
 

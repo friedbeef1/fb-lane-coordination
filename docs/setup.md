@@ -41,7 +41,7 @@ What bootstrap creates:
 - lane boundary rules in `AGENTS.md`
 - local Codex rules in `.codex/rules.md`
 - Claude configuration in `CLAUDE.md`
-- handoff lookup in `docs/handoffs/index.md`
+- handoff routing index in `docs/handoffs/index.md`
 - MCP configuration where supported
 - lane agent definitions where supported
 
@@ -96,4 +96,5 @@ node tools/fb-lane.cjs quick Tech "src/utils.ts" "Fix db indexing"
 ```
 
 Quick tasks skip the OKR approval gate; they do not bypass the BFM source-change
-boundary.
+boundary. Do not create per-task OKRs or loop health scoring for `TASK-Q-*`
+work.

@@ -28,6 +28,28 @@ No closeout until goal, work, evidence, board state, and repo truth agree,
 or every disagreement is explicitly marked blocked, out of scope, or deferred.
 ```
 
+## FB-Lane Framework OKR
+
+This OKR governs FB-Lane itself. It is not copied into every project as
+ceremony.
+
+**Objective:** Help Product Leads run multi-agent work without losing alignment
+between goals, evidence, board state, and repo truth.
+
+**Directional Key Results:**
+
+- Reduce serious coordination startup context by roughly 60-70% when safe,
+  while preserving blockers, gates, and dependencies.
+- Account for every non-quick BFM handoff at closeout as `implemented`,
+  `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+- Keep bootstrapped projects on the simple contract: board is truth, handoff
+  index is routing, detailed handoffs are detail.
+
+**Definition of Done:** Docs, skills, templates, `doctor`, and Product/BFM
+closeout guidance support the return loop without per-task OKR generation,
+numeric loop scoring, a giant `doctor`, a second-board handoff index, or
+quick-task ceremony.
+
 ## The Operating Loop
 
 ```mermaid
@@ -84,6 +106,8 @@ Rules:
 - `TASK-Q-*` quick tasks are exempt from the approval gate.
 - Product/workstream OKRs are the top-level outcome.
 - Lane OKRs are stable lane-specific contributions to that outcome.
+- Reuse or clarify the approved workstream/BFM-target OKR. Do not generate a
+  fresh OKR for every task.
 - Mini-loops produce evidence against lane OKRs; they do not create new OKRs.
 - BFM stops before execution when approval is missing, OKRs are unclear, or a
   handoff conflicts with the approved OKR tree.
@@ -185,8 +209,10 @@ Use progressive disclosure:
 1. Read `PROJECT_BOARD.md` for current task state, ownership, sequencing, and locks.
 2. Read `docs/handoffs/index.md` to find the target handoffs.
 3. Open only the detailed handoffs relevant to the target, unless Product/BFM is doing a full closeout audit.
+4. Before non-quick sequencing, create or refresh `docs/handoffs/index.md` when handoffs exist and the lookup layer is missing, stale, or too vague.
+5. Keep the index compact with `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`. Keep full OKRs, QA checklists, plans, logs, rationale, copy variants, and implementation detail in the detailed handoffs.
 
-The index is not a second board. It is a cheap lookup table so agents do not
+The index is not a second board. It is a compact routing layer so agents do not
 burn context reading every historical handoff.
 
 BFM must not close until every discovered handoff has one explicit status:
@@ -222,7 +248,8 @@ non-quick work has the expected loop state. It can warn about issues such as:
 
 - missing board or rules files
 - missing handoff directory
-- missing `docs/handoffs/index.md` once the project has enough handoffs to need one
+- missing `docs/handoffs/index.md` when non-quick handoffs exist
+- old-style `docs/handoffs/index.md` files that lack the dependency/gate or evidence columns
 - active locks with unclear state
 - non-quick handoffs missing `Lane OKR Fit`, `Mini-loop Evidence`, or `Evidence Against Product OKR`
 - non-quick BFM targets with missing or unapproved Goal Alignment Session OKRs
@@ -231,6 +258,19 @@ non-quick work has the expected loop state. It can warn about issues such as:
 
 In v1, `doctor` is advisory. It warns so Product can correct drift without
 turning every mismatch into a hard block.
+
+## Loop Health Flags
+
+Directional targets do not need exact numeric pass/fail scoring. Product/BFM
+adds one closeout health flag:
+
+- `healthy`: the loop met the target or missed it without added safety risk.
+- `watch`: the loop was safe, but Product should notice a trend or small miss.
+- `needs Product review`: the miss may affect sequencing, scope, or closeout.
+- `blocked`: the run cannot proceed safely.
+
+Stop only when drift can cause wrong work: unclear OKRs, stale board/index,
+missing handoff status, missing evidence, or source/docs/tests disagree.
 
 ## CI Readiness
 

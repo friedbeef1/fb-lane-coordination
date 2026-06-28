@@ -8,7 +8,7 @@ This project uses the FB-Lane Four-Lane Coordination Model.
 2. Read `.codex/current_task.md` if it exists — it contains your task ID, branch, and locked files. Follow it exactly.
 3. Confirm your active branch matches the task. If not, stop and notify the user.
 4. Never modify files that are locked by another active task.
-5. For handoff discovery, read `docs/handoffs/index.md` first and open only the relevant detailed handoff files.
+5. For handoff discovery, read `docs/handoffs/index.md` first and open only the relevant detailed handoff files. If non-quick handoffs exist and the index is missing, stale, or too vague, Product/BFM should create or refresh the compact lookup before sequencing.
 
 ### Lane boundaries
 - **FB-Tech**: backend, APIs, schemas, tests only. Never touch CSS or layout.
@@ -18,16 +18,17 @@ This project uses the FB-Lane Four-Lane Coordination Model.
 - **All workstreams**: plan-only by default. They may ask questions, investigate, and write markdown plans/handoffs. Source changes happen only inside a Product-launched BFM execution run.
 
 ### Goal Alignment Session
-- For non-trivial tasks, FB-Product/BFM owns one approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream OKR plus stable lane OKRs where relevant.
+- For non-trivial work, FB-Product/BFM owns the approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant.
 - BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree.
 - If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the existing OKR tree and recommends one; it does not dynamically create or edit OKRs during execution.
 - Lane handoffs include `## Goal Alignment Session`, `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`.
-- Skip this ceremony for `TASK-Q-*` quick tasks.
+- Reuse or clarify approved OKRs; do not generate one per task. Skip this ceremony for `TASK-Q-*` quick tasks.
 
 ### BFM return loop
 - When processing all lane handoffs, Product/BFM must mark every handoff `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
 - Return to `PROJECT_BOARD.md` after reading handoffs, to each handoff after coding, to source/docs/board after tests, to lane status after board/doc updates, and to `git status` after commit/push.
 - Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded.
+- Add one loop health flag at closeout: `healthy`, `watch`, `needs Product review`, or `blocked`. Do not numeric-score the loop.
 
 ### CLI commands (run from project root)
 - `node tools/fb-lane.cjs status` — view all tasks and locks
