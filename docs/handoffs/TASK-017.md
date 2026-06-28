@@ -33,6 +33,7 @@ Harden FB-Lane progressive disclosure so bootstrapped projects keep:
 - Add the awareness/isolation/integration rule: board plus handoff index create shared awareness, branches/worktrees isolate execution, and BFM integrates outcomes.
 - Make clear that worktrees do not replace coordination: no private-worktree disappearance, huge unannounced diff, source edits without board/lock awareness, or closeout without BFM reconciliation when multiple outputs exist.
 - Require closeout to name whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
+- Require closeout to name external-service test mode, created records/resources, cleanup evidence, or a pending cleanup gate when checks touch real providers.
 
 ## Verification
 

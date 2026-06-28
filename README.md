@@ -237,6 +237,8 @@ Before source execution, read board/status/locks and the relevant handoff index.
 During isolated work, name the task, branch/worktree, lane, and locked files in
 the handoff or board update. At closeout, report whether the branch/worktree is
 clean, merged, stale, blocked, or intentionally left open.
+If checks touched external services, also name test mode, created records or
+resources, cleanup evidence, or the pending cleanup gate.
 
 ## Codex Plugin Upgrade
 

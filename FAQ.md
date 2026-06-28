@@ -109,6 +109,9 @@ Before source execution, the worker reads board/status/locks plus the relevant
 handoff index. During isolated work, it names the task, branch/worktree, lane,
 and locked files. At closeout, it reports whether the branch/worktree is clean,
 merged, stale, blocked, or intentionally left open.
+If checks touched a real provider, database, payment system, email system, or
+analytics workspace, the same closeout names test mode, created records or
+resources, cleanup evidence, or the pending cleanup gate.
 
 ## What does Product approve?
 

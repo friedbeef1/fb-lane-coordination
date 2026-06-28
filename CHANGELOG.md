@@ -7,6 +7,9 @@
   handoff index provide shared awareness, branches/worktrees isolate execution,
   and BFM integrates outcomes; worktrees no longer read as a replacement for
   board/lock awareness or BFM reconciliation.
+- Cleanup: closeouts now include external-service test state when checks create
+  provider records/resources: test mode, cleanup evidence, or a pending cleanup
+  gate.
 - Docs/plugin guidance: added the objective mode-selection trigger rule. Agents
   now default to normal/simple coding unless the objective triggers FB-Lane
   light or Product/BFM through coordination files, lane/board/handoff mentions,

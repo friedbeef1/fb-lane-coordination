@@ -114,7 +114,7 @@ Return to:
 - Lane status after board/doc updates.
 - `git status` after commit/push, plus branch/worktree state.
 
-Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded. Report whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open. Add one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`; do not numeric-score the loop.
+Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded. Report whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open. If checks touched external services, also report test mode, created records/resources, cleanup evidence, or the pending cleanup gate. Add one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`; do not numeric-score the loop.
 
 ## CLI Tool
 

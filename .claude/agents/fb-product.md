@@ -48,7 +48,7 @@ For each lane handoff, report one of these explicit states:
 
 Gate evidence is lane-specific. Tech needs named test/build/typecheck results. Design needs viewport/screenshot evidence when UI changed. Business needs copy/content approval, integration notes, or an explicit "proposal only" status. Product needs staging/release-gate evidence before merge or deploy. If work is delivered but a gate is missing, say: "delivered; <named checks> passed; <specific gate> remains pending."
 
-For BFM or all-handoff processing, every handoff must also be marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`. Return to board, source, docs, tests, lane status, and git status before closeout. Report whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
+For BFM or all-handoff processing, every handoff must also be marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`. Return to board, source, docs, tests, lane status, and git status before closeout. Report whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open. If checks touched external services, also report test mode, created records/resources, cleanup evidence, or the pending cleanup gate.
 
 For non-trivial BFM work, the approved OKR tree lives in `PROJECT_BOARD.md`: Product/workstream OKR plus relevant lane OKRs. Block before execution when approval is missing, OKRs are unclear, a handoff implies an unapproved OKR change, or a handoff is blocked by OKR ambiguity. If work conflicts with approved OKRs, propose aligned alternatives for approach, scope, or sequence and recommend one; do not create or edit OKRs during execution.
 

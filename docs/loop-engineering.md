@@ -355,6 +355,7 @@ A good closeout names:
 - board updates
 - remaining gates
 - branch/worktree state: clean, merged, stale, blocked, or intentionally left open
+- external-service cleanup: test mode, created records/resources, cleanup evidence, or pending gate
 
 Passive closeout note shape:
 

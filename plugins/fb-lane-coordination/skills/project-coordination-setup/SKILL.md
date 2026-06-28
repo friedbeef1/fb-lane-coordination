@@ -62,7 +62,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 - **Plan First / BFM Claim & Lock**: Product scopes the item; workstreams write markdown plans or handoffs instead of editing source. BFM execution workers claim task/files in `PROJECT_BOARD.md` only after Product launches execution. For non-trivial tasks, Product reads existing approved OKRs first, proposes only missing Product/workstream or lane OKRs needed for clarity, and records or changes them only after the user explicitly approves before execution moves to `In Progress` with declared Affected Screens and Locked Files.
 - **Push & QA**: When complete, BFM execution workers push feature branches (e.g. `bfm/[task]`, `tech/[task]`, or `design/[task]`), update board status to `Staging QA`, and list modified files/QA checks.
 - **Isolated Execution Naming**: Before source execution, workers read board/status/locks and the relevant handoff index. During isolated work, they name the task, branch/worktree, lane, and locked files.
-- **Handoff, Unlock & Clean**: Product reviews staging, reconciles `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` from lane handoffs, proposes aligned alternatives when work conflicts with approved OKRs, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. Closeout names whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
+- **Handoff, Unlock & Clean**: Product reviews staging, reconciles `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` from lane handoffs, proposes aligned alternatives when work conflicts with approved OKRs, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. Closeout names whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open, plus external-service cleanup evidence when tests created provider records/resources.
 
 ### 3. Safety & Git Hygiene
 - **Never commit directly to main**. All work goes through feature branches.
@@ -132,7 +132,7 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 ### BFM Return Loop
 - Every processed handoff is marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
 - Product/BFM returns to board, handoffs, source/docs/tests, lane status, and git status before closeout.
-- Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded. Name whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
+- Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded. Name whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open. If checks touched external services, also name test mode, created records/resources, cleanup evidence, or the pending cleanup gate.
 - Add one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`; do not numeric-score the loop.
 
 ### Handoff Index

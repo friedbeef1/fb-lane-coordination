@@ -31,6 +31,11 @@ private worktree should produce a huge unannounced diff, edit source without
 board/lock awareness, or close without BFM reconciliation when multiple outputs
 exist.
 
+Regular cleanup includes external test state: if checks touch a real provider,
+database, payment system, email system, or analytics workspace, closeout names
+test mode, created records/resources, cleanup evidence, or the pending cleanup
+gate.
+
 Treat FB-Lane as an optional coordination protocol, not as the thing that makes Codex parallel.
 Default to normal/simple coding for single-thread work, simple fixes, read-only questions, code
 explanations, isolated edits, or independent work where Codex worktrees are enough.
