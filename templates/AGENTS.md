@@ -9,6 +9,17 @@ Instead of trying to discuss pricing copy, fix a backend bug, and tweak a UI but
 
 ---
 
+## 0. Mode Selection Trigger Rule
+
+Default to normal/simple coding when the request is one-thread and has no listed coordination trigger. Do not create board noise for read-only questions, code explanations, tiny fixes, or isolated edits.
+
+Escalate only when the objective itself triggers coordination:
+
+- **FB-Lane light**: use the board/locks and keep the task lightweight when the request mentions handoffs, board items, lanes, Product, Design, Business, BFM, `PROJECT_BOARD.md`, `docs/handoffs/`, `.codex/current_task.md`, board-locked files, multiple threads/agents/workstreams, or durable context that must survive chat loss.
+- **Product/BFM**: route through Product/BFM when the request requires deciding what to build, sequence, defer, approve, merge, release, stage, or launch; crosses pricing, payments, trials, subscriptions, promo codes, auth, privacy, analytics, secrets, deploy, staging, or live gates; touches camera/capture/save/export or another core product flow; or needs multiple lane outputs reconciled before source changes.
+
+Quick tasks stay quick: if a trigger is present but the work is narrow and non-release-critical, read the current board/locks, claim or note only the exact files needed, and avoid Goal Alignment or handoff ceremony unless another lane or Product must continue it.
+
 ## 1. Lane Scopes & Boundaries
 
 To prevent context window overload and git collisions, strictly adhere to your assigned lane:

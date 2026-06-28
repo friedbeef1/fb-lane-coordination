@@ -24,9 +24,18 @@ compact with `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`,
 `Checks / Evidence`, and `Detail`.
 
 Treat FB-Lane as an optional coordination protocol, not as the thing that makes Codex parallel.
-Skip it for single-thread work, simple fixes, read-only questions, or independent work where Codex
-worktrees are enough. Use it when parallel Codex work needs shared ownership, markdown
-handoffs, BFM execution claims, or Product/Captain sequencing.
+Default to normal/simple coding for single-thread work, simple fixes, read-only questions, code
+explanations, isolated edits, or independent work where Codex worktrees are enough.
+
+Use FB-Lane light when the objective mentions handoffs, board items, lanes, BFM, Product, Design,
+Business, coordination files, board-locked files, multiple threads/agents/workstreams, or durable
+context. Keep quick tasks lightweight: read the board/locks and avoid extra handoff or OKR ceremony
+unless another lane or Product must continue it.
+
+Escalate to Product/BFM when the work requires deciding what to build, sequence, defer, approve,
+merge, release, stage, or launch; crosses pricing, payments, trials, subscriptions, promo codes,
+auth, privacy, analytics, secrets, deploy, staging, or live gates; touches camera/capture/save/export
+or another core product flow; or needs multiple lane outputs reconciled before source changes.
 
 ## Install
 

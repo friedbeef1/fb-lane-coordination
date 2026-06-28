@@ -10,6 +10,21 @@
 This project uses the **FB-Lane Four-Lane Coordination Model**.
 The source of truth for all active tasks and file locks is `PROJECT_BOARD.md` in the project root.
 
+## Mode Selection
+
+Default to normal/simple coding for one-thread work with no listed coordination
+trigger. Escalate only when the objective mentions handoffs, board
+items, lanes, Product, Design, Business, BFM, coordination files, board-locked
+files, multiple threads/agents/workstreams, durable context,
+pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets,
+deploy/staging/live, camera/capture/save/export or another core product flow, or
+decisions to build, sequence, defer, approve, merge, or release.
+
+Use **FB-Lane light** for narrow triggered work: read the board/locks, keep the
+task lightweight, and avoid extra ceremony. Use **Product/BFM** when sequencing,
+approval, merge/release, provider/security/payment gates, core UX, or multiple
+lane outputs must be reconciled before source changes.
+
 ## Your Lane
 
 When you are invoked in a lane thread, you will be told your lane at the top of the conversation (e.g. `You are FB-Tech`). Operate strictly within your lane's boundaries:

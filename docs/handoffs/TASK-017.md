@@ -28,12 +28,15 @@ Harden FB-Lane progressive disclosure so bootstrapped projects keep:
 - Use directional Key Results and Product/BFM health flags instead of brittle numeric scoring.
 - Product/BFM closeout health flags are `healthy`, `watch`, `needs Product review`, and `blocked`.
 - Explicitly avoid per-task OKR generation, giant `doctor` behavior, second-board handoff indexes, and quick-task ceremony.
+- Add objective mode selection so future agents default to normal/simple coding unless coordination, Product/BFM, security/payment/release, core product flow, lock, multi-thread, or durable-context triggers appear.
+- Clarify the escalation ladder: normal/simple coding, FB-Lane light, then Product/BFM.
 
 ## Verification
 
 - `node --check tools/fb-lane.cjs`
 - `node --check plugins/fb-lane-coordination/tools/fb-lane.cjs`
 - Root/package parity: `tools/fb-lane.cjs`, `tools/fb-lane.test.cjs`, and `agents/FB-Product/agent.json`
+- Root/package parity: mirrored skills and agent/template instruction files
 - `node tools/fb-lane.test.cjs` -> 15 checks passed
 - Product agent JSON and plugin manifests parse
 - Stale wording scan for per-task OKRs, old Goal/Success terms, and hard numeric scoring -> no matches

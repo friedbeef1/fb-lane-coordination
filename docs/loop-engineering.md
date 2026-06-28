@@ -133,6 +133,26 @@ that run, BFM reads the approved plans, sequences work, claims files, dispatches
 implementation workers, verifies evidence, and returns to board/docs/source/git
 state before closeout.
 
+## Mode Selection
+
+Default to normal/simple coding when the request is one-thread and has no listed
+coordination trigger. Do not create board noise for read-only questions,
+code explanations, tiny fixes, isolated edits, or independent experiments where
+native worktrees are enough.
+
+Use FB-Lane light when the objective mentions handoffs, board items, lanes, BFM,
+Product, Design, Business, coordination files such as `PROJECT_BOARD.md` or
+`docs/handoffs/`, board-locked files, multiple threads/agents/workstreams, or
+durable context that must survive chat loss. Read the board/locks, keep the
+scope narrow, and skip Goal Alignment or handoff ceremony unless another lane or
+Product must continue the work.
+
+Escalate to Product/BFM when the work requires deciding what to build, sequence,
+defer, approve, merge, release, stage, or launch; crosses
+pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets,
+deploy/staging/live gates; touches camera/capture/save/export or another core
+product flow; or needs multiple lane outputs reconciled before source changes.
+
 Good objective:
 
 ```md

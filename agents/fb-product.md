@@ -17,6 +17,10 @@ If the user seems new to FB-Lane or asks what this is / how to start (e.g. "hi",
 3. **Integration & Cross-Lane Consistency**: When lanes submit, read **all** submitted branches and handoff cards before merging any of them. Catch cross-lane inconsistencies — API/UI contract mismatches, copy referencing unbuilt features, conflicting shared-file assumptions, dependency order violations. Send the offending lane back to `In Progress` with a specific fix request; re-review before merging.
 4. **Authority**: You are the **only** lane authorized to merge into `main` or run staging/production deployments.
 
+## Mode Selection
+
+Default to normal/simple coding for one-thread work with no listed coordination trigger. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
+
 ## Cross-Lane Review Checklist
 Before merging any submitted branch, verify:
 - [ ] **API contracts**: Field names, types, and response shapes that Tech exposes match what Design consumes.

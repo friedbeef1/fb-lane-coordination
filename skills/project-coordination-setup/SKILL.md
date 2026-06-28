@@ -14,6 +14,8 @@ This skill instantiates the **Four-Lane Multi-Thread Coordination Model** in any
 For non-trivial work, the bootstrap must leave an approved OKR tree slot on the board: a Product/workstream or BFM-target OKR (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) plus stable lane OKRs where relevant. Handoffs use compact `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` fields. Product/BFM owns OKR reconciliation and changes OKRs only after discussion and explicit user approval; do not generate a fresh OKR for every task. Bootstrap also creates `docs/handoffs/index.md` so agents discover handoffs through a compact routing table before opening detailed files; `PROJECT_BOARD.md` is truth, the index is routing, and detailed handoffs are detail.
 For BFM/all-handoff processing, Product must also leave the return loop: every handoff is `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`, board/source/docs/tests agree before closeout, and the closeout includes one health flag: `healthy`, `watch`, `needs Product review`, or `blocked`.
 
+Bootstrap guidance must also include objective mode selection: default to normal/simple coding unless the objective mentions coordination triggers. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
+
 ## Dependencies
 None.
 
@@ -40,6 +42,11 @@ To bootstrap a workspace, run through the **Execution Steps** in the Workflow be
 ## FB-Lane Coordination Rules
 
 This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development.
+
+### 0. Mode Selection Trigger Rule
+- Default to normal/simple coding for one-thread work with no listed coordination trigger.
+- Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Keep quick tasks lightweight.
+- Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 
 ### 1. Lane Scopes & Boundaries
 - **FB-Product (PM / Integration User Value)**: Owns final product decisions, the approved Product/workstream OKR and relevant stable lane OKRs, task prioritization, scoping, BFM launch, staging/live deployments, and release gates. Prioritizes the backlog on the project board, sequencing tasks based on OKR alignment and value-vs-effort mix. Product is read-only on application/source code and may write coordination markdown only.

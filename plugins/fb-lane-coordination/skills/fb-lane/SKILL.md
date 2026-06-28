@@ -19,7 +19,11 @@ Codex supplies the concurrency. FB-Lane supplies shared coordination:
 
 FB-Lane is a thin coordination protocol, not a default wrapper for all Codex work.
 
-Use it when there are 2+ active lanes, overlapping file risk, staging/live gates, or handoffs that must survive context loss. Skip it for one-thread fixes, read-only questions, simple code explanations, or independent work where Codex worktrees are enough. When skipping, use ordinary Codex workflow and avoid creating board noise.
+Default to normal/simple coding for one-thread work with no listed coordination trigger. Skip FB-Lane for read-only questions, simple code explanations, tiny fixes, isolated edits, or independent work where Codex worktrees are enough. When skipping, use ordinary Codex workflow and avoid creating board noise.
+
+Use FB-Lane light when the objective mentions handoffs, board items, lanes, BFM, Product, Design, Business, coordination files such as `PROJECT_BOARD.md`, `docs/handoffs/`, or `.codex/current_task.md`, board-locked files, multiple threads/agents/workstreams, or durable context that must survive chat loss. Keep quick tasks lightweight: read the board/locks, claim or note only the exact files needed, and avoid Goal Alignment or handoff ceremony unless another lane or Product must continue it.
+
+Escalate to Product/BFM when the work requires deciding what to build, sequence, defer, approve, merge, release, stage, or launch; crosses pricing, payments, trials, subscriptions, promo codes, auth, privacy, analytics, secrets, deploy, staging, or live gates; touches camera/capture/save/export or another core product flow; or needs multiple lane outputs reconciled before source changes.
 
 For non-trivial lane work, use the approved Product/workstream or BFM-target OKR in `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Stable lane OKRs are standing Product, Tech, Design, and Business quality anchors. Product/BFM owns that OKR tree and adds or changes it only after discussion and explicit user approval. Do not generate a fresh OKR for every task, and do not apply this ceremony to `TASK-Q-*` quick tasks.
 

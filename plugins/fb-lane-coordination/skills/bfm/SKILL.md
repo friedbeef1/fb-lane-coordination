@@ -35,6 +35,8 @@ Use these skills before acting, in this order:
 9. If the block is missing, stale, pending, or blocking clarity, propose the smallest OKR addition or change in plain language, and stop until the user explicitly approves. Add or change board OKRs only after that approval.
 10. Block before execution when approval is missing, OKRs are unclear, a handoff implies an unapproved OKR change, or handoffs conflict with the approved OKR tree. Reuse or clarify the approved OKR; do not generate a fresh OKR for every task.
 
+BFM is not the default mode for simple coding. It is triggered when the objective requires sequencing, approval, merge/release, staging/live, secrets, payments, auth/privacy/analytics, core product flows such as camera/capture/save/export, board-locked files, durable multi-thread context, or multiple lane outputs reconciled before source changes.
+
 ## Five-Lane Review
 
 Create a short internal review with these slots:

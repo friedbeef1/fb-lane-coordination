@@ -74,12 +74,13 @@
     *   `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `plugins/fb-lane-coordination/README.md`
     *   `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `plugins/fb-lane-coordination/skills/bfm/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`, `plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md`
     *   `agents/FB-Product/agent.json`, `plugins/fb-lane-coordination/agents/FB-Product/agent.json`
-    *   `agents/fb-product.md`
+    *   `agents/fb-product.md`, `.claude/agents/fb-product.md`
     *   `docs/handoffs/index.md`, `docs/handoffs/TASK-017.md`, `PROJECT_BOARD.md`
 *   **Latest Update**:
     *   *2026-06-28*: Worker B claimed the generic progressive-disclosure hardening slice on the existing handoff-index branch.
     *   *2026-06-28*: Implemented the board/index/detail hardening across CLI bootstrap output, packaged plugin copies, templates, docs, Product/BFM skills, and Product prompt artifacts. Syntax, parity, regression tests, `doctor`, and `git diff --check` passed; `node tools/fb-lane.validate.cjs` failed only because the validator expects `doctor` to report `Ready` on a clean worktree.
     *   *2026-06-28*: Added the FB-Lane framework OKR, directional health flags (`healthy`, `watch`, `needs Product review`, `blocked`), and anti-bloat guidance that replaces per-task OKRs, numeric scoring, giant `doctor` behavior, second-board indexes, and quick-task ceremony. Syntax, parity, JSON parse, regression tests, stale-wording scan, `doctor`, and `git diff --check` passed; `node tools/fb-lane.validate.cjs` still fails only on the expected dirty-worktree doctor gate.
+    *   *2026-06-28*: Added objective mode-selection guidance across docs, templates, skills, generated bootstrap text, Product prompts, and packaged plugin mirrors so agents default to normal/simple coding unless FB-Lane light or Product/BFM triggers appear.
 
 
 ---

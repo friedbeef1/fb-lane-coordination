@@ -168,21 +168,28 @@ or tests say otherwise.
 
 ## When To Use It
 
-Use FB-Lane when the work has any of these risks:
+Default to normal/simple coding when the request is one-thread and has no listed
+coordination trigger. Skip FB-Lane for:
 
-- multiple agent threads or worktrees are active
-- Tech, Design, Business, and Product concerns are mixed
-- file collisions are plausible
-- handoffs need to survive context loss
-- Product must sequence multiple lane outputs
-- you need evidence before merge or release
-
-Skip it for:
-
-- one-thread fixes
 - read-only questions
-- tiny quick edits with no ownership split
+- code explanations
+- tiny fixes
+- isolated edits
 - independent experiments where native worktrees are enough
+
+Use **FB-Lane light** when the objective mentions handoffs, board items, lanes,
+BFM, Product, Design, Business, coordination files such as `PROJECT_BOARD.md` or
+`docs/handoffs/`, board-locked files, multiple threads/agents/workstreams, or
+durable context that must survive chat loss. Keep it lightweight: read the
+board/locks, claim or note only the exact files needed, and avoid ceremony unless
+another lane or Product must continue it.
+
+Escalate to **Product/BFM** when the work requires deciding what to build,
+sequence, defer, approve, merge, release, stage, or launch; crosses pricing,
+payments, trials, subscriptions, promo codes, auth, privacy, analytics, secrets,
+deploy, staging, or live gates; touches camera/capture/save/export or another
+core product flow; or needs multiple lane outputs reconciled before source
+changes.
 
 ## Start Here
 

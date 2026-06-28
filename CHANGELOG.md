@@ -2,6 +2,12 @@
 
 ## Unreleased - 2026-06-27
 
+- Docs/plugin guidance: added the objective mode-selection trigger rule. Agents
+  now default to normal/simple coding unless the objective triggers FB-Lane
+  light or Product/BFM through coordination files, lane/board/handoff mentions,
+  payment/auth/privacy/analytics/secret/deploy gates, core product flows,
+  locked files, multi-thread work, or build/sequence/approve/merge/release
+  decisions.
 - Handoff context: added OKF-lite progressive disclosure for Codex plugin projects.
   Bootstrap now creates `docs/handoffs/index.md`, `doctor` warns once a project
   has enough handoffs to need an index, BFM/Product skills read the index before

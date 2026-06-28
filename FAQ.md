@@ -61,16 +61,28 @@ same agent mistake repeats.
 
 ## When should I skip FB-Lane?
 
-Skip it when the loop adds more weight than risk reduction:
+Skip it when the none of the listed coordination triggers apply. Default to
+normal/simple coding for:
 
 - one-thread fixes
 - read-only questions
+- code explanations
 - tiny quick edits
+- isolated edits
 - throwaway experiments
 - independent work where native worktrees are enough
 
-Use it when multiple lanes, shared files, durable handoffs, Product sequencing,
-or release evidence matter.
+Use FB-Lane light when the objective mentions handoffs, board items, lanes, BFM,
+Product, Design, Business, coordination files, board-locked files, multiple
+threads/agents/workstreams, or durable context. Keep quick tasks lightweight:
+read the board/locks and avoid extra handoff or OKR ceremony unless another lane
+or Product must continue it.
+
+Escalate to Product/BFM when the work requires deciding what to build, sequence,
+defer, approve, merge, release, stage, or launch; crosses
+pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets,
+deploy/staging/live gates; touches camera/capture/save/export or another core
+product flow; or needs multiple lane outputs reconciled before source changes.
 
 ## Are workstream threads read-only?
 
@@ -165,8 +177,8 @@ lanes keep the split visible.
 No. Definition of Done says what must be true before closeout. TDD is one way to
 build and prove behavior when a feature or bugfix has a clear testable contract.
 
-Use TDD for risky logic and regressions. Use other evidence for docs, visual QA,
-copy, sequencing, or Product approval.
+Use TDD for state-changing logic and regressions. Use other evidence for docs,
+visual QA, copy, sequencing, or Product approval.
 
 ## Where do I install it?
 
