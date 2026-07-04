@@ -167,7 +167,7 @@ node tools/fb-lane.cjs doctor
 
 It checks whether the repo's loop state looks healthy: board files, rules,
 handoff folder, handoff index, active locks, git state, non-quick handoff
-`Lane OKR Fit`, `Mini-loop Evidence`, `Evidence Against Product OKR`, approved
+`Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, `Evidence Against Product OKR`, approved
 Goal Alignment Session OKRs, and handoffs that imply unapproved OKR changes.
 
 In the current public beta it warns. It does not change `submit` behavior and
@@ -195,6 +195,14 @@ Loop Learning:
 
 That is how the system knows when heavier tooling is worth discussing without
 building it by default.
+
+## Should I use `/goal`?
+
+Use `/goal` when you want to pull the existing Goal Alignment Session forward
+before execution. It should show, create, clarify, or ask approval for the
+current Product/BFM goal. It is not a second goal system, and workstream chats
+should not own it. Workstreams put `Workstream Goal` and `User Approval Needed`
+in their handoff for Product/BFM and the user to approve.
 
 ## Can the loops self-approve?
 

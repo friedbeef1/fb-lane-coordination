@@ -52,12 +52,17 @@
 ### Goal Alignment Session (non-trivial tasks only)
 Use the approved Product/workstream or BFM-target OKR as the stable anchor, with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`. Stable lane OKRs are standing Product, Tech, Design, and Business quality anchors. Product/BFM owns the OKR tree and records additions or changes only after discussion and explicit user approval. Do not generate a fresh OKR for every task. BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree.
 
+`/goal` is a Product/BFM shortcut into this same Goal Alignment Session. It shows, creates, clarifies, or asks approval for the current goal; it must not create a second goal system or a separate `/goals` flow. Workstream chats do not own `/goal`; they propose or challenge goal fit in their handoff.
+
 Lane handoffs stay compact and use a real heading:
 
 ```md
 ## Goal Alignment Session
 
+Product Goal: <existing approved Product/workstream goal, if known>
+Workstream Goal: <plain-language lane contribution for Product/user approval>
 Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+User Approval Needed: yes | no
 Mini-loop Evidence: <lane evidence from its smallest real verification loop>
 Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
 ```

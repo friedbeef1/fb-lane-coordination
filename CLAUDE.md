@@ -103,6 +103,8 @@ Use a Goal Alignment Session for non-trivial handoffs and sequencing work only. 
 
 Worker lanes read the approved OKR tree first. Mini-loops do not create new OKRs; they return evidence against the lane OKR and the Product/workstream OKR. Product/BFM may propose an OKR addition or change only when the current OKRs are missing, stale, or blocking clarity, and must stop for explicit user approval before applying it. Do not generate a fresh OKR for every task.
 
+`/goal` is a Product/BFM shortcut into this same Goal Alignment Session. It shows, creates, clarifies, or asks approval for the current goal; it must not create a second goal system or a separate `/goals` flow. Workstream chats do not own `/goal`; they propose or challenge goal fit in their handoff for Product/BFM to reconcile.
+
 - Good: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 - Bad: `Objective: finish the feature.`
 
@@ -111,7 +113,10 @@ Lane handoffs should include:
 ```md
 ## Goal Alignment Session
 
+Product Goal: <existing approved Product/workstream goal, if known>
+Workstream Goal: <plain-language lane contribution for Product/user approval>
 Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+User Approval Needed: yes | no
 Mini-loop Evidence: <lane evidence from its smallest real verification loop>
 Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
 ```

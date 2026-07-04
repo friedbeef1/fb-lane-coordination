@@ -6,7 +6,7 @@ description: Coordinates task claiming, staging submissions, and merges on the p
 # FB-Lane Task Coordination Skill
 
 ## Overview
-This skill manages FB-Lane task lifecycles, git branches, and resource locks with the local `tools/fb-lane.cjs` utility. Normal workstream chats stay plan-only: they produce markdown plans or handoffs. Source-changing claims happen only inside Product-launched BFM execution. For non-trivial work, Product/BFM uses the approved Product/workstream or BFM-target OKR in `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, and `Justification`; lanes report `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` in handoffs.
+This skill manages FB-Lane task lifecycles, git branches, and resource locks with the local `tools/fb-lane.cjs` utility. Normal workstream chats stay plan-only: they produce markdown plans or handoffs. Source-changing claims happen only inside Product-launched BFM execution. For non-trivial work, Product/BFM uses the approved Product/workstream or BFM-target OKR in `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, and `Justification`; lanes report `Product Goal`, `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR` in handoffs.
 
 Default to normal/simple coding when the request is one-thread and has no listed coordination trigger. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 
@@ -99,6 +99,7 @@ Use a Goal Alignment Session for non-trivial handoffs only. Do not create extra 
 
 - Product/BFM owns the approved Product/workstream or BFM-target OKR in `PROJECT_BOARD.md`, with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`.
 - Stable lane OKRs are standing Product, Tech, Design, and Business quality anchors; mini-loops return evidence against those anchors.
+- `/goal` is a Product/BFM shortcut into this same Goal Alignment Session. It shows, creates, clarifies, or asks approval for the current goal; it must not create a second goal system or a separate `/goals` flow. Workstream chats do not own `/goal`; they propose or challenge goal fit in their handoff for Product/BFM to reconcile.
 - OKRs are added or changed only after discussion and explicit user approval. Do not generate a fresh OKR for every task.
 - Good: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 - Bad: `Objective: finish the feature.`
@@ -106,7 +107,10 @@ Use a Goal Alignment Session for non-trivial handoffs only. Do not create extra 
   ```md
   ## Goal Alignment Session
 
+  Product Goal: <existing approved Product/workstream goal, if known>
+  Workstream Goal: <plain-language lane contribution for Product/user approval>
   Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+  User Approval Needed: yes | no
   Mini-loop Evidence: <lane evidence from its smallest real verification loop>
   Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
   ```

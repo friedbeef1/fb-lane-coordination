@@ -158,6 +158,10 @@ Business, and lane-coordination view, then sequence and execute to completion.
 
 For non-trivial BFM work, use the Goal Alignment Session and return-loop rules
 described in [`docs/loop-engineering.md`](../../docs/loop-engineering.md).
+`/goal` is a Product/BFM shortcut into that same Goal Alignment Session: it
+shows, creates, clarifies, or asks approval for the current goal. It is not a
+second goal system. Workstream chats should put proposed `Workstream Goal` and
+`User Approval Needed` fields in handoffs for Product/BFM to reconcile.
 If the same loop failure repeats, add a small Markdown eval scorecard using the
 generic shape in `docs/evals/agent-behavior-scorecard-template.md`; do not
 install an eval framework by default.

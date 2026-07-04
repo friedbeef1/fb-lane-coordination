@@ -106,12 +106,15 @@ $fb-business rewrite the onboarding copy.
 4. Identify whether the user is asking Product to orchestrate lanes or directly addressing lane threads.
 5. Before any ordinary workstream output, keep changes to markdown plans/handoffs. Source writes, file claims, branches, commits, submits, merges, deploys, and provider changes happen only inside Product-launched BFM execution.
 6. If the user says `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM, confirm whether to prepare the Product/BFM handoff or execute there as an explicit one-off exception before editing source.
-6. For non-trivial work, confirm the task detail block has one approved `Goal Alignment Session` block in `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, and `Justification`. Product/BFM writes or changes that block only after explicit user approval; worker lanes report missing, unclear, or misaligned OKRs in handoffs.
+6. For non-trivial work, confirm the task detail block has one approved `Goal Alignment Session` block in `PROJECT_BOARD.md` with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, and `Justification`. Product/BFM writes or changes that block only after explicit user approval; `/goal` is only a Product/BFM shortcut into that same session. Worker lanes do not own `/goal`; they report missing, unclear, or misaligned OKRs in handoffs.
 7. Keep lane handoffs compact and include a real Markdown heading so `doctor` can validate it:
    ```md
    ## Goal Alignment Session
 
+   Product Goal: <existing approved Product/workstream goal, if known>
+   Workstream Goal: <plain-language lane contribution for Product/user approval>
    Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+   User Approval Needed: yes | no
    Mini-loop Evidence: <lane evidence from its smallest real verification loop>
    Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
    ```
@@ -145,7 +148,7 @@ Codex may discuss safe independent pieces concurrently. Product/Captain remains 
 Any non-trivial lane output must create or update `docs/handoffs/<TASK-ID>.md` with:
 
 - task ID and scope
-- `## Goal Alignment Session` with `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` from `AGENTS.md`
+- `## Goal Alignment Session` with `Product Goal`, `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR` from `AGENTS.md`
 - files changed in BFM execution or proposed by workstream planning
 - checks performed
 - decisions and tradeoffs

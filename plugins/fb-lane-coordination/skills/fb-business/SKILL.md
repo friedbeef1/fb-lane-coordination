@@ -39,7 +39,10 @@ For non-trivial handoffs, add this compact Goal Alignment Session section before
 ```md
 ## Goal Alignment Session
 
+Product Goal: <existing approved Product/workstream goal, if known>
+Workstream Goal: <plain-language lane contribution for Product/user approval>
 Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+User Approval Needed: yes | no
 Mini-loop Evidence: <business evidence from its smallest real verification loop>
 Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
 ```

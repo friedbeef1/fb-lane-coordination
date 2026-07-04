@@ -65,7 +65,7 @@ Create a short internal review with these slots:
 
 Show these five slots in the chat stream for BFM runs. Each slot must name the handoff files found or state `no handoff found`.
 Do not summarize a lane as done from delivery evidence alone. Use `delivered`, `lane-verification-passed`, `pending-gate`, `blocked`, or `superseded`.
-Reconcile every lane's `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` before deciding sequence.
+Reconcile every lane's `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR` before deciding sequence.
 Every handoff BFM reads must end with one closeout status: `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
 Also assign one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`. Use this instead of numeric loop scoring.
 Also record `Loop Learning`: feedback captured, repeated pattern (`no|yes`), tooling needed (`none|propose guardrail|propose automation|propose eval`), and Product approval needed (`no|yes`).
@@ -111,7 +111,7 @@ Proceed through the sequence without asking for repeated permission when authori
 - Before source execution, confirm board/status/locks and the relevant handoff index; during isolated work, name the task, branch/worktree, lane, and locked files.
 - After each lane finishes, update its handoff and board status before moving to the next dependent step.
 - After executing or explicitly deferring a lane handoff, refresh the relevant `docs/workstreams/<lane>.md` card with the current summary, already-executed Product/BFM work, pending or blocked work, and evidence links.
-- Product reads all resulting handoffs together, reconciles `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`, and only then sequences merges.
+- Product reads all resulting handoffs together, reconciles `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR`, and only then sequences merges.
 - Continue the BFM loop until every discovered lane handoff is `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`, and every lane with no matching handoff is recorded as `no handoff found`.
 - If a lane's tests, build, Git staging, or browser verification hangs, stop the BFM retry loop and record the task as `pending-gate` or `blocked` with the exact runner/process evidence before resequencing.
 - Do not deploy live, add production secrets, change payment credentials, or run destructive operations without explicit current approval.
@@ -145,6 +145,8 @@ When it chooses `propose eval`, propose a small Markdown scorecard under `docs/e
 Start in Phase 1 Shadow Approval: ask the user, but record `Would self-approve: yes/no` and the reason. Recommend Phase 2 after one day or three matching decisions with no material miss. Recommend Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate. The user approves phase changes.
 
 Bounded self-approval applies only to low-risk continuation work that fits the approved OKR and Definition of Done. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state. Workstreams may mark `safe to auto-accept`; Product/BFM owns actual self-approval.
+
+`/goal` is a Product/BFM shortcut into the existing Goal Alignment Session. Use it to show, create, clarify, or ask approval for the current goal. Do not create a second goal system or a `/goals` flow. Workstream chats should put proposed workstream goals in handoffs for Product/BFM to reconcile.
 
 ```mermaid
 flowchart TD

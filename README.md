@@ -192,13 +192,14 @@ or tests say otherwise.
 | Loop need | FB-Lane mechanism |
 |---|---|
 | Approved Product/workstream OKR | `Goal Alignment Session` block in `PROJECT_BOARD.md` |
+| Goal shortcut | `/goal` opens the same Product/BFM Goal Alignment Session; it is not a second goal system |
 | Stable lane OKRs | Standing Tech, Design, Business, and Product quality anchors |
 | Role clarity | FB-Product, FB-Tech, FB-Design, and FB-Business lanes |
 | Collision control | File claims plus named branches/worktrees for isolated execution |
 | Cheap context lookup | `docs/handoffs/index.md` routes to detailed handoff files |
 | Lane revisit summary | `docs/workstreams/<lane>.md` shows already-executed work, pending items, and evidence links |
 | Durable plan/handoff | `docs/handoffs/<task-id>.md` or project plan markdown |
-| Evidence return | `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` |
+| Evidence return | `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR` |
 | Health check | `node tools/fb-lane.cjs doctor` |
 | Agent behavior evals | Optional Markdown scorecards for repeated loop failures |
 | Execution gate | Product-launched BFM run |

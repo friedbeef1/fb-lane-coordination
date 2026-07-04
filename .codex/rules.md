@@ -37,8 +37,10 @@ Use **FB-Lane light** for narrow triggered work: read the board/locks, keep the 
 ### Goal Alignment Session
 - For non-trivial work, FB-Product/BFM owns the approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant.
 - BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree.
+- `/goal` is a Product/BFM shortcut into this same Goal Alignment Session. It shows, creates, clarifies, or asks approval for the current goal; it must not create a second goal system or a separate `/goals` flow.
+- Workstream chats do not own `/goal`; when they prepare a handoff, they propose or challenge goal fit for Product/BFM to reconcile.
 - If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the existing OKR tree and recommends one; it does not dynamically create or edit OKRs during execution.
-- Lane handoffs include `## Goal Alignment Session`, `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`.
+- Lane handoffs include `## Goal Alignment Session`, `Product Goal`, `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR`.
 - Reuse or clarify approved OKRs; do not generate one per task. Skip this ceremony for `TASK-Q-*` quick tasks.
 
 ### BFM return loop

@@ -17,6 +17,10 @@
   Shadow Approval, may recommend bounded self-approval only after matching safe
   decisions, and never self-approves risky scope, live, data, provider, or
   unclear-goal surfaces.
+- Coordination: documented `/goal` as a Product/BFM shortcut into the existing
+  Goal Alignment Session, not a second goal system. Workstream handoffs now ask
+  for `Product Goal`, `Workstream Goal`, and `User Approval Needed` so Product
+  and the user can approve goal fit before BFM execution.
 - Docs: named the current documentation line `FB-Lane 0.2.0-beta: Loop
   Engineering public beta` and added `docs/versioning.md` with the v1-to-latest
   before/after.
@@ -42,7 +46,7 @@
   manual Product decisions.
 - Loop Engineering: clarified OKRs as stable Product/workstream and lane
   alignment anchors, not per-task planning churn. Mini-loops now return
-  `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`
+  `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR`
   against the approved OKR tree, and Product/BFM must stop for explicit user
   approval before any OKR addition or change.
 - Doctor: kept checks advisory while warning when non-quick handoffs lack

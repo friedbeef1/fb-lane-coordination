@@ -53,6 +53,7 @@
         *   Product/BFM guidance uses `healthy`, `watch`, `needs Product review`, and `blocked` health flags instead of per-task OKRs or numeric loop scoring.
         *   `Loop Learning: propose eval` points to a small generic Markdown scorecard and does not add heavy eval tooling without separate approval.
         *   Product/BFM approval autonomy starts in Shadow Approval, may recommend phase changes after safe matching decisions, and never self-approves risky or unclear work.
+        *   `/goal` is a Product/BFM shortcut into the existing Goal Alignment Session, while workstream handoffs propose `Workstream Goal` and `User Approval Needed` for Product/user approval.
         *   Public docs name the current model as `FB-Lane 0.2.0-beta: Loop Engineering public beta` and explain the v1-to-latest before/after.
     *   **Definition of Done**: Root and packaged CLI copies match, docs/templates/skills/package copies carry the board/index/handoff contract, relevant checks pass, and remaining risks are named.
     *   **Gate / Review Point**: Product reviews PR #31 and CI readiness before merge.
@@ -92,6 +93,7 @@
     *   *2026-07-04*: Added the generic optional agent-behavior scorecard template for `Loop Learning: propose eval` and wired Product/BFM guidance to keep evals Markdown-only unless heavier tooling is separately proposed and approved.
     *   *2026-07-04*: Added phased approval-autonomy guidance across docs, templates, Product/BFM skills, generated Product prompts, bootstrap output, and packaged plugin mirrors. Product/BFM starts in Shadow Approval, may recommend Phase 2 or Phase 3 only after safe matching decisions, and never self-approves risky surfaces.
     *   *2026-07-04*: Added public version positioning for `FB-Lane 0.2.0-beta: Loop Engineering public beta`, including a v1-to-latest before/after in `docs/versioning.md`.
+    *   *2026-07-04*: Added `/goal` as a Product/BFM shortcut into the existing Goal Alignment Session and expanded workstream handoffs with `Product Goal`, `Workstream Goal`, and `User Approval Needed` so Product/user approval stays explicit without creating a second goal system.
     *   *2026-07-04*: Verification passed for CLI syntax, test syntax, root/package parity, generated Product JSON and manifest parsing, regression tests, scorecard/approval wording scans, and `git diff --check`. `doctor` and the validator stop only because this TASK-017 update is intentionally dirty pending commit. Owner: Product/BFM. Next gate: commit/push current TASK-017 update or explicitly defer before starting new source work.
 
 
@@ -319,7 +321,7 @@
     *   **Objective**: Make FB-Lane treat OKRs as stable, plain-English alignment anchors that reduce rework instead of becoming dynamic planning clutter.
     *   **Key Results**:
         *   Docs, skills, templates, generated prompts, and packaged plugin copies distinguish Product/workstream OKRs, lane OKRs, and mini-loop evidence.
-        *   Handoff guidance uses `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`.
+        *   Handoff guidance uses `Product Goal`, `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR`.
         *   `doctor` remains advisory, warns on missing approved OKR alignment or implied unapproved new goals, and keeps `TASK-Q-*` quick tasks exempt.
     *   **Definition of Done**: Source and packaged guidance consistently require stable OKR reuse, explicit approval before OKR additions/changes, PM-readable wording, and mini-loop evidence instead of dynamic OKR creation.
     *   **Gate / Review Point**: Wording scans, CLI syntax/parity, manifest/generated JSON parsing, doctor fixture checks, repo doctor, and `git diff --check` pass before closeout.

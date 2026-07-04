@@ -190,6 +190,11 @@ Lane OKRs:
 Rules:
 
 - `TASK-Q-*` quick tasks are exempt from the approval gate.
+- `/goal` is only a Product/BFM shortcut into this same Goal Alignment Session.
+  It shows, creates, clarifies, or asks approval for the current goal; it must
+  not create a second goal system or a separate `/goals` flow.
+- Workstream chats do not own `/goal`. They propose or challenge goal fit in
+  their handoff, and Product/BFM decides whether user approval is needed.
 - Product/workstream OKRs are the top-level outcome.
 - Lane OKRs are stable lane-specific contributions to that outcome.
 - Reuse or clarify the approved workstream/BFM-target OKR. Do not generate a
@@ -312,7 +317,10 @@ For non-trivial handoffs, use this compact form:
 ```md
 ## Goal Alignment Session
 
+Product Goal: <existing approved Product/workstream goal, if known>
+Workstream Goal: <plain-language lane contribution for Product/user approval>
 Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+User Approval Needed: yes | no
 Mini-loop Evidence: <lane evidence from its smallest real verification loop>
 Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
 ```
@@ -324,6 +332,8 @@ What each value means:
   different path to satisfy it.
 - `blocked by OKR ambiguity`: the lane cannot safely proceed until Product or
   the user clarifies the goal.
+- `User Approval Needed: yes`: the handoff proposes a new or changed
+  workstream goal, changes the Definition of Done, or exposes goal ambiguity.
 
 ## BFM Return Loop
 
@@ -380,7 +390,7 @@ non-quick work has the expected loop state. It can warn about issues such as:
 - missing `docs/handoffs/index.md` when non-quick handoffs exist
 - old-style `docs/handoffs/index.md` files that lack the dependency/gate or evidence columns
 - active locks with unclear state
-- non-quick handoffs missing `Lane OKR Fit`, `Mini-loop Evidence`, or `Evidence Against Product OKR`
+- non-quick handoffs missing `Lane OKR Fit`, `Mini-loop Evidence`, or `Evidence Against Product OKR` (the current doctor core checks; handoff templates also ask for `Product Goal`, `Workstream Goal`, and `User Approval Needed`)
 - non-quick BFM targets with missing or unapproved Goal Alignment Session OKRs
 - handoffs that imply a new or changed OKR without a board-approved OKR update
 - intentionally dirty git state that Product should name before closeout

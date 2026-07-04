@@ -2,7 +2,10 @@
 
 ## Goal Alignment Session
 
+Product Goal: Keep FB-Lane lightweight while making goal approval and return-loop evidence durable across Product/BFM and workstream handoffs.
+Workstream Goal: Add the smallest reusable guidance so `/goal` routes Product/BFM into the existing Goal Alignment Session and workstream handoffs carry goal fit for Product/user approval.
 Lane OKR Fit: aligned
+User Approval Needed: no
 Mini-loop Evidence: Root/package syntax, parity, JSON parse, regression tests, stale-wording scan, doctor, and whitespace checks passed. Full validator reaches doctor and fails only because this branch is intentionally dirty before commit.
 Evidence Against Product OKR: None identified
 
@@ -39,6 +42,8 @@ Harden FB-Lane progressive disclosure so bootstrapped projects keep:
 - When `Loop Learning` chooses `propose eval`, use a generic Markdown scorecard under `docs/evals/` with sections for non-Product execution gate, BFM closeout accounting, evidence honesty, and goal/scope fit. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger `doctor` rules without separate approval.
 - Add phased approval autonomy: start Product/BFM in Shadow Approval, let Product/BFM recommend Phase 2 or Phase 3 only after safe matching decisions, require user approval for phase changes, and never self-approve risky surfaces.
 - Name the current documentation line `FB-Lane 0.2.0-beta: Loop Engineering public beta` and explain the v1-to-latest before/after without changing the plugin manifest yet.
+- Treat `/goal` as a Product/BFM shortcut into the existing Goal Alignment Session, not a second goal system or `/goals` flow.
+- Require workstream handoffs to include `Product Goal`, `Workstream Goal`, and `User Approval Needed` so Product/BFM can reconcile goal fit before execution.
 
 ## Story Split Update - 2026-07-03
 
@@ -125,6 +130,14 @@ plugin build ID until a release is cut, while `0.2.0-beta` is the model/release
 line name. Updated README, FAQ, loop deep dive, setup, Codex platform guide, and
 packaged plugin README to point to the versioning page.
 
+## Goal Shortcut And Workstream Goal Handoff Update - 2026-07-04
+
+Documented `/goal` as a Product/BFM shortcut into the existing Goal Alignment Session. It can show, create, clarify, or ask approval for the current goal, but it does not create a second goal system and does not introduce a `/goals` flow.
+
+Workstream chats do not own `/goal`. When a workstream prepares a handoff, it now includes `Product Goal`, `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR` so Product/BFM can reconcile the handoff before sequencing execution.
+
+Touched reusable surfaces include README/FAQ/loop docs, packaged plugin README, AGENTS/CLAUDE templates, PROJECT_BOARD template, Codex rules, source and packaged CLI bootstrap prompts, generated Product and worker prompts, Product/BFM/coordination/workstream skills, and packaged plugin mirrors.
+
 ## Current Verification Summary
 
 - `node --check tools/fb-lane.cjs`
@@ -137,6 +150,7 @@ packaged plugin README to point to the versioning page.
 - `node tools/fb-lane.cjs status` -> TASK-017 remains `Staging QA`
 - Wording scan confirms approval autonomy phases and never-self-approve boundaries across docs, templates, skills, generated prompts, packaged plugin mirrors, and CLI bootstrap output
 - Wording scan confirms `0.2.0-beta` and the v1-to-latest before/after are documented on public docs
+- Wording scan confirms `/goal` is Product/BFM-owned and workstream handoffs include `Product Goal`, `Workstream Goal`, and `User Approval Needed`
 - `node tools/fb-lane.cjs doctor` -> `Needs attention` only for intentionally dirty TASK-017 work
 - `node tools/fb-lane.validate.cjs` -> reaches the doctor gate and fails only because the worktree is intentionally dirty pending commit
 - `git diff --check`

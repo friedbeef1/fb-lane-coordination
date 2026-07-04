@@ -60,6 +60,8 @@ Use a Goal Alignment Session for non-trivial handoffs and sequencing work. Produ
 
 Worker lanes read the approved OKR tree first. Their mini-loops do not create new OKRs; they return evidence against the relevant lane OKR and the Product/workstream OKR. Reuse or clarify the approved OKR instead of generating one per task. OKRs are added or changed only after Product/BFM explains the need in plain language and the user explicitly approves the change. Do not turn `TASK-Q-*` quick tasks into a new ceremony.
 
+`/goal` is a Product/BFM shortcut into this same Goal Alignment Session. It shows, creates, clarifies, or asks approval for the current goal; it must not create a second goal system or a separate `/goals` flow. Workstream chats do not own `/goal`; they propose or challenge goal fit in their handoff for Product/BFM to reconcile.
+
 Good objective example: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 
 Bad objective example: `Objective: finish the feature.`
@@ -69,7 +71,10 @@ Lane handoffs should use this compact form instead of a long SMART template:
 ```md
 ## Goal Alignment Session
 
+Product Goal: <existing approved Product/workstream goal, if known>
+Workstream Goal: <plain-language lane contribution for Product/user approval>
 Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+User Approval Needed: yes | no
 Mini-loop Evidence: <lane evidence from its smallest real verification loop>
 Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
 ```
@@ -153,7 +158,7 @@ All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate
 4. **BFM Claim & Lock**: After Product launches BFM, the BFM execution worker claims the task/files, changes status to `In Progress`, and declares the exact **Affected Screens** and **Locked Files**.
 5. **Commit / QA**: BFM execution work runs in a named isolated branch or worktree, verifies the slice, pushes the branch, sets status to `Staging QA`, and documents modified files, QA evidence, lane, locked files, and branch/worktree state.
 6. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.
-7. **Handoff, Unlock & Clean**: Write the structured handoff and passive closeout note. Product reads `PROJECT_BOARD.md` / `docs/handoffs/`, reconciles every lane's `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` before sequencing execution or merge, proposes aligned alternatives for OKR conflicts, merges approved branches, removes resource locks (marking the task `Done`), and records its own passive closeout note. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
+7. **Handoff, Unlock & Clean**: Write the structured handoff and passive closeout note. Product reads `PROJECT_BOARD.md` / `docs/handoffs/`, reconciles every lane's `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR` before sequencing execution or merge, proposes aligned alternatives for OKR conflicts, merges approved branches, removes resource locks (marking the task `Done`), and records its own passive closeout note. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
 8. **Proactive Loop Hardening**: If Product/BFM sees repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework, it proposes one small guardrail with observed pattern, recommended guardrail, cost, benefit, files/rules affected, and approval needed. Do not silently change the process; skip one-off or low-impact issues.
 
 ---
