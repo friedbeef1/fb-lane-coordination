@@ -143,7 +143,7 @@ Evidence Against Product OKR: None identified
   }
 }
 
-test('bootstrap creates docs/handoffs/index.md', () => {
+test('bootstrap creates handoff index and optional eval scorecard template', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-bootstrap-'));
   try {
     execFileSync('node', [cliPath, 'bootstrap', '--platform', 'codex'], {
@@ -154,6 +154,9 @@ test('bootstrap creates docs/handoffs/index.md', () => {
     const indexPath = path.join(root, 'docs', 'handoffs', 'index.md');
     assert.ok(fs.existsSync(indexPath), 'expected bootstrap to create docs/handoffs/index.md');
     assert.match(fs.readFileSync(indexPath, 'utf8'), /type: fb-lane-handoff-index/);
+    const evalTemplatePath = path.join(root, 'docs', 'evals', 'agent-behavior-scorecard-template.md');
+    assert.ok(fs.existsSync(evalTemplatePath), 'expected bootstrap to create docs/evals/agent-behavior-scorecard-template.md');
+    assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /Non-Product Execution Gate/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

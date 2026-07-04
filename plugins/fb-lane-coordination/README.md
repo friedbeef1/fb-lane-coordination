@@ -23,6 +23,12 @@ Codex does not load stale historical closeouts by default. Keep the index
 compact with `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`,
 `Checks / Evidence`, and `Detail`.
 
+Bootstrapped projects also include `docs/workstreams/<lane>.md` status cards.
+Product/BFM refreshes the relevant card after executing or explicitly deferring
+a lane handoff so returning lanes can see what already happened, what remains
+pending or blocked, and where the evidence lives. Cards are summaries only, not
+a second board.
+
 Use the awareness, isolation, integration rule: `PROJECT_BOARD.md` and
 `docs/handoffs/index.md` create shared awareness like a standup;
 branches/worktrees isolate execution like separate desks; BFM integrates
@@ -35,6 +41,44 @@ Regular cleanup includes external test state: if checks touch a real provider,
 database, payment system, email system, or analytics workspace, closeout names
 test mode, created records/resources, cleanup evidence, or the pending cleanup
 gate.
+
+## BFM Workflow
+
+For BFM/all-handoff processing, Product/BFM must use the same visible workflow
+on every plugin surface:
+
+- **Pre-Execution Card Snapshot**: before claims, edits, deploys, or completion,
+  show the board card ID, status, lane/owner, area, scope, locks, linked
+  handoffs, blockers, gates, checks, branch/PR/staging URL if known, intentional dirty
+  state, objective, key results, definition of done, approval state, and
+  justification.
+- **Goal Approval Gate**: if multiple cards match, show candidates and recommend
+  one. If approval is missing, pending, stale, changed, or unclear, stop before
+  claiming files, editing, deploying, or completing.
+- **five-lane handoff ledger**: check `FB-Lane`, `FB-Product`, `FB-Tech`,
+  `FB-Design`, and `FB-Business`; name matching handoffs or record
+  `no handoff found`; end every found handoff as `implemented`, `already done`,
+  `blocked`, `out of scope`, or `explicitly deferred`.
+- **Story Split Pass**: before prioritizing, decide whether the run should be
+  split into smaller stories. Split mixed lanes, risks, locks, gates, review
+  surfaces, blocked work, and ready-now work; otherwise say `No split needed`.
+- **Dependency And Lock Pass**: classify each ledger item or child story from
+  status, owner, locks, dependencies, blockers, gates, approval, and required checks as
+  `ready now`, `blocked by lock`, `blocked by dependency`,
+  `needs Product decision`, `out of scope`, or `explicitly deferred`.
+- **Unblocked Sequence**: execute only `ready now` work; split independent
+  unlocked work, defer locked overlap with the blocking task named, or stop with
+  the next unblock action when everything is blocked.
+- **Recheck Before Claim**: rerun lane status immediately before claiming or
+  editing; resequence if locks changed.
+- **Post-Action Card Summary**: before closeout, summarize card ID, final
+  status, changed files, checks run, remaining gates, next owner, and whether
+  live deploy is still blocked.
+
+Tech, Design, and Business BFM execution workers wait for Product/BFM to clear
+the Pre-Execution Card Snapshot, Goal Approval Gate, Story Split Pass,
+Dependency And Lock Pass, Unblocked Sequence, and Recheck Before Claim before
+claiming, editing, or submitting.
 
 Treat FB-Lane as an optional coordination protocol, not as the thing that makes Codex parallel.
 Default to normal/simple coding for single-thread work, simple fixes, read-only questions, code
@@ -108,8 +152,26 @@ Business, and lane-coordination view, then sequence and execute to completion.
 
 For non-trivial BFM work, use the Goal Alignment Session and return-loop rules
 described in [`docs/loop-engineering.md`](../../docs/loop-engineering.md).
-If the same loop failure repeats, add a small Markdown eval scorecard; do not
+If the same loop failure repeats, add a small Markdown eval scorecard using the
+generic shape in `docs/evals/agent-behavior-scorecard-template.md`; do not
 install an eval framework by default.
+Approval autonomy starts in Shadow Approval: Product/BFM still asks the user but
+records `Would self-approve: yes/no` and the reason. Product/BFM may recommend
+Phase 2 after one day or three matching decisions with no material miss, and
+Phase 3 after five safe self-approvals with no rollback, stale dirty state, or
+hidden gate. The user approves phase changes. Never self-approve new scope, new
+OKRs, live deploys, secrets, payments, auth/privacy, destructive data,
+provider-state changes, unclear goals, failed evidence, lock conflicts, or
+unresolved dirty state.
+Product/BFM should also proactively propose one small guardrail when repeated
+workflow failure, coordination friction, stale state, missing evidence, or
+preventable rework appears. Name the cost, benefit, affected files/rules, and
+approval needed before changing the process.
+
+Closeout also records `Loop Learning`: feedback captured, whether the pattern
+repeated, tooling needed (`none`, `propose guardrail`, `propose automation`, or
+`propose eval`), and whether Product approval is needed. Heavier tooling starts
+from that field; it is not created automatically.
 
 ## Quick Edits
 
@@ -131,7 +193,7 @@ If they are missing, ask Codex to bootstrap FB-Lane from this plugin before star
 Before source execution, read board/status/locks and the relevant handoff index.
 During isolated work, name the task, branch/worktree, lane, and locked files. At
 closeout, report whether the branch/worktree is clean, merged, stale, blocked,
-or intentionally left open.
+or intentionally dirty.
 
 For a Codex-only project bootstrap, use:
 

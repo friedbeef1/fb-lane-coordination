@@ -61,7 +61,9 @@ properly: approved goal, plan-only lanes, accounted handoffs, matching evidence,
 and honest blockers.
 
 Do not start with an eval framework. Use a short Markdown scorecard when the
-same agent mistake repeats.
+same agent mistake repeats. The reusable shape is in
+`docs/evals/agent-behavior-scorecard-template.md`: non-Product execution gate,
+BFM closeout accounting, evidence honesty, and goal/scope fit.
 
 ## When should I skip FB-Lane?
 
@@ -99,16 +101,21 @@ Product can edit coordination markdown such as the board, plans, handoffs, OKRs,
 Definition of Done, sequencing notes, and closeout notes. Source changes happen
 only after Product launches BFM.
 
+If you say `PLEASE IMPLEMENT THIS PLAN` in a non-Product/BFM lane, the lane
+should confirm whether to hand it to Product/BFM or treat that lane as an
+explicit one-off execution exception.
+
 ## How does code change if lanes are read-only?
 
 Product launches **BFM (Build Flow Manager)**. BFM reads the approved markdown
-plans, sequences the work, claims files, dispatches implementation workers, runs
-verification, and returns evidence before closeout.
+plans, checks whether the batch should be split into smaller stories, sequences
+the work, claims files, dispatches implementation workers, runs verification,
+and returns evidence before closeout.
 
 Before source execution, the worker reads board/status/locks plus the relevant
 handoff index. During isolated work, it names the task, branch/worktree, lane,
 and locked files. At closeout, it reports whether the branch/worktree is clean,
-merged, stale, blocked, or intentionally left open.
+merged, stale, blocked, or intentionally dirty.
 If checks touched a real provider, database, payment system, email system, or
 analytics workspace, the same closeout names test mode, created records or
 resources, cleanup evidence, or the pending cleanup gate.
@@ -158,6 +165,40 @@ quick `TASK-Q-*` work.
 It should not become a giant rule engine. Use `doctor` for obvious missing or
 stale structure; use Product/BFM judgment for loop health.
 
+## Does FB-Lane improve itself automatically?
+
+Not silently. Product/BFM should proactively propose a small guardrail when the
+same workflow failure, stale state, missing evidence, or preventable rework
+repeats. The proposal names the pattern, benefit, cost, affected files/rules,
+and approval needed. It should skip one-off or low-impact issues.
+
+Closeout carries the trigger:
+
+```md
+Loop Learning:
+- Feedback captured: <none | issue found>
+- Repeated pattern?: no | yes
+- Tooling needed?: none | propose guardrail | propose automation | propose eval
+- Product approval needed?: no | yes
+```
+
+That is how the system knows when heavier tooling is worth discussing without
+building it by default.
+
+## Can the loops self-approve?
+
+Eventually, for low-risk continuation work. Start with **Shadow Approval**:
+Product/BFM asks the user and records `Would self-approve: yes/no` with the
+reason. It may recommend Phase 2 after one day or three matching decisions with
+no material miss. It may recommend Phase 3 after five safe self-approvals with
+no rollback, stale dirty state, or hidden gate.
+
+Phase changes are recommended by Product/BFM and approved by the user. Workstream
+loops can mark work `safe to auto-accept`, but Product/BFM owns actual
+self-approval. Never self-approve new scope, new OKRs, live deploys, secrets,
+payments, auth/privacy, destructive data, provider-state changes, unclear goals,
+failed evidence, lock conflicts, or unresolved dirty state.
+
 ## Why is there a handoff index?
 
 To avoid token waste. `PROJECT_BOARD.md` stays the source of truth. The index is
@@ -175,6 +216,18 @@ index is lookup.
 Worktrees do not replace this lookup. No lane should disappear into a private
 worktree, build a huge unannounced diff, edit source without board/lock
 awareness, or close without BFM reconciliation when multiple outputs exist.
+
+## What are workstream status cards?
+
+They are small lane revisit summaries at `docs/workstreams/<lane>.md`.
+
+Product/BFM updates the relevant card after executing or explicitly deferring a
+lane handoff. When someone returns to Tech, Design, Business, or Product, the
+lane reads the board, the handoff index, then its card to see what Product/BFM
+already did, what is still pending or blocked, and where the evidence lives.
+
+They are not a second board. Do not put full OKRs, QA logs, plans, rationale,
+copy variants, or implementation detail there.
 
 ## Are the lanes mandatory?
 

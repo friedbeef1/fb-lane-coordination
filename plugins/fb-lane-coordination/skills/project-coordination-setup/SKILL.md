@@ -11,12 +11,23 @@ description: >-
 ## Overview
 This skill instantiates the **Four-Lane Multi-Thread Coordination Model** in any software project directory (SaaS, backend API, mobile/web app, dev tool, etc.). It sets up the project board, updates configuration files safely, and registers specialized subagents to coordinate creative design, technical engineering, and product orchestration without context bleeding.
 
-For non-trivial work, the bootstrap must leave an approved OKR tree slot on the board: a Product/workstream or BFM-target OKR (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) plus stable lane OKRs where relevant. Handoffs use compact `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` fields. Product/BFM owns OKR reconciliation and changes OKRs only after discussion and explicit user approval; do not generate a fresh OKR for every task. Bootstrap also creates `docs/handoffs/index.md` so agents discover handoffs through a compact routing table before opening detailed files; `PROJECT_BOARD.md` is truth, the index is routing, and detailed handoffs are detail.
-For BFM/all-handoff processing, Product must also leave the return loop: every handoff is `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`, board/source/docs/tests agree before closeout, and the closeout includes one health flag: `healthy`, `watch`, `needs Product review`, or `blocked`.
+For non-trivial work, the bootstrap must leave an approved OKR tree slot on the board: a Product/workstream or BFM-target OKR (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) plus stable lane OKRs where relevant. Handoffs use compact `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` fields. Product/BFM owns OKR reconciliation and changes OKRs only after discussion and explicit user approval; do not generate a fresh OKR for every task. Bootstrap also creates `docs/handoffs/index.md` so agents discover handoffs through a compact routing table before opening detailed files; `PROJECT_BOARD.md` is truth, the index is routing, `docs/workstreams/<lane>.md` cards are revisit summaries, and detailed handoffs are detail.
+Bootstrap creates `docs/workstreams/fb-product.md`, `docs/workstreams/fb-tech.md`, `docs/workstreams/fb-design.md`, and `docs/workstreams/fb-business.md`. Product/BFM refreshes the relevant card after executing or explicitly deferring a lane handoff. Worker lanes read the board, handoff index, then their card before opening detailed handoffs. Cards must stay compact and not contain full OKRs, QA logs, plans, rationale, copy variants, or implementation detail.
+For BFM/all-handoff processing, Product must also leave the return loop: a five-lane handoff ledger checks `FB-Lane`, `FB-Product`, `FB-Tech`, `FB-Design`, and `FB-Business`; every matching handoff is `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`; missing lane handoffs are recorded as `no handoff found`; board/source/docs/tests agree before closeout; and the closeout includes one health flag: `healthy`, `watch`, `needs Product review`, or `blocked`.
 
 Bootstrap guidance must also include objective mode selection: default to normal/simple coding unless the objective mentions coordination triggers. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 
 Bootstrap guidance must include awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
+
+Bootstrap guidance must include the BFM Visible Card and Approval Fix: before execution BFM shows a visible card snapshot; if approval is missing, pending, stale, changed, or unclear, BFM stops and asks; after action BFM summarizes the card outcome.
+
+Bootstrap guidance must include Story Split Pass, Dependency And Lock Pass, Unblocked Sequence, and Recheck Before Claim: before BFM prioritizes, decide whether the run should be split into smaller stories; split mixed lanes, risks, locks, gates, review surfaces, blocked work, and ready-now work, or say `No split needed`; classify each five-lane ledger item or child story from status, owner, locks, dependencies, blockers, gates, approval, and required checks as exactly one of `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`; execute only `ready now`; do not claim/touch files locked by another active lane; split unlocked work or defer with the blocking task named; stop with a next unblock action if everything is blocked; rerun lane status immediately before claiming/editing and resequence if locks changed.
+
+Bootstrap guidance must include Proactive Loop Hardening: when Product/BFM sees repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework, it proposes one small guardrail with observed pattern, recommended guardrail, cost, benefit, files/rules affected, and approval needed. It must not silently change the process and should skip one-off or low-impact issues.
+
+Bootstrap guidance must include optional eval scorecards: when `Loop Learning` chooses `propose eval`, create a small Markdown scorecard under `docs/evals/` with sections for non-Product execution gate, BFM closeout accounting, evidence honesty, and goal/scope fit. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger `doctor` rules without explicit approval.
+
+Bootstrap guidance must include approval autonomy phases: start with Phase 1 Shadow Approval where Product/BFM asks the user but records `Would self-approve: yes/no`; Product/BFM may recommend Phase 2 after one day or three matching decisions with no material miss, and Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate. The user approves phase changes. Workstreams may mark work `safe to auto-accept`, but Product/BFM owns actual self-approval. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state.
 
 ## Dependencies
 None.
@@ -59,10 +70,22 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 
 ### 2. The Board Loop & Resource Locking
 - `PROJECT_BOARD.md` in the project root is the source of truth.
-- **Plan First / BFM Claim & Lock**: Product scopes the item; workstreams write markdown plans or handoffs instead of editing source. BFM execution workers claim task/files in `PROJECT_BOARD.md` only after Product launches execution. For non-trivial tasks, Product reads existing approved OKRs first, proposes only missing Product/workstream or lane OKRs needed for clarity, and records or changes them only after the user explicitly approves before execution moves to `In Progress` with declared Affected Screens and Locked Files.
+- **Plan First / BFM Claim & Lock**: Product scopes the item; workstreams write markdown plans or handoffs instead of editing source. If the user says `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM, the lane confirms whether to prepare the Product/BFM handoff or execute there as an explicit one-off exception before editing source. BFM execution workers claim task/files in `PROJECT_BOARD.md` only after Product launches execution. For non-trivial tasks, Product reads existing approved OKRs first, proposes only missing Product/workstream or lane OKRs needed for clarity, and records or changes them only after the user explicitly approves before execution moves to `In Progress` with declared Affected Screens and Locked Files.
+- **Pre-Execution Card Snapshot**: Before BFM claims files, edits, deploys, or completes work, show card ID, status, lane/owner, area, scope, locks, linked handoffs, blockers, gates, checks, branch/PR/staging URL if known, intentional dirty state, and goal details: objective, key results, definition of done, approval state, and justification.
+- **Goal Approval Gate**: If multiple cards match, show candidates and recommend one. If approval is missing, pending, stale, changed, or unclear, stop and ask. No claiming files, edits, deploys, or completion before approval.
 - **Push & QA**: When complete, BFM execution workers push feature branches (e.g. `bfm/[task]`, `tech/[task]`, or `design/[task]`), update board status to `Staging QA`, and list modified files/QA checks.
+- **Post-Action Card Summary**: After BFM acts, summarize card ID, final status, changed files, checks run, remaining gates, next owner, and whether live deploy is still blocked.
+- **Workstream Status Card**: After Product/BFM executes or explicitly defers a lane handoff, update `docs/workstreams/<lane>.md` with `Last Updated`, `Lane`, `Current Summary`, `Already Executed By Product/BFM`, `Still Pending / Blocked`, and `Evidence Links`.
+- **Five-Lane Handoff Ledger**: For BFM/all-handoff processing, check `FB-Lane`, `FB-Product`, `FB-Tech`, `FB-Design`, and `FB-Business` before sequencing. Name matching handoff files or show `no handoff found`; do not silently skip a lane.
+- **Story Split Pass**: Before prioritizing, decide whether the run should be split into smaller stories. Split mixed lanes, risks, locks, gates, review surfaces, blocked work, and ready-now work; otherwise say `No split needed`.
+- **Dependency And Lock Pass**: For each five-lane ledger item or child story, capture status, owner, locks, dependencies, blockers, gates, approval, and required checks. Classify it as exactly one of `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`.
+- **Unblocked Sequence**: Execute only `ready now`. Do not claim or touch files locked by another active lane. If work overlaps locked files, split independent unlocked work or defer with the blocking task named. If everything is blocked, stop with the recommended next unblock action.
+- **Recheck Before Claim**: Rerun lane status immediately before claiming or editing. If locks changed, resequence instead of using stale assumptions.
 - **Isolated Execution Naming**: Before source execution, workers read board/status/locks and the relevant handoff index. During isolated work, they name the task, branch/worktree, lane, and locked files.
-- **Handoff, Unlock & Clean**: Product reviews staging, reconciles `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` from lane handoffs, proposes aligned alternatives when work conflicts with approved OKRs, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. Closeout names whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open, plus external-service cleanup evidence when tests created provider records/resources.
+- **Handoff, Unlock & Clean**: Product reviews staging, reconciles `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` from lane handoffs, proposes aligned alternatives when work conflicts with approved OKRs, merges the branch, removes resource locks (marking the task `Done`), and notifies the lane thread. Closeout names whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty, plus external-service cleanup evidence when tests created provider records/resources.
+- **Proactive Loop Hardening**: When repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework appears, Product/BFM proposes one small guardrail with observed pattern, cost, benefit, affected files/rules, and approval needed before changing the process. Skip one-off or low-impact issues.
+- **Optional Eval Scorecards**: When `Loop Learning` chooses `propose eval`, create a small Markdown scorecard under `docs/evals/` with sections for non-Product execution gate, BFM closeout accounting, evidence honesty, and goal/scope fit. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger `doctor` rules without explicit approval.
+- **Approval Autonomy Phases**: Start with Phase 1 Shadow Approval. Product/BFM may recommend Phase 2 after one day or three matching decisions with no material miss, and Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate; the user approves phase changes. Workstreams can mark `safe to auto-accept`, but Product/BFM owns actual self-approval and never self-approves risky surfaces.
 
 ### 3. Safety & Git Hygiene
 - **Never commit directly to main**. All work goes through feature branches.
@@ -70,6 +93,27 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 - **Product Direction / BFM Execution**: If tests, builds, Git staging, or browser verification hang in Product, stop the retry loop, record `pending-gate` or `blocked` with evidence, and return execution to BFM sequencing.
 - **Rejection & Rectification**: If Product rejects a branch due to failing test suites, visual QA issues, or strategic misalignment, Product marks the task `Blocked` or `Rejected` on `PROJECT_BOARD.md` (attaching the failure logs) and alerts the user and the lane agent. The lane agent then resolves the bugs locally on its feature branch until all tests pass before resubmitting. If the changes are permanently rejected, Product closes the PR, deletes the feature branch, and removes the task and resource locks from the board.
 ```
+
+### Phase 2b: Create Workstream Status Cards
+Create `docs/workstreams/` with one compact card per lane:
+
+- `docs/workstreams/fb-product.md`
+- `docs/workstreams/fb-tech.md`
+- `docs/workstreams/fb-design.md`
+- `docs/workstreams/fb-business.md`
+
+Each card uses only:
+
+```markdown
+Last Updated:
+Lane:
+Current Summary:
+Already Executed By Product/BFM:
+Still Pending / Blocked:
+Evidence Links:
+```
+
+Cards are summaries only. Do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail there.
 
 ### Phase 3: Create PROJECT_BOARD.md
 If `PROJECT_BOARD.md` does not exist, create it with the following structure:
@@ -131,8 +175,13 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 
 ### BFM Return Loop
 - Every processed handoff is marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+- Every BFM/all-handoff run checks `FB-Lane`, `FB-Product`, `FB-Tech`, `FB-Design`, and `FB-Business`; lanes without matching handoffs are recorded as `no handoff found`.
+- Story Split Pass: before prioritizing, decide whether to split into smaller stories; split mixed lanes, risks, locks, gates, review surfaces, blocked work, and ready-now work, or say `No split needed`.
+- Dependency And Lock Pass: classify each five-lane ledger item or child story from status, owner, locks, dependencies, blockers, gates, approval, and required checks as exactly one of `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`.
+- Unblocked Sequence: execute only `ready now`; split independent unlocked work, defer locked overlap with the blocking task named, or stop with the recommended next unblock action when everything is blocked.
+- Recheck Before Claim: rerun lane status immediately before claiming or editing; resequence if locks changed.
 - Product/BFM returns to board, handoffs, source/docs/tests, lane status, and git status before closeout.
-- Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded. Name whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open. If checks touched external services, also name test mode, created records/resources, cleanup evidence, or the pending cleanup gate.
+- Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded. Name whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If checks touched external services, also name test mode, created records/resources, cleanup evidence, or the pending cleanup gate.
 - Add one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`; do not numeric-score the loop.
 
 ### Handoff Index

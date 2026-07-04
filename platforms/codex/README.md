@@ -74,9 +74,16 @@ $bfm process the prepared handoffs for this task and execute the sequence to com
 
 For non-trivial BFM work, use the Goal Alignment Session and return-loop rules
 described in [Loop Engineering](../../docs/loop-engineering.md). The plugin does
-not create Codex's parallelism. Codex already has that. The plugin packages the
-coordination layer: skills, MCP status/claim/submit/merge tools, file locks,
-handoffs, and Product/Captain integration.
+not create Codex's parallelism. Product/BFM should also run the Story Split Pass
+before prioritizing: split mixed lanes, locks, gates, blocked work, and ready-now
+work into smaller stories, or say `No split needed`. Codex already has
+parallelism; the plugin packages the coordination layer: skills, MCP
+status/claim/submit/merge tools, file locks, handoffs, and Product/Captain
+integration.
+
+If the same coordination friction, stale state, missing evidence, or rework
+pattern repeats, Product/BFM should proactively propose one small guardrail for
+approval instead of silently changing the process.
 
 If the project itself still needs FB-Lane repo files, run the Codex-only bootstrap from the project
 root:

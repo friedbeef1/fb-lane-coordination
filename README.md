@@ -36,6 +36,11 @@ FB-Lane gives that loop a small set of files and commands: `PROJECT_BOARD.md`,
 `docs/handoffs/index.md`, lane plans/handoffs, file claims during BFM execution,
 `doctor`, and BFM/Product closeout checks.
 
+Every BFM run includes a story-split check before prioritization: if the batch
+mixes lanes, locks, risks, gates, review surfaces, blocked work, and ready work,
+Product/BFM splits it into smaller stories and sequences only the unblocked
+slice; otherwise it says `No split needed` and continues.
+
 The operating rule is awareness, isolation, integration: `PROJECT_BOARD.md` and
 `docs/handoffs/index.md` create shared awareness like a standup;
 branches/worktrees isolate execution like separate desks; BFM integrates
@@ -49,7 +54,25 @@ closeout: automated merge safety, manual release control.
 
 FB-Lane evals are lightweight behavior checks for the agents themselves. They
 answer: did Product/BFM run the loop correctly? Keep them as Markdown
-scorecards until repeated failures justify automation.
+scorecards until repeated failures justify automation. Use the generic
+scorecard shape in `docs/evals/agent-behavior-scorecard-template.md` only when
+`Loop Learning` points to a repeated agent-behavior failure.
+
+When Product/BFM sees the same workflow failure, stale state, missing evidence,
+or preventable rework repeat, it should propose one small guardrail for approval
+instead of waiting for the user to notice it again.
+
+At closeout, Product/BFM records a tiny `Loop Learning` check: feedback captured,
+whether the pattern repeated, whether tooling is needed (`none`, `propose
+guardrail`, `propose automation`, or `propose eval`), and whether Product
+approval is needed. This is the escalation trigger, not a new command.
+
+Approval autonomy is phased. Start in **Shadow Approval**: Product/BFM still
+asks the user, but records `Would self-approve: yes/no` and the reason. Product/BFM
+may recommend moving to bounded self-approval after repeated matches, but the
+user approves the phase change. Risky surfaces such as live deploys, secrets,
+payments, auth/privacy, destructive data, provider state, unclear goals, failed
+evidence, scope changes, and stale dirty state never self-approve.
 
 ## FB-Lane Framework OKR
 
@@ -126,7 +149,8 @@ Product is source-read-only too. Product may edit coordination markdown:
 and closeout notes.
 
 Source changes happen only inside a Product-launched **BFM (Build Flow
-Manager)** execution run. BFM reads the approved plans, sequences work, claims
+Manager)** execution run. BFM reads the approved plans, checks whether they
+should be split into smaller stories before prioritizing, sequences work, claims
 files, dispatches implementation workers, verifies evidence, and returns to the
 board/docs/source/git state before closeout.
 
@@ -157,13 +181,17 @@ or tests say otherwise.
 | Role clarity | FB-Product, FB-Tech, FB-Design, and FB-Business lanes |
 | Collision control | File claims plus named branches/worktrees for isolated execution |
 | Cheap context lookup | `docs/handoffs/index.md` routes to detailed handoff files |
+| Lane revisit summary | `docs/workstreams/<lane>.md` shows already-executed work, pending items, and evidence links |
 | Durable plan/handoff | `docs/handoffs/<task-id>.md` or project plan markdown |
 | Evidence return | `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` |
 | Health check | `node tools/fb-lane.cjs doctor` |
 | Agent behavior evals | Optional Markdown scorecards for repeated loop failures |
 | Execution gate | Product-launched BFM run |
+| Explicit plan phrase gate | `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM requires confirmation before source edits |
 | Integration | BFM/Product reconciliation before sequencing or merge |
 | Closeout | Explicit status plus loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked` |
+| Loop learning | Closeout field that escalates repeated friction to a guardrail, automation, or eval proposal |
+| Approval autonomy | Phased from shadow approval to bounded self-approval only after user-approved promotion |
 
 ## Roles Inside The Loop
 
@@ -233,10 +261,16 @@ routing; detailed handoffs are detail. The index should stay compact with
 `Checks / Evidence`, and `Detail`. Keep full OKRs, QA checklists, plans, logs,
 rationale, copy variants, and implementation detail in detailed handoffs.
 
+`docs/workstreams/<lane>.md` is the lane revisit card. Product/BFM refreshes it
+after executing or explicitly deferring a lane handoff so a returning Tech,
+Design, Business, or Product thread can see what already happened, what remains
+pending or blocked, and where the evidence lives. It is a summary only, not a
+second board.
+
 Before source execution, read board/status/locks and the relevant handoff index.
 During isolated work, name the task, branch/worktree, lane, and locked files in
 the handoff or board update. At closeout, report whether the branch/worktree is
-clean, merged, stale, blocked, or intentionally left open.
+clean, merged, stale, blocked, or intentionally dirty.
 If checks touched external services, also name test mode, created records or
 resources, cleanup evidence, or the pending cleanup gate.
 

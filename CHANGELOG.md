@@ -7,6 +7,16 @@
   handoff index provide shared awareness, branches/worktrees isolate execution,
   and BFM integrates outcomes; worktrees no longer read as a replacement for
   board/lock awareness or BFM reconciliation.
+- Coordination: added a compact `Loop Learning` closeout field so repeated
+  friction can escalate to a Product-approved guardrail, automation, or eval
+  proposal without adding a new command or expanding `doctor`.
+- Coordination: added a generic optional agent-behavior eval scorecard template
+  for repeated loop failures. It stays Markdown-only and does not add eval
+  runners, dashboards, numeric scoring, CI eval jobs, or `doctor` rules.
+- Coordination: added phased approval-autonomy guidance so Product/BFM starts in
+  Shadow Approval, may recommend bounded self-approval only after matching safe
+  decisions, and never self-approves risky scope, live, data, provider, or
+  unclear-goal surfaces.
 - Cleanup: closeouts now include external-service test state when checks create
   provider records/resources: test mode, cleanup evidence, or a pending cleanup
   gate.

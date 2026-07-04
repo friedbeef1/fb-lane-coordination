@@ -28,6 +28,11 @@ No closeout until goal, work, evidence, board state, and repo truth agree,
 or every disagreement is explicitly marked blocked, out of scope, or deferred.
 ```
 
+Before prioritizing a BFM run, Product/BFM also performs a Story Split Pass. If
+the batch mixes lanes, locks, risks, gates, review surfaces, blocked work, and
+ready work, split it into smaller stories and sequence only the unblocked slice.
+If no split helps, say `No split needed` and continue.
+
 The practical rule is awareness, isolation, integration:
 
 - `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a
@@ -55,7 +60,10 @@ between goals, evidence, board state, and repo truth.
 - Account for every non-quick BFM handoff at closeout as `implemented`,
   `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
 - Keep bootstrapped projects on the simple contract: board is truth, handoff
-  index is routing, detailed handoffs are detail.
+  index is routing, workstream cards are summaries, and detailed handoffs are
+  detail.
+- Catch repeated loop friction and propose one small guardrail for Product
+  approval before the same failure causes more rework.
 
 **Definition of Done:** Docs, skills, templates, `doctor`, and Product/BFM
 closeout guidance support the return loop without per-task OKR generation,
@@ -70,19 +78,80 @@ flowchart TD
     B --> C["Run Goal Alignment Session"]
     C --> D{"OKRs approved?"}
     D -- "No" --> C
-    D -- "Yes" --> E["Sequence approved markdown plans"]
-    E --> F["BFM executes next slice"]
-    F --> G["Verify evidence"]
-    G --> H["Return to handoffs, source, docs, tests, and board"]
-    H --> I{"Everything agrees?"}
-    I -- "No" --> J["Fix gap or record blocked/out of scope/deferred"]
-    J --> H
-    I -- "Yes" --> K["Update board and handoff closeout"]
-    K --> L["Run status/doctor and git clean check"]
-    L --> M{"Clean state or named dirty state?"}
-    M -- "No" --> J
-    M -- "Yes" --> N["Close the run"]
+    D -- "Yes" --> E["Story Split Pass"]
+    E --> F["Sequence approved markdown plans"]
+    F --> G["BFM executes next slice"]
+    G --> H["Verify evidence"]
+    H --> I["Return to handoffs, source, docs, tests, and board"]
+    I --> J{"Everything agrees?"}
+    J -- "No" --> K["Fix gap or record blocked/out of scope/deferred"]
+    K --> I
+    J -- "Yes" --> L["Update board and handoff closeout"]
+    L --> M["Run status/doctor and git clean check"]
+    M --> N{"Clean or intentionally dirty state?"}
+    N -- "No" --> K
+    N -- "Yes" --> O["Propose guardrail if friction repeated"]
+    O --> P["Close the run"]
 ```
+
+## Proactive Loop Hardening
+
+Product/BFM should proactively propose loop hardening when it sees repeated
+workflow failure, coordination friction, stale state, missing evidence, or
+preventable rework. Propose one small guardrail at a time with:
+
+- observed pattern
+- recommended guardrail
+- cost
+- benefit
+- files/rules affected
+- approval needed
+
+Do not silently change the process. Skip one-off or low-impact issues.
+
+At closeout, Product/BFM records this compact learning check:
+
+```md
+Loop Learning:
+- Feedback captured: <none | issue found>
+- Repeated pattern?: no | yes
+- Tooling needed?: none | propose guardrail | propose automation | propose eval
+- Product approval needed?: no | yes
+```
+
+Heavier tooling starts only from this field. Use `none` for one-off friction,
+`propose guardrail` for repeated process misses, `propose automation` for
+repeated manual checks, and `propose eval` for repeated agent-behavior failures.
+
+## Approval Autonomy Phases
+
+Use phases so loops earn trust without silently promoting themselves:
+
+- **Phase 1: Shadow Approval** - Product/BFM still asks the user, but records
+  `Would self-approve: yes/no` and the reason.
+- **Phase 2: Bounded Self-Approval** - Product/BFM may self-approve low-risk
+  continuation work that fits the approved OKR and Definition of Done.
+- **Phase 3: Exception-Only Approval** - Product/BFM proceeds inside approved
+  boundaries and asks only for exceptions.
+
+Transitions are recommendations, not automatic promotion:
+
+- Move from Phase 1 to Phase 2 after one day or three BFM runs where shadow
+  approval matched the user's decision with no material miss.
+- Move from Phase 2 to Phase 3 after five self-approved low-risk decisions with
+  no rollback, stale dirty state, or hidden gate.
+- Move back down on any material miss, failed evidence, accidental source edit,
+  stale uncommitted work, scope drift, or hidden gate.
+
+Bounded self-approval is only for low-risk continuation work. It must fit an
+approved Product/workstream OKR and Definition of Done, add no new scope or OKR,
+have passing or explicitly non-blocking checks, and have no lock conflict or
+unresolved dirty state. Never self-approve live deploys, secrets, payment
+credentials, auth/privacy changes, destructive data actions, provider-state
+changes, unclear goals, failed evidence, or product direction changes.
+
+Workstream loops may recommend `safe to auto-accept`; Product/BFM owns the
+actual self-approval decision.
 
 ## Goal Alignment Session
 
@@ -128,6 +197,23 @@ Rules:
 - If a new or changed OKR seems necessary, Product/BFM explains why in plain
   language and stops for explicit approval before applying it.
 
+## Progressive Disclosure Files
+
+FB-Lane uses four layers so agents can restart without reading everything:
+
+| Layer | File | Purpose |
+|---|---|---|
+| Truth | `PROJECT_BOARD.md` | Status, owners, locks, approved OKRs, sequencing, gates |
+| Routing | `docs/handoffs/index.md` | Compact lookup for active dependencies, blockers, gates, checks, and detail files |
+| Revisit summary | `docs/workstreams/<lane>.md` | What Product/BFM already executed or deferred for a lane, what remains pending or blocked, and evidence links |
+| Detail | `docs/handoffs/<task-id>.md` | Plans, rationale, logs, QA detail, copy variants, implementation notes |
+
+Product/BFM refreshes the relevant workstream card after executing or explicitly
+deferring a lane handoff. Worker lanes read `PROJECT_BOARD.md`, then
+`docs/handoffs/index.md`, then their card before opening detailed handoffs. The
+card must stay compact and must not duplicate the board, full OKRs, QA logs,
+plans, rationale, copy variants, or implementation details.
+
 ## Plan-Only Workstreams
 
 Product, Tech, Design, and Business workstream threads are read-only planning
@@ -139,6 +225,10 @@ from ordinary workstream chat.
 Product may edit coordination markdown: `PROJECT_BOARD.md`, plans, handoffs,
 OKRs, Definition of Done, sequencing notes, and closeout notes. Product must not
 edit application/source code directly.
+
+If the user says `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM, the lane must
+confirm whether to prepare the Product/BFM handoff or execute there as an
+explicit one-off exception before editing source.
 
 Execution begins only when Product launches **BFM (Build Flow Manager)**. During
 that run, BFM reads the approved plans, sequences work, claims files, dispatches
@@ -288,7 +378,7 @@ non-quick work has the expected loop state. It can warn about issues such as:
 - non-quick handoffs missing `Lane OKR Fit`, `Mini-loop Evidence`, or `Evidence Against Product OKR`
 - non-quick BFM targets with missing or unapproved Goal Alignment Session OKRs
 - handoffs that imply a new or changed OKR without a board-approved OKR update
-- dirty git state that Product should name before closeout
+- intentionally dirty git state that Product should name before closeout
 
 In v1, `doctor` is advisory. It warns so Product can correct drift without
 turning every mismatch into a hard block.
@@ -329,17 +419,13 @@ Use evals when the same agent failure repeats, such as:
 - lanes edit source outside BFM execution
 - closeout says "done" without evidence
 
-Start with a Markdown scorecard, not a framework:
+Start with a Markdown scorecard, not a framework. The generic template lives at
+`docs/evals/agent-behavior-scorecard-template.md` and covers:
 
-```md
-# BFM Closeout Eval
-
-- [ ] Approved OKR exists before execution.
-- [ ] Every handoff is implemented, already done, blocked, out of scope, or deferred.
-- [ ] Evidence matches board, source, docs, tests, and git state.
-- [ ] Missing gates are named instead of hidden.
-- [ ] Closeout note is passive and non-triggering.
-```
+- non-Product execution gate
+- BFM closeout accounting
+- evidence honesty
+- goal and scope fit
 
 Automate only after the scorecard proves useful.
 
@@ -354,13 +440,15 @@ A good closeout names:
 - evidence and checks run
 - board updates
 - remaining gates
-- branch/worktree state: clean, merged, stale, blocked, or intentionally left open
+- branch/worktree state: clean, merged, stale, blocked, or intentionally dirty
 - external-service cleanup: test mode, created records/resources, cleanup evidence, or pending gate
 
 Passive closeout note shape:
 
 ```text
 Closeout note - TASK-123: implemented.
+Health: <healthy|watch|needs Product review|blocked>.
+Loop Learning: Feedback captured: <none|issue found>; Repeated pattern?: <no|yes>; Tooling needed?: <none|propose guardrail|propose automation|propose eval>; Product approval needed?: <no|yes>.
 Delivered: <work completed>.
 Evidence: <checks, screenshots, docs, PRs, staging links>.
 Remaining: <merge, approval, deploy, or none>.

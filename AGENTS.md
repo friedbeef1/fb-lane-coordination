@@ -49,6 +49,12 @@ To prevent context window overload and git collisions, strictly adhere to your a
 ### 🧾 Passive Closeout Notes
 Every lane must leave a final informational closeout note in its thread when it stops work on a task. The note records task ID, status, delivered work, evidence, remaining gates, and the handoff path. Product/BFM closeouts also record one loop health flag. The note must not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane; `PROJECT_BOARD.md` and `docs/handoffs/` remain the trigger source.
 
+Product/BFM closeouts also include `Loop Learning`: feedback captured, whether the pattern repeated, tooling needed (`none`, `propose guardrail`, `propose automation`, or `propose eval`), and whether Product approval is needed. This is the escalation trigger for heavier loop tooling.
+
+When `Loop Learning` chooses `propose eval`, use a small Markdown scorecard under `docs/evals/` with the generic sections from `docs/evals/agent-behavior-scorecard-template.md`: non-Product execution gate, BFM closeout accounting, evidence honesty, and goal/scope fit. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger `doctor` rules unless Product/BFM proposes that heavier option with pros/cons and the user explicitly approves it.
+
+Approval autonomy is phased. Phase 1 is Shadow Approval: Product/BFM still asks the user, but records `Would self-approve: yes/no` and the reason. Product/BFM may recommend Phase 2 after one day or three matching decisions with no material miss, and Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate; the user approves phase changes. Workstreams may mark work `safe to auto-accept`, but Product/BFM owns actual self-approval. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state.
+
 ### 🎯 Goal Alignment Session
 Use a Goal Alignment Session for non-trivial handoffs and sequencing work. Product/BFM owns the approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream or BFM-target OKR with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`, plus stable lane OKRs for Product, Tech, Design, and Business where those lanes are relevant. Keep every OKR plain enough for a Product Manager to skim and approve.
 
@@ -75,14 +81,21 @@ BFM blocks before execution when approval is missing, OKRs are unclear, or hando
 
 Read or refresh the index before opening detailed handoffs, then open only the files relevant to the active task unless Product/BFM is doing a full closeout audit. Before non-quick Product/BFM sequencing, create or refresh the index when handoffs exist and the lookup layer is missing, stale, or too vague. The compact index columns are `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`. Do not put full OKRs, full QA checklists, plans, logs, rationale, copy variants, or implementation detail in the index.
 
+### 🧭 Workstream Status Cards
+`docs/workstreams/<lane>.md` is a revisit summary for Product, Tech, Design, and Business lanes. It helps a returning lane see what Product/BFM already executed, what remains pending or blocked, and where the evidence lives.
+
+Product/BFM refreshes the relevant card after executing or explicitly deferring a lane handoff. Worker lanes read their card after `PROJECT_BOARD.md` and `docs/handoffs/index.md`, then open detailed handoffs only when needed. Cards must stay compact: no full OKRs, full QA logs, plans, rationale, copy variants, or implementation detail.
+
 Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no disappearing into a private worktree, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
 
 ### 🧱 Plan-Only Workstream Rule
 Workstream threads are read-only planning lanes by default. Product, Tech, Design, and Business may converse, ask questions, investigate, and write markdown plans or handoffs. They must not edit application/source code, create implementation branches, commit, submit, merge, deploy, or change provider state from ordinary workstream chat.
 
+If the user says `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM, do not treat it as automatic source-execution approval. Confirm whether to create or update the Product/BFM handoff, or whether the user is explicitly approving this lane as a one-off execution exception.
+
 Execution starts only when Product explicitly launches BFM. During that BFM run, implementation workers may claim files, create branches/worktrees, edit source, run verification, commit, submit PRs, and perform approved merge/deploy steps. The BFM return loop remains responsible for proving that board, source, docs, tests, and git state agree before closeout.
 
-Before source execution, read board/status/locks and the relevant handoff index. During isolated work, name the task, branch/worktree, lane, and locked files in the board update or handoff. At closeout, report whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open. If checks touched external services, also report test mode, created records/resources, cleanup evidence, or the pending cleanup gate.
+Before source execution, read board/status/locks and the relevant handoff index. During isolated work, name the task, branch/worktree, lane, and locked files in the board update or handoff. At closeout, report whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If intentionally dirty, record exact files, owner, reason, next gate, and session-boundary action on `PROJECT_BOARD.md`; at the next session boundary, Product/BFM must continue that task, commit it, revert it, archive it into a handoff, or mark it `blocked`/`deferred` before starting new source work. If checks touched external services, also report test mode, created records/resources, cleanup evidence, or the pending cleanup gate.
 
 ### 🔁 BFM Return Loop
 When the user says "run BFM" or "process all lane handoffs", Product/BFM must not close until every discovered handoff has one explicit status:
@@ -97,12 +110,14 @@ That status must match `PROJECT_BOARD.md`, source files, docs, and test evidence
 
 Product/BFM also records one loop health flag: `healthy` when the loop is safe, `watch` when a target miss is safe but worth noticing, `needs Product review` when sequencing or closeout safety may be affected, and `blocked` when work cannot proceed safely. Do not replace this with numeric loop scoring.
 
+Product/BFM also records `Loop Learning` at closeout. Use `none` for one-off friction, `propose guardrail` for repeated process misses, `propose automation` for repeated manual checks, and `propose eval` for repeated agent-behavior failures. Product approval is required before adding or changing tooling.
+
 Return checks for non-trivial handoff execution:
 1. After reading handoffs, return to `PROJECT_BOARD.md` and confirm every handoff is represented, sequenced, or deferred.
 2. After coding, return to each handoff and confirm the source satisfies the requested contract.
 3. After tests, return to source, docs, and board to catch stale copy, missing wiring, or bad assumptions.
 4. After board/doc updates, return to `node tools/fb-lane.cjs status`.
-5. After commit/push, return to `git status` and close only with the branch/worktree named as clean, merged, stale, blocked, or intentionally left open.
+5. After commit/push, return to `git status` and close only with the branch/worktree named as clean, merged, stale, blocked, or intentionally dirty; intentional dirt must include the session-boundary action on the board.
 
 ### 💬 The User's Role: Supervisor & Reviewer
 
@@ -134,10 +149,12 @@ Internal coordination is automated by the agents, but ownership stays split: Pro
 All tasks must be logged in `PROJECT_BOARD.md` in the project root to coordinate concurrent workstreams:
 1. **Drift Audit**: Before starting, run the drift checklist to verify workspace state.
 2. **Plan First**: Product creates or scopes the item; workstreams discuss and write markdown plans/handoffs. For non-trivial tasks, Product/BFM reads the existing approved OKR tree first, proposes only missing Product/workstream or lane OKRs needed for clarity, and records or changes them only after the user explicitly approves. Worker lanes flag missing, stale, or unclear OKRs in handoffs instead of rewriting the board.
-3. **BFM Claim & Lock**: After Product launches BFM, the BFM execution worker claims the task/files, changes status to `In Progress`, and declares the exact **Affected Screens** and **Locked Files**.
-4. **Commit / QA**: BFM execution work runs in a named isolated branch or worktree, verifies the slice, pushes the branch, sets status to `Staging QA`, and documents modified files, QA evidence, lane, locked files, and branch/worktree state.
-5. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.
-6. **Handoff, Unlock & Clean**: Write the structured handoff and passive closeout note. Product reads `PROJECT_BOARD.md` / `docs/handoffs/`, reconciles every lane's `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` before sequencing execution or merge, proposes aligned alternatives for OKR conflicts, merges approved branches, removes resource locks (marking the task `Done`), and records its own passive closeout note. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
+3. **Story Split Pass**: Before BFM prioritizes, Product/BFM decides whether the run should be split into smaller stories. Split mixed lanes, risks, locks, gates, review surfaces, blocked work, and ready-now work; otherwise say `No split needed`.
+4. **BFM Claim & Lock**: After Product launches BFM, the BFM execution worker claims the task/files, changes status to `In Progress`, and declares the exact **Affected Screens** and **Locked Files**.
+5. **Commit / QA**: BFM execution work runs in a named isolated branch or worktree, verifies the slice, pushes the branch, sets status to `Staging QA`, and documents modified files, QA evidence, lane, locked files, and branch/worktree state.
+6. **Link**: Update the task details block and table row with direct links to the Git branch, Pull Request, and staging environment URL.
+7. **Handoff, Unlock & Clean**: Write the structured handoff and passive closeout note. Product reads `PROJECT_BOARD.md` / `docs/handoffs/`, reconciles every lane's `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` before sequencing execution or merge, proposes aligned alternatives for OKR conflicts, merges approved branches, removes resource locks (marking the task `Done`), and records its own passive closeout note. The lane agent (or developer) then performs a local clean-up, deleting the local feature branch.
+8. **Proactive Loop Hardening**: If Product/BFM sees repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework, it proposes one small guardrail with observed pattern, recommended guardrail, cost, benefit, files/rules affected, and approval needed. Do not silently change the process; skip one-off or low-impact issues.
 
 ---
 
@@ -171,5 +188,5 @@ Run this quick checklist when resuming a task after a pause, a context compactio
 1. Are active task statuses on the `PROJECT_BOARD.md` still correct?
 2. Did another agent/developer modify files, schemas, or the staging target while you were away?
 3. Is your staging or live deployment authorization still valid for this specific task?
-4. Do you have uncommitted changes in your branch outside the declared scope?
+4. Do you have uncommitted changes in your branch outside the declared scope, and if so are they classified as intentionally dirty with owner, reason, next gate, and session-boundary action?
 5. Does the next action still belong to your assigned lane?

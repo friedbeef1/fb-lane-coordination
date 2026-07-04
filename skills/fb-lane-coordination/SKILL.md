@@ -12,6 +12,23 @@ Default to normal/simple coding when the request is one-thread and has no listed
 
 Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
 
+## BFM Visible Workflow
+
+Product/BFM must run this workflow before and after BFM/all-handoff execution:
+
+1. **Pre-Execution Card Snapshot**: show card ID, status, lane/owner, area, scope, locks, linked handoffs, blockers, gates, checks, branch/PR/staging URL if known, intentional dirty state, objective, key results, definition of done, approval state, and justification.
+2. **Goal Approval Gate**: if multiple cards match, show candidates and recommend one. If approval is missing, pending, stale, changed, or unclear, stop before claiming files, editing, deploying, or completing.
+3. Build a **five-lane handoff ledger** for `FB-Lane`, `FB-Product`, `FB-Tech`, `FB-Design`, and `FB-Business`; name matching handoffs or record `no handoff found`; end every found handoff as `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+4. **Story Split Pass**: before prioritizing, decide whether the run should be split into smaller stories. Split mixed lanes, risks, locks, gates, review surfaces, blocked work, and ready-now work; otherwise say `No split needed`.
+5. **Dependency And Lock Pass**: classify each ledger item or child story from status, owner, locks, dependencies, blockers, gates, approval, and required checks as `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`.
+6. **Unblocked Sequence**: execute only `ready now` work; split independent unlocked work, defer locked overlap with the blocking task named, or stop with the next unblock action when everything is blocked.
+7. **Recheck Before Claim**: rerun lane status immediately before claiming or editing; resequence if locks changed.
+8. **Post-Action Card Summary**: before closeout, summarize card ID, final status, changed files, checks run, remaining gates, next owner, and whether live deploy is still blocked.
+
+## Proactive Loop Hardening
+
+When Product/BFM sees repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework, propose one small guardrail before changing the process. Include the observed pattern, recommended guardrail, cost, benefit, files/rules affected, and approval needed. Skip one-off or low-impact issues.
+
 ## Preconditions
 - The workspace must have `PROJECT_BOARD.md` and `tools/fb-lane.cjs` initialized (use `project-coordination-setup` skill to initialize if missing).
 - The agent must have permission to run `run_command` to execute node scripts.
@@ -105,6 +122,10 @@ Return checks:
 - after coding, return to each handoff;
 - after tests, return to source, docs, and board;
 - after board/doc updates, return to `node tools/fb-lane.cjs status`;
-- after commit/push, return to `git status` and name whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
+- after commit/push, return to `git status` and name whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty.
 
-Close only when board, source, docs, and tests agree, or every disagreement is explicitly marked. Add one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`; do not numeric-score the loop.
+Close only when board, source, docs, and tests agree, or every disagreement is explicitly marked. Add one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`; do not numeric-score the loop. Add `Loop Learning`: feedback captured, repeated pattern (`no|yes`), tooling needed (`none|propose guardrail|propose automation|propose eval`), and Product approval needed (`no|yes`).
+
+When `Loop Learning` chooses `propose eval`, propose a small Markdown scorecard under `docs/evals/` using the generic sections from `docs/evals/agent-behavior-scorecard-template.md`. Do not create an eval runner, dashboard, numeric score, CI eval job, or larger `doctor` rule unless that heavier option is separately approved.
+
+Approval autonomy is phased. Product/BFM starts with Shadow Approval, may recommend Phase 2 after one day or three matching decisions with no material miss, and may recommend Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate. The user approves phase changes. Workstreams may mark `safe to auto-accept`, but Product/BFM owns actual self-approval and never self-approves risky surfaces.

@@ -70,6 +70,9 @@ Evidence Against Product OKR: <evidence that weakens or blocks the approved Prod
 - Do not put full OKRs, full QA checklists, plans, logs, rationale, copy variants, or implementation detail in the index.
 - Open detailed handoffs only when they are relevant to the active task or Product/BFM closeout.
 
+### Proactive Loop Hardening
+If Product/BFM sees repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework, it should propose one small guardrail with observed pattern, cost, benefit, affected files/rules, and approval needed before changing the process. Skip one-off or low-impact issues.
+
 ### Awareness, Isolation, Integration
 - `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup.
 - Branches/worktrees isolate execution like separate desks.
@@ -77,7 +80,15 @@ Evidence Against Product OKR: <evidence that weakens or blocks the approved Prod
 - Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
 - Before source execution, read board/status/locks and the relevant handoff index.
 - During isolated work, name the task, branch/worktree, lane, and locked files.
-- At closeout, report whether the branch/worktree is clean, merged, stale, blocked, or intentionally left open.
+- At closeout, report whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If intentionally dirty, record exact files, owner, reason, next gate, and session-boundary action; at the next session boundary, continue, commit, revert, archive, or block/defer it before starting new source work.
 
 ### Loop Health Flag
 At closeout, Product/BFM records one flag: `healthy`, `watch`, `needs Product review`, or `blocked`. Use this instead of numeric loop scoring.
+
+### Loop Learning
+At closeout, Product/BFM also records whether feedback was captured, whether the pattern repeated, whether tooling is needed (`none`, `propose guardrail`, `propose automation`, or `propose eval`), and whether Product approval is needed. Heavier tooling starts from this field; it is not added automatically.
+
+If `Loop Learning` chooses `propose eval`, create a small Markdown scorecard under `docs/evals/` with sections for non-Product execution gate, BFM closeout accounting, evidence honesty, and goal/scope fit. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger `doctor` rules unless Product/BFM proposes that heavier option with pros/cons and the user explicitly approves it.
+
+### Approval Autonomy
+Start in Phase 1 Shadow Approval: Product/BFM still asks the user, but records `Would self-approve: yes/no` and the reason. Product/BFM may recommend Phase 2 after one day or three matching decisions with no material miss, and Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate; the user approves phase changes. Workstreams may mark work `safe to auto-accept`, but Product/BFM owns actual self-approval. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state.
