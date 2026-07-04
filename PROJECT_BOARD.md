@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-017 | Staging QA | FB-Tech | Coordination | Harden progressive-disclosure handoff index semantics, FB-Lane framework OKR, drift health guardrails, eval escalation, and phased approval autonomy | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `tools/fb-lane.test.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.test.cjs`, `AGENTS.md`, `.codex/rules.md`, `.claude/agents/**`, `templates/*.md`, `skills/**`, `plugins/fb-lane-coordination/skills/**`, `agents/**`, `plugins/fb-lane-coordination/agents/**`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `platforms/codex/README.md`, `platforms/codex/workflow-rules.md`, `plugins/fb-lane-coordination/README.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-017.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | [Handoff](docs/handoffs/TASK-017.md) |
+| TASK-017 | Staging QA | FB-Tech | Coordination | Harden progressive-disclosure handoff index semantics, FB-Lane framework OKR, drift health guardrails, eval escalation, phased approval autonomy, and version positioning | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `tools/fb-lane.test.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.test.cjs`, `AGENTS.md`, `.codex/rules.md`, `.claude/agents/**`, `templates/*.md`, `skills/**`, `plugins/fb-lane-coordination/skills/**`, `agents/**`, `plugins/fb-lane-coordination/agents/**`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `docs/versioning.md`, `platforms/codex/README.md`, `platforms/codex/workflow-rules.md`, `plugins/fb-lane-coordination/README.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-017.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | [Handoff](docs/handoffs/TASK-017.md) |
 | TASK-016 | Done | FB-Product | Codex Plugin | Add handoff index progressive-disclosure support to the Codex plugin | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/skills/**`, `templates/*.md`, `docs/**`, `README.md`, `FAQ.md`, `CHANGELOG.md` | [Handoff](docs/handoffs/TASK-016.md) |
 | TASK-Q-20260627223437 | Done | FB-Product | Documentation | Document FB-Lane evals as lightweight agent-behavior scorecards | `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `plugins/fb-lane-coordination/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | `codex/evals-docs` |
 | TASK-015 | Done | FB-Product | Coordination | Make workstream threads read-only planning lanes and gate source changes through Product-launched BFM execution | `AGENTS.md`, `CLAUDE.md`, `.codex/rules.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `CHANGELOG.md`, `PROJECT_BOARD.md`, `templates/*.md`, `skills/**/*.md`, `agents/**`, `.claude/agents/**`, `plugins/fb-lane-coordination/**`, `tools/fb-lane.cjs` | [PR #29](https://github.com/friedbeef1/fb-lane-coordination/pull/29) |
@@ -42,7 +42,7 @@
 *   **Status**: Staging QA
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Coordination
-*   **Scope**: Harden the generic handoff-index progressive-disclosure contract so future projects inherit `PROJECT_BOARD.md` as truth, `docs/handoffs/index.md` as routing, detailed handoffs as evidence/detail, one FB-Lane framework OKR, lightweight Product/BFM loop health flags, optional Markdown eval scorecards for repeated agent-behavior failures, and phased approval-autonomy guidance.
+*   **Scope**: Harden the generic handoff-index progressive-disclosure contract so future projects inherit `PROJECT_BOARD.md` as truth, `docs/handoffs/index.md` as routing, detailed handoffs as evidence/detail, one FB-Lane framework OKR, lightweight Product/BFM loop health flags, optional Markdown eval scorecards for repeated agent-behavior failures, phased approval-autonomy guidance, and clear 0.2.0-beta version positioning.
 *   **Out of Scope**: Live deploys, plugin publish/reinstall, hard-blocking `submit`, requiring this for `TASK-Q-*` quick tasks, silently creating missing handoff index files from `doctor`, eval runners, dashboards, numeric scoring, CI eval jobs, bigger `doctor` rules, automatic phase promotion, or a CLI approval state machine.
 *   **Goal Alignment Session**:
     *   **Objective**: Make future FB-Lane projects route through compact handoff indexes without weakening board-based sequencing.
@@ -53,6 +53,7 @@
         *   Product/BFM guidance uses `healthy`, `watch`, `needs Product review`, and `blocked` health flags instead of per-task OKRs or numeric loop scoring.
         *   `Loop Learning: propose eval` points to a small generic Markdown scorecard and does not add heavy eval tooling without separate approval.
         *   Product/BFM approval autonomy starts in Shadow Approval, may recommend phase changes after safe matching decisions, and never self-approves risky or unclear work.
+        *   Public docs name the current model as `FB-Lane 0.2.0-beta: Loop Engineering public beta` and explain the v1-to-latest before/after.
     *   **Definition of Done**: Root and packaged CLI copies match, docs/templates/skills/package copies carry the board/index/handoff contract, relevant checks pass, and remaining risks are named.
     *   **Gate / Review Point**: Product reviews PR #31 and CI readiness before merge.
     *   **Approval**: approved
@@ -73,7 +74,7 @@
     *   `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`
     *   `tools/fb-lane.test.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.test.cjs`
     *   `AGENTS.md`, `.codex/rules.md`, `CLAUDE.md`, `templates/AGENTS.md`, `templates/CLAUDE.md`, `templates/PROJECT_BOARD.md`, `templates/docs/evals/agent-behavior-scorecard-template.md`
-    *   `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `plugins/fb-lane-coordination/README.md`
+    *   `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `docs/versioning.md`, `plugins/fb-lane-coordination/README.md`
     *   `skills/fb-lane-coordination/SKILL.md`, `skills/project-coordination-setup/SKILL.md`, `plugins/fb-lane-coordination/skills/bfm/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-business/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-design/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-lane/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-tech/SKILL.md`, `plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md`
     *   `agents/**`, `plugins/fb-lane-coordination/agents/**`, `.claude/agents/**`
     *   `docs/evals/agent-behavior-scorecard-template.md`, `plugins/fb-lane-coordination/docs/evals/agent-behavior-scorecard-template.md`
@@ -90,6 +91,7 @@
     *   *2026-07-04*: Added the compact `Loop Learning` closeout field across reusable FB-Lane docs, Product/BFM skills, templates, and generated Product prompts so heavier tooling escalates only as `none`, `propose guardrail`, `propose automation`, or `propose eval` with Product approval.
     *   *2026-07-04*: Added the generic optional agent-behavior scorecard template for `Loop Learning: propose eval` and wired Product/BFM guidance to keep evals Markdown-only unless heavier tooling is separately proposed and approved.
     *   *2026-07-04*: Added phased approval-autonomy guidance across docs, templates, Product/BFM skills, generated Product prompts, bootstrap output, and packaged plugin mirrors. Product/BFM starts in Shadow Approval, may recommend Phase 2 or Phase 3 only after safe matching decisions, and never self-approves risky surfaces.
+    *   *2026-07-04*: Added public version positioning for `FB-Lane 0.2.0-beta: Loop Engineering public beta`, including a v1-to-latest before/after in `docs/versioning.md`.
     *   *2026-07-04*: Verification passed for CLI syntax, test syntax, root/package parity, generated Product JSON and manifest parsing, regression tests, scorecard/approval wording scans, and `git diff --check`. `doctor` and the validator stop only because this TASK-017 update is intentionally dirty pending commit. Owner: Product/BFM. Next gate: commit/push current TASK-017 update or explicitly defer before starting new source work.
 
 

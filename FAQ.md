@@ -1,5 +1,16 @@
 # FB-Lane FAQ
 
+## What version is this?
+
+The current GitHub documentation line is **FB-Lane 0.2.0-beta: Loop Engineering
+public beta**.
+
+The Codex plugin manifest may still show a build ID such as
+`0.1.2+codex.20260627210000` until the next release is cut. Use
+`codex plugin list | rg "fb-lane-coordination"` to see the installed build.
+
+See [docs/versioning.md](docs/versioning.md) for the v1-to-latest before/after.
+
 ## Is this just project management?
 
 No. Project management tracks work. Loop Engineering makes agent work return to
@@ -159,8 +170,8 @@ handoff folder, handoff index, active locks, git state, non-quick handoff
 `Lane OKR Fit`, `Mini-loop Evidence`, `Evidence Against Product OKR`, approved
 Goal Alignment Session OKRs, and handoffs that imply unapproved OKR changes.
 
-In v1 it warns. It does not change `submit` behavior and does not hard-block
-quick `TASK-Q-*` work.
+In the current public beta it warns. It does not change `submit` behavior and
+does not hard-block quick `TASK-Q-*` work.
 
 It should not become a giant rule engine. Use `doctor` for obvious missing or
 stale structure; use Product/BFM judgment for loop health.

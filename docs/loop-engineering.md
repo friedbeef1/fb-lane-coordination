@@ -6,6 +6,11 @@ before Product calls the work complete.
 
 It is not a new app lifecycle. It is a small control loop for AI execution.
 
+Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**. The
+Codex plugin manifest may still show a build ID such as
+`0.1.2+codex.20260627210000` until the release is cut. For the v1-to-latest
+before/after, see [FB-Lane Versions](versioning.md).
+
 ## Why The Loop Exists
 
 AI agents are strong at local execution. They are weaker at preserving product
@@ -380,8 +385,8 @@ non-quick work has the expected loop state. It can warn about issues such as:
 - handoffs that imply a new or changed OKR without a board-approved OKR update
 - intentionally dirty git state that Product should name before closeout
 
-In v1, `doctor` is advisory. It warns so Product can correct drift without
-turning every mismatch into a hard block.
+In the current public beta, `doctor` is advisory. It warns so Product can
+correct drift without turning every mismatch into a hard block.
 
 ## Loop Health Flags
 

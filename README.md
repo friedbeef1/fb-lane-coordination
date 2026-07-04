@@ -8,8 +8,14 @@ Product Lead to approve the goal, let specialist lanes plan, launch BFM for
 execution, and force the work back through evidence before anything is called
 done.
 
-[Loop Engineering deep dive](docs/loop-engineering.md) | [FAQ](FAQ.md) |
-[Setup](docs/setup.md) | [Maintenance](docs/maintenance.md) | [Changelog](CHANGELOG.md)
+[Loop Engineering deep dive](docs/loop-engineering.md) |
+[Versioning](docs/versioning.md) | [FAQ](FAQ.md) | [Setup](docs/setup.md) |
+[Maintenance](docs/maintenance.md) | [Changelog](CHANGELOG.md)
+
+Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**. The
+Codex plugin manifest can still show a build ID such as
+`0.1.2+codex.20260627210000` until the next release is cut; that is the install
+build, not the model name. See [Versioning](docs/versioning.md).
 
 ## The Thesis
 
@@ -73,6 +79,15 @@ may recommend moving to bounded self-approval after repeated matches, but the
 user approves the phase change. Risky surfaces such as live deploys, secrets,
 payments, auth/privacy, destructive data, provider state, unclear goals, failed
 evidence, scope changes, and stale dirty state never self-approve.
+
+## From v1 To Latest
+
+v1 was a four-lane coordination plugin: useful for assigning Product, Tech,
+Design, and Business work without collisions. The latest model is Loop
+Engineering: a Product/BFM return loop that keeps approved goals, lane plans,
+evidence, board state, and repo truth aligned before closeout.
+
+The short before/after table is in [docs/versioning.md](docs/versioning.md).
 
 ## FB-Lane Framework OKR
 
@@ -293,6 +308,7 @@ codex plugin list | rg "fb-lane-coordination"
 ## More
 
 - [Loop Engineering deep dive](docs/loop-engineering.md)
+- [Versioning and v1 before/after](docs/versioning.md)
 - [Setup alternatives](docs/setup.md)
 - [FAQ](FAQ.md)
 - [Plugin package](plugins/fb-lane-coordination/README.md)

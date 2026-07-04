@@ -38,6 +38,7 @@ Harden FB-Lane progressive disclosure so bootstrapped projects keep:
 - Require Product/BFM to proactively propose one small guardrail when repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework appears. The proposal names the observed pattern, guardrail, cost, benefit, affected files/rules, and approval needed; it does not silently change the process.
 - When `Loop Learning` chooses `propose eval`, use a generic Markdown scorecard under `docs/evals/` with sections for non-Product execution gate, BFM closeout accounting, evidence honesty, and goal/scope fit. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger `doctor` rules without separate approval.
 - Add phased approval autonomy: start Product/BFM in Shadow Approval, let Product/BFM recommend Phase 2 or Phase 3 only after safe matching decisions, require user approval for phase changes, and never self-approve risky surfaces.
+- Name the current documentation line `FB-Lane 0.2.0-beta: Loop Engineering public beta` and explain the v1-to-latest before/after without changing the plugin manifest yet.
 
 ## Story Split Update - 2026-07-03
 
@@ -112,6 +113,18 @@ Product/BFM may recommend phase changes; the user approves them. Workstreams may
 
 Touched reusable surfaces include README/FAQ/loop docs, packaged plugin README, AGENTS/CLAUDE templates, PROJECT_BOARD template, Codex rules, source and packaged CLI bootstrap prompts, generated Product agent JSON, Product/BFM/coordination skills, and packaged plugin mirrors.
 
+## Version Positioning Update - 2026-07-04
+
+Added `docs/versioning.md` as the public explanation of the naming shift:
+
+- v1: four-lane coordination plugin.
+- latest: `FB-Lane 0.2.0-beta: Loop Engineering public beta`.
+
+The docs now explain that `0.1.2+codex.20260627210000` is the current Codex
+plugin build ID until a release is cut, while `0.2.0-beta` is the model/release
+line name. Updated README, FAQ, loop deep dive, setup, Codex platform guide, and
+packaged plugin README to point to the versioning page.
+
 ## Current Verification Summary
 
 - `node --check tools/fb-lane.cjs`
@@ -123,13 +136,14 @@ Touched reusable surfaces include README/FAQ/loop docs, packaged plugin README, 
 - `node tools/fb-lane.test.cjs` -> 15 checks passed
 - `node tools/fb-lane.cjs status` -> TASK-017 remains `Staging QA`
 - Wording scan confirms approval autonomy phases and never-self-approve boundaries across docs, templates, skills, generated prompts, packaged plugin mirrors, and CLI bootstrap output
+- Wording scan confirms `0.2.0-beta` and the v1-to-latest before/after are documented on public docs
 - `node tools/fb-lane.cjs doctor` -> `Needs attention` only for intentionally dirty TASK-017 work
 - `node tools/fb-lane.validate.cjs` -> reaches the doctor gate and fails only because the worktree is intentionally dirty pending commit
 - `git diff --check`
 
 ## Closeout
 
-Status: lane-verification-passed for the current generic eval scorecard and approval-autonomy update; TASK-017 remains in `Staging QA`.
+Status: lane-verification-passed for the current generic eval scorecard, approval-autonomy, and version-positioning update; TASK-017 remains in `Staging QA`.
 Health: healthy.
-Branch/worktree state: intentionally dirty on `codex/okf-lite-handoff-index` pending commit. Dirty state is owned by TASK-017 / Product-BFM; reason is the reusable framework hardening update, including eval escalation and approval autonomy; next gate is commit/push and Product review of PR #31.
+Branch/worktree state: intentionally dirty on `codex/okf-lite-handoff-index` pending commit. Dirty state is owned by TASK-017 / Product-BFM; reason is the reusable framework hardening update, including eval escalation, approval autonomy, and version positioning; next gate is commit/push and Product review of PR #31.
 Remaining: commit/push current TASK-017 update, then Product review of PR #31 before merge.

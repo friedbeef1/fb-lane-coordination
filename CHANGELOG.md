@@ -17,6 +17,9 @@
   Shadow Approval, may recommend bounded self-approval only after matching safe
   decisions, and never self-approves risky scope, live, data, provider, or
   unclear-goal surfaces.
+- Docs: named the current documentation line `FB-Lane 0.2.0-beta: Loop
+  Engineering public beta` and added `docs/versioning.md` with the v1-to-latest
+  before/after.
 - Cleanup: closeouts now include external-service test state when checks create
   provider records/resources: test mode, cleanup evidence, or a pending cleanup
   gate.
