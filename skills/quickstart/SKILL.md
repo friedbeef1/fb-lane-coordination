@@ -15,7 +15,7 @@ Give the user a concise orientation. Do **not** read files first — just explai
 - **FB-Design** — CSS, layout, design tokens, visual QA.
 - **FB-Business** — copy, docs, positioning (read-only on code).
 
-**The loop:** describe a feature to FB-Product → it runs a Goal Alignment Session for non-trivial work, records approved Product/workstream OKRs and relevant stable lane OKRs on `PROJECT_BOARD.md`, splits the work into markdown plans/handoffs, and launches BFM when execution is approved → BFM claims tasks and locks files, dispatches implementation workers, and verifies evidence → lanes report `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` in handoffs → FB-Product marks each handoff `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred` → you smoke-test → FB-Product merges in dependency order.
+**The loop:** describe a feature to FB-Product → it runs a Goal Alignment Session for non-trivial work, records approved Product/workstream OKRs and relevant stable lane OKRs on `PROJECT_BOARD.md`, or uses `/goal` as a shortcut into that same session → workstreams write markdown plans/handoffs with proposed `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR` → Product/BFM launches execution when approved → BFM claims tasks and locks files, dispatches implementation workers, and verifies evidence → FB-Product marks each handoff `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred` → you smoke-test → FB-Product merges in dependency order.
 
 **Two ways to work:**
 1. **Hands-off** — just tell FB-Product what you want; approve the plan at the start and smoke-test at the end.

@@ -2,6 +2,42 @@
 
 ## Unreleased - 2026-06-27
 
+- Coordination: added the awareness/isolation/integration rule across docs,
+  templates, skills, generated prompts, and packaged plugin mirrors. Board plus
+  handoff index provide shared awareness, branches/worktrees isolate execution,
+  and BFM integrates outcomes; worktrees no longer read as a replacement for
+  board/lock awareness or BFM reconciliation.
+- Coordination: added a compact `Loop Learning` closeout field so repeated
+  friction can escalate to a Product-approved guardrail, automation, or eval
+  proposal without adding a new command or expanding `doctor`.
+- Coordination: added a generic optional agent-behavior eval scorecard template
+  for repeated loop failures. It stays Markdown-only and does not add eval
+  runners, dashboards, numeric scoring, CI eval jobs, or `doctor` rules.
+- Coordination: added phased approval-autonomy guidance so Product/BFM starts in
+  Shadow Approval, may recommend bounded self-approval only after matching safe
+  decisions, and never self-approves risky scope, live, data, provider, or
+  unclear-goal surfaces.
+- Coordination: documented `/goal` as a Product/BFM shortcut into the existing
+  Goal Alignment Session, not a second goal system. Workstream handoffs now ask
+  for `Product Goal`, `Workstream Goal`, and `User Approval Needed` so Product
+  and the user can approve goal fit before BFM execution.
+- Docs: named the current documentation line `FB-Lane 0.2.0-beta: Loop
+  Engineering public beta` and added `docs/versioning.md` with the v1-to-latest
+  before/after.
+- Cleanup: closeouts now include external-service test state when checks create
+  provider records/resources: test mode, cleanup evidence, or a pending cleanup
+  gate.
+- Docs/plugin guidance: added the objective mode-selection trigger rule. Agents
+  now default to normal/simple coding unless the objective triggers FB-Lane
+  light or Product/BFM through coordination files, lane/board/handoff mentions,
+  payment/auth/privacy/analytics/secret/deploy gates, core product flows,
+  locked files, multi-thread work, or build/sequence/approve/merge/release
+  decisions.
+- Handoff context: added OKF-lite progressive disclosure for Codex plugin projects.
+  Bootstrap now creates `docs/handoffs/index.md`, `doctor` warns once a project
+  has enough handoffs to need an index, BFM/Product skills read the index before
+  detailed handoffs, and docs explain that `PROJECT_BOARD.md` remains the source
+  of truth.
 - CI readiness: added a GitHub Actions automation loop for pull requests and
   pushes to `main`, plus a local `tools/fb-lane.validate.cjs` runner so agents
   and CI use the same FB-Lane validation evidence. This is CI readiness only;
@@ -10,7 +46,7 @@
   manual Product decisions.
 - Loop Engineering: clarified OKRs as stable Product/workstream and lane
   alignment anchors, not per-task planning churn. Mini-loops now return
-  `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR`
+  `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR`
   against the approved OKR tree, and Product/BFM must stop for explicit user
   approval before any OKR addition or change.
 - Doctor: kept checks advisory while warning when non-quick handoffs lack
@@ -19,6 +55,9 @@
   unchanged.
 - Plugin: bumped the Codex plugin build suffix to
   `0.1.2+codex.20260627210000`.
+- Upgrade notice: after this branch merges, reinstall the Codex plugin so local
+  plugin caches pick up the packaged skill, template, and prompt changes:
+  `codex plugin add fb-lane-coordination@fb-lane`.
 - Maintenance cleanup: moved tracked demo MP4 assets out of git into GitHub release assets, added release asset links in demo READMEs, and documented canonical vs packaged maintenance boundaries in `docs/maintenance.md`.
 - Docs: labeled Codex support as public beta and Claude Code / Antigravity support as alpha.
 - Coordination: made normal workstream threads plan-only and documented Product-launched BFM as the source-change execution gate.

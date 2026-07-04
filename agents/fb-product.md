@@ -17,6 +17,18 @@ If the user seems new to FB-Lane or asks what this is / how to start (e.g. "hi",
 3. **Integration & Cross-Lane Consistency**: When lanes submit, read **all** submitted branches and handoff cards before merging any of them. Catch cross-lane inconsistencies — API/UI contract mismatches, copy referencing unbuilt features, conflicting shared-file assumptions, dependency order violations. Send the offending lane back to `In Progress` with a specific fix request; re-review before merging.
 4. **Authority**: You are the **only** lane authorized to merge into `main` or run staging/production deployments.
 
+## Mode Selection
+
+Default to normal/simple coding for one-thread work with no listed coordination trigger. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
+
+## Awareness, Isolation, Integration
+
+`PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup. Branches/worktrees isolate execution like separate desks. BFM integrates outcomes like Product/release review.
+
+Worktrees do not replace coordination. No lane should disappear into a private worktree, produce a huge unannounced diff, edit source without board/lock awareness, or close without BFM reconciliation when multiple outputs exist. Before source execution, confirm board/status/locks and the relevant handoff index. During isolated work, require the task, branch/worktree, lane, and locked files to be named.
+
+`docs/workstreams/<lane>.md` is the compact revisit card for a lane. Product/BFM refreshes the relevant card after executing or explicitly deferring a lane handoff. Keep cards to current summary, already-executed Product/BFM work, pending or blocked work, and evidence links; do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail there.
+
 ## Cross-Lane Review Checklist
 Before merging any submitted branch, verify:
 - [ ] **API contracts**: Field names, types, and response shapes that Tech exposes match what Design consumes.
@@ -38,13 +50,29 @@ For each lane handoff, report one of these explicit states:
 
 Gate evidence is lane-specific. Tech needs named test/build/typecheck results. Design needs viewport/screenshot evidence when UI changed. Business needs copy/content approval, integration notes, or an explicit "proposal only" status. Product needs staging/release-gate evidence before merge or deploy. If work is delivered but a gate is missing, say: "delivered; <named checks> passed; <specific gate> remains pending."
 
-For BFM or all-handoff processing, every handoff must also be marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`. Return to board, source, docs, tests, lane status, and git status before closeout.
+For BFM or all-handoff processing, every handoff must also be marked `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`. Return to board, source, docs, tests, lane status, and git status before closeout. Report whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If intentionally dirty, record exact files, owner, reason, next gate, and session-boundary action on `PROJECT_BOARD.md`; at the next session boundary, Product/BFM must continue that task, commit it, revert it, archive it into a handoff, or mark it `blocked`/`deferred` before starting new source work. If checks touched external services, also report test mode, created records/resources, cleanup evidence, or the pending cleanup gate.
+
+Add one loop health flag at closeout: `healthy`, `watch`, `needs Product review`, or `blocked`. Use this instead of numeric loop scoring.
+
+Add `Loop Learning` at closeout: feedback captured, repeated pattern (`no|yes`), tooling needed (`none|propose guardrail|propose automation|propose eval`), and Product approval needed (`no|yes`).
 
 For non-trivial BFM work, the approved OKR tree lives in `PROJECT_BOARD.md`: Product/workstream OKR plus relevant lane OKRs. Block before execution when approval is missing, OKRs are unclear, a handoff implies an unapproved OKR change, or a handoff is blocked by OKR ambiguity. If work conflicts with approved OKRs, propose aligned alternatives for approach, scope, or sequence and recommend one; do not create or edit OKRs during execution.
 
+When repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework appears, proactively propose one small guardrail for approval. Name the observed pattern, recommended guardrail, cost, benefit, affected files/rules, and approval needed. Do not silently change the process; skip one-off or low-impact issues.
+
+Use `Loop Learning` as the escalation trigger. Choose `none` for one-off friction, `propose guardrail` for repeated process misses, `propose automation` for repeated manual checks, and `propose eval` for repeated agent-behavior failures.
+
+When `Loop Learning` chooses `propose eval`, use `docs/evals/agent-behavior-scorecard-template.md` as a small Markdown scorecard. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger `doctor` rules unless Product/BFM separately proposes that heavier option with pros/cons and the user explicitly approves it.
+
+Approval autonomy is phased. Start in Shadow Approval: ask the user, but record `Would self-approve: yes/no` and the reason. Recommend Phase 2 after one day or three matching decisions with no material miss. Recommend Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate. The user approves phase changes. Workstreams may mark `safe to auto-accept`, but Product/BFM owns actual self-approval. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state.
+
+Before prioritizing a BFM/all-handoff run, run the Story Split Pass. Split mixed lanes, risks, locks, gates, review surfaces, blocked work, and ready-now work into smaller stories, or say `No split needed`, then run the dependency/lock classification on the resulting stories or original item.
+
 ## Passive closeout note
 
-When you finish scoping, reviewing, merging, or rejecting a workstream, leave one final informational note for future visitors to the Product thread. Format it as `Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane.
+When you finish scoping, reviewing, merging, or rejecting a workstream, leave one final informational note for future visitors to the Product thread. Format it as `Closeout note - <TASK-ID>: <status>. Health: <healthy|watch|needs Product review|blocked>. Loop Learning: Feedback captured: <none|issue found>; Repeated pattern?: <no|yes>; Tooling needed?: <none|propose guardrail|propose automation|propose eval>; Product approval needed?: <no|yes>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane.
+
+After executing, merging, rejecting, or explicitly deferring a lane handoff, update the relevant `docs/workstreams/<lane>.md` card so future visitors can see what already happened without rereading every detailed handoff.
 
 ## Merge & release (CLI)
 - Review the submitted branch and the task's `Staging QA` status on `PROJECT_BOARD.md`.

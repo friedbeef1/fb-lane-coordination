@@ -3,7 +3,7 @@
 ## Task
 - **ID**: TASK-010
 - **Owner**: FB-Product
-- **Scope**: Add one canonical Working Goal per non-trivial FB-Lane task, keep lane handoffs lightweight, and make BFM reconcile goal drift before sequencing work.
+- **Scope**: Add one canonical Goal Alignment block per non-trivial FB-Lane task, keep lane handoffs lightweight, and make BFM reconcile goal drift before sequencing work.
 - **Out of Scope**: Hard-blocking `submit`, changing quick-task behavior, or creating a standalone goal-management framework.
 
 ## Goal Alignment Session
@@ -21,7 +21,7 @@ Evidence Against Product OKR: No blocking evidence identified.
 
 ## What Changed
 - Added lightweight Goal Alignment guidance to Product, BFM, lane skills, root coordination skills, project setup guidance, and AGENTS/templates.
-- Updated generated CLI bootstrap guidance in both root and packaged CLI copies so new projects inherit the Working Goal, compact lane handoff fields, goal drift record, good/bad examples, and micro quick-task exemption.
+- Updated generated CLI bootstrap guidance in both root and packaged CLI copies so new projects inherit the Goal Alignment block, compact lane handoff fields, goal drift record, good/bad examples, and micro quick-task exemption.
 - Added advisory `doctor` warnings for non-quick handoffs missing a `## Goal Alignment` heading while exempting `TASK-Q-*` handoffs.
 - Tightened final review findings so the handoff instructions now require an actual `## Goal Alignment` Markdown heading, worker lanes report goal feedback only in handoffs, and the static Claude/Antigravity templates inherit the same rule.
 - Bumped plugin metadata to `0.1.2+codex.20260625082239` so installs can distinguish this build after merge.
@@ -82,7 +82,7 @@ Evidence Against Product OKR: No blocking evidence identified.
 - Updated legacy TASK-002/TASK-003 handoffs with compact `Goal Alignment` sections so `doctor` stays useful on this repository.
 - Final review found generated prompt ownership drift; fixed so Product/BFM updates board Goal Alignment and worker lanes report goal feedback only in handoffs.
 - Follow-up final review found heading/template consistency gaps; fixed by requiring `## Goal Alignment` in skill/prompt/template handoff guidance, updating static `templates/CLAUDE.md`, and refreshing packaged Antigravity agent prompts.
-- Final follow-up review found board-side wording still over-focused on `Working Goal` and doctor accepted wrong heading levels; fixed by naming the full board Goal Alignment block (`Working Goal`, `Definition of Done`, `Gate / Review Point`) in Product/BFM-facing guidance and requiring an exact `## Goal Alignment` handoff heading.
+- Final follow-up review found board-side wording still over-focused on the goal field and doctor accepted wrong heading levels; fixed by naming the full board Goal Alignment block (`Objective`, `Definition of Done`, `Gate / Review Point`) in Product/BFM-facing guidance and requiring an exact `## Goal Alignment` handoff heading.
 - Fresh post-fix checks passed: packaged plugin skill validation, root coordination/setup skill validation, plugin manifest validation, CLI syntax/parity, `git diff --check`, bootstrap smoke for generated prompt text, and doctor fixture matrix.
 - Stricter doctor matrix passed: valid `## Goal Alignment` no warning; missing heading warns; `# Goal Alignment` warns; `### Goal Alignment` warns; `TASK-Q-*` remains exempt.
 - Final whole-branch review passed with no remaining actionable issues.

@@ -8,8 +8,14 @@ Product Lead to approve the goal, let specialist lanes plan, launch BFM for
 execution, and force the work back through evidence before anything is called
 done.
 
-[Loop Engineering deep dive](docs/loop-engineering.md) | [FAQ](FAQ.md) |
-[Setup](docs/setup.md) | [Maintenance](docs/maintenance.md) | [Changelog](CHANGELOG.md)
+[Loop Engineering deep dive](docs/loop-engineering.md) |
+[Versioning](docs/versioning.md) | [FAQ](FAQ.md) | [Setup](docs/setup.md) |
+[Maintenance](docs/maintenance.md) | [Changelog](CHANGELOG.md)
+
+Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**. The
+Codex plugin manifest can still show a build ID such as
+`0.1.2+codex.20260627210000` until the next release is cut; that is the install
+build, not the model name. See [Versioning](docs/versioning.md).
 
 ## The Thesis
 
@@ -33,15 +39,77 @@ Loop Engineering keeps five things aligned:
 5. the repo truth in source, docs, tests, and git
 
 FB-Lane gives that loop a small set of files and commands: `PROJECT_BOARD.md`,
-lane plans/handoffs, file claims during BFM execution, `doctor`, and
-BFM/Product closeout checks.
+`docs/handoffs/index.md`, lane plans/handoffs, file claims during BFM execution,
+`doctor`, and BFM/Product closeout checks.
+
+Every BFM run includes a story-split check before prioritization: if the batch
+mixes lanes, locks, risks, gates, review surfaces, blocked work, and ready work,
+Product/BFM splits it into smaller stories and sequences only the unblocked
+slice; otherwise it says `No split needed` and continues.
+
+The operating rule is awareness, isolation, integration: `PROJECT_BOARD.md` and
+`docs/handoffs/index.md` create shared awareness like a standup;
+branches/worktrees isolate execution like separate desks; BFM integrates
+outcomes like Product/release review. Worktrees do not replace coordination: no
+private worktree should produce a huge unannounced diff, edit source without
+board/lock awareness, or close while multiple outputs still need BFM
+reconciliation.
 
 FB-Lane is not CI/CD. It includes CI readiness evidence for Product/BFM
 closeout: automated merge safety, manual release control.
 
 FB-Lane evals are lightweight behavior checks for the agents themselves. They
 answer: did Product/BFM run the loop correctly? Keep them as Markdown
-scorecards until repeated failures justify automation.
+scorecards until repeated failures justify automation. Use the generic
+scorecard shape in `docs/evals/agent-behavior-scorecard-template.md` only when
+`Loop Learning` points to a repeated agent-behavior failure.
+
+When Product/BFM sees the same workflow failure, stale state, missing evidence,
+or preventable rework repeat, it should propose one small guardrail for approval
+instead of waiting for the user to notice it again.
+
+At closeout, Product/BFM records a tiny `Loop Learning` check: feedback captured,
+whether the pattern repeated, whether tooling is needed (`none`, `propose
+guardrail`, `propose automation`, or `propose eval`), and whether Product
+approval is needed. This is the escalation trigger, not a new command.
+
+Approval autonomy is phased. Start in **Shadow Approval**: Product/BFM still
+asks the user, but records `Would self-approve: yes/no` and the reason. Product/BFM
+may recommend moving to bounded self-approval after repeated matches, but the
+user approves the phase change. Risky surfaces such as live deploys, secrets,
+payments, auth/privacy, destructive data, provider state, unclear goals, failed
+evidence, scope changes, and stale dirty state never self-approve.
+
+## From v1 To Latest
+
+v1 was a four-lane coordination plugin: useful for assigning Product, Tech,
+Design, and Business work without collisions. The latest model is Loop
+Engineering: a Product/BFM return loop that keeps approved goals, lane plans,
+evidence, board state, and repo truth aligned before closeout.
+
+The short before/after table is in [docs/versioning.md](docs/versioning.md).
+
+## FB-Lane Framework OKR
+
+This is the framework north star, not a project ritual.
+
+**Objective:** Help Product Leads run multi-agent work without losing alignment
+between goals, evidence, board state, and repo truth.
+
+**Directional Key Results:**
+
+- Reduce serious coordination startup context by roughly 60-70% when it is safe
+  to do so, while preserving blockers, gates, and dependencies.
+- Account for every non-quick BFM handoff at closeout as `implemented`,
+  `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+- Keep new bootstrapped projects on the simple contract:
+  `PROJECT_BOARD.md` is truth, `docs/handoffs/index.md` is routing, and detailed
+  handoffs are detail.
+
+**Definition of Done:** FB-Lane docs, skills, bootstrap templates, `doctor`, and
+Product/BFM closeout guidance all support the return loop without per-task OKR
+generation, numeric loop scoring, a giant `doctor`, a second-board handoff
+index, or quick-task ceremony.
 
 ## The Core Loop
 
@@ -79,6 +147,10 @@ After approval, BFM changes approach, scope, or sequence to fit the OKRs. It doe
 not dynamically create or rewrite OKRs during execution; any OKR change requires
 discussion and explicit user approval.
 
+Directional targets are not hard pass/fail numbers. Product/BFM uses a loop
+health flag at closeout: `healthy`, `watch`, `needs Product review`, or
+`blocked`.
+
 ## Plan-Only Workstreams
 
 Normal workstream threads are read-only planning lanes. Product, Tech, Design,
@@ -92,7 +164,8 @@ Product is source-read-only too. Product may edit coordination markdown:
 and closeout notes.
 
 Source changes happen only inside a Product-launched **BFM (Build Flow
-Manager)** execution run. BFM reads the approved plans, sequences work, claims
+Manager)** execution run. BFM reads the approved plans, checks whether they
+should be split into smaller stories before prioritizing, sequences work, claims
 files, dispatches implementation workers, verifies evidence, and returns to the
 board/docs/source/git state before closeout.
 
@@ -119,16 +192,22 @@ or tests say otherwise.
 | Loop need | FB-Lane mechanism |
 |---|---|
 | Approved Product/workstream OKR | `Goal Alignment Session` block in `PROJECT_BOARD.md` |
+| Goal shortcut | `/goal` opens the same Product/BFM Goal Alignment Session; it is not a second goal system |
 | Stable lane OKRs | Standing Tech, Design, Business, and Product quality anchors |
 | Role clarity | FB-Product, FB-Tech, FB-Design, and FB-Business lanes |
-| Collision control | File claims and optional worktrees |
+| Collision control | File claims plus named branches/worktrees for isolated execution |
+| Cheap context lookup | `docs/handoffs/index.md` routes to detailed handoff files |
+| Lane revisit summary | `docs/workstreams/<lane>.md` shows already-executed work, pending items, and evidence links |
 | Durable plan/handoff | `docs/handoffs/<task-id>.md` or project plan markdown |
-| Evidence return | `Lane OKR Fit`, `Mini-loop Evidence`, and `Evidence Against Product OKR` |
+| Evidence return | `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR` |
 | Health check | `node tools/fb-lane.cjs doctor` |
 | Agent behavior evals | Optional Markdown scorecards for repeated loop failures |
 | Execution gate | Product-launched BFM run |
+| Explicit plan phrase gate | `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM requires confirmation before source edits |
 | Integration | BFM/Product reconciliation before sequencing or merge |
-| Closeout | Explicit status: implemented, already done, blocked, out of scope, or explicitly deferred |
+| Closeout | Explicit status plus loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked` |
+| Loop learning | Closeout field that escalates repeated friction to a guardrail, automation, or eval proposal |
+| Approval autonomy | Phased from shadow approval to bounded self-approval only after user-approved promotion |
 
 ## Roles Inside The Loop
 
@@ -141,21 +220,28 @@ or tests say otherwise.
 
 ## When To Use It
 
-Use FB-Lane when the work has any of these risks:
+Default to normal/simple coding when the request is one-thread and has no listed
+coordination trigger. Skip FB-Lane for:
 
-- multiple agent threads or worktrees are active
-- Tech, Design, Business, and Product concerns are mixed
-- file collisions are plausible
-- handoffs need to survive context loss
-- Product must sequence multiple lane outputs
-- you need evidence before merge or release
-
-Skip it for:
-
-- one-thread fixes
 - read-only questions
-- tiny quick edits with no ownership split
+- code explanations
+- tiny fixes
+- isolated edits
 - independent experiments where native worktrees are enough
+
+Use **FB-Lane light** when the objective mentions handoffs, board items, lanes,
+BFM, Product, Design, Business, coordination files such as `PROJECT_BOARD.md` or
+`docs/handoffs/`, board-locked files, multiple threads/agents/workstreams, or
+durable context that must survive chat loss. Keep it lightweight: read the
+board/locks, claim or note only the exact files needed, and avoid ceremony unless
+another lane or Product must continue it.
+
+Escalate to **Product/BFM** when the work requires deciding what to build,
+sequence, defer, approve, merge, release, stage, or launch; crosses pricing,
+payments, trials, subscriptions, promo codes, auth, privacy, analytics, secrets,
+deploy, staging, or live gates; touches camera/capture/save/export or another
+core product flow; or needs multiple lane outputs reconciled before source
+changes.
 
 ## Start Here
 
@@ -177,12 +263,32 @@ Run from a project root that has been bootstrapped with FB-Lane:
 | Command | Purpose |
 |---|---|
 | `node tools/fb-lane.cjs status` | Show tasks, owners, and file claims. |
-| `node tools/fb-lane.cjs doctor` | Read-only loop health check for board, rules, locks, handoffs, and OKR approval. |
+| `node tools/fb-lane.cjs doctor` | Read-only loop health check for board, rules, handoff index, locks, handoffs, and OKR approval. |
 | `node tools/fb-lane.cjs claim <id> <lane> [locks] [--worktree]` | BFM execution worker claims work and locks files. |
 | `node tools/fb-lane.cjs quick <lane> <locks> [desc]` | Create a tiny BFM execution task; skips OKR approval, not the source-change boundary. |
 | `node tools/fb-lane.cjs submit <id> [staging_url]` | Submit work for Product/Captain review. |
 | `node tools/fb-lane.cjs merge <id>` | Product/Captain merge path after review. |
 | `node tools/fb-lane.cjs bootstrap` | Manual setup path. See [docs/setup.md](docs/setup.md). |
+
+The board/index/handoff split is deliberate: `PROJECT_BOARD.md` is truth for
+status, sequencing, gates, ownership, and locks; `docs/handoffs/index.md` is
+routing; detailed handoffs are detail. The index should stay compact with
+`Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`,
+`Checks / Evidence`, and `Detail`. Keep full OKRs, QA checklists, plans, logs,
+rationale, copy variants, and implementation detail in detailed handoffs.
+
+`docs/workstreams/<lane>.md` is the lane revisit card. Product/BFM refreshes it
+after executing or explicitly deferring a lane handoff so a returning Tech,
+Design, Business, or Product thread can see what already happened, what remains
+pending or blocked, and where the evidence lives. It is a summary only, not a
+second board.
+
+Before source execution, read board/status/locks and the relevant handoff index.
+During isolated work, name the task, branch/worktree, lane, and locked files in
+the handoff or board update. At closeout, report whether the branch/worktree is
+clean, merged, stale, blocked, or intentionally dirty.
+If checks touched external services, also name test mode, created records or
+resources, cleanup evidence, or the pending cleanup gate.
 
 ## Codex Plugin Upgrade
 
@@ -203,6 +309,7 @@ codex plugin list | rg "fb-lane-coordination"
 ## More
 
 - [Loop Engineering deep dive](docs/loop-engineering.md)
+- [Versioning and v1 before/after](docs/versioning.md)
 - [Setup alternatives](docs/setup.md)
 - [FAQ](FAQ.md)
 - [Plugin package](plugins/fb-lane-coordination/README.md)

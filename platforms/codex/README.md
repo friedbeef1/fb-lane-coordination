@@ -5,6 +5,12 @@ operating model, read [Loop Engineering](../../docs/loop-engineering.md).
 
 > **Status:** FB-Lane on Codex is a public beta.
 
+The current model name is **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
+The installed Codex plugin may still show a build ID such as
+`0.1.2+codex.20260627210000`; check `codex plugin list` for the active build.
+For the v1-to-latest before/after, read
+[FB-Lane Versions](../../docs/versioning.md).
+
 Codex is a local developer agent that operates directly on your filesystem and git workspace. It already supports native subagents for parallel work, worktrees for isolated background tasks, plugins for reusable workflows, skills for task-specific instructions, and MCP servers for shared tools and context. FB-Lane does not replace those capabilities.
 
 The Codex pain point is narrower: once you start using those capabilities for real product work, someone still has to answer "who owns this?", "which files are safe to edit?", "what finished?", "what must Product integrate first?", and "what did the other lane decide?". FB-Lane gives Codex a lightweight product-coordination contract for that layer.
@@ -74,9 +80,16 @@ $bfm process the prepared handoffs for this task and execute the sequence to com
 
 For non-trivial BFM work, use the Goal Alignment Session and return-loop rules
 described in [Loop Engineering](../../docs/loop-engineering.md). The plugin does
-not create Codex's parallelism. Codex already has that. The plugin packages the
-coordination layer: skills, MCP status/claim/submit/merge tools, file locks,
-handoffs, and Product/Captain integration.
+not create Codex's parallelism. Product/BFM should also run the Story Split Pass
+before prioritizing: split mixed lanes, locks, gates, blocked work, and ready-now
+work into smaller stories, or say `No split needed`. Codex already has
+parallelism; the plugin packages the coordination layer: skills, MCP
+status/claim/submit/merge tools, file locks, handoffs, and Product/Captain
+integration.
+
+If the same coordination friction, stale state, missing evidence, or rework
+pattern repeats, Product/BFM should proactively propose one small guardrail for
+approval instead of silently changing the process.
 
 If the project itself still needs FB-Lane repo files, run the Codex-only bootstrap from the project
 root:
@@ -86,9 +99,9 @@ node tools/fb-lane.cjs bootstrap --platform codex
 node tools/fb-lane.cjs doctor
 ```
 
-`doctor` is read-only. It checks the board, Codex rules, MCP config, handoff folder, active file
-locks, git workspace, non-quick handoff `OKR Fit`, and approved Goal Alignment Session OKRs before
-lane work starts.
+`doctor` is read-only. It checks the board, Codex rules, MCP config, handoff folder/index,
+active file locks, git workspace, non-quick handoff `OKR Fit`, and approved Goal Alignment
+Session OKRs before lane work starts.
 
 ### Fallback Setup
 

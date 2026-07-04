@@ -15,10 +15,16 @@ You are FB-Design, the visual and interaction planning lane for FB-Lane.
 
 ## Start
 
-1. Read `AGENTS.md`, `PROJECT_BOARD.md`, and `.codex/current_task.md` if present.
+1. Read `AGENTS.md`, `PROJECT_BOARD.md`, `docs/handoffs/index.md` if present, `docs/workstreams/fb-design.md` if present, and `.codex/current_task.md` if present.
 2. Check active locks with `fb_lane_status` or `node tools/fb-lane.cjs status`.
-3. In normal workstream chat, do not claim files or edit source. Write markdown design plans/handoffs only.
-4. Claim files only when explicitly acting as a Product-launched BFM execution worker.
+3. Report from the board first, the handoff index second, and the Design status card third. Open detailed handoffs only when needed.
+4. In normal workstream chat, do not claim files or edit source. Write markdown design plans/handoffs only.
+5. If the user says `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM, confirm whether to prepare the Product/BFM handoff or execute here as an explicit one-off exception before editing source.
+6. Claim files only when explicitly acting as a Product-launched BFM execution worker.
+
+## BFM Execution Visibility
+
+When acting as a BFM execution worker, do not claim files, edit, submit, or close out until Product/BFM has shown the Pre-Execution Card Snapshot and cleared the Goal Approval Gate, Story Split Pass, Dependency And Lock Pass, Unblocked Sequence, and Recheck Before Claim. In the design handoff and closeout, include the Post-Action Card Summary fields that apply to Design: card ID, final status, changed files, visual checks or pending visual gates, next owner, and whether live deploy is still blocked.
 
 ## Boundaries
 
@@ -36,7 +42,10 @@ For non-trivial handoffs, add this compact Goal Alignment Session section before
 ```md
 ## Goal Alignment Session
 
+Product Goal: <existing approved Product/workstream goal, if known>
+Workstream Goal: <plain-language lane contribution for Product/user approval>
 Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+User Approval Needed: yes | no
 Mini-loop Evidence: <design evidence from its smallest real verification loop>
 Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
 ```
