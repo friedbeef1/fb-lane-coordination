@@ -46,6 +46,7 @@ Harden FB-Lane progressive disclosure so bootstrapped projects keep:
 - Name the current documentation line `FB-Lane 0.2.0-beta: Loop Engineering public beta` and explain the v1-to-latest before/after without changing the plugin manifest yet.
 - Treat `/goal` as a Product/BFM shortcut into the existing Goal Alignment Session, not a second goal system or `/goals` flow.
 - Require workstream handoffs to include `Product Goal`, `Workstream Goal`, and `User Approval Needed` so Product/BFM can reconcile goal fit before execution.
+- Require frontend/UI handoffs to include `Visual Preview Decision`: `skip`, `browser screenshot/mockup`, or `imagegen asset/style option`, with imagegen reserved for brand, logo, hero/illustration, camera/lens, and style-option exploration.
 
 ## Story Split Update - 2026-07-03
 
@@ -148,6 +149,18 @@ The rule still stops for hard gates: live deploy, secrets/credentials, payments,
 
 Touched reusable surfaces include README/FAQ/loop docs, packaged plugin README, AGENTS/CLAUDE templates, PROJECT_BOARD template, Codex rules, source and packaged CLI bootstrap prompts, generated Product agent JSON, Product/BFM/coordination skills, project setup skill, packaged plugin mirrors, board, handoff, and changelog.
 
+## Frontend Visual Planning Update - 2026-07-05
+
+Added `Visual Preview Decision` across MirrorCam rules and reusable FB-Lane surfaces. Frontend/UI plans and handoffs now choose one of:
+
+- `skip`
+- `browser screenshot/mockup`
+- `imagegen asset/style option`
+
+The rule skips tiny copy, spacing, or single-control fixes. Browser screenshots or mockups are the default for real app layout, responsive, component, and flow decisions. Imagegen is reserved for brand direction, logos, hero/illustration assets, camera/lens concepts, and visual style options where generated bitmap exploration helps. If visual uncertainty is meaningful, Product/BFM includes or requests the visual artifact before source execution so the user can adjust the plan.
+
+Touched reusable surfaces include README/FAQ/loop docs, packaged plugin README, AGENTS/CLAUDE templates, PROJECT_BOARD template, Codex rules, Product/BFM/Design/coordination skills, project setup skill, generated Product prompts, packaged plugin mirrors, board, handoff, and changelog.
+
 ## Current Verification Summary
 
 - `node --check tools/fb-lane.cjs`
@@ -160,6 +173,7 @@ Touched reusable surfaces include README/FAQ/loop docs, packaged plugin README, 
 - `node tools/fb-lane.cjs status` -> TASK-017 remains `Staging QA`
 - Wording scan confirms approval autonomy phases and never-self-approve boundaries across docs, templates, skills, generated prompts, packaged plugin mirrors, and CLI bootstrap output
 - Wording scan confirms Product/BFM execution-continuation guidance across docs, templates, skills, generated Product prompts, packaged plugin mirrors, and CLI bootstrap output
+- Wording scan confirms `Visual Preview Decision` guidance across docs, templates, skills, generated Product prompts, packaged plugin mirrors, and CLI bootstrap output
 - Wording scan confirms `0.2.0-beta` and the v1-to-latest before/after are documented on public docs
 - Wording scan confirms `/goal` is Product/BFM-owned and workstream handoffs include `Product Goal`, `Workstream Goal`, and `User Approval Needed`
 - `node tools/fb-lane.cjs doctor` -> `Needs attention` only for intentionally dirty TASK-017 work
