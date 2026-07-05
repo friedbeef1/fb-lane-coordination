@@ -57,6 +57,9 @@ Approval autonomy is phased. Phase 1 is Shadow Approval: Product/BFM still asks 
 
 Once the user has approved a safe Product/BFM task or problem, keep going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. Report after closeout, not before every routine step. Stop and ask only for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence that needs risk acceptance, or an explicit user pause.
 
+### 🖼 Frontend Visual Planning
+Frontend/UI plans and handoffs include `Visual Preview Decision`: `skip`, `browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny copy, spacing, or single-control fixes. Use browser screenshots/mockups for actual UI layout, responsive, component, or flow decisions. Use imagegen only for brand direction, logos, hero/illustration assets, camera/lens concepts, or visual style options where generated bitmap exploration helps. If visual uncertainty is meaningful, Product/BFM includes or requests the visual artifact before source execution so the user can adjust the plan.
+
 ### 🎯 Goal Alignment Session
 Use a Goal Alignment Session for non-trivial handoffs and sequencing work. Product/BFM owns the approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream or BFM-target OKR with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`, plus stable lane OKRs for Product, Tech, Design, and Business where those lanes are relevant. Keep every OKR plain enough for a Product Manager to skim and approve.
 

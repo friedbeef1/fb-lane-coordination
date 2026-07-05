@@ -212,6 +212,7 @@ or tests say otherwise.
 | Agent behavior evals | Optional Markdown scorecards for repeated loop failures |
 | Execution gate | Product-launched BFM run |
 | Explicit plan phrase gate | `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM requires confirmation before source edits |
+| Frontend visual planning | Handoffs name `Visual Preview Decision`: skip, browser screenshot/mockup, or imagegen asset/style option |
 | Integration | BFM/Product reconciliation before sequencing or merge |
 | Closeout | Explicit status plus loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked` |
 | Loop learning | Closeout field that escalates repeated friction to a guardrail, automation, or eval proposal |

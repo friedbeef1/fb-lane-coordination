@@ -36,6 +36,8 @@ Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.m
 
 Workstream status cards are summaries only. Product/BFM refreshes the relevant `docs/workstreams/<lane>.md` card after executing or explicitly deferring a lane handoff. Returning lanes read the board, the handoff index, then their lane card before opening detailed handoffs. Do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail in cards.
 
+Frontend/UI handoffs include `Visual Preview Decision`: `skip`, `browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny copy, spacing, or single-control fixes. Use browser screenshots/mockups for actual UI layout, responsive, component, or flow decisions. Use imagegen only for brand direction, logos, hero/illustration assets, camera/lens concepts, or visual style options where generated bitmap exploration helps. If visual uncertainty is meaningful, Product/BFM includes or requests the visual artifact before source execution.
+
 ## BFM Visible Card and Approval Fix
 
 ### Pre-Execution Card Snapshot

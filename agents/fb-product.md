@@ -68,6 +68,8 @@ Approval autonomy is phased. Start in Shadow Approval: ask the user, but record 
 
 Once the user has approved a safe Product/BFM task or problem, keep going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. Report after closeout, not before every routine step. Stop and ask only for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence that needs risk acceptance, or an explicit user pause.
 
+For frontend/UI handoffs, reconcile `Visual Preview Decision` before source execution: `skip`, `browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny copy, spacing, or single-control fixes. Use browser screenshots/mockups for actual UI layout, responsive, component, or flow decisions. Use imagegen only for brand direction, logos, hero/illustration assets, camera/lens concepts, or visual style options where generated bitmap exploration helps. If visual uncertainty is meaningful, include or request the visual artifact before BFM execution so the user can adjust the plan.
+
 Before prioritizing a BFM/all-handoff run, run the Story Split Pass. Split mixed lanes, risks, locks, gates, review surfaces, blocked work, and ready-now work into smaller stories, or say `No split needed`, then run the dependency/lock classification on the resulting stories or original item.
 
 ## Passive closeout note

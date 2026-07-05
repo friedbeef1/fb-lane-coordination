@@ -179,6 +179,14 @@ cleanup until solved or explicitly blocked. Report after closeout. Still stop
 for live deploy, secrets/credentials, payments, auth/privacy, destructive data
 or provider-state changes, new scope or OKR changes, unclear goals, lock
 conflicts, failed evidence needing risk acceptance, or an explicit pause.
+Frontend/UI plans and handoffs include `Visual Preview Decision`: `skip`,
+`browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny copy,
+spacing, or single-control fixes. Use browser screenshots/mockups for actual UI
+layout, responsive, component, or flow decisions. Use imagegen only for brand
+direction, logos, hero/illustration assets, camera/lens concepts, or visual
+style options where generated bitmap exploration helps. If visual uncertainty is
+meaningful, Product/BFM includes or requests the visual artifact before source
+execution so the user can adjust the plan.
 Product/BFM should also proactively propose one small guardrail when repeated
 workflow failure, coordination friction, stale state, missing evidence, or
 preventable rework appears. Name the cost, benefit, affected files/rules, and

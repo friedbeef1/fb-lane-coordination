@@ -54,6 +54,13 @@ Use **FB-Lane light** for narrow triggered work: read the board/locks, keep the 
 - Approval autonomy is phased. Phase 1 is Shadow Approval: Product/BFM still asks the user, but records `Would self-approve: yes/no` and the reason. Product/BFM may recommend Phase 2 after one day or three matching decisions with no material miss, and Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate; the user approves phase changes. Workstreams may mark work `safe to auto-accept`, but Product/BFM owns actual self-approval. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state.
 - Once the user approves a safe Product/BFM task or problem, Product/BFM keeps going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. Report after closeout, not before every routine step. Stop for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence needing risk acceptance, or an explicit pause.
 
+### Frontend visual planning
+- Frontend/UI plans and handoffs include `Visual Preview Decision`: `skip`, `browser screenshot/mockup`, or `imagegen asset/style option`.
+- Skip tiny copy, spacing, or single-control fixes.
+- Use browser screenshots/mockups for actual UI layout, responsive, component, or flow decisions.
+- Use imagegen only for brand direction, logos, hero/illustration assets, camera/lens concepts, or visual style options where generated bitmap exploration helps.
+- If visual uncertainty is meaningful, Product/BFM includes or requests the visual artifact before source execution so the user can adjust the plan.
+
 ### Proactive loop hardening
 - Product/BFM should proactively propose one small guardrail when it sees repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework.
 - Proposal format: observed pattern, recommended guardrail, cost, benefit, files/rules affected, and approval needed.

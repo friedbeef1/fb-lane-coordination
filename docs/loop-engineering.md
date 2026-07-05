@@ -308,6 +308,15 @@ red-green-refactor loop. For docs, copy, sequencing, or visual work, the
 Definition of Done may be better proven by link checks, screenshot evidence,
 wording scans, or Product approval.
 
+For frontend/UI work, the handoff should also name `Visual Preview Decision`:
+`skip`, `browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny
+copy, spacing, or single-control fixes. Use browser screenshots/mockups for real
+layout, responsive, component, or flow decisions. Use imagegen only for brand
+direction, logos, hero/illustration assets, camera/lens concepts, or visual
+style options where generated bitmap exploration helps. If visual uncertainty is
+meaningful, Product/BFM includes or requests the visual artifact before source
+execution so the user can adjust the plan.
+
 ## Lane Handoffs And Lane OKR Fit
 
 Lanes do not own the Product/workstream OKR. Product/BFM owns it. Lanes own

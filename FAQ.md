@@ -267,6 +267,16 @@ No. The lanes are roles inside the loop:
 If one thread can safely do the work, use one thread. If ownership is split,
 lanes keep the split visible.
 
+## Do frontend changes need generated images?
+
+No. Frontend/UI plans should name a `Visual Preview Decision`: `skip`, `browser
+screenshot/mockup`, or `imagegen asset/style option`.
+
+Use the actual browser or a mockup for layout, responsive, component, or flow
+decisions. Use imagegen only for brand direction, logos, hero or illustration
+assets, camera/lens concepts, or visual style options where generated bitmap
+exploration helps. Skip it for tiny copy, spacing, or single-control fixes.
+
 ## Is Definition of Done the same as TDD?
 
 No. Definition of Done says what must be true before closeout. TDD is one way to

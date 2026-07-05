@@ -14,6 +14,8 @@ Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.m
 
 `docs/workstreams/<lane>.md` is a compact revisit summary only. It must not duplicate the board, OKRs, QA logs, plans, or implementation detail.
 
+Frontend/UI handoffs include `Visual Preview Decision`: `skip`, `browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny copy, spacing, or single-control fixes. Use browser screenshots/mockups for actual UI layout, responsive, component, or flow decisions. Use imagegen only for brand direction, logos, hero/illustration assets, camera/lens concepts, or visual style options where generated bitmap exploration helps. If visual uncertainty is meaningful, Product/BFM includes or requests the visual artifact before source execution.
+
 ## BFM Visible Workflow
 
 Product/BFM must run this workflow before and after BFM/all-handoff execution:

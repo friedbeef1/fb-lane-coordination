@@ -147,6 +147,10 @@ Approval autonomy is phased. Phase 1 is Shadow Approval: Product/BFM still asks 
 
 Once the user has approved a safe Product/BFM task or problem, keep going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. Report after closeout, not before every routine step. Stop and ask only for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence that needs risk acceptance, or an explicit user pause.
 
+## Frontend Visual Planning
+
+Frontend/UI plans and handoffs include `Visual Preview Decision`: `skip`, `browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny copy, spacing, or single-control fixes. Use browser screenshots/mockups for actual UI layout, responsive, component, or flow decisions. Use imagegen only for brand direction, logos, hero/illustration assets, camera/lens concepts, or visual style options where generated bitmap exploration helps. If visual uncertainty is meaningful, Product/BFM includes or requests the visual artifact before source execution so the user can adjust the plan.
+
 Product/BFM should proactively propose loop hardening when it sees repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework. Propose one small guardrail at a time with the observed pattern, recommended guardrail, cost, benefit, files/rules affected, and approval needed. Do not silently change the process; skip one-off or low-impact issues.
 
 ## CLI Tool

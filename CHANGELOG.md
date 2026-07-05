@@ -2,6 +2,10 @@
 
 ## Unreleased - 2026-06-27
 
+- Coordination: added frontend visual planning guidance. UI handoffs now name a
+  `Visual Preview Decision` of skip, browser screenshot/mockup, or imagegen
+  asset/style option, so visual uncertainty is surfaced before BFM source
+  execution without making image generation mandatory.
 - Coordination: added Product/BFM execution-continuation guidance so approved
   safe work proceeds through routine diagnosis, implementation, verification,
   board/handoff updates, commit, staging, and cleanup without pausing before
