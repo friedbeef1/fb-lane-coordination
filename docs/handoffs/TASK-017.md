@@ -41,6 +41,8 @@ Harden FB-Lane progressive disclosure so bootstrapped projects keep:
 - Require Product/BFM to proactively propose one small guardrail when repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework appears. The proposal names the observed pattern, guardrail, cost, benefit, affected files/rules, and approval needed; it does not silently change the process.
 - When `Loop Learning` chooses `propose eval`, use a generic Markdown scorecard under `docs/evals/` with sections for non-Product execution gate, BFM closeout accounting, evidence honesty, and goal/scope fit. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger `doctor` rules without separate approval.
 - Add phased approval autonomy: start Product/BFM in Shadow Approval, let Product/BFM recommend Phase 2 or Phase 3 only after safe matching decisions, require user approval for phase changes, and never self-approve risky surfaces.
+- Add Product/BFM execution continuation: once the user approves a safe Product/BFM task or problem, Product/BFM keeps going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked.
+- Preserve hard stops for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, scope or OKR revisions, unclear goals, lock conflicts, failed evidence needing risk acceptance, or an explicit pause.
 - Name the current documentation line `FB-Lane 0.2.0-beta: Loop Engineering public beta` and explain the v1-to-latest before/after without changing the plugin manifest yet.
 - Treat `/goal` as a Product/BFM shortcut into the existing Goal Alignment Session, not a second goal system or `/goals` flow.
 - Require workstream handoffs to include `Product Goal`, `Workstream Goal`, and `User Approval Needed` so Product/BFM can reconcile goal fit before execution.
@@ -138,6 +140,14 @@ Workstream chats do not own `/goal`. When a workstream prepares a handoff, it no
 
 Touched reusable surfaces include README/FAQ/loop docs, packaged plugin README, AGENTS/CLAUDE templates, PROJECT_BOARD template, Codex rules, source and packaged CLI bootstrap prompts, generated Product and worker prompts, Product/BFM/coordination/workstream skills, and packaged plugin mirrors.
 
+## Product/BFM Execution Continuation Update - 2026-07-05
+
+Added the generic Product/BFM continuation rule so approved safe work does not pause before every routine step. Product/BFM now keeps going through diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked, then reports after closeout.
+
+The rule still stops for hard gates: live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, scope or OKR revisions, unclear goals, lock conflicts, failed evidence needing risk acceptance, or an explicit pause.
+
+Touched reusable surfaces include README/FAQ/loop docs, packaged plugin README, AGENTS/CLAUDE templates, PROJECT_BOARD template, Codex rules, source and packaged CLI bootstrap prompts, generated Product agent JSON, Product/BFM/coordination skills, project setup skill, packaged plugin mirrors, board, handoff, and changelog.
+
 ## Current Verification Summary
 
 - `node --check tools/fb-lane.cjs`
@@ -149,6 +159,7 @@ Touched reusable surfaces include README/FAQ/loop docs, packaged plugin README, 
 - `node tools/fb-lane.test.cjs` -> 15 checks passed
 - `node tools/fb-lane.cjs status` -> TASK-017 remains `Staging QA`
 - Wording scan confirms approval autonomy phases and never-self-approve boundaries across docs, templates, skills, generated prompts, packaged plugin mirrors, and CLI bootstrap output
+- Wording scan confirms Product/BFM execution-continuation guidance across docs, templates, skills, generated Product prompts, packaged plugin mirrors, and CLI bootstrap output
 - Wording scan confirms `0.2.0-beta` and the v1-to-latest before/after are documented on public docs
 - Wording scan confirms `/goal` is Product/BFM-owned and workstream handoffs include `Product Goal`, `Workstream Goal`, and `User Approval Needed`
 - `node tools/fb-lane.cjs doctor` -> `Needs attention` only for intentionally dirty TASK-017 work
