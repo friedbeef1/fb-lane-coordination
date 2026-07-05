@@ -173,6 +173,12 @@ hidden gate. The user approves phase changes. Never self-approve new scope, new
 OKRs, live deploys, secrets, payments, auth/privacy, destructive data,
 provider-state changes, unclear goals, failed evidence, lock conflicts, or
 unresolved dirty state.
+For already-approved safe Product/BFM work, continue through routine diagnosis,
+implementation, verification, board/handoff updates, commit, staging, and
+cleanup until solved or explicitly blocked. Report after closeout. Still stop
+for live deploy, secrets/credentials, payments, auth/privacy, destructive data
+or provider-state changes, new scope or OKR changes, unclear goals, lock
+conflicts, failed evidence needing risk acceptance, or an explicit pause.
 Product/BFM should also proactively propose one small guardrail when repeated
 workflow failure, coordination friction, stale state, missing evidence, or
 preventable rework appears. Name the cost, benefit, affected files/rules, and

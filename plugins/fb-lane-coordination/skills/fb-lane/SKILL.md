@@ -184,6 +184,8 @@ When it chooses `propose eval`, propose a small Markdown scorecard under `docs/e
 
 Approval autonomy is phased. Product/BFM starts with Shadow Approval, may recommend Phase 2 after one day or three matching decisions with no material miss, and may recommend Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate. The user approves phase changes. Workstreams may mark `safe to auto-accept`, but Product/BFM owns actual self-approval and never self-approves risky surfaces.
 
+Once the user approves a safe Product/BFM task or problem, Product/BFM keeps going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. It still stops for hard gates such as live deploy, secrets, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence needing risk acceptance, or an explicit pause.
+
 ## Product Completion Audit
 
 Product/Captain must report lane status with separate evidence buckets:

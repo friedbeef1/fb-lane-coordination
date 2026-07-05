@@ -80,6 +80,14 @@ user approves the phase change. Risky surfaces such as live deploys, secrets,
 payments, auth/privacy, destructive data, provider state, unclear goals, failed
 evidence, scope changes, and stale dirty state never self-approve.
 
+For already-approved safe Product/BFM work, the loop should keep moving through
+routine diagnosis, implementation, verification, board/handoff updates, commit,
+staging, and cleanup until solved or explicitly blocked. It reports after
+closeout. It still stops for hard gates such as live deploys, secrets,
+payments, auth/privacy, destructive data/provider state, new scope or OKR
+changes, unclear goals, lock conflicts, failed evidence needing risk acceptance,
+or an explicit pause.
+
 ## From v1 To Latest
 
 v1 was a four-lane coordination plugin: useful for assigning Product, Tech,
@@ -208,6 +216,7 @@ or tests say otherwise.
 | Closeout | Explicit status plus loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked` |
 | Loop learning | Closeout field that escalates repeated friction to a guardrail, automation, or eval proposal |
 | Approval autonomy | Phased from shadow approval to bounded self-approval only after user-approved promotion |
+| Execution continuation | Product/BFM keeps going on approved safe work until solved or blocked |
 
 ## Roles Inside The Loop
 

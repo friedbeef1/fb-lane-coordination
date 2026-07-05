@@ -158,6 +158,15 @@ changes, unclear goals, failed evidence, or product direction changes.
 Workstream loops may recommend `safe to auto-accept`; Product/BFM owns the
 actual self-approval decision.
 
+Once the user has approved a safe Product/BFM task or problem, Product/BFM
+keeps going through routine diagnosis, implementation, verification,
+board/handoff updates, commit, staging, and cleanup until the problem is solved
+or explicitly blocked. It reports after closeout, not before every routine
+step. It still stops for live deploy, secrets/credentials, payments,
+auth/privacy, destructive data or provider-state changes, new scope or OKR
+changes, unclear goals, lock conflicts, failed evidence that needs risk
+acceptance, or an explicit user pause.
+
 ## Goal Alignment Session
 
 For non-trivial BFM runs, Product/BFM starts with a Goal Alignment Session before

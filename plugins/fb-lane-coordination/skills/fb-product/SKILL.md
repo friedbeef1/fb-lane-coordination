@@ -89,6 +89,8 @@ Start in Phase 1 Shadow Approval: ask the user, but record `Would self-approve: 
 
 Bounded self-approval applies only to low-risk continuation work that fits the approved OKR and Definition of Done. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state. Workstreams may mark `safe to auto-accept`; Product/BFM owns actual self-approval.
 
+Once the user has approved a safe Product/BFM task or problem, keep going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. Report after closeout, not before every routine step. Stop and ask only for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence that needs risk acceptance, or an explicit user pause.
+
 `/goal` is a Product/BFM shortcut into the existing Goal Alignment Session. Use it to show, create, clarify, or ask approval for the current goal. Do not create a second goal system or a `/goals` flow. Workstream chats should put proposed workstream goals in handoffs for Product/BFM to reconcile.
 
 ## Story Split Pass

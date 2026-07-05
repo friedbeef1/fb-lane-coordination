@@ -2,6 +2,10 @@
 
 ## Unreleased - 2026-06-27
 
+- Coordination: added Product/BFM execution-continuation guidance so approved
+  safe work proceeds through routine diagnosis, implementation, verification,
+  board/handoff updates, commit, staging, and cleanup without pausing before
+  every routine step, while hard gates still stop.
 - Coordination: added the awareness/isolation/integration rule across docs,
   templates, skills, generated prompts, and packaged plugin mirrors. Board plus
   handoff index provide shared awareness, branches/worktrees isolate execution,
