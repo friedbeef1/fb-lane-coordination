@@ -12,10 +12,9 @@ done.
 [Versioning](docs/versioning.md) | [FAQ](FAQ.md) | [Setup](docs/setup.md) |
 [Maintenance](docs/maintenance.md) | [Changelog](CHANGELOG.md)
 
-Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**. The
-Codex plugin manifest can still show a build ID such as
-`0.1.2+codex.20260627210000` until the next release is cut; that is the install
-build, not the model name. See [Versioning](docs/versioning.md).
+Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
+Current plugin builds: Codex `0.2.0-beta+codex.20260707114230`; Claude Code
+`1.0.1`. See [Versioning](docs/versioning.md).
 
 ## The Thesis
 
@@ -221,10 +220,11 @@ or tests say otherwise.
 | Explicit plan phrase gate | `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM requires confirmation before source edits |
 | Frontend visual planning | Handoffs name `Visual Preview Decision`: skip, browser screenshot/mockup, or imagegen asset/style option |
 | Integration | BFM/Product reconciliation before sequencing or merge |
+| Product/BFM closeout visibility | Detailed handoffs get `## Product/BFM Closeout` before workstream cards are refreshed |
 | Closeout | Explicit status plus loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked` |
 | Loop learning | Closeout field that escalates repeated friction to a guardrail, automation, or eval proposal |
 | Approval autonomy | Phased from shadow approval to bounded self-approval only after user-approved promotion |
-| Execution continuation | Product/BFM keeps going on approved safe work until solved or blocked |
+| Execution continuation | Product/BFM keeps going on approved safe work, including safe unblock paths, until solved or blocked |
 
 ## Roles Inside The Loop
 

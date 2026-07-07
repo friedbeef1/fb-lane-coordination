@@ -5,9 +5,9 @@
 The current GitHub documentation line is **FB-Lane 0.2.0-beta: Loop Engineering
 public beta**.
 
-The Codex plugin manifest may still show a build ID such as
-`0.1.2+codex.20260627210000` until the next release is cut. Use
-`codex plugin list | rg "fb-lane-coordination"` to see the installed build.
+Current plugin builds: Codex `0.2.0-beta+codex.20260707114230`; Claude Code
+`1.0.1`. Use `codex plugin list | rg "fb-lane-coordination"` or
+`claude plugin list | rg "fb-lane-coordination"` to see the installed build.
 
 See [docs/versioning.md](docs/versioning.md) for the v1-to-latest before/after.
 
@@ -78,7 +78,7 @@ BFM closeout accounting, evidence honesty, and goal/scope fit.
 
 ## When should I skip FB-Lane?
 
-Skip it when the none of the listed coordination triggers apply. Default to
+Skip it when none of the listed coordination triggers apply. Default to
 normal/simple coding for:
 
 - one-thread fixes
@@ -215,7 +215,7 @@ reports after closeout. It still stops for live deploy, secrets/credentials,
 payments, auth/privacy, destructive data or provider-state changes, new scope or
 OKR changes, unclear goals, lock conflicts, failed evidence needing risk
 acceptance, or an explicit pause.
-reason. It may recommend Phase 2 after one day or three matching decisions with
+It may recommend Phase 2 after one day or three matching decisions with
 no material miss. It may recommend Phase 3 after five safe self-approvals with
 no rollback, stale dirty state, or hidden gate.
 
@@ -301,9 +301,23 @@ Fallback bootstrap paths are in [docs/setup.md](docs/setup.md).
 After the repo changes are merged, reinstall from the configured marketplace:
 
 ```bash
+codex plugin marketplace upgrade fb-lane
 codex plugin add fb-lane-coordination@fb-lane
 codex plugin list | rg "fb-lane-coordination"
 ```
 
 Start a new Codex thread after reinstalling so the refreshed plugin context is
 loaded.
+
+## How do I upgrade the Claude Code plugin?
+
+After the repo changes are merged, refresh the marketplace and plugin:
+
+```bash
+claude plugin marketplace update fb-lane
+claude plugin update fb-lane-coordination@fb-lane
+claude plugin list | rg "fb-lane-coordination"
+```
+
+Start a new Claude Code session after upgrading so refreshed agents and commands
+are loaded.

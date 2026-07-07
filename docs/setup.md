@@ -58,6 +58,7 @@ When the plugin source has been updated and merged, reinstall the plugin from th
 configured FB-Lane marketplace:
 
 ```bash
+codex plugin marketplace upgrade fb-lane
 codex plugin add fb-lane-coordination@fb-lane
 ```
 
@@ -71,6 +72,15 @@ Codex may leave older cache folders under `~/.codex/plugins/cache/`. They are
 not the active install unless `codex plugin list` points at that version. Start a
 new Codex thread after reinstalling so updated skills and MCP tools are loaded
 from the refreshed plugin cache.
+
+For Claude Code installs, refresh the marketplace and plugin:
+
+```bash
+claude plugin marketplace update fb-lane
+claude plugin update fb-lane-coordination@fb-lane
+```
+
+Then start a new Claude Code session so refreshed agents and commands are loaded.
 
 ## Basic CLI Loop
 

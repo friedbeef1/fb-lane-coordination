@@ -6,8 +6,8 @@ operating model, read [Loop Engineering](../../docs/loop-engineering.md).
 > **Status:** FB-Lane on Codex is a public beta.
 
 The current model name is **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
-The installed Codex plugin may still show a build ID such as
-`0.1.2+codex.20260627210000`; check `codex plugin list` for the active build.
+The current Codex plugin build is `0.2.0-beta+codex.20260707114230`; check
+`codex plugin list` for the active installed build.
 For the v1-to-latest before/after, read
 [FB-Lane Versions](../../docs/versioning.md).
 
@@ -46,6 +46,7 @@ This installs:
 To upgrade an existing install after this repo changes:
 
 ```bash
+codex plugin marketplace upgrade fb-lane
 codex plugin add fb-lane-coordination@fb-lane
 codex plugin list | rg "fb-lane-coordination"
 ```
