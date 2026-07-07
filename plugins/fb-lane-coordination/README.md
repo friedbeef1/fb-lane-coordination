@@ -85,6 +85,11 @@ on every plugin surface:
   status, changed files, checks run, remaining gates, next owner, and whether
   live deploy is still blocked.
 
+BFM returns to the board after each slice, but the board is not an infinite job
+queue. BFM continues only through work that belongs to the same approved OKR or
+scope. A different board item requires Product approval unless a separately
+approved self-approval phase allows it.
+
 Tech, Design, and Business BFM execution workers wait for Product/BFM to clear
 the Pre-Execution Card Snapshot, Goal Approval Gate, Story Split Pass,
 Dependency And Lock Pass, Unblocked Sequence, and Recheck Before Claim before

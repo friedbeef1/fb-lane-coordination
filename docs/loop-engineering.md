@@ -83,21 +83,49 @@ flowchart TD
     B --> C["Run Goal Alignment Session"]
     C --> D{"OKRs approved?"}
     D -- "No" --> C
-    D -- "Yes" --> E["Story Split Pass"]
-    E --> F["Sequence approved markdown plans"]
-    F --> G["BFM executes next slice"]
-    G --> H["Verify evidence"]
-    H --> I["Return to handoffs, source, docs, tests, and board"]
-    I --> J{"Everything agrees?"}
-    J -- "No" --> K["Fix gap or record blocked/out of scope/deferred"]
-    K --> I
-    J -- "Yes" --> L["Update board and handoff closeout"]
-    L --> M["Run status/doctor and git clean check"]
-    M --> N{"Clean or intentionally dirty state?"}
-    N -- "No" --> K
-    N -- "Yes" --> O["Propose guardrail if friction repeated"]
-    O --> P["Close the run"]
+    D -- "Yes" --> E["Board + handoff index"]
+    E --> F["Story Split Pass"]
+    F --> G["Sequence approved markdown plans"]
+    G --> H["Mini-loop: execute one slice"]
+    H --> I["Verify evidence"]
+    I --> J["Return to handoffs, source, docs, tests, and board"]
+    J --> K{"More approved work in same OKR or scope?"}
+    K -- "Yes" --> G
+    K -- "Blocked or scope changed" --> L["Return to Product for decision"]
+    L --> C
+    K -- "No" --> M["Update board and handoff closeout"]
+    M --> N["Run status/doctor and git clean check"]
+    N --> O{"Clean or intentionally dirty state?"}
+    O -- "No" --> P["Fix gap or record blocked/out of scope/deferred"]
+    P --> J
+    O -- "Yes" --> Q["Propose guardrail if friction repeated"]
+    Q --> R["Close the run"]
+    R --> S{"Start next OKR or board item?"}
+    S -- "Approved by Product" --> E
+    S -- "Not approved" --> T["Stop with recommendation"]
+
+    subgraph SliceLoop["Small loop inside each slice"]
+        SL1["Implement or integrate"] --> SL2["Run focused check"]
+        SL2 --> SL3["Fix gap or record blocker"]
+        SL3 --> SL4["Update evidence"]
+        SL4 --> SL1
+    end
+
+    H -. "uses" .-> SL1
 ```
+
+There are two loops:
+
+- **Product loop**: approve the OKR, route through the board and handoff index,
+  execute approved slices, return to evidence, and close only when board, source,
+  docs, tests, and git state agree.
+- **Mini-loop**: each slice repeats implement, focused check, fix or blocker,
+  and evidence update until that slice can return to Product/BFM.
+
+BFM returns to the board after each slice, but it does not treat the board as an
+infinite queue. It continues only when the next slice belongs to the same
+approved OKR or scope. A different board item requires Product approval unless a
+separately approved self-approval phase allows it.
 
 ## Proactive Loop Hardening
 

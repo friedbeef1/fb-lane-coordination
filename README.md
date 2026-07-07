@@ -132,17 +132,39 @@ flowchart TD
     A["Product captures intent"] --> B["Goal Alignment Session"]
     B --> C{"Product/workstream OKR approved?"}
     C -- "No" --> B
-    C -- "Yes" --> D["Workstream markdown plans"]
-    D --> E["Product launches BFM execution"]
-    E --> H0["Handoff evidence"]
-    H0 --> F["BFM return check"]
-    F --> G{"Goal, work, evidence, board, repo agree?"}
-    G -- "No" --> H["Fix gap or mark blocked, out of scope, or deferred"]
-    H --> F
-    G -- "Yes" --> I["Clean closeout"]
-    I --> J["Next handoff batch"]
-    J --> A
+    C -- "Yes" --> D["Board + handoff index"]
+    D --> E["Story Split Pass"]
+    E --> F["Sequence approved work"]
+    F --> G["Mini-loop: execute one slice"]
+    G --> H["Verify evidence"]
+    H --> I["Return check: handoffs, source, docs, tests, board"]
+    I --> J{"More approved work in same OKR or scope?"}
+    J -- "Yes" --> F
+    J -- "Blocked or scope changed" --> K["Return to Product for decision"]
+    K --> B
+    J -- "No" --> L["Product/BFM closeout"]
+    L --> M{"Start next OKR or board item?"}
+    M -- "Approved by Product" --> D
+    M -- "Not approved" --> N["Stop with recommendation"]
+
+    subgraph SliceLoop["Small loop inside each slice"]
+        S1["Implement or integrate"] --> S2["Run focused check"]
+        S2 --> S3["Fix gap or record blocker"]
+        S3 --> S4["Update evidence"]
+        S4 --> S1
+    end
+
+    G -. "uses" .-> S1
 ```
+
+The outer loop is the Product loop: approve the goal, sequence against the
+board, execute through BFM, return to evidence, and close only when the board,
+source, docs, tests, and git state agree. The inner mini-loop is the slice loop:
+build, check, fix or record the blocker, and update evidence.
+
+BFM may keep taking the next slice only inside the approved OKR or scope. A new
+unrelated board item starts only after Product approval, unless a separately
+approved self-approval phase allows it.
 
 For non-trivial work, BFM does not start by coding. It starts with a **Goal
 Alignment Session**:
