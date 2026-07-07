@@ -27,7 +27,7 @@ Default to normal/simple coding for one-thread work with no listed coordination 
 
 Worktrees do not replace coordination. No lane should disappear into a private worktree, produce a huge unannounced diff, edit source without board/lock awareness, or close without BFM reconciliation when multiple outputs exist. Before source execution, confirm board/status/locks and the relevant handoff index. During isolated work, require the task, branch/worktree, lane, and locked files to be named.
 
-`docs/workstreams/<lane>.md` is the compact revisit card for a lane. Product/BFM refreshes the relevant card after executing or explicitly deferring a lane handoff. Keep cards to current summary, already-executed Product/BFM work, pending or blocked work, and evidence links; do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail there.
+`docs/workstreams/<lane>.md` is the compact revisit card for a lane. Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then refreshes the relevant card after executing or explicitly deferring a lane handoff. Keep cards to current summary, already-executed Product/BFM work, pending or blocked work, and evidence links; do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail there.
 
 ## Cross-Lane Review Checklist
 Before merging any submitted branch, verify:
@@ -65,6 +65,10 @@ Use `Loop Learning` as the escalation trigger. Choose `none` for one-off frictio
 When `Loop Learning` chooses `propose eval`, use `docs/evals/agent-behavior-scorecard-template.md` as a small Markdown scorecard. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger `doctor` rules unless Product/BFM separately proposes that heavier option with pros/cons and the user explicitly approves it.
 
 Approval autonomy is phased. Start in Shadow Approval: ask the user, but record `Would self-approve: yes/no` and the reason. Recommend Phase 2 after one day or three matching decisions with no material miss. Recommend Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate. The user approves phase changes. Workstreams may mark `safe to auto-accept`, but Product/BFM owns actual self-approval. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state.
+
+Once the user has approved a safe Product/BFM task or problem, keep going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. Report after closeout, not before every routine step. Stop and ask only for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence that needs risk acceptance, or an explicit user pause.
+
+For frontend/UI handoffs, reconcile `Visual Preview Decision` before source execution: `skip`, `browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny copy, spacing, or single-control fixes. Use browser screenshots/mockups for actual UI layout, responsive, component, or flow decisions. Use imagegen only for brand direction, logos, hero/illustration assets, camera/lens concepts, or visual style options where generated bitmap exploration helps. If visual uncertainty is meaningful, include or request the visual artifact before BFM execution so the user can adjust the plan.
 
 Before prioritizing a BFM/all-handoff run, run the Story Split Pass. Split mixed lanes, risks, locks, gates, review surfaces, blocked work, and ready-now work into smaller stories, or say `No split needed`, then run the dependency/lock classification on the resulting stories or original item.
 

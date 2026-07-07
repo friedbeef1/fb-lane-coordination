@@ -30,10 +30,11 @@ compact with `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`,
 `Checks / Evidence`, and `Detail`.
 
 Bootstrapped projects also include `docs/workstreams/<lane>.md` status cards.
-Product/BFM refreshes the relevant card after executing or explicitly deferring
-a lane handoff so returning lanes can see what already happened, what remains
-pending or blocked, and where the evidence lives. Cards are summaries only, not
-a second board.
+Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then
+refreshes the relevant card after executing or explicitly deferring a lane
+handoff so returning lanes can see what already happened, what remains pending
+or blocked, and where the evidence lives. Cards are summaries only, not a second
+board.
 
 Use the awareness, isolation, integration rule: `PROJECT_BOARD.md` and
 `docs/handoffs/index.md` create shared awareness like a standup;
@@ -75,6 +76,10 @@ on every plugin surface:
 - **Unblocked Sequence**: execute only `ready now` work; split independent
   unlocked work, defer locked overlap with the blocking task named, or stop with
   the next unblock action when everything is blocked.
+- **BFM Auto-Unblock Rule**: when the user says `BFM`, flag each blocker,
+  recommend how to address it, execute the recommended safe unblock path inside
+  the approved scope, and keep looping until every task is done, explicitly
+  deferred, out of scope, or blocked by a real stop point.
 - **Recheck Before Claim**: rerun lane status immediately before claiming or
   editing; resequence if locks changed.
 - **Post-Action Card Summary**: before closeout, summarize card ID, final
@@ -173,6 +178,20 @@ hidden gate. The user approves phase changes. Never self-approve new scope, new
 OKRs, live deploys, secrets, payments, auth/privacy, destructive data,
 provider-state changes, unclear goals, failed evidence, lock conflicts, or
 unresolved dirty state.
+For already-approved safe Product/BFM work, continue through routine diagnosis,
+implementation, verification, board/handoff updates, commit, staging, and
+cleanup until solved or explicitly blocked. Report after closeout. Still stop
+for live deploy, secrets/credentials, payments, auth/privacy, destructive data
+or provider-state changes, new scope or OKR changes, unclear goals, lock
+conflicts, failed evidence needing risk acceptance, or an explicit pause.
+Frontend/UI plans and handoffs include `Visual Preview Decision`: `skip`,
+`browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny copy,
+spacing, or single-control fixes. Use browser screenshots/mockups for actual UI
+layout, responsive, component, or flow decisions. Use imagegen only for brand
+direction, logos, hero/illustration assets, camera/lens concepts, or visual
+style options where generated bitmap exploration helps. If visual uncertainty is
+meaningful, Product/BFM includes or requests the visual artifact before source
+execution so the user can adjust the plan.
 Product/BFM should also proactively propose one small guardrail when repeated
 workflow failure, coordination friction, stale state, missing evidence, or
 preventable rework appears. Name the cost, benefit, affected files/rules, and

@@ -73,11 +73,11 @@ plans, logs, rationale, copy variants, or implementation detail in the index.
 Business lane see what Product/BFM already executed, what remains pending or
 blocked, and where the evidence lives.
 
-Product/BFM refreshes the relevant card after executing or explicitly deferring
-a lane handoff. Worker lanes read `PROJECT_BOARD.md`, then
-`docs/handoffs/index.md`, then their status card before opening detailed
-handoffs. Keep cards compact: no full OKRs, QA logs, plans, rationale, copy
-variants, or implementation detail.
+Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then
+refreshes the relevant card after executing or explicitly deferring a lane
+handoff. Worker lanes read `PROJECT_BOARD.md`, then `docs/handoffs/index.md`,
+then their status card before opening detailed handoffs. Keep cards compact: no
+full OKRs, QA logs, plans, rationale, copy variants, or implementation detail.
 
 Awareness, isolation, integration: `PROJECT_BOARD.md` and
 `docs/handoffs/index.md` create shared awareness like a standup;
@@ -144,6 +144,8 @@ Add `Loop Learning` at closeout: feedback captured, repeated pattern (`no|yes`),
 When `Loop Learning` chooses `propose eval`, use a small Markdown scorecard under `docs/evals/` with the generic sections from `docs/evals/agent-behavior-scorecard-template.md`: non-Product execution gate, BFM closeout accounting, evidence honesty, and goal/scope fit. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger `doctor` rules unless Product/BFM proposes that heavier option with pros/cons and the user explicitly approves it.
 
 Approval autonomy is phased. Phase 1 is Shadow Approval: Product/BFM still asks the user, but records `Would self-approve: yes/no` and the reason. Product/BFM may recommend Phase 2 after one day or three matching decisions with no material miss, and Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate; the user approves phase changes. Workstreams may mark work `safe to auto-accept`, but Product/BFM owns actual self-approval. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state.
+
+Once the user has approved a safe Product/BFM task or problem, keep going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. Report after closeout, not before every routine step. Stop and ask only for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence that needs risk acceptance, or an explicit user pause.
 
 Product/BFM should proactively propose loop hardening when it sees repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework. Propose one small guardrail at a time with the observed pattern, recommended guardrail, cost, benefit, files/rules affected, and approval needed. Do not silently change the process; skip one-off or low-impact issues.
 

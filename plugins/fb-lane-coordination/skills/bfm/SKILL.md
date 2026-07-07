@@ -38,6 +38,8 @@ Use these skills before acting, in this order:
 12. If the block is missing, stale, pending, or blocking clarity, propose the smallest OKR addition or change in plain language, and stop until the user explicitly approves. Add or change board OKRs only after that approval.
 13. Block before execution when approval is missing, OKRs are unclear, a handoff implies an unapproved OKR change, or handoffs conflict with the approved OKR tree. Reuse or clarify the approved OKR; do not generate a fresh OKR for every task.
 
+For frontend/UI work, reconcile `Visual Preview Decision` before source execution: `skip`, `browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny copy, spacing, or single-control fixes. Use browser screenshots/mockups for actual UI layout, responsive, component, or flow decisions. Use imagegen only for brand direction, logos, hero/illustration assets, camera/lens concepts, or visual style options where generated bitmap exploration helps. If visual uncertainty is meaningful, include or request the visual artifact before editing source so the user can adjust the plan.
+
 BFM is not the default mode for simple coding. It is triggered when the objective requires sequencing, approval, merge/release, staging/live, secrets, payments, auth/privacy/analytics, core product flows such as camera/capture/save/export, board-locked files, durable multi-thread context, or multiple lane outputs reconciled before source changes.
 
 Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no disappearing into a private worktree, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
@@ -52,6 +54,12 @@ If multiple cards match, show the candidates and recommend one. If approval is m
 
 ### Post-Action Card Summary
 Before closeout, show card ID, final status, changed files, checks run, remaining gates, next owner, and whether live deploy is still blocked.
+
+## BFM Auto-Unblock Rule
+
+When the user says `BFM`, treat blockers as part of the work, not as routine reasons to pause. Flag each blocker, recommend how Product/BFM will address it, then execute the recommended safe unblock path inside the approved scope. Keep looping until every task is done, explicitly deferred, out of scope, or blocked by a real stop point.
+
+Real stop points still include live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, active lock conflicts, failed evidence needing risk acceptance, physical-device/manual external actions, and explicit user pauses.
 
 ## Five-Lane Review
 
@@ -103,6 +111,7 @@ Execute only `ready now` items. Do not claim or touch files locked by another ac
 Proceed through the sequence without asking for repeated permission when authority is clear.
 
 - Product/BFM creates or scopes board items, sets direction, and reconciles approved markdown plans.
+- Product/BFM flags blockers, recommends the safe unblock path, executes safe unblocks within approved scope, and keeps going until solved or truly blocked.
 - Product/BFM blocks before execution if the board Goal Alignment Session is missing, has unclear OKRs, has `Approval: pending`, lacks the user's explicit approval, implies an unapproved OKR change, or a handoff is blocked by OKR ambiguity.
 - The BFM execution worker claims task/files before durable writes and executes the work in the owning lane context.
 - Respect active locks; do not edit files owned by another active lane.
@@ -146,6 +155,8 @@ Start in Phase 1 Shadow Approval: ask the user, but record `Would self-approve: 
 
 Bounded self-approval applies only to low-risk continuation work that fits the approved OKR and Definition of Done. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state. Workstreams may mark `safe to auto-accept`; Product/BFM owns actual self-approval.
 
+Once the user has approved a safe Product/BFM task or problem, keep going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. Report after closeout, not before every routine step. Stop and ask only for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence that needs risk acceptance, or an explicit user pause.
+
 `/goal` is a Product/BFM shortcut into the existing Goal Alignment Session. Use it to show, create, clarify, or ask approval for the current goal. Do not create a second goal system or a `/goals` flow. Workstream chats should put proposed workstream goals in handoffs for Product/BFM to reconcile.
 
 ```mermaid
@@ -174,6 +185,7 @@ Finish with a Product closeout note:
 Add `Loop Learning: Feedback captured: <none|issue found>; Repeated pattern?: <no|yes>; Tooling needed?: <none|propose guardrail|propose automation|propose eval>; Product approval needed?: <no|yes>.`
 
 Also update `PROJECT_BOARD.md` with final status, links, modified files, checks, risks, and next owner.
+Also update the detailed handoff with `## Product/BFM Closeout` so returning lanes can see that Product/BFM actioned it. Include `Status`, `Actioned By`, `Result`, `Evidence`, `Remaining`, `Closeout Note`, and `Loop Learning`.
 Also update the relevant `docs/workstreams/<lane>.md` card when closeout changes what that lane needs to know later.
 If completion is blocked, record the exact blocker and the lane responsible for clearing it.
 Do not close BFM until board, source, docs, and tests agree, or every disagreement is marked `blocked`, `out of scope`, or `explicitly deferred`.

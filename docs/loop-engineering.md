@@ -158,6 +158,15 @@ changes, unclear goals, failed evidence, or product direction changes.
 Workstream loops may recommend `safe to auto-accept`; Product/BFM owns the
 actual self-approval decision.
 
+Once the user has approved a safe Product/BFM task or problem, Product/BFM
+keeps going through routine diagnosis, implementation, verification,
+board/handoff updates, commit, staging, and cleanup until the problem is solved
+or explicitly blocked. It reports after closeout, not before every routine
+step. It still stops for live deploy, secrets/credentials, payments,
+auth/privacy, destructive data or provider-state changes, new scope or OKR
+changes, unclear goals, lock conflicts, failed evidence that needs risk
+acceptance, or an explicit user pause.
+
 ## Goal Alignment Session
 
 For non-trivial BFM runs, Product/BFM starts with a Goal Alignment Session before
@@ -218,11 +227,14 @@ FB-Lane uses four layers so agents can restart without reading everything:
 | Revisit summary | `docs/workstreams/<lane>.md` | What Product/BFM already executed or deferred for a lane, what remains pending or blocked, and evidence links |
 | Detail | `docs/handoffs/<task-id>.md` | Plans, rationale, logs, QA detail, copy variants, implementation notes |
 
-Product/BFM refreshes the relevant workstream card after executing or explicitly
-deferring a lane handoff. Worker lanes read `PROJECT_BOARD.md`, then
-`docs/handoffs/index.md`, then their card before opening detailed handoffs. The
-card must stay compact and must not duplicate the board, full OKRs, QA logs,
-plans, rationale, copy variants, or implementation details.
+Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then
+refreshes the relevant workstream card after executing or explicitly deferring a
+lane handoff. The closeout section is the visible "this was actioned" note after
+execution; the card is only the compact revisit summary. Worker lanes read
+`PROJECT_BOARD.md`, then `docs/handoffs/index.md`, then their card before
+opening detailed handoffs. The card must stay compact and must not duplicate the
+board, full OKRs, QA logs, plans, rationale, copy variants, or implementation
+details.
 
 ## Plan-Only Workstreams
 
@@ -298,6 +310,15 @@ clear behavior contract, a regression risk, or logic that benefits from a
 red-green-refactor loop. For docs, copy, sequencing, or visual work, the
 Definition of Done may be better proven by link checks, screenshot evidence,
 wording scans, or Product approval.
+
+For frontend/UI work, the handoff should also name `Visual Preview Decision`:
+`skip`, `browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny
+copy, spacing, or single-control fixes. Use browser screenshots/mockups for real
+layout, responsive, component, or flow decisions. Use imagegen only for brand
+direction, logos, hero/illustration assets, camera/lens concepts, or visual
+style options where generated bitmap exploration helps. If visual uncertainty is
+meaningful, Product/BFM includes or requests the visual artifact before source
+execution so the user can adjust the plan.
 
 ## Lane Handoffs And Lane OKR Fit
 
@@ -469,6 +490,10 @@ Evidence: <checks, screenshots, docs, PRs, staging links>.
 Remaining: <merge, approval, deploy, or none>.
 Handoff: docs/handoffs/TASK-123.md.
 ```
+
+Also write the same result into the detailed handoff under
+`## Product/BFM Closeout` with `Status`, `Actioned By`, `Result`, `Evidence`,
+`Remaining`, `Closeout Note`, and `Loop Learning`.
 
 The closeout note is informational. It should not contain commands, trigger
 phrases, or instructions that start another lane by accident.

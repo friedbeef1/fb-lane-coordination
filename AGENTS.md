@@ -55,6 +55,11 @@ When `Loop Learning` chooses `propose eval`, use a small Markdown scorecard unde
 
 Approval autonomy is phased. Phase 1 is Shadow Approval: Product/BFM still asks the user, but records `Would self-approve: yes/no` and the reason. Product/BFM may recommend Phase 2 after one day or three matching decisions with no material miss, and Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate; the user approves phase changes. Workstreams may mark work `safe to auto-accept`, but Product/BFM owns actual self-approval. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state.
 
+Once the user has approved a safe Product/BFM task or problem, keep going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. Report after closeout, not before every routine step. Stop and ask only for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence that needs risk acceptance, or an explicit user pause.
+
+### 🖼 Frontend Visual Planning
+Frontend/UI plans and handoffs include `Visual Preview Decision`: `skip`, `browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny copy, spacing, or single-control fixes. Use browser screenshots/mockups for actual UI layout, responsive, component, or flow decisions. Use imagegen only for brand direction, logos, hero/illustration assets, camera/lens concepts, or visual style options where generated bitmap exploration helps. If visual uncertainty is meaningful, Product/BFM includes or requests the visual artifact before source execution so the user can adjust the plan.
+
 ### 🎯 Goal Alignment Session
 Use a Goal Alignment Session for non-trivial handoffs and sequencing work. Product/BFM owns the approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream or BFM-target OKR with `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval: pending|approved`, and `Justification`, plus stable lane OKRs for Product, Tech, Design, and Business where those lanes are relevant. Keep every OKR plain enough for a Product Manager to skim and approve.
 
@@ -89,7 +94,7 @@ Read or refresh the index before opening detailed handoffs, then open only the f
 ### 🧭 Workstream Status Cards
 `docs/workstreams/<lane>.md` is a revisit summary for Product, Tech, Design, and Business lanes. It helps a returning lane see what Product/BFM already executed, what remains pending or blocked, and where the evidence lives.
 
-Product/BFM refreshes the relevant card after executing or explicitly deferring a lane handoff. Worker lanes read their card after `PROJECT_BOARD.md` and `docs/handoffs/index.md`, then open detailed handoffs only when needed. Cards must stay compact: no full OKRs, full QA logs, plans, rationale, copy variants, or implementation detail.
+Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then refreshes the relevant card after executing or explicitly deferring a lane handoff. Worker lanes read their card after `PROJECT_BOARD.md` and `docs/handoffs/index.md`, then open detailed handoffs only when needed. Cards must stay compact: no full OKRs, full QA logs, plans, rationale, copy variants, or implementation detail.
 
 Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no disappearing into a private worktree, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
 

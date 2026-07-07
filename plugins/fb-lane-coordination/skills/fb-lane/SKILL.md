@@ -34,7 +34,9 @@ If the user says `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM, confirm wheth
 
 Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no disappearing into a private worktree, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
 
-Workstream status cards are summaries only. Product/BFM refreshes the relevant `docs/workstreams/<lane>.md` card after executing or explicitly deferring a lane handoff. Returning lanes read the board, the handoff index, then their lane card before opening detailed handoffs. Do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail in cards.
+Workstream status cards are summaries only. Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then refreshes the relevant `docs/workstreams/<lane>.md` card after executing or explicitly deferring a lane handoff. Returning lanes read the board, the handoff index, then their lane card before opening detailed handoffs. Do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail in cards.
+
+Frontend/UI handoffs include `Visual Preview Decision`: `skip`, `browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny copy, spacing, or single-control fixes. Use browser screenshots/mockups for actual UI layout, responsive, component, or flow decisions. Use imagegen only for brand direction, logos, hero/illustration assets, camera/lens concepts, or visual style options where generated bitmap exploration helps. If visual uncertainty is meaningful, Product/BFM includes or requests the visual artifact before source execution.
 
 ## BFM Visible Card and Approval Fix
 
@@ -46,6 +48,9 @@ If multiple cards match, show the candidates and recommend one. If approval is m
 
 ### Post-Action Card Summary
 After BFM acts, summarize card ID, final status, changed files, checks run, remaining gates, next owner, and whether live deploy is still blocked.
+
+### BFM Auto-Unblock Rule
+When the user says `BFM`, Product/BFM flags each blocker, recommends how to address it, then executes the recommended safe unblock path inside the approved scope. Product/BFM keeps looping until every task is done, explicitly deferred, out of scope, or blocked by a real stop point. Real stop points still include live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, active lock conflicts, failed evidence needing risk acceptance, physical-device/manual external actions, and explicit user pauses.
 
 ## User-Facing Quickstart
 
@@ -183,6 +188,8 @@ Use `Loop Learning` as the escalation trigger. Choose `none` for one-off frictio
 When it chooses `propose eval`, propose a small Markdown scorecard under `docs/evals/` using the generic sections from `docs/evals/agent-behavior-scorecard-template.md`. Do not create an eval runner, dashboard, numeric score, CI eval job, or larger `doctor` rule unless that heavier option is separately approved.
 
 Approval autonomy is phased. Product/BFM starts with Shadow Approval, may recommend Phase 2 after one day or three matching decisions with no material miss, and may recommend Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate. The user approves phase changes. Workstreams may mark `safe to auto-accept`, but Product/BFM owns actual self-approval and never self-approves risky surfaces.
+
+Once the user approves a safe Product/BFM task or problem, Product/BFM keeps going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. It still stops for hard gates such as live deploy, secrets, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence needing risk acceptance, or an explicit pause.
 
 ## Product Completion Audit
 

@@ -208,6 +208,13 @@ in their handoff for Product/BFM and the user to approve.
 
 Eventually, for low-risk continuation work. Start with **Shadow Approval**:
 Product/BFM asks the user and records `Would self-approve: yes/no` with the
+reason. After the user approves a safe task or problem, Product/BFM should keep
+going through routine diagnosis, implementation, verification, board/handoff
+updates, commit, staging, and cleanup until solved or explicitly blocked. It
+reports after closeout. It still stops for live deploy, secrets/credentials,
+payments, auth/privacy, destructive data or provider-state changes, new scope or
+OKR changes, unclear goals, lock conflicts, failed evidence needing risk
+acceptance, or an explicit pause.
 reason. It may recommend Phase 2 after one day or three matching decisions with
 no material miss. It may recommend Phase 3 after five safe self-approvals with
 no rollback, stale dirty state, or hidden gate.
@@ -240,10 +247,11 @@ awareness, or close without BFM reconciliation when multiple outputs exist.
 
 They are small lane revisit summaries at `docs/workstreams/<lane>.md`.
 
-Product/BFM updates the relevant card after executing or explicitly deferring a
-lane handoff. When someone returns to Tech, Design, Business, or Product, the
-lane reads the board, the handoff index, then its card to see what Product/BFM
-already did, what is still pending or blocked, and where the evidence lives.
+Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then
+updates the relevant card after executing or explicitly deferring a lane handoff.
+When someone returns to Tech, Design, Business, or Product, the lane reads the
+board, the handoff index, then its card to see what Product/BFM already did,
+what is still pending or blocked, and where the evidence lives.
 
 They are not a second board. Do not put full OKRs, QA logs, plans, rationale,
 copy variants, or implementation detail there.
@@ -259,6 +267,16 @@ No. The lanes are roles inside the loop:
 
 If one thread can safely do the work, use one thread. If ownership is split,
 lanes keep the split visible.
+
+## Do frontend changes need generated images?
+
+No. Frontend/UI plans should name a `Visual Preview Decision`: `skip`, `browser
+screenshot/mockup`, or `imagegen asset/style option`.
+
+Use the actual browser or a mockup for layout, responsive, component, or flow
+decisions. Use imagegen only for brand direction, logos, hero or illustration
+assets, camera/lens concepts, or visual style options where generated bitmap
+exploration helps. Skip it for tiny copy, spacing, or single-control fixes.
 
 ## Is Definition of Done the same as TDD?
 

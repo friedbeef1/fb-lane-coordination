@@ -80,6 +80,21 @@ user approves the phase change. Risky surfaces such as live deploys, secrets,
 payments, auth/privacy, destructive data, provider state, unclear goals, failed
 evidence, scope changes, and stale dirty state never self-approve.
 
+For already-approved safe Product/BFM work, the loop should keep moving through
+routine diagnosis, implementation, verification, board/handoff updates, commit,
+staging, and cleanup until solved or explicitly blocked. It reports after
+closeout. It still stops for hard gates such as live deploys, secrets,
+payments, auth/privacy, destructive data/provider state, new scope or OKR
+changes, unclear goals, lock conflicts, failed evidence needing risk acceptance,
+or an explicit pause.
+
+When the user says `BFM`, blocker handling is part of that loop. Product/BFM
+flags each blocker, recommends how to address it, executes the recommended safe
+unblock path inside the approved scope, and keeps going until every task is done,
+explicitly deferred, out of scope, or blocked by a real stop point. Physical
+devices and other manual external actions are real stop points, but routine
+sequencing, checks, docs, commits, staging, and cleanup are not.
+
 ## From v1 To Latest
 
 v1 was a four-lane coordination plugin: useful for assigning Product, Tech,
@@ -204,10 +219,12 @@ or tests say otherwise.
 | Agent behavior evals | Optional Markdown scorecards for repeated loop failures |
 | Execution gate | Product-launched BFM run |
 | Explicit plan phrase gate | `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM requires confirmation before source edits |
+| Frontend visual planning | Handoffs name `Visual Preview Decision`: skip, browser screenshot/mockup, or imagegen asset/style option |
 | Integration | BFM/Product reconciliation before sequencing or merge |
 | Closeout | Explicit status plus loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked` |
 | Loop learning | Closeout field that escalates repeated friction to a guardrail, automation, or eval proposal |
 | Approval autonomy | Phased from shadow approval to bounded self-approval only after user-approved promotion |
+| Execution continuation | Product/BFM keeps going on approved safe work until solved or blocked |
 
 ## Roles Inside The Loop
 
@@ -277,7 +294,8 @@ routing; detailed handoffs are detail. The index should stay compact with
 `Checks / Evidence`, and `Detail`. Keep full OKRs, QA checklists, plans, logs,
 rationale, copy variants, and implementation detail in detailed handoffs.
 
-`docs/workstreams/<lane>.md` is the lane revisit card. Product/BFM refreshes it
+`docs/workstreams/<lane>.md` is the lane revisit card. Product/BFM first updates
+the detailed handoff with `## Product/BFM Closeout`, then refreshes the card
 after executing or explicitly deferring a lane handoff so a returning Tech,
 Design, Business, or Product thread can see what already happened, what remains
 pending or blocked, and where the evidence lives. It is a summary only, not a
