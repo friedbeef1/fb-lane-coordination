@@ -94,7 +94,7 @@ Read or refresh the index before opening detailed handoffs, then open only the f
 ### 🧭 Workstream Status Cards
 `docs/workstreams/<lane>.md` is a revisit summary for Product, Tech, Design, and Business lanes. It helps a returning lane see what Product/BFM already executed, what remains pending or blocked, and where the evidence lives.
 
-Product/BFM refreshes the relevant card after executing or explicitly deferring a lane handoff. Worker lanes read their card after `PROJECT_BOARD.md` and `docs/handoffs/index.md`, then open detailed handoffs only when needed. Cards must stay compact: no full OKRs, full QA logs, plans, rationale, copy variants, or implementation detail.
+Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then refreshes the relevant card after executing or explicitly deferring a lane handoff. Worker lanes read their card after `PROJECT_BOARD.md` and `docs/handoffs/index.md`, then open detailed handoffs only when needed. Cards must stay compact: no full OKRs, full QA logs, plans, rationale, copy variants, or implementation detail.
 
 Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no disappearing into a private worktree, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
 

@@ -53,7 +53,7 @@ If multiple cards match, show the candidates and recommend one. If approval is m
 After BFM acts, summarize card ID, final status, changed files, checks run, remaining gates, next owner, and whether live deploy is still blocked.
 
 ### Workstream Status Card Refresh
-After Product/BFM executes, merges, rejects, or explicitly defers a lane handoff, update the relevant `docs/workstreams/<lane>.md` card. Keep it to: `Last Updated`, `Lane`, `Current Summary`, `Already Executed By Product/BFM`, `Still Pending / Blocked`, and `Evidence Links`. Do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail in the card.
+After Product/BFM executes, merges, rejects, or explicitly defers a lane handoff, update the detailed handoff with `## Product/BFM Closeout`, then update the relevant `docs/workstreams/<lane>.md` card. The handoff closeout is the visible "this was actioned" note and includes `Status`, `Actioned By`, `Result`, `Evidence`, `Remaining`, `Closeout Note`, and `Loop Learning`. Keep the card to: `Last Updated`, `Lane`, `Current Summary`, `Already Executed By Product/BFM`, `Still Pending / Blocked`, and `Evidence Links`. Do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail in the card.
 
 Objective examples:
 

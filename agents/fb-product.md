@@ -27,7 +27,7 @@ Default to normal/simple coding for one-thread work with no listed coordination 
 
 Worktrees do not replace coordination. No lane should disappear into a private worktree, produce a huge unannounced diff, edit source without board/lock awareness, or close without BFM reconciliation when multiple outputs exist. Before source execution, confirm board/status/locks and the relevant handoff index. During isolated work, require the task, branch/worktree, lane, and locked files to be named.
 
-`docs/workstreams/<lane>.md` is the compact revisit card for a lane. Product/BFM refreshes the relevant card after executing or explicitly deferring a lane handoff. Keep cards to current summary, already-executed Product/BFM work, pending or blocked work, and evidence links; do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail there.
+`docs/workstreams/<lane>.md` is the compact revisit card for a lane. Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then refreshes the relevant card after executing or explicitly deferring a lane handoff. Keep cards to current summary, already-executed Product/BFM work, pending or blocked work, and evidence links; do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail there.
 
 ## Cross-Lane Review Checklist
 Before merging any submitted branch, verify:

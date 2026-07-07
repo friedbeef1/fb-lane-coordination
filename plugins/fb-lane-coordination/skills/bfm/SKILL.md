@@ -178,6 +178,7 @@ Finish with a Product closeout note:
 Add `Loop Learning: Feedback captured: <none|issue found>; Repeated pattern?: <no|yes>; Tooling needed?: <none|propose guardrail|propose automation|propose eval>; Product approval needed?: <no|yes>.`
 
 Also update `PROJECT_BOARD.md` with final status, links, modified files, checks, risks, and next owner.
+Also update the detailed handoff with `## Product/BFM Closeout` so returning lanes can see that Product/BFM actioned it. Include `Status`, `Actioned By`, `Result`, `Evidence`, `Remaining`, `Closeout Note`, and `Loop Learning`.
 Also update the relevant `docs/workstreams/<lane>.md` card when closeout changes what that lane needs to know later.
 If completion is blocked, record the exact blocker and the lane responsible for clearing it.
 Do not close BFM until board, source, docs, and tests agree, or every disagreement is marked `blocked`, `out of scope`, or `explicitly deferred`.

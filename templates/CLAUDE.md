@@ -73,11 +73,11 @@ plans, logs, rationale, copy variants, or implementation detail in the index.
 Business lane see what Product/BFM already executed, what remains pending or
 blocked, and where the evidence lives.
 
-Product/BFM refreshes the relevant card after executing or explicitly deferring
-a lane handoff. Worker lanes read `PROJECT_BOARD.md`, then
-`docs/handoffs/index.md`, then their status card before opening detailed
-handoffs. Keep cards compact: no full OKRs, QA logs, plans, rationale, copy
-variants, or implementation detail.
+Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then
+refreshes the relevant card after executing or explicitly deferring a lane
+handoff. Worker lanes read `PROJECT_BOARD.md`, then `docs/handoffs/index.md`,
+then their status card before opening detailed handoffs. Keep cards compact: no
+full OKRs, QA logs, plans, rationale, copy variants, or implementation detail.
 
 Awareness, isolation, integration: `PROJECT_BOARD.md` and
 `docs/handoffs/index.md` create shared awareness like a standup;

@@ -227,11 +227,14 @@ FB-Lane uses four layers so agents can restart without reading everything:
 | Revisit summary | `docs/workstreams/<lane>.md` | What Product/BFM already executed or deferred for a lane, what remains pending or blocked, and evidence links |
 | Detail | `docs/handoffs/<task-id>.md` | Plans, rationale, logs, QA detail, copy variants, implementation notes |
 
-Product/BFM refreshes the relevant workstream card after executing or explicitly
-deferring a lane handoff. Worker lanes read `PROJECT_BOARD.md`, then
-`docs/handoffs/index.md`, then their card before opening detailed handoffs. The
-card must stay compact and must not duplicate the board, full OKRs, QA logs,
-plans, rationale, copy variants, or implementation details.
+Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then
+refreshes the relevant workstream card after executing or explicitly deferring a
+lane handoff. The closeout section is the visible "this was actioned" note after
+execution; the card is only the compact revisit summary. Worker lanes read
+`PROJECT_BOARD.md`, then `docs/handoffs/index.md`, then their card before
+opening detailed handoffs. The card must stay compact and must not duplicate the
+board, full OKRs, QA logs, plans, rationale, copy variants, or implementation
+details.
 
 ## Plan-Only Workstreams
 
@@ -487,6 +490,10 @@ Evidence: <checks, screenshots, docs, PRs, staging links>.
 Remaining: <merge, approval, deploy, or none>.
 Handoff: docs/handoffs/TASK-123.md.
 ```
+
+Also write the same result into the detailed handoff under
+`## Product/BFM Closeout` with `Status`, `Actioned By`, `Result`, `Evidence`,
+`Remaining`, `Closeout Note`, and `Loop Learning`.
 
 The closeout note is informational. It should not contain commands, trigger
 phrases, or instructions that start another lane by accident.

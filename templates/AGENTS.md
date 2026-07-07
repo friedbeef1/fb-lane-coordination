@@ -49,6 +49,8 @@ To prevent context window overload and git collisions, strictly adhere to your a
 ### 🧾 Passive Closeout Notes
 Every lane must leave a final informational closeout note in its thread when it stops work on a task. The note records task ID, status, delivered work, evidence, remaining gates, and the handoff path. Product/BFM closeouts also record one loop health flag. The note must not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane; `PROJECT_BOARD.md` and `docs/handoffs/` remain the trigger source.
 
+After Product/BFM executes, merges, rejects, or explicitly defers a lane handoff, Product/BFM must update the detailed handoff with a `## Product/BFM Closeout` section. This is the visible "this was actioned" note after execution. Include `Status`, `Actioned By`, `Result`, `Evidence`, `Remaining`, `Closeout Note`, and `Loop Learning`.
+
 Product/BFM closeouts also include `Loop Learning`: feedback captured, whether the pattern repeated, tooling needed (`none`, `propose guardrail`, `propose automation`, or `propose eval`), and whether Product approval is needed. This is the escalation trigger for heavier loop tooling.
 
 When `Loop Learning` chooses `propose eval`, use a small Markdown scorecard under `docs/evals/` with generic sections for non-Product execution gate, BFM closeout accounting, evidence honesty, and goal/scope fit. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger `doctor` rules unless Product/BFM proposes that heavier option with pros/cons and the user explicitly approves it.
@@ -94,7 +96,7 @@ Read or refresh the index before opening detailed handoffs, then open only the f
 ### 🧭 Workstream Status Cards
 `docs/workstreams/<lane>.md` is a revisit summary for Product, Tech, Design, and Business lanes. It helps a returning lane see what Product/BFM already executed, what remains pending or blocked, and where the evidence lives.
 
-Product/BFM refreshes the relevant card after executing or explicitly deferring a lane handoff. Worker lanes read their card after `PROJECT_BOARD.md` and `docs/handoffs/index.md`, then open detailed handoffs only when needed. Cards must stay compact: no full OKRs, full QA logs, plans, rationale, copy variants, or implementation detail.
+Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then refreshes the relevant card after executing or explicitly deferring a lane handoff. Worker lanes read their card after `PROJECT_BOARD.md` and `docs/handoffs/index.md`, then open detailed handoffs only when needed. Cards must stay compact: no full OKRs, full QA logs, plans, rationale, copy variants, or implementation detail.
 
 Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no disappearing into a private worktree, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
 

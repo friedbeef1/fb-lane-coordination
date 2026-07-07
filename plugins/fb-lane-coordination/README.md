@@ -30,10 +30,11 @@ compact with `Task / Topic`, `Lane`, `Status`, `Depends / Blocks / Gate`,
 `Checks / Evidence`, and `Detail`.
 
 Bootstrapped projects also include `docs/workstreams/<lane>.md` status cards.
-Product/BFM refreshes the relevant card after executing or explicitly deferring
-a lane handoff so returning lanes can see what already happened, what remains
-pending or blocked, and where the evidence lives. Cards are summaries only, not
-a second board.
+Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then
+refreshes the relevant card after executing or explicitly deferring a lane
+handoff so returning lanes can see what already happened, what remains pending
+or blocked, and where the evidence lives. Cards are summaries only, not a second
+board.
 
 Use the awareness, isolation, integration rule: `PROJECT_BOARD.md` and
 `docs/handoffs/index.md` create shared awareness like a standup;

@@ -247,10 +247,11 @@ awareness, or close without BFM reconciliation when multiple outputs exist.
 
 They are small lane revisit summaries at `docs/workstreams/<lane>.md`.
 
-Product/BFM updates the relevant card after executing or explicitly deferring a
-lane handoff. When someone returns to Tech, Design, Business, or Product, the
-lane reads the board, the handoff index, then its card to see what Product/BFM
-already did, what is still pending or blocked, and where the evidence lives.
+Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then
+updates the relevant card after executing or explicitly deferring a lane handoff.
+When someone returns to Tech, Design, Business, or Product, the lane reads the
+board, the handoff index, then its card to see what Product/BFM already did,
+what is still pending or blocked, and where the evidence lives.
 
 They are not a second board. Do not put full OKRs, QA logs, plans, rationale,
 copy variants, or implementation detail there.

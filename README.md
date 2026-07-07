@@ -287,7 +287,8 @@ routing; detailed handoffs are detail. The index should stay compact with
 `Checks / Evidence`, and `Detail`. Keep full OKRs, QA checklists, plans, logs,
 rationale, copy variants, and implementation detail in detailed handoffs.
 
-`docs/workstreams/<lane>.md` is the lane revisit card. Product/BFM refreshes it
+`docs/workstreams/<lane>.md` is the lane revisit card. Product/BFM first updates
+the detailed handoff with `## Product/BFM Closeout`, then refreshes the card
 after executing or explicitly deferring a lane handoff so a returning Tech,
 Design, Business, or Product thread can see what already happened, what remains
 pending or blocked, and where the evidence lives. It is a summary only, not a
