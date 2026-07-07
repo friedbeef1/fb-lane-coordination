@@ -2,6 +2,10 @@
 
 ## Unreleased - 2026-06-27
 
+- Docs: clarified the Loop Engineering diagram as one Product loop containing
+  smaller slice mini-loops. BFM now visibly returns to the board after each
+  slice, continues only inside the approved OKR/scope, and stops or recommends
+  before starting unrelated board work.
 - Docs: refreshed the current version and upgrade guidance across README, FAQ,
   setup, Codex platform docs, versioning, and packaged plugin README now that
   the Codex and Claude Code plugin builds have been released.
