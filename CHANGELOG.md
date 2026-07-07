@@ -2,6 +2,9 @@
 
 ## Unreleased - 2026-06-27
 
+- Docs: refreshed the current version and upgrade guidance across README, FAQ,
+  setup, Codex platform docs, versioning, and packaged plugin README now that
+  the Codex and Claude Code plugin builds have been released.
 - Plugin: refreshed visible plugin versions for the Loop Engineering public beta
   line: Codex `0.2.0-beta+codex.20260707114230` and Claude Code `1.0.1`.
 - Coordination: added frontend visual planning guidance. UI handoffs now name a

@@ -1,10 +1,9 @@
 # FB-Lane Coordination for Codex
 
-Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**. The
-plugin manifest may still show a build ID such as
-`0.1.2+codex.20260627210000` until the next release is cut. See
-[`docs/versioning.md`](../../docs/versioning.md) for the v1-to-latest
-before/after.
+Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
+Current plugin builds: Codex `0.2.0-beta+codex.20260707114230`; Claude Code
+`1.0.1`. See [`docs/versioning.md`](../../docs/versioning.md) for the
+v1-to-latest before/after.
 
 This Codex plugin packages FB-Lane's Loop Engineering workflow:
 
