@@ -49,6 +49,9 @@ If multiple cards match, show the candidates and recommend one. If approval is m
 ### Post-Action Card Summary
 After BFM acts, summarize card ID, final status, changed files, checks run, remaining gates, next owner, and whether live deploy is still blocked.
 
+### BFM Auto-Unblock Rule
+When the user says `BFM`, Product/BFM flags each blocker, recommends how to address it, then executes the recommended safe unblock path inside the approved scope. Product/BFM keeps looping until every task is done, explicitly deferred, out of scope, or blocked by a real stop point. Real stop points still include live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, active lock conflicts, failed evidence needing risk acceptance, physical-device/manual external actions, and explicit user pauses.
+
 ## User-Facing Quickstart
 
 When the user asks how to start, what to do after install, or says `$fb-lane status`, keep the answer short and immediately actionable:

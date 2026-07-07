@@ -76,6 +76,10 @@ on every plugin surface:
 - **Unblocked Sequence**: execute only `ready now` work; split independent
   unlocked work, defer locked overlap with the blocking task named, or stop with
   the next unblock action when everything is blocked.
+- **BFM Auto-Unblock Rule**: when the user says `BFM`, flag each blocker,
+  recommend how to address it, execute the recommended safe unblock path inside
+  the approved scope, and keep looping until every task is done, explicitly
+  deferred, out of scope, or blocked by a real stop point.
 - **Recheck Before Claim**: rerun lane status immediately before claiming or
   editing; resequence if locks changed.
 - **Post-Action Card Summary**: before closeout, summarize card ID, final

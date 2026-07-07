@@ -26,10 +26,11 @@ Product/BFM must run this workflow before and after BFM/all-handoff execution:
 4. **Story Split Pass**: before prioritizing, decide whether the run should be split into smaller stories. Split mixed lanes, risks, locks, gates, review surfaces, blocked work, and ready-now work; otherwise say `No split needed`.
 5. **Dependency And Lock Pass**: classify each ledger item or child story from status, owner, locks, dependencies, blockers, gates, approval, and required checks as `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`.
 6. **Unblocked Sequence**: execute only `ready now` work; split independent unlocked work, defer locked overlap with the blocking task named, or stop with the next unblock action when everything is blocked.
-7. **Recheck Before Claim**: rerun lane status immediately before claiming or editing; resequence if locks changed.
-8. **Post-Action Card Summary**: before closeout, summarize card ID, final status, changed files, checks run, remaining gates, next owner, and whether live deploy is still blocked.
+7. **BFM Auto-Unblock Rule**: when the user says `BFM`, flag each blocker, recommend how to address it, execute the recommended safe unblock path inside the approved scope, and keep looping until every task is done, explicitly deferred, out of scope, or blocked by a real stop point.
+8. **Recheck Before Claim**: rerun lane status immediately before claiming or editing; resequence if locks changed.
+9. **Post-Action Card Summary**: before closeout, summarize card ID, final status, changed files, checks run, remaining gates, next owner, and whether live deploy is still blocked.
 
-Tech, Design, and Business BFM execution workers wait for Product/BFM to clear the Pre-Execution Card Snapshot, Goal Approval Gate, Story Split Pass, Dependency And Lock Pass, Unblocked Sequence, and Recheck Before Claim before claiming, editing, submitting, or closing out.
+Tech, Design, and Business BFM execution workers wait for Product/BFM to clear the Pre-Execution Card Snapshot, Goal Approval Gate, Story Split Pass, Dependency And Lock Pass, Unblocked Sequence, BFM Auto-Unblock Rule, and Recheck Before Claim before claiming, editing, submitting, or closing out.
 
 ## Proactive Loop Hardening
 

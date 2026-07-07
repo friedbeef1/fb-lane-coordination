@@ -55,6 +55,12 @@ If multiple cards match, show the candidates and recommend one. If approval is m
 ### Post-Action Card Summary
 Before closeout, show card ID, final status, changed files, checks run, remaining gates, next owner, and whether live deploy is still blocked.
 
+## BFM Auto-Unblock Rule
+
+When the user says `BFM`, treat blockers as part of the work, not as routine reasons to pause. Flag each blocker, recommend how Product/BFM will address it, then execute the recommended safe unblock path inside the approved scope. Keep looping until every task is done, explicitly deferred, out of scope, or blocked by a real stop point.
+
+Real stop points still include live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, active lock conflicts, failed evidence needing risk acceptance, physical-device/manual external actions, and explicit user pauses.
+
 ## Five-Lane Review
 
 Create a short internal review with these slots:
@@ -105,6 +111,7 @@ Execute only `ready now` items. Do not claim or touch files locked by another ac
 Proceed through the sequence without asking for repeated permission when authority is clear.
 
 - Product/BFM creates or scopes board items, sets direction, and reconciles approved markdown plans.
+- Product/BFM flags blockers, recommends the safe unblock path, executes safe unblocks within approved scope, and keeps going until solved or truly blocked.
 - Product/BFM blocks before execution if the board Goal Alignment Session is missing, has unclear OKRs, has `Approval: pending`, lacks the user's explicit approval, implies an unapproved OKR change, or a handoff is blocked by OKR ambiguity.
 - The BFM execution worker claims task/files before durable writes and executes the work in the owning lane context.
 - Respect active locks; do not edit files owned by another active lane.

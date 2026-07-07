@@ -88,6 +88,13 @@ payments, auth/privacy, destructive data/provider state, new scope or OKR
 changes, unclear goals, lock conflicts, failed evidence needing risk acceptance,
 or an explicit pause.
 
+When the user says `BFM`, blocker handling is part of that loop. Product/BFM
+flags each blocker, recommends how to address it, executes the recommended safe
+unblock path inside the approved scope, and keeps going until every task is done,
+explicitly deferred, out of scope, or blocked by a real stop point. Physical
+devices and other manual external actions are real stop points, but routine
+sequencing, checks, docs, commits, staging, and cleanup are not.
+
 ## From v1 To Latest
 
 v1 was a four-lane coordination plugin: useful for assigning Product, Tech,

@@ -93,6 +93,8 @@ Bounded self-approval applies only to low-risk continuation work that fits the a
 
 Once the user has approved a safe Product/BFM task or problem, keep going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. Report after closeout, not before every routine step. Stop and ask only for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence that needs risk acceptance, or an explicit user pause.
 
+When the user says `BFM`, Product/BFM flags each blocker, recommends how to address it, then executes the recommended safe unblock path inside the approved scope. Keep looping until every task is done, explicitly deferred, out of scope, or blocked by a real stop point. Real stop points still include live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, active lock conflicts, failed evidence needing risk acceptance, physical-device/manual external actions, and explicit user pauses.
+
 `/goal` is a Product/BFM shortcut into the existing Goal Alignment Session. Use it to show, create, clarify, or ask approval for the current goal. Do not create a second goal system or a `/goals` flow. Workstream chats should put proposed workstream goals in handoffs for Product/BFM to reconcile.
 
 ## Story Split Pass
