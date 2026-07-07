@@ -1,7 +1,7 @@
 {
   "name": "fb-lane-coordination",
   "displayName": "FB-Lane Coordination",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Multi-agent coordination plugin using plan-only workstreams, Product-launched BFM execution, and a version-controlled project board.",
   "author": {
     "name": "FB-Lane Contributors"
