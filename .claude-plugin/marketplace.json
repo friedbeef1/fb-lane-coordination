@@ -9,7 +9,7 @@
       "name": "fb-lane-coordination",
       "source": "./",
       "description": "Multi-agent coordination plugin: role-isolated planning lanes, Product-launched BFM execution, a version-controlled project board, and the fb-lane MCP server.",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "FB-Lane Contributors"
       }

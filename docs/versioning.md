@@ -5,9 +5,9 @@
 Call the current GitHub documentation line **FB-Lane 0.2.0-beta: Loop
 Engineering public beta**.
 
-The Codex plugin manifest may still show a build identifier such as
-`0.1.2+codex.20260627210000` until a release is cut. Treat that as the installed
-plugin build ID, not the product model name.
+The Codex plugin manifest for this line is
+`0.2.0-beta+codex.20260707114230`. Treat that as the installed plugin build ID;
+the product model name is still **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
 
 ## Before And After
 
