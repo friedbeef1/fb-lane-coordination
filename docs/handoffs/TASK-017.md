@@ -46,7 +46,7 @@ Harden FB-Lane progressive disclosure so bootstrapped projects keep:
 - Name the current documentation line `FB-Lane 0.2.0-beta: Loop Engineering public beta` and explain the v1-to-latest before/after without changing the plugin manifest yet.
 - Treat `/goal` as a Product/BFM shortcut into the existing Goal Alignment Session, not a second goal system or `/goals` flow.
 - Require workstream handoffs to include `Product Goal`, `Workstream Goal`, and `User Approval Needed` so Product/BFM can reconcile goal fit before execution.
-- Require frontend/UI handoffs to include `Visual Preview Decision`: `skip`, `browser screenshot/mockup`, or `imagegen asset/style option`, with imagegen reserved for brand, logo, hero/illustration, camera/lens, and style-option exploration.
+- Require frontend/UI handoffs to default to a pre-build visual preview: `browser screenshot/mockup`, `imagegen asset/style option`, or `skip with reason`, with skip reserved for non-visual/tiny changes and imagegen reserved for brand, logo, hero/illustration, camera/lens, and style-option exploration.
 
 ## Story Split Update - 2026-07-03
 
@@ -149,17 +149,19 @@ The rule still stops for hard gates: live deploy, secrets/credentials, payments,
 
 Touched reusable surfaces include README/FAQ/loop docs, packaged plugin README, AGENTS/CLAUDE templates, PROJECT_BOARD template, Codex rules, source and packaged CLI bootstrap prompts, generated Product agent JSON, Product/BFM/coordination skills, project setup skill, packaged plugin mirrors, board, handoff, and changelog.
 
-## Frontend Visual Planning Update - 2026-07-05
+## Frontend Visual Planning Update - 2026-07-08
 
-Added `Visual Preview Decision` across MirrorCam rules and reusable FB-Lane surfaces. Frontend/UI plans and handoffs now choose one of:
+Tightened `Visual Preview Decision` across reusable FB-Lane surfaces. Visible frontend/UI plans and handoffs now default to a pre-build visual preview and choose one of:
 
-- `skip`
 - `browser screenshot/mockup`
 - `imagegen asset/style option`
+- `skip with reason`
 
-The rule skips tiny copy, spacing, or single-control fixes. Browser screenshots or mockups are the default for real app layout, responsive, component, and flow decisions. Imagegen is reserved for brand direction, logos, hero/illustration assets, camera/lens concepts, and visual style options where generated bitmap exploration helps. If visual uncertainty is meaningful, Product/BFM includes or requests the visual artifact before source execution so the user can adjust the plan.
+The skip path is only for non-visual work, tiny copy, spacing, or single-control fixes. Browser screenshots or mockups are the default for concrete app layout, responsive, component, and flow decisions. Imagegen is reserved for brand direction, logos, hero/illustration assets, camera/lens concepts, and visual style options where generated bitmap exploration helps. If the plan changes what the user will see and a preview is feasible, Product/BFM creates or attaches the preview before source execution; Product/BFM blocks or asks only when the preview is missing and the visual decision is material.
 
 Touched reusable surfaces include README/FAQ/loop docs, packaged plugin README, AGENTS/CLAUDE templates, PROJECT_BOARD template, Codex rules, Product/BFM/Design/coordination skills, project setup skill, generated Product prompts, packaged plugin mirrors, board, handoff, and changelog.
+
+Closeout note - TASK-017: lane-verification-passed. Health: healthy. Loop Learning: Feedback captured: issue found; Repeated pattern?: yes; Tooling needed?: propose guardrail; Product approval needed?: no, user explicitly requested the default rule. Delivered: frontend/UI planning now defaults to pre-build preview instead of merely naming a preview decision. Evidence: wording scan before final validation found no stale `skip`-first decision wording in the intended surfaces. Remaining: final validation, commit, PR/merge, and plugin cache refresh. Handoff: docs/handoffs/TASK-017.md.
 
 ## Retro Scorecard And Plugin Cache Refresh Update - 2026-07-08
 
@@ -194,7 +196,7 @@ Pre-commit verification after this update:
 - `node tools/fb-lane.cjs status` -> TASK-017 remains `Staging QA`
 - Wording scan confirms approval autonomy phases and never-self-approve boundaries across docs, templates, skills, generated prompts, packaged plugin mirrors, and CLI bootstrap output
 - Wording scan confirms Product/BFM execution-continuation guidance across docs, templates, skills, generated Product prompts, packaged plugin mirrors, and CLI bootstrap output
-- Wording scan confirms `Visual Preview Decision` guidance across docs, templates, skills, generated Product prompts, packaged plugin mirrors, and CLI bootstrap output
+- Wording scan confirms pre-build visual preview guidance across docs, templates, skills, generated Product prompts, packaged plugin mirrors, and CLI bootstrap output
 - Wording scan confirms `0.2.0-beta` and the v1-to-latest before/after are documented on public docs
 - Wording scan confirms `/goal` is Product/BFM-owned and workstream handoffs include `Product Goal`, `Workstream Goal`, and `User Approval Needed`
 - `node tools/fb-lane.cjs doctor` -> `Needs attention` only for intentionally dirty TASK-017 work
@@ -203,7 +205,7 @@ Pre-commit verification after this update:
 
 ## Closeout
 
-Status: lane-verification-passed for the current generic eval scorecard, approval-autonomy, and version-positioning update; TASK-017 remains in `Staging QA`.
+Status: lane-verification-passed for the current generic eval scorecard, approval-autonomy, version-positioning, and pre-build visual preview update; TASK-017 remains in `Staging QA`.
 Health: healthy.
 Branch/worktree state: intentionally dirty on `codex/okf-lite-handoff-index` pending commit. Dirty state is owned by TASK-017 / Product-BFM; reason is the reusable framework hardening update, including eval escalation, approval autonomy, and version positioning; next gate is commit/push and Product review of PR #31.
 Remaining: commit/push current TASK-017 update, then Product review of PR #31 before merge.

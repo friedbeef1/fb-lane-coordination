@@ -244,7 +244,7 @@ or tests say otherwise.
 | Agent behavior evals | Optional Markdown scorecards for repeated loop failures |
 | Execution gate | Product-launched BFM run |
 | Explicit plan phrase gate | `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM requires confirmation before source edits |
-| Frontend visual planning | Handoffs name `Visual Preview Decision`: skip, browser screenshot/mockup, or imagegen asset/style option |
+| Frontend visual planning | Visible UI plans default to a pre-build preview: browser screenshot/mockup, imagegen asset/style option, or skip with reason |
 | Integration | BFM/Product reconciliation before sequencing or merge |
 | Product/BFM closeout visibility | Detailed handoffs get `## Product/BFM Closeout` before workstream cards are refreshed |
 | Closeout | Explicit status plus loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked` |

@@ -270,13 +270,15 @@ lanes keep the split visible.
 
 ## Do frontend changes need generated images?
 
-No. Frontend/UI plans should name a `Visual Preview Decision`: `skip`, `browser
-screenshot/mockup`, or `imagegen asset/style option`.
+Not always, but visible frontend/UI plans default to a pre-build visual preview.
+The plan should name `Visual Preview Decision`: `browser screenshot/mockup`,
+`imagegen asset/style option`, or `skip with reason`.
 
-Use the actual browser or a mockup for layout, responsive, component, or flow
-decisions. Use imagegen only for brand direction, logos, hero or illustration
-assets, camera/lens concepts, or visual style options where generated bitmap
-exploration helps. Skip it for tiny copy, spacing, or single-control fixes.
+Use the actual browser or a mockup for concrete layout, responsive, component,
+or flow decisions. Use imagegen for brand direction, logos, hero or
+illustration assets, camera/lens concepts, or visual style options where
+generated bitmap exploration helps. Skip only for non-visual work, tiny copy,
+spacing, or single-control fixes.
 
 ## Is Definition of Done the same as TDD?
 
