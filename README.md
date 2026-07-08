@@ -61,7 +61,11 @@ FB-Lane evals are lightweight behavior checks for the agents themselves. They
 answer: did Product/BFM run the loop correctly? Keep them as Markdown
 scorecards until repeated failures justify automation. Use the generic
 scorecard shape in `docs/evals/agent-behavior-scorecard-template.md` only when
-`Loop Learning` points to a repeated agent-behavior failure.
+`Loop Learning` points to a repeated agent-behavior failure. A retro or
+scorecard may recommend at most one small guardrail for each repeated pattern.
+It must not create an eval runner, dashboard, numeric score, CI eval job, larger
+`doctor`, per-task OKRs, or quick-task ceremony unless Product/BFM separately
+proposes that heavier option with tradeoffs and gets explicit approval.
 
 When Product/BFM sees the same workflow failure, stale state, missing evidence,
 or preventable rework repeat, it should propose one small guardrail for approval
@@ -345,6 +349,11 @@ the active version is the one shown by:
 ```bash
 codex plugin list | rg "fb-lane-coordination"
 ```
+
+For same-version docs-only updates, also verify the active installed cache
+contains the expected new wording instead of trusting the version string alone.
+If the cache is stale after an update, reinstall the plugin; where the platform
+supports it, preserve plugin data during uninstall/reinstall.
 
 ## More
 
