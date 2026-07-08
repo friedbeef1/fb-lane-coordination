@@ -1,13 +1,14 @@
 # FB-Lane Agent Behavior Scorecard
 
-Use this only when `Loop Learning` shows a repeated agent-behavior failure or Product/BFM wants a non-quick closeout check. Do not use it for routine quick tasks.
+Use this only when `Loop Learning` shows a repeated agent-behavior failure or Product/BFM wants a non-quick closeout check. Do not use it for routine quick tasks unless the same failure pattern repeats.
 
-Do not add an eval runner, dashboard, numeric score, CI eval job, larger `doctor`, or per-task OKRs from this scorecard. If the same failure repeats after the scorecard, Product/BFM proposes one heavier guardrail with pros, cons, affected files/rules, and explicit approval needed.
+Do not add an eval runner, dashboard, numeric score, CI eval job, larger `doctor`, or per-task OKRs from this scorecard. A retro or scorecard produces at most one small guardrail for each repeated pattern. If the same failure repeats after that guardrail, Product/BFM may propose one heavier option with pros, cons, affected files/rules, and explicit approval needed.
 
 Result: `healthy` | `watch` | `needs Product review` | `blocked`
 
 Task / run:
 Observed repeated pattern:
+Proposed small guardrail, if any:
 Product approval for heavier tooling: `not requested` | `pending` | `approved`
 
 ## Non-Product Execution Gate

@@ -2,6 +2,14 @@
 
 ## Unreleased - 2026-06-27
 
+- Coordination: clarified that repeated workflow failures can trigger a compact
+  retro scorecard, but each repeated pattern yields at most one small guardrail.
+  Quick tasks stay lightweight, and eval runners, dashboards, numeric scoring,
+  CI eval jobs, bigger `doctor` checks, and per-task OKRs remain out of scope
+  without a separate approved proposal.
+- Plugin docs: added same-version cache-refresh verification guidance. After a
+  reinstall or update, verify the active installed cache contains the expected
+  wording; if not, reinstall while preserving plugin data where supported.
 - Docs: clarified the Loop Engineering diagram as one Product loop containing
   smaller slice mini-loops. BFM now visibly returns to the board after each
   slice, continues only inside the approved OKR/scope, and stops or recommends

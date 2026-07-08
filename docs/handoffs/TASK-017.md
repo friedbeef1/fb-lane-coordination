@@ -161,6 +161,27 @@ The rule skips tiny copy, spacing, or single-control fixes. Browser screenshots 
 
 Touched reusable surfaces include README/FAQ/loop docs, packaged plugin README, AGENTS/CLAUDE templates, PROJECT_BOARD template, Codex rules, Product/BFM/Design/coordination skills, project setup skill, generated Product prompts, packaged plugin mirrors, board, handoff, and changelog.
 
+## Retro Scorecard And Plugin Cache Refresh Update - 2026-07-08
+
+Ported only the reusable last-48h retro lessons into generic FB-Lane docs:
+
+- repeated workflow failures can trigger a compact retro scorecard
+- each repeated pattern produces at most one small guardrail
+- quick tasks stay lightweight unless the same failure pattern repeats
+- eval runners, dashboards, numeric scoring, CI eval jobs, larger `doctor` checks, and per-task OKRs remain out of scope without a separate Product/BFM proposal and explicit approval
+- same-version plugin reinstall/update work must verify the installed cache contains expected wording; stale caches should be refreshed by reinstalling while preserving plugin data where supported
+
+Touched reusable surfaces include README, loop docs, setup and Codex platform upgrade docs, root/package/template scorecard templates, packaged plugin README, Product/BFM/coordination packaged skill guidance, board, handoff, and changelog. No runtime source, CLI behavior, eval runner, dashboard, CI eval job, or `doctor` behavior changed.
+
+Pre-commit verification after this update:
+- `git diff --check` passed.
+- `node tools/fb-lane.cjs status` confirmed TASK-017 remains `Staging QA`.
+- Wording scan confirmed the repeated-pattern guardrail and same-version cache-refresh guidance in source docs, packaged plugin docs, scorecard templates, and packaged skills.
+- `claude plugin validate .` passed.
+- `node tools/fb-lane.cjs doctor` reported `Needs attention` only for the pre-commit uncommitted docs state.
+- `node tools/fb-lane.validate.cjs` passed syntax, parity, manifest/JSON parsing, skill metadata validation, and 15 regression checks, then failed only at the expected doctor-ready assertion because the worktree was not committed yet.
+- `npm run lane:status` could not run because this checkout has no local `package.json`; direct `node tools/fb-lane.cjs status` was used instead.
+
 ## Current Verification Summary
 
 - `node --check tools/fb-lane.cjs`

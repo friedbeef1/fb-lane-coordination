@@ -54,6 +54,9 @@ codex plugin list | rg "fb-lane-coordination"
 Start a new Codex thread after reinstalling. Existing threads can retain skill
 context that was loaded before the upgrade. Older cache folders may remain on
 disk, but Codex uses the installed version shown by `codex plugin list`.
+For same-version docs-only updates, verify the active installed cache contains
+the expected new wording; if not, reinstall the plugin and preserve plugin data
+where the platform supports it.
 
 After install, start a new Codex thread and ask for `$fb-lane` or a lane-specific skill. Natural
 language also works, and `@fb-lane` remains a useful prompt convention if you want to make the lane

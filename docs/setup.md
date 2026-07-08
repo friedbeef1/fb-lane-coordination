@@ -73,6 +73,11 @@ not the active install unless `codex plugin list` points at that version. Start 
 new Codex thread after reinstalling so updated skills and MCP tools are loaded
 from the refreshed plugin cache.
 
+For same-version docs-only updates, verify the installed cache contains expected
+new wording after reinstall/update. If the active cache still has stale docs,
+reinstall rather than trusting the version string; where supported, preserve
+plugin data during uninstall/reinstall.
+
 For Claude Code installs, refresh the marketplace and plugin:
 
 ```bash
@@ -81,6 +86,9 @@ claude plugin update fb-lane-coordination@fb-lane
 ```
 
 Then start a new Claude Code session so refreshed agents and commands are loaded.
+If a same-version Claude Code update still reads stale packaged docs, uninstall
+with data preserved where supported, reinstall from the marketplace, and verify
+the installed cache text directly before closing the release task.
 
 ## Basic CLI Loop
 

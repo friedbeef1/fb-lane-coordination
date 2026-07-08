@@ -140,7 +140,10 @@ preventable rework. Propose one small guardrail at a time with:
 - files/rules affected
 - approval needed
 
-Do not silently change the process. Skip one-off or low-impact issues.
+Do not silently change the process. Skip one-off or low-impact issues. A compact
+retro can help when the same pattern repeats, but each retro should produce at
+most one small guardrail per repeated pattern. Keep quick tasks lightweight
+unless the failure pattern is demonstrably repeating.
 
 At closeout, Product/BFM records this compact learning check:
 
@@ -155,6 +158,8 @@ Loop Learning:
 Heavier tooling starts only from this field. Use `none` for one-off friction,
 `propose guardrail` for repeated process misses, `propose automation` for
 repeated manual checks, and `propose eval` for repeated agent-behavior failures.
+The first eval should be a compact Markdown scorecard, not a runner, dashboard,
+numeric score, CI eval job, larger `doctor`, or new per-task OKR ritual.
 
 ## Approval Autonomy Phases
 
@@ -483,8 +488,8 @@ Use evals when the same agent failure repeats, such as:
 - lanes edit source outside BFM execution
 - closeout says "done" without evidence
 
-Start with a Markdown scorecard, not a framework. The generic template lives at
-`docs/evals/agent-behavior-scorecard-template.md` and covers:
+Start with a compact Markdown scorecard, not a framework. The generic template
+lives at `docs/evals/agent-behavior-scorecard-template.md` and covers:
 
 - non-Product execution gate
 - BFM closeout accounting

@@ -84,6 +84,7 @@ When Product/BFM sees repeated workflow failure, coordination friction, stale st
 Use `Loop Learning` as the escalation trigger. Choose `none` for one-off friction, `propose guardrail` for repeated process misses, `propose automation` for repeated manual checks, and `propose eval` for repeated agent-behavior failures.
 
 When it chooses `propose eval`, propose a small Markdown scorecard under `docs/evals/` using the generic sections from `docs/evals/agent-behavior-scorecard-template.md`. Do not create an eval runner, dashboard, numeric score, CI eval job, or larger `doctor` rule unless that heavier option is separately approved.
+A retro or scorecard may produce at most one small guardrail for each repeated pattern. Keep quick tasks lightweight unless the same failure pattern repeats; do not add per-task OKRs from a retro.
 
 ## Approval Autonomy Phases
 

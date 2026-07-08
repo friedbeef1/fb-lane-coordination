@@ -173,7 +173,11 @@ second goal system. Workstream chats should put proposed `Workstream Goal` and
 `User Approval Needed` fields in handoffs for Product/BFM to reconcile.
 If the same loop failure repeats, add a small Markdown eval scorecard using the
 generic shape in `docs/evals/agent-behavior-scorecard-template.md`; do not
-install an eval framework by default.
+install an eval framework by default. A compact retro or scorecard may produce
+at most one small guardrail for each repeated pattern. Keep quick tasks
+lightweight unless the same failure pattern repeats, and do not add an eval
+runner, dashboard, numeric score, CI eval job, larger `doctor`, or per-task OKRs
+without a separate Product/BFM proposal and explicit approval.
 Approval autonomy starts in Shadow Approval: Product/BFM still asks the user but
 records `Would self-approve: yes/no` and the reason. Product/BFM may recommend
 Phase 2 after one day or three matching decisions with no material miss, and
@@ -205,6 +209,11 @@ Closeout also records `Loop Learning`: feedback captured, whether the pattern
 repeated, tooling needed (`none`, `propose guardrail`, `propose automation`, or
 `propose eval`), and whether Product approval is needed. Heavier tooling starts
 from that field; it is not created automatically.
+
+After reinstalling or updating a same-version plugin package, verify the active
+installed cache contains the expected new wording. If the cache is stale, refresh
+by reinstalling the plugin; where supported, preserve plugin data during the
+uninstall/reinstall step.
 
 ## Quick Edits
 
