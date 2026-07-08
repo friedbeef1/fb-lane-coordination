@@ -19,10 +19,10 @@
   the Codex and Claude Code plugin builds have been released.
 - Plugin: refreshed visible plugin versions for the Loop Engineering public beta
   line: Codex `0.2.0-beta+codex.20260707114230` and Claude Code `1.0.1`.
-- Coordination: added frontend visual planning guidance. UI handoffs now name a
-  `Visual Preview Decision` of skip, browser screenshot/mockup, or imagegen
-  asset/style option, so visual uncertainty is surfaced before BFM source
-  execution without making image generation mandatory.
+- Coordination: tightened frontend visual planning guidance. Visible UI plans
+  now default to a pre-build visual preview, using browser screenshot/mockup or
+  imagegen asset/style option, with `skip with reason` reserved for non-visual
+  work, tiny copy, spacing, or single-control fixes.
 - Coordination: added Product/BFM execution-continuation guidance so approved
   safe work proceeds through routine diagnosis, implementation, verification,
   board/handoff updates, commit, staging, and cleanup without pausing before
