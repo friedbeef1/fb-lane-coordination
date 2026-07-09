@@ -187,7 +187,7 @@ Pre-commit verification after this update:
 
 ## Sidechat-to-Main Prompt Handoff Update - 2026-07-09
 
-Added lightweight Sidechat-to-Main Prompt Handoff guidance across reusable FB-Lane docs, templates, source skills, packaged plugin docs/skills, generated agent prompts, source agent prompts, Codex rules, board template, board, handoff, and changelog.
+Added lightweight Sidechat-to-Main Prompt Handoff guidance across reusable FB-Lane docs, templates, source skills, packaged plugin docs/skills, generated agent prompts, source agent prompts, Codex rules, board template, board, handoff, changelog, and bootstrap-generated docs/prompts.
 
 Sidechats are now defined as discussion and planning spaces by default. They can ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. Product/BFM remains the execution owner for board updates, handoff files, source changes, commits, validation, and closeout.
 
@@ -204,6 +204,8 @@ The sidechat output shape is explicit:
 
 A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Tiny questions stay lightweight; this update adds no new command, dashboard, `doctor` expansion, runtime source behavior, or required ceremony for quick clarifications.
 
+Review fix: the bootstrap CLI generator and packaged CLI mirror now emit the same Sidechat-to-Main Prompt Handoff guidance into fresh `PROJECT_BOARD.md`, `AGENTS.md`, Codex rules, Claude rules, and Antigravity agent JSON outputs.
+
 ## Current Verification Summary
 
 - `node --check tools/fb-lane.cjs`
@@ -217,6 +219,7 @@ A sidechat prompt is not source of truth until Product/BFM records it in `PROJEC
 - Wording scan confirms approval autonomy phases and never-self-approve boundaries across docs, templates, skills, generated prompts, packaged plugin mirrors, and CLI bootstrap output
 - Wording scan confirms Product/BFM execution-continuation guidance across docs, templates, skills, generated Product prompts, packaged plugin mirrors, and CLI bootstrap output
 - Wording scan confirms pre-build visual preview guidance across docs, templates, skills, generated Product prompts, packaged plugin mirrors, and CLI bootstrap output
+- Wording scan confirms Sidechat-to-Main Prompt Handoff guidance across docs, templates, skills, generated prompts, packaged plugin mirrors, and CLI bootstrap output
 - Wording scan confirms `0.2.0-beta` and the v1-to-latest before/after are documented on public docs
 - Wording scan confirms `/goal` is Product/BFM-owned and workstream handoffs include `Product Goal`, `Workstream Goal`, and `User Approval Needed`
 - `node tools/fb-lane.cjs doctor` -> `Needs attention` only for intentionally dirty TASK-017 work
