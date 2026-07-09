@@ -157,6 +157,31 @@ test('bootstrap creates handoff index and optional eval scorecard template', () 
     const evalTemplatePath = path.join(root, 'docs', 'evals', 'agent-behavior-scorecard-template.md');
     assert.ok(fs.existsSync(evalTemplatePath), 'expected bootstrap to create docs/evals/agent-behavior-scorecard-template.md');
     assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /Non-Product Execution Gate/);
+    assert.match(fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8'), /Sidechat-to-Main Prompt Handoff/);
+    assert.match(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), /Exact instruction for Product\/BFM/);
+    assert.match(fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8'), /A sidechat prompt is not source of truth/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('bootstrap creates sidechat guidance in Antigravity agent prompts', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-antigravity-'));
+  try {
+    execFileSync('node', [cliPath, 'bootstrap', '--platform', 'antigravity'], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+
+    for (const lane of ['FB-Product', 'FB-Tech', 'FB-Design', 'FB-Business']) {
+      const agentPath = path.join(root, 'agents', lane, 'agent.json');
+      const agent = JSON.parse(fs.readFileSync(agentPath, 'utf8'));
+      const content = agent.config.customAgent.systemPromptSections[0].content;
+      assert.match(content, /Sidechat-to-Main Prompt Handoff/);
+      assert.match(content, /Exact instruction for Product\/BFM/);
+      assert.match(content, /not source of truth/);
+    }
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

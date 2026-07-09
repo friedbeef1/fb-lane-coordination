@@ -21,6 +21,9 @@ Give the user a concise orientation. Do **not** read files first — just explai
 1. **Hands-off** — just tell FB-Product what you want; approve the plan at the start and smoke-test at the end.
 2. **Hands-on planning** — talk to a lane directly, e.g. *"use the fb-design subagent to plan how to warm up the prep screen."* It answers questions and writes markdown plans; source edits wait for Product-launched BFM execution.
 
+
+**Sidechat handoff:** sidechats are for questions, options, tradeoffs, recommendations, and a paste-ready main-thread prompt. The prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, a handoff, or durable docs. Use: Decision summary, Scope, Out of scope, Recommended owner/lane, Files/docs likely affected, Acceptance criteria, Gates/risks, Exact instruction for Product/BFM.
+
 **Handy commands:**
 - `status` — show the board (active tasks, owners, file locks) anytime.
 - `node tools/fb-lane.cjs claim <id> <lane> "[files]"` — BFM execution worker claims a task and locks files. Add `--worktree` to run concurrent execution workers on separate branches in isolated directories.

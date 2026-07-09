@@ -1874,6 +1874,35 @@ function handleBootstrap(args = []) {
     // Git remote config not found, or not in a git repository
   }
 
+  const sidechatGuideMarkdown = `### Sidechat-to-Main Prompt Handoff
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; the main Product/BFM thread owns those execution steps.
+
+A sidechat prompt is not source of truth until Product/BFM records it in \`PROJECT_BOARD.md\`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no new command, dashboard, \`doctor\` expansion, source behavior, or required ceremony is needed for a quick clarification.
+
+When a sidechat prepares work for Product/BFM, use this output shape:
+
+- Decision summary:
+- Scope:
+- Out of scope:
+- Recommended owner/lane:
+- Files/docs likely affected:
+- Acceptance criteria:
+- Gates/risks:
+- Exact instruction for Product/BFM:`;
+
+  const sidechatAgentPromptBlock = `### Sidechat-to-Main Prompt Handoff:
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. The main Product/BFM thread owns execution: board updates, handoff files, source changes, commits, validation, and closeout. A sidechat prompt is not source of truth until Product/BFM records it in PROJECT_BOARD.md, the relevant handoff, or durable docs. Keep tiny questions lightweight; do not add a command, dashboard, doctor expansion, source behavior, or required ceremony for quick clarifications.
+
+Sidechat output format:
+- Decision summary:
+- Scope:
+- Out of scope:
+- Recommended owner/lane:
+- Files/docs likely affected:
+- Acceptance criteria:
+- Gates/risks:
+- Exact instruction for Product/BFM:`;
+
   // 1. Create PROJECT_BOARD.md if missing
   const boardPath = path.join(rootDir, 'PROJECT_BOARD.md');
   if (!fs.existsSync(boardPath)) {
@@ -1950,6 +1979,8 @@ function handleBootstrap(args = []) {
   Evidence Against Product OKR: <evidence that weakens or blocks the approved Product/workstream OKR> | None identified
   \`\`\`
 
+${sidechatGuideMarkdown}
+
 ### Handoff Index
 - \`PROJECT_BOARD.md\` stays the source of truth for current status, sequencing, gates, ownership, and file locks.
 - \`docs/handoffs/index.md\` is the first-read routing table for handoff discovery.
@@ -1998,6 +2029,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 *   **Handoff Index**: \`PROJECT_BOARD.md\` is truth for status, sequencing, gates, ownership, and file locks. \`docs/handoffs/index.md\` is routing. Detailed handoffs are detail. Before non-quick Product/BFM sequencing, create or refresh the index if handoffs exist and the lookup is missing, stale, or too vague. Keep the index compact with \`Task / Topic\`, \`Lane\`, \`Status\`, \`Depends / Blocks / Gate\`, \`Checks / Evidence\`, and \`Detail\`; do not put full OKRs, QA checklists, plans, logs, rationale, copy variants, or implementation detail there.
 *   **Workstream Status Cards**: \`docs/workstreams/<lane>.md\` is a compact revisit summary, not a second board. Product/BFM updates the detailed handoff with \`## Product/BFM Closeout\`, then updates the relevant card after executing or explicitly deferring a lane handoff. Returning lanes read \`PROJECT_BOARD.md\`, \`docs/handoffs/index.md\`, then their lane card before opening detailed handoffs. Cards show current summary, what Product/BFM already executed, what remains pending or blocked, and evidence links only.
 *   **Awareness, Isolation, Integration**: \`PROJECT_BOARD.md\` and \`docs/handoffs/index.md\` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
+*   **Sidechat-to-Main Prompt Handoff**: Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; Product/BFM owns those execution steps. A sidechat prompt is not source of truth until Product/BFM records it in \`PROJECT_BOARD.md\`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no command, dashboard, \`doctor\` expansion, source behavior, or required ceremony is needed for quick clarification. Sidechat output format: Decision summary, Scope, Out of scope, Recommended owner/lane, Files/docs likely affected, Acceptance criteria, Gates/risks, Exact instruction for Product/BFM.
 *   **BFM OKR Gate**: BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree. If work conflicts with approved OKRs, BFM proposes aligned approaches, scope, or sequence and recommends one; it does not dynamically create or edit OKRs during execution.
 *   **BFM Return Loop**: When Product/BFM processes all lane handoffs, every handoff must be marked \`implemented\`, \`already done\`, \`blocked\`, \`out of scope\`, or \`explicitly deferred\`. Return to board, handoffs, source/docs/tests, lane status, and git status before closeout. Name whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If checks touched external services, also name test mode, created records/resources, cleanup evidence, or the pending cleanup gate. Add one loop health flag: \`healthy\`, \`watch\`, \`needs Product review\`, or \`blocked\`; do not numeric-score the loop.
 *   **Proactive Loop Hardening**: When repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework appears, Product/BFM proposes one small guardrail with observed pattern, cost, benefit, affected files/rules, and approval needed before changing the process. Skip one-off or low-impact issues.
@@ -2111,6 +2143,23 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
     }
   };
 
+  for (const configObj of Object.values(agentConfigs)) {
+    const section = configObj.config.customAgent.systemPromptSections[0];
+    if (section.content.includes('### Sidechat-to-Main Prompt Handoff:')) continue;
+
+    if (section.content.includes('\n\n### BFM Worker Execution Prerequisites:')) {
+      section.content = section.content.replace(
+        '\n\n### BFM Worker Execution Prerequisites:',
+        `\n\n${sidechatAgentPromptBlock}\n\n### BFM Worker Execution Prerequisites:`
+      );
+    } else if (section.content.includes('\n\n### Role & Responsibilities:')) {
+      section.content = section.content.replace(
+        '\n\n### Role & Responsibilities:',
+        `\n\n${sidechatAgentPromptBlock}\n\n### Role & Responsibilities:`
+      );
+    }
+  }
+
   if (options.includeAntigravity) {
     for (const [folderName, configObj] of Object.entries(agentConfigs)) {
       const dirPath = path.join(rootDir, 'agents', folderName);
@@ -2214,6 +2263,8 @@ Default to normal/simple coding unless the objective has a coordination trigger.
 - BFM integrates outcomes like Product/release review.
 - Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
 
+${sidechatGuideMarkdown}
+
 ### Goal Alignment Session
 - For non-trivial work, FB-Product/BFM owns the approved OKR tree in \`PROJECT_BOARD.md\`: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant.
 - BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree.
@@ -2313,6 +2364,8 @@ Default to normal/simple coding unless the objective has a coordination trigger.
 - Branches/worktrees isolate execution like separate desks.
 - BFM integrates outcomes like Product/release review.
 - Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
+
+${sidechatGuideMarkdown}
 
 ### BFM Return Loop
 - When processing all lane handoffs, Product/BFM must mark every handoff \`implemented\`, \`already done\`, \`blocked\`, \`out of scope\`, or \`explicitly deferred\`.
