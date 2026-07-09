@@ -2,6 +2,14 @@
 
 ## Unreleased - 2026-06-27
 
+- Coordination: added lightweight Sidechat-to-Main Prompt Handoff guidance.
+  Sidechats are discussion/planning spaces that can ask questions, compare
+  options, review tradeoffs, recommend a path, and produce a paste-ready
+  Product/BFM prompt. Product/BFM remains the execution owner for board updates,
+  handoff files, source changes, commits, validation, and closeout; sidechat
+  prompts are not source of truth until Product/BFM records them in durable repo
+  docs. No command, dashboard, `doctor`, runtime, or required tiny-question
+  ceremony was added.
 - Coordination: clarified that repeated workflow failures can trigger a compact
   retro scorecard, but each repeated pattern yields at most one small guardrail.
   Quick tasks stay lightweight, and eval runners, dashboards, numeric scoring,

@@ -34,6 +34,14 @@ Use **FB-Lane light** for narrow triggered work: read the board/locks, keep the 
 - Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
 - During isolated work, name the task, branch/worktree, lane, and locked files. At closeout, report whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If intentionally dirty, record exact files, owner, reason, next gate, and session-boundary action in `PROJECT_BOARD.md`. At the next session boundary, Product/BFM must continue that exact task, commit it, revert it, archive it into a handoff, or mark it `blocked`/`deferred` before starting new source work. If checks touched external services, also report test mode, created records/resources, cleanup evidence, or the pending cleanup gate.
 
+### Sidechat-to-Main Prompt Handoff
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; the main Product/BFM thread owns those execution steps.
+
+A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no new command, dashboard, `doctor` expansion, source behavior, or required ceremony is needed for a quick clarification.
+
+Sidechat output format: Decision summary, Scope, Out of scope, Recommended owner/lane, Files/docs likely affected, Acceptance criteria, Gates/risks, Exact instruction for Product/BFM.
+
+
 ### Goal Alignment Session
 - For non-trivial work, FB-Product/BFM owns the approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant.
 - BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree.

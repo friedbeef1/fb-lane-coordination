@@ -109,6 +109,23 @@ Execution starts only when Product explicitly launches BFM. During that BFM run,
 
 Before source execution, read board/status/locks and the relevant handoff index. During isolated work, name the task, branch/worktree, lane, and locked files in the board update or handoff. At closeout, report whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If intentionally dirty, record exact files, owner, reason, next gate, and session-boundary action on `PROJECT_BOARD.md`; at the next session boundary, Product/BFM must continue that task, commit it, revert it, archive it into a handoff, or mark it `blocked`/`deferred` before starting new source work. If checks touched external services, also report test mode, created records/resources, cleanup evidence, or the pending cleanup gate.
 
+### Sidechat-to-Main Prompt Handoff
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; the main Product/BFM thread owns those execution steps.
+
+A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no new command, dashboard, `doctor` expansion, source behavior, or required ceremony is needed for a quick clarification.
+
+When a sidechat prepares work for Product/BFM, use this output shape:
+
+- Decision summary:
+- Scope:
+- Out of scope:
+- Recommended owner/lane:
+- Files/docs likely affected:
+- Acceptance criteria:
+- Gates/risks:
+- Exact instruction for Product/BFM:
+
+
 ### 🔁 BFM Return Loop
 When the user says "run BFM" or "process all lane handoffs", Product/BFM must not close until every discovered handoff has one explicit status:
 

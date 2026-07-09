@@ -29,6 +29,24 @@ Worktrees do not replace coordination. No lane should disappear into a private w
 
 `docs/workstreams/<lane>.md` is the compact revisit card for a lane. Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then refreshes the relevant card after executing or explicitly deferring a lane handoff. Keep cards to current summary, already-executed Product/BFM work, pending or blocked work, and evidence links; do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail there.
 
+## Sidechat-to-Main Prompt Handoff
+
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. The main Product/BFM thread owns execution: board updates, handoff files, source changes, commits, validation, and closeout.
+
+A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight; do not add a command, dashboard, `doctor` expansion, source behavior, or required ceremony for quick clarifications.
+
+Sidechat output format:
+
+- Decision summary:
+- Scope:
+- Out of scope:
+- Recommended owner/lane:
+- Files/docs likely affected:
+- Acceptance criteria:
+- Gates/risks:
+- Exact instruction for Product/BFM:
+
+
 ## Cross-Lane Review Checklist
 Before merging any submitted branch, verify:
 - [ ] **API contracts**: Field names, types, and response shapes that Tech exposes match what Design consumes.

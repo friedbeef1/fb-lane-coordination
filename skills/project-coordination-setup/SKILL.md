@@ -219,6 +219,24 @@ Run the `define_subagent` tool to register the four specialized workstreams in t
 
 ---
 
+## Sidechat-to-Main Prompt Handoff
+
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. The main Product/BFM thread owns execution: board updates, handoff files, source changes, commits, validation, and closeout.
+
+A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight; do not add a command, dashboard, `doctor` expansion, source behavior, or required ceremony for quick clarifications.
+
+Sidechat output format:
+
+- Decision summary:
+- Scope:
+- Out of scope:
+- Recommended owner/lane:
+- Files/docs likely affected:
+- Acceptance criteria:
+- Gates/risks:
+- Exact instruction for Product/BFM:
+
+
 ## Common Mistakes
 -   **Destructive Overwrite**: Overwriting an existing `AGENTS.md` containing custom project variables or Deno/Vite compiler rules. Always read and merge.
 -   **Missing Subagent Definitions**: Bootstrapping the Markdown files but forgetting to call `define_subagent` to register the active workstream instances.

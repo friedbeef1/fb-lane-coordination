@@ -27,6 +27,24 @@ Default to normal/simple coding for one-thread, low-risk work with no coordinati
 
 Worktrees do not replace coordination. No lane should disappear into a private worktree, produce a huge unannounced diff, edit source without board/lock awareness, or close without BFM reconciliation when multiple outputs exist. Before source execution, confirm board/status/locks and the relevant handoff index. During isolated work, require the task, branch/worktree, lane, and locked files to be named.
 
+## Sidechat-to-Main Prompt Handoff
+
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. The main Product/BFM thread owns execution: board updates, handoff files, source changes, commits, validation, and closeout.
+
+A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight; do not add a command, dashboard, `doctor` expansion, source behavior, or required ceremony for quick clarifications.
+
+Sidechat output format:
+
+- Decision summary:
+- Scope:
+- Out of scope:
+- Recommended owner/lane:
+- Files/docs likely affected:
+- Acceptance criteria:
+- Gates/risks:
+- Exact instruction for Product/BFM:
+
+
 ## Cross-Lane Review Checklist
 Before merging any submitted branch, verify:
 - [ ] **API contracts**: Field names, types, and response shapes that Tech exposes match what Design consumes.

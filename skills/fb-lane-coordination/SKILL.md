@@ -14,6 +14,24 @@ Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.m
 
 Frontend/UI handoffs include `Visual Preview Decision`: `skip`, `browser screenshot/mockup`, or `imagegen asset/style option`. Skip tiny copy, spacing, or single-control fixes. Use browser screenshots/mockups for actual UI layout, responsive, component, or flow decisions. Use imagegen only for brand direction, logos, hero/illustration assets, camera/lens concepts, or visual style options where generated bitmap exploration helps. If visual uncertainty is meaningful, Product/BFM includes or requests the visual artifact before source execution.
 
+## Sidechat-to-Main Prompt Handoff
+
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. The main Product/BFM thread owns execution: board updates, handoff files, source changes, commits, validation, and closeout.
+
+A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight; do not add a command, dashboard, `doctor` expansion, source behavior, or required ceremony for quick clarifications.
+
+Sidechat output format:
+
+- Decision summary:
+- Scope:
+- Out of scope:
+- Recommended owner/lane:
+- Files/docs likely affected:
+- Acceptance criteria:
+- Gates/risks:
+- Exact instruction for Product/BFM:
+
+
 ## BFM Visible Workflow
 
 Product/BFM must run this workflow before and after BFM/all-handoff execution:
