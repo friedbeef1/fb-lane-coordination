@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-CODEX-ONLY-001 | Staging QA | FB-Product / BFM | Codex Plugin | Make Codex the sole supported, shipped, documented, and tested FB-Lane integration; disable Claude Code and Antigravity paths while preserving concise contributor reference notes | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, both CLI tests, `.claude-plugin/**`, `.claude/agents/**`, `platforms/claude-code/**`, `platforms/antigravity/**`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `docs/setup.md`, `docs/versioning.md`, `docs/paused-integrations.md`, `plugins/fb-lane-coordination/.mcp.json`, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-CODEX-ONLY-001.md`, `docs/workstreams/fb-product.md` | [Handoff](docs/handoffs/TASK-CODEX-ONLY-001.md), `codex/codex-only-cut`; Product branch-diff review required; no publish |
 | TASK-017 | Staging QA | FB-Tech | Coordination | Harden progressive-disclosure handoff index semantics, FB-Lane framework OKR, drift health guardrails, eval escalation, phased approval autonomy, Product/BFM execution continuation, frontend visual planning, Sidechat-to-Main Prompt Handoff guidance, and version positioning | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `tools/fb-lane.test.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.test.cjs`, `AGENTS.md`, `.codex/rules.md`, `.claude/agents/**`, `templates/*.md`, `skills/**`, `plugins/fb-lane-coordination/skills/**`, `agents/**`, `plugins/fb-lane-coordination/agents/**`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `docs/versioning.md`, `platforms/codex/README.md`, `platforms/codex/workflow-rules.md`, `plugins/fb-lane-coordination/README.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-017.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | [Handoff](docs/handoffs/TASK-017.md) |
 | TASK-016 | Done | FB-Product | Codex Plugin | Add handoff index progressive-disclosure support to the Codex plugin | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/skills/**`, `templates/*.md`, `docs/**`, `README.md`, `FAQ.md`, `CHANGELOG.md` | [Handoff](docs/handoffs/TASK-016.md) |
 | TASK-Q-20260627223437 | Done | FB-Product | Documentation | Document FB-Lane evals as lightweight agent-behavior scorecards | `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `plugins/fb-lane-coordination/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | `codex/evals-docs` |
@@ -35,6 +36,36 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-CODEX-ONLY-001 - Codex-only FB-Lane cut
+*   **Status**: Staging QA
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Codex Plugin
+*   **Scope**: Make Codex the only supported, shipped, documented, and tested FB-Lane integration. Disable Claude Code and Antigravity install, bootstrap, release, and validation paths; retain only concise contributor reference notes.
+*   **Out of Scope**: Plugin publication, marketplace release, installation of paused integrations, any Claude Code or Antigravity validation, and changes to the FB-Lane coordination model itself.
+*   **Goal Alignment Session**:
+    *   **Objective**: Give users one honest, verified Codex installation path without implying support for integrations that are not maintained or tested.
+    *   **Key Results**:
+        *   Default and explicit Codex bootstrap produce only Codex artifacts.
+        *   All non-Codex platform flags fail before writing files and point contributors to the paused-integration note.
+        *   Only the Codex marketplace/plugin remains an active distribution surface.
+        *   Root and packaged CLIs, docs, and MCP configuration agree on the Codex-only contract.
+    *   **Definition of Done**: Root/package test and behavior parity pass, active docs contain no install or release claim for paused integrations, the installed Codex plugin smoke passes locally, and the no-publish boundary is recorded.
+    *   **Gate / Review Point**: Product review of the branch diff and local Codex plugin smoke; no publish without separate approval.
+    *   **Approval**: approved
+    *   **Justification**: James approved a Codex-only support policy because the other integrations are not currently tested.
+*   **QA Checklist**:
+    *   [x] Root and packaged CLI suites passed 24 checks each in a clean checkout.
+    *   [x] Root/package CLI and test files are byte-identical; both CLI syntax checks pass.
+    *   [x] Validator and doctor pass from a clean checkout; `git diff --check` passes.
+    *   [x] Temporary-`CODEX_HOME` local marketplace/plugin smoke installed and enabled `fb-lane-coordination@fb-lane` version `0.2.0-beta+codex.20260707114230`.
+    *   [x] Plugin marketplace manifest, package manifests, and bundled MCP JSON parse locally.
+    *   [ ] Product reviews the branch diff. No plugin publish or marketplace release is authorized.
+*   **Latest Update**:
+    *   *2026-07-13*: Approved, claimed on `codex/codex-only-cut`, and baseline root/package CLI suites passed (16 checks each). Current checkpoint: implementation.
+    *   *2026-07-13*: Staging QA evidence completed in a clean detached checkout at `c9833db`: root/package suites passed 24 checks each; root/package syntax and CLI/test byte parity passed; `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check` passed. A disposable `CODEX_HOME` added only the local checkout as marketplace `fb-lane`, installed and enabled `fb-lane-coordination@fb-lane` version `0.2.0-beta+codex.20260707114230`, then was removed. Product branch-diff review remains the gate; no publish or release is authorized.
 
 ---
 
