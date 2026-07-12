@@ -190,7 +190,12 @@ for (const platform of ['all', 'claude', 'claude-code', 'antigravity']) {
           encoding: 'utf8',
           stdio: ['ignore', 'pipe', 'pipe']
         }),
-        /Invalid platform/
+        (error) => {
+          assert.match(error.stderr, /Invalid platform/);
+          assert.match(error.stderr, /paused; collaborators welcome/);
+          assert.match(error.stderr, /docs\/paused-integrations\.md/);
+          return true;
+        }
       );
       assert.deepStrictEqual(fs.readdirSync(root), [], 'rejected bootstrap must leave its temp directory empty');
     } finally {

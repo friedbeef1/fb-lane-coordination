@@ -167,7 +167,7 @@ function parseBootstrapOptions(args = []) {
 
   platform = platform.toLowerCase();
   if (platform !== 'codex') {
-    throw new Error(`Invalid platform "${platform}". Use codex.`);
+    throw new Error(`Invalid platform "${platform}". Use codex. Other integrations are paused; collaborators welcome—see docs/paused-integrations.md.`);
   }
 
   return {
