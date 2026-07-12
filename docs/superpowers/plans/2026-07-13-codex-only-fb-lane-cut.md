@@ -39,3 +39,9 @@ Add a failing root/package regression that proves the CLI source contains no Cla
 Files: `.mcp.json` (remove), `tools/run_lane.py` (remove), `CLAUDE.md` (remove), `templates/CLAUDE.md` (remove), `tools/fb-lane.test.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.test.cjs`, `tools/fb-lane.validate.cjs`.
 
 Add a failing root/package regression that requires the four legacy runtime/configuration paths to be absent. Delete them, then make the validator fail if any of these paths is reintroduced. The validator continues to validate only the Codex plugin manifest and bundled MCP server. Run root/package suites, syntax checks, byte parity, clean-tree validator, and whitespace check.
+
+### Task 6: Remove stale active platform claims from Codex guides and demos
+
+Files: `docs/loop-engineering.md`, `docs/setup.md`, `platforms/codex/README.md`, `plugins/fb-lane-coordination/README.md`, `examples/my-app/README.md`, `codex-lane-demo/CLAUDE.md` (remove), `codex-lane-demo/AGENTS.md`, `tools/fb-lane.test.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.test.cjs`, `tools/fb-lane.validate.cjs`.
+
+Add a failing root/package regression that checks each active Codex guide/demo declares only the Codex bootstrap contract and does not promise project MCP configuration, Claude Code, or Antigravity. Delete the demo Claude instruction file, correct the remaining guides/example, and make the validator guard those active paths. The paused-integration note and historical handoffs remain the only permitted non-Codex references. Run root/package suites, syntax checks, parity, clean-tree validator, and whitespace check.
