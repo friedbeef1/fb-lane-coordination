@@ -19,7 +19,7 @@ Evidence Against Product OKR: None identified.
 
 ## Scope
 
-- Codex is the only supported and released integration.
+- Codex is the only supported and packaged integration.
 - The default bootstrap and `--platform codex` create only Codex artifacts; `--codex-only` stays as an alias.
 - `all`, `claude`, `claude-code`, and `antigravity` fail without writing files and direct collaborators to the paused-integration note.
 - Claude Code and Antigravity distribution/setup surfaces are removed; brief archived references invite a future contributor-owned revival.
@@ -38,8 +38,8 @@ Actioned By: FB-Product / BFM.
 Result: The Codex-only contract, distribution cleanup, documentation/archival updates, parity, validation, and local Codex plugin smoke passed against clean-checkout HEAD `c9833db`.
 Evidence:
 
-- Root and packaged `node tools/fb-lane.test.cjs` suites each passed 24 checks.
-- `node --check` passed for both CLI copies; both CLI and CLI-test root/package `diff -q` checks passed.
+- Root `node tools/fb-lane.test.cjs` and packaged `node plugins/fb-lane-coordination/tools/fb-lane.test.cjs` each passed 24 checks.
+- Root `node --check tools/fb-lane.cjs` and packaged `node --check plugins/fb-lane-coordination/tools/fb-lane.cjs` passed; `diff -q tools/fb-lane.cjs plugins/fb-lane-coordination/tools/fb-lane.cjs` and `diff -q tools/fb-lane.test.cjs plugins/fb-lane-coordination/tools/fb-lane.test.cjs` passed.
 - `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check` passed in the clean checkout; doctor reported `FB-Lane doctor: Ready`.
 - Marketplace manifest, both plugin manifests, and bundled `.mcp.json` parsed locally.
 - With a fresh temporary `CODEX_HOME`, `codex plugin marketplace add . --json` registered the local checkout as marketplace `fb-lane`; `codex plugin add fb-lane-coordination@fb-lane --json` installed version `0.2.0-beta+codex.20260707114230`; `codex plugin list` reported it `installed, enabled`. The temporary home was removed after the smoke.
