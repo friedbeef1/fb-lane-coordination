@@ -152,7 +152,7 @@ function runHook(hookName, boardPath) {
 }
 
 function parseBootstrapOptions(args = []) {
-  let platform = 'all';
+  let platform = 'codex';
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '--platform') {
@@ -166,20 +166,13 @@ function parseBootstrapOptions(args = []) {
   }
 
   platform = platform.toLowerCase();
-  if (platform === 'claude') {
-    platform = 'claude-code';
-  }
-
-  const validPlatforms = new Set(['all', 'codex', 'claude-code', 'antigravity']);
-  if (!validPlatforms.has(platform)) {
-    throw new Error(`Invalid platform "${platform}". Use all, codex, claude-code, or antigravity.`);
+  if (platform !== 'codex') {
+    throw new Error(`Invalid platform "${platform}". Use codex.`);
   }
 
   return {
-    platform,
-    includeAntigravity: platform === 'all' || platform === 'antigravity',
-    includeClaude: platform === 'all' || platform === 'claude-code',
-    includeCodex: platform === 'all' || platform === 'codex'
+    platform: 'codex',
+    includeCodex: true
   };
 }
 
@@ -894,22 +887,6 @@ function handleDoctor() {
       add('ok', '.codex/rules.md', 'Codex rules exist.');
     } else {
       add('warn', '.codex/rules.md', 'Codex rules are missing.', 'Run: node tools/fb-lane.cjs bootstrap --platform codex');
-    }
-
-    const mcpPath = path.join(rootDir, '.mcp.json');
-    if (fs.existsSync(mcpPath)) {
-      try {
-        const mcpConfig = JSON.parse(fs.readFileSync(mcpPath, 'utf8'));
-        if (mcpConfig.mcpServers && mcpConfig.mcpServers['fb-lane']) {
-          add('ok', '.mcp.json', 'fb-lane MCP server is configured.');
-        } else {
-          add('warn', '.mcp.json', 'File exists but fb-lane MCP server is not configured.', 'Run: node tools/fb-lane.cjs bootstrap --platform codex');
-        }
-      } catch (err) {
-        add('fail', '.mcp.json', `Invalid JSON: ${err.message}`, 'Fix .mcp.json before using MCP tools.');
-      }
-    } else {
-      add('warn', '.mcp.json', 'Missing project MCP config.', 'Run: node tools/fb-lane.cjs bootstrap --platform codex');
     }
 
     const gitLockFiles = collectGitLockWarnings(rootDir);
@@ -2170,8 +2147,6 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
       fs.writeFileSync(agentJsonPath, JSON.stringify(configObj, null, 2), 'utf8');
       console.log(`📁 Created agent config: agents/${folderName}/agent.json`);
     }
-  } else {
-    console.log('ℹ️  Skipping Antigravity agent configs for this platform.');
   }
 
   // 3b. Create docs/handoffs/ directory for handoff files
@@ -2429,32 +2404,6 @@ ${FB_LANE_END}`;
         console.log('✅ Appended FB-Lane section to your existing CLAUDE.md.');
       }
     }
-  } else {
-    console.log('ℹ️  Skipping Claude Code files for this platform.');
-  }
-
-  // 6. Auto-configure project-scoped MCP server.
-  const mcpJsonPath = path.join(rootDir, '.mcp.json');
-  try {
-    let mcpConfig = { mcpServers: {} };
-    if (fs.existsSync(mcpJsonPath)) {
-      try {
-        mcpConfig = JSON.parse(fs.readFileSync(mcpJsonPath, 'utf8'));
-      } catch (err) {
-        console.warn('⚠️  Could not parse existing .mcp.json. Merging into a clean template.');
-      }
-    }
-    if (!mcpConfig.mcpServers) {
-      mcpConfig.mcpServers = {};
-    }
-    mcpConfig.mcpServers['fb-lane'] = {
-      command: 'node',
-      args: ['${CLAUDE_PROJECT_DIR:-.}/tools/fb-lane.cjs', 'mcp']
-    };
-    fs.writeFileSync(mcpJsonPath, JSON.stringify(mcpConfig, null, 2) + '\n', 'utf8');
-    console.log('🔌 Configured fb-lane MCP server in .mcp.json');
-  } catch (err) {
-    console.warn(`⚠️  Failed to configure fb-lane MCP (.mcp.json): ${err.message}`);
   }
 
   // 7. Create Claude Code lane subagents (.claude/agents/*.md — non-destructive).
@@ -2486,38 +2435,18 @@ ${FB_LANE_END}`;
       fs.writeFileSync(agentMdPath, frontmatter + body + '\n', 'utf8');
       console.log(`🤖 Created Claude Code subagent: .claude/agents/${slug}.md`);
     }
-  } else {
-    console.log('ℹ️  Skipping Claude Code subagents for this platform.');
   }
 
   console.log('\n🎉 FB-Lane Plugin bootstrapped successfully!');
   console.log('======================================================================');
   console.log('🚀 QUICK START GUIDE: HOW TO USE FB-LANE RIGHT AWAY');
   console.log('======================================================================');
-  if (options.platform === 'codex') {
-    console.log('1. Open this workspace in Codex.');
-    console.log('2. Start with: $fb-lane status');
-    console.log('3. Describe the work normally. Workstreams plan in markdown; Product launches BFM for source-changing execution.');
-    console.log('4. Run health checks any time with: node tools/fb-lane.cjs doctor');
-  } else {
-    console.log('1. Open this workspace in Antigravity, Claude Code, or Codex.');
-    console.log('2. Start a chat with the Product agent (FB-Product) and ask it to build a feature:');
-    console.log('   e.g., "Add a login page" or "Triage our next milestones"');
-    console.log('3. Product will scope the work, create tasks in PROJECT_BOARD.md, assign lanes, and mark them as Ready.');
-    console.log('4. Workstream lanes write markdown plans/handoffs; they do not edit source from ordinary lane chat.');
-    console.log('5. Product launches BFM when source-changing execution should begin.');
-    console.log('6. Product reviews evidence, staging, and merge/release decisions.');
-  }
+  console.log('1. Open this workspace in Codex.');
+  console.log('2. Start with: $fb-lane status');
+  console.log('3. Describe the work normally. Workstreams plan in markdown; Product launches BFM for source-changing execution.');
+  console.log('4. Run health checks any time with: node tools/fb-lane.cjs doctor');
   console.log('======================================================================');
-  if (options.includeAntigravity) {
-    console.log('👉 Antigravity 2.0: The lane agents are now populated in your left sidebar!');
-  }
-  if (options.includeClaude) {
-    console.log('👉 Claude Code: Reload the app to load the new lanes and run `/mcp` to approve fb-lane.');
-  }
-  if (options.includeCodex) {
-    console.log('👉 Codex: Start a new thread and use `$fb-lane status` or select the FB-Lane plugin prompt.');
-  }
+  console.log('👉 Codex: Start a new thread and use `$fb-lane status` or select the FB-Lane plugin prompt.');
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');
 }
 

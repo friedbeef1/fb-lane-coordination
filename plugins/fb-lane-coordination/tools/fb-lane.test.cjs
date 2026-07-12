@@ -109,7 +109,6 @@ function writeDoctorFixture(root, handoffCount = 4) {
   fs.mkdirSync(path.join(root, 'tools'), { recursive: true });
   fs.writeFileSync(path.join(root, 'AGENTS.md'), '# Agents\n');
   fs.writeFileSync(path.join(root, '.codex', 'rules.md'), '# Rules\n');
-  fs.writeFileSync(path.join(root, '.mcp.json'), JSON.stringify({ mcpServers: { 'fb-lane': {} } }, null, 2));
   fs.writeFileSync(path.join(root, 'tools', 'fb-lane.cjs'), '// fixture\n');
   fs.writeFileSync(path.join(root, 'PROJECT_BOARD.md'), `# Project Board
 
@@ -143,10 +142,10 @@ Evidence Against Product OKR: None identified
   }
 }
 
-test('bootstrap creates handoff index and optional eval scorecard template', () => {
+function assertCodexBootstrap(args) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-bootstrap-'));
   try {
-    execFileSync('node', [cliPath, 'bootstrap', '--platform', 'codex'], {
+    const output = execFileSync('node', [cliPath, 'bootstrap', ...args], {
       cwd: root,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe']
@@ -160,28 +159,52 @@ test('bootstrap creates handoff index and optional eval scorecard template', () 
     assert.match(fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8'), /Sidechat-to-Main Prompt Handoff/);
     assert.match(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), /Exact instruction for Product\/BFM/);
     assert.match(fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8'), /A sidechat prompt is not source of truth/);
+    assert.ok(!fs.existsSync(path.join(root, '.mcp.json')), 'expected bootstrap not to create project MCP config');
+    assert.ok(!fs.existsSync(path.join(root, '.claude')), 'expected bootstrap not to create Claude Code files');
+    assert.ok(!fs.existsSync(path.join(root, 'agents')), 'expected bootstrap not to create Antigravity files');
+    assert.doesNotMatch(output, /Antigravity|Claude Code|MCP/i);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
+}
+
+test('bootstrap defaults to Codex-only output', () => {
+  assertCodexBootstrap([]);
 });
 
-test('bootstrap creates sidechat guidance in Antigravity agent prompts', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-antigravity-'));
-  try {
-    execFileSync('node', [cliPath, 'bootstrap', '--platform', 'antigravity'], {
-      cwd: root,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe']
-    });
+test('bootstrap accepts --platform codex', () => {
+  assertCodexBootstrap(['--platform', 'codex']);
+});
 
-    for (const lane of ['FB-Product', 'FB-Tech', 'FB-Design', 'FB-Business']) {
-      const agentPath = path.join(root, 'agents', lane, 'agent.json');
-      const agent = JSON.parse(fs.readFileSync(agentPath, 'utf8'));
-      const content = agent.config.customAgent.systemPromptSections[0].content;
-      assert.match(content, /Sidechat-to-Main Prompt Handoff/);
-      assert.match(content, /Exact instruction for Product\/BFM/);
-      assert.match(content, /not source of truth/);
+test('bootstrap accepts --codex-only', () => {
+  assertCodexBootstrap(['--codex-only']);
+});
+
+for (const platform of ['all', 'claude', 'claude-code', 'antigravity']) {
+  test(`bootstrap rejects --platform ${platform} without writing files`, () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-rejected-platform-'));
+    try {
+      assert.throws(
+        () => execFileSync('node', [cliPath, 'bootstrap', '--platform', platform], {
+          cwd: root,
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'pipe']
+        }),
+        /Invalid platform/
+      );
+      assert.deepStrictEqual(fs.readdirSync(root), [], 'rejected bootstrap must leave its temp directory empty');
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
     }
+  });
+}
+
+test('doctor does not require project MCP configuration', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-doctor-'));
+  try {
+    writeDoctorFixture(root, 0);
+    const output = execFileSync('node', [cliPath, 'doctor'], { cwd: root, encoding: 'utf8' });
+    assert.doesNotMatch(output, /project MCP config|\.mcp\.json/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
