@@ -8,7 +8,10 @@ Engineering public beta**.
 The Codex plugin manifest for this line is
 `0.2.0-beta+codex.20260707114230`. Treat that as the installed plugin build ID;
 the product model name is still **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
-The Claude Code plugin version for the same line is `1.0.1`.
+
+Codex is the only supported and released integration. Claude Code and
+Antigravity are paused; contributors can use the
+[revival checklist](paused-integrations.md) before proposing renewed support.
 
 ## Before And After
 
@@ -28,7 +31,7 @@ The Claude Code plugin version for the same line is `1.0.1`.
 | Safe unblock | Blockers often became user prompts. | BFM recommends and executes safe unblock paths inside approved scope; hard gates still stop. |
 | Frontend planning | Visual decisions could stay in chat. | Frontend handoffs name `Visual Preview Decision` before source execution when visual uncertainty matters. |
 | Returning lanes | Re-read board and handoffs. | Workstream status cards show what Product/BFM already executed or deferred. |
-| Plugin builds | Build labels could look stale after docs changed. | Current public beta builds are Codex `0.2.0-beta+codex.20260707114230` and Claude Code `1.0.1`. |
+| Plugin builds | Build labels could look stale after docs changed. | The current public beta build is Codex `0.2.0-beta+codex.20260707114230`. |
 
 ## Practical Meaning
 

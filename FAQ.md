@@ -5,9 +5,8 @@
 The current GitHub documentation line is **FB-Lane 0.2.0-beta: Loop Engineering
 public beta**.
 
-Current plugin builds: Codex `0.2.0-beta+codex.20260707114230`; Claude Code
-`1.0.1`. Use `codex plugin list | rg "fb-lane-coordination"` or
-`claude plugin list | rg "fb-lane-coordination"` to see the installed build.
+Current plugin build: Codex `0.2.0-beta+codex.20260707114230`. Use
+`codex plugin list | rg "fb-lane-coordination"` to see the installed build.
 
 See [docs/versioning.md](docs/versioning.md) for the v1-to-latest before/after.
 
@@ -21,13 +20,11 @@ The board matters because agents need durable state. It is not the product. The
 product is the loop: approved Product/workstream OKRs, stable lane OKRs,
 mini-loop evidence return, BFM reconciliation, and clean closeout.
 
-## Does Codex, Claude Code, or Antigravity already do this?
+## Does Codex already do this?
 
-They already provide a lot of the execution machinery:
+Codex already provides a lot of the execution machinery:
 
 - Codex has plugins, skills, subagents, MCP, and worktrees.
-- Claude Code has subagents, MCP, slash commands, and worktrees.
-- Antigravity has native multi-agent orchestration.
 
 FB-Lane does not replace those primitives. It adds the coordination contract:
 approved goal, owner, evidence, merge/defer decision, and BFM source-change gate.
@@ -308,11 +305,7 @@ visual QA, copy, sequencing, or Product approval.
 
 ## Where do I install it?
 
-Start with the platform guide:
-
-- [Antigravity](platforms/antigravity/README.md) - Alpha
-- [Claude Code](platforms/claude-code/README.md) - Alpha
-- [Codex](platforms/codex/README.md) - Public beta
+Start with the [Codex platform guide](platforms/codex/README.md).
 
 Fallback bootstrap paths are in [docs/setup.md](docs/setup.md).
 
@@ -329,15 +322,8 @@ codex plugin list | rg "fb-lane-coordination"
 Start a new Codex thread after reinstalling so the refreshed plugin context is
 loaded.
 
-## How do I upgrade the Claude Code plugin?
+## What happened to Claude Code and Antigravity support?
 
-After the repo changes are merged, refresh the marketplace and plugin:
-
-```bash
-claude plugin marketplace update fb-lane
-claude plugin update fb-lane-coordination@fb-lane
-claude plugin list | rg "fb-lane-coordination"
-```
-
-Start a new Claude Code session after upgrading so refreshed agents and commands
-are loaded.
+Those integrations are paused and are not supported, installed, released, or
+tested. Contributors may revive an integration by following the
+[paused-integration checklist](docs/paused-integrations.md).

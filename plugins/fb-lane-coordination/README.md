@@ -1,9 +1,13 @@
 # FB-Lane Coordination for Codex
 
 Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
-Current plugin builds: Codex `0.2.0-beta+codex.20260707114230`; Claude Code
-`1.0.1`. See [`docs/versioning.md`](../../docs/versioning.md) for the
-v1-to-latest before/after.
+Current plugin build: Codex `0.2.0-beta+codex.20260707114230`. See
+[`docs/versioning.md`](../../docs/versioning.md) for the v1-to-latest
+before/after.
+
+This package is the only supported FB-Lane distribution. Claude Code and
+Antigravity are paused; contributors can follow the
+[revival checklist](../../docs/paused-integrations.md) before proposing support.
 
 This Codex plugin packages FB-Lane's Loop Engineering workflow:
 

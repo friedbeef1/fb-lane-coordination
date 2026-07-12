@@ -2,6 +2,10 @@
 
 ## Unreleased - 2026-06-27
 
+- Distribution: Codex is now the only supported, packaged, documented, and
+  release-tested integration. Removed Claude Code and Antigravity distribution
+  material; the concise [paused-integration checklist](docs/paused-integrations.md)
+  records the contributor-owned revival gate. No plugin was published.
 - Coordination: added lightweight Sidechat-to-Main Prompt Handoff guidance.
   Sidechats are discussion/planning spaces that can ask questions, compare
   options, review tradeoffs, recommend a path, and produce a paste-ready
@@ -23,10 +27,10 @@
   slice, continues only inside the approved OKR/scope, and stops or recommends
   before starting unrelated board work.
 - Docs: refreshed the current version and upgrade guidance across README, FAQ,
-  setup, Codex platform docs, versioning, and packaged plugin README now that
-  the Codex and Claude Code plugin builds have been released.
-- Plugin: refreshed visible plugin versions for the Loop Engineering public beta
-  line: Codex `0.2.0-beta+codex.20260707114230` and Claude Code `1.0.1`.
+  setup, Codex platform docs, versioning, and packaged plugin README for the
+  current Codex plugin build.
+- Plugin: refreshed the visible Codex version for the Loop Engineering public
+  beta line: `0.2.0-beta+codex.20260707114230`.
 - Coordination: tightened frontend visual planning guidance. Visible UI plans
   now default to a pre-build visual preview, using browser screenshot/mockup or
   imagegen asset/style option, with `skip with reason` reserved for non-visual

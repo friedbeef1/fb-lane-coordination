@@ -13,13 +13,17 @@ done.
 [Maintenance](docs/maintenance.md) | [Changelog](CHANGELOG.md)
 
 Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
-Current plugin builds: Codex `0.2.0-beta+codex.20260707114230`; Claude Code
-`1.0.1`. See [Versioning](docs/versioning.md).
+Current plugin build: Codex `0.2.0-beta+codex.20260707114230`. See
+[Versioning](docs/versioning.md).
 
 ## The Thesis
 
-Codex, Claude Code, and Antigravity already provide powerful agent execution.
-The missing layer is usually not speed. It is alignment.
+Codex provides powerful agent execution. The missing layer is usually not speed.
+It is alignment.
+
+FB-Lane currently supports Codex only. The Claude Code and Antigravity
+integrations are paused; contributors who want to revive one can follow the
+[paused-integration checklist](docs/paused-integrations.md).
 
 Without a loop, parallel AI work drifts:
 
@@ -306,12 +310,10 @@ changes.
 
 ## Start Here
 
-Choose the platform guide for your tool:
+Use FB-Lane with Codex:
 
 | Platform | Maturity | Guide | Best for |
 |---|---|---|---|
-| Antigravity 2.0 | Alpha | [platforms/antigravity/README.md](platforms/antigravity/README.md) | Native multi-agent orchestration and isolated worker lanes. |
-| Claude Code | Alpha | [platforms/claude-code/README.md](platforms/claude-code/README.md) | `@agent` / `/agents` lane workflows with MCP and optional worktrees. |
 | Codex | Public beta | [platforms/codex/README.md](platforms/codex/README.md) | Codex plugin, skills, MCP, subagents, and worktrees. |
 
 Fallback bootstrap options live in [docs/setup.md](docs/setup.md). The operating
@@ -378,6 +380,7 @@ supports it, preserve plugin data during uninstall/reinstall.
 - [Loop Engineering deep dive](docs/loop-engineering.md)
 - [Versioning and v1 before/after](docs/versioning.md)
 - [Setup alternatives](docs/setup.md)
+- [Paused integrations](docs/paused-integrations.md)
 - [FAQ](FAQ.md)
 - [Plugin package](plugins/fb-lane-coordination/README.md)
 - [Example app](examples/my-app/README.md)

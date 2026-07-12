@@ -1,16 +1,13 @@
-# Setup Alternatives
+# Codex Setup
 
 This page is tactical. For the operating model behind these commands, read
 [Loop Engineering](loop-engineering.md). For version naming and the v1-to-latest
 before/after, read [FB-Lane Versions](versioning.md).
 
-Use the platform guides first when possible:
-
-- [Antigravity 2.0](../platforms/antigravity/README.md) - Alpha
-- [Claude Code](../platforms/claude-code/README.md) - Alpha
-- [Codex](../platforms/codex/README.md) - Public beta
-
-This page is for fallback setup paths when you are not installing through a platform-specific plugin flow.
+FB-Lane currently supports Codex only. Start with the
+[Codex platform guide](../platforms/codex/README.md); this page is for fallback
+setup paths when you are not installing through the plugin flow. Claude Code
+and Antigravity are paused—see the [contributor revival checklist](paused-integrations.md).
 
 ## AI-Powered Bootstrap
 
@@ -24,7 +21,8 @@ Run node tools/fb-lane.cjs bootstrap to set up my project board, agents, rules, 
 Do not overwrite existing project rules; merge with them conservatively.
 ```
 
-The agent should create or update the local coordination files, including `PROJECT_BOARD.md`, `AGENTS.md`, `.codex/rules.md`, `CLAUDE.md`, `.mcp.json`, and lane agent definitions where the platform supports them.
+The agent should create or update the local coordination files, including
+`PROJECT_BOARD.md`, `AGENTS.md`, `.codex/rules.md`, and the handoff index.
 
 ## Manual CLI Bootstrap
 
@@ -41,16 +39,8 @@ What bootstrap creates:
 - `PROJECT_BOARD.md`
 - lane boundary rules in `AGENTS.md`
 - local Codex rules in `.codex/rules.md`
-- Claude configuration in `CLAUDE.md`
 - handoff routing index in `docs/handoffs/index.md`
-- MCP configuration where supported
-- lane agent definitions where supported
-
-After bootstrap, open the matching platform guide:
-
-- [Antigravity 2.0](../platforms/antigravity/README.md) - Alpha
-- [Claude Code](../platforms/claude-code/README.md) - Alpha
-- [Codex](../platforms/codex/README.md) - Public beta
+- Codex-ready lane guidance
 
 ## Upgrade Existing Codex Plugin Install
 
@@ -77,18 +67,6 @@ For same-version docs-only updates, verify the installed cache contains expected
 new wording after reinstall/update. If the active cache still has stale docs,
 reinstall rather than trusting the version string; where supported, preserve
 plugin data during uninstall/reinstall.
-
-For Claude Code installs, refresh the marketplace and plugin:
-
-```bash
-claude plugin marketplace update fb-lane
-claude plugin update fb-lane-coordination@fb-lane
-```
-
-Then start a new Claude Code session so refreshed agents and commands are loaded.
-If a same-version Claude Code update still reads stale packaged docs, uninstall
-with data preserved where supported, reinstall from the marketplace, and verify
-the installed cache text directly before closing the release task.
 
 ## Basic CLI Loop
 
