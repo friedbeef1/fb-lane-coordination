@@ -145,6 +145,20 @@ infinite queue. It continues only when the next slice belongs to the same
 approved OKR or scope. A different board item requires Product approval unless a
 separately approved self-approval phase allows it.
 
+## Persistent Objective And Checkpoints
+
+Before a non-trivial BFM run claims files, Product/BFM records one persistent
+objective, its definition of done, and the current checkpoint. Use the runtime
+task-goal feature when available; otherwise use the board or handoff as the
+durable record. The only valid checkpoints are `intake`, `scope/locks`,
+`implementation`, `verification`, `commit`, `staging evidence`, and `closeout`.
+
+Short prompts such as `proceed` and `all` continue the active objective unless
+the user explicitly names a new task. After each material result, Product/BFM
+states the checkpoint, the next proof needed, and whether the next action still
+advances the objective. When a blocker cannot be safely cleared, record its exact
+evidence and freeze scope; do not drift into another feature just to keep moving.
+
 ## Proactive Loop Hardening
 
 Product/BFM should proactively propose loop hardening when it sees repeated

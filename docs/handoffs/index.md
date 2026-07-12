@@ -12,6 +12,7 @@ Use this file as the first read for handoff discovery. `PROJECT_BOARD.md` remain
 
 | Task / Topic | Lane | Status | Depends / Blocks / Gate | Checks / Evidence | Detail |
 |---|---|---|---|---|---|
+| TASK-Q-2803 - Persistent BFM objective checkpoints | FB-Product / BFM | Staging QA | Product review; no deploy or plugin publish | Root/package parity, 16 regression checks, fresh bootstrap wording, lane status, doctor, diff check | [TASK-Q-2803.md](TASK-Q-2803.md) |
 | TASK-017 - Progressive disclosure + framework OKR hardening | FB-Tech | Staging QA | Product review of PR #31 before merge | Syntax, parity, tests, JSON parse, scorecard, `/goal`, and Sidechat-to-Main Prompt Handoff wording scans, lane status, validator, doctor, diff check | [TASK-017.md](TASK-017.md) |
 | TASK-016 - Codex plugin handoff index | FB-Product | Done | Product review of branch/PR | CLI syntax, tests, parity | [TASK-016.md](TASK-016.md) |
 | CI readiness automation loop | FB-Product | Done | CI readiness model | Local validator, doctor | [TASK-013.md](TASK-013.md) |

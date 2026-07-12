@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-Q-2803 | Staging QA | FB-Product / BFM -> Product review | Coordination | Require one persistent objective and checkpoint progression for non-trivial BFM runs so shorthand continuations stay on the approved end-to-end outcome | `AGENTS.md`, `templates/AGENTS.md`, `docs/loop-engineering.md`, `plugins/fb-lane-coordination/skills/bfm/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`, root/package `tools/fb-lane.cjs`, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-Q-2803.md`, `docs/workstreams/fb-product.md` | [Handoff](docs/handoffs/TASK-Q-2803.md); local branch `codex/bfm-objective-checkpoints` |
 | TASK-017 | Staging QA | FB-Tech | Coordination | Harden progressive-disclosure handoff index semantics, FB-Lane framework OKR, drift health guardrails, eval escalation, phased approval autonomy, Product/BFM execution continuation, frontend visual planning, Sidechat-to-Main Prompt Handoff guidance, and version positioning | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `tools/fb-lane.test.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.test.cjs`, `AGENTS.md`, `.codex/rules.md`, `.claude/agents/**`, `templates/*.md`, `skills/**`, `plugins/fb-lane-coordination/skills/**`, `agents/**`, `plugins/fb-lane-coordination/agents/**`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `docs/versioning.md`, `platforms/codex/README.md`, `platforms/codex/workflow-rules.md`, `plugins/fb-lane-coordination/README.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-017.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | [Handoff](docs/handoffs/TASK-017.md) |
 | TASK-016 | Done | FB-Product | Codex Plugin | Add handoff index progressive-disclosure support to the Codex plugin | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/skills/**`, `templates/*.md`, `docs/**`, `README.md`, `FAQ.md`, `CHANGELOG.md` | [Handoff](docs/handoffs/TASK-016.md) |
 | TASK-Q-20260627223437 | Done | FB-Product | Documentation | Document FB-Lane evals as lightweight agent-behavior scorecards | `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `plugins/fb-lane-coordination/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | `codex/evals-docs` |
@@ -35,6 +36,20 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-Q-2803 - Persistent BFM objective checkpoints
+*   **Status**: Staging QA
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Coordination
+*   **Scope**: Add one lightweight persistence guardrail: set or record the approved BFM objective and definition of done, then advance through a single explicit checkpoint without treating shorthand continuation prompts as new scope.
+*   **Out of Scope**: New goal systems, a new CLI command, `doctor` expansion, automation, eval runners, dashboards, numeric scoring, live deploy, or plugin publishing.
+*   **Approval**: approved by the user in this thread.
+*   **Locks**: `AGENTS.md`, `templates/AGENTS.md`, `docs/loop-engineering.md`, `plugins/fb-lane-coordination/skills/bfm/SKILL.md`, `plugins/fb-lane-coordination/skills/fb-product/SKILL.md`, root/package `tools/fb-lane.cjs`, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-Q-2803.md`, `docs/workstreams/fb-product.md`.
+*   **Definition of Done**: Canonical and packaged BFM guidance, bootstrap-generated guidance, board/index/handoff, and Product revisit card agree; root/package parity and focused validation pass.
+*   **Gate / Review Point**: Commit the docs/process guardrail; no deploy or plugin publish.
+*   **Latest Update**: 2026-07-12: Added the persistence guardrail, verified root/package CLI parity, ran 16 regression checks, and confirmed a fresh Codex bootstrap emits the objective/checkpoint rule. `doctor` reports only the expected dirty-worktree gate before commit.
 
 ---
 

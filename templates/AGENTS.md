@@ -69,6 +69,9 @@ Worker lanes read the approved OKR tree first. Their mini-loops do not create ne
 
 `/goal` is a Product/BFM shortcut into this same Goal Alignment Session. It shows, creates, clarifies, or asks approval for the current goal; it must not create a second goal system or a separate `/goals` flow. Workstream chats do not own `/goal`; they propose or challenge goal fit in their handoff for Product/BFM to reconcile.
 
+### 🧷 BFM Objective Persistence
+For every non-trivial BFM run, Product/BFM must state one persistent objective and definition of done before claiming files. When the runtime supports a task goal, set or refresh it; otherwise record the same objective in the board/handoff. Track one current checkpoint only: intake, scope/locks, implementation, verification, commit, staging evidence, or closeout. Treat shorthand such as `proceed` or `all` as continuation of that objective unless the user explicitly names a new task. After each material result, update the checkpoint and next proof needed. If a blocker cannot be safely cleared, record it and keep scope frozen rather than pivoting to a different feature.
+
 Good objective example: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 
 Bad objective example: `Objective: finish the feature.`

@@ -128,6 +128,12 @@ Execute only `ready now` items. Do not claim or touch files locked by another ac
 
 Proceed through the sequence without asking for repeated permission when authority is clear.
 
+## Persistent Objective And Checkpoints
+
+Before claiming files, state one persistent objective and definition of done for the BFM run. Set or refresh the runtime task goal when available; otherwise record the same objective in the board or handoff. Maintain exactly one current checkpoint: `intake`, `scope/locks`, `implementation`, `verification`, `commit`, `staging evidence`, or `closeout`.
+
+Treat `proceed`, `all`, and other shorthand as continuation of that objective unless the user explicitly names a new task. After every material tool result, state the current checkpoint, the next proof needed, and whether the next action still advances the objective. If a blocker cannot be safely cleared, record the exact blocker and freeze scope; do not pivot into a different feature or a different board item.
+
 - Product/BFM creates or scopes board items, sets direction, and reconciles approved markdown plans.
 - Product/BFM flags blockers, recommends the safe unblock path, executes safe unblocks within approved scope, and keeps going until solved or truly blocked.
 - Product/BFM blocks before execution if the board Goal Alignment Session is missing, has unclear OKRs, has `Approval: pending`, lacks the user's explicit approval, implies an unapproved OKR change, or a handoff is blocked by OKR ambiguity.
@@ -151,6 +157,7 @@ Rerun lane status immediately before claiming or editing. If locks changed, rese
 
 Treat BFM as a loop, not a one-way pipeline:
 
+- Before the first claim, record the persistent objective, definition of done, and current checkpoint; after every material result, confirm the next action still advances that objective.
 - After reading handoffs, return to `PROJECT_BOARD.md` and confirm every handoff is sequenced, represented, or intentionally deferred.
 - After source changes, return to each handoff and confirm the source satisfies the requested contract.
 - After tests, return to source, docs, and board; stale copy, missing wiring, or bad assumptions become follow-up work or blockers.

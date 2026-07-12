@@ -116,6 +116,8 @@ When the user says `BFM`, Product/BFM flags each blocker, recommends how to addr
 
 `/goal` is a Product/BFM shortcut into the existing Goal Alignment Session. Use it to show, create, clarify, or ask approval for the current goal. Do not create a second goal system or a `/goals` flow. Workstream chats should put proposed workstream goals in handoffs for Product/BFM to reconcile.
 
+For every non-trivial BFM run, state one persistent objective and definition of done before claiming files. Set or refresh the runtime task goal when available; otherwise record the same objective in the board or handoff. Track one current checkpoint: `intake`, `scope/locks`, `implementation`, `verification`, `commit`, `staging evidence`, or `closeout`. Treat shorthand such as `proceed` or `all` as continuation unless the user names a new task. After each material result, state the checkpoint and next proof needed; if a blocker cannot be safely cleared, record it and freeze scope instead of pivoting to a different feature.
+
 ## Story Split Pass
 
 Before Product/BFM prioritizes or sequences a BFM/all-handoff run, decide whether the request should be split into smaller stories. Split when the batch mixes unrelated lanes, risks, locks, gates, review surfaces, blocked work, and ready-now work. If splitting helps, show child stories with owner/lane, scope, dependencies, locks/gates, and recommended order. If not, say `No split needed` and continue. Then run the Dependency And Lock Pass on the resulting stories or original item.

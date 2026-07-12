@@ -67,6 +67,9 @@ Worker lanes read the approved OKR tree first. Their mini-loops do not create ne
 
 `/goal` is a Product/BFM shortcut into this same Goal Alignment Session. It shows, creates, clarifies, or asks approval for the current goal; it must not create a second goal system or a separate `/goals` flow. Workstream chats do not own `/goal`; they propose or challenge goal fit in their handoff for Product/BFM to reconcile.
 
+### 🧷 BFM Objective Persistence
+For every non-trivial BFM run, Product/BFM must state one persistent objective and definition of done before claiming files. When the runtime supports a task goal, set or refresh it; otherwise record the same objective in the board/handoff. Track one current checkpoint only: intake, scope/locks, implementation, verification, commit, staging evidence, or closeout. Treat shorthand such as `proceed` or `all` as continuation of that objective unless the user explicitly names a new task. After each material result, update the checkpoint and next proof needed. If a blocker cannot be safely cleared, record it and keep scope frozen rather than pivoting to a different feature.
+
 Good objective example: `Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.`
 
 Bad objective example: `Objective: finish the feature.`
@@ -140,6 +143,7 @@ Product/BFM also records one loop health flag: `healthy` when the loop is safe, 
 Product/BFM also records `Loop Learning` at closeout. Use `none` for one-off friction, `propose guardrail` for repeated process misses, `propose automation` for repeated manual checks, and `propose eval` for repeated agent-behavior failures. Product approval is required before adding or changing tooling.
 
 Return checks for non-trivial handoff execution:
+0. Before the first claim, record the persistent objective, definition of done, and current checkpoint; after every material result, confirm the next action still advances that objective.
 1. After reading handoffs, return to `PROJECT_BOARD.md` and confirm every handoff is represented, sequenced, or deferred.
 2. After coding, return to each handoff and confirm the source satisfies the requested contract.
 3. After tests, return to source, docs, and board to catch stale copy, missing wiring, or bad assumptions.
