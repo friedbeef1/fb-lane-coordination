@@ -204,6 +204,12 @@ for (const platform of ['all', 'claude', 'claude-code', 'antigravity']) {
   });
 }
 
+test('CLI source contains no non-Codex bootstrap generator surface', () => {
+  const source = fs.readFileSync(cliPath, 'utf8');
+  assert.doesNotMatch(source, /\b(?:includeClaude|includeAntigravity|agentConfigs)\b/);
+  assert.doesNotMatch(source, /(?:Create Antigravity agent config|Create Claude Code lane subagents|claudeAgentsDir)/);
+});
+
 test('doctor does not require project MCP configuration', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-doctor-'));
   try {

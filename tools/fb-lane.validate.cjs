@@ -5,8 +5,6 @@ const assert = require('assert');
 const fs = require('fs');
 const { execFileSync } = require('child_process');
 
-const lanes = ['FB-Product', 'FB-Tech', 'FB-Design', 'FB-Business'];
-
 function run(label, command, args, options = {}) {
   process.stdout.write(`\n==> ${label}\n`);
   const output = execFileSync(command, args, {
@@ -43,21 +41,9 @@ run('plugin CLI syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools
 console.log('\n==> root/package CLI parity');
 sameFile('tools/fb-lane.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.cjs');
 
-console.log('\n==> generated agent JSON parity');
-for (const lane of lanes) {
-  sameFile(`agents/${lane}/agent.json`, `plugins/fb-lane-coordination/agents/${lane}/agent.json`);
-}
-
-console.log('\n==> plugin manifest and generated agent JSON parse');
-readJson('.agents/plugins/marketplace.json');
-readJson('.claude-plugin/marketplace.json');
-readJson('.claude-plugin/plugin.json');
-readJson('plugins/fb-lane-coordination/plugin.json');
+console.log('\n==> Codex plugin manifest and bundled MCP JSON parse');
 readJson('plugins/fb-lane-coordination/.codex-plugin/plugin.json');
-for (const lane of lanes) {
-  readJson(`agents/${lane}/agent.json`);
-  readJson(`plugins/fb-lane-coordination/agents/${lane}/agent.json`);
-}
+readJson('plugins/fb-lane-coordination/.mcp.json');
 
 console.log('\n==> skill metadata validation');
 for (const dir of ['skills', 'plugins/fb-lane-coordination/skills']) {
