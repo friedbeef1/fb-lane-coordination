@@ -27,6 +27,10 @@ function sameFile(a, b) {
   );
 }
 
+function requireAbsent(file) {
+  assert.ok(!fs.existsSync(file), `${file} must not be restored`);
+}
+
 function checkSkill(file) {
   const text = fs.readFileSync(file, 'utf8');
   const match = text.match(/^---\n([\s\S]*?)\n---\n/);
@@ -40,6 +44,11 @@ run('plugin CLI syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools
 
 console.log('\n==> root/package CLI parity');
 sameFile('tools/fb-lane.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.cjs');
+
+console.log('\n==> legacy runtime/configuration entry points remain absent');
+for (const file of ['.mcp.json', 'tools/run_lane.py', 'CLAUDE.md', 'templates/CLAUDE.md']) {
+  requireAbsent(file);
+}
 
 console.log('\n==> Codex plugin manifest and bundled MCP JSON parse');
 readJson('plugins/fb-lane-coordination/.codex-plugin/plugin.json');

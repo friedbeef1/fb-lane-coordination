@@ -213,6 +213,19 @@ test('CLI source contains no stale non-Codex runtime or claim guidance', () => {
   assert.doesNotMatch(source, /Claude Code/);
 });
 
+test('repository contains no legacy runtime or configuration entry points', () => {
+  let root = __dirname;
+  while (!fs.existsSync(path.join(root, 'tools', 'fb-lane.validate.cjs'))) {
+    const parent = path.dirname(root);
+    assert.notStrictEqual(parent, root, 'could not find repository root');
+    root = parent;
+  }
+
+  for (const legacyPath of ['.mcp.json', 'tools/run_lane.py', 'CLAUDE.md', 'templates/CLAUDE.md']) {
+    assert.ok(!fs.existsSync(path.join(root, legacyPath)), `expected ${legacyPath} to be absent`);
+  }
+});
+
 test('doctor does not require project MCP configuration', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-doctor-'));
   try {
