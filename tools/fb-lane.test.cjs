@@ -226,6 +226,30 @@ test('repository contains no legacy runtime or configuration entry points', () =
   }
 });
 
+test('active Codex guides and demo use only the Codex bootstrap contract', () => {
+  let root = __dirname;
+  while (!fs.existsSync(path.join(root, 'tools', 'fb-lane.validate.cjs'))) {
+    const parent = path.dirname(root);
+    assert.notStrictEqual(parent, root, 'could not find repository root');
+    root = parent;
+  }
+
+  const activeCodexPaths = [
+    'docs/loop-engineering.md',
+    'docs/setup.md',
+    'platforms/codex/README.md',
+    'plugins/fb-lane-coordination/README.md',
+    'examples/my-app/README.md',
+    'codex-lane-demo/AGENTS.md',
+  ];
+  for (const relativePath of activeCodexPaths) {
+    const source = fs.readFileSync(path.join(root, relativePath), 'utf8');
+    assert.doesNotMatch(source, /\b(?:Claude(?: Code)?|Antigravity)\b/i, `${relativePath} must be Codex-only`);
+    assert.doesNotMatch(source, /\b(?:project\s+)?MCP\s+config(?:uration)?\b/i, `${relativePath} must not promise project MCP configuration`);
+  }
+  assert.ok(!fs.existsSync(path.join(root, 'codex-lane-demo', 'CLAUDE.md')), 'expected demo Claude instructions to be absent');
+});
+
 test('doctor does not require project MCP configuration', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-doctor-'));
   try {

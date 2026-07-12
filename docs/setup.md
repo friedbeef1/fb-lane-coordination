@@ -6,8 +6,7 @@ before/after, read [FB-Lane Versions](versioning.md).
 
 FB-Lane currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
-setup paths when you are not installing through the plugin flow. Claude Code
-and Antigravity are paused—see the [contributor revival checklist](paused-integrations.md).
+setup paths when you are not installing through the plugin flow.
 
 ## AI-Powered Bootstrap
 
@@ -17,7 +16,7 @@ If you already have an AI agent open in your target project workspace, paste thi
 I want to bootstrap the FB-Lane Coordination Plugin in this workspace.
 Read the template files and CLI utility from the fb-lane-coordination repository.
 Copy tools/fb-lane.cjs to my project's root tools/ directory.
-Run node tools/fb-lane.cjs bootstrap to set up my project board, agents, rules, and MCP configuration.
+Run node tools/fb-lane.cjs bootstrap to set up my project board, lane rules, Codex rules, and handoff routing.
 Do not overwrite existing project rules; merge with them conservatively.
 ```
 

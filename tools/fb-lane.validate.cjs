@@ -39,6 +39,12 @@ function checkSkill(file) {
   assert.ok(/^description:\s*\S.+/m.test(match[1]), `${file} missing metadata description`);
 }
 
+function checkActiveCodexSurface(file) {
+  const text = fs.readFileSync(file, 'utf8');
+  assert.doesNotMatch(text, /\b(?:Claude(?: Code)?|Antigravity)\b/i, `${file} must be Codex-only`);
+  assert.doesNotMatch(text, /\b(?:project\s+)?MCP\s+config(?:uration)?\b/i, `${file} must not promise project MCP configuration`);
+}
+
 run('root CLI syntax', 'node', ['--check', 'tools/fb-lane.cjs']);
 run('plugin CLI syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-lane.cjs']);
 
@@ -49,6 +55,19 @@ console.log('\n==> legacy runtime/configuration entry points remain absent');
 for (const file of ['.mcp.json', 'tools/run_lane.py', 'CLAUDE.md', 'templates/CLAUDE.md']) {
   requireAbsent(file);
 }
+
+console.log('\n==> active Codex guides and demo remain Codex-only');
+for (const file of [
+  'docs/loop-engineering.md',
+  'docs/setup.md',
+  'platforms/codex/README.md',
+  'plugins/fb-lane-coordination/README.md',
+  'examples/my-app/README.md',
+  'codex-lane-demo/AGENTS.md',
+]) {
+  checkActiveCodexSurface(file);
+}
+requireAbsent('codex-lane-demo/CLAUDE.md');
 
 console.log('\n==> Codex plugin manifest and bundled MCP JSON parse');
 readJson('plugins/fb-lane-coordination/.codex-plugin/plugin.json');

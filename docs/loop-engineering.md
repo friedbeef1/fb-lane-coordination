@@ -7,9 +7,8 @@ before Product calls the work complete.
 It is not a new app lifecycle. It is a small control loop for AI execution.
 
 Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
-Current plugin builds: Codex `0.2.0-beta+codex.20260707114230`; Claude Code
-`1.0.1`. For the v1-to-latest before/after, see
-[FB-Lane Versions](versioning.md).
+Current plugin build: Codex `0.2.0-beta+codex.20260707114230`. For the
+v1-to-latest before/after, see [FB-Lane Versions](versioning.md).
 
 ## Why The Loop Exists
 
@@ -555,7 +554,5 @@ phrases, or instructions that start another lane by accident.
 
 Loop Engineering is the operating model. Platform setup is tactical:
 
-- [Antigravity](../platforms/antigravity/README.md) - Alpha
-- [Claude Code](../platforms/claude-code/README.md) - Alpha
 - [Codex](../platforms/codex/README.md) - Public beta
 - [Setup alternatives](setup.md)

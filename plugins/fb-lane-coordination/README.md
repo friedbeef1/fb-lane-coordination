@@ -5,9 +5,7 @@ Current plugin build: Codex `0.2.0-beta+codex.20260707114230`. See
 [`docs/versioning.md`](../../docs/versioning.md) for the v1-to-latest
 before/after.
 
-This package is the only supported FB-Lane distribution. Claude Code and
-Antigravity are paused; contributors can follow the
-[revival checklist](../../docs/paused-integrations.md) before proposing support.
+This package is the supported FB-Lane distribution for Codex.
 
 This Codex plugin packages FB-Lane's Loop Engineering workflow:
 
@@ -268,7 +266,7 @@ node tools/fb-lane.cjs bootstrap --platform codex
 node tools/fb-lane.cjs doctor
 ```
 
-`doctor` is read-only. It reports whether the board, rules, MCP config, handoff
+`doctor` is read-only. It reports whether the board, rules, handoff
 folder/index, active locks, git workspace, non-quick handoff `Lane OKR Fit`,
 and approved Goal Alignment Session OKRs are ready before lane work begins. If
 the index is missing or old-style, fix it through bootstrap or Product/BFM
