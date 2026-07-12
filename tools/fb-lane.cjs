@@ -22,7 +22,6 @@ function resolveWorkspaceStart(options = {}) {
   const candidate =
     options.workspacePath ||
     process.env.FB_LANE_WORKSPACE ||
-    process.env.CLAUDE_PROJECT_DIR ||
     process.env.CODEX_WORKSPACE_ROOT ||
     process.env.CODEX_PROJECT_ROOT ||
     process.env.WORKSPACE_ROOT ||
@@ -1104,17 +1103,17 @@ ${task.scope}
   if (worktreePath) {
     console.log(`   - Worktree: ${worktreePath} (board stays authoritative in this checkout)`);
     console.log(`   - Codex context written to ${path.join(worktreePath, '.codex', 'current_task.md')}`);
-    console.log(`\n👉 Run this lane in its own session:`);
-    console.log(`     cd "${worktreePath}" && claude`);
+    console.log(`\n👉 Open this worktree in Codex, then start a new thread:`);
+    console.log(`     ${worktreePath}`);
     console.log(`   When done: node tools/fb-lane.cjs submit ${taskId}, then (from here) merge — the merge releases the worktree's branch.`);
   } else {
     console.log(`   - Codex Desktop context written to .codex/current_task.md`);
   }
   if (copied) {
     console.log('\n🚀 STARTUP PROMPT COPIED TO CLIPBOARD!');
-    console.log('   Simply open a fresh chat thread in Claude Code and paste (Cmd+V) to begin.\n');
+    console.log('   Simply open a fresh Codex thread and paste (Cmd+V) to begin.\n');
   } else {
-    console.log('\n👉 Copy-paste this startup prompt into your Claude Code thread:');
+    console.log('\n👉 Copy-paste this startup prompt into a fresh Codex thread:');
     console.log('-'.repeat(60));
     console.log(prompt);
     console.log('-'.repeat(60) + '\n');
@@ -1308,9 +1307,9 @@ ${scopeDescription} (Quick Edit)
   console.log(`   - Codex Desktop context written to .codex/current_task.md`);
   if (copied) {
     console.log('\n🚀 STARTUP PROMPT COPIED TO CLIPBOARD!');
-    console.log('   Simply open a fresh chat thread in Claude Code and paste (Cmd+V) to begin.\n');
+    console.log('   Simply open a fresh Codex thread and paste (Cmd+V) to begin.\n');
   } else {
-    console.log('\n👉 Copy-paste this startup prompt into your Claude Code thread:');
+    console.log('\n👉 Copy-paste this startup prompt into a fresh Codex thread:');
     console.log('-'.repeat(60));
     console.log(prompt);
     console.log('-'.repeat(60) + '\n');

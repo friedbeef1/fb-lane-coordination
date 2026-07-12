@@ -49,3 +49,27 @@ its bundled MCP JSON.
   The first in-place validator run therefore stopped at its expected dirty-tree
   doctor gate. Verification was repeated in a clean detached worktree at
   `a68cc77`, where the validator passed.
+
+## Review Fix — Codex-Native Claim Flow
+
+### RED
+
+- Added the same source-level regression to the root and packaged CLI suites,
+  then ran both suites. Each failed as expected because the distributed CLI
+  still contained the `CLAUDE_PROJECT_DIR` workspace fallback. The regression
+  also guards the stale worktree-launch and user-facing platform guidance.
+
+### GREEN
+
+- Normal worktree claims now tell the user to open the worktree in Codex and
+  start a new thread; they no longer print a shell command for another runtime.
+- Normal and quick startup-prompt paths now direct users to fresh Codex threads.
+- Root-dir resolution no longer reads the obsolete `CLAUDE_PROJECT_DIR`
+  environment variable.
+- `node tools/fb-lane.test.cjs` and
+  `node plugins/fb-lane-coordination/tools/fb-lane.test.cjs` — passed, 23
+  checks each.
+- Root/package CLI and test syntax checks, stale-guidance scan, and byte-parity
+  checks passed.
+- `node tools/fb-lane.validate.cjs` and `git diff --check HEAD^..HEAD` passed
+  from a clean detached temporary worktree; `doctor` reported `Ready`.

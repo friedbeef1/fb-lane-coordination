@@ -204,10 +204,13 @@ for (const platform of ['all', 'claude', 'claude-code', 'antigravity']) {
   });
 }
 
-test('CLI source contains no non-Codex bootstrap generator surface', () => {
+test('CLI source contains no stale non-Codex runtime or claim guidance', () => {
   const source = fs.readFileSync(cliPath, 'utf8');
   assert.doesNotMatch(source, /\b(?:includeClaude|includeAntigravity|agentConfigs)\b/);
   assert.doesNotMatch(source, /(?:Create Antigravity agent config|Create Claude Code lane subagents|claudeAgentsDir)/);
+  assert.doesNotMatch(source, /CLAUDE_PROJECT_DIR/);
+  assert.doesNotMatch(source, /&& claude/);
+  assert.doesNotMatch(source, /Claude Code/);
 });
 
 test('doctor does not require project MCP configuration', () => {
