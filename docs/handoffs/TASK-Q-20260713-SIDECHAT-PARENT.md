@@ -37,8 +37,9 @@ they become source of truth.
 - `node plugins/fb-lane-coordination/tools/fb-lane.test.cjs` — passed, 26 checks.
 - Root/package CLI and test files are byte-identical.
 - Node syntax checks passed for both CLI copies.
-- Clean-worktree validator and `doctor` remain the final closeout check after
-  committing this documented change.
+- `node tools/fb-lane.validate.cjs` — passed on the clean committed worktree.
+- `node tools/fb-lane.cjs doctor` — Ready on the clean committed worktree.
+- `git diff --check` — passed.
 
 ## Gates
 
