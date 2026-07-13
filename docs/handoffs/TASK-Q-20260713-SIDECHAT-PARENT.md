@@ -45,6 +45,8 @@ they become source of truth.
 - Independent read-only review found and this change resolves stale
   role-selected `main Product/BFM thread` wording in generated and public
   entry points.
+- Follow-up read-only review approved the corrected entry-point distribution
+  and the expanded regression coverage.
 
 ## Gates
 
