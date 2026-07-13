@@ -158,6 +158,10 @@ function assertCodexBootstrap(args) {
     assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /Non-Product Execution Gate/);
     assert.match(fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8'), /Sidechat-to-Main Prompt Handoff/);
     assert.match(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), /Exact instruction for Product\/BFM/);
+    const sidechatRoutingPath = path.join(root, 'docs', 'sidechat-parent-thread-routing.md');
+    assert.ok(fs.existsSync(sidechatRoutingPath), 'expected bootstrap to create sidechat parent-routing guidance');
+    assert.match(fs.readFileSync(sidechatRoutingPath, 'utf8'), /one eligible destination:\s*the originating main thread/i);
+    assert.match(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), /sidechat-parent-thread-routing\.md/);
     assert.match(fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8'), /A sidechat prompt is not source of truth/);
     assert.ok(!fs.existsSync(path.join(root, '.mcp.json')), 'expected bootstrap not to create project MCP config');
     assert.ok(!fs.existsSync(path.join(root, '.claude')), 'expected bootstrap not to create Claude Code files');
@@ -167,6 +171,34 @@ function assertCodexBootstrap(args) {
     fs.rmSync(root, { recursive: true, force: true });
   }
 }
+
+console.log('sidechat parent-thread routing');
+test('documents the parent-only sidechat routing rule across source and package entry points', () => {
+  const repoRoot = process.cwd();
+  const canonicalPath = path.join(repoRoot, 'docs', 'sidechat-parent-thread-routing.md');
+  assert.ok(fs.existsSync(canonicalPath), 'expected canonical sidechat parent-routing document');
+  const canonical = fs.readFileSync(canonicalPath, 'utf8');
+  assert.match(canonical, /one eligible destination:\s*the originating main thread/i);
+  assert.match(canonical, /must not choose a destination.*role.*project.*name.*recency.*Product\/BFM status/is);
+  assert.match(canonical, /cannot be identified or reached.*paste-ready handoff.*must not send, redirect, or imply/is);
+  assert.match(canonical, /ordinary\s+user-provided context/i);
+
+  const entryPoints = [
+    'AGENTS.md',
+    'skills/fb-lane-coordination/SKILL.md',
+    'skills/project-coordination-setup/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md',
+    'plugins/fb-lane-coordination/skills/bfm/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-lane/SKILL.md',
+    'plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md'
+  ];
+  for (const relativePath of entryPoints) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(source, /sidechat-parent-thread-routing\.md/, `${relativePath} must link to the canonical rule`);
+    assert.match(source, /only to its (?:originating )?parent|only eligible destination/i, `${relativePath} must forbid non-parent delivery`);
+    assert.match(source, /ordinary user-provided context/i, `${relativePath} must protect non-parent receiving threads`);
+  }
+});
 
 test('bootstrap defaults to Codex-only output', () => {
   assertCodexBootstrap([]);

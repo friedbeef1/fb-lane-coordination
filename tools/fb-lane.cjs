@@ -319,6 +319,37 @@ Product approval for heavier tooling: \`not requested\` | \`pending\` | \`approv
 `;
 }
 
+function sidechatParentThreadRoutingTemplate() {
+  return `# Sidechat Parent-Thread Routing
+
+## Routing Rule
+
+A sidechat has exactly one eligible destination: the originating main thread
+from which it was opened (its parent). It must not choose a destination by
+matching a thread's role, project, name, recency, or Product/BFM status.
+
+## Missing Parent Context
+
+If the parent thread cannot be identified or reached, the sidechat returns the
+existing paste-ready handoff to the user and clearly states that the parent
+could not be identified. It must not send, redirect, or imply a handoff to any
+other main thread. The user must place that handoff in the intended
+conversation.
+
+## Receiving Main Threads
+
+A main thread accepts a sidechat handoff only when it is identified as that
+sidechat's parent. Any other main thread treats the material as ordinary
+user-provided context, not an owned continuation or instruction.
+
+## Durable Decision Record
+
+This rule governs routing only. The existing Product/BFM rule remains: an
+accepted decision becomes source of truth only after Product/BFM records it in
+\`PROJECT_BOARD.md\`, a handoff, or other durable documentation.
+`;
+}
+
 function collectHandoffIndexWarning(handoffsDir) {
   if (!fs.existsSync(handoffsDir)) {
     return null;
@@ -1853,6 +1884,8 @@ function handleBootstrap(args = []) {
   const sidechatGuideMarkdown = `### Sidechat-to-Main Prompt Handoff
 Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; the main Product/BFM thread owns those execution steps.
 
+Parent-thread routing is mandatory: read \`docs/sidechat-parent-thread-routing.md\` from the project root. A sidechat may hand off only to its originating parent main thread; never infer another destination from role, project, name, recency, or Product/BFM status. If the parent cannot be identified or reached, return the paste-ready handoff to the user. A non-parent main thread treats it as ordinary user-provided context.
+
 A sidechat prompt is not source of truth until Product/BFM records it in \`PROJECT_BOARD.md\`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no new command, dashboard, \`doctor\` expansion, source behavior, or required ceremony is needed for a quick clarification.
 
 When a sidechat prepares work for Product/BFM, use this output shape:
@@ -1992,7 +2025,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 *   **Handoff Index**: \`PROJECT_BOARD.md\` is truth for status, sequencing, gates, ownership, and file locks. \`docs/handoffs/index.md\` is routing. Detailed handoffs are detail. Before non-quick Product/BFM sequencing, create or refresh the index if handoffs exist and the lookup is missing, stale, or too vague. Keep the index compact with \`Task / Topic\`, \`Lane\`, \`Status\`, \`Depends / Blocks / Gate\`, \`Checks / Evidence\`, and \`Detail\`; do not put full OKRs, QA checklists, plans, logs, rationale, copy variants, or implementation detail there.
 *   **Workstream Status Cards**: \`docs/workstreams/<lane>.md\` is a compact revisit summary, not a second board. Product/BFM updates the detailed handoff with \`## Product/BFM Closeout\`, then updates the relevant card after executing or explicitly deferring a lane handoff. Returning lanes read \`PROJECT_BOARD.md\`, \`docs/handoffs/index.md\`, then their lane card before opening detailed handoffs. Cards show current summary, what Product/BFM already executed, what remains pending or blocked, and evidence links only.
 *   **Awareness, Isolation, Integration**: \`PROJECT_BOARD.md\` and \`docs/handoffs/index.md\` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
-*   **Sidechat-to-Main Prompt Handoff**: Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; Product/BFM owns those execution steps. A sidechat prompt is not source of truth until Product/BFM records it in \`PROJECT_BOARD.md\`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no command, dashboard, \`doctor\` expansion, source behavior, or required ceremony is needed for quick clarification. Sidechat output format: Decision summary, Scope, Out of scope, Recommended owner/lane, Files/docs likely affected, Acceptance criteria, Gates/risks, Exact instruction for Product/BFM.
+*   **Sidechat-to-Main Prompt Handoff**: Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; Product/BFM owns those execution steps. Read \`docs/sidechat-parent-thread-routing.md\`: a sidechat may hand off only to its originating parent main thread, never chooses another destination by role, project, name, recency, or Product/BFM status, and returns the paste-ready handoff to the user if the parent is unavailable. A non-parent main treats it as ordinary user-provided context. A sidechat prompt is not source of truth until Product/BFM records it in \`PROJECT_BOARD.md\`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no command, dashboard, \`doctor\` expansion, source behavior, or required ceremony is needed for quick clarification. Sidechat output format: Decision summary, Scope, Out of scope, Recommended owner/lane, Files/docs likely affected, Acceptance criteria, Gates/risks, Exact instruction for Product/BFM.
 *   **BFM OKR Gate**: BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree. If work conflicts with approved OKRs, BFM proposes aligned approaches, scope, or sequence and recommends one; it does not dynamically create or edit OKRs during execution.
 *   **BFM Return Loop**: When Product/BFM processes all lane handoffs, every handoff must be marked \`implemented\`, \`already done\`, \`blocked\`, \`out of scope\`, or \`explicitly deferred\`. Return to board, handoffs, source/docs/tests, lane status, and git status before closeout. Name whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If checks touched external services, also name test mode, created records/resources, cleanup evidence, or the pending cleanup gate. Add one loop health flag: \`healthy\`, \`watch\`, \`needs Product review\`, or \`blocked\`; do not numeric-score the loop.
 *   **Proactive Loop Hardening**: When repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework appears, Product/BFM proposes one small guardrail with observed pattern, cost, benefit, affected files/rules, and approval needed before changing the process. Skip one-off or low-impact issues.
@@ -2026,6 +2059,14 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
     console.log('📝 Created docs/handoffs/index.md (handoff routing index)');
   } else {
     console.log('ℹ️  docs/handoffs/index.md already exists, skipping.');
+  }
+
+  const sidechatRoutingPath = path.join(rootDir, 'docs', 'sidechat-parent-thread-routing.md');
+  if (!fs.existsSync(sidechatRoutingPath)) {
+    fs.writeFileSync(sidechatRoutingPath, sidechatParentThreadRoutingTemplate(), 'utf8');
+    console.log('📝 Created docs/sidechat-parent-thread-routing.md');
+  } else {
+    console.log('ℹ️  docs/sidechat-parent-thread-routing.md already exists, skipping.');
   }
 
   // 3c. Create per-lane workstream status cards for revisit context.

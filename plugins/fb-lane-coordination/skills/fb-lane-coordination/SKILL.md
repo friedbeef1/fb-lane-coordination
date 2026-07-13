@@ -20,6 +20,8 @@ Frontend/UI plans and handoffs default to a pre-build visual preview. Include `V
 
 Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. The main Product/BFM thread owns execution: board updates, handoff files, source changes, commits, validation, and closeout.
 
+Parent-thread routing: read `docs/sidechat-parent-thread-routing.md` when it is available in the project. A sidechat hands off only to its originating parent main thread; never select another destination from role, project, name, recency, or Product/BFM status. If the parent cannot be reached, return the paste-ready handoff to the user. A non-parent receiving main treats it as ordinary user-provided context.
+
 A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight; do not add a command, dashboard, `doctor` expansion, source behavior, or required ceremony for quick clarifications.
 
 Sidechat output format:

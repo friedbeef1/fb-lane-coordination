@@ -110,6 +110,8 @@ Before source execution, read board/status/locks and the relevant handoff index.
 ### Sidechat-to-Main Prompt Handoff
 Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; the main Product/BFM thread owns those execution steps.
 
+Parent-thread routing is mandatory: follow [the canonical sidechat parent-thread rule](docs/sidechat-parent-thread-routing.md). A sidechat may hand off only to its originating parent main thread; never infer another destination from role, project, name, recency, or Product/BFM status. If the parent is unavailable, return the paste-ready handoff to the user. A non-parent main thread treats it as ordinary user-provided context.
+
 A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no new command, dashboard, `doctor` expansion, source behavior, or required ceremony is needed for a quick clarification.
 
 When a sidechat prepares work for Product/BFM, use this output shape:
