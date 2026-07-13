@@ -162,7 +162,14 @@ function assertCodexBootstrap(args) {
     assert.ok(fs.existsSync(sidechatRoutingPath), 'expected bootstrap to create sidechat parent-routing guidance');
     assert.match(fs.readFileSync(sidechatRoutingPath, 'utf8'), /one eligible destination:\s*the originating main thread/i);
     assert.match(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), /sidechat-parent-thread-routing\.md/);
-    assert.match(fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8'), /A sidechat prompt is not source of truth/);
+    const board = fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8');
+    const agents = fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8');
+    const codexRules = fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8');
+    for (const [label, source] of [['PROJECT_BOARD.md', board], ['AGENTS.md', agents], ['.codex/rules.md', codexRules]]) {
+      assert.match(source, /sidechat-parent-thread-routing\.md/, `${label} must link to the canonical rule`);
+      assert.doesNotMatch(source, /paste-ready prompt for the main Product\/BFM thread/i, `${label} must not choose a destination by Product/BFM role`);
+    }
+    assert.match(codexRules, /A sidechat prompt is not source of truth/);
     assert.ok(!fs.existsSync(path.join(root, '.mcp.json')), 'expected bootstrap not to create project MCP config');
     assert.ok(!fs.existsSync(path.join(root, '.claude')), 'expected bootstrap not to create Claude Code files');
     assert.ok(!fs.existsSync(path.join(root, 'agents')), 'expected bootstrap not to create Antigravity files');
@@ -184,19 +191,32 @@ test('documents the parent-only sidechat routing rule across source and package 
   assert.match(canonical, /ordinary\s+user-provided context/i);
 
   const entryPoints = [
+    '.codex/rules.md',
     'AGENTS.md',
+    'FAQ.md',
+    'README.md',
+    'docs/loop-engineering.md',
     'skills/fb-lane-coordination/SKILL.md',
     'skills/project-coordination-setup/SKILL.md',
+    'skills/quickstart/SKILL.md',
+    'templates/AGENTS.md',
+    'templates/PROJECT_BOARD.md',
+    'plugins/fb-lane-coordination/README.md',
     'plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md',
     'plugins/fb-lane-coordination/skills/bfm/SKILL.md',
     'plugins/fb-lane-coordination/skills/fb-lane/SKILL.md',
-    'plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md'
+    'plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-product/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-tech/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-design/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-business/SKILL.md'
   ];
   for (const relativePath of entryPoints) {
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
     assert.match(source, /sidechat-parent-thread-routing\.md/, `${relativePath} must link to the canonical rule`);
-    assert.match(source, /only to its (?:originating )?parent|only eligible destination/i, `${relativePath} must forbid non-parent delivery`);
+    assert.match(source, /only to its (?:originating )?parent|only eligible destination|originating parent main thread/i, `${relativePath} must forbid non-parent delivery`);
     assert.match(source, /ordinary user-provided context/i, `${relativePath} must protect non-parent receiving threads`);
+    assert.doesNotMatch(source, /paste-ready prompt for the main Product\/BFM thread/i, `${relativePath} must not choose a destination by Product/BFM role`);
   }
 });
 

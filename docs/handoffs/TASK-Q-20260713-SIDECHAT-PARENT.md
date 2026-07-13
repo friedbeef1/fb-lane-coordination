@@ -25,11 +25,13 @@ they become source of truth.
 
 - Added the canonical [`docs/sidechat-parent-thread-routing.md`](../sidechat-parent-thread-routing.md) contract.
 - Linked or restated the rule in project instructions, root coordination/setup
-  skill sources, and packaged coordination, BFM, lane, and setup skills.
+  skill sources, every bundled lane skill, public documentation, templates, and
+  Codex rules.
 - Updated Codex bootstrap so new projects receive the canonical document and
   the matching parent-only guidance in generated instructions and rules.
 - Added mirrored root/package regression coverage for canonical wording,
-  entry-point distribution, and fresh-bootstrap output.
+  every active sidechat-facing entry point, the no-role-selection rule, and
+  fresh-bootstrap output.
 
 ## Verification
 
@@ -40,6 +42,9 @@ they become source of truth.
 - `node tools/fb-lane.validate.cjs` — passed on the clean committed worktree.
 - `node tools/fb-lane.cjs doctor` — Ready on the clean committed worktree.
 - `git diff --check` — passed.
+- Independent read-only review found and this change resolves stale
+  role-selected `main Product/BFM thread` wording in generated and public
+  entry points.
 
 ## Gates
 
