@@ -23,7 +23,7 @@ Evidence Against Product OKR: None identified.
 - Require the candidate, Test plan link, exact checks and environment, current result, runnable evidence link, manual pass criteria, recovery attempted, and Next Product/BFM recovery action.
 - Make Product/BFM perform safe recovery before involving the user.
 - Preserve the distinction between routine recoverable failures and real approval, external account, physical-device, or manual-action gates.
-- Transfer the proven generic workspace-recovery lesson: bounded health preflight, capacity/File Provider/read-stability/Git probes, second-failure clean-clone recovery, and never copying damaged Git metadata.
+- Transfer the proven generic workspace-recovery lesson: a bounded health preflight with a 15 GiB free-capacity default and 15-second Git-probe timeout unless a stricter project policy applies, File Provider/read-stability checks, second-failure clean-clone recovery, and never copying damaged Git metadata.
 
 ## Out Of Scope
 
@@ -60,8 +60,8 @@ User gate: None.
 
 Status: Staging QA; workspace-recovery amendment delivered and clean-clone verified, awaiting Product branch-diff review.
 Actioned By: FB-Product / BFM.
-Result: The reusable Verification Handoff contract now includes the TASK-Q-0736 workspace-recovery lesson in root/package rules, templates, scorecards, public loop guidance, Product/BFM skills, and CLI bootstrap output. It requires a bounded workspace-health preflight (capacity, File Provider ancestry, stable double reads, bounded Git probes), clean-clone recovery after the second consecutive failure, and preserves commits/owned artifacts without copying damaged `.git`, index, or worktree metadata.
+Result: The reusable Verification Handoff contract now includes the TASK-Q-0736 workspace-recovery lesson in root/package rules, templates, scorecards, public loop guidance, Product/BFM skills, and CLI bootstrap output. It requires a bounded workspace-health preflight (15 GiB free-capacity default and 15-second Git-probe timeout unless a stricter project policy applies, File Provider ancestry, stable double reads), clean-clone recovery after the second consecutive failure, and preserves commits/owned artifacts without copying damaged `.git`, index, or worktree metadata.
 Evidence: `node tools/workspace-recovery-contract.test.cjs` passed; root and packaged suites passed 27 checks each; CLI/test syntax and root/package CLI parity passed. In a fresh local clean clone, `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check` all passed; doctor reported a clean worktree and zero active locks.
-Remaining: Product branch-diff review. An unrelated `FAQ.md` edit is intentionally preserved outside this task and excluded from its commit; its originating owner must resolve it separately. No publish, marketplace release, deployment, new runner/dashboard, or MirrorCam change is authorized.
+Remaining: Product branch-diff review. An unrelated `FAQ.md` edit is intentionally preserved outside this task and excluded from its commit; FB-Product owns it under `TASK-CODEX-ONLY-001` and must resolve it separately. No publish, marketplace release, deployment, new runner/dashboard, or MirrorCam change is authorized.
 Closeout Note: Staging-only generic harness evidence and shared-board reconciliation are complete; Product review remains.
 Loop Learning: Feedback captured: issue found; Repeated pattern?: yes; Tooling needed?: propose guardrail; Product approval needed?: no.

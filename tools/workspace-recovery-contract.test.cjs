@@ -13,10 +13,12 @@ function read(relativePath) {
 function assertWorkspaceRecoveryContract(source, label) {
   assert.match(source, /bounded workspace-health preflight/i, `${label} must require a bounded workspace-health preflight`);
   assert.match(source, /available disk capacity/i, `${label} must check available disk capacity`);
+  assert.match(source, /15 GiB free-capacity\s+threshold/i, `${label} must define the portable capacity default`);
   assert.match(source, /File Provider/i, `${label} must check File Provider ancestry where relevant`);
   assert.match(source, /stable double-read/i, `${label} must require stable representative reads`);
-  assert.match(source, /bounded Git status\/diff/i, `${label} must require bounded Git status and diff probes`);
-  assert.match(source, /second\s+consecutive failure/i, `${label} must define the repeated-failure trigger`);
+  assert.match(source, /bounded Git\s+status\s*\/\s*diff/i, `${label} must require bounded Git status and diff probes`);
+  assert.match(source, /15-second timeout/i, `${label} must define the portable Git-probe timeout`);
+  assert.match(source, /second\s+consecutive\s+failure/i, `${label} must define the repeated-failure trigger`);
   assert.match(source, /clean-clone recovery/i, `${label} must prefer clean-clone recovery`);
   assert.match(source, /never copy[\s\S]{0,120}\.git[\s\S]{0,80}index[\s\S]{0,80}worktree metadata/i, `${label} must forbid damaged Git metadata migration`);
 }

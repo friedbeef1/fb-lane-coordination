@@ -39,7 +39,7 @@ Product approval for heavier tooling: `not requested` | `pending` | `approved`
 - [ ] A blocked check names the exact failure, affected environment, and recovery attempted; it never merely asks for a "healthy environment."
 - [ ] Product/BFM records the Next Product/BFM recovery action and performs safe recovery before involving the user. Only an approval or external manual, device, or account gate reaches the user.
 - [ ] A missing or stalled check is a pending or blocked gate, never passing evidence.
-- [ ] Repeated workspace instability triggers a bounded workspace-health preflight covering available disk capacity, File Provider or synchronized-storage ancestry where relevant, stable double-read hashes, and bounded Git status/diff probes.
+- [ ] Repeated workspace instability triggers a bounded workspace-health preflight covering available disk capacity (a 15 GiB free-capacity threshold unless a stricter documented policy applies), File Provider or synchronized-storage ancestry where relevant, stable double-read hashes, and bounded Git status/diff probes with a 15-second timeout per probe.
 - [ ] A second consecutive failure in one checkout triggers clean-clone recovery. Product/BFM preserves commits and explicitly owned artifacts through normal Git operations; it must never copy damaged .git, index, or worktree metadata or count manual object plumbing as passing evidence.
 
 ## Goal And Scope Fit

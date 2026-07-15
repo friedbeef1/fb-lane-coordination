@@ -227,10 +227,12 @@ user to diagnose an ordinary local runner failure.
 
 When Git, file reads, worktrees, or test runners repeatedly stall or return
 implausible data, Product/BFM runs a bounded workspace-health preflight before
-further claims. It checks available disk capacity against the project threshold,
-File Provider or synchronized-storage ancestry where relevant, stable double-read
-hashes for representative files, and bounded Git status/diff probes. A second
-consecutive failure in the same checkout triggers clean-clone recovery. Preserve
+further claims. It checks available disk capacity against a documented project
+threshold; unless a stricter policy is documented, use a 15 GiB free-capacity
+threshold. It also checks File Provider or synchronized-storage ancestry where
+relevant, stable double-read hashes for representative files, and bounded Git
+status/diff probes with a 15-second timeout per probe. A second consecutive
+failure in the same checkout triggers clean-clone recovery. Preserve
 commits and explicitly owned artifacts through normal Git operations; never copy
 damaged .git, index, or worktree metadata, and never count manual object plumbing
 or an unbounded temporary runner as passing evidence.
