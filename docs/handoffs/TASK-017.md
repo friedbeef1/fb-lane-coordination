@@ -226,9 +226,12 @@ Review fix: the bootstrap CLI generator and packaged CLI mirror now emit the sam
 - `node tools/fb-lane.validate.cjs` -> reaches the doctor gate and fails only because the worktree is intentionally dirty pending commit
 - `git diff --check`
 
-## Closeout
+## Product/BFM Closeout
 
-Status: lane-verification-passed for the current generic eval scorecard, approval-autonomy, version-positioning, and pre-build visual preview update; TASK-017 remains in `Staging QA`.
-Health: healthy.
-Branch/worktree state: intentionally dirty on `codex/okf-lite-handoff-index` pending commit. Dirty state is owned by TASK-017 / Product-BFM; reason is the reusable framework hardening update, including eval escalation, approval autonomy, and version positioning; next gate is commit/push and Product review of PR #31.
-Remaining: commit/push current TASK-017 update, then Product review of PR #31 before merge.
+Status: Done.
+Actioned By: FB-Product / BFM.
+Result: The progressive-disclosure and framework hardening was merged in [PR #31](https://github.com/friedbeef1/fb-lane-coordination/pull/31); its current release bundle is included in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39).
+Evidence: The recorded root/package syntax, parity, regression, parsing, wording, validator, doctor, and diff checks passed. PR #31 and PR #39 are merged, and the refreshed Codex marketplace plugin installed as `0.2.0-beta+codex.20260716052513`.
+Remaining: None for this release. New framework changes require a separately scoped task.
+Closeout Note: Historical staging labels and dirty-worktree gates are superseded by the merged release evidence.
+Loop Learning: Feedback captured: issue found; Repeated pattern?: yes; Tooling needed?: propose guardrail; Product approval needed?: no.

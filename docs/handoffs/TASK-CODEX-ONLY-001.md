@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-CODEX-ONLY-001
 lane: fb-product
-status: staging-qa
+status: done
 okr_fit: aligned
 ---
 
@@ -27,15 +27,14 @@ Evidence Against Product OKR: None identified.
 
 ## Out Of Scope
 
-- Publishing or releasing any plugin build.
 - Installing or testing Claude Code or Antigravity.
 - Changing the shared coordination model beyond platform support boundaries.
 
 ## Product/BFM Closeout
 
-Status: Staging QA; awaiting Product branch-diff review.
+Status: Done.
 Actioned By: FB-Product / BFM.
-Result: The Codex-only contract, distribution cleanup, documentation/archival updates, parity, validation, and local Codex plugin smoke passed against clean-checkout HEAD `c9833db`.
+Result: The Codex-only contract, distribution cleanup, documentation/archival updates, parity, validation, and marketplace plugin smoke passed. Product review and the separately approved release completed in PR #39.
 Evidence:
 
 - Root `node tools/fb-lane.test.cjs` and packaged `node plugins/fb-lane-coordination/tools/fb-lane.test.cjs` each passed 24 checks.
@@ -45,6 +44,6 @@ Evidence:
 - With a fresh temporary `CODEX_HOME`, `codex plugin marketplace add . --json` registered the local checkout as marketplace `fb-lane`; `codex plugin add fb-lane-coordination@fb-lane --json` installed version `0.2.0-beta+codex.20260707114230`; `codex plugin list` reported it `installed, enabled`. The temporary home was removed after the smoke.
 
 Validator Resolution: The initial validation attempt correctly exposed stale `.claude-plugin` JSON reads after the approved Codex-only removal. The subsequent scoped cleanup removed those obsolete validator dependencies; validation passed at `c9833db`.
-Remaining: Product reviews the branch diff. No plugin publish, marketplace release, or remote marketplace use is authorized.
-Closeout Note: This is staging-only evidence. No plugin publish or marketplace release is authorized in this task.
+Remaining: No release gate remains. Claude Code and Antigravity installation/testing remain explicitly out of scope.
+Closeout Note: PR #39 merged to `main`; the refreshed marketplace plugin installed as `0.2.0-beta+codex.20260716052513`.
 Loop Learning: Feedback captured: issue found; Repeated pattern?: no; Tooling needed?: none; Product approval needed?: no.

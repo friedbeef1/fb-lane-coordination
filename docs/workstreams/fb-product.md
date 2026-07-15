@@ -4,25 +4,26 @@ Last Updated: 2026-07-16
 Lane: FB-Product
 
 ## Current Summary
-TASK-018 is done in the existing local candidate `codex/codex-only-cut`. It carries the generic Verification Handoff contract and the proven TASK-Q-0736 workspace-recovery lesson: a bounded health preflight uses a 15 GiB free-capacity default and 15-second Git-probe timeout unless a stricter project policy applies, then checks File Provider ancestry and stable double reads; a second consecutive failure moves work to clean-clone recovery without copying damaged Git metadata. The focused recovery-contract test, root/package 27-check suites, syntax/parity, clean-clone validator/doctor proof, and Product branch-diff review all passed. No MirrorCam changes, publication, deployment, merge to main, runner, dashboard, or `doctor` expansion are in scope.
+TASK-018 is done and released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39). It carries the generic Verification Handoff contract and the proven TASK-Q-0736 workspace-recovery lesson: a bounded health preflight uses a 15 GiB free-capacity default and 15-second Git-probe timeout unless a stricter project policy applies, then checks File Provider ancestry and stable double reads; a second consecutive failure moves work to clean-clone recovery without copying damaged Git metadata. The focused recovery-contract test, root/package 27-check suites, syntax/parity, clean-clone validator/doctor proof, Product review, and marketplace installation all passed. MirrorCam changes, runners, dashboards, and `doctor` expansion remain out of scope.
 
-TASK-CODEX-ONLY-001 is in Staging QA on `codex/codex-only-cut`. Clean-checkout proof passed: root/package 24-check CLI suites, syntax, CLI/test byte parity, validator, doctor, whitespace check, manifest/MCP JSON parsing, and a disposable-`CODEX_HOME` local marketplace/plugin install for `fb-lane-coordination@fb-lane` version `0.2.0-beta+codex.20260707114230`. Product must review the branch diff; publishing and releasing remain explicitly unauthorized.
+TASK-CODEX-ONLY-001 is done and released in PR #39. Clean-checkout proof passed: root/package 24-check CLI suites, syntax, CLI/test byte parity, validator, doctor, whitespace check, manifest/MCP JSON parsing, and a refreshed marketplace/plugin install for `fb-lane-coordination@fb-lane` version `0.2.0-beta+codex.20260716052513`. Claude Code and Antigravity remain paused and out of scope.
 
-TASK-017 remains the active reusable framework hardening task. Product/BFM now has a generic Markdown-only eval scorecard path for repeated agent-behavior failures via `Loop Learning: propose eval`, phased approval-autonomy guidance that starts in Shadow Approval before any bounded self-approval, and public version positioning for `FB-Lane 0.2.0-beta: Loop Engineering public beta`.
+TASK-017 is done: [PR #31](https://github.com/friedbeef1/fb-lane-coordination/pull/31) merged its reusable framework hardening, and PR #39 released the current plugin build. Product/BFM now has a generic Markdown-only eval scorecard path for repeated agent-behavior failures via `Loop Learning: propose eval`, phased approval-autonomy guidance that starts in Shadow Approval before any bounded self-approval, and public version positioning for `FB-Lane 0.2.0-beta: Loop Engineering public beta`.
 
 ## Already Executed By Product/BFM
 - Added the compact `Loop Learning` closeout field across reusable FB-Lane surfaces.
 - Added `docs/evals/agent-behavior-scorecard-template.md` and the packaged plugin mirror so Product/BFM can propose a lightweight scorecard before heavier tooling.
 - Kept eval runners, dashboards, numeric scoring, CI eval jobs, and bigger `doctor` rules out of scope unless separately proposed and approved.
 - Added approval-autonomy phases across docs, templates, Product/BFM skills, generated Product prompts, bootstrap output, and packaged plugin mirrors.
-- Completed Codex-only Staging QA proof in a clean checkout and a temporary Codex home; retained Product branch-diff review and the no-publish gate.
+- Completed Codex-only proof in a clean checkout and a temporary Codex home; completed Product review, merged PR #39, and refreshed the installed marketplace plugin.
 - Added `docs/versioning.md` with the v1-to-latest before/after and linked it from public docs.
 - Added the generic Verification Handoff and safe-recovery contract across bootstrap output, root/package skills, scorecards, and public loop guidance; recorded its 27-check root/package regression proof.
 - Transferred MirrorCam TASK-Q-0736's verified workspace-recovery lesson into TASK-018's reusable root/package guidance, templates, scorecards, bootstrap output, and a focused contract regression.
+- Merged the release bundle to `main` in PR #39 and installed the Codex marketplace plugin build `0.2.0-beta+codex.20260716052513`.
 
 ## Still Pending / Blocked
-- Product review of TASK-017 / PR #31 before merge.
-- Commit/push of the current generic eval scorecard, approval-autonomy, and version-positioning update after verification.
+
+None for TASK-017, TASK-018, TASK-CODEX-ONLY-001, or sidechat-parent routing. New work requires a separately scoped board task.
 
 ## Evidence Links
 - PROJECT_BOARD.md
