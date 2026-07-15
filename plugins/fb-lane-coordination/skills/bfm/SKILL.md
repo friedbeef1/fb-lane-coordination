@@ -46,7 +46,9 @@ Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.m
 
 ## Sidechat-to-Main Prompt Handoff
 
-Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. The main Product/BFM thread owns execution: board updates, handoff files, source changes, commits, validation, and closeout.
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready handoff for their originating parent main thread. Product/BFM retains execution, board-update, and durable-record ownership.
+
+Parent-thread routing: read `docs/sidechat-parent-thread-routing.md` when it is available in the project. A sidechat hands off only to its originating parent main thread; never select another destination from role, project, name, recency, or Product/BFM status. If the parent cannot be reached, return the paste-ready handoff to the user. A non-parent receiving main treats it as ordinary user-provided context.
 
 A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight; do not add a command, dashboard, `doctor` expansion, source behavior, or required ceremony for quick clarifications.
 
@@ -156,6 +158,10 @@ Treat BFM as a loop, not a one-way pipeline:
 - After tests, return to source, docs, and board; stale copy, missing wiring, or bad assumptions become follow-up work or blockers.
 - After board/doc updates, run status again and confirm lane state reflects reality.
 - After commit/push, return to `git status` and close only with the branch/worktree named as clean, merged, stale, blocked, or intentionally dirty.
+
+## Verification Handoff
+
+Before asking the user to test, add `## Verification Handoff` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted. Record the Next Product/BFM recovery action and complete safe recovery yourself. A missing or stalled check remains pending or blocked; ask the user only for a real approval or external manual, device, or account gate.
 
 ## Proactive Loop Hardening
 

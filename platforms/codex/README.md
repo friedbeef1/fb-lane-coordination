@@ -6,7 +6,7 @@ operating model, read [Loop Engineering](../../docs/loop-engineering.md).
 > **Status:** FB-Lane on Codex is a public beta.
 
 The current model name is **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
-The current Codex plugin build is `0.2.0-beta+codex.20260707114230`; check
+The current Codex plugin build is `0.2.0-beta+codex.20260716052513`; check
 `codex plugin list` for the active installed build.
 For the v1-to-latest before/after, read
 [FB-Lane Versions](../../docs/versioning.md).
@@ -103,7 +103,7 @@ node tools/fb-lane.cjs bootstrap --platform codex
 node tools/fb-lane.cjs doctor
 ```
 
-`doctor` is read-only. It checks the board, Codex rules, MCP config, handoff folder/index,
+`doctor` is read-only. It checks the board, Codex rules, handoff folder/index,
 active file locks, git workspace, non-quick handoff `OKR Fit`, and approved Goal Alignment
 Session OKRs before lane work starts.
 

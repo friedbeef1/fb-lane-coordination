@@ -43,7 +43,9 @@ Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.m
 
 ## Sidechat-to-Main Prompt Handoff
 
-Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. The main Product/BFM thread owns execution: board updates, handoff files, source changes, commits, validation, and closeout.
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready handoff for their originating parent main thread. Product/BFM retains execution, board-update, and durable-record ownership.
+
+Parent-thread routing: read `docs/sidechat-parent-thread-routing.md` when it is available in the project. A sidechat hands off only to its originating parent main thread; never select another destination from role, project, name, recency, or Product/BFM status. If the parent cannot be reached, return the paste-ready handoff to the user. A non-parent receiving main treats it as ordinary user-provided context.
 
 A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight; do not add a command, dashboard, `doctor` expansion, source behavior, or required ceremony for quick clarifications.
 
@@ -69,6 +71,11 @@ If multiple cards match, show the candidates and recommend one. If approval is m
 
 ### Post-Action Card Summary
 After BFM acts, summarize card ID, final status, changed files, checks run, remaining gates, next owner, and whether live deploy is still blocked.
+
+### Verification Handoff
+Before asking the user to test, require `## Verification Handoff` in the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and recovery attempted. Product/BFM records the Next Product/BFM recovery action and completes safe recovery itself. A missing or stalled check remains pending or blocked; the user is asked only for a real approval or external manual, device, or account gate.
+
+Workspace recovery: when Git, file reads, worktrees, or test runners repeatedly stall or return implausible data, run a bounded workspace-health preflight before further claims. It checks available disk capacity against a documented project threshold; unless a stricter policy is documented, use a 15 GiB free-capacity threshold. It also checks File Provider or synchronized-storage ancestry where relevant, stable double-read hashes for representative files, and bounded Git status/diff probes with a 15-second timeout per probe. On a second consecutive failure in the same checkout, stop using it and enter clean-clone recovery. Preserve commits and explicitly owned artifacts through normal Git operations; never copy damaged .git, index, or worktree metadata, and never treat manual object plumbing or an unbounded temporary runner as passing evidence.
 
 ### Workstream Status Card Refresh
 After Product/BFM executes, merges, rejects, or explicitly defers a lane handoff, update the detailed handoff with `## Product/BFM Closeout`, then update the relevant `docs/workstreams/<lane>.md` card. The handoff closeout is the visible "this was actioned" note and includes `Status`, `Actioned By`, `Result`, `Evidence`, `Remaining`, `Closeout Note`, and `Loop Learning`. Keep the card to: `Last Updated`, `Lane`, `Current Summary`, `Already Executed By Product/BFM`, `Still Pending / Blocked`, and `Evidence Links`. Do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail in the card.

@@ -13,6 +13,9 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-Q-20260713-SIDECHAT-PARENT | Staging QA | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); design: `docs/superpowers/specs/2026-07-13-sidechat-parent-thread-routing-design.md`; no app-level routing or release/publish authorization |
+| TASK-018 | Done | FB-Product / BFM | Coordination | Add a generic Verification Handoff and workspace-recovery contract so Product/BFM owns routine test recovery, explicit 15 GiB/15-second bounded health defaults, clean-clone recovery, and evidence before user testing | `tools/fb-lane.cjs`, packaged CLI/test copies, root/package rules, templates, skills, scorecards, loop docs, board/handoff/workstream records | [Handoff](docs/handoffs/TASK-018.md); [plan](docs/superpowers/plans/2026-07-15-verification-handoff-contract.md); focused recovery-contract test, root/package 27-check suites, syntax/parity, clean-clone validator/doctor, whitespace checks, and Product diff review passed; integrated into local candidate `codex/codex-only-cut`; no publish, deployment, MirrorCam changes, or new runner/dashboard |
+| TASK-CODEX-ONLY-001 | Staging QA | FB-Product / BFM | Codex Plugin | Make Codex the sole supported, shipped, documented, and tested FB-Lane integration; disable Claude Code and Antigravity paths while preserving concise contributor reference notes | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, both CLI tests, `.claude-plugin/**`, `.claude/agents/**`, `platforms/claude-code/**`, `platforms/antigravity/**`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `docs/setup.md`, `docs/versioning.md`, `docs/paused-integrations.md`, `plugins/fb-lane-coordination/.mcp.json`, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-CODEX-ONLY-001.md`, `docs/workstreams/fb-product.md` | [Handoff](docs/handoffs/TASK-CODEX-ONLY-001.md), `codex/codex-only-cut`; Product branch-diff review required; no publish |
 | TASK-017 | Staging QA | FB-Tech | Coordination | Harden progressive-disclosure handoff index semantics, FB-Lane framework OKR, drift health guardrails, eval escalation, phased approval autonomy, Product/BFM execution continuation, frontend visual planning, Sidechat-to-Main Prompt Handoff guidance, and version positioning | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `tools/fb-lane.test.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.test.cjs`, `AGENTS.md`, `.codex/rules.md`, `.claude/agents/**`, `templates/*.md`, `skills/**`, `plugins/fb-lane-coordination/skills/**`, `agents/**`, `plugins/fb-lane-coordination/agents/**`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `docs/versioning.md`, `platforms/codex/README.md`, `platforms/codex/workflow-rules.md`, `plugins/fb-lane-coordination/README.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-017.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | [Handoff](docs/handoffs/TASK-017.md) |
 | TASK-016 | Done | FB-Product | Codex Plugin | Add handoff index progressive-disclosure support to the Codex plugin | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/skills/**`, `templates/*.md`, `docs/**`, `README.md`, `FAQ.md`, `CHANGELOG.md` | [Handoff](docs/handoffs/TASK-016.md) |
 | TASK-Q-20260627223437 | Done | FB-Product | Documentation | Document FB-Lane evals as lightweight agent-behavior scorecards | `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `plugins/fb-lane-coordination/README.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | `codex/evals-docs` |
@@ -35,6 +38,72 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-018 - Generic verification handoff and workspace recovery contract
+*   **Status**: Done
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Coordination
+*   **Scope**: Require a generic `## Verification Handoff` before Product/BFM asks a user to test. The handoff names the candidate, test-plan link, exact commands and environments, results, runnable evidence links, manual pass criteria, recovery attempted, and next Product/BFM recovery action. For repeated workspace instability, Product/BFM runs a bounded preflight for capacity (15 GiB free by default unless stricter policy applies), File Provider ancestry, stable reads, and bounded Git probes (15 seconds each); a second consecutive failure triggers clean-clone recovery without copying damaged Git/index/worktree metadata.
+*   **Out of Scope**: New CLI commands, test runners, dashboards, CI/eval jobs, `doctor` expansion, plugin publication, deployment, or application changes in MirrorCam or another consumer repository.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let future FB-Lane projects move from an approved task to review-ready evidence with the user supervising only real external gates.
+    *   **Key Results**:
+        *   Root templates, bootstrap output, packaged plugin skills, and public loop guidance carry one consistent Verification Handoff contract.
+        *   Root and packaged CLI regression suites prove newly bootstrapped projects receive the contract.
+        *   The contract distinguishes safe Product/BFM recovery from genuine user approval, device, account, or other external gates.
+    *   **Definition of Done**: The focused workspace-recovery contract test, root/package suites, syntax, parity, clean-clone validator/doctor, and whitespace checks are recorded with current results; the board, index, detailed handoff, and Product workstream card agree; no publish or deploy occurs.
+    *   **Gate / Review Point**: Product branch-diff review passed after verification. No publication, release, or merge to main is authorized.
+    *   **Approval**: approved
+    *   **Justification**: James asked for a generic FB-Lane harness that later projects such as MirrorCam can inherit, and explicitly required agents to run/recover routine verification rather than hand it to him.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Bootstrap-generated coordination rules, bundled Codex skills, documentation, and verification handoffs only.
+    *   **Locked Files**: `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `tools/workspace-recovery-contract.test.cjs`, root/package CLI tests, `AGENTS.md`, `.codex/rules.md`, templates, root/package skills, scorecards, README/loop docs, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-018.md`, `docs/workstreams/fb-product.md`.
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/codex-only-cut` (local candidate; no PR created by this task)
+    *   **Plan**: [Verification Handoff contract](docs/superpowers/plans/2026-07-15-verification-handoff-contract.md)
+    *   **Handoff**: [TASK-018](docs/handoffs/TASK-018.md)
+*   **QA Checklist**:
+    *   [x] Root and packaged CLI regression suites passed 27 checks each, including default/explicit Codex bootstrap contract coverage.
+    *   [x] Focused workspace-recovery contract regression passed, including fresh Codex bootstrap output.
+    *   [x] Root/package CLI parity and Node syntax checks passed.
+    *   [x] Clean-clone `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check` passed.
+    *   [x] Product branch-diff review passed; no publish, release, deployment, or consumer-repository change is authorized.
+*   **Intentional Dirty State**: `FAQ.md` is an unrelated concurrent documentation edit owned by FB-Product under `TASK-CODEX-ONLY-001`. TASK-018 preserves and excludes it from its commit; that task must commit, revert, or explicitly defer it before its next closeout. TASK-018's committed candidate is verified in a disposable clean clone rather than modifying that file.
+*   **Latest Update**:
+    *   *2026-07-15*: Added the generic contract across root/package rules, generated bootstrap output, scorecards, public loop guidance, and Product/BFM skills. The regression first failed on the missing contract, then root/package suites passed 27 checks each. Clean-worktree syntax/parity, validator, doctor Ready, and whitespace checks passed at commit `a7dd3bc`; Product diff review remains the only gate.
+    *   *2026-07-16*: Transferred the proven MirrorCam TASK-Q-0736 recovery lesson with explicit 15 GiB and 15-second defaults. Independent review found and cleared the initial missing-default gap; focused/root/package/clean-clone checks and Product branch-diff review passed. Integrated into the existing local candidate; no publish, merge to main, or consumer-repository work is authorized.
+
+---
+
+### TASK-CODEX-ONLY-001 - Codex-only FB-Lane cut
+*   **Status**: Staging QA
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Codex Plugin
+*   **Scope**: Make Codex the only supported, shipped, documented, and tested FB-Lane integration. Disable Claude Code and Antigravity install, bootstrap, release, and validation paths; retain only concise contributor reference notes.
+*   **Out of Scope**: Plugin publication, marketplace release, installation of paused integrations, any Claude Code or Antigravity validation, and changes to the FB-Lane coordination model itself.
+*   **Goal Alignment Session**:
+    *   **Objective**: Give users one honest, verified Codex installation path without implying support for integrations that are not maintained or tested.
+    *   **Key Results**:
+        *   Default and explicit Codex bootstrap produce only Codex artifacts.
+        *   All non-Codex platform flags fail before writing files and point contributors to the paused-integration note.
+        *   Only the Codex marketplace/plugin remains an active distribution surface.
+        *   Root and packaged CLIs, docs, and MCP configuration agree on the Codex-only contract.
+    *   **Definition of Done**: Root/package test and behavior parity pass, active docs contain no install or release claim for paused integrations, the installed Codex plugin smoke passes locally, and the no-publish boundary is recorded.
+    *   **Gate / Review Point**: Product review of the branch diff and local Codex plugin smoke; no publish without separate approval.
+    *   **Approval**: approved
+    *   **Justification**: James approved a Codex-only support policy because the other integrations are not currently tested.
+*   **QA Checklist**:
+    *   [x] Root and packaged CLI suites passed 24 checks each in a clean checkout.
+    *   [x] Root/package CLI and test files are byte-identical; both CLI syntax checks pass.
+    *   [x] Validator and doctor pass from a clean checkout; `git diff --check` passes.
+    *   [x] Temporary-`CODEX_HOME` local marketplace/plugin smoke installed and enabled `fb-lane-coordination@fb-lane` version `0.2.0-beta+codex.20260707114230`.
+    *   [x] Plugin marketplace manifest, package manifests, and bundled MCP JSON parse locally.
+    *   [ ] Product reviews the branch diff. No plugin publish or marketplace release is authorized.
+*   **Latest Update**:
+    *   *2026-07-13*: Approved, claimed on `codex/codex-only-cut`, and baseline root/package CLI suites passed (16 checks each). Current checkpoint: implementation.
+    *   *2026-07-13*: Staging QA evidence completed in a clean detached checkout at `c9833db`: root/package suites passed 24 checks each; root/package syntax and CLI/test byte parity passed; `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check` passed. A disposable `CODEX_HOME` added only the local checkout as marketplace `fb-lane`, installed and enabled `fb-lane-coordination@fb-lane` version `0.2.0-beta+codex.20260707114230`, then was removed. Product branch-diff review remains the gate; no publish or release is authorized.
 
 ---
 

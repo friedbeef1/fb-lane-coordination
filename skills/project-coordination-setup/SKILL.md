@@ -92,6 +92,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 - **Optional Eval Scorecards**: When `Loop Learning` chooses `propose eval`, create a small Markdown scorecard under `docs/evals/` with sections for non-Product execution gate, BFM closeout accounting, evidence honesty, and goal/scope fit. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger `doctor` rules without explicit approval.
 - **Approval Autonomy Phases**: Start with Phase 1 Shadow Approval. Product/BFM may recommend Phase 2 after one day or three matching decisions with no material miss, and Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate; the user approves phase changes. Workstreams can mark `safe to auto-accept`, but Product/BFM owns actual self-approval and never self-approves risky surfaces.
 - **Execution Continuation**: Once the user approves a safe Product/BFM task or problem, Product/BFM keeps going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. Report after closeout instead of asking before each routine step, while still stopping for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence needing risk acceptance, or an explicit pause.
+- **Verification Handoff**: Before asking the user to test, Product/BFM adds `## Verification Handoff` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted. Product/BFM records the Next Product/BFM recovery action and completes safe recovery itself. A missing or stalled check remains pending or blocked; the user is asked only for a real approval or external manual, device, or account gate.
 
 ### 3. Safety & Git Hygiene
 - **Never commit directly to main**. All work goes through feature branches.
@@ -221,7 +222,9 @@ Run the `define_subagent` tool to register the four specialized workstreams in t
 
 ## Sidechat-to-Main Prompt Handoff
 
-Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. The main Product/BFM thread owns execution: board updates, handoff files, source changes, commits, validation, and closeout.
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready handoff for their originating parent main thread. Product/BFM retains execution, board-update, and durable-record ownership.
+
+Parent-thread routing: read `docs/sidechat-parent-thread-routing.md`. A sidechat hands off only to its originating parent main thread; never select another destination from role, project, name, recency, or Product/BFM status. If the parent cannot be reached, return the paste-ready handoff to the user. A non-parent receiving main treats it as ordinary user-provided context.
 
 A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight; do not add a command, dashboard, `doctor` expansion, source behavior, or required ceremony for quick clarifications.
 

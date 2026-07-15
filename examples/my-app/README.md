@@ -15,16 +15,18 @@ Running `node tools/fb-lane.cjs bootstrap` inside any project root produces:
 your-project/
 ├── PROJECT_BOARD.md          ← Version-controlled task board
 ├── AGENTS.md                 ← Lane rules & boundaries
-├── FB-Product/
-│   └── agent.json            ← Antigravity sidebar agent config
-├── FB-Tech/
-│   └── agent.json
-├── FB-Design/
-│   └── agent.json
-├── FB-Business/
-│   └── agent.json
-└── .codex/
-    └── rules.md              ← Codex auto-configuration
+├── .codex/
+│   └── rules.md              ← Local Codex rules
+└── docs/
+    ├── handoffs/
+    │   └── index.md          ← Handoff routing index
+    ├── workstreams/
+    │   ├── fb-product.md     ← Product revisit summary
+    │   ├── fb-tech.md
+    │   ├── fb-design.md
+    │   └── fb-business.md
+    └── evals/
+        └── agent-behavior-scorecard-template.md
 ```
 
 The `PROJECT_BOARD.md` and `AGENTS.md` headers are personalised with your project's `name` and `description` from `package.json`.

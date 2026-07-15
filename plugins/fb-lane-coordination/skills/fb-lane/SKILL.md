@@ -40,7 +40,9 @@ Frontend/UI plans and handoffs default to a pre-build visual preview. Include `V
 
 ## Sidechat-to-Main Prompt Handoff
 
-Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. The main Product/BFM thread owns execution: board updates, handoff files, source changes, commits, validation, and closeout.
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready handoff for their originating parent main thread. Product/BFM retains execution, board-update, and durable-record ownership.
+
+Parent-thread routing: read `docs/sidechat-parent-thread-routing.md` when it is available in the project. A sidechat hands off only to its originating parent main thread; never select another destination from role, project, name, recency, or Product/BFM status. If the parent cannot be reached, return the paste-ready handoff to the user. A non-parent receiving main treats it as ordinary user-provided context.
 
 A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight; do not add a command, dashboard, `doctor` expansion, source behavior, or required ceremony for quick clarifications.
 
@@ -192,6 +194,12 @@ Return checks are mandatory for non-trivial handoff execution:
 - after tests, return to source, docs, and board;
 - after board/doc updates, return to lane status;
 - after commit/push, return to `git status` and name whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty.
+
+## Verification Handoff
+
+Before asking the user to test, Product/BFM adds `## Verification Handoff` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted. Product/BFM records the Next Product/BFM recovery action and completes safe recovery itself. A missing or stalled check remains pending or blocked; the user is asked only for a real approval or external manual, device, or account gate.
+
+Workspace recovery: when Git, file reads, worktrees, or test runners repeatedly stall or return implausible data, run a bounded workspace-health preflight before further claims. It checks available disk capacity against a documented project threshold; unless a stricter policy is documented, use a 15 GiB free-capacity threshold. It also checks File Provider or synchronized-storage ancestry where relevant, stable double-read hashes for representative files, and bounded Git status/diff probes with a 15-second timeout per probe. On a second consecutive failure in the same checkout, stop using it and enter clean-clone recovery. Preserve commits and explicitly owned artifacts through normal Git operations; never copy damaged .git, index, or worktree metadata, and never treat manual object plumbing or an unbounded temporary runner as passing evidence.
 
 Close only when board, source, docs, and tests agree, or the disagreement is explicitly recorded.
 If repo state is intentionally dirty at closeout, record exact files, owner, reason, next gate, and session-boundary action in `PROJECT_BOARD.md`. At the next session boundary, Product/BFM must continue that exact task, commit it, revert it, archive it into a handoff, or mark it `blocked`/`deferred` before starting new source work.

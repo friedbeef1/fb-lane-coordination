@@ -37,8 +37,8 @@ npx hyperframes docs <topic> # reference docs in terminal
 ```
 
 > **`npm run dev` is a long-running server, not a one-shot command.** It blocks until stopped.
-> In Claude Code, always run it with `run_in_background: true`. Never run it as a foreground
-> command — it will time out and the server will die, breaking the browser preview.
+> Keep it alive in the background rather than running it as a foreground command;
+> otherwise it will time out and the server will die, breaking the browser preview.
 
 ## Documentation
 

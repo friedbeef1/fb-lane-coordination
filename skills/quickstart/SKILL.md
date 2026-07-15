@@ -22,7 +22,7 @@ Give the user a concise orientation. Do **not** read files first — just explai
 2. **Hands-on planning** — talk to a lane directly, e.g. *"use the fb-design subagent to plan how to warm up the prep screen."* It answers questions and writes markdown plans; source edits wait for Product-launched BFM execution.
 
 
-**Sidechat handoff:** sidechats are for questions, options, tradeoffs, recommendations, and a paste-ready main-thread prompt. The prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, a handoff, or durable docs. Use: Decision summary, Scope, Out of scope, Recommended owner/lane, Files/docs likely affected, Acceptance criteria, Gates/risks, Exact instruction for Product/BFM.
+**Sidechat handoff:** sidechats are for questions, options, tradeoffs, recommendations, and a paste-ready handoff for their originating parent main thread only. Read `docs/sidechat-parent-thread-routing.md`; never infer another destination from role, project, name, recency, or Product/BFM status. If the parent is unavailable, return the handoff to the user; a non-parent main treats it as ordinary user-provided context. The prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, a handoff, or durable docs. Use: Decision summary, Scope, Out of scope, Recommended owner/lane, Files/docs likely affected, Acceptance criteria, Gates/risks, Exact instruction for Product/BFM.
 
 **Handy commands:**
 - `status` — show the board (active tasks, owners, file locks) anytime.

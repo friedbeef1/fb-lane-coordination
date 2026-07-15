@@ -5,8 +5,6 @@ const assert = require('assert');
 const fs = require('fs');
 const { execFileSync } = require('child_process');
 
-const lanes = ['FB-Product', 'FB-Tech', 'FB-Design', 'FB-Business'];
-
 function run(label, command, args, options = {}) {
   process.stdout.write(`\n==> ${label}\n`);
   const output = execFileSync(command, args, {
@@ -29,6 +27,10 @@ function sameFile(a, b) {
   );
 }
 
+function requireAbsent(file) {
+  assert.ok(!fs.existsSync(file), `${file} must not be restored`);
+}
+
 function checkSkill(file) {
   const text = fs.readFileSync(file, 'utf8');
   const match = text.match(/^---\n([\s\S]*?)\n---\n/);
@@ -37,27 +39,39 @@ function checkSkill(file) {
   assert.ok(/^description:\s*\S.+/m.test(match[1]), `${file} missing metadata description`);
 }
 
+function checkActiveCodexSurface(file) {
+  const text = fs.readFileSync(file, 'utf8');
+  assert.doesNotMatch(text, /\b(?:Claude(?: Code)?|Antigravity)\b/i, `${file} must be Codex-only`);
+  assert.doesNotMatch(text, /\b(?:project\s+)?MCP\s+config(?:uration)?\b/i, `${file} must not promise project MCP configuration`);
+}
+
 run('root CLI syntax', 'node', ['--check', 'tools/fb-lane.cjs']);
 run('plugin CLI syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-lane.cjs']);
 
 console.log('\n==> root/package CLI parity');
 sameFile('tools/fb-lane.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.cjs');
 
-console.log('\n==> generated agent JSON parity');
-for (const lane of lanes) {
-  sameFile(`agents/${lane}/agent.json`, `plugins/fb-lane-coordination/agents/${lane}/agent.json`);
+console.log('\n==> legacy runtime/configuration entry points remain absent');
+for (const file of ['.mcp.json', 'tools/run_lane.py', 'CLAUDE.md', 'templates/CLAUDE.md']) {
+  requireAbsent(file);
 }
 
-console.log('\n==> plugin manifest and generated agent JSON parse');
-readJson('.agents/plugins/marketplace.json');
-readJson('.claude-plugin/marketplace.json');
-readJson('.claude-plugin/plugin.json');
-readJson('plugins/fb-lane-coordination/plugin.json');
-readJson('plugins/fb-lane-coordination/.codex-plugin/plugin.json');
-for (const lane of lanes) {
-  readJson(`agents/${lane}/agent.json`);
-  readJson(`plugins/fb-lane-coordination/agents/${lane}/agent.json`);
+console.log('\n==> active Codex guides and demo remain Codex-only');
+for (const file of [
+  'docs/loop-engineering.md',
+  'docs/setup.md',
+  'platforms/codex/README.md',
+  'plugins/fb-lane-coordination/README.md',
+  'examples/my-app/README.md',
+  'codex-lane-demo/AGENTS.md',
+]) {
+  checkActiveCodexSurface(file);
 }
+requireAbsent('codex-lane-demo/CLAUDE.md');
+
+console.log('\n==> Codex plugin manifest and bundled MCP JSON parse');
+readJson('plugins/fb-lane-coordination/.codex-plugin/plugin.json');
+readJson('plugins/fb-lane-coordination/.mcp.json');
 
 console.log('\n==> skill metadata validation');
 for (const dir of ['skills', 'plugins/fb-lane-coordination/skills']) {

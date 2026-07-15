@@ -1,9 +1,11 @@
 # FB-Lane Coordination for Codex
 
 Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
-Current plugin builds: Codex `0.2.0-beta+codex.20260707114230`; Claude Code
-`1.0.1`. See [`docs/versioning.md`](../../docs/versioning.md) for the
-v1-to-latest before/after.
+Current plugin build: Codex `0.2.0-beta+codex.20260716052513`. See
+[`docs/versioning.md`](../../docs/versioning.md) for the v1-to-latest
+before/after.
+
+This package is the supported FB-Lane distribution for Codex.
 
 This Codex plugin packages FB-Lane's Loop Engineering workflow:
 
@@ -192,6 +194,22 @@ cleanup until solved or explicitly blocked. Report after closeout. Still stop
 for live deploy, secrets/credentials, payments, auth/privacy, destructive data
 or provider-state changes, new scope or OKR changes, unclear goals, lock
 conflicts, failed evidence needing risk acceptance, or an explicit pause.
+
+Before asking the user to test, Product/BFM writes a `## Verification Handoff`:
+the candidate branch or commit, test plan link, exact commands and environments,
+current results, runnable evidence links, manual pass criteria, recovery already
+attempted, and the next Product/BFM recovery action. A missing or stalled check
+is pending or blocked evidence, not a reason to hand routine recovery to the
+user. The user is involved only for a genuine approval or external manual,
+device, or account gate.
+
+Repeated Git or file-read instability enters a bounded workspace-health check,
+including a 15 GiB free-capacity default (unless a stricter project policy is
+documented), a 15-second timeout for each Git probe, and File Provider or
+synchronized-storage ancestry where relevant. A second failure in the same
+checkout triggers clean-clone recovery; damaged Git/index/worktree metadata is
+never migrated as a shortcut.
+
 Frontend/UI plans and handoffs default to a pre-build visual preview. Include
 `Visual Preview Decision`: `browser screenshot/mockup`,
 `imagegen asset/style option`, or `skip with reason`. Use `skip with reason`
@@ -219,7 +237,9 @@ uninstall/reinstall step.
 
 ## Sidechat-to-Main Prompt Handoff
 
-Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; the main Product/BFM thread owns those execution steps.
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready handoff for their originating parent main thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; Product/BFM retains those execution and durable-record responsibilities.
+
+Parent-thread routing: read `docs/sidechat-parent-thread-routing.md` in the target project. Do not infer another destination from role, project, name, recency, or Product/BFM status. If the parent is unavailable, return the handoff to the user; a non-parent main treats it as ordinary user-provided context.
 
 A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no new command, dashboard, `doctor` expansion, source behavior, or required ceremony is needed for a quick clarification.
 
@@ -264,7 +284,7 @@ node tools/fb-lane.cjs bootstrap --platform codex
 node tools/fb-lane.cjs doctor
 ```
 
-`doctor` is read-only. It reports whether the board, rules, MCP config, handoff
+`doctor` is read-only. It reports whether the board, rules, handoff
 folder/index, active locks, git workspace, non-quick handoff `Lane OKR Fit`,
 and approved Goal Alignment Session OKRs are ready before lane work begins. If
 the index is missing or old-style, fix it through bootstrap or Product/BFM

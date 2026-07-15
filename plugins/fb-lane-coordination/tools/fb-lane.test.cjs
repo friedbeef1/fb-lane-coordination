@@ -109,7 +109,6 @@ function writeDoctorFixture(root, handoffCount = 4) {
   fs.mkdirSync(path.join(root, 'tools'), { recursive: true });
   fs.writeFileSync(path.join(root, 'AGENTS.md'), '# Agents\n');
   fs.writeFileSync(path.join(root, '.codex', 'rules.md'), '# Rules\n');
-  fs.writeFileSync(path.join(root, '.mcp.json'), JSON.stringify({ mcpServers: { 'fb-lane': {} } }, null, 2));
   fs.writeFileSync(path.join(root, 'tools', 'fb-lane.cjs'), '// fixture\n');
   fs.writeFileSync(path.join(root, 'PROJECT_BOARD.md'), `# Project Board
 
@@ -143,10 +142,10 @@ Evidence Against Product OKR: None identified
   }
 }
 
-test('bootstrap creates handoff index and optional eval scorecard template', () => {
+function assertCodexBootstrap(args) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-bootstrap-'));
   try {
-    execFileSync('node', [cliPath, 'bootstrap', '--platform', 'codex'], {
+    const output = execFileSync('node', [cliPath, 'bootstrap', ...args], {
       cwd: root,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe']
@@ -157,31 +156,201 @@ test('bootstrap creates handoff index and optional eval scorecard template', () 
     const evalTemplatePath = path.join(root, 'docs', 'evals', 'agent-behavior-scorecard-template.md');
     assert.ok(fs.existsSync(evalTemplatePath), 'expected bootstrap to create docs/evals/agent-behavior-scorecard-template.md');
     assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /Non-Product Execution Gate/);
+    assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /## Verification Handoff/);
     assert.match(fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8'), /Sidechat-to-Main Prompt Handoff/);
     assert.match(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), /Exact instruction for Product\/BFM/);
-    assert.match(fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8'), /A sidechat prompt is not source of truth/);
+    const sidechatRoutingPath = path.join(root, 'docs', 'sidechat-parent-thread-routing.md');
+    assert.ok(fs.existsSync(sidechatRoutingPath), 'expected bootstrap to create sidechat parent-routing guidance');
+    assert.match(fs.readFileSync(sidechatRoutingPath, 'utf8'), /one eligible destination:\s*the originating main thread/i);
+    assert.match(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), /sidechat-parent-thread-routing\.md/);
+    const board = fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8');
+    const agents = fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8');
+    const codexRules = fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8');
+    for (const [label, source] of [['PROJECT_BOARD.md', board], ['AGENTS.md', agents], ['.codex/rules.md', codexRules]]) {
+      assert.match(source, /sidechat-parent-thread-routing\.md/, `${label} must link to the canonical rule`);
+      assert.doesNotMatch(source, /paste-ready prompt for the main Product\/BFM thread/i, `${label} must not choose a destination by Product/BFM role`);
+    }
+    for (const [label, source] of [['AGENTS.md', agents], ['.codex/rules.md', codexRules]]) {
+      assert.match(source, /Verification Handoff/i, `${label} must explain the verification handoff`);
+      assert.match(source, /next Product\/BFM recovery action/i, `${label} must require agent-owned recovery`);
+    }
+    assert.match(codexRules, /A sidechat prompt is not source of truth/);
+    assert.ok(!fs.existsSync(path.join(root, '.mcp.json')), 'expected bootstrap not to create project MCP config');
+    assert.ok(!fs.existsSync(path.join(root, '.claude')), 'expected bootstrap not to create Claude Code files');
+    assert.ok(!fs.existsSync(path.join(root, 'agents')), 'expected bootstrap not to create Antigravity files');
+    assert.doesNotMatch(output, /Antigravity|Claude Code|MCP/i);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
+}
+
+console.log('sidechat parent-thread routing');
+test('documents the parent-only sidechat routing rule across source and package entry points', () => {
+  const repoRoot = process.cwd();
+  const canonicalPath = path.join(repoRoot, 'docs', 'sidechat-parent-thread-routing.md');
+  assert.ok(fs.existsSync(canonicalPath), 'expected canonical sidechat parent-routing document');
+  const canonical = fs.readFileSync(canonicalPath, 'utf8');
+  assert.match(canonical, /one eligible destination:\s*the originating main thread/i);
+  assert.match(canonical, /must not choose a destination.*role.*project.*name.*recency.*Product\/BFM status/is);
+  assert.match(canonical, /cannot be identified or reached.*paste-ready handoff.*must not send, redirect, or imply/is);
+  assert.match(canonical, /ordinary\s+user-provided context/i);
+
+  const entryPoints = [
+    '.codex/rules.md',
+    'AGENTS.md',
+    'FAQ.md',
+    'README.md',
+    'docs/loop-engineering.md',
+    'skills/fb-lane-coordination/SKILL.md',
+    'skills/project-coordination-setup/SKILL.md',
+    'skills/quickstart/SKILL.md',
+    'templates/AGENTS.md',
+    'templates/PROJECT_BOARD.md',
+    'plugins/fb-lane-coordination/README.md',
+    'plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md',
+    'plugins/fb-lane-coordination/skills/bfm/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-lane/SKILL.md',
+    'plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-product/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-tech/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-design/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-business/SKILL.md'
+  ];
+  for (const relativePath of entryPoints) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(source, /sidechat-parent-thread-routing\.md/, `${relativePath} must link to the canonical rule`);
+    assert.match(source, /only to its (?:originating )?parent|only eligible destination|originating parent main thread/i, `${relativePath} must forbid non-parent delivery`);
+    assert.match(source, /ordinary user-provided context/i, `${relativePath} must protect non-parent receiving threads`);
+    assert.doesNotMatch(source, /paste-ready prompt for the main Product\/BFM thread/i, `${relativePath} must not choose a destination by Product/BFM role`);
+  }
 });
 
-test('bootstrap creates sidechat guidance in Antigravity agent prompts', () => {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-antigravity-'));
-  try {
-    execFileSync('node', [cliPath, 'bootstrap', '--platform', 'antigravity'], {
-      cwd: root,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe']
-    });
+test('documents the verification handoff and recovery contract across source, package, and bootstrap', () => {
+  const repoRoot = process.cwd();
+  const scorecards = [
+    'docs/evals/agent-behavior-scorecard-template.md',
+    'templates/docs/evals/agent-behavior-scorecard-template.md',
+    'plugins/fb-lane-coordination/docs/evals/agent-behavior-scorecard-template.md'
+  ];
+  for (const relativePath of scorecards) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(source, /## Verification Handoff/, `${relativePath} must include the verification handoff checklist`);
+    assert.match(source, /Test plan.*link/i, `${relativePath} must require a test plan link`);
+    assert.match(source, /Next Product\/BFM recovery action/i, `${relativePath} must require the next recovery action`);
+  }
 
-    for (const lane of ['FB-Product', 'FB-Tech', 'FB-Design', 'FB-Business']) {
-      const agentPath = path.join(root, 'agents', lane, 'agent.json');
-      const agent = JSON.parse(fs.readFileSync(agentPath, 'utf8'));
-      const content = agent.config.customAgent.systemPromptSections[0].content;
-      assert.match(content, /Sidechat-to-Main Prompt Handoff/);
-      assert.match(content, /Exact instruction for Product\/BFM/);
-      assert.match(content, /not source of truth/);
+  const entryPoints = [
+    'AGENTS.md',
+    '.codex/rules.md',
+    'templates/AGENTS.md',
+    'skills/fb-lane-coordination/SKILL.md',
+    'skills/project-coordination-setup/SKILL.md',
+    'plugins/fb-lane-coordination/skills/bfm/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-lane/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-product/SKILL.md',
+    'plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md'
+  ];
+  for (const relativePath of entryPoints) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(source, /Verification Handoff/i, `${relativePath} must direct Product/BFM to the verification handoff`);
+    assert.match(source, /next Product\/BFM recovery action/i, `${relativePath} must require agent-owned recovery`);
+  }
+
+  for (const relativePath of ['tools/fb-lane.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.cjs']) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(source, /Verification Handoff/i, `${relativePath} must generate the verification handoff rule`);
+    assert.match(source, /next Product\/BFM recovery action/i, `${relativePath} must generate agent-owned recovery`);
+  }
+});
+
+test('bootstrap defaults to Codex-only output', () => {
+  assertCodexBootstrap([]);
+});
+
+test('bootstrap accepts --platform codex', () => {
+  assertCodexBootstrap(['--platform', 'codex']);
+});
+
+test('bootstrap accepts --codex-only', () => {
+  assertCodexBootstrap(['--codex-only']);
+});
+
+for (const platform of ['all', 'claude', 'claude-code', 'antigravity']) {
+  test(`bootstrap rejects --platform ${platform} without writing files`, () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-rejected-platform-'));
+    try {
+      assert.throws(
+        () => execFileSync('node', [cliPath, 'bootstrap', '--platform', platform], {
+          cwd: root,
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'pipe']
+        }),
+        (error) => {
+          assert.match(error.stderr, /Invalid platform/);
+          assert.match(error.stderr, /paused; collaborators welcome/);
+          assert.match(error.stderr, /docs\/paused-integrations\.md/);
+          return true;
+        }
+      );
+      assert.deepStrictEqual(fs.readdirSync(root), [], 'rejected bootstrap must leave its temp directory empty');
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
     }
+  });
+}
+
+test('CLI source contains no stale non-Codex runtime or claim guidance', () => {
+  const source = fs.readFileSync(cliPath, 'utf8');
+  assert.doesNotMatch(source, /\b(?:includeClaude|includeAntigravity|agentConfigs)\b/);
+  assert.doesNotMatch(source, /(?:Create Antigravity agent config|Create Claude Code lane subagents|claudeAgentsDir)/);
+  assert.doesNotMatch(source, /CLAUDE_PROJECT_DIR/);
+  assert.doesNotMatch(source, /&& claude/);
+  assert.doesNotMatch(source, /Claude Code/);
+});
+
+test('repository contains no legacy runtime or configuration entry points', () => {
+  let root = __dirname;
+  while (!fs.existsSync(path.join(root, 'tools', 'fb-lane.validate.cjs'))) {
+    const parent = path.dirname(root);
+    assert.notStrictEqual(parent, root, 'could not find repository root');
+    root = parent;
+  }
+
+  for (const legacyPath of ['.mcp.json', 'tools/run_lane.py', 'CLAUDE.md', 'templates/CLAUDE.md']) {
+    assert.ok(!fs.existsSync(path.join(root, legacyPath)), `expected ${legacyPath} to be absent`);
+  }
+});
+
+test('active Codex guides and demo use only the Codex bootstrap contract', () => {
+  let root = __dirname;
+  while (!fs.existsSync(path.join(root, 'tools', 'fb-lane.validate.cjs'))) {
+    const parent = path.dirname(root);
+    assert.notStrictEqual(parent, root, 'could not find repository root');
+    root = parent;
+  }
+
+  const activeCodexPaths = [
+    'docs/loop-engineering.md',
+    'docs/setup.md',
+    'platforms/codex/README.md',
+    'plugins/fb-lane-coordination/README.md',
+    'examples/my-app/README.md',
+    'codex-lane-demo/AGENTS.md',
+  ];
+  for (const relativePath of activeCodexPaths) {
+    const source = fs.readFileSync(path.join(root, relativePath), 'utf8');
+    assert.doesNotMatch(source, /\b(?:Claude(?: Code)?|Antigravity)\b/i, `${relativePath} must be Codex-only`);
+    assert.doesNotMatch(source, /\b(?:project\s+)?MCP\s+config(?:uration)?\b/i, `${relativePath} must not promise project MCP configuration`);
+  }
+  assert.ok(!fs.existsSync(path.join(root, 'codex-lane-demo', 'CLAUDE.md')), 'expected demo Claude instructions to be absent');
+});
+
+test('doctor does not require project MCP configuration', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-doctor-'));
+  try {
+    writeDoctorFixture(root, 0);
+    const output = execFileSync('node', [cliPath, 'doctor'], { cwd: root, encoding: 'utf8' });
+    assert.doesNotMatch(output, /project MCP config|\.mcp\.json/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

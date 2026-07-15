@@ -13,13 +13,17 @@ done.
 [Maintenance](docs/maintenance.md) | [Changelog](CHANGELOG.md)
 
 Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
-Current plugin builds: Codex `0.2.0-beta+codex.20260707114230`; Claude Code
-`1.0.1`. See [Versioning](docs/versioning.md).
+Current plugin build: Codex `0.2.0-beta+codex.20260716052513`. See
+[Versioning](docs/versioning.md).
 
 ## The Thesis
 
-Codex, Claude Code, and Antigravity already provide powerful agent execution.
-The missing layer is usually not speed. It is alignment.
+Codex provides powerful agent execution. The missing layer is usually not speed.
+It is alignment.
+
+FB-Lane currently supports Codex only. The Claude Code and Antigravity
+integrations are paused; contributors who want to revive one can follow the
+[paused-integration checklist](docs/paused-integrations.md).
 
 Without a loop, parallel AI work drifts:
 
@@ -90,6 +94,21 @@ closeout. It still stops for hard gates such as live deploys, secrets,
 payments, auth/privacy, destructive data/provider state, new scope or OKR
 changes, unclear goals, lock conflicts, failed evidence needing risk acceptance,
 or an explicit pause.
+
+Before asking the user to test, Product/BFM writes a `## Verification Handoff`:
+the candidate branch or commit, test plan link, exact commands and environments,
+current results, runnable evidence links, manual pass criteria, recovery already
+attempted, and the next Product/BFM recovery action. A missing or stalled check
+is pending or blocked evidence, not a reason to hand routine recovery to the
+user. The user is involved only for a genuine approval or external manual,
+device, or account gate.
+
+Repeated Git or file-read instability enters a bounded workspace-health check,
+including a 15 GiB free-capacity default (unless a stricter project policy is
+documented), a 15-second timeout for each Git probe, and File Provider or
+synchronized-storage ancestry where relevant. A second failure in the same
+checkout triggers clean-clone recovery; damaged Git/index/worktree metadata is
+never migrated as a shortcut.
 
 When the user says `BFM`, blocker handling is part of that loop. Product/BFM
 flags each blocker, recommends how to address it, executes the recommended safe
@@ -211,7 +230,9 @@ board/docs/source/git state before closeout.
 
 ## Sidechat-to-Main Prompt Handoff
 
-Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; the main Product/BFM thread owns those execution steps.
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready handoff for their originating parent main thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; Product/BFM retains those execution and durable-record responsibilities.
+
+Parent-thread routing is mandatory: follow [the canonical sidechat parent-thread rule](docs/sidechat-parent-thread-routing.md). Do not infer another destination from role, project, name, recency, or Product/BFM status. If the parent is unavailable, return the handoff to the user; a non-parent main treats it as ordinary user-provided context.
 
 A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no new command, dashboard, `doctor` expansion, source behavior, or required ceremony is needed for a quick clarification.
 
@@ -306,12 +327,10 @@ changes.
 
 ## Start Here
 
-Choose the platform guide for your tool:
+Use FB-Lane with Codex:
 
 | Platform | Maturity | Guide | Best for |
 |---|---|---|---|
-| Antigravity 2.0 | Alpha | [platforms/antigravity/README.md](platforms/antigravity/README.md) | Native multi-agent orchestration and isolated worker lanes. |
-| Claude Code | Alpha | [platforms/claude-code/README.md](platforms/claude-code/README.md) | `@agent` / `/agents` lane workflows with MCP and optional worktrees. |
 | Codex | Public beta | [platforms/codex/README.md](platforms/codex/README.md) | Codex plugin, skills, MCP, subagents, and worktrees. |
 
 Fallback bootstrap options live in [docs/setup.md](docs/setup.md). The operating
@@ -378,6 +397,7 @@ supports it, preserve plugin data during uninstall/reinstall.
 - [Loop Engineering deep dive](docs/loop-engineering.md)
 - [Versioning and v1 before/after](docs/versioning.md)
 - [Setup alternatives](docs/setup.md)
+- [Paused integrations](docs/paused-integrations.md)
 - [FAQ](FAQ.md)
 - [Plugin package](plugins/fb-lane-coordination/README.md)
 - [Example app](examples/my-app/README.md)

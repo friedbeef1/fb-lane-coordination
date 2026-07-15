@@ -7,9 +7,8 @@ before Product calls the work complete.
 It is not a new app lifecycle. It is a small control loop for AI execution.
 
 Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
-Current plugin builds: Codex `0.2.0-beta+codex.20260707114230`; Claude Code
-`1.0.1`. For the v1-to-latest before/after, see
-[FB-Lane Versions](versioning.md).
+Current plugin build: Codex `0.2.0-beta+codex.20260716052513`. For the
+v1-to-latest before/after, see [FB-Lane Versions](versioning.md).
 
 ## Why The Loop Exists
 
@@ -52,7 +51,9 @@ exist.
 
 ## Sidechat-to-Main Prompt Handoff
 
-Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready prompt for the main Product/BFM thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; the main Product/BFM thread owns those execution steps.
+Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready handoff for their originating parent main thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; Product/BFM retains those execution and durable-record responsibilities.
+
+Parent-thread routing is mandatory: follow [the canonical sidechat parent-thread rule](sidechat-parent-thread-routing.md). Do not infer another destination from role, project, name, recency, or Product/BFM status. If the parent is unavailable, return the handoff to the user; a non-parent main treats it as ordinary user-provided context.
 
 A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no new command, dashboard, `doctor` expansion, source behavior, or required ceremony is needed for a quick clarification.
 
@@ -217,6 +218,44 @@ step. It still stops for live deploy, secrets/credentials, payments,
 auth/privacy, destructive data or provider-state changes, new scope or OKR
 changes, unclear goals, lock conflicts, failed evidence that needs risk
 acceptance, or an explicit user pause.
+
+## Verification Handoff
+
+Before asking the user to test, Product/BFM adds this evidence section to the
+detailed handoff. It owns safe recovery first; this is not a request for the
+user to diagnose an ordinary local runner failure.
+
+When Git, file reads, worktrees, or test runners repeatedly stall or return
+implausible data, Product/BFM runs a bounded workspace-health preflight before
+further claims. It checks available disk capacity against a documented project
+threshold; unless a stricter policy is documented, use a 15 GiB free-capacity
+threshold. It also checks File Provider or synchronized-storage ancestry where
+relevant, stable double-read hashes for representative files, and bounded Git
+status/diff probes with a 15-second timeout per probe. A second consecutive
+failure in the same checkout triggers clean-clone recovery. Preserve
+commits and explicitly owned artifacts through normal Git operations; never copy
+damaged .git, index, or worktree metadata, and never count manual object plumbing
+or an unbounded temporary runner as passing evidence.
+
+```md
+## Verification Handoff
+
+Candidate: <branch, commit, PR, or staging build>
+Test plan: <link to the detailed plan or checklist>
+Automated checks:
+- <exact command> — <environment> — <pass | fail | pending and why>
+Runnable evidence:
+- <staging, APK, mockup, screenshot, or other URL/path> — <manual pass criteria>
+Recovery attempted: <what Product/BFM tried and result, or none needed>
+Next Product/BFM recovery action: <safe action Product/BFM will take next, or none>
+User gate: <only an approval or real external manual, device, or account action; otherwise none>
+```
+
+A missing or stalled check is a `pending` or `blocked` gate, never passing
+evidence. Do not tell the user merely to find a "healthy environment"; state
+the failure, affected environment, and recovery already attempted, then
+continue the safe recovery ladder. Stop only when the next step truly requires
+the user's approval, account, physical device, or other external action.
 
 ## Goal Alignment Session
 
@@ -555,7 +594,5 @@ phrases, or instructions that start another lane by accident.
 
 Loop Engineering is the operating model. Platform setup is tactical:
 
-- [Antigravity](../platforms/antigravity/README.md) - Alpha
-- [Claude Code](../platforms/claude-code/README.md) - Alpha
 - [Codex](../platforms/codex/README.md) - Public beta
 - [Setup alternatives](setup.md)
