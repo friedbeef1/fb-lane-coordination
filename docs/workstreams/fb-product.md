@@ -4,7 +4,7 @@ Last Updated: 2026-07-13
 Lane: FB-Product
 
 ## Current Summary
-TASK-018 is in progress on `codex/codex-only-cut`. It adds a generic Verification Handoff contract so future FB-Lane projects receive test-plan links, exact commands and environments, runnable evidence, recovery attempted, and the next Product/BFM recovery action before a user is asked to test. No MirrorCam changes, publication, deployment, runner, dashboard, or `doctor` expansion are in scope.
+TASK-018 is in Staging QA on `codex/codex-only-cut`. It adds a generic Verification Handoff contract so future FB-Lane projects receive test-plan links, exact commands and environments, runnable evidence, recovery attempted, and the next Product/BFM recovery action before a user is asked to test. Root/package 27-check suites, syntax/parity, clean-worktree validator, doctor Ready, and whitespace checks passed; Product branch-diff review remains. No MirrorCam changes, publication, deployment, runner, dashboard, or `doctor` expansion are in scope.
 
 TASK-CODEX-ONLY-001 is in Staging QA on `codex/codex-only-cut`. Clean-checkout proof passed: root/package 24-check CLI suites, syntax, CLI/test byte parity, validator, doctor, whitespace check, manifest/MCP JSON parsing, and a disposable-`CODEX_HOME` local marketplace/plugin install for `fb-lane-coordination@fb-lane` version `0.2.0-beta+codex.20260707114230`. Product must review the branch diff; publishing and releasing remain explicitly unauthorized.
 
@@ -17,10 +17,12 @@ TASK-017 remains the active reusable framework hardening task. Product/BFM now h
 - Added approval-autonomy phases across docs, templates, Product/BFM skills, generated Product prompts, bootstrap output, and packaged plugin mirrors.
 - Completed Codex-only Staging QA proof in a clean checkout and a temporary Codex home; retained Product branch-diff review and the no-publish gate.
 - Added `docs/versioning.md` with the v1-to-latest before/after and linked it from public docs.
+- Added the generic Verification Handoff and safe-recovery contract across bootstrap output, root/package skills, scorecards, and public loop guidance; recorded its 27-check root/package regression proof.
 
 ## Still Pending / Blocked
 - Product review of TASK-017 / PR #31 before merge.
 - Commit/push of the current generic eval scorecard, approval-autonomy, and version-positioning update after verification.
+- Product branch-diff review of TASK-018; no publish, release, deploy, or MirrorCam change is authorized.
 
 ## Evidence Links
 - PROJECT_BOARD.md

@@ -14,7 +14,7 @@
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
 | TASK-Q-20260713-SIDECHAT-PARENT | Staging QA | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); design: `docs/superpowers/specs/2026-07-13-sidechat-parent-thread-routing-design.md`; no app-level routing or release/publish authorization |
-| TASK-018 | In Progress | FB-Product / BFM | Coordination | Add a generic Verification Handoff contract so Product/BFM owns routine test recovery and shows plans, evidence links, results, and next action before user testing | `tools/fb-lane.cjs`, packaged CLI/test copies, root/package rules, templates, skills, scorecards, loop docs, board/handoff/workstream records | [Handoff](docs/handoffs/TASK-018.md); [plan](docs/superpowers/plans/2026-07-15-verification-handoff-contract.md); no publish, deployment, MirrorCam changes, or new runner/dashboard |
+| TASK-018 | Staging QA | FB-Product / BFM | Coordination | Add a generic Verification Handoff contract so Product/BFM owns routine test recovery and shows plans, evidence links, results, and next action before user testing | `tools/fb-lane.cjs`, packaged CLI/test copies, root/package rules, templates, skills, scorecards, loop docs, board/handoff/workstream records | [Handoff](docs/handoffs/TASK-018.md); [plan](docs/superpowers/plans/2026-07-15-verification-handoff-contract.md); root/package 27-check suites, syntax/parity, validator, doctor Ready, and whitespace check passed; Product diff review remains; no publish, deployment, MirrorCam changes, or new runner/dashboard |
 | TASK-CODEX-ONLY-001 | Staging QA | FB-Product / BFM | Codex Plugin | Make Codex the sole supported, shipped, documented, and tested FB-Lane integration; disable Claude Code and Antigravity paths while preserving concise contributor reference notes | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, both CLI tests, `.claude-plugin/**`, `.claude/agents/**`, `platforms/claude-code/**`, `platforms/antigravity/**`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `docs/setup.md`, `docs/versioning.md`, `docs/paused-integrations.md`, `plugins/fb-lane-coordination/.mcp.json`, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-CODEX-ONLY-001.md`, `docs/workstreams/fb-product.md` | [Handoff](docs/handoffs/TASK-CODEX-ONLY-001.md), `codex/codex-only-cut`; Product branch-diff review required; no publish |
 | TASK-017 | Staging QA | FB-Tech | Coordination | Harden progressive-disclosure handoff index semantics, FB-Lane framework OKR, drift health guardrails, eval escalation, phased approval autonomy, Product/BFM execution continuation, frontend visual planning, Sidechat-to-Main Prompt Handoff guidance, and version positioning | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `tools/fb-lane.test.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.test.cjs`, `AGENTS.md`, `.codex/rules.md`, `.claude/agents/**`, `templates/*.md`, `skills/**`, `plugins/fb-lane-coordination/skills/**`, `agents/**`, `plugins/fb-lane-coordination/agents/**`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `docs/setup.md`, `docs/versioning.md`, `platforms/codex/README.md`, `platforms/codex/workflow-rules.md`, `plugins/fb-lane-coordination/README.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-017.md`, `CHANGELOG.md`, `PROJECT_BOARD.md` | [Handoff](docs/handoffs/TASK-017.md) |
 | TASK-016 | Done | FB-Product | Codex Plugin | Add handoff index progressive-disclosure support to the Codex plugin | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, `plugins/fb-lane-coordination/skills/**`, `templates/*.md`, `docs/**`, `README.md`, `FAQ.md`, `CHANGELOG.md` | [Handoff](docs/handoffs/TASK-016.md) |
@@ -42,7 +42,7 @@
 ---
 
 ### TASK-018 - Generic verification handoff and recovery contract
-*   **Status**: In Progress
+*   **Status**: Staging QA
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Coordination
 *   **Scope**: Require a generic `## Verification Handoff` before Product/BFM asks a user to test. The handoff names the candidate, test-plan link, exact commands and environments, results, runnable evidence links, manual pass criteria, recovery attempted, and next Product/BFM recovery action. Product/BFM owns safe recovery; missing or stalled checks remain pending or blocked.
@@ -64,6 +64,14 @@
     *   **Git Branch / PR**: `codex/codex-only-cut` (local worktree; no PR created by this task)
     *   **Plan**: [Verification Handoff contract](docs/superpowers/plans/2026-07-15-verification-handoff-contract.md)
     *   **Handoff**: [TASK-018](docs/handoffs/TASK-018.md)
+*   **QA Checklist**:
+    *   [x] Root and packaged CLI regression suites passed 27 checks each, including default/explicit Codex bootstrap contract coverage.
+    *   [x] Root/package CLI parity and Node syntax checks passed.
+    *   [x] Clean-worktree `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check` passed.
+    *   [x] `doctor` confirms the board/index/handoff Goal Alignment contract and clean worktree.
+    *   [ ] Product reviews the branch diff. No publish, release, deployment, or consumer-repository change is authorized.
+*   **Latest Update**:
+    *   *2026-07-15*: Added the generic contract across root/package rules, generated bootstrap output, scorecards, public loop guidance, and Product/BFM skills. The regression first failed on the missing contract, then root/package suites passed 27 checks each. Clean-worktree syntax/parity, validator, doctor Ready, and whitespace checks passed at commit `a7dd3bc`; Product diff review remains the only gate.
 
 ---
 
