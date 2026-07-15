@@ -42,9 +42,9 @@ Automated checks:
 - `node tools/workspace-recovery-contract.test.cjs` — focused generic workspace-recovery contract and fresh Codex bootstrap output — passed.
 - `cmp -s tools/fb-lane.cjs plugins/fb-lane-coordination/tools/fb-lane.cjs` — root/package CLI parity — passed.
 - `node --check tools/fb-lane.cjs`, `node --check plugins/fb-lane-coordination/tools/fb-lane.cjs`, and all focused test files — Node syntax — passed.
-- `node tools/fb-lane.validate.cjs` — clean clone of `e30a461` — passed.
-- `node tools/fb-lane.cjs doctor` — clean clone of `e30a461` — passed; `FB-Lane doctor: Ready` with zero active locks.
-- `git diff --check` — clean clone of `e30a461` — passed.
+- `node tools/fb-lane.validate.cjs` — fresh local clean clone — passed.
+- `node tools/fb-lane.cjs doctor` — fresh local clean clone — passed; `FB-Lane doctor: Ready` with zero active locks.
+- `git diff --check` — fresh local clean clone — passed.
 
 Runnable evidence:
 
@@ -61,7 +61,7 @@ User gate: None.
 Status: Staging QA; workspace-recovery amendment delivered and clean-clone verified, awaiting Product branch-diff review.
 Actioned By: FB-Product / BFM.
 Result: The reusable Verification Handoff contract now includes the TASK-Q-0736 workspace-recovery lesson in root/package rules, templates, scorecards, public loop guidance, Product/BFM skills, and CLI bootstrap output. It requires a bounded workspace-health preflight (capacity, File Provider ancestry, stable double reads, bounded Git probes), clean-clone recovery after the second consecutive failure, and preserves commits/owned artifacts without copying damaged `.git`, index, or worktree metadata.
-Evidence: `node tools/workspace-recovery-contract.test.cjs` passed; root and packaged suites passed 27 checks each; CLI/test syntax and root/package CLI parity passed. In a fresh local clone of `e30a461`, `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check` all passed; doctor reported a clean worktree and zero active locks.
+Evidence: `node tools/workspace-recovery-contract.test.cjs` passed; root and packaged suites passed 27 checks each; CLI/test syntax and root/package CLI parity passed. In a fresh local clean clone, `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check` all passed; doctor reported a clean worktree and zero active locks.
 Remaining: Product branch-diff review. An unrelated `FAQ.md` edit is intentionally preserved outside this task and excluded from its commit; its originating owner must resolve it separately. No publish, marketplace release, deployment, new runner/dashboard, or MirrorCam change is authorized.
 Closeout Note: Staging-only generic harness evidence and shared-board reconciliation are complete; Product review remains.
 Loop Learning: Feedback captured: issue found; Repeated pattern?: yes; Tooling needed?: propose guardrail; Product approval needed?: no.
