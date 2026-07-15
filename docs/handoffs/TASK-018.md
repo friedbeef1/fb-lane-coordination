@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-018
 lane: fb-product
-status: staging-qa
+status: done
 okr_fit: aligned
 ---
 
@@ -33,7 +33,7 @@ Evidence Against Product OKR: None identified.
 
 ## Verification Handoff
 
-Candidate: `codex/TASK-018-workspace-recovery` in the `fb-lane-objective-checkpoints` worktree, based on the existing TASK-018 candidate.
+Candidate: `codex/codex-only-cut`, the existing local TASK-018 candidate branch.
 Test plan: [Verification Handoff contract plan](../superpowers/plans/2026-07-15-verification-handoff-contract.md).
 Automated checks:
 
@@ -53,15 +53,15 @@ Runnable evidence:
 - [MirrorCam TASK-Q-0736 recovery proof](/Users/jamesyeang/Projects/mirrorcam/docs/qa/2026-07-15-workspace-recovery/verification.md) — consumer-repository evidence that the generic lesson was proven before transfer.
 
 Recovery attempted: Added the focused workspace-recovery regression first; it failed because the reusable rule was absent. Added a bounded preflight and clean-clone recovery contract to root/package rules, templates, scorecards, skills, CLI bootstrap output, and public guidance; reran the focused and root/package suites successfully.
-Next Product/BFM recovery action: Product reviews the branch diff. The shared board is reconciled and has zero active locks; no user action is expected unless a real external gate appears.
+Next Product/BFM recovery action: None for TASK-018. Product branch-diff review passed and the amendment is integrated into the existing local candidate; no user action is expected unless a separate publish, merge-to-main, or external gate is approved.
 User gate: None.
 
 ## Product/BFM Closeout
 
-Status: Staging QA; workspace-recovery amendment delivered and clean-clone verified, awaiting Product branch-diff review.
+Status: Done; workspace-recovery amendment delivered, independently reviewed, clean-clone verified, and integrated into the existing local candidate.
 Actioned By: FB-Product / BFM.
 Result: The reusable Verification Handoff contract now includes the TASK-Q-0736 workspace-recovery lesson in root/package rules, templates, scorecards, public loop guidance, Product/BFM skills, and CLI bootstrap output. It requires a bounded workspace-health preflight (15 GiB free-capacity default and 15-second Git-probe timeout unless a stricter project policy applies, File Provider ancestry, stable double reads), clean-clone recovery after the second consecutive failure, and preserves commits/owned artifacts without copying damaged `.git`, index, or worktree metadata.
 Evidence: `node tools/workspace-recovery-contract.test.cjs` passed; root and packaged suites passed 27 checks each; CLI/test syntax and root/package CLI parity passed. In a fresh local clean clone, `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and `git diff --check` all passed; doctor reported a clean worktree and zero active locks.
-Remaining: Product branch-diff review. An unrelated `FAQ.md` edit is intentionally preserved outside this task and excluded from its commit; FB-Product owns it under `TASK-CODEX-ONLY-001` and must resolve it separately. No publish, marketplace release, deployment, new runner/dashboard, or MirrorCam change is authorized.
-Closeout Note: Staging-only generic harness evidence and shared-board reconciliation are complete; Product review remains.
+Remaining: An unrelated `FAQ.md` edit is intentionally preserved outside this task and excluded from its commit; FB-Product owns it under `TASK-CODEX-ONLY-001` and must resolve it separately. No publish, marketplace release, deployment, merge to main, new runner/dashboard, or MirrorCam change is authorized.
+Closeout Note: Generic workspace-recovery evidence, independent review, shared-board reconciliation, and local-candidate integration are complete; no release action is authorized.
 Loop Learning: Feedback captured: issue found; Repeated pattern?: yes; Tooling needed?: propose guardrail; Product approval needed?: no.
