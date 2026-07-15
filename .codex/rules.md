@@ -68,6 +68,8 @@ Sidechat output format: Decision summary, Scope, Out of scope, Recommended owner
 
 Before asking the user to test, Product/BFM adds `## Verification Handoff` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted. Product/BFM records the Next Product/BFM recovery action and completes safe recovery itself. A missing or stalled check remains pending or blocked; the user is asked only for a real approval or external manual, device, or account gate.
 
+Workspace recovery: when Git, file reads, worktrees, or test runners repeatedly stall or return implausible data, run a bounded workspace-health preflight before further claims. It checks available disk capacity against the project threshold, File Provider or synchronized-storage ancestry where relevant, stable double-read hashes for representative files, and bounded Git status/diff probes. On a second consecutive failure in the same checkout, stop using it and enter clean-clone recovery. Preserve commits and explicitly owned artifacts through normal Git operations; never copy damaged .git, index, or worktree metadata, and never treat manual object plumbing or an unbounded temporary runner as passing evidence.
+
 ### Frontend visual planning
 - Frontend/UI plans and handoffs default to a pre-build visual preview.
 - Include `Visual Preview Decision`: `browser screenshot/mockup`, `imagegen asset/style option`, or `skip with reason`.

@@ -103,6 +103,11 @@ is pending or blocked evidence, not a reason to hand routine recovery to the
 user. The user is involved only for a genuine approval or external manual,
 device, or account gate.
 
+Repeated Git or file-read instability enters a bounded workspace-health check,
+including capacity and File Provider or synchronized-storage ancestry where
+relevant. A second failure in the same checkout triggers clean-clone recovery;
+damaged Git/index/worktree metadata is never migrated as a shortcut.
+
 When the user says `BFM`, blocker handling is part of that loop. Product/BFM
 flags each blocker, recommends how to address it, executes the recommended safe
 unblock path inside the approved scope, and keeps going until every task is done,
