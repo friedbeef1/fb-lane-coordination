@@ -1,15 +1,5 @@
 # FB-Lane FAQ
 
-## What version is this?
-
-The current GitHub documentation line is **FB-Lane 0.2.0-beta: Loop Engineering
-public beta**.
-
-Current plugin build: Codex `0.2.0-beta+codex.20260707114230`. Use
-`codex plugin list | rg "fb-lane-coordination"` to see the installed build.
-
-See [docs/versioning.md](docs/versioning.md) for the v1-to-latest before/after.
-
 ## Is this just project management?
 
 No. Project management tracks work. Loop Engineering makes agent work return to
@@ -32,6 +22,31 @@ approved goal, owner, evidence, merge/defer decision, and BFM source-change gate
 Think of it as awareness, isolation, integration: the board and handoff index are
 the shared standup, branches/worktrees are separate desks for execution, and BFM
 is Product/release review.
+
+## When should I skip FB-Lane?
+
+Skip it when none of the listed coordination triggers apply. Default to
+normal/simple coding for:
+
+- one-thread fixes
+- read-only questions
+- code explanations
+- tiny quick edits
+- isolated edits
+- throwaway experiments
+- independent work where native worktrees are enough
+
+Use FB-Lane light when the objective mentions handoffs, board items, lanes, BFM,
+Product, Design, Business, coordination files, board-locked files, multiple
+threads/agents/workstreams, or durable context. Keep quick tasks lightweight:
+read the board/locks and avoid extra handoff or OKR ceremony unless another lane
+or Product must continue it.
+
+Escalate to Product/BFM when the work requires deciding what to build, sequence,
+defer, approve, merge, release, stage, or launch; crosses
+pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets,
+deploy/staging/live gates; touches camera/capture/save/export or another core
+product flow; or needs multiple lane outputs reconciled before source changes.
 
 ## What is Loop Engineering?
 
@@ -72,31 +87,6 @@ Do not start with an eval framework. Use a short Markdown scorecard when the
 same agent mistake repeats. The reusable shape is in
 `docs/evals/agent-behavior-scorecard-template.md`: non-Product execution gate,
 BFM closeout accounting, evidence honesty, and goal/scope fit.
-
-## When should I skip FB-Lane?
-
-Skip it when none of the listed coordination triggers apply. Default to
-normal/simple coding for:
-
-- one-thread fixes
-- read-only questions
-- code explanations
-- tiny quick edits
-- isolated edits
-- throwaway experiments
-- independent work where native worktrees are enough
-
-Use FB-Lane light when the objective mentions handoffs, board items, lanes, BFM,
-Product, Design, Business, coordination files, board-locked files, multiple
-threads/agents/workstreams, or durable context. Keep quick tasks lightweight:
-read the board/locks and avoid extra handoff or OKR ceremony unless another lane
-or Product must continue it.
-
-Escalate to Product/BFM when the work requires deciding what to build, sequence,
-defer, approve, merge, release, stage, or launch; crosses
-pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets,
-deploy/staging/live gates; touches camera/capture/save/export or another core
-product flow; or needs multiple lane outputs reconciled before source changes.
 
 ## Are workstream threads read-only?
 
@@ -324,8 +314,33 @@ codex plugin list | rg "fb-lane-coordination"
 Start a new Codex thread after reinstalling so the refreshed plugin context is
 loaded.
 
+## What version is this?
+
+The current GitHub documentation line is **FB-Lane 0.2.0-beta: Loop Engineering
+public beta**.
+
+Current plugin build: Codex `0.2.0-beta+codex.20260707114230`. Use
+`codex plugin list | rg "fb-lane-coordination"` to see the installed build.
+
+See [docs/versioning.md](docs/versioning.md) for the v1-to-latest before/after.
+
 ## What happened to Claude Code and Antigravity support?
 
 Those integrations are paused and are not supported, installed, released, or
 tested. Contributors may revive an integration by following the
 [paused-integration checklist](docs/paused-integrations.md).
+
+## Why is it called FB-Lane?
+
+Because **Flow Builder** sounded better than “the thing that stops projects
+from getting stuck.”
+
+Some alternate expansions survived the naming process:
+
+- Friction Breaker
+- Force Build
+- Full Build
+- Fried Beef
+
+The official name is Flow Builder. The unofficial names are available for team
+folklore.
