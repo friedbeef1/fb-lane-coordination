@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-Q-20260713-SIDECHAT-PARENT
 lane: fb-product
-status: staging-qa
+status: done
 okr_fit: aligned
 ---
 
@@ -48,11 +48,15 @@ they become source of truth.
 - Follow-up read-only review approved the corrected entry-point distribution
   and the expanded regression coverage.
 
-## Gates
+## Product/BFM Closeout
 
-- No live routing, automatic routing, thread discovery, plugin publication,
-  release, or paused-integration testing was attempted or authorized.
-- Product review of the branch diff remains the next gate.
+Status: Done.
+Actioned By: FB-Product / BFM.
+Result: The parent-thread-only sidechat contract was released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) and is installed in the Codex marketplace plugin build `0.2.0-beta+codex.20260716052513`.
+Evidence: Root/package 26-check suites, syntax/parity, clean-tree validator, doctor Ready, and diff check passed before release; PR #39 merged to `main`; the marketplace plugin refreshed and installed at the released build ID.
+Remaining: No release gate remains. Automatic routing, thread discovery, and paused-integration testing remain out of scope.
+Closeout Note: This changes guidance only; it does not add app-level routing behavior.
+Loop Learning: Feedback captured: issue found; Repeated pattern?: no; Tooling needed?: none; Product approval needed?: no.
 
 ## Goal Alignment Session
 
