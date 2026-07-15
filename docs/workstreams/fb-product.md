@@ -4,7 +4,7 @@ Last Updated: 2026-07-16
 Lane: FB-Product
 
 ## Current Summary
-TASK-018 is in Staging QA on `codex/TASK-018-workspace-recovery`, based on `codex/codex-only-cut`. It carries the generic Verification Handoff contract and the proven TASK-Q-0736 workspace-recovery lesson: a bounded health preflight checks capacity, File Provider ancestry, stable double reads, and bounded Git probes; a second consecutive failure moves work to clean-clone recovery without copying damaged Git metadata. The focused recovery-contract test, root/package 27-check suites, syntax/parity, and whitespace checks passed; Product branch-diff review remains. `PROJECT_BOARD.md` reconciliation is deferred only while TASK-Q-2802 owns its active lock. No MirrorCam changes, publication, deployment, runner, dashboard, or `doctor` expansion are in scope.
+TASK-018 is in Staging QA on `codex/TASK-018-workspace-recovery`, based on `codex/codex-only-cut`. It carries the generic Verification Handoff contract and the proven TASK-Q-0736 workspace-recovery lesson: a bounded health preflight checks capacity, File Provider ancestry, stable double reads, and bounded Git probes; a second consecutive failure moves work to clean-clone recovery without copying damaged Git metadata. The focused recovery-contract test, root/package 27-check suites, syntax/parity, and clean-clone validator/doctor proof all passed at `e30a461`; Product branch-diff review remains. No MirrorCam changes, publication, deployment, runner, dashboard, or `doctor` expansion are in scope.
 
 TASK-CODEX-ONLY-001 is in Staging QA on `codex/codex-only-cut`. Clean-checkout proof passed: root/package 24-check CLI suites, syntax, CLI/test byte parity, validator, doctor, whitespace check, manifest/MCP JSON parsing, and a disposable-`CODEX_HOME` local marketplace/plugin install for `fb-lane-coordination@fb-lane` version `0.2.0-beta+codex.20260707114230`. Product must review the branch diff; publishing and releasing remain explicitly unauthorized.
 
@@ -24,7 +24,6 @@ TASK-017 remains the active reusable framework hardening task. Product/BFM now h
 - Product review of TASK-017 / PR #31 before merge.
 - Commit/push of the current generic eval scorecard, approval-autonomy, and version-positioning update after verification.
 - Product branch-diff review of TASK-018; no publish, release, deploy, or MirrorCam change is authorized.
-- TASK-018 board-row reconciliation after TASK-Q-2802 releases its `PROJECT_BOARD.md` lock; the detailed handoff/index/card already record the dependency.
 
 ## Evidence Links
 - PROJECT_BOARD.md
