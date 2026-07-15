@@ -6,7 +6,7 @@ Call the current GitHub documentation line **FB-Lane 0.2.0-beta: Loop
 Engineering public beta**.
 
 The Codex plugin manifest for this line is
-`0.2.0-beta+codex.20260707114230`. Treat that as the installed plugin build ID;
+`0.2.0-beta+codex.20260716052513`. Treat that as the installed plugin build ID;
 the product model name is still **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
 
 Codex is the only supported and released integration. Claude Code and
@@ -31,7 +31,7 @@ Antigravity are paused; contributors can use the
 | Safe unblock | Blockers often became user prompts. | BFM recommends and executes safe unblock paths inside approved scope; hard gates still stop. |
 | Frontend planning | Visual decisions could stay in chat. | Frontend handoffs name `Visual Preview Decision` before source execution when visual uncertainty matters. |
 | Returning lanes | Re-read board and handoffs. | Workstream status cards show what Product/BFM already executed or deferred. |
-| Plugin builds | Build labels could look stale after docs changed. | The current public beta build is Codex `0.2.0-beta+codex.20260707114230`. |
+| Plugin builds | Build labels could look stale after docs changed. | The current public beta build is Codex `0.2.0-beta+codex.20260716052513`. |
 
 ## Practical Meaning
 

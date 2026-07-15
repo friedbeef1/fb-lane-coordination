@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased - 2026-06-27
+## Unreleased - 2026-07-16
+
+- Release: published Codex plugin build `0.2.0-beta+codex.20260716052513` with
+  the verified Codex-only distribution, verification-handoff, and workspace-
+  recovery guidance.
 
 - Distribution: Codex is now the only supported, packaged, documented, and
   release-tested integration. Removed Claude Code and Antigravity distribution

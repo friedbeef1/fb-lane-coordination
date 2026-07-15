@@ -13,7 +13,7 @@ done.
 [Maintenance](docs/maintenance.md) | [Changelog](CHANGELOG.md)
 
 Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
-Current plugin build: Codex `0.2.0-beta+codex.20260707114230`. See
+Current plugin build: Codex `0.2.0-beta+codex.20260716052513`. See
 [Versioning](docs/versioning.md).
 
 ## The Thesis

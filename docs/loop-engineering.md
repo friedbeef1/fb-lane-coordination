@@ -7,7 +7,7 @@ before Product calls the work complete.
 It is not a new app lifecycle. It is a small control loop for AI execution.
 
 Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
-Current plugin build: Codex `0.2.0-beta+codex.20260707114230`. For the
+Current plugin build: Codex `0.2.0-beta+codex.20260716052513`. For the
 v1-to-latest before/after, see [FB-Lane Versions](versioning.md).
 
 ## Why The Loop Exists
