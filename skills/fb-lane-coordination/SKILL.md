@@ -150,6 +150,10 @@ Return checks:
 - after board/doc updates, return to `node tools/fb-lane.cjs status`;
 - after commit/push, return to `git status` and name whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty.
 
+## Verification Handoff
+
+Before asking the user to test, Product/BFM adds `## Verification Handoff` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted. Product/BFM records the Next Product/BFM recovery action and completes safe recovery itself. A missing or stalled check remains pending or blocked; the user is asked only for a real approval or external manual, device, or account gate.
+
 Close only when board, source, docs, and tests agree, or every disagreement is explicitly marked. Add one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`; do not numeric-score the loop. Add `Loop Learning`: feedback captured, repeated pattern (`no|yes`), tooling needed (`none|propose guardrail|propose automation|propose eval`), and Product approval needed (`no|yes`).
 
 When `Loop Learning` chooses `propose eval`, propose a small Markdown scorecard under `docs/evals/` using the generic sections from `docs/evals/agent-behavior-scorecard-template.md`. Do not create an eval runner, dashboard, numeric score, CI eval job, or larger `doctor` rule unless that heavier option is separately approved.

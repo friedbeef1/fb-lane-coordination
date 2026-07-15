@@ -57,6 +57,9 @@ Approval autonomy is phased. Phase 1 is Shadow Approval: Product/BFM still asks 
 
 Once the user has approved a safe Product/BFM task or problem, keep going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. Report after closeout, not before every routine step. Stop and ask only for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, lock conflicts, failed evidence that needs risk acceptance, or an explicit user pause.
 
+### Verification Handoff
+Before asking the user to test, Product/BFM adds `## Verification Handoff` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted. Product/BFM records the Next Product/BFM recovery action and completes safe recovery itself. A missing or stalled check remains pending or blocked; the user is asked only for a real approval or external manual, device, or account gate.
+
 ### 🖼 Frontend Visual Planning
 Frontend/UI plans and handoffs default to a pre-build visual preview. Include `Visual Preview Decision`: `browser screenshot/mockup`, `imagegen asset/style option`, or `skip with reason`. Use `skip with reason` only for non-visual work, tiny copy, spacing, or single-control fixes. Use browser screenshots/mockups for concrete layout, responsive, component, or flow decisions. Use imagegen for brand direction, logos, hero/illustration assets, camera/lens concepts, or visual style options. If the plan changes what the user will see and a preview is feasible, create or attach the preview before Product/BFM source execution; Product/BFM blocks or asks only when the preview is missing and the visual decision is material.
 

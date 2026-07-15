@@ -159,6 +159,10 @@ Treat BFM as a loop, not a one-way pipeline:
 - After board/doc updates, run status again and confirm lane state reflects reality.
 - After commit/push, return to `git status` and close only with the branch/worktree named as clean, merged, stale, blocked, or intentionally dirty.
 
+## Verification Handoff
+
+Before asking the user to test, add `## Verification Handoff` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted. Record the Next Product/BFM recovery action and complete safe recovery yourself. A missing or stalled check remains pending or blocked; ask the user only for a real approval or external manual, device, or account gate.
+
 ## Proactive Loop Hardening
 
 When repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework appears, propose one small guardrail before closing or starting the next source task.

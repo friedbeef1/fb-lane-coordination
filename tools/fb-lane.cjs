@@ -310,6 +310,14 @@ Product approval for heavier tooling: \`not requested\` | \`pending\` | \`approv
 - [ ] Repo state is classified as \`clean\`, \`intentionally dirty\`, or \`blocked\`.
 - [ ] Dirty state names files, owner, reason, next gate, and session-boundary action.
 
+## Verification Handoff
+
+- [ ] The handoff has a \`## Verification Handoff\` section containing the candidate branch or commit, a Test plan: link, exact commands, environments, and current results.
+- [ ] It links to each runnable staging, APK, mockup, screenshot, or other manual-check surface and gives concise pass criteria.
+- [ ] A blocked check names the exact failure, affected environment, and recovery attempted; it never merely asks for a "healthy environment."
+- [ ] Product/BFM records the Next Product/BFM recovery action and performs safe recovery before involving the user. Only an approval or external manual, device, or account gate reaches the user.
+- [ ] A missing or stalled check is a pending or blocked gate, never passing evidence.
+
 ## Goal And Scope Fit
 
 - [ ] Work maps to the approved goal or a plain-language Product decision.
@@ -2028,6 +2036,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
 *   **Sidechat-to-Main Prompt Handoff**: Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready handoff for their originating parent main thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; Product/BFM retains those execution and durable-record responsibilities. Read \`docs/sidechat-parent-thread-routing.md\`: a sidechat may hand off only to its originating parent main thread, never chooses another destination by role, project, name, recency, or Product/BFM status, and returns the paste-ready handoff to the user if the parent is unavailable. A non-parent main treats it as ordinary user-provided context. A sidechat prompt is not source of truth until Product/BFM records it in \`PROJECT_BOARD.md\`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no command, dashboard, \`doctor\` expansion, source behavior, or required ceremony is needed for quick clarification. Sidechat output format: Decision summary, Scope, Out of scope, Recommended owner/lane, Files/docs likely affected, Acceptance criteria, Gates/risks, Exact instruction for Product/BFM.
 *   **BFM OKR Gate**: BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree. If work conflicts with approved OKRs, BFM proposes aligned approaches, scope, or sequence and recommends one; it does not dynamically create or edit OKRs during execution.
 *   **BFM Return Loop**: When Product/BFM processes all lane handoffs, every handoff must be marked \`implemented\`, \`already done\`, \`blocked\`, \`out of scope\`, or \`explicitly deferred\`. Return to board, handoffs, source/docs/tests, lane status, and git status before closeout. Name whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If checks touched external services, also name test mode, created records/resources, cleanup evidence, or the pending cleanup gate. Add one loop health flag: \`healthy\`, \`watch\`, \`needs Product review\`, or \`blocked\`; do not numeric-score the loop.
+*   **Verification Handoff**: Before asking the user to test, add \`## Verification Handoff\` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted. Record the Next Product/BFM recovery action and complete safe recovery before involving the user. A missing or stalled check remains pending or blocked; ask the user only for a real approval or external manual, device, or account gate.
 *   **Proactive Loop Hardening**: When repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework appears, Product/BFM proposes one small guardrail with observed pattern, cost, benefit, affected files/rules, and approval needed before changing the process. Skip one-off or low-impact issues.
 
 ### 2. The Board Loop & Resource Locking
@@ -2156,6 +2165,10 @@ ${sidechatGuideMarkdown}
 - Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded. Report whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If intentionally dirty, record exact files, owner, reason, next gate, and session-boundary action on PROJECT_BOARD.md; at the next session boundary, Product/BFM must continue that task, commit it, revert it, archive it into a handoff, or mark it blocked/deferred before starting new source work. If checks touched external services, also report test mode, created records/resources, cleanup evidence, or the pending cleanup gate.
 - Add one loop health flag at closeout: \`healthy\`, \`watch\`, \`needs Product review\`, or \`blocked\`. Do not numeric-score the loop.
 - Add \`Loop Learning\` at closeout: feedback captured, repeated pattern (\`no|yes\`), tooling needed (\`none|propose guardrail|propose automation|propose eval\`), and Product approval needed (\`no|yes\`).
+
+### Verification Handoff
+- Before asking the user to test, add \`## Verification Handoff\` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted.
+- Record the Next Product/BFM recovery action and complete safe recovery before involving the user. A missing or stalled check remains pending or blocked; ask the user only for a real approval or external manual, device, or account gate.
 
 ### Proactive loop hardening
 - Product/BFM should proactively propose one small guardrail when it sees repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework.

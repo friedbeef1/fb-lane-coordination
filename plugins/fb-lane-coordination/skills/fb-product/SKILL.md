@@ -72,6 +72,9 @@ If multiple cards match, show the candidates and recommend one. If approval is m
 ### Post-Action Card Summary
 After BFM acts, summarize card ID, final status, changed files, checks run, remaining gates, next owner, and whether live deploy is still blocked.
 
+### Verification Handoff
+Before asking the user to test, require `## Verification Handoff` in the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and recovery attempted. Product/BFM records the Next Product/BFM recovery action and completes safe recovery itself. A missing or stalled check remains pending or blocked; the user is asked only for a real approval or external manual, device, or account gate.
+
 ### Workstream Status Card Refresh
 After Product/BFM executes, merges, rejects, or explicitly defers a lane handoff, update the detailed handoff with `## Product/BFM Closeout`, then update the relevant `docs/workstreams/<lane>.md` card. The handoff closeout is the visible "this was actioned" note and includes `Status`, `Actioned By`, `Result`, `Evidence`, `Remaining`, `Closeout Note`, and `Loop Learning`. Keep the card to: `Last Updated`, `Lane`, `Current Summary`, `Already Executed By Product/BFM`, `Still Pending / Blocked`, and `Evidence Links`. Do not put full OKRs, QA logs, plans, rationale, copy variants, or implementation detail in the card.
 

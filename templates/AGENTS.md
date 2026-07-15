@@ -137,6 +137,9 @@ When the user says "run BFM" or "process all lane handoffs", Product/BFM must no
 - `out of scope`
 - `explicitly deferred`
 
+### Verification Handoff
+Before asking the user to test, Product/BFM adds `## Verification Handoff` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted. Product/BFM records the Next Product/BFM recovery action and completes safe recovery itself. A missing or stalled check remains pending or blocked; the user is asked only for a real approval or external manual, device, or account gate.
+
 That status must match `PROJECT_BOARD.md`, source files, docs, and test evidence. If they disagree, mark the disagreement as blocked, out of scope, or explicitly deferred before closeout.
 
 Product/BFM also records one loop health flag: `healthy` when the loop is safe, `watch` when a target miss is safe but worth noticing, `needs Product review` when sequencing or closeout safety may be affected, and `blocked` when work cannot proceed safely. Do not replace this with numeric loop scoring.

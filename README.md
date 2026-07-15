@@ -95,6 +95,14 @@ payments, auth/privacy, destructive data/provider state, new scope or OKR
 changes, unclear goals, lock conflicts, failed evidence needing risk acceptance,
 or an explicit pause.
 
+Before asking the user to test, Product/BFM writes a `## Verification Handoff`:
+the candidate branch or commit, test plan link, exact commands and environments,
+current results, runnable evidence links, manual pass criteria, recovery already
+attempted, and the next Product/BFM recovery action. A missing or stalled check
+is pending or blocked evidence, not a reason to hand routine recovery to the
+user. The user is involved only for a genuine approval or external manual,
+device, or account gate.
+
 When the user says `BFM`, blocker handling is part of that loop. Product/BFM
 flags each blocker, recommends how to address it, executes the recommended safe
 unblock path inside the approved scope, and keeps going until every task is done,

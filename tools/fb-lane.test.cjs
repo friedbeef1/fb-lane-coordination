@@ -156,6 +156,7 @@ function assertCodexBootstrap(args) {
     const evalTemplatePath = path.join(root, 'docs', 'evals', 'agent-behavior-scorecard-template.md');
     assert.ok(fs.existsSync(evalTemplatePath), 'expected bootstrap to create docs/evals/agent-behavior-scorecard-template.md');
     assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /Non-Product Execution Gate/);
+    assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /## Verification Handoff/);
     assert.match(fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8'), /Sidechat-to-Main Prompt Handoff/);
     assert.match(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), /Exact instruction for Product\/BFM/);
     const sidechatRoutingPath = path.join(root, 'docs', 'sidechat-parent-thread-routing.md');
@@ -168,6 +169,10 @@ function assertCodexBootstrap(args) {
     for (const [label, source] of [['PROJECT_BOARD.md', board], ['AGENTS.md', agents], ['.codex/rules.md', codexRules]]) {
       assert.match(source, /sidechat-parent-thread-routing\.md/, `${label} must link to the canonical rule`);
       assert.doesNotMatch(source, /paste-ready prompt for the main Product\/BFM thread/i, `${label} must not choose a destination by Product/BFM role`);
+    }
+    for (const [label, source] of [['AGENTS.md', agents], ['.codex/rules.md', codexRules]]) {
+      assert.match(source, /Verification Handoff/i, `${label} must explain the verification handoff`);
+      assert.match(source, /next Product\/BFM recovery action/i, `${label} must require agent-owned recovery`);
     }
     assert.match(codexRules, /A sidechat prompt is not source of truth/);
     assert.ok(!fs.existsSync(path.join(root, '.mcp.json')), 'expected bootstrap not to create project MCP config');
@@ -217,6 +222,44 @@ test('documents the parent-only sidechat routing rule across source and package 
     assert.match(source, /only to its (?:originating )?parent|only eligible destination|originating parent main thread/i, `${relativePath} must forbid non-parent delivery`);
     assert.match(source, /ordinary user-provided context/i, `${relativePath} must protect non-parent receiving threads`);
     assert.doesNotMatch(source, /paste-ready prompt for the main Product\/BFM thread/i, `${relativePath} must not choose a destination by Product/BFM role`);
+  }
+});
+
+test('documents the verification handoff and recovery contract across source, package, and bootstrap', () => {
+  const repoRoot = process.cwd();
+  const scorecards = [
+    'docs/evals/agent-behavior-scorecard-template.md',
+    'templates/docs/evals/agent-behavior-scorecard-template.md',
+    'plugins/fb-lane-coordination/docs/evals/agent-behavior-scorecard-template.md'
+  ];
+  for (const relativePath of scorecards) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(source, /## Verification Handoff/, `${relativePath} must include the verification handoff checklist`);
+    assert.match(source, /Test plan.*link/i, `${relativePath} must require a test plan link`);
+    assert.match(source, /Next Product\/BFM recovery action/i, `${relativePath} must require the next recovery action`);
+  }
+
+  const entryPoints = [
+    'AGENTS.md',
+    '.codex/rules.md',
+    'templates/AGENTS.md',
+    'skills/fb-lane-coordination/SKILL.md',
+    'skills/project-coordination-setup/SKILL.md',
+    'plugins/fb-lane-coordination/skills/bfm/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-lane/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-product/SKILL.md',
+    'plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md'
+  ];
+  for (const relativePath of entryPoints) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(source, /Verification Handoff/i, `${relativePath} must direct Product/BFM to the verification handoff`);
+    assert.match(source, /next Product\/BFM recovery action/i, `${relativePath} must require agent-owned recovery`);
+  }
+
+  for (const relativePath of ['tools/fb-lane.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.cjs']) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(source, /Verification Handoff/i, `${relativePath} must generate the verification handoff rule`);
+    assert.match(source, /next Product\/BFM recovery action/i, `${relativePath} must generate agent-owned recovery`);
   }
 });
 

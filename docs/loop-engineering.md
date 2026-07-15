@@ -219,6 +219,32 @@ auth/privacy, destructive data or provider-state changes, new scope or OKR
 changes, unclear goals, lock conflicts, failed evidence that needs risk
 acceptance, or an explicit user pause.
 
+## Verification Handoff
+
+Before asking the user to test, Product/BFM adds this evidence section to the
+detailed handoff. It owns safe recovery first; this is not a request for the
+user to diagnose an ordinary local runner failure.
+
+```md
+## Verification Handoff
+
+Candidate: <branch, commit, PR, or staging build>
+Test plan: <link to the detailed plan or checklist>
+Automated checks:
+- <exact command> — <environment> — <pass | fail | pending and why>
+Runnable evidence:
+- <staging, APK, mockup, screenshot, or other URL/path> — <manual pass criteria>
+Recovery attempted: <what Product/BFM tried and result, or none needed>
+Next Product/BFM recovery action: <safe action Product/BFM will take next, or none>
+User gate: <only an approval or real external manual, device, or account action; otherwise none>
+```
+
+A missing or stalled check is a `pending` or `blocked` gate, never passing
+evidence. Do not tell the user merely to find a "healthy environment"; state
+the failure, affected environment, and recovery already attempted, then
+continue the safe recovery ladder. Stop only when the next step truly requires
+the user's approval, account, physical device, or other external action.
+
 ## Goal Alignment Session
 
 For non-trivial BFM runs, Product/BFM starts with a Goal Alignment Session before

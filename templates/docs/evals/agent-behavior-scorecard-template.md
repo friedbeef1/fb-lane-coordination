@@ -32,6 +32,14 @@ Product approval for heavier tooling: `not requested` | `pending` | `approved`
 - [ ] Repo state is classified as `clean`, `intentionally dirty`, or `blocked`.
 - [ ] Dirty state names files, owner, reason, next gate, and session-boundary action.
 
+## Verification Handoff
+
+- [ ] The handoff has a `## Verification Handoff` section containing the candidate branch or commit, a Test plan: link, exact commands, environments, and current results.
+- [ ] It links to each runnable staging, APK, mockup, screenshot, or other manual-check surface and gives concise pass criteria.
+- [ ] A blocked check names the exact failure, affected environment, and recovery attempted; it never merely asks for a "healthy environment."
+- [ ] Product/BFM records the Next Product/BFM recovery action and performs safe recovery before involving the user. Only an approval or external manual, device, or account gate reaches the user.
+- [ ] A missing or stalled check is a pending or blocked gate, never passing evidence.
+
 ## Goal And Scope Fit
 
 - [ ] Work maps to the approved goal or a plain-language Product decision.

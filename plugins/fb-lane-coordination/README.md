@@ -194,6 +194,15 @@ cleanup until solved or explicitly blocked. Report after closeout. Still stop
 for live deploy, secrets/credentials, payments, auth/privacy, destructive data
 or provider-state changes, new scope or OKR changes, unclear goals, lock
 conflicts, failed evidence needing risk acceptance, or an explicit pause.
+
+Before asking the user to test, Product/BFM writes a `## Verification Handoff`:
+the candidate branch or commit, test plan link, exact commands and environments,
+current results, runnable evidence links, manual pass criteria, recovery already
+attempted, and the next Product/BFM recovery action. A missing or stalled check
+is pending or blocked evidence, not a reason to hand routine recovery to the
+user. The user is involved only for a genuine approval or external manual,
+device, or account gate.
+
 Frontend/UI plans and handoffs default to a pre-build visual preview. Include
 `Visual Preview Decision`: `browser screenshot/mockup`,
 `imagegen asset/style option`, or `skip with reason`. Use `skip with reason`

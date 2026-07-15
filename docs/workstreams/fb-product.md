@@ -4,6 +4,8 @@ Last Updated: 2026-07-13
 Lane: FB-Product
 
 ## Current Summary
+TASK-018 is in progress on `codex/codex-only-cut`. It adds a generic Verification Handoff contract so future FB-Lane projects receive test-plan links, exact commands and environments, runnable evidence, recovery attempted, and the next Product/BFM recovery action before a user is asked to test. No MirrorCam changes, publication, deployment, runner, dashboard, or `doctor` expansion are in scope.
+
 TASK-CODEX-ONLY-001 is in Staging QA on `codex/codex-only-cut`. Clean-checkout proof passed: root/package 24-check CLI suites, syntax, CLI/test byte parity, validator, doctor, whitespace check, manifest/MCP JSON parsing, and a disposable-`CODEX_HOME` local marketplace/plugin install for `fb-lane-coordination@fb-lane` version `0.2.0-beta+codex.20260707114230`. Product must review the branch diff; publishing and releasing remain explicitly unauthorized.
 
 TASK-017 remains the active reusable framework hardening task. Product/BFM now has a generic Markdown-only eval scorecard path for repeated agent-behavior failures via `Loop Learning: propose eval`, phased approval-autonomy guidance that starts in Shadow Approval before any bounded self-approval, and public version positioning for `FB-Lane 0.2.0-beta: Loop Engineering public beta`.
