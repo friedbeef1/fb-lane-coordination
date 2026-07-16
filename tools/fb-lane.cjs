@@ -1843,6 +1843,50 @@ function handleMcpRequest(request) {
   // Ignore other JSON-RPC methods (like notifications)
 }
 
+const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md'];
+const FB_HARNESS_ROUTE_START = '<!-- fb-harness-route-start -->';
+const FB_HARNESS_ROUTE_END = '<!-- fb-harness-route-end -->';
+
+function fbHarnessRoute() {
+  return `${FB_HARNESS_ROUTE_START}
+## FB coordination route
+
+Read [the FB harness](docs/fb/README.md) after \`PROJECT_BOARD.md\`,
+\`docs/handoffs/index.md\`, and the linked handoff. Use the focused page that
+matches the task:
+
+- First project, plan, lanes, or approval: [start.md](docs/fb/start.md)
+- Ownership, BFM execution, and closeout: [workflow.md](docs/fb/workflow.md)
+- Test This Now and Verification Handoff: [evidence.md](docs/fb/evidence.md)
+- Sidechat-parent routing and recovery: [guardrails.md](docs/fb/guardrails.md)
+  plus [the project sidechat rule](docs/sidechat-parent-thread-routing.md)
+
+Project-specific instructions and stricter safety rules win.
+${FB_HARNESS_ROUTE_END}`;
+}
+
+function upsertFbHarnessRoute(existing, route) {
+  const managed = new RegExp(`${FB_HARNESS_ROUTE_START}[\\s\\S]*?${FB_HARNESS_ROUTE_END}`);
+  if (existing.includes(FB_HARNESS_ROUTE_START)) return existing.replace(managed, route);
+
+  const legacyStart = '<!-- fb-lane-start -->';
+  const legacyEnd = '<!-- fb-lane-end -->';
+  if (existing.includes(legacyStart) && existing.includes(legacyEnd)) {
+    return existing.replace(new RegExp(`${legacyStart}[\\s\\S]*?${legacyEnd}`), route);
+  }
+
+  return `${existing}${existing.endsWith('\n') ? '\n' : '\n\n'}${route}\n`;
+}
+
+function installFbHarnessPack(rootDir) {
+  const bundledPackDir = path.join(__dirname, '..', 'docs', 'fb');
+  const projectPackDir = path.join(rootDir, 'docs', 'fb');
+  fs.mkdirSync(projectPackDir, { recursive: true });
+  for (const page of FB_HARNESS_PAGES) {
+    fs.copyFileSync(path.join(bundledPackDir, page), path.join(projectPackDir, page));
+  }
+}
+
 // Main execution parsing
 function handleBootstrap(args = []) {
   let options;
@@ -2038,50 +2082,20 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
     console.log('ℹ️  PROJECT_BOARD.md already exists, skipping.');
   }
 
-  // 2. Create AGENTS.md if missing
+  // 2. Install the canonical harness and add only a managed route to project-owned instructions.
   const agentsPath = path.join(rootDir, 'AGENTS.md');
+
+  installFbHarnessPack(rootDir);
+  console.log('📝 Installed docs/fb/ harness pack.');
+  const harnessRoute = fbHarnessRoute();
   if (!fs.existsSync(agentsPath)) {
-    const agentsTemplate = `# Agent & Thread Coordination Rules — ${projectName}
-
-> ${FB_MODEL_LINE}
-
-This project uses the standard **FB Four-Lane Coordination Model** to enable safe concurrent development.
-
-${firstProjectContract}
-
-### 0. Mode Selection Trigger Rule
-- Default to normal/simple coding unless the objective has a coordination trigger. Use FB light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
-- Keep quick tasks lightweight: read board/locks, claim or note only exact files needed, and skip extra ceremony unless another lane or Product must continue it.
-
-### 1. Lane Scopes & Boundaries
-*   **FB-Product (PM / Integration User Value)**: Owns final product decisions, task prioritization, scoping, BFM launch, staging/live deployments, and release gates. Product owns the approved Product/workstream or BFM-target OKR plus relevant stable lane OKRs in \`PROJECT_BOARD.md\`. Product is read-only on application/source code and may write coordination markdown only. Source changes happen only inside a Product-launched BFM execution run.
-*   **Completion Audit Rule**: Product reports delivered work, lane-specific verification, unresolved gates, and one loop health flag (\`healthy\`, \`watch\`, \`needs Product review\`, or \`blocked\`) as separate statuses for every lane. Do not call any workstream "done" or "executed" unless required evidence exists; otherwise mark the missing gate as pending or blocked.
-*   **FB-Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, database security, configuration scripts, and unit/integration test suites. *Does not make styling, layout geometry, or UI changes.*
-*   **FB-Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
-*   **FB-Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only capacity.*
-*   **Passive Closeout Notes**: Every lane leaves a final informational note in its thread when it stops work. The note records task ID, status, delivered work, evidence, remaining gates, and handoff path; Product/BFM closeouts also record one loop health flag. After Product/BFM executes, merges, rejects, or explicitly defers a handoff, update the detailed handoff with \`## Product/BFM Closeout\` including Status, Actioned By, Result, Evidence, Remaining, Closeout Note, and Loop Learning. Notes must avoid commands, @/$ invocations, or instructions to open, start, run, or ask another lane.
-*   **Goal Alignment Session**: For non-trivial work, Product/BFM owns the approved OKR tree in the board detail block: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant. Worker lanes report \`Product Goal\`, \`Workstream Goal\`, \`Lane OKR Fit\`, \`User Approval Needed\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\` in handoffs instead of rewriting OKRs. \`/goal\` is a Product/BFM shortcut into the same session; workstreams do not own it. Do not generate a fresh OKR for every task. Good objective: \`Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.\` Bad objective: \`Objective: finish the feature.\` Skip this extra ceremony for \`TASK-Q-*\` quick tasks.
-*   **Handoff Index**: \`PROJECT_BOARD.md\` is truth for status, sequencing, gates, ownership, and file locks. \`docs/handoffs/index.md\` is routing. Detailed handoffs are detail. Before non-quick Product/BFM sequencing, create or refresh the index if handoffs exist and the lookup is missing, stale, or too vague. Keep the index compact with \`Task / Topic\`, \`Lane\`, \`Status\`, \`Depends / Blocks / Gate\`, \`Checks / Evidence\`, and \`Detail\`; do not put full OKRs, QA checklists, plans, logs, rationale, copy variants, or implementation detail there.
-*   **Workstream Status Cards**: \`docs/workstreams/<lane>.md\` is a compact revisit summary, not a second board. Product/BFM updates the detailed handoff with \`## Product/BFM Closeout\`, then updates the relevant card after executing or explicitly deferring a lane handoff. Returning lanes read \`PROJECT_BOARD.md\`, \`docs/handoffs/index.md\`, then their lane card before opening detailed handoffs. Cards show current summary, what Product/BFM already executed, what remains pending or blocked, and evidence links only.
-*   **Awareness, Isolation, Integration**: \`PROJECT_BOARD.md\` and \`docs/handoffs/index.md\` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
-*   **Sidechat-to-Main Prompt Handoff**: Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready handoff for their originating parent main thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; Product/BFM retains those execution and durable-record responsibilities. Read \`docs/sidechat-parent-thread-routing.md\`: a sidechat may hand off only to its originating parent main thread, never chooses another destination by role, project, name, recency, or Product/BFM status, and returns the paste-ready handoff to the user if the parent is unavailable. A non-parent main treats it as ordinary user-provided context. A sidechat prompt is not source of truth until Product/BFM records it in \`PROJECT_BOARD.md\`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no command, dashboard, \`doctor\` expansion, source behavior, or required ceremony is needed for quick clarification. Sidechat output format: Decision summary, Scope, Out of scope, Recommended owner/lane, Files/docs likely affected, Acceptance criteria, Gates/risks, Exact instruction for Product/BFM.
-*   **BFM OKR Gate**: BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree. If work conflicts with approved OKRs, BFM proposes aligned approaches, scope, or sequence and recommends one; it does not dynamically create or edit OKRs during execution.
-*   **BFM Return Loop**: When Product/BFM processes all lane handoffs, every handoff must be marked \`implemented\`, \`already done\`, \`blocked\`, \`out of scope\`, or \`explicitly deferred\`. Return to board, handoffs, source/docs/tests, lane status, and git status before closeout. Name whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If checks touched external services, also name test mode, created records/resources, cleanup evidence, or the pending cleanup gate. Add one loop health flag: \`healthy\`, \`watch\`, \`needs Product review\`, or \`blocked\`; do not numeric-score the loop.
-*   **Verification Handoff**: Before asking the user to test, add \`## Verification Handoff\` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted. Record the Next Product/BFM recovery action and complete safe recovery before involving the user. A missing or stalled check remains pending or blocked; ask the user only for a real approval or external manual, device, or account gate.
-*   **Workspace Recovery**: When Git, file reads, worktrees, or test runners repeatedly stall or return implausible data, run a bounded workspace-health preflight before further claims. Check available disk capacity against a documented project threshold; unless a stricter policy is documented, use a 15 GiB free-capacity threshold. Also check File Provider or synchronized-storage ancestry where relevant, stable double-read hashes for representative files, and bounded Git status/diff probes with a 15-second timeout per probe. On a second consecutive failure in the same checkout, stop using it and enter clean-clone recovery. Preserve commits and explicitly owned artifacts through normal Git operations; never copy damaged .git, index, or worktree metadata, and never treat manual object plumbing or an unbounded temporary runner as passing evidence.
-*   **Proactive Loop Hardening**: When repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework appears, Product/BFM proposes one small guardrail with observed pattern, cost, benefit, affected files/rules, and approval needed before changing the process. Skip one-off or low-impact issues.
-
-### 2. The Board Loop & Resource Locking
-1. **Plan**: Product scopes the item; workstreams produce markdown plans or handoffs instead of editing source. For non-trivial work Product reads existing approved OKRs first, proposes only missing Product/workstream or lane OKRs needed for clarity, asks the user to approve them, and starts execution only after marking \`Approval: approved\`. Do not generate a fresh OKR for every task. \`TASK-Q-*\` quick tasks can skip this extra ceremony.
-2. **Execute**: Product launches BFM. BFM execution workers confirm board/status/locks plus the relevant handoff index, claim task/files on the board, and work in named isolated branches or worktrees (\`bfm/[feature]\`, \`tech/[feature]\`, or \`design/[feature]\`).
-3. **Audit**: When complete, the BFM execution worker pushes the branch, moves the board item to \`Staging QA\` using \`node tools/fb-lane.cjs submit\`, records delivered work, lane-specific verification, unresolved gates, task, branch/worktree, lane, locked files, branch/worktree state, plus a \`## Goal Alignment Session\` handoff section with \`Product Goal\`, \`Workstream Goal\`, \`Lane OKR Fit\`, \`User Approval Needed\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\`, and leaves a passive closeout note.
-4. **Merge**: \`FB-Product\` runs verification/release gates, reconciles lane \`Workstream Goal\`, \`Lane OKR Fit\`, \`User Approval Needed\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\` before merge, verifies required evidence for every lane, merges the branch to main using \`node tools/fb-lane.cjs merge\`, and releases locks.
-5. **Revisit Summary**: Product/BFM updates the detailed handoff with \`## Product/BFM Closeout\`, then refreshes the relevant \`docs/workstreams/<lane>.md\` card after execution or explicit deferral so returning lane threads can see what already happened without rereading every detailed handoff.
-`;
-    fs.writeFileSync(agentsPath, agentsTemplate, 'utf8');
-    console.log('📝 Created AGENTS.md');
+    fs.writeFileSync(agentsPath, `# Agent & Thread Coordination Rules — ${projectName}\n\n${harnessRoute}\n`, 'utf8');
+    console.log('📝 Created AGENTS.md route.');
   } else {
-    console.log('ℹ️  AGENTS.md already exists, skipping.');
+    const existingAgents = fs.readFileSync(agentsPath, 'utf8');
+    const updatedAgents = upsertFbHarnessRoute(existingAgents, harnessRoute);
+    if (updatedAgents !== existingAgents) fs.writeFileSync(agentsPath, updatedAgents, 'utf8');
+    console.log('🔄 Updated managed FB route in AGENTS.md.');
   }
 
   // 3b. Create docs/handoffs/ directory for handoff files
@@ -2140,117 +2154,20 @@ ${firstProjectContract}
     console.log('📝 Created docs/evals/agent-behavior-scorecard-template.md');
   }
 
-  // 4. Inject FB-Lane section into .codex/rules.md (non-destructive)
+  // 4. Add or refresh only the managed FB route in Codex rules.
   if (options.includeCodex) {
     const codexDir = path.join(rootDir, '.codex');
-    if (!fs.existsSync(codexDir)) {
-      fs.mkdirSync(codexDir);
-    }
+    fs.mkdirSync(codexDir, { recursive: true });
     const codexRulesPath = path.join(codexDir, 'rules.md');
-    const CODEX_FB_START = '<!-- fb-lane-start -->';
-    const CODEX_FB_END = '<!-- fb-lane-end -->';
-    const codexFbBlock = `${CODEX_FB_START}
-## FB Coordination
-
-> ${FB_MODEL_LINE}
-
-This project uses the FB Four-Lane Coordination Model.
-
-${firstProjectContract}
-
-### Mode selection
-Default to normal/simple coding unless the objective has a coordination trigger. Use FB light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
-
-### On every session start
-1. Read \`PROJECT_BOARD.md\` — check active tasks and file locks.
-2. Read \`.codex/current_task.md\` if it exists — it contains your task ID, branch, and locked files. Follow it exactly.
-3. Confirm your active branch matches the task. If not, stop and notify the user.
-4. Never modify files that are locked by another active task.
-5. For handoff discovery, read \`docs/handoffs/index.md\` first and open only the relevant detailed handoff files. If non-quick handoffs exist and the index is missing, stale, or too vague, Product/BFM should create or refresh the compact lookup before sequencing.
-6. For lane revisit status, read \`docs/workstreams/<lane>.md\` after the board and handoff index. Treat it as a summary only, not truth.
-7. Before source execution, confirm board/status/locks and the relevant handoff index.
-
-### Lane boundaries
-- **FB-Tech**: backend, APIs, schemas, tests only. Never touch CSS or layout.
-- **FB-Design**: CSS, tokens, layout only. Never touch backend logic or schemas.
-- **FB-Business**: read-only on source code. Write to markdown docs only.
-- **FB-Product**: direction, sequencing, BFM launch, integration, merges, and deployments. Product is read-only on application/source code and may write coordination markdown only.
-- **All workstreams**: plan-only by default. They may ask questions, investigate, and write markdown plans/handoffs. Source changes happen only inside a Product-launched BFM execution run.
-- **Workstream status cards**: Product/BFM updates the detailed handoff with \`## Product/BFM Closeout\`, then refreshes \`docs/workstreams/<lane>.md\` after executing or explicitly deferring a lane handoff. Returning lanes use it to report already-executed work, pending or blocked work, and evidence links without reopening every detailed handoff.
-
-### Awareness, isolation, integration
-- \`PROJECT_BOARD.md\` and \`docs/handoffs/index.md\` create shared awareness like a standup.
-- \`docs/workstreams/<lane>.md\` adds a compact revisit summary; it must not duplicate the board, OKRs, QA logs, plans, or implementation detail.
-- Branches/worktrees isolate execution like separate desks.
-- BFM integrates outcomes like Product/release review.
-- Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
-
-${sidechatGuideMarkdown}
-
-### Goal Alignment Session
-- For non-trivial work, FB-Product/BFM owns the approved OKR tree in \`PROJECT_BOARD.md\`: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant.
-- BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree.
-- If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the existing OKR tree and recommends one; it does not dynamically create or edit OKRs during execution.
-- Lane handoffs include \`## Goal Alignment Session\`, \`Product Goal\`, \`Workstream Goal\`, \`Lane OKR Fit\`, \`User Approval Needed\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\`.
-- Reuse or clarify approved OKRs; do not generate one per task. Skip this ceremony for \`TASK-Q-*\` quick tasks.
-
-### BFM return loop
-- When processing all lane handoffs, Product/BFM must mark every handoff \`implemented\`, \`already done\`, \`blocked\`, \`out of scope\`, or \`explicitly deferred\`.
-- Return to \`PROJECT_BOARD.md\` after reading handoffs, to each handoff after coding, to source/docs/board after tests, to lane status after board/doc updates, and to \`git status\` after commit/push.
-- During isolated work, name the task, branch/worktree, lane, and locked files.
-- Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded. Report whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If intentionally dirty, record exact files, owner, reason, next gate, and session-boundary action on PROJECT_BOARD.md; at the next session boundary, Product/BFM must continue that task, commit it, revert it, archive it into a handoff, or mark it blocked/deferred before starting new source work. If checks touched external services, also report test mode, created records/resources, cleanup evidence, or the pending cleanup gate.
-- Add one loop health flag at closeout: \`healthy\`, \`watch\`, \`needs Product review\`, or \`blocked\`. Do not numeric-score the loop.
-- Add \`Loop Learning\` at closeout: feedback captured, repeated pattern (\`no|yes\`), tooling needed (\`none|propose guardrail|propose automation|propose eval\`), and Product approval needed (\`no|yes\`).
-
-### Verification Handoff
-- Before asking the user to test, add \`## Verification Handoff\` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted.
-- Record the Next Product/BFM recovery action and complete safe recovery before involving the user. A missing or stalled check remains pending or blocked; ask the user only for a real approval or external manual, device, or account gate.
-- Workspace recovery: when Git, file reads, worktrees, or test runners repeatedly stall or return implausible data, run a bounded workspace-health preflight before further claims. Check available disk capacity against a documented project threshold; unless a stricter policy is documented, use a 15 GiB free-capacity threshold. Also check File Provider or synchronized-storage ancestry where relevant, stable double-read hashes for representative files, and bounded Git status/diff probes with a 15-second timeout per probe. On a second consecutive failure in the same checkout, stop using it and enter clean-clone recovery. Preserve commits and explicitly owned artifacts through normal Git operations; never copy damaged .git, index, or worktree metadata, and never treat manual object plumbing or an unbounded temporary runner as passing evidence.
-
-### Proactive loop hardening
-- Product/BFM should proactively propose one small guardrail when it sees repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework.
-- Proposal format: observed pattern, recommended guardrail, cost, benefit, files/rules affected, and approval needed.
-- Use \`Loop Learning\` as the escalation trigger: \`none\`, \`propose guardrail\`, \`propose automation\`, or \`propose eval\`.
-- When \`Loop Learning\` chooses \`propose eval\`, use \`docs/evals/agent-behavior-scorecard-template.md\` as a small Markdown scorecard. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger \`doctor\` rules unless Product/BFM separately proposes that heavier option with pros/cons and the user explicitly approves it.
-- Approval autonomy is phased. Start in Shadow Approval: ask the user, but record \`Would self-approve: yes/no\` and the reason. Product/BFM may recommend Phase 2 after one day or three matching decisions with no material miss, and Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate; the user approves phase changes. Workstreams may mark \`safe to auto-accept\`, but Product/BFM owns actual self-approval. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state.
-- Once the user approves a safe Product/BFM task or problem, Product/BFM keeps going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. When the user says BFM, Product/BFM flags blockers, recommends how to address them, executes the recommended safe unblock path inside the approved scope, and keeps looping until every task is done, explicitly deferred, out of scope, or blocked by a real stop point. Report after closeout, not before every routine step. Stop for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, active lock conflicts, failed evidence needing risk acceptance, physical-device/manual external actions, or an explicit pause.
-- Do not silently mutate the process. Skip one-off or low-impact issues.
-
-### CLI commands (run from project root)
-- \`node tools/fb-lane.cjs status\` — view all tasks and locks
-- \`node tools/fb-lane.cjs claim <id> <lane>\` — BFM execution worker claims task, checkout branch, lock files
-- \`node tools/fb-lane.cjs submit <id>\` — run tests, push branch, mark Staging QA
-- \`node tools/fb-lane.cjs merge <id>\` — merge to main, release locks (FB-Product only)
-
-### Rules
-- Never commit directly to \`main\`.
-- Commit \`PROJECT_BOARD.md\` updates in a separate commit from code changes.
-- Max 5 debug retries before marking task \`Blocked\` and notifying the user.
-- If tests, builds, browser checks, \`git add\`, or \`.git/*.lock\` files stall Product, record \`pending-gate\` or \`blocked\` and return execution to BFM sequencing.
-${CODEX_FB_END}`;
-
     if (!fs.existsSync(codexRulesPath)) {
-      fs.writeFileSync(codexRulesPath, codexFbBlock + '\n', 'utf8');
-      console.log('📝 Created .codex/rules.md with FB section.');
+      fs.writeFileSync(codexRulesPath, `# Codex project rules\n\n${harnessRoute}\n`, 'utf8');
+      console.log('📝 Created .codex/rules.md route.');
     } else {
       const existingCodex = fs.readFileSync(codexRulesPath, 'utf8');
-      if (existingCodex.includes(CODEX_FB_START)) {
-        // Update in-place — idempotent
-        const updatedCodex = existingCodex.replace(
-          new RegExp(`${CODEX_FB_START}[\\s\\S]*?${CODEX_FB_END}`),
-          codexFbBlock
-        );
-        fs.writeFileSync(codexRulesPath, updatedCodex, 'utf8');
-        console.log('🔄 Updated existing FB section in .codex/rules.md.');
-      } else {
-        // Append — never overwrite user's existing rules
-        const appendedCodex = existingCodex.trimEnd() + '\n\n---\n\n' + codexFbBlock + '\n';
-        fs.writeFileSync(codexRulesPath, appendedCodex, 'utf8');
-        console.log('✅ Appended FB section to your existing .codex/rules.md.');
-      }
+      const updatedCodex = upsertFbHarnessRoute(existingCodex, harnessRoute);
+      if (updatedCodex !== existingCodex) fs.writeFileSync(codexRulesPath, updatedCodex, 'utf8');
+      console.log('🔄 Updated managed FB route in .codex/rules.md.');
     }
-  } else {
-    console.log('ℹ️  Skipping Codex rules for this platform.');
   }
 
   console.log('\n🎉 FB bootstrapped successfully!');

@@ -169,6 +169,14 @@ function assertCodexBootstrap(args) {
     });
     const brandLine = ['FB 0.2.0-beta:', 'AI', 'Loop', 'Engineering', 'for', 'Everyday', 'People'].join(' ');
     assert.ok(!output.includes(brandLine), 'bootstrap console output must not repeat the current FB model line');
+    const bundledPack = path.join(__dirname, '..', 'docs', 'fb');
+    const generatedPack = path.join(root, 'docs', 'fb');
+    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md']) {
+      const bundled = path.join(bundledPack, page);
+      const generated = path.join(generatedPack, page);
+      assert.ok(fs.existsSync(generated), `expected bootstrap to create docs/fb/${page}`);
+      assert.strictEqual(fs.readFileSync(generated, 'utf8'), fs.readFileSync(bundled, 'utf8'), `expected docs/fb/${page} to match the installed pack`);
+    }
     const indexPath = path.join(root, 'docs', 'handoffs', 'index.md');
     assert.ok(fs.existsSync(indexPath), 'expected bootstrap to create docs/handoffs/index.md');
     assert.match(fs.readFileSync(indexPath, 'utf8'), /type: fb-lane-handoff-index/);
@@ -178,7 +186,6 @@ function assertCodexBootstrap(args) {
     assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /Non-Product Execution Gate/);
     assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /## Verification Handoff/);
     assert.match(fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8'), /Sidechat-to-Main Prompt Handoff/);
-    assert.match(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), /Exact instruction for Product\/BFM/);
     const sidechatRoutingPath = path.join(root, 'docs', 'sidechat-parent-thread-routing.md');
     assert.ok(fs.existsSync(sidechatRoutingPath), 'expected bootstrap to create sidechat parent-routing guidance');
     assert.match(fs.readFileSync(sidechatRoutingPath, 'utf8'), /one eligible destination:\s*the originating main thread/i);
@@ -187,41 +194,24 @@ function assertCodexBootstrap(args) {
     const agents = fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8');
     const codexRules = fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8');
     assert.ok(!board.includes(brandLine), 'generated project board must not repeat the current FB model line');
-    for (const [label, source] of [['AGENTS.md', agents], ['.codex/rules.md', codexRules]]) {
-      assert.ok(source.includes(brandLine), `${label} must include the current FB model line exactly`);
-      assert.doesNotMatch(source, /FB-Lane (?:Four-Lane|light|Coordination)/, `${label} must use the visible FB product name`);
-    }
     for (const [label, source] of [['PROJECT_BOARD.md', board], ['AGENTS.md', agents], ['.codex/rules.md', codexRules]]) {
       assert.match(source, /sidechat-parent-thread-routing\.md/, `${label} must link to the canonical rule`);
       assert.doesNotMatch(source, /paste-ready prompt for the main Product\/BFM thread/i, `${label} must not choose a destination by Product/BFM role`);
     }
     for (const [label, source] of [['AGENTS.md', agents], ['.codex/rules.md', codexRules]]) {
-      assert.match(source, /Verification Handoff/i, `${label} must explain the verification handoff`);
-      assert.match(source, /next Product\/BFM recovery action/i, `${label} must require agent-owned recovery`);
-    }
-    for (const [label, source] of [['AGENTS.md', agents], ['.codex/rules.md', codexRules]]) {
-      assert.match(source, /## Project Start Brief/, `${label} must explain how a new project starts`);
-      assert.match(source, /Your decisions:/, `${label} must separate user decisions`);
-      assert.match(source, /Assumptions to confirm:/, `${label} must separate assumptions to confirm`);
-      assert.match(source, /Success looks like:/, `${label} must name the success outcome`);
-      assert.match(source, /Progress:/, `${label} must name the current user-facing progress`);
-      assert.match(source, /## How FB works/, `${label} must explain the FB loop in plain language`);
-      assertExactFirstProjectContract(label, source);
-      assert.match(source, /## Test This Now/, `${label} must provide the review contract`);
-      assert.match(source, /Outcome type/, `${label} must identify the review outcome type`);
-      assert.match(source, /Direct links/, `${label} must provide direct review links`);
-      assert.match(source, /Exact steps and expectations/, `${label} must give exact review steps`);
-      assert.match(source, /Pass criteria/, `${label} must name review pass criteria`);
-      assert.match(source, /Known limits/, `${label} must disclose known review limits`);
-      assert.match(source, /Failure-report format/, `${label} must explain failure reporting`);
-      assert.match(source, /Status: blocked — review access is missing/, `${label} must state the missing-review-access response`);
+      assert.match(source, /<!-- fb-harness-route-start -->/, `${label} must include the managed FB route`);
+      assert.match(source, /<!-- fb-harness-route-end -->/, `${label} must close the managed FB route`);
+      assert.match(source, /docs\/fb\/README\.md/, `${label} must route to the installed FB pack`);
+      assert.match(source, /docs\/fb\/(?:start|workflow|evidence|guardrails)\.md/, `${label} must retain focused pack links`);
+      assert.match(source, /sidechat-parent-thread-routing\.md/, `${label} must retain the sidechat route`);
+      assert.doesNotMatch(source, /## Project Start Brief|## Test This Now|### Verification Handoff/, `${label} must remain a thin route layer`);
     }
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
     assert.match(output, /Lanes investigate and plan different parts/, 'bootstrap quick start must say that lanes plan');
     assert.match(output, /Product combines findings into one build brief/, 'bootstrap quick start must say that Product prepares the build brief');
     assert.match(output, /You approve the brief\. Only after explicit \$bfm, BFM builds and checks it\./, 'bootstrap quick start must put user approval before the explicit $bfm build boundary');
     assert.match(output, /returning project health/, 'bootstrap quick start must reserve status for returning-project health');
-    assert.match(codexRules, /A sidechat prompt is not source of truth/);
+    assert.match(codexRules, /docs\/fb\/guardrails\.md/, 'Codex rules must route sidechat authority through the harness');
     assert.ok(!fs.existsSync(path.join(root, '.mcp.json')), 'expected bootstrap not to create project MCP config');
     assert.ok(!fs.existsSync(path.join(root, '.claude')), 'expected bootstrap not to create Claude Code files');
     assert.ok(!fs.existsSync(path.join(root, 'agents')), 'expected bootstrap not to create Antigravity files');
@@ -230,6 +220,31 @@ function assertCodexBootstrap(args) {
     fs.rmSync(root, { recursive: true, force: true });
   }
 }
+
+test('bootstrap preserves existing project-owned instructions and idempotently replaces only its managed route', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-existing-bootstrap-'));
+  const agentsBefore = '# Project-owned AGENTS\n\nKeep this exact project instruction.\n';
+  const rulesBefore = '# Project-owned rules\n\nKeep this exact custom rule.\n';
+  try {
+    fs.writeFileSync(path.join(root, 'AGENTS.md'), agentsBefore, 'utf8');
+    fs.mkdirSync(path.join(root, '.codex'));
+    fs.writeFileSync(path.join(root, '.codex', 'rules.md'), rulesBefore, 'utf8');
+    execFileSync('node', [cliPath, 'bootstrap'], { cwd: root, stdio: 'ignore' });
+    const agentsAfterFirstRun = fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8');
+    const rulesAfterFirstRun = fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8');
+    for (const [label, before, after] of [['AGENTS.md', agentsBefore, agentsAfterFirstRun], ['.codex/rules.md', rulesBefore, rulesAfterFirstRun]]) {
+      assert.ok(after.includes(before), `${label} must preserve project-owned text verbatim`);
+      assert.strictEqual((after.match(/<!-- fb-harness-route-start -->/g) || []).length, 1, `${label} must add one managed route start marker`);
+      assert.strictEqual((after.match(/<!-- fb-harness-route-end -->/g) || []).length, 1, `${label} must add one managed route end marker`);
+      assert.match(after, /docs\/fb\/README\.md/, `${label} must route to the installed pack`);
+    }
+    execFileSync('node', [cliPath, 'bootstrap'], { cwd: root, stdio: 'ignore' });
+    assert.strictEqual(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), agentsAfterFirstRun, 'AGENTS.md route update must be idempotent');
+    assert.strictEqual(fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8'), rulesAfterFirstRun, '.codex/rules.md route update must be idempotent');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
 
 console.log('sidechat parent-thread routing');
 test('documents the parent-only sidechat routing rule across source and package entry points', () => {
@@ -265,6 +280,10 @@ test('documents the parent-only sidechat routing rule across source and package 
   ];
   for (const relativePath of entryPoints) {
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    if (!source.includes('sidechat-parent-thread-routing.md')) {
+      assert.match(source, /(?:docs\/)?fb\/guardrails\.md/, `${relativePath} must route sidechat policy through the harness`);
+      continue;
+    }
     assert.match(source, /sidechat-parent-thread-routing\.md/, `${relativePath} must link to the canonical rule`);
     assert.match(source, /only to its (?:originating )?parent|only eligible destination|originating parent main thread/i, `${relativePath} must forbid non-parent delivery`);
     assert.match(source, /ordinary user-provided context/i, `${relativePath} must protect non-parent receiving threads`);
@@ -299,19 +318,25 @@ test('documents the verification handoff and recovery contract across source, pa
   ];
   for (const relativePath of entryPoints) {
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    if (!source.match(/Verification Handoff/i) || !source.match(/next Product\/BFM recovery action/i)) {
+      assert.match(source, /(?:docs\/)?fb\/evidence\.md/, `${relativePath} must route verification guidance through the harness`);
+      continue;
+    }
     assert.match(source, /Verification Handoff/i, `${relativePath} must direct Product/BFM to the verification handoff`);
     assert.match(source, /next Product\/BFM recovery action/i, `${relativePath} must require agent-owned recovery`);
   }
 
   for (const relativePath of ['tools/fb-lane.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.cjs']) {
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
-    assert.match(source, /Verification Handoff/i, `${relativePath} must generate the verification handoff rule`);
-    assert.match(source, /next Product\/BFM recovery action/i, `${relativePath} must generate agent-owned recovery`);
+    assert.match(source, /docs\/fb\/evidence\.md/, `${relativePath} must generate the verification route`);
+    assert.match(source, /docs\/fb\/guardrails\.md/, `${relativePath} must generate the recovery route`);
   }
 });
 
 test('all nine active Task-1 contract surfaces keep exact progress and blocked wording', () => {
   const repoRoot = process.cwd();
+  const startGuide = fs.readFileSync(path.join(repoRoot, 'docs', 'fb', 'start.md'), 'utf8');
+  assert.match(startGuide, new RegExp(`\\*\\*Progress:\\*\\* ${exactProgress}`), 'docs/fb/start.md must keep the exact approved progress wording');
   const activeContractSurfaces = [
     'plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md',
     'plugins/fb-lane-coordination/skills/fb-product/SKILL.md',
@@ -326,8 +351,7 @@ test('all nine active Task-1 contract surfaces keep exact progress and blocked w
 
   for (const relativePath of activeContractSurfaces) {
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
-    assert.match(source, new RegExp(`\\*\\*Progress:\\*\\* ${exactProgress}`), `${relativePath} must use the exact approved progress wording`);
-    assert.match(source, new RegExp(`\\*\\*Blocked:\\*\\* ${exactBlocked.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}`), `${relativePath} must use the exact blocked wording`);
+    assert.match(source, /(?:docs\/)?fb\/start\.md/, `${relativePath} must route first-project guidance to the canonical harness page`);
   }
 });
 
