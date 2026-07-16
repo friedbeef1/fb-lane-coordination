@@ -104,6 +104,21 @@ Mechanical origin and regression evidence: ${values.mechanicalOrigin}
 ${values.good ? `Good example: ${values.good}\n` : ''}${values.bad ? `Bad example: ${values.bad}\n` : ''}`;
 }
 
+function gapDocument(id, status) {
+  const closed = status === 'closed';
+  const evalRecord = record({
+    id, type: 'product', result: closed ? 'pass' : 'fail', classification: 'Eval failure',
+    revision: closed ? 'Grounded the candidate.' : 'Revise the candidate.',
+    rerun: closed ? 'pass - original scenario passed.' : 'not run',
+    rootCause: closed ? 'Context was omitted.' : 'None - the failure remains open.',
+    regression: closed ? 'R1 preserves the comparison.' : 'None - the failure remains open.',
+    fresh: closed ? 'Fresh candidate passed.' : 'None - the failure remains open.',
+    consistency: closed ? 'Record and evidence agree.' : 'The open record and gap agree.',
+    good: 'Specific grounded action.', bad: 'Generic advice.',
+  });
+  return `${evalRecord}\nProgress: ${closed ? 'Complete — product quality target met' : 'Checking — product quality target missed'}\n\n## Quality Gap\n\nEval ID: ${id}\nGap status: ${status}\nWhat is insufficient: ${closed ? 'Historical' : 'Current'} candidate is generic.\nFailed quality dimension: usefulness\nGood example: Specific grounded action.\nBad example: Generic advice.\nResponsible layer: Product\nNext scoped revision: Preserve a grounded candidate.\nEvidence required for the next candidate: Fresh comparison.${closed ? '\nClosed evidence: Fresh candidate passed the original comparison.' : ''}`;
+}
+
 function expectInvalid(markdown, pattern, options) {
   assert.throws(() => validateEvalDocument(markdown, options), pattern);
 }
@@ -226,11 +241,11 @@ test('failure closure requires classification, revision, rerun, fresh evidence, 
       rerun: `${rerun} - explicit Product boundary decision APPROVED-BOUNDARY-1.`,
       rootCause: 'The original candidate did not meet the selected scenario.', regression: 'Regression R1 preserves the original failure evidence.',
       fresh: 'Fresh Product boundary evidence at commit abc1234.', consistency: 'Board, handoff, eval, session, and Git abc1234 agree.',
-      changedDecision: 'Explicit Product approval: APPROVED-BOUNDARY-1.',
+      changedDecision: 'Product approval: approved; Reference: APPROVED-BOUNDARY-1',
       briefRevision: rerun === 'superseded' ? 'Product-approved Build Brief revision APPROVED-BOUNDARY-1 replaces the original scenario.' : 'None - the approved brief is unchanged.',
     });
     assert.doesNotThrow(() => assertEvalCloseout(resolvedAtProductBoundary));
-    assert.throws(() => assertEvalCloseout(resolvedAtProductBoundary.replace('Changed user decision approval: Explicit Product approval: APPROVED-BOUNDARY-1.', 'Changed user decision approval: Product discussion only.')), /explicit Product approval|approval/i);
+    assert.throws(() => assertEvalCloseout(resolvedAtProductBoundary.replace('Changed user decision approval: Product approval: approved; Reference: APPROVED-BOUNDARY-1', 'Changed user decision approval: Product discussion only.')), /explicit Product approval|approval/i);
   }
 });
 
@@ -248,9 +263,36 @@ test('blocking and mechanical closeout requires coherent latest result, rerun, d
   }
   assert.doesNotThrow(() => assertEvalCloseout(record({ ...base, result: 'pass', rerun: 'pass - repair passed.', disposition: 'passed' })));
   assert.throws(() => assertEvalCloseout(record({ ...base, result: 'pass', rerun: 'blocked - environment unavailable.', disposition: 'passed' })), /rerun|disposition|coherent/i);
-  assert.doesNotThrow(() => assertEvalCloseout(record({ ...base, result: 'blocked', rerun: 'deferred - Product boundary APPROVED-DEFER-1.', disposition: 'deferred', changedDecision: 'Explicit Product approval: APPROVED-DEFER-1.' })));
-  assert.doesNotThrow(() => assertEvalCloseout(record({ ...base, result: 'blocked', rerun: 'superseded - Product boundary APPROVED-SUPERSEDE-1.', disposition: 'superseded', changedDecision: 'Explicit Product approval: APPROVED-SUPERSEDE-1.', briefRevision: 'Approved Build Brief revision APPROVED-SUPERSEDE-1 replaces the original scenario.' })));
-  assert.throws(() => assertEvalCloseout(record({ ...base, result: 'blocked', rerun: 'superseded - Product boundary APPROVED-SUPERSEDE-1.', disposition: 'superseded', changedDecision: 'Explicit Product approval: APPROVED-SUPERSEDE-1.' })), /brief revision/i);
+  assert.doesNotThrow(() => assertEvalCloseout(record({ ...base, result: 'blocked', rerun: 'deferred - Product boundary APPROVED-DEFER-1.', disposition: 'deferred', changedDecision: 'Product approval: approved; Reference: APPROVED-DEFER-1' })));
+  assert.doesNotThrow(() => assertEvalCloseout(record({ ...base, result: 'blocked', rerun: 'superseded - Product boundary APPROVED-SUPERSEDE-1.', disposition: 'superseded', changedDecision: 'Product approval: approved; Reference: APPROVED-SUPERSEDE-1', briefRevision: 'Approved Build Brief revision APPROVED-SUPERSEDE-1 replaces the original scenario.' })));
+  assert.throws(() => assertEvalCloseout(record({ ...base, result: 'blocked', rerun: 'superseded - Product boundary APPROVED-SUPERSEDE-1.', disposition: 'superseded', changedDecision: 'Product approval: approved; Reference: APPROVED-SUPERSEDE-1' })), /brief revision/i);
+});
+
+test('one structured positive Product approval contract governs changed decisions and Product-boundary dispositions', () => {
+  const closed = {
+    result: 'pass', classification: 'Eval failure', revision: 'Repaired the candidate.',
+    rerun: 'pass - original scenario passed.', rootCause: 'Required evidence was omitted.',
+    regression: 'R1 repeats the original scenario.', fresh: 'Fresh evidence at abc1234.',
+    consistency: 'Eval, handoff, board, session, and Git agree.',
+  };
+  assert.doesNotThrow(() => assertEvalCloseout(record({ ...closed, changedDecision: 'Product approval: approved; Reference: APPROVED-DECISION-1' })));
+  for (const spoof of [
+    'Explicit Product approval was not APPROVED-123',
+    'Product approval: not approved; Reference: APPROVED-DECISION-1',
+    'Product approval: approved; Reference: TBD',
+    'Product approval: approved',
+    'Self approval: approved; Reference: APPROVED-DECISION-1',
+    'The eval self-approved; Reference: APPROVED-DECISION-1',
+  ]) assert.throws(() => assertEvalCloseout(record({ ...closed, changedDecision: spoof })), /Product approval|approval/i, spoof);
+
+  const boundary = {
+    ...closed, authority: 'blocking', previous: 'advisory',
+    approval: 'Product approval: approved; Reference: APPROVED-AUTHORITY-1',
+    decision: 'Product approved and recorded blocking authority.', result: 'blocked',
+    rerun: 'deferred - Product boundary decision.', disposition: 'deferred',
+  };
+  assert.doesNotThrow(() => assertEvalCloseout(record({ ...boundary, changedDecision: 'Product approval: approved; Reference: APPROVED-DEFER-1' })));
+  assert.throws(() => assertEvalCloseout(record({ ...boundary, changedDecision: 'Explicit Product approval was not APPROVED-123' })), /Product approval|approval/i);
 });
 
 test('Quality Gaps preserve history while open and closed states remain coherent with their eval record', () => {
@@ -282,6 +324,16 @@ Evidence required for the next candidate: Fresh side-by-side output for the orig
   assert.doesNotThrow(() => validateQualityGaps(closed));
   assert.throws(() => validateQualityGaps(closed.replace('Progress: Complete — product quality target met', 'Progress: Checking — product quality target missed')), /closed|Checking/i);
   assert.throws(() => validateQualityGaps(closed.replace(/Closed evidence: [^\n]+\n/, '')), /Closed evidence/i);
+});
+
+test('mixed open and closed Quality Gaps are scoped to their own record documents', () => {
+  const closedRecord = record({ id: 'EVAL-PRODUCT-CLOSED-001', type: 'product', result: 'pass', classification: 'Eval failure', revision: 'Grounded the closed candidate.', rerun: 'pass - original scenario passed.', rootCause: 'Context was omitted.', regression: 'R1 preserves the comparison.', fresh: 'Fresh closed candidate.', consistency: 'Closed record and evidence agree.', changedDecision: 'No user decision changed.', good: 'Grounded action.', bad: 'Generic action.' });
+  const closedDoc = `${closedRecord}\nProgress: Complete — product quality target met\n\n## Quality Gap\n\nEval ID: EVAL-PRODUCT-CLOSED-001\nGap status: closed\nWhat is insufficient: Historical candidate was generic.\nFailed quality dimension: output relevance and specificity\nGood example: Grounded action.\nBad example: Generic action.\nResponsible layer: Product\nNext scoped revision: Preserve the grounded candidate.\nEvidence required for the next candidate: Fresh comparison.\nClosed evidence: Fresh closed candidate passed.`;
+  const openRecord = record({ id: 'EVAL-PRODUCT-OPEN-001', type: 'product', result: 'fail', classification: 'Eval failure', revision: 'Revise the open candidate.', good: 'Specific action.', bad: 'Generic advice.' });
+  const openDoc = `${openRecord}\nProgress: Checking — product quality target missed\n\n## Quality Gap\n\nEval ID: EVAL-PRODUCT-OPEN-001\nGap status: open\nWhat is insufficient: Current candidate is generic.\nFailed quality dimension: usefulness\nGood example: Specific action.\nBad example: Generic advice.\nResponsible layer: Product\nNext scoped revision: Ground the candidate.\nEvidence required for the next candidate: Fresh comparison.`;
+  assert.doesNotThrow(() => validateQualityGaps(`${closedDoc}\n\n${openDoc}`));
+  assert.throws(() => validateQualityGaps(`${closedDoc.replace('Progress: Complete — product quality target met', 'Progress: Checking — product quality target missed')}\n\n${openDoc}`), /closed|Checking/i);
+  assert.throws(() => validateQualityGaps(`${closedDoc}\n\n${openDoc.replace('Progress: Checking — product quality target missed', 'Progress: Complete — product quality target met')}`), /open|Checking/i);
 });
 
 test('selected evals integrate with briefs, handoff, Test This Now, receipt, and verification checkpoint', () => {
@@ -418,17 +470,32 @@ test('bootstrap installs seven pages and both templates while preserving project
   }
 });
 
-test('documented fallback copy includes fb-eval and the copied local CLI loads and runs', () => {
+test('documented fallback command sequence acquires every bootstrap runtime and canonical asset and runs exactly', () => {
   const setup = fs.readFileSync(path.join(repoRoot, 'docs', 'setup.md'), 'utf8');
-  for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs']) assert.match(setup, new RegExp(tool.replace('.', '\\.')));
+  const match = setup.match(/## Manual CLI Bootstrap[\s\S]*?```bash\n([\s\S]*?)```/);
+  assert.ok(match, 'manual fallback bash block must exist');
+  const commands = match[1];
+  assert.match(commands, /FB_LANE_ARCHIVE_URL/);
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-eval-fallback-'));
+  const archiveParent = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-eval-archive-'));
   try {
-    fs.mkdirSync(path.join(root, 'tools'), { recursive: true });
-    for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs']) fs.copyFileSync(path.join(repoRoot, 'tools', tool), path.join(root, 'tools', tool));
-    const output = execFileSync('node', ['tools/fb-lane.cjs', 'session', 'intake', '--session-id', 'fallback-copy'], { cwd: root, encoding: 'utf8' });
-    assert.match(output, /intake|session/i);
+    const archiveRoot = path.join(archiveParent, 'fb-lane-coordination-main');
+    fs.mkdirSync(path.join(archiveRoot, 'tools'), { recursive: true });
+    fs.mkdirSync(path.join(archiveRoot, 'docs', 'fb'), { recursive: true });
+    fs.mkdirSync(path.join(archiveRoot, 'docs', 'evals'), { recursive: true });
+    for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs']) fs.copyFileSync(path.join(repoRoot, 'tools', tool), path.join(archiveRoot, 'tools', tool));
+    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md']) fs.copyFileSync(path.join(repoRoot, 'docs', 'fb', page), path.join(archiveRoot, 'docs', 'fb', page));
+    for (const asset of ['eval-record-template.md', 'agent-behavior-scorecard-template.md']) fs.copyFileSync(path.join(repoRoot, 'docs', 'evals', asset), path.join(archiveRoot, 'docs', 'evals', asset));
+    const archive = path.join(archiveParent, 'source.tar.gz');
+    execFileSync('tar', ['-czf', archive, '-C', archiveParent, 'fb-lane-coordination-main']);
+    const output = execFileSync('bash', ['-eu', '-o', 'pipefail', '-c', commands], { cwd: root, env: { ...process.env, FB_LANE_ARCHIVE_URL: `file://${archive}` }, encoding: 'utf8' });
+    assert.match(output, /FB bootstrapped successfully/i);
+    for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs']) assert.strictEqual(fs.readFileSync(path.join(root, 'tools', tool), 'utf8'), fs.readFileSync(path.join(repoRoot, 'tools', tool), 'utf8'), tool);
+    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md']) assert.strictEqual(fs.readFileSync(path.join(root, 'docs', 'fb', page), 'utf8'), fs.readFileSync(path.join(repoRoot, 'docs', 'fb', page), 'utf8'), page);
+    for (const asset of ['eval-record-template.md', 'agent-behavior-scorecard-template.md']) assert.strictEqual(fs.readFileSync(path.join(root, 'docs', 'evals', asset), 'utf8'), fs.readFileSync(path.join(repoRoot, 'docs', 'evals', asset), 'utf8'), asset);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(archiveParent, { recursive: true, force: true });
   }
 });
 
@@ -450,6 +517,28 @@ test('doctor reports deterministic eval record and parity failures without judgi
     }));
     checks = collectEvalDoctorChecks(root);
     assert.ok(checks.some(check => check.level === 'fail' && /blocking.*closeout|Checking/i.test(check.detail)));
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('doctor accepts mixed historical closed and current open gaps across files and rejects either mismatched file', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-eval-mixed-doctor-'));
+  try {
+    fs.mkdirSync(path.join(root, 'docs', 'evals'), { recursive: true });
+    const closedPath = path.join(root, 'docs', 'evals', 'closed.md');
+    const openPath = path.join(root, 'docs', 'evals', 'open.md');
+    fs.writeFileSync(closedPath, gapDocument('EVAL-PRODUCT-CLOSED-001', 'closed'));
+    fs.writeFileSync(openPath, gapDocument('EVAL-PRODUCT-OPEN-001', 'open'));
+    let checks = collectEvalDoctorChecks(root);
+    assert.ok(checks.some(check => check.level === 'ok' && /eval record/i.test(check.label)), checks.map(check => check.detail).join('\n'));
+    fs.writeFileSync(closedPath, gapDocument('EVAL-PRODUCT-CLOSED-001', 'closed').replace('Progress: Complete — product quality target met', 'Progress: Checking — product quality target missed'));
+    checks = collectEvalDoctorChecks(root);
+    assert.ok(checks.some(check => check.level === 'fail' && /closed|Checking/i.test(check.detail)));
+    fs.writeFileSync(closedPath, gapDocument('EVAL-PRODUCT-CLOSED-001', 'closed'));
+    fs.writeFileSync(openPath, gapDocument('EVAL-PRODUCT-OPEN-001', 'open').replace('Progress: Checking — product quality target missed', 'Progress: Complete — product quality target met'));
+    checks = collectEvalDoctorChecks(root);
+    assert.ok(checks.some(check => check.level === 'fail' && /open|Checking/i.test(check.detail)));
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

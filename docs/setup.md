@@ -15,7 +15,7 @@ If you already have an AI agent open in your target project workspace, paste thi
 ```text
 I want to bootstrap the FB coordination plugin in this workspace.
 Read the template files and CLI utilities from the fb-lane-coordination repository.
-Copy tools/fb-lane.cjs, tools/fb-session.cjs, and tools/fb-eval.cjs to my project's root tools/ directory.
+Use the documented archive fallback so the three runtime modules, all seven docs/fb pages, and both docs/evals template assets arrive together.
 Run node tools/fb-lane.cjs bootstrap to set up my project board, lane rules, Codex rules, and handoff routing.
 Do not overwrite existing project rules; merge with them conservatively.
 ```
@@ -28,10 +28,14 @@ The agent should create or update the local coordination files, including
 From your target project root:
 
 ```bash
-mkdir -p tools
-curl -o tools/fb-lane.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.cjs
-curl -o tools/fb-session.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-session.cjs
-curl -o tools/fb-eval.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-eval.cjs
+FB_LANE_ARCHIVE_URL="${FB_LANE_ARCHIVE_URL:-https://github.com/friedbeef1/fb-lane-coordination/archive/refs/heads/main.tar.gz}"
+fb_lane_tmp="$(mktemp -d)"
+trap 'rm -rf "$fb_lane_tmp"' EXIT
+curl -fsSL "$FB_LANE_ARCHIVE_URL" | tar -xz -C "$fb_lane_tmp" --strip-components=1
+mkdir -p tools docs/fb docs/evals
+cp "$fb_lane_tmp"/tools/fb-{lane,session,eval}.cjs tools/
+cp "$fb_lane_tmp"/docs/fb/{README,start,workflow,evidence,guardrails,sessions,evals}.md docs/fb/
+cp "$fb_lane_tmp"/docs/evals/{eval-record-template,agent-behavior-scorecard-template}.md docs/evals/
 node tools/fb-lane.cjs bootstrap
 ```
 

@@ -173,9 +173,9 @@ function assertEvalCloseout(markdown) {
         if (!actionable(fields[label])) throw new Error(`Closed eval failure ${record.id} requires actionable ${label}.`);
       }
       const decision = fields['Changed user decision approval'];
-      const explicitApproval = /(?:explicit\s+Product\s+approval|APPROVED[-_ ])/i.test(decision);
-      if ((['deferred', 'superseded'].includes(rerun) && !explicitApproval)
-        || (!/no user decision changed|no .*decision.*change/i.test(decision) && !explicitApproval)) {
+      const explicitApproval = hasPositiveProductApproval(decision);
+      const noDecisionChanged = /^No user decision changed(?:[.;].*)?$/i.test(decision);
+      if ((['deferred', 'superseded'].includes(rerun) || !noDecisionChanged) && !explicitApproval) {
         throw new Error(`Closed eval failure ${record.id} requires explicit approval for any changed user decision.`);
       }
       if (rerun === 'superseded' && !actionable(fields['Approved brief revision'])) {
@@ -186,32 +186,43 @@ function assertEvalCloseout(markdown) {
   return true;
 }
 
+function evalRecordUnits(markdown) {
+  const source = String(markdown || '');
+  const matches = [...source.matchAll(/^##\s+Eval Record\s*$/gim)];
+  return matches.map((match, index) => source.slice(match.index, matches[index + 1] ? matches[index + 1].index : source.length));
+}
+
 function validateQualityGaps(markdown) {
-  const gaps = sections(markdown, 'Quality Gap');
-  const progress = fieldValue(markdown, 'Progress');
-  const records = new Map(parseEvalRecords(markdown).map(record => [record.id, record]));
-  if (progress === 'Checking — product quality target missed' && gaps.length === 0) throw new Error('Checking — product quality target missed requires a complete ## Quality Gap.');
-  for (const gap of gaps) {
-    for (const label of [...QUALITY_GAP_FIELDS, 'Gap status']) {
-      if (!actionable(fieldValue(gap, label))) throw new Error(`Quality Gap requires actionable ${label}.`);
-    }
-    const id = fieldValue(gap, 'Eval ID');
-    const status = fieldValue(gap, 'Gap status');
-    if (!EVAL_ID_PATTERN.test(id)) throw new Error('Quality Gap requires a valid Eval ID.');
-    if (!RESPONSIBLE_LAYERS.has(fieldValue(gap, 'Responsible layer'))) throw new Error('Quality Gap Responsible layer must be Product, Design, Tech, or Business.');
-    if (!['open', 'closed'].includes(status)) throw new Error('Quality Gap status must be open or closed.');
-    const record = records.get(id);
-    if (!record) throw new Error(`Quality Gap ${id} requires its repo-local Eval Record in the same document set.`);
-    if (status === 'open') {
-      if (progress !== 'Checking — product quality target missed') throw new Error('An open Quality Gap must keep Progress exactly Checking — product quality target missed.');
-      if (record.fields.Disposition !== 'open' || record.fields['Latest result'] === 'pass') throw new Error(`Open Quality Gap ${id} requires an open, non-passing eval record.`);
-    } else {
-      if (progress === 'Checking — product quality target missed') throw new Error(`Closed Quality Gap ${id} cannot retain Checking progress.`);
-      if (record.fields.Disposition !== 'passed' || record.fields['Latest result'] !== 'pass') throw new Error(`Closed Quality Gap ${id} requires a passed eval record.`);
-      if (!actionable(fieldValue(gap, 'Closed evidence'))) throw new Error(`Closed Quality Gap ${id} requires actionable Closed evidence.`);
+  const allGaps = sections(markdown, 'Quality Gap');
+  let scopedGapCount = 0;
+  for (const unit of evalRecordUnits(markdown)) {
+    const [record] = parseEvalRecords(unit);
+    const gaps = sections(unit, 'Quality Gap');
+    const progress = fieldValue(unit, 'Progress');
+    scopedGapCount += gaps.length;
+    if (progress === 'Checking — product quality target missed' && gaps.length === 0) throw new Error(`Checking — product quality target missed for ${record.id} requires a complete ## Quality Gap.`);
+    for (const gap of gaps) {
+      for (const label of [...QUALITY_GAP_FIELDS, 'Gap status']) {
+        if (!actionable(fieldValue(gap, label))) throw new Error(`Quality Gap requires actionable ${label}.`);
+      }
+      const id = fieldValue(gap, 'Eval ID');
+      const status = fieldValue(gap, 'Gap status');
+      if (!EVAL_ID_PATTERN.test(id)) throw new Error('Quality Gap requires a valid Eval ID.');
+      if (!RESPONSIBLE_LAYERS.has(fieldValue(gap, 'Responsible layer'))) throw new Error('Quality Gap Responsible layer must be Product, Design, Tech, or Business.');
+      if (!['open', 'closed'].includes(status)) throw new Error('Quality Gap status must be open or closed.');
+      if (!record || record.id !== id) throw new Error(`Quality Gap ${id} requires its matching Eval Record in the same document scope.`);
+      if (status === 'open') {
+        if (progress !== 'Checking — product quality target missed') throw new Error('An open Quality Gap must keep Progress exactly Checking — product quality target missed.');
+        if (record.fields.Disposition !== 'open' || record.fields['Latest result'] === 'pass') throw new Error(`Open Quality Gap ${id} requires an open, non-passing eval record.`);
+      } else {
+        if (progress === 'Checking — product quality target missed') throw new Error(`Closed Quality Gap ${id} cannot retain Checking progress.`);
+        if (record.fields.Disposition !== 'passed' || record.fields['Latest result'] !== 'pass') throw new Error(`Closed Quality Gap ${id} requires a passed eval record.`);
+        if (!actionable(fieldValue(gap, 'Closed evidence'))) throw new Error(`Closed Quality Gap ${id} requires actionable Closed evidence.`);
+      }
     }
   }
-  return gaps;
+  if (scopedGapCount !== allGaps.length) throw new Error('Every Quality Gap requires a matching Eval Record in the same document scope.');
+  return allGaps;
 }
 
 function requiredField(section, label, context, allowNone = false) {

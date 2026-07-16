@@ -32,7 +32,7 @@ Root cause: None - no failure has occurred.
 Regression case: None - no failure has occurred.
 Fresh evidence: None - no failure has occurred.
 Record consistency: Eval, handoff, board, session, and Git are not yet claiming closure.
-Changed user decision approval: No user decision changed.
+Changed user decision approval: No user decision changed. | Product approval: approved; Reference: APPROVED-123
 Approved brief revision: None - the approved brief is unchanged.
 Mechanical origin and regression evidence: None - this is not an existing deterministic check.
 Good example: Required for subjective product evals and optional for objective product evals; replace with a concrete passing output.
@@ -40,7 +40,8 @@ Bad example: Required for subjective product evals and optional for objective pr
 
 ## Quality Gap
 
-Keep this historical record after closure. Open gaps require the exact progress
+Keep this historical record after closure and keep its Progress field in the
+same Eval Record scope. Open gaps require the exact progress
 state `Checking — product quality target missed`; closed gaps require a
 non-Checking progress state and fresh closure evidence.
 

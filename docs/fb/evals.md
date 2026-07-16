@@ -31,7 +31,9 @@ explicit approval and privacy review.
 
 Product/BFM records every authority change. Promotion to blocking or mechanical
 requires the exact positive form `Product approval: approved; Reference:
-APPROVED-...`. Negated, automatic, or self-promoted evidence is invalid.
+APPROVED-...`. The same parser governs changed user decisions and deferred or
+superseded Product-boundary dispositions. Negated, missing-reference,
+ambiguous, automatic, self-approved, or self-promoted evidence is invalid.
 No new eval becomes blocking during TASK-023. A noisy or ambiguous eval receives an
 immediate demotion recommendation; Product records the decision.
 
@@ -65,7 +67,9 @@ open `## Quality Gap` with: Gap status; What is insufficient; Failed quality dim
 example; Bad example; Responsible layer (`Product | Design | Tech | Business`);
 Next scoped revision; and Evidence required for the next candidate. Preserve the
 gap after closure with `Gap status: closed`, non-Checking progress, and fresh
-`Closed evidence` tied to a passed record.
+`Closed evidence` tied to a passed record. Progress and lifecycle are scoped to
+their matching Eval Record and Quality Gap, so a repository can retain closed
+history while a different record has a current open gap.
 
 BFM continues the scoped loop until pass or until scope, time, or direction
 requires a user decision. Close a prior failure only when the original scenario
