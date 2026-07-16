@@ -448,6 +448,114 @@ function collectGoalAlignmentSessionWarnings(handoffsDir, tasks = []) {
   return warnings;
 }
 
+const REVIEW_STATES = ['not reviewable', 'runnable sandbox', 'staging candidate', 'completed build'];
+
+function markdownSection(markdown, heading) {
+  const escapedHeading = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = new RegExp(`^##\\s+${escapedHeading}\\s*$`, 'im').exec(markdown);
+  if (!match) return '';
+  const remaining = markdown.slice(match.index + match[0].length);
+  const nextHeading = remaining.search(/^##\s+/m);
+  return nextHeading === -1 ? remaining : remaining.slice(0, nextHeading);
+}
+
+function reviewFieldPresent(section, field) {
+  const escapedField = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(?:^|\\n)\\s*(?:[-*]\\s*)?(?:\\*\\*)?${escapedField}(?:\\*\\*)?\\s*:(?:\\*\\*)?`, 'i').test(section);
+}
+
+function reviewFieldValue(section, field) {
+  const escapedField = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = new RegExp(
+    `(?:^|\\n)\\s*(?:[-*]\\s*)?(?:\\*\\*)?${escapedField}(?:\\*\\*)?\\s*:\\s*([^\\n]*)`,
+    'i'
+  ).exec(section);
+  return match ? match[1].trim().replace(/^\*\*\s*/, '') : '';
+}
+
+function reviewLinks(section) {
+  return [...section.matchAll(/\[[^\]\n]+\]\(\s*(?:<([^>\n]+)>|([^\s)]+))(?:\s+['"][^)]*['"])?\s*\)/g)]
+    .map(match => match[1] || match[2])
+    .filter(Boolean);
+}
+
+function collectReviewEvidenceWarnings(handoffsDir) {
+  const warnings = {
+    invalidStates: [],
+    missingBriefs: [],
+    incompletePackets: [],
+    blockedAccess: [],
+    missingLocalLinks: []
+  };
+  if (!fs.existsSync(handoffsDir)) return warnings;
+
+  for (const entry of fs.readdirSync(handoffsDir, { withFileTypes: true })) {
+    if (!entry.isFile() || !entry.name.endsWith('.md') || entry.name === 'index.md') continue;
+    const handoffPath = path.join(handoffsDir, entry.name);
+    const markdown = fs.readFileSync(handoffPath, 'utf8');
+    if (!/^fb_harness:\s*v2\s*$/im.test(markdown)) continue;
+
+    const stateMatch = markdown.match(/^Review state:\s*(.*?)\s*$/im);
+    const reviewState = stateMatch ? stateMatch[1] : '';
+    if (!REVIEW_STATES.includes(reviewState)) {
+      warnings.invalidStates.push(entry.name);
+      continue;
+    }
+
+    if (hasApprovedGoalAlignmentSession(markdown)) {
+      const missingBriefs = ['Project Start Brief', 'Build Brief']
+        .filter(heading => !new RegExp(`^##\\s+${heading}\\b`, 'im').test(markdown));
+      if (missingBriefs.length > 0) {
+        warnings.missingBriefs.push(`${entry.name} (${missingBriefs.join(', ')})`);
+      }
+    }
+
+    if (reviewState === 'not reviewable') continue;
+
+    const reviewSection = markdownSection(markdown, 'Test This Now');
+    if (/Blocked — no review environment yet/.test(reviewSection)) {
+      if (!reviewFieldValue(reviewSection, 'Next Product/BFM action')) {
+        warnings.incompletePackets.push(`${entry.name} (Next Product/BFM action)`);
+      } else {
+        warnings.blockedAccess.push(entry.name);
+      }
+      continue;
+    }
+
+    const requiredValueFields = [
+      'Outcome type',
+      'Direct links',
+      'Pass criteria',
+      'Known limits',
+      'Failure-report format'
+    ];
+    const missing = requiredValueFields.filter(field => !reviewFieldValue(reviewSection, field));
+    if (!reviewFieldPresent(reviewSection, 'Exact steps and expectations')) {
+      missing.push('Exact steps and expectations');
+    }
+    if (!/(?:^|\n)\s*\d+\.\s+\S/m.test(reviewSection)) {
+      missing.push('numbered exact steps');
+    }
+    const links = reviewLinks(reviewFieldValue(reviewSection, 'Direct links'));
+    if (links.length === 0) missing.push('Markdown direct link');
+    if (missing.length > 0) {
+      warnings.incompletePackets.push(`${entry.name} (${missing.join(', ')})`);
+      continue;
+    }
+
+    const missingLocalLinks = links.filter(link => {
+      if (/^[a-z][a-z0-9+.-]*:\/\//i.test(link)) return false;
+      const localPath = link.split(/[?#]/, 1)[0];
+      return !localPath || !fs.existsSync(path.resolve(path.dirname(handoffPath), localPath));
+    });
+    if (missingLocalLinks.length > 0) {
+      warnings.missingLocalLinks.push(`${entry.name} (${missingLocalLinks.join(', ')})`);
+    }
+  }
+
+  return warnings;
+}
+
 function collectGitLockWarnings(rootDir) {
   const gitDir = path.join(rootDir, '.git');
   if (!fs.existsSync(gitDir)) {
@@ -920,6 +1028,57 @@ function handleDoctor() {
         );
       } else {
         add('ok', 'Unapproved OKR changes', 'No non-quick handoff implies an unapproved OKR change.');
+      }
+
+      const reviewEvidenceWarnings = collectReviewEvidenceWarnings(path.join(rootDir, 'docs', 'handoffs'));
+      if (reviewEvidenceWarnings.invalidStates.length > 0) {
+        add(
+          'fail',
+          'V2 Review state',
+          `Review state must be one of ${REVIEW_STATES.join(', ')}: ${reviewEvidenceWarnings.invalidStates.join(', ')}`,
+          'Set the visible Review state to one exact supported value before asking for review.'
+        );
+      }
+      if (reviewEvidenceWarnings.missingBriefs.length > 0) {
+        add(
+          'fail',
+          'V2 initial handoff briefs',
+          `Approved v2 initial handoffs require Project Start Brief and Build Brief: ${reviewEvidenceWarnings.missingBriefs.join(', ')}`,
+          'Add both required sections before review evidence is requested.'
+        );
+      }
+      if (reviewEvidenceWarnings.incompletePackets.length > 0) {
+        add(
+          'fail',
+          'Review evidence',
+          `Test This Now is incomplete: ${reviewEvidenceWarnings.incompletePackets.join(', ')}`,
+          'Add outcome type, Markdown direct links, numbered exact steps and expectations, pass criteria, known limits, and failure-report format.'
+        );
+      }
+      if (reviewEvidenceWarnings.blockedAccess.length > 0) {
+        add(
+          'fail',
+          'Review evidence',
+          `Blocked — no review environment yet: ${reviewEvidenceWarnings.blockedAccess.join(', ')}`,
+          'Complete the stated Next Product/BFM action, then add the runnable review environment and direct link.'
+        );
+      }
+      if (reviewEvidenceWarnings.missingLocalLinks.length > 0) {
+        add(
+          'fail',
+          'Review evidence',
+          `Local Markdown direct link(s) do not resolve: ${reviewEvidenceWarnings.missingLocalLinks.join(', ')}`,
+          'Fix each local direct link or use a valid remote Markdown link.'
+        );
+      }
+      if (
+        reviewEvidenceWarnings.invalidStates.length === 0 &&
+        reviewEvidenceWarnings.missingBriefs.length === 0 &&
+        reviewEvidenceWarnings.incompletePackets.length === 0 &&
+        reviewEvidenceWarnings.blockedAccess.length === 0 &&
+        reviewEvidenceWarnings.missingLocalLinks.length === 0
+      ) {
+        add('ok', 'Review evidence', 'Harness-v2 reviewable handoffs have complete review evidence or are not reviewable.');
       }
     } else {
       add('warn', 'docs/handoffs', 'Lane handoff directory is missing.', 'Create docs/handoffs/ before non-trivial lane work.');

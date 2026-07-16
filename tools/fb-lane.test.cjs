@@ -13,7 +13,7 @@ const assert = require('assert');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { execFileSync } = require('child_process');
+const { execFileSync, spawnSync } = require('child_process');
 
 const {
   runGit,
@@ -23,6 +23,7 @@ const {
 } = require('./fb-lane.cjs');
 
 let passed = 0;
+const testFocus = process.env.FB_LANE_TEST_FOCUS;
 const cliPath = path.join(__dirname, 'fb-lane.cjs');
 const exactProgress = 'Understanding your idea → Ready for your approval → Building → Checking → Complete';
 const exactBlocked = 'Blocked — <reason> / next action';
@@ -42,6 +43,7 @@ function assertExactFirstProjectContract(label, source) {
 }
 
 function test(name, fn) {
+  if (testFocus && !name.includes(testFocus)) return;
   fn();
   passed += 1;
   console.log(`  ✓ ${name}`);
@@ -157,6 +159,60 @@ Mini-loop Evidence: fixture evidence
 Evidence Against Product OKR: None identified
 `);
   }
+}
+
+function approvedV2Handoff(reviewState, body = '') {
+  return `---
+type: fb-lane-handoff
+task: TASK-001
+lane: fb-product
+status: ready
+fb_harness: v2
+Review state: ${reviewState}
+---
+
+# TASK-001
+
+## Goal Alignment Session
+
+Lane OKR Fit: aligned
+Mini-loop Evidence: fixture evidence
+Evidence Against Product OKR: None identified
+
+**Objective**: Verify the v2 review packet.
+**Key Results**: Review evidence is actionable.
+**Definition of Done**: Doctor accepts complete evidence.
+**Gate / Review Point**: Product review.
+**Approval**: approved
+**Justification**: This fixture models an approved initial handoff.
+
+## Project Start Brief
+
+What you asked for: A reviewable fixture.
+
+## Build Brief
+
+Build the smallest reviewable fixture.
+${body}`;
+}
+
+function completeReviewPacket(link) {
+  return `
+## Test This Now
+
+- **Outcome type:** Reviewable fixture
+- **Direct links:** [Open the review surface](${link})
+- **Exact steps and expectations:**
+  1. Open the direct link.
+  2. Confirm the review surface loads and shows the fixture result.
+- **Pass criteria:** The fixture result is visible without an error.
+- **Known limits:** This fixture has no external service coverage.
+- **Failure-report format:** What happened; what was expected; direct link or screenshot; environment.
+`;
+}
+
+function runDoctor(root) {
+  return spawnSync('node', [cliPath, 'doctor'], { cwd: root, encoding: 'utf8' });
 }
 
 function assertCodexBootstrap(args) {
@@ -581,6 +637,202 @@ test('doctor does not require an index for quick-only handoffs', () => {
     const output = execFileSync('node', [cliPath, 'doctor'], { cwd: root, encoding: 'utf8' });
     assert.match(output, /Handoff lookup is present or not needed yet/);
     assert.doesNotMatch(output, /Missing docs\/handoffs\/index\.md/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+console.log('harness-v2 review evidence');
+test('doctor accepts an approved v2 initial handoff with briefs and a resolvable local review link', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
+  try {
+    writeDoctorFixture(root, 1);
+    fs.mkdirSync(path.join(root, 'docs', 'handoffs', 'review'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'docs', 'handoffs', 'review', 'sandbox.html'), '<p>review</p>');
+    fs.writeFileSync(
+      path.join(root, 'docs', 'handoffs', 'TASK-001.md'),
+      approvedV2Handoff('runnable sandbox', completeReviewPacket('review/sandbox.html'))
+    );
+
+    const result = runDoctor(root);
+    assert.strictEqual(result.status, 0, result.stdout || result.stderr);
+    assert.doesNotMatch(result.stdout, /❌ Review evidence/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('doctor accepts every v2 reviewable state with a complete review packet', () => {
+  const fixtures = [
+    ['runnable sandbox', 'review/sandbox.html', true],
+    ['staging candidate', 'https://review.example.test/staging', false],
+    ['completed build', 'review/build.html', true],
+  ];
+
+  for (const [reviewState, link, needsLocalFile] of fixtures) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
+    try {
+      writeDoctorFixture(root, 1);
+      if (needsLocalFile) {
+        fs.mkdirSync(path.join(root, 'docs', 'handoffs', 'review'), { recursive: true });
+        fs.writeFileSync(path.join(root, 'docs', 'handoffs', link), '<p>review</p>');
+      }
+      fs.writeFileSync(
+        path.join(root, 'docs', 'handoffs', 'TASK-001.md'),
+        approvedV2Handoff(reviewState, completeReviewPacket(link))
+      );
+
+      const result = runDoctor(root);
+      assert.strictEqual(result.status, 0, `${reviewState}: ${result.stdout || result.stderr}`);
+      assert.doesNotMatch(result.stdout, /❌ Review evidence/);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test('doctor blocks an approved v2 initial handoff missing either required brief', () => {
+  for (const heading of ['Project Start Brief', 'Build Brief']) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
+    try {
+      writeDoctorFixture(root, 1);
+      const sectionPattern = new RegExp(`\\n## ${heading}[\\s\\S]*?(?=\\n## )`);
+      fs.writeFileSync(
+        path.join(root, 'docs', 'handoffs', 'TASK-001.md'),
+        approvedV2Handoff('runnable sandbox', completeReviewPacket('https://review.example.test/sandbox'))
+          .replace(sectionPattern, '\n')
+      );
+
+      const result = runDoctor(root);
+      assert.strictEqual(result.status, 1, `${heading}: ${result.stdout || result.stderr}`);
+      assert.match(result.stdout, /Project Start Brief and Build Brief/);
+      assert.match(result.stdout, new RegExp(heading));
+      assert.match(result.stdout, /Add both required sections/);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test('doctor blocks incomplete v2 review packets with an actionable Test This Now result', () => {
+  const fixtures = [
+    ['missing section', '', /Outcome type/],
+    ['empty outcome', completeReviewPacket('https://review.example.test/staging').replace('Reviewable fixture', ''), /Outcome type/],
+    ['plain URL', completeReviewPacket('https://review.example.test/staging').replace('[Open the review surface](https://review.example.test/staging)', 'https://review.example.test/staging'), /Markdown direct link/],
+  ];
+
+  for (const [label, packet, expectedMissing] of fixtures) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
+    try {
+      writeDoctorFixture(root, 1);
+      fs.writeFileSync(path.join(root, 'docs', 'handoffs', 'TASK-001.md'), approvedV2Handoff('staging candidate', packet));
+
+      const result = runDoctor(root);
+      assert.strictEqual(result.status, 1, `${label}: ${result.stdout || result.stderr}`);
+      assert.match(result.stdout, /Review evidence/);
+      assert.match(result.stdout, /Test This Now/);
+      assert.match(result.stdout, expectedMissing);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test('doctor blocks v2 review packets whose local Markdown direct link does not resolve', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
+  try {
+    writeDoctorFixture(root, 1);
+    fs.writeFileSync(
+      path.join(root, 'docs', 'handoffs', 'TASK-001.md'),
+      approvedV2Handoff('completed build', completeReviewPacket('review/missing-build.html'))
+    );
+
+    const result = runDoctor(root);
+    assert.strictEqual(result.status, 1, result.stdout || result.stderr);
+    assert.match(result.stdout, /Local Markdown direct link\(s\) do not resolve/);
+    assert.match(result.stdout, /review\/missing-build\.html/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('doctor treats missing v2 review access as the explicit blocked environment state', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
+  try {
+    writeDoctorFixture(root, 1);
+    fs.writeFileSync(
+      path.join(root, 'docs', 'handoffs', 'TASK-001.md'),
+      approvedV2Handoff('staging candidate', `
+## Test This Now
+
+Blocked — no review environment yet
+Next Product/BFM action: create the staging review environment and add its direct link.
+`)
+    );
+
+    const result = runDoctor(root);
+    assert.strictEqual(result.status, 1, result.stdout || result.stderr);
+    assert.match(result.stdout, /Blocked — no review environment yet/);
+    assert.match(result.stdout, /Next Product\/BFM action/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('doctor requires an actionable Product/BFM next action for blocked v2 review access', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
+  try {
+    writeDoctorFixture(root, 1);
+    fs.writeFileSync(
+      path.join(root, 'docs', 'handoffs', 'TASK-001.md'),
+      approvedV2Handoff('staging candidate', `
+## Test This Now
+
+Blocked — no review environment yet
+Next Product/BFM action:
+`)
+    );
+
+    const result = runDoctor(root);
+    assert.strictEqual(result.status, 1, result.stdout || result.stderr);
+    assert.match(result.stdout, /Test This Now is incomplete/);
+    assert.match(result.stdout, /Next Product\/BFM action/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('doctor keeps planning-only v2 and historical handoffs exempt from review evidence', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
+  try {
+    writeDoctorFixture(root, 1);
+    fs.writeFileSync(path.join(root, 'docs', 'handoffs', 'TASK-001.md'), `---
+fb_harness: v2
+Review state: not reviewable
+---
+
+# Planning-only v2 handoff
+`);
+    fs.writeFileSync(path.join(root, 'docs', 'handoffs', 'TASK-LEGACY.md'), '# Historical handoff\n');
+
+    const result = runDoctor(root);
+    assert.strictEqual(result.status, 0, result.stdout || result.stderr);
+    assert.doesNotMatch(result.stdout, /❌ Review evidence/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('doctor rejects v2 review states outside the four visible values', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
+  try {
+    writeDoctorFixture(root, 1);
+    fs.writeFileSync(path.join(root, 'docs', 'handoffs', 'TASK-001.md'), approvedV2Handoff('waiting on QA'));
+
+    const result = runDoctor(root);
+    assert.strictEqual(result.status, 1, result.stdout || result.stderr);
+    assert.match(result.stdout, /Review state/);
+    assert.match(result.stdout, /not reviewable.*runnable sandbox.*staging candidate.*completed build/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
