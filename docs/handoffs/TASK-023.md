@@ -169,3 +169,7 @@ Implementation commit: `fe733a1`.
 Verification: root/package eval `18/18`; root/package session `28/28`; legacy CLI `45/45` in the complete validator; selected-record closeout and workspace recovery passed; ten syntax checks, root/package/template parity, doctor `Ready`, and committed-diff whitespace passed. Marker: `TASK_022_023_FINAL_INTEGRATED_REPAIR_FULL_GATE_OK`.
 
 Both walkthrough evals remain shadow. Local Staging QA and all external-action boundaries remain unchanged.
+
+## Final Submit Serialization Compatibility Evidence
+
+TASK-022 repair `f94dce9` serializes CLI/MCP submit's final validation, board commit, and push with checkpoint/close/review for the same session. TASK-023 selected-record and private-safe Quality Gap checks remain inside `assertSubmitReady`, so they are revalidated under that lock immediately before submit mutation. Root/package eval remains `18/18`, selected closeout passes, and no eval authority changed. Marker: `TASK_022_FINAL_SUBMIT_SERIALIZATION_FULL_GATE_OK`.

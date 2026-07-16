@@ -166,3 +166,16 @@ Implementation commit: `fe733a1`.
 Verification: root/package session `28/28`; legacy CLI `45/45` in the complete validator; workspace recovery contract passed; ten syntax checks, root/package parity, doctor `Ready`, and committed-diff whitespace passed. Marker: `TASK_022_023_FINAL_INTEGRATED_REPAIR_FULL_GATE_OK`.
 
 Remaining boundary: local Staging QA only. No push, merge, release, publication, deployment, plugin installation, or consumer-project change was authorized or performed.
+
+## Final Submit Lifecycle Serialization Repair
+
+Implementation commit: `f94dce9`.
+
+- Exported `withSubmitLifecycleTransaction` selects the task's sole active execution session, acquires only that session's mutation lock, reruns `assertSubmitReady`, and holds the lock through board mutation, commit, and push.
+- CLI and MCP retain their initial validation, tests, hooks, and post-work authority revalidation; only the final mutation boundary moved into the transaction.
+- A submit that wins completes and pushes before close or a blocking checkpoint proceeds. A close that wins first makes both CLI and MCP submit fail before board mutation, commit, or push.
+- Existing failed-push behavior, dead-owner recovery, checkpoint resume, and cross-session concurrency remain covered.
+
+Verification: root/package session `31/31`; root/package eval `18/18`; root/package legacy CLI `45/45`; recovery and selected closeout passed; ten syntax checks, root/package parity, doctor `Ready`, and committed-diff whitespace passed. Marker: `TASK_022_FINAL_SUBMIT_SERIALIZATION_FULL_GATE_OK`.
+
+Remaining boundary: local Staging QA only. No external action was authorized or performed.
