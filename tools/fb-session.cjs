@@ -887,6 +887,21 @@ function assertSubmitReady(cwd, taskId) {
   return candidates[0];
 }
 
+function withSubmitLifecycleTransaction(cwd, taskId, fn, env = process.env) {
+  const candidates = listSessions(cwd).filter(record => record.taskId === taskId && record.mode === 'execution' && record.state === 'active');
+  if (candidates.length !== 1) {
+    assertSubmitReady(cwd, taskId);
+    throw new Error(`Submit could not identify one active execution session for ${taskId}.`);
+  }
+  const sessionId = candidates[0].sessionId;
+  return withSessionMutationLock(cwd, sessionId, () => {
+    const record = assertSubmitReady(cwd, taskId);
+    if (record.sessionId !== sessionId) throw new Error(`Submit session changed while waiting for the ${sessionId} lifecycle transaction.`);
+    waitAtLifecycleTestGate(env);
+    return fn(record);
+  });
+}
+
 function isCuratedRecallRecord(file, markdown) {
   if (file === 'PROJECT_BOARD.md') return true;
   if (/^docs\/workstreams\/[^/]+\.md$/i.test(file)) return true;
@@ -1165,6 +1180,7 @@ module.exports = {
   computedState,
   runSessionCommand,
   assertSubmitReady,
+  withSubmitLifecycleTransaction,
   collectSessionDoctorChecks,
   sessionUsage,
 };

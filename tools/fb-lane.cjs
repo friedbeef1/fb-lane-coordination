@@ -7,6 +7,7 @@ const readline = require('readline');
 const {
   runSessionCommand,
   assertSubmitReady,
+  withSubmitLifecycleTransaction,
   collectSessionDoctorChecks,
   sessionUsage,
 } = require('./fb-session.cjs');
@@ -1723,25 +1724,18 @@ function handleSubmit(taskId, stagingUrl = '') {
   console.log(`Submitting task ${taskId} from branch ${currentBranch}...`);
 
   try {
-    assertSubmitReady(path.dirname(boardPath), taskId);
+    withSubmitLifecycleTransaction(path.dirname(boardPath), taskId, () => {
+      const updates = { status: 'Staging QA' };
+      if (stagingUrl) updates.stagingUrl = `[Staging Link](${stagingUrl})`;
+      updateBoardTask(boardPath, taskId, updates);
+      commitBoard(`docs: submit ${taskId} for staging qa`);
+      console.log('Pushing feature branch to origin...');
+      runGit('push origin HEAD');
+    });
   } catch (err) {
     console.error(`❌ Error: ${err.message}`);
     process.exit(1);
   }
-
-  // Update board
-  const updates = { status: 'Staging QA' };
-  if (stagingUrl) {
-    updates.stagingUrl = `[Staging Link](${stagingUrl})`;
-  }
-  updateBoardTask(boardPath, taskId, updates);
-
-  // Commit board separately
-  commitBoard(`docs: submit ${taskId} for staging qa`);
-
-  // Push branch
-  console.log('Pushing feature branch to origin...');
-  runGit('push origin HEAD');
 
   console.log(`\n✅ Task ${taskId} submitted for Staging QA!`);
   console.log(`   - Board updated and committed.`);
@@ -2022,14 +2016,13 @@ function handleMcpRequest(request) {
           // Run local tests first under MCP
           runTests(boardPath);
 
-          assertSubmitReady(workspaceRoot, taskId);
-
-          const updates = { status: 'Staging QA' };
-          if (stagingUrl) updates.stagingUrl = `[Staging Link](${stagingUrl})`;
-
-          updateBoardTask(boardPath, taskId, updates);
-          commitBoard(`docs: submit ${taskId} for staging qa`);
-          runGit('push origin HEAD');
+          withSubmitLifecycleTransaction(workspaceRoot, taskId, () => {
+            const updates = { status: 'Staging QA' };
+            if (stagingUrl) updates.stagingUrl = `[Staging Link](${stagingUrl})`;
+            updateBoardTask(boardPath, taskId, updates);
+            commitBoard(`docs: submit ${taskId} for staging qa`);
+            runGit('push origin HEAD');
+          });
 
           runHook('post-submit', boardPath);
 

@@ -417,11 +417,11 @@ async function waitForPath(filePath, timeoutMs = 5000) {
   }
 }
 
-function mcpCall(cwd, name, args = {}) {
+function mcpCall(cwd, name, args = {}, env = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn('node', [cliPath, 'mcp'], {
       cwd,
-      env: cleanEnv,
+      env: { ...cleanEnv, ...env },
       stdio: ['pipe', 'pipe', 'pipe'],
     });
     let stdout = '';
@@ -1112,6 +1112,127 @@ test('CLI and MCP submit revalidate authority after pre-submit work before any s
       const board = fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8');
       assert.match(board, /\| TASK-001 \| Ready \|/);
       assert.doesNotMatch(board, /\| TASK-001 \| Staging QA \|/);
+    } finally {
+      fixture.cleanup();
+    }
+  }
+});
+
+test('CLI submit holds the session lifecycle boundary through board commit and push before close proceeds', async () => {
+  const fixture = createRepo();
+  try {
+    const worktree = addWorktree(fixture, 'session/submit-close-serialized');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'submit-close-serialized'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 61;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: submit close serialization fixture']);
+    const sourceCommit = git(worktree, ['rev-parse', 'HEAD']);
+    appendEvidence(worktree, 'submit-close-serialized', 'TASK-001', sourceCommit);
+    assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'submit-close-serialized']));
+
+    const gate = path.join(fixture.parent, 'submit-close-gate');
+    const submitPromise = spawnRun(worktree, ['submit', 'TASK-001', '--no-tests'], { FB_SESSION_TEST_LIFECYCLE_GATE: gate });
+    await waitForPath(path.join(gate, 'started'));
+    let closeSettled = false;
+    const closePromise = spawnRun(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'submit-close-serialized'])
+      .then(result => { closeSettled = true; return result; });
+    await new Promise(resolve => setTimeout(resolve, 100));
+    assert.strictEqual(closeSettled, false, 'close must wait while submit owns the session lifecycle transaction');
+    fs.writeFileSync(path.join(gate, 'release'), 'release\n');
+
+    assertOk(await submitPromise);
+    assertOk(await closePromise);
+    assert.strictEqual(readSession(worktree, 'submit-close-serialized').state, 'closed');
+    assert.match(fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8'), /\| TASK-001 \| Staging QA \|/);
+    assert.strictEqual(git(fixture.remote, ['rev-parse', 'refs/heads/session/submit-close-serialized']), git(worktree, ['rev-parse', 'HEAD']));
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('MCP submit commits and pushes before a competing blocking checkpoint proceeds', async () => {
+  const fixture = createRepo();
+  try {
+    const worktree = addWorktree(fixture, 'session/submit-blocked-serialized');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'submit-blocked-serialized'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 62;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: submit blocked serialization fixture']);
+    const sourceCommit = git(worktree, ['rev-parse', 'HEAD']);
+    appendEvidence(worktree, 'submit-blocked-serialized', 'TASK-001', sourceCommit);
+    assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'submit-blocked-serialized']));
+    fs.appendFileSync(recapPath(worktree, 'submit-blocked-serialized'), '\n## Blocking Investigation\n\nBlocker: The deterministic provider fixture is unavailable.\nNext action: Product restores the provider fixture and reruns the original check.\n');
+    fs.appendFileSync(path.join(worktree, 'docs', 'handoffs', 'TASK-001.md'), '\n## Blocking Investigation\n\nThe provider fixture failure is recorded in the linked session recap.\n');
+
+    const gate = path.join(fixture.parent, 'submit-blocked-gate');
+    const submitPromise = mcpCall(worktree, 'fb_lane_submit', {
+      taskId: 'TASK-001',
+      workspacePath: worktree,
+    }, { FB_SESSION_TEST_LIFECYCLE_GATE: gate });
+    await waitForPath(path.join(gate, 'started'));
+    let checkpointSettled = false;
+    const checkpointPromise = spawnRun(worktree, ['session', 'checkpoint', '--reason', 'blocked', '--session-id', 'submit-blocked-serialized'])
+      .then(result => { checkpointSettled = true; return result; });
+    await new Promise(resolve => setTimeout(resolve, 100));
+    assert.strictEqual(checkpointSettled, false, 'checkpoint must wait while submit owns the session lifecycle transaction');
+    fs.writeFileSync(path.join(gate, 'release'), 'release\n');
+
+    const submitted = await submitPromise;
+    assert.strictEqual(submitted.status, 0, `${submitted.stdout}\n${submitted.stderr}`);
+    assert.ok(submitted.response?.result && !submitted.response.error, JSON.stringify(submitted.response));
+    assertOk(await checkpointPromise);
+    const log = git(worktree, ['log', '--format=%H%x09%s', '-5']);
+    const submitCommit = log.split('\n').find(line => line.endsWith('docs: submit TASK-001 for staging qa'))?.split('\t')[0];
+    const checkpointCommit = log.split('\n').find(line => line.endsWith('docs(session): submit-blocked-serialized blocked checkpoint'))?.split('\t')[0];
+    assert.ok(submitCommit && checkpointCommit, log);
+    git(worktree, ['merge-base', '--is-ancestor', submitCommit, checkpointCommit]);
+    assert.strictEqual(readSession(worktree, 'submit-blocked-serialized').state, 'blocked');
+    assert.match(fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8'), /\| TASK-001 \| Staging QA \|/);
+    assert.strictEqual(git(fixture.remote, ['rev-parse', 'refs/heads/session/submit-blocked-serialized']), checkpointCommit);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('a close that wins the lifecycle lock makes CLI and MCP submit fail before board mutation or push', async () => {
+  for (const route of ['cli', 'mcp']) {
+    const fixture = createRepo();
+    try {
+      const sessionId = `close-wins-submit-${route}`;
+      const worktree = addWorktree(fixture, `session/${sessionId}`);
+      assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', sessionId));
+      fs.writeFileSync(path.join(worktree, 'src', 'app.js'), `module.exports = 'close-wins-${route}';\n`);
+      git(worktree, ['add', 'src/app.js']);
+      git(worktree, ['commit', '-qm', `feat: close wins ${route} submit fixture`]);
+      const sourceCommit = git(worktree, ['rev-parse', 'HEAD']);
+      appendEvidence(worktree, sessionId, 'TASK-001', sourceCommit);
+      assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', sessionId]));
+      const localHead = git(worktree, ['rev-parse', 'HEAD']);
+      const remoteHead = git(fixture.remote, ['rev-parse', `refs/heads/session/${sessionId}`]);
+
+      const gate = path.join(fixture.parent, `${sessionId}-gate`);
+      const closePromise = spawnRun(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', sessionId], { FB_SESSION_TEST_LIFECYCLE_GATE: gate });
+      await waitForPath(path.join(gate, 'started'));
+      let submitSettled = false;
+      const submitPromise = (route === 'cli'
+        ? spawnRun(worktree, ['submit', 'TASK-001', '--no-tests'])
+        : mcpCall(worktree, 'fb_lane_submit', { taskId: 'TASK-001', workspacePath: worktree }))
+        .then(result => { submitSettled = true; return result; });
+      await new Promise(resolve => setTimeout(resolve, 100));
+      assert.strictEqual(submitSettled, false, `${route} submit must wait while close owns the session lifecycle transaction`);
+      fs.writeFileSync(path.join(gate, 'release'), 'release\n');
+
+      assertOk(await closePromise);
+      const submitted = await submitPromise;
+      if (route === 'cli') {
+        assertFailed(submitted, /one active execution session|active execution session/i);
+      } else {
+        assert.ok(submitted.response?.error, JSON.stringify(submitted.response));
+        assert.match(submitted.response.error.message, /one active execution session|active execution session/i);
+      }
+      assert.strictEqual(git(worktree, ['rev-parse', 'HEAD']), localHead);
+      assert.strictEqual(git(fixture.remote, ['rev-parse', `refs/heads/session/${sessionId}`]), remoteHead);
+      assert.match(fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8'), /\| TASK-001 \| In Progress \|/);
     } finally {
       fixture.cleanup();
     }
