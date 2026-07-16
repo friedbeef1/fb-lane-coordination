@@ -16,6 +16,60 @@ Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
 Current plugin builds: Codex `0.2.0-beta+codex.20260707114230`; Claude Code
 `1.0.1`. See [Versioning](docs/versioning.md).
 
+## New Here? What To Expect
+
+FB-Lane helps turn a broad product request into an approved, traceable
+build process. It is not designed to turn every initial prompt immediately
+into a finished production application.
+
+For non-trivial work, FB-Lane separates planning from implementation:
+
+1. **You describe the outcome you want.**
+   Product helps clarify the goal, success criteria, scope, and decisions
+   that still need your approval.
+
+2. **Specialist lanes prepare plans.**
+   Product, Tech, Design, and Business examine the request from their
+   respective perspectives. In ordinary lane threads, they produce
+   Markdown plans and handoffs rather than editing application source.
+
+3. **Product/BFM reconciles the plans.**
+   BFM checks whether the work should be divided into smaller stories,
+   which work is ready, which files may be edited, and which decisions or
+   dependencies prevent implementation.
+
+4. **BFM implements the approved, unblocked work.**
+   After the goal is approved, BFM can launch execution workers, claim
+   files, make source changes, run checks, and return evidence.
+
+5. **The result returns to Product for closeout.**
+   Product/BFM compares the implementation, evidence, board, documentation,
+   tests, and Git state before describing the work as complete.
+
+A first run may therefore produce plans, a local prototype, a partially
+implemented product, or a blocked decision—not necessarily a production
+application. Live deployments, credentials, payments, authentication,
+privacy changes, destructive data operations, and provider state remain
+explicit approval points.
+
+If you want a runnable implementation rather than plans alone, say so in
+the request. For example:
+
+```text
+
+$fb-lane
+
+Help me define a narrow MVP for this product. I want a runnable local
+prototype, not only planning documents.
+
+Ask Product to clarify the goal and approval points. Have the relevant
+lanes prepare their plans. After the goal is approved, launch BFM to
+implement the safe, unblocked local scope.
+
+At closeout, tell me what was built, what remains proposed, what is
+blocked, and what I should decide next.
+```
+
 ## The Thesis
 
 Codex, Claude Code, and Antigravity already provide powerful agent execution.
