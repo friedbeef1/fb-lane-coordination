@@ -505,7 +505,8 @@ function fieldValue(markdown, label) {
 
 function actionable(value, options = {}) {
   const normalized = String(value || '').trim().replace(/^\*+|\*+$/g, '').trim();
-  if (!normalized || /^<[^>]+>$/.test(normalized) || /\b(?:todo|tbd|placeholder|example|not recorded(?: yet)?)\b/i.test(normalized)) return false;
+  if (!normalized || /^<[^>]+>$/.test(normalized) || /\b(?:todo|tbd|placeholder|not recorded(?: yet)?)\b/i.test(normalized)) return false;
+  if (/^example(?:\s+(?:text|value|step|evidence))?[.!]?$/i.test(normalized)) return false;
   if (!options.allowNone && /^(?:none|n\/a|not recorded(?: yet)?)[.!]?$/i.test(normalized)) return false;
   return true;
 }
@@ -520,13 +521,15 @@ function assertCuratedPrivacy(markdown) {
 }
 
 function assertStructuredFailures(markdown) {
-  const failures = [...markdown.matchAll(/(?:^|\n)\s*(?:[-*]\s*)?Failure\s*:\s*([^\n]+)/gi)]
-    .map(match => match[1].trim())
-    .filter(value => !/^(?:none|no\b)/i.test(value));
-  if (failures.length === 0) return;
-  for (const label of ['Observed', 'Cause', 'Recovery attempted', 'Result', 'Reusable lesson']) {
-    if (!actionable(fieldValue(markdown, label), { allowNone: label === 'Recovery attempted' })) {
-      throw new Error(`Meaningful failures require structured ${label} evidence.`);
+  const matches = [...markdown.matchAll(/^\s*(?:[-*]\s*)?Failure\s*:\s*([^\n]+)/gim)];
+  for (let index = 0; index < matches.length; index += 1) {
+    const failure = matches[index][1].trim();
+    if (/^(?:none|no\b)/i.test(failure)) continue;
+    const block = markdown.slice(matches[index].index, matches[index + 1]?.index || markdown.length);
+    for (const label of ['Observed', 'Cause', 'Recovery attempted', 'Result', 'Reusable lesson']) {
+      if (!actionable(fieldValue(block, label))) {
+        throw new Error(`Meaningful failures require structured ${label} evidence in each Failure block.`);
+      }
     }
   }
 }
@@ -750,7 +753,8 @@ function assertCompletedEvidence(cwd, record) {
   const testNow = lastSection(handoff, 'Test This Now');
   if (!testNow) throw new Error('Completed reviewable work requires Test This Now.');
   const missingTestNow = TEST_THIS_NOW_FIELDS.filter(label => !actionable(fieldValue(testNow, label), { allowNone: false }));
-  if (missingTestNow.length || !/^\s*\d+\.\s+\S+/m.test(testNow)) {
+  const numberedSteps = [...testNow.matchAll(/^\s*\d+\.\s+([^\n]+)/gm)].map(match => match[1].trim());
+  if (missingTestNow.length || numberedSteps.length === 0 || numberedSteps.some(step => !actionable(step))) {
     throw new Error(`Test This Now is incomplete${missingTestNow.length ? `: ${missingTestNow.join(', ')}` : ': exact numbered steps and expectations are required'}.`);
   }
   if (!handoff.includes(`../sessions/${record.sessionId}.md`) || !recap.includes(`../handoffs/${path.basename(record.handoff || '')}`)) {
@@ -759,20 +763,20 @@ function assertCompletedEvidence(cwd, record) {
   return true;
 }
 
-function assertExecutionAuthority(cwd, record) {
+function assertExecutionAuthority(cwd, record, operation = 'Submit', allowedStatuses = ['In Progress']) {
   const repoRoot = gitRoot(cwd);
   const task = readBoardTask(repoRoot, record.taskId);
-  if (!task || task.status !== 'In Progress') throw new Error(`Submit requires ${record.taskId} to remain In Progress on the current authoritative board.`);
-  if (!task.approved) throw new Error(`Submit requires ${record.taskId} to remain approved on the current authoritative board.`);
+  if (!task || !allowedStatuses.includes(task.status)) throw new Error(`${operation} requires ${record.taskId} to remain ${allowedStatuses.join(' or ')} on the current authoritative board.`);
+  if (!task.approved) throw new Error(`${operation} requires ${record.taskId} to remain approved on the current authoritative board.`);
   if (!task.handoff || task.handoff !== record.handoff || !fs.existsSync(path.join(repoRoot, task.handoff))) {
-    throw new Error(`Submit requires the current authoritative handoff ${record.handoff || task.handoff || record.taskId}.`);
+    throw new Error(`${operation} requires the current authoritative handoff ${record.handoff || task.handoff || record.taskId}.`);
   }
   const currentLocks = [...task.locks].sort();
   const recordedLocks = [...record.locks].sort();
   if (currentLocks.length === 0 || currentLocks.join('\n') !== recordedLocks.join('\n')) {
-    throw new Error('Submit requires declared locks to match the current authoritative board.');
+    throw new Error(`${operation} requires declared locks to match the current authoritative board.`);
   }
-  if (currentBranch(cwd) !== record.branch) throw new Error(`Submit must run on recorded session branch ${record.branch}.`);
+  if (currentBranch(cwd) !== record.branch) throw new Error(`${operation} must run on recorded session branch ${record.branch}.`);
   let currentPath = '';
   let recordedPath = '';
   try {
@@ -780,13 +784,13 @@ function assertExecutionAuthority(cwd, record) {
     recordedPath = fs.realpathSync(record.worktree);
   } catch (err) {}
   if (!currentPath || currentPath !== recordedPath || !isLinkedWorktree(cwd) || !registeredWorktree(cwd, record.worktree, record.branch)) {
-    throw new Error(`Submit requires recorded worktree ${record.worktree} to be a registered linked worktree on ${record.branch}.`);
+    throw new Error(`${operation} requires recorded worktree ${record.worktree} to be a registered linked worktree on ${record.branch}.`);
   }
   for (const other of listSessions(cwd)) {
     if (other.sessionId === record.sessionId || other.state === 'closed' || other.mode !== 'execution') continue;
     for (const requested of record.locks) {
       const conflict = other.locks.find(active => locksOverlap(requested, active));
-      if (conflict) throw new Error(`Submit lock ${requested} conflicts with ${conflict} held by ${other.sessionId}.`);
+      if (conflict) throw new Error(`${operation} lock ${requested} conflicts with ${conflict} held by ${other.sessionId}.`);
     }
   }
   return task;
@@ -802,6 +806,7 @@ function closeSession(cwd, args, env) {
   assertCuratedPrivacy(combined);
   if (outcome === 'completed') {
     assertCompletedEvidence(cwd, record);
+    if (record.mode === 'execution') assertExecutionAuthority(cwd, record, 'Completed close', ['In Progress', 'Staging QA']);
   } else {
     const validation = lastSection(handoff, 'Brief Validation') || lastSection(recap, 'Brief Validation');
     if (!/^blocked$/i.test(fieldValue(validation, 'Status'))) throw new Error(`${outcome} close cannot claim passing Brief Validation; record Status: blocked.`);

@@ -301,6 +301,49 @@ function spawnRun(cwd, args, env = {}) {
   });
 }
 
+function mcpCall(cwd, name, args = {}) {
+  return new Promise((resolve, reject) => {
+    const child = spawn('node', [cliPath, 'mcp'], {
+      cwd,
+      env: cleanEnv,
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', chunk => { stdout += chunk; });
+    child.stderr.on('data', chunk => { stderr += chunk; });
+    child.on('error', reject);
+    child.on('close', status => {
+      const responseLine = stdout.split(/\r?\n/).find(line => line.trim().startsWith('{'));
+      resolve({
+        status,
+        stdout,
+        stderr,
+        response: responseLine ? JSON.parse(responseLine) : null,
+      });
+    });
+    child.stdin.end(`${JSON.stringify({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'tools/call',
+      params: { name, arguments: args },
+    })}\n`);
+  });
+}
+
+function installAuthorityChangingSubmitHook(cwd) {
+  const scriptPath = path.join(cwd, 'tools', 'mutate-submit-authority.cjs');
+  fs.writeFileSync(scriptPath, `
+const fs = require('fs');
+const boardPath = 'PROJECT_BOARD.md';
+const board = fs.readFileSync(boardPath, 'utf8');
+fs.writeFileSync(boardPath, board.replace('| TASK-001 | In Progress |', '| TASK-001 | Ready |'));
+`);
+  fs.writeFileSync(path.join(cwd, '.fb-lane.json'), `${JSON.stringify({
+    hooks: { 'pre-submit': 'node tools/mutate-submit-authority.cjs' },
+  }, null, 2)}\n`);
+}
+
 test('intake resolves flag then CODEX_THREAD_ID then FB_SESSION_ID and performs no writes', () => {
   const fixture = createRepo();
   try {
@@ -470,6 +513,49 @@ test('checkpoint independently rejects unrelated staging, placeholders, private 
   }
 });
 
+test('every meaningful Failure block requires its own complete structured evidence', () => {
+  const fixture = createRepo();
+  try {
+    git(fixture.repo, ['checkout', '-qb', 'session/multiple-failures']);
+    assertOk(promote(fixture.repo, 'TASK-001', 'tech', 'planning', 'multiple-failures'));
+    fs.appendFileSync(recapPath(fixture.repo, 'multiple-failures'), `
+## Decision And Assumptions
+
+Decision: Keep both failure records independently reviewable.
+`);
+    const handoffPath = path.join(fixture.repo, 'docs', 'handoffs', 'TASK-001.md');
+    fs.appendFileSync(handoffPath, `
+## Failure Evidence
+
+Failure: The first simulated command failed.
+Observed: The first command exited with status one.
+Cause: The first fixture intentionally returned a failing status.
+Recovery attempted: The command input was corrected and rerun once.
+Result: The first command passed on the bounded retry.
+Reusable lesson: Preserve the first failure as a regression fixture.
+
+Failure: The second simulated command failed.
+Observed: The second command exited with status two.
+`);
+
+    assertFailed(
+      run(fixture.repo, ['session', 'checkpoint', '--reason', 'decision', '--session-id', 'multiple-failures']),
+      /structured Cause|Cause evidence/i
+    );
+    assert.strictEqual(readSession(fixture.repo, 'multiple-failures').milestones.some(item => item.reason === 'decision'), false);
+
+    fs.appendFileSync(handoffPath, `
+Cause: The second fixture intentionally omitted its recovery metadata.
+Recovery attempted: The missing evidence fields were added before retrying.
+Result: Both failure blocks are independently complete.
+Reusable lesson: Validate structured fields within each failure block.
+`);
+    assertOk(run(fixture.repo, ['session', 'checkpoint', '--reason', 'decision', '--session-id', 'multiple-failures']));
+  } finally {
+    fixture.cleanup();
+  }
+});
+
 test('failed checkpoint push preserves the new commit, marks the session blocked, and does not switch branches', () => {
   const fixture = createRepo();
   try {
@@ -612,6 +698,61 @@ Approved scope-change references: None
   }
 });
 
+test('completed evidence accepts real prose containing example but rejects placeholder numbered steps', () => {
+  const valid = createRepo();
+  try {
+    const worktree = addWorktree(valid, 'session/example-prose');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'example-prose'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 33;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: legitimate example prose fixture']);
+    const sourceCommit = git(worktree, ['rev-parse', 'HEAD']);
+    appendEvidence(worktree, 'example-prose', 'TASK-001', sourceCommit);
+    const handoffPath = path.join(worktree, 'docs', 'handoffs', 'TASK-001.md');
+    const handoffMarkdown = fs.readFileSync(handoffPath, 'utf8').replace(
+      'Manual pass criteria: Product confirms only approved surfaces changed.',
+      'Manual pass criteria: Product confirms the example fixture changes only approved surfaces.'
+    );
+    fs.writeFileSync(handoffPath, handoffMarkdown);
+    assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'example-prose']));
+    assertOk(run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'example-prose']));
+  } finally {
+    valid.cleanup();
+  }
+
+  for (const [label, sessionId, placeholderStep] of [
+    ['example', 'step-a', '1. Example'],
+    ['todo', 'step-b', '1. TODO'],
+    ['tbd', 'step-c', '1. TBD'],
+    ['prompt', 'step-d', '1. <describe the check>'],
+  ]) {
+    const fixture = createRepo();
+    try {
+      const worktree = addWorktree(fixture, `session/${sessionId}`);
+      assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', sessionId));
+      fs.writeFileSync(path.join(worktree, 'src', 'app.js'), `module.exports = '${label}';\n`);
+      git(worktree, ['add', 'src/app.js']);
+      git(worktree, ['commit', '-qm', `feat: ${label} step fixture`]);
+      const sourceCommit = git(worktree, ['rev-parse', 'HEAD']);
+      appendEvidence(worktree, sessionId, 'TASK-001', sourceCommit);
+      assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', sessionId]));
+      const handoffPath = path.join(worktree, 'docs', 'handoffs', 'TASK-001.md');
+      const handoffMarkdown = fs.readFileSync(handoffPath, 'utf8').replace(
+        '  1. Open the session recap and confirm the named source commit and checks are present.',
+        `  ${placeholderStep}`
+      );
+      fs.writeFileSync(handoffPath, handoffMarkdown);
+      assertFailed(
+        run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', sessionId]),
+        /Test This Now|numbered steps|placeholder|actionable/i
+      );
+      assert.strictEqual(readSession(worktree, sessionId).state, 'active');
+    } finally {
+      fixture.cleanup();
+    }
+  }
+});
+
 test('submit revalidates current board approval, locks, handoff, branch, and registered linked worktree', () => {
   const fixture = createRepo();
   try {
@@ -648,6 +789,100 @@ test('submit revalidates current board approval, locks, handoff, branch, and reg
 
     git(worktree, ['checkout', '-qb', 'session/submit-wrong-branch']);
     assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /session branch|recorded branch|branch/i);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('CLI and MCP submit revalidate authority after pre-submit work before any submit mutation or push', async () => {
+  for (const route of ['cli', 'mcp']) {
+    const fixture = createRepo();
+    try {
+      const worktree = addWorktree(fixture, `session/submit-toctou-${route}`);
+      const sessionId = `submit-toctou-${route}`;
+      assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', sessionId));
+      fs.writeFileSync(path.join(worktree, 'src', 'app.js'), `module.exports = '${route}';\n`);
+      git(worktree, ['add', 'src/app.js']);
+      git(worktree, ['commit', '-qm', `feat: ${route} submit TOCTOU fixture`]);
+      const sourceCommit = git(worktree, ['rev-parse', 'HEAD']);
+      appendEvidence(worktree, sessionId, 'TASK-001', sourceCommit);
+      assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', sessionId]));
+      installAuthorityChangingSubmitHook(worktree);
+
+      const localHead = git(worktree, ['rev-parse', 'HEAD']);
+      const remoteHead = git(fixture.remote, ['rev-parse', `refs/heads/session/submit-toctou-${route}`]);
+      let message = '';
+      if (route === 'cli') {
+        const result = run(worktree, ['submit', 'TASK-001', '--no-tests']);
+        assertFailed(result, /In Progress|authoritative board|approval/i);
+        message = output(result);
+      } else {
+        const result = await mcpCall(worktree, 'fb_lane_submit', {
+          taskId: 'TASK-001',
+          workspacePath: worktree,
+        });
+        assert.strictEqual(result.status, 0, `${result.stdout}\n${result.stderr}`);
+        assert.ok(result.response?.error, `${result.stdout}\n${result.stderr}`);
+        message = result.response.error.message;
+        assert.match(message, /In Progress|authoritative board|approval/i);
+      }
+
+      assert.match(message, /In Progress|authoritative board|approval/i);
+      assert.strictEqual(git(worktree, ['rev-parse', 'HEAD']), localHead, `${route} must not commit after authority drift`);
+      assert.strictEqual(git(fixture.remote, ['rev-parse', `refs/heads/session/submit-toctou-${route}`]), remoteHead, `${route} must not push after authority drift`);
+      const board = fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8');
+      assert.match(board, /\| TASK-001 \| Ready \|/);
+      assert.doesNotMatch(board, /\| TASK-001 \| Staging QA \|/);
+    } finally {
+      fixture.cleanup();
+    }
+  }
+});
+
+test('completed execution close revalidates current board, lock, branch, and worktree authority before closing', () => {
+  const fixture = createRepo();
+  try {
+    const worktree = addWorktree(fixture, 'session/close-authority');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'close-authority'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 51;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: close authority fixture']);
+    const sourceCommit = git(worktree, ['rev-parse', 'HEAD']);
+    appendEvidence(worktree, 'close-authority', 'TASK-001', sourceCommit);
+    assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'close-authority']));
+
+    const boardPath = path.join(worktree, 'PROJECT_BOARD.md');
+    const board = fs.readFileSync(boardPath, 'utf8');
+    fs.writeFileSync(boardPath, board.replace('| TASK-001 | In Progress |', '| TASK-001 | Ready |'));
+    assertFailed(
+      run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'close-authority']),
+      /In Progress|authoritative board|approval/i
+    );
+    assert.strictEqual(readSession(worktree, 'close-authority').state, 'active');
+    fs.writeFileSync(boardPath, board.replace('| src/app.js |', '| src/other.js |'));
+    assertFailed(
+      run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'close-authority']),
+      /lock|authoritative board/i
+    );
+    assert.strictEqual(readSession(worktree, 'close-authority').state, 'active');
+    fs.writeFileSync(boardPath, board);
+
+    const sessionFilePath = sessionPath(worktree, 'close-authority');
+    const record = readSession(worktree, 'close-authority');
+    fs.writeFileSync(sessionFilePath, `${JSON.stringify({ ...record, worktree: fixture.repo }, null, 2)}\n`);
+    assertFailed(
+      run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'close-authority']),
+      /linked worktree|recorded worktree|registered/i
+    );
+    assert.strictEqual(readSession(worktree, 'close-authority').state, 'active');
+    fs.writeFileSync(sessionFilePath, `${JSON.stringify(record, null, 2)}\n`);
+
+    git(worktree, ['checkout', '-qb', 'session/close-wrong-branch']);
+    assertFailed(
+      run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'close-authority']),
+      /session branch|recorded branch|branch/i
+    );
+    assert.strictEqual(readSession(worktree, 'close-authority').state, 'active');
   } finally {
     fixture.cleanup();
   }

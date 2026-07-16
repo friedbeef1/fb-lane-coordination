@@ -45,7 +45,8 @@ objective, scope, decisions or assumptions, Task Receipt, Brief Validation,
 structured failure evidence, verification, repository state, and next owner.
 Never add raw transcripts, private reasoning, secrets, credentials, tokens, or
 environment values. Meaningful failures use `Failure`, `Observed`, `Cause`,
-`Recovery attempted`, `Result`, and `Reusable lesson`.
+`Recovery attempted`, `Result`, and `Reusable lesson`; every individual
+`Failure` block carries its own complete set of those five supporting fields.
 
 A checkpoint requires current changes to both the recap and linked handoff. It
 rejects unrelated staged files and stages only those two coordination records.
@@ -72,7 +73,8 @@ Brief Validation is `pass` or `blocked`. Product/BFM authors the semantic
 comparison. The deterministic CLI only checks complete actionable structure:
 satisfied criteria/evidence; missing criteria/reason/owner/next action; and
 approved scope-change references. `None`, generated setup text, TODO/TBD,
-examples, and placeholders do not satisfy completed evidence.
+bare example prompts, and placeholders do not satisfy completed evidence;
+ordinary evidence prose may still use the lowercase word `example`.
 
 Completed reviewable work requires passing Brief Validation, a complete Task
 Receipt, verification checkpoint, Verification Handoff, reciprocal recap and
@@ -84,8 +86,10 @@ format. Blocked or deferred closeout requires blocked
 validation plus a concrete reason, owner, and next action. `submit` applies the
 same evidence gate and additionally requires one active execution session. It
 revalidates the current board's In Progress approval, declared locks, linked
-handoff, current branch, and registered linked worktree immediately before
-submission instead of trusting an older session record.
+handoff, current branch, registered linked worktree, and lock conflicts after
+tests/hooks and immediately before board mutation. Completed execution close
+revalidates the same current authority before changing session state, accepting
+only the normal In Progress or already-submitted Staging QA board states.
 
 ## Recall, review, and privacy boundary
 

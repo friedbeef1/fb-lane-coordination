@@ -1712,6 +1712,13 @@ function handleSubmit(taskId, stagingUrl = '') {
   }
   console.log(`Submitting task ${taskId} from branch ${currentBranch}...`);
 
+  try {
+    assertSubmitReady(path.dirname(boardPath), taskId);
+  } catch (err) {
+    console.error(`❌ Error: ${err.message}`);
+    process.exit(1);
+  }
+
   // Update board
   const updates = { status: 'Staging QA' };
   if (stagingUrl) {
@@ -2028,6 +2035,8 @@ function handleMcpRequest(request) {
 
           // Run local tests first under MCP
           runTests(boardPath);
+
+          assertSubmitReady(workspaceRoot, taskId);
 
           const updates = { status: 'Staging QA' };
           if (stagingUrl) updates.stagingUrl = `[Staging Link](${stagingUrl})`;
