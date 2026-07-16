@@ -1866,13 +1866,17 @@ ${FB_HARNESS_ROUTE_END}`;
 }
 
 function upsertFbHarnessRoute(existing, route) {
-  const managed = new RegExp(`${FB_HARNESS_ROUTE_START}[\\s\\S]*?${FB_HARNESS_ROUTE_END}`);
-  if (existing.includes(FB_HARNESS_ROUTE_START)) return existing.replace(managed, route);
-
-  const legacyStart = '<!-- fb-lane-start -->';
-  const legacyEnd = '<!-- fb-lane-end -->';
-  if (existing.includes(legacyStart) && existing.includes(legacyEnd)) {
-    return existing.replace(new RegExp(`${legacyStart}[\\s\\S]*?${legacyEnd}`), route);
+  let searchFrom = 0;
+  while (searchFrom < existing.length) {
+    const start = existing.indexOf(FB_HARNESS_ROUTE_START, searchFrom);
+    if (start === -1) break;
+    const contentStart = start + FB_HARNESS_ROUTE_START.length;
+    const nextStart = existing.indexOf(FB_HARNESS_ROUTE_START, contentStart);
+    const end = existing.indexOf(FB_HARNESS_ROUTE_END, contentStart);
+    if (end !== -1 && (nextStart === -1 || end < nextStart)) {
+      return `${existing.slice(0, start)}${route}${existing.slice(end + FB_HARNESS_ROUTE_END.length)}`;
+    }
+    searchFrom = contentStart;
   }
 
   return `${existing}${existing.endsWith('\n') ? '\n' : '\n\n'}${route}\n`;

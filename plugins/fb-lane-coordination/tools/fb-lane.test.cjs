@@ -202,8 +202,15 @@ function assertCodexBootstrap(args) {
       assert.match(source, /<!-- fb-harness-route-start -->/, `${label} must include the managed FB route`);
       assert.match(source, /<!-- fb-harness-route-end -->/, `${label} must close the managed FB route`);
       assert.match(source, /docs\/fb\/README\.md/, `${label} must route to the installed FB pack`);
-      assert.match(source, /docs\/fb\/(?:start|workflow|evidence|guardrails)\.md/, `${label} must retain focused pack links`);
-      assert.match(source, /sidechat-parent-thread-routing\.md/, `${label} must retain the sidechat route`);
+      assert.match(source, /First project, plan, lanes, or approval: \[start\.md\]\(docs\/fb\/start\.md\)/, `${label} must map first-project work to start.md`);
+      assert.match(source, /Ownership, BFM execution, and closeout: \[workflow\.md\]\(docs\/fb\/workflow\.md\)/, `${label} must map workflow work to workflow.md`);
+      assert.match(source, /Test This Now and Verification Handoff: \[evidence\.md\]\(docs\/fb\/evidence\.md\)/, `${label} must map evidence and recovery work to evidence.md`);
+      assert.match(source, /Sidechat-parent routing and recovery: \[guardrails\.md\]\(docs\/fb\/guardrails\.md\)/, `${label} must map sidechat-parent work to guardrails.md`);
+      assert.match(source, /\[the project sidechat rule\]\(docs\/sidechat-parent-thread-routing\.md\)/, `${label} must retain the sidechat-parent route`);
+      const boardRead = source.indexOf('`PROJECT_BOARD.md`');
+      const indexRead = source.indexOf('`docs/handoffs/index.md`');
+      const handoffRead = source.indexOf('the linked handoff');
+      assert.ok(boardRead >= 0 && boardRead < indexRead && indexRead < handoffRead, `${label} must state the board → index → linked handoff read order`);
       assert.doesNotMatch(source, /## Project Start Brief|## Test This Now|### Verification Handoff/, `${label} must remain a thin route layer`);
     }
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
@@ -221,10 +228,43 @@ function assertCodexBootstrap(args) {
   }
 }
 
-test('bootstrap preserves existing project-owned instructions and idempotently replaces only its managed route', () => {
+test('bootstrap replaces only a complete stale managed route and remains byte-stable', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-existing-bootstrap-'));
-  const agentsBefore = '# Project-owned AGENTS\n\nKeep this exact project instruction.\n';
-  const rulesBefore = '# Project-owned rules\n\nKeep this exact custom rule.\n';
+  const staleRoute = '<!-- fb-harness-route-start -->\nold managed route\n<!-- fb-harness-route-end -->';
+  const agentsPrefix = '# Project-owned AGENTS\n\nKeep this exact project instruction.\n\n';
+  const agentsSuffix = '\n\nKeep this exact AGENTS suffix.\n';
+  const rulesPrefix = '# Project-owned rules\n\nKeep this exact custom rule.\n\n';
+  const rulesSuffix = '\n\nKeep this exact rules suffix.\n';
+  const agentsBefore = `${agentsPrefix}${staleRoute}${agentsSuffix}`;
+  const rulesBefore = `${rulesPrefix}${staleRoute}${rulesSuffix}`;
+  try {
+    fs.writeFileSync(path.join(root, 'AGENTS.md'), agentsBefore, 'utf8');
+    fs.mkdirSync(path.join(root, '.codex'));
+    fs.writeFileSync(path.join(root, '.codex', 'rules.md'), rulesBefore, 'utf8');
+    execFileSync('node', [cliPath, 'bootstrap'], { cwd: root, stdio: 'ignore' });
+    const agentsAfterFirstRun = fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8');
+    const rulesAfterFirstRun = fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8');
+    for (const [label, prefix, suffix, after] of [['AGENTS.md', agentsPrefix, agentsSuffix, agentsAfterFirstRun], ['.codex/rules.md', rulesPrefix, rulesSuffix, rulesAfterFirstRun]]) {
+      assert.ok(after.startsWith(prefix), `${label} must preserve its project-owned prefix verbatim`);
+      assert.ok(after.endsWith(suffix), `${label} must preserve its project-owned suffix verbatim`);
+      assert.doesNotMatch(after, /old managed route/, `${label} must replace the stale managed route`);
+      assert.strictEqual((after.match(/<!-- fb-harness-route-start -->/g) || []).length, 1, `${label} must retain one managed route start marker`);
+      assert.strictEqual((after.match(/<!-- fb-harness-route-end -->/g) || []).length, 1, `${label} must retain one managed route end marker`);
+      assert.match(after, /docs\/fb\/README\.md/, `${label} must route to the installed pack`);
+    }
+    execFileSync('node', [cliPath, 'bootstrap'], { cwd: root, stdio: 'ignore' });
+    assert.strictEqual(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), agentsAfterFirstRun, 'AGENTS.md route update must be idempotent');
+    assert.strictEqual(fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8'), rulesAfterFirstRun, '.codex/rules.md route update must be idempotent');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('bootstrap preserves unmatched route-start markers while appending one complete managed route', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-marker-bootstrap-'));
+  const unmatchedStart = '<!-- fb-harness-route-start -->\nproject-owned unfinished note';
+  const agentsBefore = `# Project-owned AGENTS\n\n${unmatchedStart}\n`;
+  const rulesBefore = `# Project-owned rules\n\n${unmatchedStart}\n`;
   try {
     fs.writeFileSync(path.join(root, 'AGENTS.md'), agentsBefore, 'utf8');
     fs.mkdirSync(path.join(root, '.codex'));
@@ -233,14 +273,40 @@ test('bootstrap preserves existing project-owned instructions and idempotently r
     const agentsAfterFirstRun = fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8');
     const rulesAfterFirstRun = fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8');
     for (const [label, before, after] of [['AGENTS.md', agentsBefore, agentsAfterFirstRun], ['.codex/rules.md', rulesBefore, rulesAfterFirstRun]]) {
-      assert.ok(after.includes(before), `${label} must preserve project-owned text verbatim`);
-      assert.strictEqual((after.match(/<!-- fb-harness-route-start -->/g) || []).length, 1, `${label} must add one managed route start marker`);
-      assert.strictEqual((after.match(/<!-- fb-harness-route-end -->/g) || []).length, 1, `${label} must add one managed route end marker`);
-      assert.match(after, /docs\/fb\/README\.md/, `${label} must route to the installed pack`);
+      assert.ok(after.startsWith(before), `${label} must preserve unmatched project-owned text verbatim`);
+      assert.strictEqual((after.match(/<!-- fb-harness-route-start -->/g) || []).length, 2, `${label} must append a complete route after its unmatched start marker`);
+      assert.strictEqual((after.match(/<!-- fb-harness-route-end -->/g) || []).length, 1, `${label} must append one managed route end marker`);
+      assert.match(after, /docs\/fb\/README\.md/, `${label} must append the canonical harness route`);
     }
     execFileSync('node', [cliPath, 'bootstrap'], { cwd: root, stdio: 'ignore' });
-    assert.strictEqual(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), agentsAfterFirstRun, 'AGENTS.md route update must be idempotent');
-    assert.strictEqual(fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8'), rulesAfterFirstRun, '.codex/rules.md route update must be idempotent');
+    assert.strictEqual(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), agentsAfterFirstRun, 'AGENTS.md marker migration must be idempotent');
+    assert.strictEqual(fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8'), rulesAfterFirstRun, '.codex/rules.md marker migration must be idempotent');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('bootstrap preserves legacy routes while appending one complete managed route', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-legacy-bootstrap-'));
+  const legacyRoute = '<!-- fb-lane-start -->\nlegacy project-owned routing text\n<!-- fb-lane-end -->';
+  const agentsBefore = `# Project-owned AGENTS\n\n${legacyRoute}\n`;
+  const rulesBefore = `# Project-owned rules\n\n${legacyRoute}\n`;
+  try {
+    fs.writeFileSync(path.join(root, 'AGENTS.md'), agentsBefore, 'utf8');
+    fs.mkdirSync(path.join(root, '.codex'));
+    fs.writeFileSync(path.join(root, '.codex', 'rules.md'), rulesBefore, 'utf8');
+    execFileSync('node', [cliPath, 'bootstrap'], { cwd: root, stdio: 'ignore' });
+    const agentsAfterFirstRun = fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8');
+    const rulesAfterFirstRun = fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8');
+    for (const [label, before, after] of [['AGENTS.md', agentsBefore, agentsAfterFirstRun], ['.codex/rules.md', rulesBefore, rulesAfterFirstRun]]) {
+      assert.ok(after.startsWith(before), `${label} must preserve legacy project-owned text verbatim`);
+      assert.strictEqual((after.match(/<!-- fb-harness-route-start -->/g) || []).length, 1, `${label} must append one managed route start marker`);
+      assert.strictEqual((after.match(/<!-- fb-harness-route-end -->/g) || []).length, 1, `${label} must append one managed route end marker`);
+      assert.match(after, /docs\/fb\/README\.md/, `${label} must append the canonical harness route`);
+    }
+    execFileSync('node', [cliPath, 'bootstrap'], { cwd: root, stdio: 'ignore' });
+    assert.strictEqual(fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8'), agentsAfterFirstRun, 'AGENTS.md legacy migration must be idempotent');
+    assert.strictEqual(fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8'), rulesAfterFirstRun, '.codex/rules.md legacy migration must be idempotent');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
