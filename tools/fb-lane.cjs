@@ -1911,6 +1911,26 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 - Gates/risks:
 - Exact instruction for Product/BFM:`;
 
+  const firstProjectContract = `## Project Start Brief
+For a first project or new non-trivial objective, Product starts with:
+- **What you asked for:** <plain-language outcome>
+- **Your decisions:** <choices already made>
+- **Assumptions to confirm:** <only assumptions that could change the plan>
+- **Success looks like:** <observable outcome and review evidence>
+- **Progress:** Understanding your idea → Ready for your approval → Building → Checking → Complete
+- **Blocked:** Blocked — <reason> / next action
+- **What FB will plan:** <bounded planning work>
+- **Out of scope:** <explicit exclusions>
+- **Next action:** <one immediate Product action or user decision>
+
+## How FB works
+1. Relevant lanes plan distinct questions; Product prepares one build brief.
+2. You approve that brief before any source-changing work starts.
+3. Only after explicit \`$bfm\`, BFM builds the approved brief and returns evidence.
+
+## Test This Now
+For review, provide Outcome type, Direct links, Exact steps and expectations, Pass criteria, Known limits, and a Failure-report format (what happened, what was expected, link or screenshot, and environment). If review access is missing, say \`Status: blocked — review access is missing\`, not ready to test.`;
+
   // 1. Create PROJECT_BOARD.md if missing
   const boardPath = path.join(rootDir, 'PROJECT_BOARD.md');
   if (!fs.existsSync(boardPath)) {
@@ -2026,6 +2046,8 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
 
 This project uses the standard **FB Four-Lane Coordination Model** to enable safe concurrent development.
 
+${firstProjectContract}
+
 ### 0. Mode Selection Trigger Rule
 - Default to normal/simple coding unless the objective has a coordination trigger. Use FB light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 - Keep quick tasks lightweight: read board/locks, claim or note only exact files needed, and skip extra ceremony unless another lane or Product must continue it.
@@ -2133,6 +2155,8 @@ This project uses the standard **FB Four-Lane Coordination Model** to enable saf
 
 This project uses the FB Four-Lane Coordination Model.
 
+${firstProjectContract}
+
 ### Mode selection
 Default to normal/simple coding unless the objective has a coordination trigger. Use FB light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 
@@ -2232,12 +2256,12 @@ ${CODEX_FB_END}`;
   console.log('======================================================================');
   console.log('🚀 QUICK START GUIDE: HOW TO USE FB RIGHT AWAY');
   console.log('======================================================================');
-  console.log('1. Open this workspace in Codex.');
-  console.log('2. Start with: $fb-lane status');
-  console.log('3. Describe the work normally. Workstreams plan in markdown; Product launches BFM for source-changing execution.');
+  console.log('1. Describe your new project normally. FB returns a Project Start Brief before planning or build questions.');
+  console.log('2. Workstreams plan in markdown; Product launches BFM for source-changing execution only after explicit $bfm.');
+  console.log('3. Use $fb-lane status for returning project health: active work, locks, and next coordination context.');
   console.log('4. Run health checks any time with: node tools/fb-lane.cjs doctor');
   console.log('======================================================================');
-  console.log('👉 Codex: Start a new thread and use `$fb-lane status` or select the FB plugin prompt.');
+  console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');
 }
 

@@ -182,6 +182,20 @@ function assertCodexBootstrap(args) {
       assert.match(source, /Verification Handoff/i, `${label} must explain the verification handoff`);
       assert.match(source, /next Product\/BFM recovery action/i, `${label} must require agent-owned recovery`);
     }
+    for (const [label, source] of [['AGENTS.md', agents], ['.codex/rules.md', codexRules]]) {
+      assert.match(source, /## Project Start Brief/, `${label} must explain how a new project starts`);
+      assert.match(source, /Your decisions:/, `${label} must separate user decisions`);
+      assert.match(source, /Assumptions to confirm:/, `${label} must separate assumptions to confirm`);
+      assert.match(source, /Success looks like:/, `${label} must name the success outcome`);
+      assert.match(source, /Progress:/, `${label} must name the current user-facing progress`);
+      assert.match(source, /## How FB works/, `${label} must explain the FB loop in plain language`);
+      assert.match(source, /Only after explicit `?\$bfm`?/, `${label} must state the BFM build boundary`);
+      assert.match(source, /## Test This Now/, `${label} must provide the review contract`);
+      assert.match(source, /Understanding your idea → Ready for your approval → Building → Checking → Complete/, `${label} must use the approved plain-language progress states`);
+      assert.match(source, /Blocked — <reason> \/ next action/, `${label} must make blocked work actionable`);
+    }
+    assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
+    assert.match(output, /returning project health/, 'bootstrap quick start must reserve status for returning-project health');
     assert.match(codexRules, /A sidechat prompt is not source of truth/);
     assert.ok(!fs.existsSync(path.join(root, '.mcp.json')), 'expected bootstrap not to create project MCP config');
     assert.ok(!fs.existsSync(path.join(root, '.claude')), 'expected bootstrap not to create Claude Code files');
