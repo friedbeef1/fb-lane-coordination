@@ -23,6 +23,7 @@ executes source-changing work.
 - [Test This Now and Verification Handoff](docs/fb/evidence.md)
 - [Safety, sidechats, recovery, and Loop Learning](docs/fb/guardrails.md)
 - [Repository-local sessions and evidence-aware closeout](docs/fb/sessions.md)
+- [Markdown eval selection, authority, and Quality Gaps](docs/fb/evals.md)
 
 Keep `fb-lane`, plugin IDs, MCP names, commands, and configured technical paths
 unchanged. The pack owns operating policy; project instructions own current

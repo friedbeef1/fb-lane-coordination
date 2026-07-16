@@ -5,7 +5,7 @@ description: Use when bootstrapping an FB-coordinated project with board, handof
 
 # Set up an FB-coordinated project
 
-The bootstrap installs the canonical six-page [FB harness](../../docs/fb/README.md)
+The bootstrap installs the canonical seven-page [FB harness](../../docs/fb/README.md)
 pack and adds or updates a thin managed route in `AGENTS.md` and
 `.codex/rules.md`. Fresh projects receive the pack and routes. On reruns, the
 bootstrap preserves project-owned text and replaces only a complete block from
@@ -17,6 +17,7 @@ unmatched markers and all text outside that exact boundary remain untouched.
 - [Review and verification evidence](../../docs/fb/evidence.md)
 - [Safety, recovery, sidechat, and escalation policy](../../docs/fb/guardrails.md)
 - [Repository-local session lifecycle and privacy boundary](../../docs/fb/sessions.md)
+- [Markdown eval lifecycle and Quality Gaps](../../docs/fb/evals.md)
 
 After setup, Product owns current goals and task sequencing; lanes use the
 board and index before detailed handoffs; source-changing execution starts only

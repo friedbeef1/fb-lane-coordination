@@ -60,6 +60,10 @@ before the commit so an interruption after commit and before push can resume by
 pushing that exact commit and recording one milestone; a rerun never needs new
 recap/handoff edits and never duplicates or rewrites the commit.
 
+A verification checkpoint with selected evals records their IDs, authority,
+results, and evidence. It keeps mechanical evidence separate from judgment and
+does not run unrelated catalog evals.
+
 ## Receipt, validation, and closeout
 
 The canonical linked handoff is the only completed-work authority; a recap
@@ -91,6 +95,12 @@ tests/hooks and immediately before board mutation. Completed execution close
 revalidates the same current authority before changing session state, accepting
 only the normal In Progress or already-submitted Staging QA board states.
 
+For selected evals, completed closeout leaves shadow failures visible,
+requires an advisory fix or handoff explanation, and rejects unresolved
+blocking/mechanical failure. Failure closure also requires classification,
+revision, rerun, root cause, regression, fresh evidence, consistent
+board/handoff/eval/session/Git records, and approval for changed user decisions.
+
 ## Recall, review, and privacy boundary
 
 `recall` searches only explicit FB records: `PROJECT_BOARD.md`, workstream
@@ -113,9 +123,9 @@ capture needs a separate explicit approval and privacy review.
 
 ## Install, upgrade, and removal
 
-Bootstrap confirms the six-page harness and adds or refreshes only the managed
+Bootstrap confirms the seven-page harness and adds or refreshes only the managed
 FB route block in project-owned instructions. Upgrades replace the bundled
-six-page pack and managed route while preserving all text outside the markers.
+seven-page pack and managed route while preserving all text outside the markers.
 For cleanup, close or preserve active session evidence first, then remove the
 clone-local `fb-sessions` directory and dead mutation lock from the Git common
 directory if no session command is running. Plugin removal does not delete

@@ -80,5 +80,8 @@ benefit, affected files/rules, and approval needed. Skip one-off or low-impact
 issues; do not silently change process.
 
 `propose eval` starts with a small Markdown scorecard under `docs/evals/`.
-Do not add an eval runner, dashboard, numeric scoring, CI job, or larger doctor
-rule without a separate proposal and explicit approval.
+New records follow [the canonical eval lifecycle](evals.md) and start shadow.
+Nothing self-promotes. Promotion to blocking or mechanical requires explicit
+Product approval evidence; no new blocking promotion occurs during TASK-023.
+Do not add an eval runner, semantic judge, dashboard, numeric scoring, CI job,
+hosted capture, external integration, or automatic promotion.

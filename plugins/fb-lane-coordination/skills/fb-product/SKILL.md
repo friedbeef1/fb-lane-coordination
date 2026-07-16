@@ -13,8 +13,12 @@ then read board truth, handoff routing, linked detail, and workstream summaries.
 - [Review evidence and user test packet](../../docs/fb/evidence.md)
 - [Approval limits, recovery, and Loop Learning](../../docs/fb/guardrails.md)
 - [Repository-local sessions and evidence-aware closeout](../../docs/fb/sessions.md)
+- [Eval selection, authority decisions, and product-quality loops](../../docs/fb/evals.md)
 
 Keep ordinary worker lanes plan-only. Product records the approved build brief
 before BFM starts source-changing work, and closes only with aligned board,
 repository, evidence, and Git state. Product authors the semantic Brief
 Validation comparison; the CLI enforces complete actionable structure only.
+Product selects only relevant evals, records every authority decision, and
+provides explicit approval evidence before promotion to blocking or mechanical.
+Subjective product quality remains Product/user judgment, never an automated score.

@@ -30,3 +30,4 @@ instructions take precedence when they are stricter.
 - Asking someone to review or proving work: [evidence.md](evidence.md)
 - Safety, recovery, sidechats, and loop escalation: [guardrails.md](guardrails.md)
 - Resuming durable work, checkpoints, recall, review, or closeout: [sessions.md](sessions.md)
+- Selecting harness/product evals, recording Quality Gaps, or closing revision loops: [evals.md](evals.md)

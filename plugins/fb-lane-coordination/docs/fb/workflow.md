@@ -37,6 +37,7 @@ workstream card after execution or explicit deferral.
    lane is either linked to relevant output or explicitly recorded as `no relevant handoff/lane output found` with the locations checked. Each found handoff ends as `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`; do not silently omit a missing lane.
 5. Run a Story Split Pass. Split mixed risks, locks, gates, review surfaces, blocked work, and ready work; otherwise say `No split needed`.
 6. Classify work as `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`. Recheck status immediately before a claim.
+7. Select only relevant eval IDs from [evals.md](evals.md), record their authority, and separate mechanical evidence from Product/user judgment.
 
 Execute only ready, unlocked work within the same approved goal or scope. A
 different board item needs Product approval. During execution, record task,
@@ -64,4 +65,7 @@ after checks, compare source, docs, and board; after coordination updates, run
 the project status check; after commit/push, check Git state. Close only when
 board, source, docs, evidence, and Git agree, or every disagreement is
 explicitly marked. See [evidence.md](evidence.md) for review evidence and
-[guardrails.md](guardrails.md) for stop points.
+[guardrails.md](guardrails.md) for stop points. Before revising a failed eval,
+classify it as Build, Brief, Eval, or Environment failure. BFM does not weaken
+the target; insufficient product output stays
+`Checking — product quality target missed` with a complete Quality Gap.

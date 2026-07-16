@@ -40,7 +40,7 @@ What bootstrap creates:
 - lane boundary rules in `AGENTS.md`
 - local Codex rules in `.codex/rules.md`
 - handoff routing index in `docs/handoffs/index.md`
-- the six-page harness, including `docs/fb/sessions.md`
+- the seven-page harness, including `docs/fb/sessions.md` and `docs/fb/evals.md`
 - Codex-ready lane guidance
 
 ## Upgrade Existing Codex Plugin Install
@@ -103,7 +103,7 @@ work.
 Repository-local sessions keep transcript-free JSON under the Git common
 directory and curated recaps in `docs/sessions/`. Upgrades preserve all
 project-owned instruction text outside the managed FB route markers and refresh
-the bundled six-page harness. Before removing the plugin, close or preserve any
+the bundled seven-page harness. Before removing the plugin, close or preserve any
 active session evidence. Plugin removal does not delete project-owned boards,
 handoffs, recaps, or instructions. If no session command is running, optional
 clone-local cleanup may remove `fb-sessions` and a confirmed dead

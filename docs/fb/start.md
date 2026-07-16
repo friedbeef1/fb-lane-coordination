@@ -11,6 +11,10 @@ before requesting lane output or clarification questions:
 - **What FB will plan:** <bounded planning work>
 - **Out of scope:** <explicit exclusions>
 - **Success looks like:** <observable outcome>
+- **Quality bar:** <approved observable product or harness target>
+- **Selected eval IDs and authority:** <only relevant IDs; do not run the whole catalog>
+- **Mechanical versus judgment evidence:** <objective checks versus Product/user judgment>
+- **Remaining user judgment:** <decision the evidence cannot make>
 - **Progress:** Understanding your idea → Ready for your approval → Building → Checking → Complete
 - **Blocked:** Blocked — <reason> / next action
 - **Next action:** <one immediate Product action or user decision>
@@ -47,7 +51,11 @@ Worker lanes return that evidence against the existing goal; they do not create
 a new OKR for every task. `/goal` is only a Product/BFM shortcut into this same
 session. Quick `TASK-Q-*` work may skip this extra ceremony.
 
-Before source-changing work, Product records the build brief and approval.
+Before source-changing work, Product records the build brief and approval. The
+Build Brief repeats the quality bar, selected eval IDs/authority, mechanical
+versus judgment evidence, and remaining user judgment. Product defines concrete
+product scenarios with Good/Bad examples; reusable categories alone are not a
+test.
 Ordinary lane chats are plan-only; BFM is the execution mode after Product has
 cleared the approval gate. See [workflow.md](workflow.md).
 

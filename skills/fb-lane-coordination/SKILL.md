@@ -14,6 +14,7 @@ the durable policy:
 - [Test This Now and Verification Handoff](../../docs/fb/evidence.md)
 - [Hard stops, parent-only sidechats, recovery, and Loop Learning](../../docs/fb/guardrails.md)
 - [Durable sessions, checkpoints, recall, review, and closeout](../../docs/fb/sessions.md)
+- [Eval selection, authority, Quality Gaps, and revision closure](../../docs/fb/evals.md)
 
 Use `node tools/fb-lane.cjs status` for state. Claims, submissions, merges, and
 source-changing work are BFM actions after Product clears the approval and lock
@@ -21,3 +22,6 @@ gates. For a durable task, intake is read-only and Product/BFM promotes the
 approved session; submit and completed closeout require the reciprocal receipt,
 validation, verification, and Test This Now evidence. Keep technical command
 names unchanged; do not reproduce the manual here.
+Selected evals start from the approved Build Brief. Keep mechanical evidence
+separate from judgment, never weaken a quality target, and never self-promote
+authority.

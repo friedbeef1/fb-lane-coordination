@@ -28,6 +28,10 @@ angle-bracket prompts in place:
 - **Pass criteria:** The approved flow completes and the expected result is visible.
 - **Known limits:** External account and device coverage are not included in this review.
 - **Failure-report format:** what happened, what was expected, link or screenshot, and environment.
+- **What was evaluated:** selected eval IDs and authority with the evaluated surface.
+- **Exact scenarios and expected results:** original scenario plus concrete expectation.
+- **Known quality gaps:** unresolved gaps or an explicit scoped none/limit.
+- **Required user judgment:** approval or product judgment not replaced by checks.
 
 Local Markdown links must resolve relative to the handoff file. Remote links
 are checked only for valid Markdown-link shape and are not fetched.
@@ -53,6 +57,12 @@ criteria, and recovery already attempted. Record the next Product/BFM recovery
 action. Missing or stalled checks are pending or blocked evidence; ordinary
 recovery stays with Product/BFM. Ask the user only for a real approval or an
 external manual, device, or account gate.
+
+When evals are selected, Verification Handoff and Task Receipt include
+`Selected eval results and evidence`. A failure closes only with the original
+scenario rerun, fresh evidence, root cause, regression case, record/Git
+consistency, visible limits, and approval for changed user decisions. See
+[evals.md](evals.md).
 
 ## Quality and cleanup
 

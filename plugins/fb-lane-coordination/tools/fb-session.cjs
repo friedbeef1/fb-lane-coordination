@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
+const { assertSelectedEvalCloseout, validateSelectedEvalIntegration } = require('./fb-eval.cjs');
 
 const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const LANES = new Set(['product', 'tech', 'design', 'business', 'bfm', 'coordination']);
@@ -14,7 +15,7 @@ const CLOSE_OUTCOMES = new Set(['completed', 'blocked', 'deferred']);
 const STALE_AFTER_MS = 24 * 60 * 60 * 1000;
 const LOCK_WAIT_MS = 5000;
 const LOCK_POLL_MS = 20;
-const HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md'];
+const HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md'];
 
 function git(cwd, args, options = {}) {
   const result = spawnSync('git', args.map(String), {
@@ -559,6 +560,7 @@ function assertCheckpointEvidence(reason, recap, handoff, record) {
     if (!hasCommit || !actionable(checks) || !actionable(limits) || !lastSection(handoff, 'Verification Handoff') || !handoff.includes(recapLink) || !recap.includes(handoffLink)) {
       throw new Error('Verification checkpoint requires source commit refs, named checks/results, known limits, Verification Handoff, and reciprocal recap/handoff links.');
     }
+    if (/Selected eval IDs and authority\s*:/i.test(combined)) validateSelectedEvalIntegration(combined);
   }
 }
 
@@ -760,6 +762,7 @@ function assertCompletedEvidence(cwd, record) {
   if (!handoff.includes(`../sessions/${record.sessionId}.md`) || !recap.includes(`../handoffs/${path.basename(record.handoff || '')}`)) {
     throw new Error('Completed reviewable work requires reciprocal recap and handoff links.');
   }
+  assertSelectedEvalCloseout(gitRoot(cwd), combined);
   return true;
 }
 
@@ -939,7 +942,7 @@ function validateHarnessParity(repoRoot) {
     const packaged = path.join(pluginRoot, 'docs', 'fb', page);
     if (!fs.existsSync(canonical) || !fs.existsSync(packaged) || fs.readFileSync(canonical, 'utf8') !== fs.readFileSync(packaged, 'utf8')) mismatches.push(`docs/fb/${page}`);
   }
-  for (const file of ['fb-lane.cjs', 'fb-session.cjs', 'fb-lane.test.cjs', 'fb-session.test.cjs']) {
+  for (const file of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs', 'fb-lane.test.cjs', 'fb-session.test.cjs', 'fb-eval.test.cjs']) {
     const canonical = path.join(repoRoot, 'tools', file);
     const packaged = path.join(pluginRoot, 'tools', file);
     if (!fs.existsSync(canonical) || !fs.existsSync(packaged) || fs.readFileSync(canonical, 'utf8') !== fs.readFileSync(packaged, 'utf8')) mismatches.push(`tools/${file}`);
@@ -1028,7 +1031,7 @@ function collectSessionDoctorChecks(repoRoot) {
   const pluginRoot = path.join(repoRoot, 'plugins', 'fb-lane-coordination');
   if (fs.existsSync(pluginRoot)) {
     const mismatches = validateHarnessParity(repoRoot);
-    add(mismatches.length ? 'fail' : 'ok', 'Session harness parity', mismatches.length ? `Root/package mismatch: ${mismatches.join(', ')}` : 'Root/package session modules, tests, and six harness pages match.', 'Restore the canonical/package mirrors before closeout.');
+    add(mismatches.length ? 'fail' : 'ok', 'Session harness parity', mismatches.length ? `Root/package mismatch: ${mismatches.join(', ')}` : 'Root/package session/eval modules, tests, and seven harness pages match.', 'Restore the canonical/package mirrors before closeout.');
     const pluginServer = validatePluginServerResolution(pluginRoot);
     add(pluginServer.ok ? 'ok' : 'fail', 'Plugin session server resolution', pluginServer.detail, 'Restore the bundled plugin manifest, .mcp.json route, tools/fb-lane.cjs, and fb-session.cjs resolution chain.');
   } else {

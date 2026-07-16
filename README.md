@@ -14,6 +14,7 @@ truth while leaving simple work simple.
 - [Evidence and review](docs/fb/evidence.md) provides Test This Now and Verification Handoff.
 - [Safety and learning](docs/fb/guardrails.md) covers sidechats, recovery, approval, and small guardrails.
 - [Repository-local sessions](docs/fb/sessions.md) cover durable intake, promotion, checkpoints, recall, review, and evidence-aware closeout.
+- [Markdown evals](docs/fb/evals.md) cover selected harness/product scenarios, authority, Quality Gaps, and revision closure.
 
 Install the Codex plugin from this marketplace:
 

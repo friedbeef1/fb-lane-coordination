@@ -1028,13 +1028,13 @@ test('doctor verifies execution worktree registration/branch and the bundled MCP
   }
 });
 
-test('bootstrap preserves project-owned instructions, installs six canonical pages, and root/package mirrors stay byte-aligned', () => {
+test('bootstrap preserves project-owned instructions, installs seven canonical pages, and root/package mirrors stay byte-aligned', () => {
   const fixture = createRepo();
   try {
     const bootstrap = run(fixture.repo, ['bootstrap', '--platform', 'codex']);
     assertOk(bootstrap);
     assert.match(fs.readFileSync(path.join(fixture.repo, 'AGENTS.md'), 'utf8'), /Keep this sentence\./);
-    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md']) {
+    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md']) {
       assert.strictEqual(
         fs.readFileSync(path.join(fixture.repo, 'docs', 'fb', page), 'utf8'),
         fs.readFileSync(path.join(rootDir, 'docs', 'fb', page), 'utf8')
@@ -1044,12 +1044,15 @@ test('bootstrap preserves project-owned instructions, installs six canonical pag
         fs.readFileSync(path.join(rootDir, 'plugins', 'fb-lane-coordination', 'docs', 'fb', page), 'utf8')
       );
     }
-    for (const file of ['fb-lane.cjs', 'fb-session.cjs', 'fb-lane.test.cjs', 'fb-session.test.cjs']) {
+    for (const file of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs', 'fb-lane.test.cjs', 'fb-session.test.cjs', 'fb-eval.test.cjs']) {
       assert.strictEqual(
         fs.readFileSync(path.join(rootDir, 'tools', file), 'utf8'),
         fs.readFileSync(path.join(rootDir, 'plugins', 'fb-lane-coordination', 'tools', file), 'utf8')
       );
     }
+    const parity = collectSessionDoctorChecks(rootDir).find(check => check.label === 'Session harness parity');
+    assert.strictEqual(parity.level, 'ok', JSON.stringify(parity));
+    assert.match(parity.detail, /seven harness pages/i);
   } finally {
     fixture.cleanup();
   }

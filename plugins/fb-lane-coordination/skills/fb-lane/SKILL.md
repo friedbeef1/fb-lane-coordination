@@ -15,8 +15,10 @@ Product/BFM for approval, sequencing, sensitive surfaces, or reconciled lanes.
 - [Prepare review evidence](../../docs/fb/evidence.md)
 - [Respect safety, sidechat, recovery, and escalation rules](../../docs/fb/guardrails.md)
 - [Resume durable sessions and curate checkpoint evidence](../../docs/fb/sessions.md)
+- [Select evals and record Quality Gap revision evidence](../../docs/fb/evals.md)
 
 `PROJECT_BOARD.md` is truth; `docs/handoffs/index.md` is routing; detailed
 handoffs are detail. Ordinary lanes plan only. Use `node tools/fb-lane.cjs
 status` to inspect current coordination state; claims and source changes occur
 only in an approved Product-launched BFM run.
+Selected evals never self-promote and never replace Product or user judgment.

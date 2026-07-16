@@ -10,6 +10,7 @@ const {
   collectSessionDoctorChecks,
   sessionUsage,
 } = require('./fb-session.cjs');
+const { collectEvalDoctorChecks } = require('./fb-eval.cjs');
 
 const FB_MODEL_LINE = ['FB 0.2.0-beta:', 'AI', 'Loop', 'Engineering', 'for', 'Everyday', 'People'].join(' ');
 
@@ -285,6 +286,8 @@ This card is a revisit summary only. PROJECT_BOARD.md remains the source of trut
 }
 
 function agentBehaviorScorecardTemplate() {
+  const bundled = path.join(__dirname, '..', 'docs', 'evals', 'agent-behavior-scorecard-template.md');
+  if (fs.existsSync(bundled)) return fs.readFileSync(bundled, 'utf8');
   return `# FB Agent Behavior Scorecard
 
 > Approved primary tagline/current model line.
@@ -335,6 +338,10 @@ Product approval for heavier tooling: \`not requested\` | \`pending\` | \`approv
 - [ ] Mini-loops produce evidence against the existing goal; they do not invent new OKRs.
 - [ ] Quick tasks stay lightweight unless the same failure is repeating.
 `;
+}
+
+function evalRecordTemplate() {
+  return fs.readFileSync(path.join(__dirname, '..', 'docs', 'evals', 'eval-record-template.md'), 'utf8');
 }
 
 function sidechatParentThreadRoutingTemplate() {
@@ -1176,6 +1183,9 @@ function handleDoctor() {
     }
 
     for (const check of collectSessionDoctorChecks(rootDir)) {
+      add(check.level, check.label, check.detail, check.fix);
+    }
+    for (const check of collectEvalDoctorChecks(rootDir)) {
       add(check.level, check.label, check.detail, check.fix);
     }
   } finally {
@@ -2117,7 +2127,7 @@ function handleMcpRequest(request) {
   // Ignore other JSON-RPC methods (like notifications)
 }
 
-const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md'];
+const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md'];
 const FB_HARNESS_ROUTE_START = '<!-- fb-harness-route-start -->';
 const FB_HARNESS_ROUTE_END = '<!-- fb-harness-route-end -->';
 
@@ -2136,6 +2146,8 @@ matches the task:
   plus [the project sidechat rule](docs/sidechat-parent-thread-routing.md)
 - Session intake, promotion, checkpoints, recall, review, and closeout:
   [sessions.md](docs/fb/sessions.md)
+- Eval selection, authority, Quality Gaps, and revision loops:
+  [evals.md](docs/fb/evals.md)
 
 Project-specific instructions and stricter safety rules win.
 ${FB_HARNESS_ROUTE_END}`;
@@ -2424,7 +2436,7 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   const evalsDir = path.join(rootDir, 'docs', 'evals');
   if (!fs.existsSync(evalsDir)) {
     fs.mkdirSync(evalsDir, { recursive: true });
-    console.log('📁 Created docs/evals/ (optional agent-behavior scorecards)');
+    console.log('📁 Created docs/evals/ (curated eval records and compatibility scorecards)');
   } else {
     console.log('ℹ️  docs/evals/ already exists, skipping.');
   }
@@ -2432,6 +2444,11 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   if (!fs.existsSync(scorecardPath)) {
     fs.writeFileSync(scorecardPath, agentBehaviorScorecardTemplate(), 'utf8');
     console.log('📝 Created docs/evals/agent-behavior-scorecard-template.md');
+  }
+  const evalRecordPath = path.join(evalsDir, 'eval-record-template.md');
+  if (!fs.existsSync(evalRecordPath)) {
+    fs.writeFileSync(evalRecordPath, evalRecordTemplate(), 'utf8');
+    console.log('📝 Created docs/evals/eval-record-template.md');
   }
 
   // 4. Add or refresh only the managed FB route in Codex rules.

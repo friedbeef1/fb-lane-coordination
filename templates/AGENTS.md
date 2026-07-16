@@ -17,6 +17,8 @@ summaries. The reusable FB operating rules live in [docs/fb/](docs/fb/README.md)
   limits, and Loop Learning escalation: [guardrails.md](docs/fb/guardrails.md)
 - Durable session intake, promotion, checkpoints, recall, review, and closeout:
   [sessions.md](docs/fb/sessions.md)
+- Eval selection, authority, Quality Gaps, and revision closure:
+  [evals.md](docs/fb/evals.md)
 
 Use normal work for simple single-thread tasks; use FB light for durable
 multi-thread coordination; escalate to Product/BFM for approval, sequencing,
