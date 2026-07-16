@@ -56,7 +56,7 @@ run('plugin session tests syntax', 'node', ['--check', 'plugins/fb-lane-coordina
 run('root eval tests syntax', 'node', ['--check', 'tools/fb-eval.test.cjs']);
 run('plugin eval tests syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-eval.test.cjs']);
 
-console.log('\n==> root/package CLI, session, test, skill, and six-page parity');
+console.log('\n==> root/package CLI, session, eval, test, skill, and seven-page parity');
 sameFile('tools/fb-lane.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.cjs');
 sameFile('tools/fb-lane.test.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.test.cjs');
 sameFile('tools/fb-session.cjs', 'plugins/fb-lane-coordination/tools/fb-session.cjs');

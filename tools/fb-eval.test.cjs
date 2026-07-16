@@ -336,6 +336,9 @@ test('canonical catalog, categories, compatibility entry point, and root/package
   for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md']) {
     assert.strictEqual(fs.readFileSync(path.join(repoRoot, 'docs', 'fb', page), 'utf8'), fs.readFileSync(path.join(repoRoot, 'plugins', 'fb-lane-coordination', 'docs', 'fb', page), 'utf8'));
   }
+  const validatorSource = fs.readFileSync(path.join(repoRoot, 'tools', 'fb-lane.validate.cjs'), 'utf8');
+  assert.match(validatorSource, /seven-page parity/i);
+  assert.doesNotMatch(validatorSource, /six-page parity/i);
 });
 
 test('bootstrap installs seven pages and both templates while preserving project-owned eval records and instructions', () => {
