@@ -5,10 +5,22 @@
 Do not self-approve new scope or OKRs, live deploys, secrets, payments,
 auth/privacy changes, destructive data, provider-state changes, unclear goals,
 failed evidence needing risk acceptance, lock conflicts, or unresolved dirt.
-Start in Shadow Approval: ask the user and record `Would self-approve: yes/no`
-with a reason. Product/BFM may recommend Phase 2 after one day or three matching
-safe decisions, and Phase 3 after five safe self-approvals with no rollback,
-stale dirt, or hidden gate; the user approves every phase transition.
+Approval autonomy is phased and user-approved:
+
+- **Phase 1 — Shadow Approval:** ask the user for every approval and record
+  `Would self-approve: yes/no` with a reason; no approval is automatic.
+- **Phase 2 — bounded routine autonomy:** after one day or three matching safe
+  decisions, Product/BFM may self-approve only the documented, repeated,
+  low-risk decision type. Continue only while it stays within the approved
+  scope, known pattern, locks, and evidence requirements.
+- **Phase 3 — trusted routine autonomy:** after five safe self-approvals with
+  no rollback, stale dirt, or hidden gate, Product/BFM may continue Phase 2
+  work without a per-decision prompt. New scope, risk, or decision types still
+  require user approval.
+
+The user approves every phase transition. Any material miss, rollback, stale
+or unresolved dirt, hidden gate, failed evidence, or changed risk immediately
+downshifts to Phase 1 until the user reviews and re-approves a phase.
 
 After a user approves a safe Product/BFM task, continue routine diagnosis,
 implementation, verification, board/handoff updates, commit, staging, and

@@ -31,9 +31,21 @@ clarification includes **Why this matters**, a **Recommended default**, and
 
 For non-trivial work, Product owns one approved Goal Alignment Session on the
 board: `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`,
-`Approval`, and `Justification`. Worker lanes return compact evidence against
-that goal; they do not create a new OKR for every task. `/goal` is only a
-Product/BFM shortcut into this same session.
+`Approval`, and `Justification`. Each relevant lane handoff has a compact
+`## Goal Alignment Session` with:
+
+```md
+Product Goal: <existing approved Product/workstream goal, if known>
+Workstream Goal: <plain-language lane contribution for Product/user approval>
+Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+User Approval Needed: yes | no
+Mini-loop Evidence: <smallest real verification evidence>
+Evidence Against Product OKR: <weakening/blocking evidence> | None identified
+```
+
+Worker lanes return that evidence against the existing goal; they do not create
+a new OKR for every task. `/goal` is only a Product/BFM shortcut into this same
+session. Quick `TASK-Q-*` work may skip this extra ceremony.
 
 Before source-changing work, Product records the build brief and approval.
 Ordinary lane chats are plan-only; BFM is the execution mode after Product has

@@ -33,7 +33,8 @@ workstream card after execution or explicit deferral.
 1. Read `AGENTS.md`, board, current-task record if present, the handoff index, then only linked handoffs.
 2. Show the target card: status, owner, scope, locks, blockers, gates, checks, links, intentional dirt, and approved goal.
 3. If approval is missing, stale, changed, or unclear, stop before claim, edit, deploy, or closeout.
-4. Make a five-lane ledger (`FB-Lane`, Product, Tech, Design, Business). Each found handoff ends as `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
+4. Make a five-lane ledger (`FB-Lane`, Product, Tech, Design, Business). Each
+   lane is either linked to relevant output or explicitly recorded as `no relevant handoff/lane output found` with the locations checked. Each found handoff ends as `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`; do not silently omit a missing lane.
 5. Run a Story Split Pass. Split mixed risks, locks, gates, review surfaces, blocked work, and ready work; otherwise say `No split needed`.
 6. Classify work as `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`. Recheck status immediately before a claim.
 
@@ -42,6 +43,13 @@ different board item needs Product approval. During execution, record task,
 lane, branch/worktree, and locks. At closeout, name clean, merged, stale,
 blocked, or intentionally dirty state; intentional dirt requires owner,
 reason, next gate, and session-boundary action.
+
+BFM blocks before execution, audit, or merge when approval is missing, stale,
+or unclear; OKRs are unclear; or a handoff implies an unapproved OKR change or
+conflicts with the approved OKR tree. Product must reconcile the conflict in
+the board/handoff by choosing and recording an aligned approach, scope, or
+sequence (and renewed approval when needed). BFM does not create or rewrite
+OKRs dynamically to make a conflict disappear.
 
 The board flow is: drift audit; plan/approved goal; story split; BFM claim and
 exact affected screens/locks; isolated verification and staging QA; branch/PR/

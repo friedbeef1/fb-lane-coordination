@@ -5,9 +5,11 @@ description: Use when bootstrapping an FB-coordinated project with board, handof
 
 # Set up an FB-coordinated project
 
-Bootstrap creates project-local coordination state and the canonical
-[FB harness](../../docs/fb/README.md). Preserve project-owned instructions;
-generated routes point into the pack rather than copying operating policy.
+This source repository's canonical [FB harness](../../docs/fb/README.md) routes
+setup work and preserves project-owned instructions. The current bootstrap does
+not yet install this pack or its thin navigator in newly bootstrapped projects;
+Task 2 owns that migration. Until then, follow the generated project guidance
+and use this repository pack as the reusable policy reference.
 
 - [First-project contract and approval boundary](../../docs/fb/start.md)
 - [Board/index/handoff/workstream roles and execution](../../docs/fb/workflow.md)
