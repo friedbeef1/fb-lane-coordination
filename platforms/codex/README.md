@@ -1,168 +1,32 @@
-# FB on Codex
+# FB for Codex
 
-This page is the tactical Codex setup and usage guide. For the Product Lead
-operating model, read [Loop Engineering](../../docs/loop-engineering.md).
+FB is the supported Codex distribution for **FB 0.2.0-beta: AI Loop Engineering
+for Everyday People**. Codex provides threads, skills, and worktrees; FB adds a
+Product-led route from approved objective to evidence-backed closeout.
 
-> **Status:** FB on Codex is a public beta.
+## Start
 
-The current model name is **FB 0.2.0-beta: AI Loop Engineering for Everyday People**.
-The current Codex plugin build is `0.2.0-beta+codex.20260716052513`; check
-`codex plugin list` for the active installed build.
-For the v1-to-latest before/after, read
-[FB Versions](../../docs/versioning.md).
+1. Install the plugin:
 
-Codex is a local developer agent that operates directly on your filesystem and git workspace. It already supports native subagents for parallel work, worktrees for isolated background tasks, plugins for reusable workflows, skills for task-specific instructions, and MCP servers for shared tools and context. FB does not replace those capabilities.
+   ```bash
+   codex plugin marketplace add friedbeef1/fb-lane-coordination
+   codex plugin add fb-lane-coordination@fb-lane
+   ```
 
-The Codex pain point is narrower: once you start using those capabilities for real product work, someone still has to answer "who owns this?", "which files are safe to edit?", "what finished?", "what must Product integrate first?", and "what did the other lane decide?". FB gives Codex a lightweight product-coordination contract for that layer.
+2. In the project, read the generated `AGENTS.md`, board, handoff index, and
+   linked handoff.
+3. Use `$fb-lane status` for current coordination state, or describe the
+   objective normally. Use `$bfm` only after Product approval.
 
-> **Codex reality check:** Codex already has concurrency and isolation primitives. FB is not what makes Codex parallel. FB is the shared-state protocol that makes parallel lane work easier to trust: lane identity, file claims, status checks, handoffs, and Product/Captain integration.
+## Operating routes
 
-Use that protocol only when it reduces coordination risk. For a one-thread fix, a read-only answer,
-or independent work where Codex worktrees already provide enough isolation, use Codex directly and
-skip the board/handoff ceremony.
+The canonical pack is [docs/fb](../../docs/fb/README.md):
 
-## First-Project And Review Contract
+- [start](../../docs/fb/start.md) for the Project Start Brief and reviewable plan;
+- [workflow](../../docs/fb/workflow.md) for lanes, BFM, and source-of-truth roles;
+- [evidence](../../docs/fb/evidence.md) for Test This Now and Verification Handoff;
+- [guardrails](../../docs/fb/guardrails.md) for safety, sidechat routing, recovery, and Loop Learning.
 
-For a first project or new non-trivial objective, Product presents this brief before requesting lane output or clarification questions:
-
-### Project Start Brief
-
-- **What you asked for:** <plain-language outcome>
-- **Your decisions:** <choices already made>
-- **Assumptions to confirm:** <only assumptions that could change the plan>
-- **What FB will plan:** <bounded planning work>
-- **Out of scope:** <explicit exclusions>
-- **Success looks like:** <observable outcome>
-- **Progress:** Understanding your idea → Ready for your approval → Building → Checking → Complete
-- **Blocked:** Blocked — <reason> / next action
-- **Next action:** <one immediate Product action or user decision>
-
-### How FB works
-
-1. **Lanes plan:** Product selects only relevant lanes; each answers a distinct question.
-2. **Product prepares:** Product turns the lane plans into one build brief and recommends a path.
-3. **You approve:** Product asks you to approve that build brief before anything is built.
-4. **BFM builds:** Only after explicit `$bfm` does BFM build the approved brief.
-
-Product names every selected lane, its distinct question, and the decision or risk it changes; it also names `Skipped lanes: <lanes and reason>`. Each clarification question includes **Why this matters**, a **Recommended default**, and **What changes if you choose differently**.
-
-Before review, Product sends **Test This Now**: **Outcome type**, **Direct links**, **Exact steps and expectations**, **Pass criteria**, **Known limits**, and a **Failure-report format** (what happened, what was expected, link or screenshot, and environment). Missing review access is `Status: blocked — review access is missing`, not ready to test.
-
-## 📺 How-To Video
-
-> 📺 **[Watch the FB on Codex Video on YouTube](https://youtu.be/nVEGruk2R7Y)** (Cmd/Ctrl + click to open in a new tab)
-> 
-> [![FB on Codex Demo Video](https://img.youtube.com/vi/nVEGruk2R7Y/maxresdefault.jpg)](https://youtu.be/nVEGruk2R7Y)
-
-## ⚡ Quick Setup
-
-### Method A: Codex Plugin (Recommended)
-Install the repo marketplace and plugin:
-
-```bash
-codex plugin marketplace add friedbeef1/fb-lane-coordination
-codex plugin add fb-lane-coordination@fb-lane
-```
-
-This installs:
-
-- `bfm`, `fb-lane`, `fb-product`, `fb-tech`, `fb-design`, and `fb-business` Codex skills
-- the bundled `fb-lane` MCP server
-- plugin metadata for Codex's plugin browser
-
-To upgrade an existing install after this repo changes:
-
-```bash
-codex plugin marketplace upgrade fb-lane
-codex plugin add fb-lane-coordination@fb-lane
-codex plugin list | rg "fb-lane-coordination"
-```
-
-Start a new Codex thread after reinstalling. Existing threads can retain skill
-context that was loaded before the upgrade. Older cache folders may remain on
-disk, but Codex uses the installed version shown by `codex plugin list`.
-For same-version docs-only updates, verify the active installed cache contains
-the expected new wording; if not, reinstall the plugin and preserve plugin data
-where the platform supports it.
-
-After install, start a new Codex thread and ask for `$fb-lane` or a lane-specific skill. Natural
-language also works, and `@fb-lane` remains a useful prompt convention if you want to make the lane
-intent obvious. Example:
-
-```text
-$fb-lane status
-```
-
-Then describe the work in normal language:
-
-```text
-$fb-lane
-Split this across Product, Tech, Design, and Business.
-Ask each workstream for a markdown plan or handoff.
-Launch BFM when source-changing execution is approved.
-Product should sequence the final integration and tell me what is ready to merge.
-```
-
-When handoffs already exist and Product/Captain needs to sequence and route execution, use:
-
-```text
-$bfm process the prepared handoffs for this task and execute the sequence to completion.
-```
-
-For non-trivial BFM work, use the Goal Alignment Session and return-loop rules
-described in [Loop Engineering](../../docs/loop-engineering.md). The plugin does
-not create Codex's parallelism. Product/BFM should also run the Story Split Pass
-before prioritizing: split mixed lanes, locks, gates, blocked work, and ready-now
-work into smaller stories, or say `No split needed`. Codex already has
-parallelism; the plugin packages the coordination layer: skills, MCP
-status/claim/submit/merge tools, file locks, handoffs, and Product/Captain
-integration.
-
-If the same coordination friction, stale state, missing evidence, or rework
-pattern repeats, Product/BFM should proactively propose one small guardrail for
-approval instead of silently changing the process.
-
-If the project itself still needs FB repo files, run the Codex-only bootstrap from the project
-root:
-
-```bash
-node tools/fb-lane.cjs bootstrap --platform codex
-node tools/fb-lane.cjs doctor
-```
-
-`doctor` is read-only. It checks the board, Codex rules, handoff folder/index,
-active file locks, git workspace, non-quick handoff `OKR Fit`, and approved Goal Alignment
-Session OKRs before lane work starts.
-
-### Fallback Setup
-
-If you are not using the Codex plugin installer, use the fallback setup paths in [../../docs/setup.md](../../docs/setup.md).
-
----
-
-## The Pain Point This Solves in Codex
-Codex already has subagents, skills, plugins, MCP, and worktrees. FB only
-adds the Product loop around them:
-
-- workstreams plan in markdown
-- Product approves the OKR and launches BFM
-- BFM execution workers claim files and use worktrees when parallel source edits are useful
-- Product/BFM closes only after evidence, board state, repo state, and git state agree
-
-For ordinary workstream chats, do not run `claim`, create branches, or edit source.
-Write the markdown plan/handoff and return it to Product.
-
-## BFM Execution Commands
-
-Use these only after Product launches BFM execution:
-
-```bash
-node tools/fb-lane.cjs status
-node tools/fb-lane.cjs claim TASK-102 Tech "src/auth.ts"
-node tools/fb-lane.cjs claim TASK-103 Design "src/nav.css" --worktree
-node tools/fb-lane.cjs submit TASK-102 "https://staging.example.com"
-node tools/fb-lane.cjs merge TASK-102
-```
-
-Use `--worktree` when two BFM execution workers need different branches at the
-same time. Keep `PROJECT_BOARD.md` authoritative in the primary checkout.
+For local rule snippets, use [workflow-rules.md](workflow-rules.md). See
+[setup](../../docs/setup.md) and [versioning](../../docs/versioning.md) for
+technical installation and release context.
