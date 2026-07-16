@@ -29,6 +29,7 @@ Out of scope: Autonomous judging, semantic scoring, dashboards, CI eval jobs, ho
 Success looks like: The harness and product-quality walkthroughs close only with honest fresh evidence while root/package/template/bootstrap parity remains intact.
 Quality bar: Deterministic structure catches lifecycle inconsistency while subjective quality remains explicit Product/user judgment.
 Selected eval IDs and authority: EVAL-HARNESS-DIRECT-LINK-001 (shadow); EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow).
+Selected eval records: EVAL-HARNESS-DIRECT-LINK-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-harness-direct-link-001); EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-product-creator-specificity-001).
 Mechanical versus judgment evidence: Link, schema, parity, and closeout structure are mechanical; creator-commerce specificity remains Product judgment.
 Remaining user judgment: Product review decides whether future repeated evidence warrants an authority change; TASK-023 makes none.
 
@@ -41,6 +42,7 @@ Remaining user judgment: Product review decides whether future repeated evidence
 - Verify the required harness-link failure and creator-commerce quality-gap walkthroughs plus full seven-page parity.
 Quality bar: Preserve honest direct-review access and context-specific creator-commerce output without weakening either target.
 Selected eval IDs and authority: EVAL-HARNESS-DIRECT-LINK-001 (shadow); EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow); do not run unrelated catalog evals.
+Selected eval records: EVAL-HARNESS-DIRECT-LINK-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-harness-direct-link-001); EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-product-creator-specificity-001).
 Mechanical versus judgment evidence: Node fixtures validate deterministic fields and transitions; Product compares the creator output with concrete Good/Bad examples.
 Remaining user judgment: Product decides any later promotion, demotion, or changed product direction with explicit evidence.
 
@@ -60,6 +62,7 @@ Recovery attempted: The sandbox blocked mechanical mirror writes; scoped write a
 Known limits: Product-quality evaluation remains explicit Product/user judgment; no hosted or external integration was exercised; independent Product review remains.
 Next Product/BFM recovery action: Perform the independent TASK-023 branch review and keep the candidate in local Staging QA unless separately authorized.
 Selected eval results and evidence: EVAL-HARNESS-DIRECT-LINK-001 (shadow) passed after missing-link revision/rerun/regression capture; EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow) passed after the complete Quality Gap and fresh specific candidate. Neither authority changed.
+Selected eval records: EVAL-HARNESS-DIRECT-LINK-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-harness-direct-link-001); EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-product-creator-specificity-001).
 
 ## Task Receipt
 
@@ -71,6 +74,7 @@ Review state, direct links, limits, and external gates: Completed local reposito
 Repository state: Implementation and selected-eval handoff are committed; coordination closeout is the final documentation commit.
 Remaining owner and action: Product/BFM performs independent branch review; release, publish, deploy, merge, plugin install, and consumer migration remain unauthorized.
 Selected eval results and evidence: Both selected shadow evals passed their original scenarios with revision, fresh rerun evidence, regression cases, and no authority change.
+Selected eval records: EVAL-HARNESS-DIRECT-LINK-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-harness-direct-link-001); EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-product-creator-specificity-001).
 
 ## Brief Validation
 
@@ -94,6 +98,7 @@ Approved scope-change references: The original approved TASK-023 brief applies u
 - **Known limits:** No semantic judge, numeric score, hosted capture, external integration, CI eval job, release, deployment, merge, plugin install, or consumer migration was exercised.
 - **Failure-report format:** Eval ID; observed field/behavior; expected contract; file and commit; authority and result; environment.
 What was evaluated: Direct-review-link harness completeness and creator-commerce recommendation specificity for the two selected shadow Eval IDs.
+Selected eval records: EVAL-HARNESS-DIRECT-LINK-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-harness-direct-link-001); EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-product-creator-specificity-001).
 Exact scenarios and expected results: Missing link fails then resolves after revision; generic creator output stays Checking with a complete Quality Gap until a fresh contextual candidate passes.
 Known quality gaps: No gap remains for the two selected scenarios; broader catalog scenarios were intentionally not run.
 Required user judgment: Product confirms subjective creator-commerce specificity and decides any future authority recommendation; no authority change is requested now.
@@ -101,6 +106,7 @@ Required user judgment: Product confirms subjective creator-commerce specificity
 ## Verification Checkpoint
 
 Selected eval results and evidence: Both selected shadow records passed their original scenarios at `240b1b2`; the complete local gate passed at `83ee9f0`; walkthrough, handoff, board, and Git evidence agree.
+Selected eval records: EVAL-HARNESS-DIRECT-LINK-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-harness-direct-link-001); EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-product-creator-specificity-001).
 
 ## Loop Learning
 

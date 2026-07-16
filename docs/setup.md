@@ -15,7 +15,7 @@ If you already have an AI agent open in your target project workspace, paste thi
 ```text
 I want to bootstrap the FB coordination plugin in this workspace.
 Read the template files and CLI utilities from the fb-lane-coordination repository.
-Copy tools/fb-lane.cjs and tools/fb-session.cjs to my project's root tools/ directory.
+Copy tools/fb-lane.cjs, tools/fb-session.cjs, and tools/fb-eval.cjs to my project's root tools/ directory.
 Run node tools/fb-lane.cjs bootstrap to set up my project board, lane rules, Codex rules, and handoff routing.
 Do not overwrite existing project rules; merge with them conservatively.
 ```
@@ -31,6 +31,7 @@ From your target project root:
 mkdir -p tools
 curl -o tools/fb-lane.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.cjs
 curl -o tools/fb-session.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-session.cjs
+curl -o tools/fb-eval.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-eval.cjs
 node tools/fb-lane.cjs bootstrap
 ```
 

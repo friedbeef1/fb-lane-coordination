@@ -279,6 +279,57 @@ Next Product/BFM recovery action: Product reviews the branch diff.
 `);
 }
 
+function blockingEvalRecord(latestResult) {
+  return `## Eval Record
+
+Eval ID: EVAL-HARNESS-CLOSE-001
+Eval type: harness
+Authority: blocking
+Previous authority: advisory
+Authority change approval: Product approval: approved; Reference: APPROVED-CLOSE-001
+Authority change recorded by: Product/BFM
+Authority decision: Product approved and recorded blocking authority.
+Judgment: objective
+Trigger: Completed session close is attempted.
+Scenario: A blocking eval record has contradictory lifecycle fields.
+Quality target: Completed close cannot hide a blocking failure.
+Must pass: Latest result, rerun, and disposition agree.
+Must not happen: A fail result closes because a rerun string says pass.
+Evidence required: Repo-local record and session-close result.
+Owner: Product/BFM
+Latest result: ${latestResult}
+Failure classification: Eval failure
+Revision: Repaired the original candidate without weakening the target.
+Rerun result: pass - original closeout scenario passed at abc1234.
+Disposition: passed
+Promotion or demotion recommendation: Keep blocking authority.
+Advisory failure explanation: None - this record is blocking.
+Root cause: The original candidate omitted required evidence.
+Regression case: EVAL-HARNESS-CLOSE-001-R1 repeats the contradiction.
+Fresh evidence: Fresh closeout evidence at abc1234.
+Record consistency: Board, handoff, eval, session, and Git abc1234 agree.
+Changed user decision approval: No user decision changed.
+Approved brief revision: None - the approved brief is unchanged.
+Mechanical origin and regression evidence: None - this is a judgment scenario.
+`;
+}
+
+function addSelectedEvalEvidence(cwd, id, taskId, latestResult) {
+  const handoffPath = path.join(cwd, 'docs', 'handoffs', `${taskId}.md`);
+  const recap = recapPath(cwd, id);
+  const selected = `Selected eval records: EVAL-HARNESS-CLOSE-001 (blocking, ${latestResult}, docs/evals/session-close.md#eval-harness-close-001).`;
+  let handoffSource = fs.readFileSync(handoffPath, 'utf8');
+  handoffSource = handoffSource.replace('## Project Start Brief\n\n', `## Project Start Brief\n\nQuality bar: Completed closeout preserves blocking eval truth.\nSelected eval IDs and authority: EVAL-HARNESS-CLOSE-001 (blocking).\n${selected}\nMechanical versus judgment evidence: Lifecycle coherence is mechanical; Product owns authority.\nRemaining user judgment: Product confirms the approved blocking authority remains unchanged.\n\n`);
+  handoffSource = handoffSource.replace('## Build Brief\n\n', `## Build Brief\n\nQuality bar: Completed closeout preserves blocking eval truth.\nSelected eval IDs and authority: EVAL-HARNESS-CLOSE-001 (blocking).\n${selected}\nMechanical versus judgment evidence: Lifecycle coherence is mechanical; Product owns authority.\nRemaining user judgment: Product confirms the approved blocking authority remains unchanged.\n\n`);
+  handoffSource = handoffSource.replace('## Verification Handoff\n\n', `## Verification Handoff\n\nSelected eval results and evidence: EVAL-HARNESS-CLOSE-001 uses the repo-local lifecycle record.\n${selected}\n`);
+  handoffSource = handoffSource.replace('## Task Receipt\n\n', `## Task Receipt\n\nSelected eval results and evidence: EVAL-HARNESS-CLOSE-001 uses the repo-local lifecycle record.\n${selected}\n`);
+  handoffSource = handoffSource.replace('## Test This Now\n\n', `## Test This Now\n\nWhat was evaluated: EVAL-HARNESS-CLOSE-001 lifecycle coherence.\n${selected}\nExact scenarios and expected results: Contradictory failure cannot close; coherent pass can close.\nKnown quality gaps: None after the coherent pass.\nRequired user judgment: None; Product authority remains blocking.\n`);
+  fs.writeFileSync(handoffPath, handoffSource);
+  fs.appendFileSync(recap, `\n## Verification Checkpoint\n\nSelected eval results and evidence: EVAL-HARNESS-CLOSE-001 uses the repo-local lifecycle record.\n${selected}\n`);
+  fs.mkdirSync(path.join(cwd, 'docs', 'evals'), { recursive: true });
+  fs.writeFileSync(path.join(cwd, 'docs', 'evals', 'session-close.md'), blockingEvalRecord(latestResult));
+}
+
 function replaceSection(markdown, heading, replacement) {
   const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const pattern = new RegExp(`(^##\\s+${escaped}\\s*$)[\\s\\S]*?(?=^##\\s+|(?![\\s\\S]))`, 'm');
@@ -632,6 +683,29 @@ test('submit and completed close require active execution, reciprocal evidence, 
     assert.strictEqual(readSession(worktree, 'close-complete').state, 'closed');
     assert.strictEqual(readSession(worktree, 'close-complete').outcome, 'completed');
     assertFailed(promote(worktree, 'TASK-999', 'tech', 'planning', 'close-complete'), /closed|reuse/i);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('completed session close rejects contradictory blocking eval lifecycle and accepts a coherent passed record', () => {
+  const fixture = createRepo();
+  try {
+    const worktree = addWorktree(fixture, 'session/eval-close');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'eval-close'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 23;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: eval close fixture']);
+    const sourceCommit = git(worktree, ['rev-parse', '--short', 'HEAD']);
+    appendEvidence(worktree, 'eval-close', 'TASK-001', sourceCommit);
+    addSelectedEvalEvidence(worktree, 'eval-close', 'TASK-001', 'fail');
+    assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'eval-close']));
+    assertFailed(run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'eval-close']), /Latest result|coherent|disposition/i);
+    for (const file of [recapPath(worktree, 'eval-close'), path.join(worktree, 'docs', 'handoffs', 'TASK-001.md')]) {
+      fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replaceAll('(blocking, fail,', '(blocking, pass,'));
+    }
+    fs.writeFileSync(path.join(worktree, 'docs', 'evals', 'session-close.md'), blockingEvalRecord('pass'));
+    assertOk(run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'eval-close']));
   } finally {
     fixture.cleanup();
   }

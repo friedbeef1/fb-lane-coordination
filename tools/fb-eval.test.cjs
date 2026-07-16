@@ -36,9 +36,10 @@ function record(overrides = {}) {
     type: 'harness',
     authority: 'shadow',
     previous: 'none',
-    approval: 'not required - initial shadow record',
+    approval: 'Product approval: not required; Reference: initial-shadow-record',
     recorder: 'Product/BFM',
     decision: 'Product/BFM recorded the initial shadow authority.',
+    judgment: 'objective',
     trigger: 'A review packet is prepared.',
     scenario: 'The reviewer opens the candidate from Test This Now.',
     target: 'The reviewer reaches the candidate directly.',
@@ -50,6 +51,7 @@ function record(overrides = {}) {
     classification: 'None',
     revision: 'None - no failure has occurred.',
     rerun: 'not run',
+    disposition: 'open',
     recommendation: 'Keep shadow until repeated evidence supports a change.',
     explanation: 'None - no advisory failure exists.',
     rootCause: 'None - no failure has occurred.',
@@ -57,11 +59,17 @@ function record(overrides = {}) {
     fresh: 'None - no failure has occurred.',
     consistency: 'Eval, handoff, board, session, and Git are not yet claiming closure.',
     changedDecision: 'No user decision changed.',
+    briefRevision: 'None - the approved brief is unchanged.',
     mechanicalOrigin: 'None - this is a judgment scenario.',
     good: '',
     bad: '',
     ...overrides,
   };
+  if (!Object.hasOwn(overrides, 'judgment') && values.type === 'product') values.judgment = 'subjective';
+  if (!Object.hasOwn(overrides, 'disposition')) {
+    const rerun = String(values.rerun).split(/\s+-\s+/, 1)[0];
+    values.disposition = rerun === 'deferred' ? 'deferred' : rerun === 'superseded' ? 'superseded' : values.result === 'pass' ? 'passed' : 'open';
+  }
   return `## Eval Record
 
 Eval ID: ${values.id}
@@ -71,6 +79,7 @@ Previous authority: ${values.previous}
 Authority change approval: ${values.approval}
 Authority change recorded by: ${values.recorder}
 Authority decision: ${values.decision}
+Judgment: ${values.judgment}
 Trigger: ${values.trigger}
 Scenario: ${values.scenario}
 Quality target: ${values.target}
@@ -82,6 +91,7 @@ Latest result: ${values.result}
 Failure classification: ${values.classification}
 Revision: ${values.revision}
 Rerun result: ${values.rerun}
+Disposition: ${values.disposition}
 Promotion or demotion recommendation: ${values.recommendation}
 Advisory failure explanation: ${values.explanation}
 Root cause: ${values.rootCause}
@@ -89,6 +99,7 @@ Regression case: ${values.regression}
 Fresh evidence: ${values.fresh}
 Record consistency: ${values.consistency}
 Changed user decision approval: ${values.changedDecision}
+Approved brief revision: ${values.briefRevision}
 Mechanical origin and regression evidence: ${values.mechanicalOrigin}
 ${values.good ? `Good example: ${values.good}\n` : ''}${values.bad ? `Bad example: ${values.bad}\n` : ''}`;
 }
@@ -101,17 +112,17 @@ test('record contract accepts every authority and rejects invalid or duplicate f
   const shadow = record();
   const advisory = record({
     id: 'EVAL-HARNESS-002', authority: 'advisory', previous: 'shadow',
-    approval: 'Product/BFM authority record 2026-07-17.',
+    approval: 'Product approval: not required; Reference: advisory-record-2026-07-17',
     decision: 'Product/BFM promoted this stable scenario to advisory.',
   });
   const blocking = record({
     id: 'EVAL-HARNESS-003', authority: 'blocking', previous: 'advisory',
-    approval: 'Explicit Product approval: APPROVED-PRODUCT-003.',
+    approval: 'Product approval: approved; Reference: APPROVED-PRODUCT-003',
     decision: 'Product recorded the approved promotion to blocking.',
   });
   const mechanical = record({
     id: 'EVAL-HARNESS-004', authority: 'mechanical', previous: 'advisory',
-    approval: 'Explicit Product approval: APPROVED-PRODUCT-004.',
+    approval: 'Product approval: approved; Reference: APPROVED-PRODUCT-004',
     decision: 'Product recorded the approved promotion to mechanical.',
     mechanicalOrigin: 'Existing deterministic direct-link validator; regression EVAL-HARNESS-004-R1.',
   });
@@ -129,16 +140,19 @@ test('new records start shadow and authority transitions require Product records
   expectInvalid(record({ authority: 'advisory', previous: 'none' }), /start shadow/i);
   expectInvalid(record({ authority: 'advisory', previous: 'shadow', recorder: 'the eval itself' }), /Product\/BFM/i);
   expectInvalid(record({ authority: 'blocking', previous: 'advisory', approval: 'Product discussed it.' }), /explicit Product approval/i);
-  expectInvalid(record({ authority: 'mechanical', previous: 'shadow', approval: 'Explicit Product approval: APPROVED-1', mechanicalOrigin: 'None' }), /mechanical origin/i);
+  expectInvalid(record({ authority: 'blocking', previous: 'advisory', approval: 'Explicit Product approval was not APPROVED-123' }), /explicit Product approval/i);
+  expectInvalid(record({ authority: 'blocking', previous: 'advisory', approval: 'Product approval: approved; Reference: APPROVED-123', decision: 'The eval automatically self-promoted' }), /self-promote|automatic/i);
+  expectInvalid(record({ authority: 'mechanical', previous: 'shadow', approval: 'Product approval: approved; Reference: APPROVED-1', mechanicalOrigin: 'None' }), /mechanical origin/i);
+  assert.doesNotThrow(() => validateEvalDocument(record({ authority: 'blocking', previous: 'advisory', approval: 'Product approval: approved; Reference: APPROVED-123', decision: 'Product approved and recorded blocking authority.' })));
   assert.doesNotThrow(() => validateEvalDocument(record({
     authority: 'advisory', previous: 'blocking',
-    approval: 'Product/BFM demotion record 2026-07-17.',
+    approval: 'Product approval: not required; Reference: demotion-record-2026-07-17',
     decision: 'Product demoted the noisy eval to advisory.',
     recommendation: 'Demote immediately because the scenario is ambiguous.',
   })));
   expectInvalid(record({
     authority: 'advisory', previous: 'blocking',
-    approval: 'Product/BFM demotion record 2026-07-17.',
+    approval: 'Product approval: not required; Reference: demotion-record-2026-07-17',
     decision: 'Product demoted the noisy eval to advisory.',
     recommendation: 'Keep current authority.',
   }), /demotion recommendation/i);
@@ -153,6 +167,9 @@ test('subjective product evals require concrete good and bad examples and preser
   });
   assert.doesNotThrow(() => validateEvalDocument(product));
   expectInvalid(record({ id: 'EVAL-PRODUCT-002', type: 'product' }), /Good example|Bad example/i);
+  assert.doesNotThrow(() => validateEvalDocument(record({ id: 'EVAL-PRODUCT-003', type: 'product', judgment: 'objective' })));
+  assert.doesNotThrow(() => validateEvalDocument(record({ id: 'EVAL-PRODUCT-004', type: 'product', judgment: 'objective', authority: 'mechanical', previous: 'advisory', approval: 'Product approval: approved; Reference: APPROVED-PRODUCT-004', mechanicalOrigin: 'Existing deterministic validator regression R4.' })));
+  expectInvalid(record({ judgment: 'subjective', authority: 'mechanical', previous: 'advisory', approval: 'Product approval: approved; Reference: APPROVED-MECHANICAL-1', mechanicalOrigin: 'Existing deterministic validator regression R1.' }), /objective Judgment/i);
   expectInvalid(product.replace('Evidence required: The checked direct link and local resolution result.', 'Evidence required: Private reasoning: hidden chain of thought.'), /private|privacy/i);
   expectInvalid(product.replace('Evidence required: The checked direct link and local resolution result.', 'Evidence required: API_TOKEN=secret-value'), /secret|credential/i);
 });
@@ -166,7 +183,7 @@ test('shadow is nonblocking, advisory needs fix or explanation, and blocking or 
   for (const authority of ['blocking', 'mechanical']) {
     assert.throws(() => assertEvalCloseout(record({
       ...failed, authority, previous: 'advisory',
-      approval: `Explicit Product approval: APPROVED-${authority}.`,
+      approval: `Product approval: approved; Reference: APPROVED-${authority}`,
       decision: `Product recorded ${authority} authority.`,
       mechanicalOrigin: authority === 'mechanical' ? 'Existing deterministic validator regression R1.' : 'None - judgment boundary.',
     })), new RegExp(`${authority}.*Checking|${authority}.*closeout`, 'i'));
@@ -203,25 +220,47 @@ test('failure closure requires classification, revision, rerun, fresh evidence, 
 
   for (const rerun of ['deferred', 'superseded']) {
     const resolvedAtProductBoundary = record({
-      authority: 'blocking', previous: 'advisory', approval: 'Explicit Product approval: APPROVED-BLOCK-BOUNDARY.',
-      decision: 'Product recorded blocking authority.', result: 'fail', classification: 'Eval failure',
+      authority: 'blocking', previous: 'advisory', approval: 'Product approval: approved; Reference: APPROVED-BLOCK-BOUNDARY',
+      decision: 'Product recorded blocking authority.', result: 'blocked', classification: 'Eval failure',
       revision: rerun === 'deferred' ? 'Product deferred the original scenario at the documented boundary.' : 'Product approved a Build Brief that supersedes the original scenario.',
       rerun: `${rerun} - explicit Product boundary decision APPROVED-BOUNDARY-1.`,
       rootCause: 'The original candidate did not meet the selected scenario.', regression: 'Regression R1 preserves the original failure evidence.',
       fresh: 'Fresh Product boundary evidence at commit abc1234.', consistency: 'Board, handoff, eval, session, and Git abc1234 agree.',
       changedDecision: 'Explicit Product approval: APPROVED-BOUNDARY-1.',
+      briefRevision: rerun === 'superseded' ? 'Product-approved Build Brief revision APPROVED-BOUNDARY-1 replaces the original scenario.' : 'None - the approved brief is unchanged.',
     });
     assert.doesNotThrow(() => assertEvalCloseout(resolvedAtProductBoundary));
     assert.throws(() => assertEvalCloseout(resolvedAtProductBoundary.replace('Changed user decision approval: Explicit Product approval: APPROVED-BOUNDARY-1.', 'Changed user decision approval: Product discussion only.')), /explicit Product approval|approval/i);
   }
 });
 
-test('complete Quality Gaps pass and incomplete or falsely complete gaps fail', () => {
-  const gap = `Progress: Checking — product quality target missed
+test('blocking and mechanical closeout requires coherent latest result, rerun, disposition, and Product boundary evidence', () => {
+  const base = {
+    authority: 'blocking', previous: 'advisory', approval: 'Product approval: approved; Reference: APPROVED-CLOSEOUT-1',
+    decision: 'Product approved and recorded blocking authority.', classification: 'Eval failure',
+    revision: 'Repaired the original candidate without weakening the quality target.',
+    rootCause: 'The original candidate omitted required evidence.', regression: 'Regression R1 repeats the original scenario.',
+    fresh: 'Fresh evidence at commit abc1234.', consistency: 'Board, handoff, eval, session, and Git abc1234 agree.',
+    changedDecision: 'No user decision changed.',
+  };
+  for (const latest of ['fail', 'blocked', 'not run']) {
+    assert.throws(() => assertEvalCloseout(record({ ...base, result: latest, rerun: 'pass - repair passed.', disposition: 'passed' })), /Latest result|coherent|disposition/i);
+  }
+  assert.doesNotThrow(() => assertEvalCloseout(record({ ...base, result: 'pass', rerun: 'pass - repair passed.', disposition: 'passed' })));
+  assert.throws(() => assertEvalCloseout(record({ ...base, result: 'pass', rerun: 'blocked - environment unavailable.', disposition: 'passed' })), /rerun|disposition|coherent/i);
+  assert.doesNotThrow(() => assertEvalCloseout(record({ ...base, result: 'blocked', rerun: 'deferred - Product boundary APPROVED-DEFER-1.', disposition: 'deferred', changedDecision: 'Explicit Product approval: APPROVED-DEFER-1.' })));
+  assert.doesNotThrow(() => assertEvalCloseout(record({ ...base, result: 'blocked', rerun: 'superseded - Product boundary APPROVED-SUPERSEDE-1.', disposition: 'superseded', changedDecision: 'Explicit Product approval: APPROVED-SUPERSEDE-1.', briefRevision: 'Approved Build Brief revision APPROVED-SUPERSEDE-1 replaces the original scenario.' })));
+  assert.throws(() => assertEvalCloseout(record({ ...base, result: 'blocked', rerun: 'superseded - Product boundary APPROVED-SUPERSEDE-1.', disposition: 'superseded', changedDecision: 'Explicit Product approval: APPROVED-SUPERSEDE-1.' })), /brief revision/i);
+});
+
+test('Quality Gaps preserve history while open and closed states remain coherent with their eval record', () => {
+  const openRecord = record({ id: 'EVAL-PRODUCT-001', type: 'product', result: 'fail', classification: 'Eval failure', revision: 'Revise the candidate.', good: 'Recommend the named cart-recovery flow.', bad: 'Improve marketing.' });
+  const gap = `${openRecord}\nProgress: Checking — product quality target missed
 
 ## Quality Gap
 
 Eval ID: EVAL-PRODUCT-001
+Gap status: open
 What is insufficient: Recommendations are generic despite functional output.
 Failed quality dimension: output relevance and specificity
 Good example: Recommend a cart-recovery flow tied to the named ceramics launch.
@@ -231,45 +270,63 @@ Next scoped revision: Use product, audience, and channel inputs in each recommen
 Evidence required for the next candidate: Fresh side-by-side output for the original scenario.`;
   assert.doesNotThrow(() => validateQualityGaps(gap));
   for (const field of ['What is insufficient', 'Failed quality dimension', 'Good example', 'Bad example', 'Responsible layer', 'Next scoped revision', 'Evidence required for the next candidate']) {
-    assert.throws(() => validateQualityGaps(gap.replace(new RegExp(`${field}: [^\n]+`), `${field}: TODO`)), new RegExp(field, 'i'));
+    const marker = gap.indexOf('## Quality Gap');
+    const incomplete = `${gap.slice(0, marker)}${gap.slice(marker).replace(new RegExp(`${field}: [^\n]+`), `${field}: TODO`)}`;
+    assert.throws(() => validateQualityGaps(incomplete), new RegExp(field, 'i'));
   }
   assert.throws(() => validateQualityGaps(gap.replace('Responsible layer: Product', 'Responsible layer: QA')), /Responsible layer/i);
   assert.throws(() => validateQualityGaps(gap.replace(/## Quality Gap[\s\S]*/, '')), /Quality Gap/i);
+  assert.throws(() => validateQualityGaps(gap.replace('Progress: Checking — product quality target missed', 'Progress: Complete — product quality target met')), /Checking/i);
+  const closedRecord = record({ id: 'EVAL-PRODUCT-001', type: 'product', result: 'pass', classification: 'Eval failure', revision: 'Grounded the candidate.', rerun: 'pass - original scenario passed.', rootCause: 'Context was omitted.', regression: 'R1 preserves the original comparison.', fresh: 'Fresh candidate abc1234.', consistency: 'Eval and handoff agree.', changedDecision: 'No user decision changed.', good: 'Recommend the named cart-recovery flow.', bad: 'Improve marketing.' });
+  const closed = gap.replace(openRecord, closedRecord).replace('Progress: Checking — product quality target missed', 'Progress: Complete — product quality target met').replace('Gap status: open', 'Gap status: closed\nClosed evidence: Fresh candidate abc1234 passed the original comparison.');
+  assert.doesNotThrow(() => validateQualityGaps(closed));
+  assert.throws(() => validateQualityGaps(closed.replace('Progress: Complete — product quality target met', 'Progress: Checking — product quality target missed')), /closed|Checking/i);
+  assert.throws(() => validateQualityGaps(closed.replace(/Closed evidence: [^\n]+\n/, '')), /Closed evidence/i);
 });
 
 test('selected evals integrate with briefs, handoff, Test This Now, receipt, and verification checkpoint', () => {
+  const selected = 'Selected eval records: EVAL-PRODUCT-001 (shadow, pass, docs/evals/run.md#eval-product-001).';
   const integrated = `## Project Start Brief
 Quality bar: Creator recommendations are actionable and specific.
 Selected eval IDs and authority: EVAL-PRODUCT-001 (shadow).
+${selected}
 Mechanical versus judgment evidence: Link checks are mechanical; specificity is Product judgment.
 Remaining user judgment: Confirm the recommendations fit the approved product promise.
 
 ## Build Brief
 Quality bar: Preserve the approved specificity target.
 Selected eval IDs and authority: EVAL-PRODUCT-001 (shadow); do not run unrelated catalog evals.
+${selected}
 Mechanical versus judgment evidence: Deterministic structure plus Product review.
 Remaining user judgment: Approve any changed product direction.
 
 ## Verification Handoff
 Selected eval results and evidence: EVAL-PRODUCT-001 passed with candidate abc1234 and fresh side-by-side evidence.
+${selected}
 
 ## Task Receipt
 Selected eval results and evidence: EVAL-PRODUCT-001 passed; no authority changed.
+${selected}
 
 ## Test This Now
 What was evaluated: Creator-commerce specificity against EVAL-PRODUCT-001.
+${selected}
 Direct link: [candidate](../candidate.md)
 Exact scenarios and expected results: Original ceramics-launch scenario; recommendations name the launch, channel, and next action.
 Known quality gaps: None remain for the selected scenario; broader catalog coverage was not run.
 Required user judgment: Confirm fit against the approved product promise.
 
 ## Verification Checkpoint
-Selected eval results and evidence: EVAL-PRODUCT-001 pass at abc1234; record and handoff agree.`;
+Selected eval results and evidence: EVAL-PRODUCT-001 pass at abc1234; record and handoff agree.
+${selected}`;
   assert.doesNotThrow(() => validateSelectedEvalIntegration(integrated, ['EVAL-PRODUCT-001']));
   for (const phrase of ['Quality bar:', 'Selected eval IDs and authority:', 'Mechanical versus judgment evidence:', 'Remaining user judgment:', 'Selected eval results and evidence:', 'What was evaluated:', 'Exact scenarios and expected results:', 'Known quality gaps:', 'Required user judgment:']) {
     assert.throws(() => validateSelectedEvalIntegration(integrated.replace(phrase, `Missing ${phrase}`), ['EVAL-PRODUCT-001']), /selected eval|quality|judgment|evaluated|scenario|gap/i, phrase);
   }
   assert.throws(() => validateSelectedEvalIntegration(integrated, ['EVAL-PRODUCT-999']), /EVAL-PRODUCT-999/i);
+  assert.throws(() => validateSelectedEvalIntegration(integrated.replace(selected, 'Selected eval records: EVAL-PRODUCT-999 (shadow, pass, docs/evals/run.md#eval-product-999).'), ['EVAL-PRODUCT-001']), /consistent|selected eval records/i);
+  assert.throws(() => validateSelectedEvalIntegration(integrated.replace(selected, 'Selected eval records: EVAL-PRODUCT-001 (shadow, fail, docs/evals/run.md#eval-product-001).'), ['EVAL-PRODUCT-001']), /consistent|result/i);
+  assert.throws(() => validateSelectedEvalIntegration(integrated.replace(selected, 'Selected eval records: EVAL-PRODUCT-001 (shadow, pass, docs/evals/other.md#eval-product-001).'), ['EVAL-PRODUCT-001']), /consistent|evidence/i);
 });
 
 test('missing-link harness walkthrough fails, revises, reruns, records regression, and only recommends mechanical authority', () => {
@@ -298,6 +355,7 @@ test('creator-commerce walkthrough stays Checking on generic output and closes o
   const gap = `Progress: Checking — product quality target missed
 ## Quality Gap
 Eval ID: EVAL-PRODUCT-001
+Gap status: open
 What is insufficient: The functional candidate gives generic recommendations.
 Failed quality dimension: output relevance and specificity
 Good example: Ground each action in the ceramics launch and workshop-buyer audience.
@@ -306,7 +364,7 @@ Responsible layer: Product
 Next scoped revision: Bind each recommendation to product, audience, and channel inputs.
 Evidence required for the next candidate: Fresh original-scenario output and Product comparison.`;
   assert.doesNotThrow(() => validateEvalDocument(product));
-  assert.doesNotThrow(() => validateQualityGaps(gap));
+  assert.doesNotThrow(() => validateQualityGaps(`${product}\n${gap}`));
   const closed = record({
     id: 'EVAL-PRODUCT-001', type: 'product', result: 'pass', classification: 'Eval failure',
     target: 'Recommendations use the creator product, audience, and channel.',
@@ -360,6 +418,20 @@ test('bootstrap installs seven pages and both templates while preserving project
   }
 });
 
+test('documented fallback copy includes fb-eval and the copied local CLI loads and runs', () => {
+  const setup = fs.readFileSync(path.join(repoRoot, 'docs', 'setup.md'), 'utf8');
+  for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs']) assert.match(setup, new RegExp(tool.replace('.', '\\.')));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-eval-fallback-'));
+  try {
+    fs.mkdirSync(path.join(root, 'tools'), { recursive: true });
+    for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs']) fs.copyFileSync(path.join(repoRoot, 'tools', tool), path.join(root, 'tools', tool));
+    const output = execFileSync('node', ['tools/fb-lane.cjs', 'session', 'intake', '--session-id', 'fallback-copy'], { cwd: root, encoding: 'utf8' });
+    assert.match(output, /intake|session/i);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('doctor reports deterministic eval record and parity failures without judging product semantics', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-eval-doctor-'));
   try {
@@ -373,7 +445,7 @@ test('doctor reports deterministic eval record and parity failures without judgi
     fs.rmSync(path.join(root, 'docs', 'evals', 'broken.md'));
     fs.writeFileSync(path.join(root, 'docs', 'evals', 'run.md'), record({
       authority: 'blocking', previous: 'advisory',
-      approval: 'Explicit Product approval: APPROVED-BLOCK-DOCTOR.', decision: 'Product recorded blocking authority.',
+      approval: 'Product approval: approved; Reference: APPROVED-BLOCK-DOCTOR', decision: 'Product recorded blocking authority.',
       result: 'fail', classification: 'Eval failure', revision: 'None - unresolved.', rerun: 'not run',
     }));
     checks = collectEvalDoctorChecks(root);
@@ -385,37 +457,46 @@ test('doctor reports deterministic eval record and parity failures without judgi
 
 test('selected-record closeout resolves repo records, rejects missing IDs, and applies authority semantics', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-eval-closeout-'));
+  const selected = 'Selected eval records: EVAL-HARNESS-001 (shadow, fail, docs/evals/run.md#eval-harness-001).';
   const integration = `## Project Start Brief
 Quality bar: Direct review access.
 Selected eval IDs and authority: EVAL-HARNESS-001 (shadow).
+${selected}
 Mechanical versus judgment evidence: Link shape is mechanical; usability is judgment.
 Remaining user judgment: Confirm the review flow is useful.
 ## Build Brief
 Quality bar: Direct review access.
 Selected eval IDs and authority: EVAL-HARNESS-001 (shadow).
+${selected}
 Mechanical versus judgment evidence: Link shape is mechanical; usability is judgment.
 Remaining user judgment: Confirm the review flow is useful.
 ## Verification Handoff
 Selected eval results and evidence: EVAL-HARNESS-001 failed in shadow and remains visible.
+${selected}
 ## Task Receipt
 Selected eval results and evidence: EVAL-HARNESS-001 failed in shadow and remains visible.
+${selected}
 ## Test This Now
 What was evaluated: EVAL-HARNESS-001 direct review access.
+${selected}
 Exact scenarios and expected results: Missing-link scenario fails; resolved link opens.
 Known quality gaps: Direct link remains missing.
 Required user judgment: None beyond the documented link check.
 ## Verification Checkpoint
-Selected eval results and evidence: EVAL-HARNESS-001 shadow failure recorded.`;
+Selected eval results and evidence: EVAL-HARNESS-001 shadow failure recorded.
+${selected}`;
   try {
     fs.mkdirSync(path.join(root, 'docs', 'evals'), { recursive: true });
     fs.writeFileSync(path.join(root, 'docs', 'evals', 'run.md'), record({ result: 'fail', classification: 'Eval failure', revision: 'None - not yet revised.', rerun: 'not run' }));
     assert.doesNotThrow(() => assertSelectedEvalCloseout(root, integration));
     assert.throws(() => assertSelectedEvalCloseout(root, integration.replace(/EVAL-HARNESS-001/g, 'EVAL-HARNESS-999')), /EVAL-HARNESS-999/);
+    assert.throws(() => assertSelectedEvalCloseout(root, integration.replace(selected, 'Selected eval records: EVAL-HARNESS-001 (shadow, pass, docs/evals/run.md#eval-harness-001).')), /consistent|result/i);
+    assert.throws(() => assertSelectedEvalCloseout(root, integration.replace(/docs\/evals\/run\.md#eval-harness-001/g, 'docs/evals/missing.md#eval-harness-001')), /consistent|evidence|record/i);
     fs.writeFileSync(path.join(root, 'docs', 'evals', 'run.md'), record({
       result: 'fail', classification: 'Eval failure', revision: 'None - not yet revised.', rerun: 'not run',
-      authority: 'blocking', previous: 'advisory', approval: 'Explicit Product approval: APPROVED-BLOCK-1.', decision: 'Product recorded blocking authority.',
+      authority: 'blocking', previous: 'advisory', approval: 'Product approval: approved; Reference: APPROVED-BLOCK-1', decision: 'Product recorded blocking authority.',
     }));
-    assert.throws(() => assertSelectedEvalCloseout(root, integration.replace(/\(shadow\)/g, '(blocking)')), /blocking.*closeout|Checking/i);
+    assert.throws(() => assertSelectedEvalCloseout(root, integration.replaceAll('(shadow', '(blocking')), /blocking.*closeout|Checking/i);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
