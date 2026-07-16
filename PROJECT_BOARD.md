@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-020 | In Progress | FB-Product / BFM | Codex Plugin Onboarding | Make FB understandable to first-time project starters: planning-before-build boundary, plain-language progress, decision/assumption separation, distinct lane roles, and review-ready Test This Now packets | Root/package skills and docs, bootstrap-generated instructions, root/package CLI tests, `PROJECT_BOARD.md`, handoff index, TASK-020 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-020.md); [plan](docs/superpowers/plans/2026-07-16-fb-first-project-clarity.md); root/package tests, syntax/parity, validator, doctor, whitespace, and review pending; no push, publish, release, or deployment authorized |
 | TASK-019 | Staging QA | FB-Product / BFM | Documentation | Rebrand active documentation to FB and use the approved primary tagline/current model line only on approved primary surfaces, while retaining all `fb-lane` technical identifiers and historical records | Active README/FAQ/setup/platform/plugin docs, agent guidance/templates/examples, scorecards, root/package bootstrap text and associated tests, board/index/handoff/workstream records | [Handoff](docs/handoffs/TASK-019.md); [plan](docs/superpowers/plans/2026-07-16-fb-documentation-rebrand.md); root/package 27-check suites, syntax/parity, scoped audit, JSON parse, demo check, clean-worktree validator, doctor Ready, whitespace check, and whole-branch review passed; branch retained locally; no package/API rename, push, publish, deployment, or historical rewrite |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
 | TASK-018 | Done | FB-Product / BFM | Coordination | Add a generic Verification Handoff and workspace-recovery contract so Product/BFM owns routine test recovery, explicit 15 GiB/15-second bounded health defaults, clean-clone recovery, and evidence before user testing | `tools/fb-lane.cjs`, packaged CLI/test copies, root/package rules, templates, skills, scorecards, loop docs, board/handoff/workstream records | [Handoff](docs/handoffs/TASK-018.md); [plan](docs/superpowers/plans/2026-07-15-verification-handoff-contract.md); focused recovery-contract test, root/package 27-check suites, syntax/parity, clean-clone validator/doctor, whitespace checks, Product review, and [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) release passed |
@@ -39,6 +40,39 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-020 - FB First-Project Clarity
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Codex Plugin Onboarding
+*   **Scope**: Make first-project guidance unmistakably explain that lanes plan, Product assembles and approves the build brief, and BFM builds only after explicit `$bfm` approval. Add decision/assumption separation, a plain-language progress card, distinct lane contributions, and a short user-facing `Test This Now` review packet with direct links and step-by-step criteria.
+*   **Out of Scope**: New persistent wizard/state, new CLI commands, board/status-model replacement, changes to the four-lane or BFM ownership model, plugin publication, release, deployment, technical identifier migration, or consumer-repository changes.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let a first-time everyday user understand what FB will produce now, what will be built later, what requires their approval, and exactly how to review a runnable result.
+    *   **Key Results**:
+        *   Plugin skills, active guides, and bootstrap output share one first-project and build-boundary contract.
+        *   Every user-facing review request supplies a direct link, step-by-step test plan, pass criteria, known limits, and a failure-report format.
+        *   Root and packaged tests prove generated guidance carries the contract and remains byte-aligned.
+    *   **Definition of Done**: A fresh creator-commerce walkthrough unambiguously distinguishes plan, approval, build, verification, complete, and blocked states; selected lanes state their distinct contribution; root/package checks and documentation parity pass.
+    *   **Gate / Review Point**: Product branch-diff review after root/package tests, syntax/parity, validator, doctor, whitespace, and fresh bootstrap smoke. No publication, release, or deployment is authorized.
+    *   **Approval**: approved
+    *   **Justification**: James approved the new-user clarity plan after feedback showed confusion about expected outputs, BFM/lane roles, assumptions, statuses, and test responsibilities.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Codex plugin first-project prompts, generated project instructions, user-facing review handoffs, and active setup documentation.
+    *   **Locked Files**: `README.md`, `FAQ.md`, `platforms/codex/README.md`, `docs/loop-engineering.md`, `plugins/fb-lane-coordination/README.md`, relevant root/package skills, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, root/package CLI tests, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-020.md`, and `docs/workstreams/fb-product.md`.
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/fb-documentation-rebrand` (existing isolated branch; local only)
+    *   **Plan**: [FB first-project clarity](docs/superpowers/plans/2026-07-16-fb-first-project-clarity.md)
+    *   **Handoff**: [TASK-020](docs/handoffs/TASK-020.md)
+*   **QA Checklist**:
+    *   [ ] First-project contract, How FB works card, progress states, lane contribution rule, and Test This Now packet are aligned across skills and active docs.
+    *   [ ] Bootstrap-generated `AGENTS.md` and `.codex/rules.md` carry the concise contract.
+    *   [ ] Root/package regression tests, syntax/parity, validator, doctor, whitespace, bootstrap smoke, and independent review pass.
+    *   [ ] No new command, publish, release, deployment, or consumer-repository change occurs.
+*   **Latest Update**:
+    *   *2026-07-16*: Product/BFM claimed the approved first-project clarity implementation in the existing isolated branch. Work is local only; no publication, release, or deployment is authorized.
 
 ---
 
