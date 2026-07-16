@@ -143,3 +143,12 @@ Repair commit: `2b48f98`.
 - Quality Gap Progress and lifecycle validation are scoped to each Eval Record unit instead of concatenated directory state. Doctor accepts closed history in one file beside a current open gap in another, rejects either record's mismatched Progress, and retains cross-file unique-ID and selected-record checks.
 
 Second-repair verification: root/package eval `18/18`, root/package session `24/24`, legacy CLI `45/45`, ten syntax checks, root/package/template/seven-page parity, doctor `Ready`, and committed-diff whitespace passed from clean commit `2b48f98`. Full-gate marker: `TASK_023_SECOND_REREVIEW_FULL_GATE_OK`. Independent Product re-review remains the next local gate; no task expansion, authority promotion, or external action occurred.
+
+## Third repair after re-review
+
+Repair commit: `fe4c62e`.
+
+- The no-change decision allowlist now accepts only the exact value `No user decision changed.`. Semicolon/period suffixes and contradiction variants such as `No user decision changed; pricing changed without Product approval.` require the structured positive Product approval form and fail without it.
+- Every Quality Gap is checked through the same privacy boundary as its Eval Record. Secrets/tokens such as `API_TOKEN=secret-value`, private reasoning, chain of thought, and raw transcript content are rejected from gap descriptions and `Evidence required for the next candidate`.
+
+Third-repair verification: root/package eval `18/18`, root/package session `24/24`, legacy CLI `45/45`, ten syntax checks, root/package/seven-page parity, doctor `Ready`, and committed-diff whitespace passed from clean commit `fe4c62e`. Full-gate marker: `TASK_023_THIRD_REPAIR_FULL_GATE_OK`. Independent Product re-review remains the next local gate; no scope expansion or external action occurred.
