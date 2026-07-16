@@ -738,6 +738,33 @@ test('doctor blocks incomplete v2 review packets with an actionable Test This No
   }
 });
 
+test('doctor blocks a v2 review packet whose exact steps field is empty even when another numbered line exists', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
+  try {
+    writeDoctorFixture(root, 1);
+    const packet = completeReviewPacket('https://review.example.test/staging')
+      .replace(
+        '- **Exact steps and expectations:**\n  1. Open the direct link.\n  2. Confirm the review surface loads and shows the fixture result.',
+        '- **Exact steps and expectations:**'
+      )
+      .replace(
+        '- **Known limits:** This fixture has no external service coverage.',
+        '- **Known limits:** This fixture has no external service coverage.\n1. Unrelated numbered note.'
+      );
+    fs.writeFileSync(
+      path.join(root, 'docs', 'handoffs', 'TASK-001.md'),
+      approvedV2Handoff('staging candidate', packet)
+    );
+
+    const result = runDoctor(root);
+    assert.strictEqual(result.status, 1, result.stdout || result.stderr);
+    assert.match(result.stdout, /Review evidence/);
+    assert.match(result.stdout, /Exact steps and expectations/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('doctor blocks v2 review packets whose local Markdown direct link does not resolve', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
   try {

@@ -449,6 +449,15 @@ function collectGoalAlignmentSessionWarnings(handoffsDir, tasks = []) {
 }
 
 const REVIEW_STATES = ['not reviewable', 'runnable sandbox', 'staging candidate', 'completed build'];
+const REVIEW_PACKET_FIELDS = [
+  'Outcome type',
+  'Direct links',
+  'Exact steps and expectations',
+  'Pass criteria',
+  'Known limits',
+  'Failure-report format',
+  'Next Product/BFM action'
+];
 
 function markdownSection(markdown, heading) {
   const escapedHeading = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -459,11 +468,6 @@ function markdownSection(markdown, heading) {
   return nextHeading === -1 ? remaining : remaining.slice(0, nextHeading);
 }
 
-function reviewFieldPresent(section, field) {
-  const escapedField = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`(?:^|\\n)\\s*(?:[-*]\\s*)?(?:\\*\\*)?${escapedField}(?:\\*\\*)?\\s*:(?:\\*\\*)?`, 'i').test(section);
-}
-
 function reviewFieldValue(section, field) {
   const escapedField = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const match = new RegExp(
@@ -471,6 +475,26 @@ function reviewFieldValue(section, field) {
     'i'
   ).exec(section);
   return match ? match[1].trim().replace(/^\*\*\s*/, '') : '';
+}
+
+function reviewFieldContent(section, field) {
+  const escapedField = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = new RegExp(
+    `(?:^|\\n)\\s*(?:[-*]\\s*)?(?:\\*\\*)?${escapedField}(?:\\*\\*)?\\s*:\\s*(?:\\*\\*)?`,
+    'i'
+  ).exec(section);
+  if (!match) return '';
+
+  const remaining = section.slice(match.index + match[0].length);
+  const boundaryFields = REVIEW_PACKET_FIELDS
+    .filter(candidate => candidate !== field)
+    .map(candidate => candidate.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+  const boundary = new RegExp(
+    `(?:^|\\n)\\s*(?:[-*]\\s*)?(?:\\*\\*)?(?:${boundaryFields})(?:\\*\\*)?\\s*:\\s*(?:\\*\\*)?`,
+    'i'
+  ).exec(remaining);
+  return (boundary ? remaining.slice(0, boundary.index) : remaining).trim();
 }
 
 function reviewLinks(section) {
@@ -530,10 +554,10 @@ function collectReviewEvidenceWarnings(handoffsDir) {
       'Failure-report format'
     ];
     const missing = requiredValueFields.filter(field => !reviewFieldValue(reviewSection, field));
-    if (!reviewFieldPresent(reviewSection, 'Exact steps and expectations')) {
+    const exactSteps = reviewFieldContent(reviewSection, 'Exact steps and expectations');
+    if (!exactSteps) {
       missing.push('Exact steps and expectations');
-    }
-    if (!/(?:^|\n)\s*\d+\.\s+\S/m.test(reviewSection)) {
+    } else if (!/(?:^|\n)\s*\d+\.\s+\S/m.test(exactSteps)) {
       missing.push('numbered exact steps');
     }
     const links = reviewLinks(reviewFieldValue(reviewSection, 'Direct links'));
