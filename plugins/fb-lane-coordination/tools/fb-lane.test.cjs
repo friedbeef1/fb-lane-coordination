@@ -455,6 +455,38 @@ test('documents the verification handoff and recovery contract across source, pa
   }
 });
 
+test('documents the completed bootstrap and v2 review-authoring contract across source and package', () => {
+  const repoRoot = process.cwd();
+  const setupSkills = [
+    'skills/project-coordination-setup/SKILL.md',
+    'plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md'
+  ];
+  for (const relativePath of setupSkills) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(source, /bootstrap (?:installs|copies) the canonical five-page (?:FB harness|\[FB harness\]\([^)]*\))\s*pack/i, `${relativePath} must describe the completed pack install`);
+    assert.match(source, /thin managed route/i, `${relativePath} must describe thin managed routes`);
+    assert.match(source, /preserv(?:e|es|ing) project-owned text/i, `${relativePath} must preserve project-owned text`);
+    assert.match(source, /fb-harness-route-start.*fb-harness-route-end/is, `${relativePath} must name the managed replacement boundary`);
+    assert.doesNotMatch(source, /does not yet install this pack|Task 2 owns that migration/i, `${relativePath} must not retain pre-migration setup guidance`);
+  }
+
+  const evidencePages = [
+    'docs/fb/evidence.md',
+    'plugins/fb-lane-coordination/docs/fb/evidence.md'
+  ];
+  for (const relativePath of evidencePages) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(source, /fb_harness:\s*v2/, `${relativePath} must document the v2 opt-in marker`);
+    assert.match(source, /not reviewable.*runnable sandbox.*staging candidate.*completed build/is, `${relativePath} must list every exact Review state`);
+    assert.match(source, /Project Start Brief.*Build Brief/is, `${relativePath} must require both approved initial briefs`);
+    assert.match(source, /historical|non-v2/i, `${relativePath} must document the non-v2 exemption`);
+    assert.match(source, /not reviewable[\s\S]*exempt|exempt[\s\S]*not reviewable/i, `${relativePath} must document the planning-only exemption`);
+    assert.match(source, /relative to the handoff/i, `${relativePath} must document local-link resolution`);
+    assert.match(source, /remote[\s\S]*Markdown-link shape/i, `${relativePath} must document remote-link validation`);
+    assert.match(source, /Blocked — no review environment yet[\s\S]*Next Product\/BFM action/is, `${relativePath} must document blocked missing access`);
+  }
+});
+
 test('all nine active Task-1 contract surfaces keep exact progress and blocked wording', () => {
   const repoRoot = process.cwd();
   const startGuide = fs.readFileSync(path.join(repoRoot, 'docs', 'fb', 'start.md'), 'utf8');
@@ -765,6 +797,62 @@ test('doctor blocks a v2 review packet whose exact steps field is empty even whe
   }
 });
 
+test('doctor blocks placeholder-only values in required v2 review fields', () => {
+  const fixtures = [
+    ['angle-bracket outcome', 'Reviewable fixture', '<what is ready to assess>', /Outcome type/],
+    ['example direct links', '[Open the review surface](https://review.example.test/staging)', 'example', /Direct links/],
+    ['TODO pass criteria', 'The fixture result is visible without an error.', 'TODO', /Pass criteria/],
+    ['TBD known limits', 'This fixture has no external service coverage.', 'TBD', /Known limits/],
+    ['placeholder failure format', 'What happened; what was expected; direct link or screenshot; environment.', 'placeholder', /Failure-report format/],
+  ];
+
+  for (const [label, currentValue, placeholderValue, expectedMissing] of fixtures) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
+    try {
+      writeDoctorFixture(root, 1);
+      const packet = completeReviewPacket('https://review.example.test/staging')
+        .replace(currentValue, placeholderValue);
+      fs.writeFileSync(
+        path.join(root, 'docs', 'handoffs', 'TASK-001.md'),
+        approvedV2Handoff('staging candidate', packet)
+      );
+
+      const result = runDoctor(root);
+      assert.strictEqual(result.status, 1, `${label}: ${result.stdout || result.stderr}`);
+      assert.match(result.stdout, /Review evidence/);
+      assert.match(result.stdout, expectedMissing);
+      assert.match(result.stdout, /actionable/i);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test('doctor blocks placeholder-only numbered steps in v2 review evidence', () => {
+  for (const placeholderStep of ['1. TODO', '1. <action>']) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
+    try {
+      writeDoctorFixture(root, 1);
+      const packet = completeReviewPacket('https://review.example.test/staging')
+        .replace(
+          '  1. Open the direct link.\n  2. Confirm the review surface loads and shows the fixture result.',
+          `  ${placeholderStep}`
+        );
+      fs.writeFileSync(
+        path.join(root, 'docs', 'handoffs', 'TASK-001.md'),
+        approvedV2Handoff('staging candidate', packet)
+      );
+
+      const result = runDoctor(root);
+      assert.strictEqual(result.status, 1, `${placeholderStep}: ${result.stdout || result.stderr}`);
+      assert.match(result.stdout, /Review evidence/);
+      assert.match(result.stdout, /actionable numbered exact steps/);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
 test('doctor blocks v2 review packets whose local Markdown direct link does not resolve', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
   try {
@@ -824,6 +912,30 @@ Next Product/BFM action:
     assert.strictEqual(result.status, 1, result.stdout || result.stderr);
     assert.match(result.stdout, /Test This Now is incomplete/);
     assert.match(result.stdout, /Next Product\/BFM action/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('doctor rejects a placeholder-only Product/BFM next action for blocked v2 review access', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-v2-review-'));
+  try {
+    writeDoctorFixture(root, 1);
+    fs.writeFileSync(
+      path.join(root, 'docs', 'handoffs', 'TASK-001.md'),
+      approvedV2Handoff('staging candidate', `
+## Test This Now
+
+Blocked — no review environment yet
+Next Product/BFM action: TBD
+`)
+    );
+
+    const result = runDoctor(root);
+    assert.strictEqual(result.status, 1, result.stdout || result.stderr);
+    assert.match(result.stdout, /Test This Now is incomplete/);
+    assert.match(result.stdout, /Next Product\/BFM action/);
+    assert.match(result.stdout, /actionable/i);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

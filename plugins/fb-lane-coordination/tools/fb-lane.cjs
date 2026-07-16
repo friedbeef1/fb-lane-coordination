@@ -477,6 +477,17 @@ function reviewFieldValue(section, field) {
   return match ? match[1].trim().replace(/^\*\*\s*/, '') : '';
 }
 
+function isActionableReviewValue(value) {
+  const normalized = typeof value === 'string' ? value.trim() : '';
+  if (!normalized || /^<[^<>\n]+>$/.test(normalized)) return false;
+
+  const unwrapped = normalized
+    .replace(/^[`*_~\[\](){}`'".,;:!?\s]+/, '')
+    .replace(/[`*_~\[\](){}`'".,;:!?\s]+$/, '')
+    .trim();
+  return !/^(?:todo|tbd|placeholder|example)(?:\s+(?:only|text|token|value))?$/i.test(unwrapped);
+}
+
 function reviewFieldContent(section, field) {
   const escapedField = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const match = new RegExp(
@@ -538,7 +549,7 @@ function collectReviewEvidenceWarnings(handoffsDir) {
 
     const reviewSection = markdownSection(markdown, 'Test This Now');
     if (/Blocked — no review environment yet/.test(reviewSection)) {
-      if (!reviewFieldValue(reviewSection, 'Next Product/BFM action')) {
+      if (!isActionableReviewValue(reviewFieldValue(reviewSection, 'Next Product/BFM action'))) {
         warnings.incompletePackets.push(`${entry.name} (Next Product/BFM action)`);
       } else {
         warnings.blockedAccess.push(entry.name);
@@ -553,12 +564,19 @@ function collectReviewEvidenceWarnings(handoffsDir) {
       'Known limits',
       'Failure-report format'
     ];
-    const missing = requiredValueFields.filter(field => !reviewFieldValue(reviewSection, field));
+    const missing = requiredValueFields
+      .filter(field => !isActionableReviewValue(reviewFieldValue(reviewSection, field)));
     const exactSteps = reviewFieldContent(reviewSection, 'Exact steps and expectations');
     if (!exactSteps) {
       missing.push('Exact steps and expectations');
-    } else if (!/(?:^|\n)\s*\d+\.\s+\S/m.test(exactSteps)) {
-      missing.push('numbered exact steps');
+    } else {
+      const numberedSteps = [...exactSteps.matchAll(/(?:^|\n)\s*\d+\.\s+([^\n]*)/g)]
+        .map(match => match[1].trim());
+      if (numberedSteps.length === 0) {
+        missing.push('numbered exact steps');
+      } else if (numberedSteps.some(step => !isActionableReviewValue(step))) {
+        missing.push('actionable numbered exact steps');
+      }
     }
     const links = reviewLinks(reviewFieldValue(reviewSection, 'Direct links'));
     if (links.length === 0) missing.push('Markdown direct link');
@@ -1076,7 +1094,7 @@ function handleDoctor() {
           'fail',
           'Review evidence',
           `Test This Now is incomplete: ${reviewEvidenceWarnings.incompletePackets.join(', ')}`,
-          'Add outcome type, Markdown direct links, numbered exact steps and expectations, pass criteria, known limits, and failure-report format.'
+          'Replace missing or placeholder-only values with concrete, actionable outcome type, Markdown direct links, numbered exact steps and expectations, pass criteria, known limits, failure-report format, or next Product/BFM action.'
         );
       }
       if (reviewEvidenceWarnings.blockedAccess.length > 0) {

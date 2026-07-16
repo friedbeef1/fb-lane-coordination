@@ -5,11 +5,12 @@ description: Use when bootstrapping an FB-coordinated project with board, handof
 
 # Set up an FB-coordinated project
 
-This source repository's canonical [FB harness](../../docs/fb/README.md) routes
-setup work and preserves project-owned instructions. The current bootstrap does
-not yet install this pack or its thin navigator in newly bootstrapped projects;
-Task 2 owns that migration. Until then, follow the generated project guidance
-and use this repository pack as the reusable policy reference.
+The bootstrap installs the canonical five-page [FB harness](../../docs/fb/README.md)
+pack and adds or updates a thin managed route in `AGENTS.md` and
+`.codex/rules.md`. Fresh projects receive the pack and routes. On reruns, the
+bootstrap preserves project-owned text and replaces only a complete block from
+`<!-- fb-harness-route-start -->` through `<!-- fb-harness-route-end -->`;
+unmatched markers and all text outside that exact boundary remain untouched.
 
 - [First-project contract and approval boundary](../../docs/fb/start.md)
 - [Board/index/handoff/workstream roles and execution](../../docs/fb/workflow.md)
