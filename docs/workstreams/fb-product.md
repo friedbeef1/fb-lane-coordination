@@ -4,7 +4,9 @@ Last Updated: 2026-07-16
 Lane: FB-Product
 
 ## Current Summary
-TASK-019 is in Staging QA on `codex/fb-documentation-rebrand`. Active public/internal documentation, templates, examples, bootstrap-generated guidance, and visible package metadata now use FB. The tagline is limited to the root README, packaged plugin README, Codex platform guide, and bootstrap-generated project entry points. Historical records and `fb-lane` technical identifiers are unchanged. Root/package 27-check suites, syntax, parity, JSON parsing, demo check, scoped audit, clean-worktree validator, doctor Ready, whitespace checks, and independent whole-branch review passed. The branch remains local; no push, publication, or deployment is authorized.
+TASK-020 is in Staging QA (local review only) on `codex/fb-documentation-rebrand`. FB now gives new users a Project Start Brief and immediate four-step How FB works card before detailed lane guidance; it separates decisions from assumptions, explains adaptive lanes, makes `$bfm` the explicit post-approval build boundary, shows exact plain-language progress/blocked states, and supplies Test This Now review packets. Fresh creator-commerce bootstrap smoke, root/package 28-check suites, syntax/parity, validator, doctor Ready, whitespace, and final review passed. The branch remains local; no push, publication, release, deployment, or merge is authorized.
+
+TASK-019 is also in Staging QA on the same branch. Active public/internal documentation, templates, examples, bootstrap-generated guidance, and visible package metadata now use FB. The tagline is limited to the root README, packaged plugin README, Codex platform guide, and bootstrap-generated project entry points. Historical records and `fb-lane` technical identifiers are unchanged. Root/package 27-check suites, syntax, parity, JSON parsing, demo check, scoped audit, clean-worktree validator, doctor Ready, whitespace checks, and independent whole-branch review passed. The branch remains local; no push, publication, or deployment is authorized.
 
 TASK-018 is done and released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39). It carries the generic Verification Handoff contract and the proven TASK-Q-0736 workspace-recovery lesson: a bounded health preflight uses a 15 GiB free-capacity default and 15-second Git-probe timeout unless a stricter project policy applies, then checks File Provider ancestry and stable double reads; a second consecutive failure moves work to clean-clone recovery without copying damaged Git metadata. The focused recovery-contract test, root/package 27-check suites, syntax/parity, clean-clone validator/doctor proof, Product review, and marketplace installation all passed. MirrorCam changes, runners, dashboards, and `doctor` expansion remain out of scope.
 
@@ -23,10 +25,11 @@ TASK-017 is done: [PR #31](https://github.com/friedbeef1/fb-lane-coordination/pu
 - Transferred MirrorCam TASK-Q-0736's verified workspace-recovery lesson into TASK-018's reusable root/package guidance, templates, scorecards, bootstrap output, and a focused contract regression.
 - Merged the release bundle to `main` in PR #39 and installed the Codex marketplace plugin build `0.2.0-beta+codex.20260716052513`.
 - Rebranded active documentation and generated project guidance to FB, preserving historical records and all `fb-lane` technical identifiers.
+- Added the first-project clarity contract across packaged skills, active guides, bootstrap-generated project instructions, and root/package tests; completed a creator-commerce smoke and final regression review without creating a new command or deploying anything.
 
 ## Still Pending / Blocked
 
-No internal gate remains for TASK-019. The verified branch is intentionally local; no publication, release, deployment, or package/API migration is authorized.
+No internal gate remains for TASK-020 or TASK-019. The verified branch is intentionally local; no publication, release, deployment, merge, or package/API migration is authorized.
 
 ## Evidence Links
 - PROJECT_BOARD.md
@@ -34,6 +37,7 @@ No internal gate remains for TASK-019. The verified branch is intentionally loca
 - docs/handoffs/TASK-017.md
 - docs/handoffs/TASK-018.md
 - docs/handoffs/TASK-019.md
+- docs/handoffs/TASK-020.md
 - docs/evals/agent-behavior-scorecard-template.md
 - docs/versioning.md
 
