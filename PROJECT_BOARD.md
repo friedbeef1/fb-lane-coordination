@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-022 | In Progress | FB-Product / BFM + FB-Tech execution | FB Session Harness | Add repository-local session intake, promotion, status, checkpoint, recall, review, and closeout with shared clone-local coordination state and curated committed evidence | Mirrored session/CLI modules and tests, session/harness docs, bootstrap and doctor integration, Product/BFM skills, `PROJECT_BOARD.md`, handoff index, TASK-022 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-022.md); [plan](docs/superpowers/plans/2026-07-16-fb-session-ledger-and-eval-loop.md); branch `codex/fb-session-ledger`; TASK-023 is blocked until this task passes its complete local gate |
+| TASK-022 | Staging QA | FB-Product / BFM + FB-Tech execution | FB Session Harness | Add repository-local session intake, promotion, status, checkpoint, recall, review, and closeout with shared clone-local coordination state and curated committed evidence | Mirrored session/CLI modules and tests, session/harness docs, bootstrap and doctor integration, Product/BFM skills, `PROJECT_BOARD.md`, handoff index, TASK-022 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-022.md); [plan](docs/superpowers/plans/2026-07-16-fb-session-ledger-and-eval-loop.md); commits `9a55314` plus coordination closeout; TASK-023 remains blocked pending Product task review |
 | TASK-023 | Ready | FB-Product / BFM + FB-Tech execution | FB Eval Harness | Add the Markdown-first harness/product eval lifecycle, quality-gap revision loop, authority transitions, and deterministic structural enforcement on top of TASK-022 evidence | Canonical/package eval harness pages and templates, mirrored validators/tests, Product/BFM skills, bootstrap routes, `PROJECT_BOARD.md`, handoff index, TASK-023 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-023.md); [plan](docs/superpowers/plans/2026-07-16-fb-session-ledger-and-eval-loop.md); blocked by TASK-022 full local verification and review |
 | TASK-021 | Staging QA | FB-Product / BFM | FB Harness | Replace duplicated operating prose with a mirrored canonical `docs/fb/` harness pack, safely route fresh/existing projects into it, and enforce opt-in v2 review evidence through the existing validator/doctor | Root/package harness pack, navigational instructions, active docs/skills, mirrored bootstrap/tests, validator/doctor, `PROJECT_BOARD.md`, handoff index, TASK-021 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-021.md); [plan](docs/superpowers/plans/2026-07-16-fb-harness-redesign.md); final fix `8c54c1c`; setup and canonical v2 authoring contracts; actionable placeholder/TODO/TBD rejection; focused v2 14/14 and full 45/45 mirrored suites; recovery, syntax/parity, validator/doctor Ready, diff checks, and final whole-branch re-review passed; local review only; no push, publication, release, deployment, merge, or consumer-repository change authorized |
 | TASK-020 | Staging QA | FB-Product / BFM | Codex Plugin Onboarding | Make FB understandable to first-time project starters: planning-before-build boundary, plain-language progress, decision/assumption separation, distinct lane roles, and review-ready Test This Now packets | Root/package skills and docs, bootstrap-generated instructions, root/package CLI tests, `PROJECT_BOARD.md`, handoff index, TASK-020 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-020.md); [plan](docs/superpowers/plans/2026-07-16-fb-first-project-clarity.md); creator-commerce bootstrap smoke, root/package 28-check suites, syntax/parity, validator, doctor Ready, whitespace, and final review passed; local branch only, no push, publish, release, deployment, or merge authorized |
@@ -47,7 +47,7 @@
 ---
 
 ### TASK-022 - Repository-Local Session Ledger
-*   **Status**: In Progress
+*   **Status**: Staging QA (local Product review only)
 *   **Owner / Thread**: FB-Product / BFM + FB-Tech execution
 *   **Area**: FB Session Harness
 *   **Scope**: Add the approved repository-local session command family, atomic shared live registry, durable session recaps, Task Receipts, Brief Validation, structured failure evidence, deterministic recall/review, default execution worktrees, submit/doctor enforcement, and root/package/bootstrap parity.
@@ -70,10 +70,11 @@
     *   **Plan**: [FB Session Ledger and Eval Loop](docs/superpowers/plans/2026-07-16-fb-session-ledger-and-eval-loop.md)
     *   **Handoff**: [TASK-022](docs/handoffs/TASK-022.md)
 *   **QA Checklist**:
-    *   [ ] Session command, validation, concurrency, recall, review, checkpoint-push, and closeout fixtures pass.
-    *   [ ] Root/package behavior, source, test, and six-page harness parity pass.
-    *   [ ] Validator, doctor, bootstrap smokes, syntax, whitespace, and independent review pass.
+    *   [x] Session command, validation, concurrency, recall, review, checkpoint-push, and closeout fixtures pass.
+    *   [x] Root/package behavior, source, test, and six-page harness parity pass.
+    *   [x] Validator, doctor, bootstrap smokes, syntax, and whitespace pass; Product task review remains.
 *   **Latest Update**:
+    *   *2026-07-16*: Implementation commit `9a55314` passed mirrored 45/45 CLI suites, mirrored 15/15 session suites, recovery, syntax/parity, validator, doctor Ready, scoped whitespace, creator-commerce bootstrap, existing-project migration, and self-review. Moved to local Staging QA; TASK-023 remains blocked pending Product task review.
     *   *2026-07-16*: Approved plan claimed on `codex/fb-session-ledger` after clean 45-check root/package baselines, recovery contract, syntax, and doctor Ready. TASK-023 remains dependency-blocked.
 
 ---

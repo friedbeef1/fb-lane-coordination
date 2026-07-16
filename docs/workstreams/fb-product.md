@@ -4,7 +4,7 @@ Last Updated: 2026-07-16
 Lane: FB-Product
 
 ## Current Summary
-TASK-022 is now In Progress on `codex/fb-session-ledger` after a clean baseline: both root/package CLI suites passed 45 checks, workspace recovery routing passed, CLI syntax passed, and doctor reported Ready. It implements repository-local session coordination, durable recaps/receipts/brief validation, evidence-aware closeout, recall/review, and six-page bootstrap parity. TASK-023 is approved but dependency-blocked until TASK-022's complete local gate and independent task review pass. No release, publication, deployment, merge, or consumer-project change is authorized.
+TASK-022 is in local Staging QA on `codex/fb-session-ledger`. Implementation commit `9a55314` adds repository-local session coordination, durable recaps/receipts/brief validation, evidence-aware closeout, recall/review, default worktrees, and six-page bootstrap parity. Mirrored 45/45 CLI and 15/15 session suites, workspace recovery, syntax/parity, validator, doctor Ready, scoped whitespace, creator-commerce bootstrap, existing-project migration, and self-review passed. TASK-023 remains dependency-blocked until Product accepts the task-scoped review. No release, publication, deployment, merge, plugin install, or consumer-project change is authorized.
 
 TASK-021 is in Staging QA (local review only) on `codex/fb-documentation-rebrand`. Final fix `8c54c1c` aligned setup guidance with the completed mirrored five-page bootstrap, made the canonical evidence page author the full opt-in v2 contract, and rejected placeholder-only/TODO/TBD/angle-bracket evidence plus non-actionable blocked next actions. Focused v2 suites passed 14 checks in each mirror; full suites passed 45 checks in each mirror; recovery, four syntax checks, source/test/setup/five-page parity, validator, doctor Ready, and diff checks passed. The final whole-branch re-review found no remaining Critical, Important, or Minor issue. Review state is `not reviewable` because there is no deployed UI. The Product local gate and any separately authorized merge/release decision remain; no push, publication, release, deployment, merge, plugin install, or consumer-project change occurred.
 
@@ -34,7 +34,7 @@ TASK-017 is done: [PR #31](https://github.com/friedbeef1/fb-lane-coordination/pu
 
 ## Still Pending / Blocked
 
-TASK-022 implementation and full local gate are active. TASK-023 is blocked by that gate. TASK-021's Product local gate and any separately authorized merge/release decision remain. TASK-020 and TASK-019 have no internal gate. No publication, release, deployment, merge, plugin install, or package/API migration is authorized.
+TASK-022 Product task review remains; its implementation and full local gate passed. TASK-023 remains blocked by that review. TASK-021's Product local gate and any separately authorized merge/release decision remain. TASK-020 and TASK-019 have no internal gate. No publication, release, deployment, merge, plugin install, or package/API migration is authorized.
 
 ## Evidence Links
 - PROJECT_BOARD.md
