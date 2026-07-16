@@ -133,3 +133,13 @@ Repair commit: `3d44afc`.
 - Every eval records subjective/objective judgment. Subjective product evals require Good/Bad examples; objective product evals may omit them; mechanical evals must be objective.
 
 Repair verification: root/package eval `15/15`, root/package session `24/24`, legacy CLI `45/45`, complete readiness validation, doctor `Ready`, mirror parity, and whitespace all passed from clean commit `3d44afc`. Independent Product re-review remains the next local gate; no authority promotion or external release action occurred.
+
+## Second repair after re-review
+
+Repair commit: `2b48f98`.
+
+- The manual fallback is now one maintainable archive flow. Its exact documented Bash block downloads one source archive, acquires all three runtime modules, all seven canonical `docs/fb` pages, both eval template/compatibility assets, and successfully runs `node tools/fb-lane.cjs bootstrap`. The executable fixture substitutes a local archive and byte-compares every acquired asset.
+- Authority promotion, changed user decisions, and deferred/superseded Product boundaries now share the same structured positive Product approval parser. Negated, absent-reference, ambiguous, self-approved, and self-promoted evidence fail in every approval context.
+- Quality Gap Progress and lifecycle validation are scoped to each Eval Record unit instead of concatenated directory state. Doctor accepts closed history in one file beside a current open gap in another, rejects either record's mismatched Progress, and retains cross-file unique-ID and selected-record checks.
+
+Second-repair verification: root/package eval `18/18`, root/package session `24/24`, legacy CLI `45/45`, ten syntax checks, root/package/template/seven-page parity, doctor `Ready`, and committed-diff whitespace passed from clean commit `2b48f98`. Full-gate marker: `TASK_023_SECOND_REREVIEW_FULL_GATE_OK`. Independent Product re-review remains the next local gate; no task expansion, authority promotion, or external action occurred.
