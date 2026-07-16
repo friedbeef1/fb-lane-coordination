@@ -60,7 +60,7 @@ Runnable evidence links: [eval lifecycle](../fb/evals.md), [walkthrough records]
 Manual pass criteria: Product confirms every authority/transition boundary, both walkthrough closures, the exact Checking/Quality Gap behavior, seven-page preservation, and absence of a judge, runner, score, dashboard, CI job, external integration, or automatic promotion.
 Recovery attempted: The sandbox blocked mechanical mirror writes; scoped write approval was used only for root/package/template parity copies. One packaged-test path resolved from the plugin root and was corrected to the repository root. No product/runtime recovery was needed.
 Known limits: Product-quality evaluation remains explicit Product/user judgment; no hosted or external integration was exercised; release, publication, deployment, merge, plugin installation, and consumer migration remain separate approval gates.
-Next Product/BFM recovery action: Keep the accepted candidate in local Staging QA and perform the final combined-branch review before any separately authorized integration decision.
+Next Product/BFM recovery action: Keep the final-review-approved candidate in local Staging QA until a separately authorized integration decision.
 Selected eval results and evidence: EVAL-HARNESS-DIRECT-LINK-001 (shadow) passed after missing-link revision/rerun/regression capture; EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow) passed after the complete Quality Gap and fresh specific candidate. Neither authority changed.
 Selected eval records: EVAL-HARNESS-DIRECT-LINK-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-harness-direct-link-001); EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-product-creator-specificity-001).
 
@@ -72,7 +72,7 @@ Branch, source commits, and changed surfaces: `codex/fb-eval-loop`; implementati
 Checks, failures, recovery, and results: Expected missing-module RED plus review-repair REDs for authority spoofing and contradictory session closeout; focused 15/15 root/package GREEN; legacy 45/45 CLI and 24/24 session root/package; complete local gate and doctor Ready passed. Scoped sandbox approval handled mirror writes; packaged fixture path was corrected.
 Review state, direct links, limits, and external gates: Completed local repository build; [walkthrough records](../evals/TASK-023-walkthroughs.md); subjective quality stays Product/user judgment; independent Product task review passed; all external actions remain separate gates.
 Repository state: Implementation and selected-eval handoff are committed; coordination closeout is the final documentation commit.
-Remaining owner and action: Product/BFM performs the final combined-branch review; release, publish, deploy, merge, plugin install, and consumer migration remain unauthorized.
+Remaining owner and action: Product/BFM preserves the local candidate; release, publish, deploy, merge, plugin install, and consumer migration remain unauthorized.
 Selected eval results and evidence: Both selected shadow evals passed their original scenarios with revision, fresh rerun evidence, regression cases, and no authority change.
 Selected eval records: EVAL-HARNESS-DIRECT-LINK-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-harness-direct-link-001); EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow, pass, docs/evals/TASK-023-walkthroughs.md#eval-product-creator-specificity-001).
 
@@ -83,7 +83,7 @@ Satisfied criteria and evidence: Record schema, all authority levels and transit
 Missing criteria: No approved implementation criterion remains missing; independent Product review is a post-implementation gate.
 Reason: Focused walkthroughs and the complete local gate satisfy the approved local implementation brief without expanding scope.
 Owner: Product/BFM
-Next action: Preserve this accepted task evidence through the final combined-branch review before any later integration decision.
+Next action: Preserve this final-review-approved evidence for any later, separately authorized integration decision.
 Approved scope-change references: The original approved TASK-023 brief applies unchanged.
 
 ## Test This Now
@@ -173,3 +173,7 @@ Both walkthrough evals remain shadow. Local Staging QA and all external-action b
 ## Final Submit Serialization Compatibility Evidence
 
 TASK-022 repair `f94dce9` serializes CLI/MCP submit's final validation, board commit, and push with checkpoint/close/review for the same session. TASK-023 selected-record and private-safe Quality Gap checks remain inside `assertSubmitReady`, so they are revalidated under that lock immediately before submit mutation. Root/package eval remains `18/18`, selected closeout passes, and no eval authority changed. Marker: `TASK_022_FINAL_SUBMIT_SERIALIZATION_FULL_GATE_OK`.
+
+## Final Combined Branch Acceptance
+
+The final independent review approved the complete TASK-022/TASK-023 21-commit package with no Critical, Important, or Minor issue. Fresh evidence passed root/package CLI `45/45`, root/package session `31/31`, root/package eval `18/18`, recovery, doctor `Ready`, mirror parity, and committed-diff validation. Both walkthrough evals remain shadow. The branch remains local Staging QA; no push, merge, release, publication, deployment, plugin installation, authority promotion, or consumer-repository mutation is authorized.

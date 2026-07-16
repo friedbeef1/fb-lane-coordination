@@ -4,7 +4,7 @@ Last Updated: 2026-07-17
 Lane: FB-Product
 
 ## Current Summary
-TASK-022 and TASK-023 remain Product-accepted in local Staging QA on `codex/fb-eval-loop`. Final submit lifecycle repair `f94dce9` extends the same per-session transaction through CLI/MCP final validation, board commit, and push, with deterministic submit-versus-close/checkpoint and close-wins-first coverage. Root/package eval 18/18, root/package session 31/31, root/package CLI 45/45, recovery, selected closeout, the complete clean gate, committed-diff whitespace, and doctor Ready passed with `TASK_022_FINAL_SUBMIT_SERIALIZATION_FULL_GATE_OK`. No eval was promoted and no release, publication, deployment, merge, plugin install, or consumer-project change is authorized.
+TASK-022 and TASK-023 are Product-accepted and final-review-approved in local Staging QA on `codex/fb-eval-loop`. Final submit lifecycle repair `f94dce9` extends the same per-session transaction through CLI/MCP final validation, board commit, and push, with deterministic submit-versus-close/checkpoint and close-wins-first coverage. Root/package eval 18/18, root/package session 31/31, root/package CLI 45/45, recovery, selected closeout, the complete clean gate, committed-diff whitespace, and doctor Ready passed with `TASK_022_FINAL_SUBMIT_SERIALIZATION_FULL_GATE_OK`; the final 21-commit combined review found no Critical, Important, or Minor issue. No eval was promoted and no release, publication, deployment, merge, plugin install, or consumer-project change is authorized.
 
 TASK-021 is in Staging QA (local review only) on `codex/fb-documentation-rebrand`. Final fix `8c54c1c` aligned setup guidance with the completed mirrored five-page bootstrap, made the canonical evidence page author the full opt-in v2 contract, and rejected placeholder-only/TODO/TBD/angle-bracket evidence plus non-actionable blocked next actions. Focused v2 suites passed 14 checks in each mirror; full suites passed 45 checks in each mirror; recovery, four syntax checks, source/test/setup/five-page parity, validator, doctor Ready, and diff checks passed. The final whole-branch re-review found no remaining Critical, Important, or Minor issue. Review state is `not reviewable` because there is no deployed UI. The Product local gate and any separately authorized merge/release decision remain; no push, publication, release, deployment, merge, plugin install, or consumer-project change occurred.
 
@@ -37,7 +37,7 @@ TASK-017 is done: [PR #31](https://github.com/friedbeef1/fb-lane-coordination/pu
 
 ## Still Pending / Blocked
 
-TASK-022/TASK-023 final integrated repair is locally verified; any additional Product combined-branch review remains a local gate. TASK-021's Product local gate and any separately authorized merge/release decision remain. TASK-020 and TASK-019 have no internal gate. No publication, release, deployment, merge, plugin install, or package/API migration is authorized.
+TASK-022/TASK-023 have no remaining internal implementation or review gate. TASK-021's Product local gate and any separately authorized merge/release decision remain. TASK-020 and TASK-019 have no internal gate. No publication, release, deployment, merge, plugin install, or package/API migration is authorized.
 
 ## Evidence Links
 - PROJECT_BOARD.md
