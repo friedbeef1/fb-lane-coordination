@@ -34,6 +34,8 @@ requires the exact positive form `Product approval: approved; Reference:
 APPROVED-...`. The same parser governs changed user decisions and deferred or
 superseded Product-boundary dispositions. Negated, missing-reference,
 ambiguous, automatic, self-approved, or self-promoted evidence is invalid.
+The only no-change allowlist value is exactly `No user decision changed.`;
+punctuation suffixes and contradictory trailing claims are not accepted.
 No new eval becomes blocking during TASK-023. A noisy or ambiguous eval receives an
 immediate demotion recommendation; Product records the decision.
 
@@ -70,6 +72,9 @@ gap after closure with `Gap status: closed`, non-Checking progress, and fresh
 `Closed evidence` tied to a passed record. Progress and lifecycle are scoped to
 their matching Eval Record and Quality Gap, so a repository can retain closed
 history while a different record has a current open gap.
+Every Quality Gap field uses the same curated privacy boundary as its Eval
+Record. Never place secrets, credentials, tokens, private reasoning, chain of
+thought, or raw transcripts in gap descriptions or evidence requirements.
 
 BFM continues the scoped loop until pass or until scope, time, or direction
 requires a user decision. Close a prior failure only when the original scenario

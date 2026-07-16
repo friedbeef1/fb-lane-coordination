@@ -31,7 +31,7 @@ Root cause: The handoff author omitted the direct-link field from the initial re
 Regression case: Focused test removes the direct link and expects deterministic rejection before restoring it.
 Fresh evidence: `node tools/fb-eval.test.cjs` reran the original scenario and passed after revision.
 Record consistency: TASK-023 handoff, eval record, focused test, board status, and branch diff identify the same shadow walkthrough.
-Changed user decision approval: No user decision changed; approval was not required.
+Changed user decision approval: No user decision changed.
 Approved brief revision: None - the approved brief is unchanged.
 Mechanical origin and regression evidence: None - mechanical status is only recommended and was not applied.
 
@@ -63,7 +63,7 @@ Root cause: The initial recommendation path failed to use the supplied commerce 
 Regression case: Focused test preserves the original generic-output comparison and complete Quality Gap requirements.
 Fresh evidence: `node tools/fb-eval.test.cjs` produced a new candidate fixture and reran the original quality comparison.
 Record consistency: TASK-023 handoff, Quality Gap, focused test, board status, and branch diff identify the same shadow walkthrough.
-Changed user decision approval: No user decision changed; approval was not required.
+Changed user decision approval: No user decision changed.
 Approved brief revision: None - the approved brief is unchanged.
 Mechanical origin and regression evidence: None - this remains subjective Product judgment.
 Good example: For the ceramics launch, send a two-message cart-recovery sequence to prior workshop buyers and compare recovered checkouts after 48 hours.

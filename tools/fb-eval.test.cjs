@@ -214,7 +214,7 @@ test('failure closure requires classification, revision, rerun, fresh evidence, 
     regression: 'EVAL-HARNESS-001-R1 repeats the original missing-link scenario.',
     fresh: 'Commit abc1234 and link-resolution check on 2026-07-17.',
     consistency: 'Board, handoff, eval record, session recap, and Git abc1234 agree.',
-    changedDecision: 'No user decision changed; approval not required.',
+    changedDecision: 'No user decision changed.',
     recommendation: 'Recommend a mechanical direct-link guardrail; no authority change was applied.',
   });
   assert.doesNotThrow(() => assertEvalCloseout(closed));
@@ -276,6 +276,7 @@ test('one structured positive Product approval contract governs changed decision
     consistency: 'Eval, handoff, board, session, and Git agree.',
   };
   assert.doesNotThrow(() => assertEvalCloseout(record({ ...closed, changedDecision: 'Product approval: approved; Reference: APPROVED-DECISION-1' })));
+  assert.doesNotThrow(() => assertEvalCloseout(record({ ...closed, changedDecision: 'No user decision changed.' })));
   for (const spoof of [
     'Explicit Product approval was not APPROVED-123',
     'Product approval: not approved; Reference: APPROVED-DECISION-1',
@@ -284,6 +285,11 @@ test('one structured positive Product approval contract governs changed decision
     'Self approval: approved; Reference: APPROVED-DECISION-1',
     'The eval self-approved; Reference: APPROVED-DECISION-1',
   ]) assert.throws(() => assertEvalCloseout(record({ ...closed, changedDecision: spoof })), /Product approval|approval/i, spoof);
+  for (const contradiction of [
+    'No user decision changed; pricing changed without Product approval.',
+    'No user decision changed. Pricing changed without Product approval.',
+    'No user decision changed; except the approved pricing decision changed.',
+  ]) assert.throws(() => assertEvalCloseout(record({ ...closed, changedDecision: contradiction })), /Product approval|approval/i, contradiction);
 
   const boundary = {
     ...closed, authority: 'blocking', previous: 'advisory',
@@ -324,6 +330,11 @@ Evidence required for the next candidate: Fresh side-by-side output for the orig
   assert.doesNotThrow(() => validateQualityGaps(closed));
   assert.throws(() => validateQualityGaps(closed.replace('Progress: Complete — product quality target met', 'Progress: Checking — product quality target missed')), /closed|Checking/i);
   assert.throws(() => validateQualityGaps(closed.replace(/Closed evidence: [^\n]+\n/, '')), /Closed evidence/i);
+  const gapMarker = gap.indexOf('## Quality Gap');
+  const secretGap = `${gap.slice(0, gapMarker)}${gap.slice(gapMarker).replace('Evidence required for the next candidate: Fresh side-by-side output for the original scenario.', 'Evidence required for the next candidate: API_TOKEN=secret-value')}`;
+  assert.throws(() => validateQualityGaps(secretGap), /secret|credential|token/i);
+  const privateGap = `${gap.slice(0, gapMarker)}${gap.slice(gapMarker).replace('What is insufficient: Recommendations are generic despite functional output.', 'What is insufficient: Private reasoning: hidden chain of thought.')}`;
+  assert.throws(() => validateQualityGaps(privateGap), /private|privacy|reasoning/i);
 });
 
 test('mixed open and closed Quality Gaps are scoped to their own record documents', () => {

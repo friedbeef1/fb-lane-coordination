@@ -174,7 +174,7 @@ function assertEvalCloseout(markdown) {
       }
       const decision = fields['Changed user decision approval'];
       const explicitApproval = hasPositiveProductApproval(decision);
-      const noDecisionChanged = /^No user decision changed(?:[.;].*)?$/i.test(decision);
+      const noDecisionChanged = decision === 'No user decision changed.';
       if ((['deferred', 'superseded'].includes(rerun) || !noDecisionChanged) && !explicitApproval) {
         throw new Error(`Closed eval failure ${record.id} requires explicit approval for any changed user decision.`);
       }
@@ -202,6 +202,7 @@ function validateQualityGaps(markdown) {
     scopedGapCount += gaps.length;
     if (progress === 'Checking — product quality target missed' && gaps.length === 0) throw new Error(`Checking — product quality target missed for ${record.id} requires a complete ## Quality Gap.`);
     for (const gap of gaps) {
+      assertPrivacy(gap);
       for (const label of [...QUALITY_GAP_FIELDS, 'Gap status']) {
         if (!actionable(fieldValue(gap, label))) throw new Error(`Quality Gap requires actionable ${label}.`);
       }
