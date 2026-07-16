@@ -156,3 +156,16 @@ Third-repair verification: root/package eval `18/18`, root/package session `24/2
 ## Product acceptance
 
 Product accepted TASK-023 after the final independent re-review found no Critical, Important, or Minor issue. The accepted local evidence is third-repair commit `fe4c62e`, durable evidence commit `d2bd03c`, root/package eval `18/18`, root/package session `24/24`, legacy CLI `45/45`, doctor `Ready`, and `TASK_023_THIRD_REPAIR_FULL_GATE_OK`. Both selected evals remain shadow. No release, publication, deployment, merge, plugin installation, or consumer-repository change is authorized.
+
+## Final Integrated TASK-022/TASK-023 Repair
+
+Implementation commit: `fe733a1`.
+
+- An open failed or blocked subjective Product record classified as `Eval failure` now requires exact `Progress: Checking — product quality target missed` plus a complete private-safe Quality Gap. Harness, objective Product, and Build/Brief/Environment failures remain outside this specific requirement.
+- Selected-record closeout validates the record-scoped Quality Gap before session completed close/submit. Regressions reject missing, incomplete, and private gap evidence and accept the coherent complete gap.
+- Every selected evidence fragment resolves through exactly one explicit Markdown heading matching its Eval ID. Both walkthrough records and all eval-template mirrors now carry explicit headings; missing and duplicate headings fail.
+- The session integration also covers the final atomicity, generated-closeout, and MCP linked-worktree claim repairs recorded in TASK-022.
+
+Verification: root/package eval `18/18`; root/package session `28/28`; legacy CLI `45/45` in the complete validator; selected-record closeout and workspace recovery passed; ten syntax checks, root/package/template parity, doctor `Ready`, and committed-diff whitespace passed. Marker: `TASK_022_023_FINAL_INTEGRATED_REPAIR_FULL_GATE_OK`.
+
+Both walkthrough evals remain shadow. Local Staging QA and all external-action boundaries remain unchanged.

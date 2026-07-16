@@ -153,3 +153,16 @@ Feedback captured: repeated context reconstruction and manual test-plan promptin
 Repeated pattern?: yes
 Tooling needed?: propose automation — explicitly approved as the session ledger.
 Product approval needed?: no
+
+## Final Integrated TASK-022/TASK-023 Repair
+
+Implementation commit: `fe733a1`.
+
+- One clone-wide, session-scoped mutation lock now encloses authoritative checkpoint, close, and review state transitions. It reuses bounded dead-owner recovery and releases in `finally`, while the existing failed-push and interrupted-commit resume paths remain intact.
+- Deterministic regressions serialize two simultaneous checkpoints and checkpoint-versus-close. The final record cannot be reopened or retain stale pending checkpoint state.
+- Generated blocked/deferred closeout fields are deliberately non-actionable until replaced with a concrete reason, owner, and next action.
+- MCP `fb_lane_claim` delegates to the normal CLI claim path, returns branch/worktree details, leaves the primary checkout on its branch, and supports immediate execution promotion from the linked worktree.
+
+Verification: root/package session `28/28`; legacy CLI `45/45` in the complete validator; workspace recovery contract passed; ten syntax checks, root/package parity, doctor `Ready`, and committed-diff whitespace passed. Marker: `TASK_022_023_FINAL_INTEGRATED_REPAIR_FULL_GATE_OK`.
+
+Remaining boundary: local Staging QA only. No push, merge, release, publication, deployment, plugin installation, or consumer-project change was authorized or performed.
