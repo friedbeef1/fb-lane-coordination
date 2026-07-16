@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-021 | In Progress | FB-Product / BFM | FB Harness | Replace duplicated operating prose with a mirrored canonical `docs/fb/` harness pack, safely route fresh/existing projects into it, and enforce opt-in v2 review evidence through the existing validator/doctor | Root/package harness pack, navigational instructions, active docs/skills, mirrored bootstrap/tests, validator/doctor, `PROJECT_BOARD.md`, handoff index, TASK-021 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-021.md); [plan](docs/superpowers/plans/2026-07-16-fb-harness-redesign.md); local execution only; no push, publication, release, deployment, merge, or consumer-repository change authorized |
+| TASK-021 | Staging QA | FB-Product / BFM | FB Harness | Replace duplicated operating prose with a mirrored canonical `docs/fb/` harness pack, safely route fresh/existing projects into it, and enforce opt-in v2 review evidence through the existing validator/doctor | Root/package harness pack, navigational instructions, active docs/skills, mirrored bootstrap/tests, validator/doctor, `PROJECT_BOARD.md`, handoff index, TASK-021 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-021.md); [plan](docs/superpowers/plans/2026-07-16-fb-harness-redesign.md); fresh/existing bootstrap smokes, recovery contract, root/package 41-check suites, syntax/parity, validator, doctor Ready, and whitespace passed; local review only; no push, publication, release, deployment, merge, or consumer-repository change authorized |
 | TASK-020 | Staging QA | FB-Product / BFM | Codex Plugin Onboarding | Make FB understandable to first-time project starters: planning-before-build boundary, plain-language progress, decision/assumption separation, distinct lane roles, and review-ready Test This Now packets | Root/package skills and docs, bootstrap-generated instructions, root/package CLI tests, `PROJECT_BOARD.md`, handoff index, TASK-020 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-020.md); [plan](docs/superpowers/plans/2026-07-16-fb-first-project-clarity.md); creator-commerce bootstrap smoke, root/package 28-check suites, syntax/parity, validator, doctor Ready, whitespace, and final review passed; local branch only, no push, publish, release, deployment, or merge authorized |
 | TASK-019 | Staging QA | FB-Product / BFM | Documentation | Rebrand active documentation to FB and use the approved primary tagline/current model line only on approved primary surfaces, while retaining all `fb-lane` technical identifiers and historical records | Active README/FAQ/setup/platform/plugin docs, agent guidance/templates/examples, scorecards, root/package bootstrap text and associated tests, board/index/handoff/workstream records | [Handoff](docs/handoffs/TASK-019.md); [plan](docs/superpowers/plans/2026-07-16-fb-documentation-rebrand.md); root/package 27-check suites, syntax/parity, scoped audit, JSON parse, demo check, clean-worktree validator, doctor Ready, whitespace check, and whole-branch review passed; branch retained locally; no package/API rename, push, publish, deployment, or historical rewrite |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
@@ -45,7 +45,7 @@
 ---
 
 ### TASK-021 - FB Harness Redesign
-*   **Status**: In Progress (local execution only; no deployment)
+*   **Status**: Staging QA (local review only; no deployment)
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: FB Harness
 *   **Scope**: Establish a compact, mirrored `docs/fb/` operational pack; reduce active entry points to navigation; safely add/update only marked FB route blocks during bootstrap; and make the existing validator/doctor enforce complete review evidence for opt-in harness-v2 reviewable handoffs.
@@ -68,12 +68,14 @@
     *   **Plan**: [FB Harness Redesign](docs/superpowers/plans/2026-07-16-fb-harness-redesign.md)
     *   **Handoff**: [TASK-021](docs/handoffs/TASK-021.md)
 *   **QA Checklist**:
-    *   [ ] Canonical root/package harness packs and concise navigators are aligned.
-    *   [ ] Fresh and existing-project bootstrap routing is complete, safe, and idempotent.
-    *   [ ] Harness-v2 review evidence fixtures prove the new blocking behavior without retrofitting old handoffs.
-    *   [ ] Root/package tests, syntax/parity, validator, doctor, whitespace, smokes, and independent review pass.
-    *   [ ] No push, publication, release, deployment, merge, or consumer-repository change occurred.
+    *   [x] Canonical root/package harness packs and concise navigators are aligned.
+    *   [x] Fresh and existing-project bootstrap routing is complete, safe, and idempotent.
+    *   [x] Harness-v2 review evidence fixtures prove the new blocking behavior without retrofitting old handoffs.
+    *   [x] Root/package tests, syntax/parity, validator, doctor, whitespace, recovery contract, and standalone smokes pass.
+    *   [ ] Product branch-diff review and any separately authorized merge/release decision remain.
+    *   [x] No push, publication, release, deployment, merge, or consumer-repository change occurred.
 *   **Latest Update**:
+    *   *2026-07-16*: Local integration verification passed: fresh creator-commerce and existing-project migration smokes; workspace-recovery contract; root/package 41-check suites; four Node syntax checks; root/package source, test, and five-page-pack parity; clean-clone validator; doctor Ready; and whitespace checks. Review state is `not reviewable` because this reusable harness/plugin change has no deployed UI. TASK-021 is in Staging QA for local Product branch-diff review only; merge and release remain separate Product gates.
     *   *2026-07-16*: Product/BFM claimed the approved harness redesign on the isolated branch. The existing first-project clarity contract remains in scope; source hierarchy, safe migration, and review-evidence enforcement are the new work. No external release action is authorized.
 
 ---
