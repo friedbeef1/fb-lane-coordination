@@ -27,6 +27,10 @@ Assumptions to confirm: None — the implementation plan is explicitly approved.
 What FB will build: Eval records, authority lifecycle, Build Brief selection, result handoff, Quality Gaps, failure classification, regression closure, initial catalog, and deterministic validation.
 Out of scope: Autonomous judging, semantic scoring, dashboards, CI eval jobs, hosted capture, automatic promotion, release, publication, deployment, merge, and consumer-repository changes.
 Success looks like: The harness and product-quality walkthroughs close only with honest fresh evidence while root/package/template/bootstrap parity remains intact.
+Quality bar: Deterministic structure catches lifecycle inconsistency while subjective quality remains explicit Product/user judgment.
+Selected eval IDs and authority: EVAL-HARNESS-DIRECT-LINK-001 (shadow); EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow).
+Mechanical versus judgment evidence: Link, schema, parity, and closeout structure are mechanical; creator-commerce specificity remains Product judgment.
+Remaining user judgment: Product review decides whether future repeated evidence warrants an authority change; TASK-023 makes none.
 
 ## Build Brief
 
@@ -35,6 +39,10 @@ Success looks like: The harness and product-quality walkthroughs close only with
 - Integrate selected evals with Build Brief, Verification Handoff, Test This Now, Task Receipt, session checkpoints, and closeout.
 - Enforce only deterministic structure and already-mechanical checks; do not add a runner or semantic judge.
 - Verify the required harness-link failure and creator-commerce quality-gap walkthroughs plus full seven-page parity.
+Quality bar: Preserve honest direct-review access and context-specific creator-commerce output without weakening either target.
+Selected eval IDs and authority: EVAL-HARNESS-DIRECT-LINK-001 (shadow); EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow); do not run unrelated catalog evals.
+Mechanical versus judgment evidence: Node fixtures validate deterministic fields and transitions; Product compares the creator output with concrete Good/Bad examples.
+Remaining user judgment: Product decides any later promotion, demotion, or changed product direction with explicit evidence.
 
 ## Dependency
 
