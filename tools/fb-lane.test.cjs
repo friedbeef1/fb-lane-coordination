@@ -191,6 +191,13 @@ function assertCodexBootstrap(args) {
       assert.match(source, /## How FB works/, `${label} must explain the FB loop in plain language`);
       assert.match(source, /Only after explicit `?\$bfm`?/, `${label} must state the BFM build boundary`);
       assert.match(source, /## Test This Now/, `${label} must provide the review contract`);
+      assert.match(source, /Outcome type/, `${label} must identify the review outcome type`);
+      assert.match(source, /Direct links/, `${label} must provide direct review links`);
+      assert.match(source, /Exact steps and expectations/, `${label} must give exact review steps`);
+      assert.match(source, /Pass criteria/, `${label} must name review pass criteria`);
+      assert.match(source, /Known limits/, `${label} must disclose known review limits`);
+      assert.match(source, /Failure-report format/, `${label} must explain failure reporting`);
+      assert.match(source, /Status: blocked — review access is missing/, `${label} must state the missing-review-access response`);
       assert.match(source, /Understanding your idea → Ready for your approval → Building → Checking → Complete/, `${label} must use the approved plain-language progress states`);
       assert.match(source, /Blocked — <reason> \/ next action/, `${label} must make blocked work actionable`);
     }
