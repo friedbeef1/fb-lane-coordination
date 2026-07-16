@@ -54,7 +54,7 @@ Cleared. TASK-022 passed `TASK_022_SECOND_REPAIR_FULL_GATE_OK` and independent P
 
 Candidate: `codex/fb-eval-loop`, stacked from the accepted TASK-022 commit.
 Test plan: [approved plan](../superpowers/plans/2026-07-16-fb-session-ledger-and-eval-loop.md)
-Commands and results: `node tools/fb-eval.test.cjs` and packaged mirror passed 13/13 each; root/package session suites passed 23/23 each; root/package legacy CLI suites passed 45/45 each; `node tools/fb-lane.validate.cjs` passed ten syntax checks, source/test/skill/template/seven-page parity, validator, doctor Ready, and whitespace.
+Commands and results: `node tools/fb-eval.test.cjs` and packaged mirror passed 15/15 each; root/package session suites passed 24/24 each; root/package legacy CLI suites passed 45/45 each; `node tools/fb-lane.validate.cjs` passed ten syntax checks, source/test/skill/template/seven-page parity, validator, doctor Ready, and whitespace at repair commit `3d44afc`.
 Environment: isolated linked worktree on `codex/fb-eval-loop` at implementation commit `240b1b2` plus selected-eval handoff commit `83ee9f0`.
 Runnable evidence links: [eval lifecycle](../fb/evals.md), [walkthrough records](../evals/TASK-023-walkthroughs.md), [root validator](../../tools/fb-eval.cjs), and [focused tests](../../tools/fb-eval.test.cjs).
 Manual pass criteria: Product confirms every authority/transition boundary, both walkthrough closures, the exact Checking/Quality Gap behavior, seven-page preservation, and absence of a judge, runner, score, dashboard, CI job, external integration, or automatic promotion.
@@ -68,8 +68,8 @@ Selected eval records: EVAL-HARNESS-DIRECT-LINK-001 (shadow, pass, docs/evals/TA
 
 Approved brief and decisions: Implemented the approved Markdown-first eval loop from the accepted TASK-022 base with no runner, judge, score, dashboard, CI job, hosted integration, or authority promotion.
 Confirmed assumptions and approved scope changes: No assumption or scope change was required; both new walkthrough records remained shadow.
-Branch, source commits, and changed surfaces: `codex/fb-eval-loop`; implementation `240b1b2`; selected-eval handoff `83ee9f0`; canonical/package harness, templates, skills, validator/doctor/session integration, tests, and bootstrap routes changed.
-Checks, failures, recovery, and results: Expected missing-module RED; focused 13/13 root/package GREEN; legacy 45/45 CLI and 23/23 session root/package; complete local gate and doctor Ready passed. Scoped sandbox approval handled mirror writes; packaged fixture path was corrected.
+Branch, source commits, and changed surfaces: `codex/fb-eval-loop`; implementation `240b1b2`; selected-eval handoff `83ee9f0`; review repair `3d44afc`; canonical/package harness, templates, skills, validator/doctor/session integration, tests, and bootstrap routes changed.
+Checks, failures, recovery, and results: Expected missing-module RED plus review-repair REDs for authority spoofing and contradictory session closeout; focused 15/15 root/package GREEN; legacy 45/45 CLI and 24/24 session root/package; complete local gate and doctor Ready passed. Scoped sandbox approval handled mirror writes; packaged fixture path was corrected.
 Review state, direct links, limits, and external gates: Completed local repository build; [walkthrough records](../evals/TASK-023-walkthroughs.md); subjective quality stays Product/user judgment; independent Product review is the only remaining local gate.
 Repository state: Implementation and selected-eval handoff are committed; coordination closeout is the final documentation commit.
 Remaining owner and action: Product/BFM performs independent branch review; release, publish, deploy, merge, plugin install, and consumer migration remain unauthorized.
@@ -120,3 +120,16 @@ Cause: The direct-link field was absent, and the initial product candidate did n
 Recovery attempted: Added the link and contextual revision without weakening either quality target, then reran the original scenarios.
 Result: Both shadow evals passed with fresh evidence and regression cases; no automatic or blocking promotion occurred.
 Reusable lesson: Record classification before revision and preserve the original scenario, root cause, rerun, regression, and authority recommendation in one consistent evidence chain.
+
+## Repair after review
+
+Repair commit: `3d44afc`.
+
+- Authority promotion now accepts only structured positive Product approval and rejects negated, automatic, or self-promoted evidence, including the two exact adversarial review strings.
+- Completed closeout now requires coherent Latest result, Rerun result, Disposition, Product-boundary approval, and an approved brief revision for supersession. A real session-close regression proves fail/blocked/not-run cannot hide behind a passing rerun.
+- Project Start, Build Brief, Verification Handoff, Task Receipt, Test This Now, and Verification Checkpoint now repeat one exact selected-record syntax; IDs, authority, result, and repo-local evidence references are cross-checked against the Eval Record.
+- Quality Gap history now has explicit open/closed state. Open gaps require exact Checking progress; closed gaps keep the historical evidence, require non-Checking progress, and name fresh closure evidence tied to a passed record.
+- Both documented fallback setup paths copy `fb-eval.cjs`; an executable isolated-copy fixture proves the local CLI loads and runs through the complete module chain.
+- Every eval records subjective/objective judgment. Subjective product evals require Good/Bad examples; objective product evals may omit them; mechanical evals must be objective.
+
+Repair verification: root/package eval `15/15`, root/package session `24/24`, legacy CLI `45/45`, complete readiness validation, doctor `Ready`, mirror parity, and whitespace all passed from clean commit `3d44afc`. Independent Product re-review remains the next local gate; no authority promotion or external release action occurred.

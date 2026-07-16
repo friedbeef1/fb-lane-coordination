@@ -4,7 +4,7 @@ Last Updated: 2026-07-17
 Lane: FB-Product
 
 ## Current Summary
-TASK-022 is Product-accepted in local Staging QA. Commits `9a55314`, `a5b0a7e`, `38710ca`, and `acdd1a6` provide the repository-local session ledger and both complete review-repair cycles. Mirrored 45/45 CLI and 23/23 session suites plus the complete gate passed with `TASK_022_SECOND_REPAIR_FULL_GATE_OK`; the final independent task review found no Critical, Important, or Minor issue. TASK-023 is now in local Staging QA on `codex/fb-eval-loop`: commits `240b1b2` and `83ee9f0` add the Markdown eval lifecycle, two shadow walkthroughs, deterministic authority/Quality Gap/closeout enforcement, and seven-page bootstrap. Root/package eval 13/13, session 23/23, legacy CLI 45/45, the complete gate, and doctor Ready passed. Independent Product review remains; no eval was promoted and no release, publication, deployment, merge, plugin install, or consumer-project change is authorized.
+TASK-022 is Product-accepted in local Staging QA. Commits `9a55314`, `a5b0a7e`, `38710ca`, and `acdd1a6` provide the repository-local session ledger and both complete review-repair cycles. Mirrored 45/45 CLI and 23/23 session suites plus the complete gate passed with `TASK_022_SECOND_REPAIR_FULL_GATE_OK`; the final independent task review found no Critical, Important, or Minor issue. TASK-023 is now in local Staging QA on `codex/fb-eval-loop`: commits `240b1b2`, `83ee9f0`, and review repair `3d44afc` add and harden the Markdown eval lifecycle, two shadow walkthroughs, deterministic authority/Quality Gap/closeout enforcement, and seven-page bootstrap. Root/package eval 15/15, session 24/24, legacy CLI 45/45, the repaired complete gate, and doctor Ready passed. Independent Product re-review remains; no eval was promoted and no release, publication, deployment, merge, plugin install, or consumer-project change is authorized.
 
 TASK-021 is in Staging QA (local review only) on `codex/fb-documentation-rebrand`. Final fix `8c54c1c` aligned setup guidance with the completed mirrored five-page bootstrap, made the canonical evidence page author the full opt-in v2 contract, and rejected placeholder-only/TODO/TBD/angle-bracket evidence plus non-actionable blocked next actions. Focused v2 suites passed 14 checks in each mirror; full suites passed 45 checks in each mirror; recovery, four syntax checks, source/test/setup/five-page parity, validator, doctor Ready, and diff checks passed. The final whole-branch re-review found no remaining Critical, Important, or Minor issue. Review state is `not reviewable` because there is no deployed UI. The Product local gate and any separately authorized merge/release decision remain; no push, publication, release, deployment, merge, plugin install, or consumer-project change occurred.
 
@@ -35,7 +35,7 @@ TASK-017 is done: [PR #31](https://github.com/friedbeef1/fb-lane-coordination/pu
 
 ## Still Pending / Blocked
 
-TASK-023 independent Product review is pending. TASK-021's Product local gate and any separately authorized merge/release decision remain. TASK-020 and TASK-019 have no internal gate. No publication, release, deployment, merge, plugin install, or package/API migration is authorized.
+TASK-023 independent Product re-review is pending after repair commit `3d44afc`. TASK-021's Product local gate and any separately authorized merge/release decision remain. TASK-020 and TASK-019 have no internal gate. No publication, release, deployment, merge, plugin install, or package/API migration is authorized.
 
 ## Evidence Links
 - PROJECT_BOARD.md
