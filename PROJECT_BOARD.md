@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-021 | In Progress | FB-Product / BFM | FB Harness | Replace duplicated operating prose with a mirrored canonical `docs/fb/` harness pack, safely route fresh/existing projects into it, and enforce opt-in v2 review evidence through the existing validator/doctor | Root/package harness pack, navigational instructions, active docs/skills, mirrored bootstrap/tests, validator/doctor, `PROJECT_BOARD.md`, handoff index, TASK-021 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-021.md); [plan](docs/superpowers/plans/2026-07-16-fb-harness-redesign.md); local execution only; no push, publication, release, deployment, merge, or consumer-repository change authorized |
 | TASK-020 | Staging QA | FB-Product / BFM | Codex Plugin Onboarding | Make FB understandable to first-time project starters: planning-before-build boundary, plain-language progress, decision/assumption separation, distinct lane roles, and review-ready Test This Now packets | Root/package skills and docs, bootstrap-generated instructions, root/package CLI tests, `PROJECT_BOARD.md`, handoff index, TASK-020 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-020.md); [plan](docs/superpowers/plans/2026-07-16-fb-first-project-clarity.md); creator-commerce bootstrap smoke, root/package 28-check suites, syntax/parity, validator, doctor Ready, whitespace, and final review passed; local branch only, no push, publish, release, deployment, or merge authorized |
 | TASK-019 | Staging QA | FB-Product / BFM | Documentation | Rebrand active documentation to FB and use the approved primary tagline/current model line only on approved primary surfaces, while retaining all `fb-lane` technical identifiers and historical records | Active README/FAQ/setup/platform/plugin docs, agent guidance/templates/examples, scorecards, root/package bootstrap text and associated tests, board/index/handoff/workstream records | [Handoff](docs/handoffs/TASK-019.md); [plan](docs/superpowers/plans/2026-07-16-fb-documentation-rebrand.md); root/package 27-check suites, syntax/parity, scoped audit, JSON parse, demo check, clean-worktree validator, doctor Ready, whitespace check, and whole-branch review passed; branch retained locally; no package/API rename, push, publish, deployment, or historical rewrite |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
@@ -40,6 +41,40 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-021 - FB Harness Redesign
+*   **Status**: In Progress (local execution only; no deployment)
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: FB Harness
+*   **Scope**: Establish a compact, mirrored `docs/fb/` operational pack; reduce active entry points to navigation; safely add/update only marked FB route blocks during bootstrap; and make the existing validator/doctor enforce complete review evidence for opt-in harness-v2 reviewable handoffs.
+*   **Out of Scope**: New CLI command, wizard, dashboard, eval runner, CI job, board-status replacement, release, deployment, publication, consumer-project changes, technical-ID migration, or wholesale existing-project rewrite.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let an everyday user move from an idea to an approved build brief and testable evidence while FB carries routine coordination and QA work.
+    *   **Key Results**:
+        *   Root and packaged plugin share one small repository-local harness pack, and active entry points route into it instead of duplicating policy.
+        *   Fresh bootstrap creates the pack; existing-project reruns preserve project-owned instructions and replace only explicit managed route blocks.
+        *   New harness-v2 reviewable handoffs fail the existing closeout checks until their Test This Now packet is complete, while historical/planning handoffs remain valid.
+    *   **Definition of Done**: Fresh and existing-project smokes prove the pack and idempotent routing; root/package tests, syntax/parity, validator, doctor, whitespace, and independent review pass without any release action.
+    *   **Gate / Review Point**: Product branch-diff review after all local verification. No push, publication, plugin install, release, deployment, or merge is authorized.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly approved the FB Harness Redesign after first-project feedback showed duplicated instructions and manual test coordination were creating avoidable friction.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Codex plugin onboarding, generated repository guidance, durable handoffs, user review packets, and active documentation only.
+    *   **Locked Files**: `AGENTS.md`, `templates/AGENTS.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `platforms/codex/README.md`, `plugins/fb-lane-coordination/README.md`, relevant root/package skills, `docs/fb/**`, `plugins/fb-lane-coordination/docs/fb/**`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, root/package CLI tests, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-021.md`, and `docs/workstreams/fb-product.md`.
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/fb-documentation-rebrand` (existing isolated branch; local execution only)
+    *   **Plan**: [FB Harness Redesign](docs/superpowers/plans/2026-07-16-fb-harness-redesign.md)
+    *   **Handoff**: [TASK-021](docs/handoffs/TASK-021.md)
+*   **QA Checklist**:
+    *   [ ] Canonical root/package harness packs and concise navigators are aligned.
+    *   [ ] Fresh and existing-project bootstrap routing is complete, safe, and idempotent.
+    *   [ ] Harness-v2 review evidence fixtures prove the new blocking behavior without retrofitting old handoffs.
+    *   [ ] Root/package tests, syntax/parity, validator, doctor, whitespace, smokes, and independent review pass.
+    *   [ ] No push, publication, release, deployment, merge, or consumer-repository change occurred.
+*   **Latest Update**:
+    *   *2026-07-16*: Product/BFM claimed the approved harness redesign on the isolated branch. The existing first-project clarity contract remains in scope; source hierarchy, safe migration, and review-evidence enforcement are the new work. No external release action is authorized.
 
 ---
 
