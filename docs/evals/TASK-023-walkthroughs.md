@@ -3,6 +3,8 @@
 These shadow records preserve the two approved walkthroughs. They recommend
 future guardrails but make no authority change.
 
+### EVAL-HARNESS-DIRECT-LINK-001
+
 ## Eval Record
 
 Eval ID: EVAL-HARNESS-DIRECT-LINK-001
@@ -34,6 +36,8 @@ Record consistency: TASK-023 handoff, eval record, focused test, board status, a
 Changed user decision approval: No user decision changed.
 Approved brief revision: None - the approved brief is unchanged.
 Mechanical origin and regression evidence: None - mechanical status is only recommended and was not applied.
+
+### EVAL-PRODUCT-CREATOR-SPECIFICITY-001
 
 ## Eval Record
 

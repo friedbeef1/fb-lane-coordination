@@ -1999,42 +1999,18 @@ function handleMcpRequest(request) {
           const { taskId, lane, lockedFiles } = toolArgs;
           assertSafeTaskId(taskId);
           assertSafeLane(lane);
-
-          runHook('pre-claim', boardPath);
-
-          // Run core claim logic
-          const { tasks } = parseBoard(boardPath);
-          const task = tasks.find(t => t.id === taskId);
-          if (!task) throw new Error(`Task ${taskId} not found.`);
-
-          const slug = task.scope.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-          const branchName = `${lane.toLowerCase()}/${taskId}-${slug}`;
-
-          try {
-            runGit(["checkout", "-b", assertSafeBranchName(branchName)]);
-          } catch (e) {
-            runGit(["checkout", assertSafeBranchName(branchName)]);
-          }
-
-          const formattedLocks = !lockedFiles ? '(None)' : lockedFiles.split(',').map(f => `\`${f.trim()}\``).join(', ');
-
-          updateBoardTask(boardPath, taskId, {
-            status: 'In Progress',
-            owner: `FB-${lane.charAt(0).toUpperCase() + lane.slice(1).toLowerCase()}`,
-            locks: formattedLocks,
-            lockedFiles: formattedLocks
+          const output = execFileSync(process.execPath, [__filename, 'claim', taskId, lane, lockedFiles || '(None)'], {
+            cwd: workspaceRoot,
+            env: process.env,
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'pipe'],
           });
-
-          commitBoard(`docs: claim ${taskId} and lock files`);
-
-          // Write Codex context
-          const codexDir = path.join(path.dirname(boardPath), '.codex');
-          if (!fs.existsSync(codexDir)) fs.mkdirSync(codexDir);
-          fs.writeFileSync(path.join(codexDir, 'current_task.md'), `# Context\nTask: ${taskId}\nBranch: ${branchName}`, 'utf8');
-
-          runHook('post-claim', boardPath);
-
-          message = `Successfully claimed ${taskId} on branch ${branchName}. Locks: ${formattedLocks}.`;
+          const branch = (output.match(/^\s*- Branch:\s*(.+)$/mi) || [])[1];
+          const worktreeLine = (output.match(/^\s*- Worktree:\s*(.+)$/mi) || [])[1];
+          const worktree = worktreeLine ? worktreeLine.replace(/\s+\(board stays authoritative.*$/, '').trim() : '';
+          if (!branch || !worktree) throw new Error('Linked-worktree claim completed without branch/worktree details.');
+          const formattedLocks = !lockedFiles ? '(None)' : lockedFiles.split(',').map(file => `\`${file.trim()}\``).join(', ');
+          message = `Successfully claimed ${taskId}.\nBranch: ${branch.trim()}\nWorktree: ${worktree}\nLocks: ${formattedLocks}`;
         } else if (name === 'fb_lane_submit') {
           const { taskId, stagingUrl } = toolArgs;
           assertSafeTaskId(taskId);

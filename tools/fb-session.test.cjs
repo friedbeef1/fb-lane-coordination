@@ -327,7 +327,64 @@ function addSelectedEvalEvidence(cwd, id, taskId, latestResult) {
   fs.writeFileSync(handoffPath, handoffSource);
   fs.appendFileSync(recap, `\n## Verification Checkpoint\n\nSelected eval results and evidence: EVAL-HARNESS-CLOSE-001 uses the repo-local lifecycle record.\n${selected}\n`);
   fs.mkdirSync(path.join(cwd, 'docs', 'evals'), { recursive: true });
-  fs.writeFileSync(path.join(cwd, 'docs', 'evals', 'session-close.md'), blockingEvalRecord(latestResult));
+  fs.writeFileSync(path.join(cwd, 'docs', 'evals', 'session-close.md'), `### EVAL-HARNESS-CLOSE-001\n\n${blockingEvalRecord(latestResult)}`);
+}
+
+function productQualityGapRecord(gap = '') {
+  return `### EVAL-PRODUCT-CLOSE-001
+
+## Eval Record
+
+Eval ID: EVAL-PRODUCT-CLOSE-001
+Eval type: product
+Authority: shadow
+Previous authority: none
+Authority change approval: Product approval: not required; Reference: initial-shadow-record
+Authority change recorded by: Product/BFM
+Authority decision: Product/BFM recorded the initial shadow authority.
+Judgment: subjective
+Trigger: Completed session close or submit is attempted.
+Scenario: A functional candidate misses the approved product-specificity target.
+Quality target: Product recommendations are specific and actionable.
+Must pass: The output names the approved product context and next action.
+Must not happen: Generic functional output closes without a Quality Gap.
+Evidence required: Curated repo-local comparison evidence.
+Owner: Product/BFM
+Latest result: fail
+Failure classification: Eval failure
+Revision: Revise the candidate against the original scenario.
+Rerun result: not run
+Disposition: open
+Promotion or demotion recommendation: Keep shadow pending repeated evidence.
+Advisory failure explanation: None - this record is shadow.
+Root cause: None - the failure remains open.
+Regression case: None - the failure remains open.
+Fresh evidence: None - the failure remains open.
+Record consistency: Eval, handoff, session, and Git agree that the gap is open.
+Changed user decision approval: No user decision changed.
+Approved brief revision: None - the approved brief is unchanged.
+Mechanical origin and regression evidence: None - this is a judgment scenario.
+Good example: Recommend the named cart-recovery action for the ceramics launch.
+Bad example: Improve engagement.
+${gap}`;
+}
+
+function addSelectedProductEvalEvidence(cwd, id, taskId, gap = '') {
+  const handoffPath = path.join(cwd, 'docs', 'handoffs', `${taskId}.md`);
+  const recap = recapPath(cwd, id);
+  const selected = 'Selected eval records: EVAL-PRODUCT-CLOSE-001 (shadow, fail, docs/evals/product-close.md#eval-product-close-001).';
+  let handoffSource = fs.readFileSync(handoffPath, 'utf8');
+  for (const heading of ['Project Start Brief', 'Build Brief']) {
+    handoffSource = handoffSource.replace(`## ${heading}\n\n`, `## ${heading}\n\nQuality bar: Product recommendations remain specific and actionable.\nSelected eval IDs and authority: EVAL-PRODUCT-CLOSE-001 (shadow).\n${selected}\nMechanical versus judgment evidence: Structure is mechanical; specificity is Product judgment.\nRemaining user judgment: Product confirms fit against the approved promise.\n\n`);
+  }
+  for (const heading of ['Verification Handoff', 'Task Receipt']) {
+    handoffSource = handoffSource.replace(`## ${heading}\n\n`, `## ${heading}\n\nSelected eval results and evidence: EVAL-PRODUCT-CLOSE-001 records the functional quality miss.\n${selected}\n`);
+  }
+  handoffSource = handoffSource.replace('## Test This Now\n\n', `## Test This Now\n\nWhat was evaluated: Product specificity for the original candidate.\n${selected}\nExact scenarios and expected results: Generic output remains open with a complete Quality Gap.\nKnown quality gaps: EVAL-PRODUCT-CLOSE-001 remains open and checking.\nRequired user judgment: Product owns the next comparison.\n`);
+  fs.writeFileSync(handoffPath, handoffSource);
+  fs.appendFileSync(recap, `\n## Verification Checkpoint\n\nSelected eval results and evidence: EVAL-PRODUCT-CLOSE-001 records the functional quality miss.\n${selected}\n`);
+  fs.mkdirSync(path.join(cwd, 'docs', 'evals'), { recursive: true });
+  fs.writeFileSync(path.join(cwd, 'docs', 'evals', 'product-close.md'), productQualityGapRecord(gap));
 }
 
 function replaceSection(markdown, heading, replacement) {
@@ -350,6 +407,14 @@ function spawnRun(cwd, args, env = {}) {
     child.stderr.on('data', chunk => { stderr += chunk; });
     child.on('close', status => resolve({ status, stdout, stderr }));
   });
+}
+
+async function waitForPath(filePath, timeoutMs = 5000) {
+  const deadline = Date.now() + timeoutMs;
+  while (!fs.existsSync(filePath)) {
+    if (Date.now() >= deadline) throw new Error(`Timed out waiting for ${filePath}`);
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
 }
 
 function mcpCall(cwd, name, args = {}) {
@@ -484,6 +549,83 @@ test('twelve concurrent promotions remain atomic and visible across linked workt
     const status = run(worktree, ['session', 'status', '--all']);
     assertOk(status);
     assert.match(status.stdout, /parallel-12/);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('same-session checkpoints serialize authoritative pending and commit state', async () => {
+  const fixture = createRepo();
+  try {
+    git(fixture.repo, ['checkout', '-qb', 'session/checkpoint-atomic']);
+    assertOk(promote(fixture.repo, 'TASK-001', 'tech', 'planning', 'checkpoint-atomic'));
+    const commit = git(fixture.repo, ['rev-parse', '--short', 'HEAD']);
+    appendEvidence(fixture.repo, 'checkpoint-atomic', 'TASK-001', commit);
+    const gate = path.join(fixture.parent, 'checkpoint-gate');
+    fs.mkdirSync(gate, { recursive: true });
+    const first = spawnRun(fixture.repo, ['session', 'checkpoint', '--reason', 'scope', '--session-id', 'checkpoint-atomic'], { FB_SESSION_TEST_LIFECYCLE_GATE: gate });
+    await waitForPath(path.join(gate, 'started'));
+    const second = spawnRun(fixture.repo, ['session', 'checkpoint', '--reason', 'decision', '--session-id', 'checkpoint-atomic']);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    fs.writeFileSync(path.join(gate, 'release'), 'release\n');
+    const [firstResult, secondResult] = await Promise.all([first, second]);
+    assertOk(firstResult);
+    assertFailed(secondResult, /current change|pending.*checkpoint|session.*mutation/i);
+    const record = readSession(fixture.repo, 'checkpoint-atomic');
+    assert.strictEqual(record.pendingCheckpoint, undefined);
+    assert.strictEqual(record.milestones.filter(item => item.reason === 'scope').length, 1);
+    assert.strictEqual(record.milestones.filter(item => item.reason === 'decision').length, 0);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('checkpoint and close serialize so a completed checkpoint cannot reopen a closed session', async () => {
+  const fixture = createRepo();
+  try {
+    git(fixture.repo, ['checkout', '-qb', 'session/checkpoint-close-atomic']);
+    assertOk(promote(fixture.repo, 'TASK-001', 'tech', 'planning', 'checkpoint-close-atomic'));
+    const commit = git(fixture.repo, ['rev-parse', '--short', 'HEAD']);
+    appendEvidence(fixture.repo, 'checkpoint-close-atomic', 'TASK-001', commit, 'blocked');
+    const gate = path.join(fixture.parent, 'checkpoint-close-gate');
+    fs.mkdirSync(gate, { recursive: true });
+    const checkpoint = spawnRun(fixture.repo, ['session', 'checkpoint', '--reason', 'scope', '--session-id', 'checkpoint-close-atomic'], { FB_SESSION_TEST_LIFECYCLE_GATE: gate });
+    await waitForPath(path.join(gate, 'started'));
+    const close = spawnRun(fixture.repo, ['session', 'close', '--outcome', 'blocked', '--session-id', 'checkpoint-close-atomic']);
+    await new Promise(resolve => setTimeout(resolve, 100));
+    fs.writeFileSync(path.join(gate, 'release'), 'release\n');
+    const [checkpointResult, closeResult] = await Promise.all([checkpoint, close]);
+    assertOk(checkpointResult);
+    assertOk(closeResult);
+    const record = readSession(fixture.repo, 'checkpoint-close-atomic');
+    assert.strictEqual(record.state, 'closed');
+    assert.strictEqual(record.outcome, 'blocked');
+    assert.strictEqual(record.pendingCheckpoint, undefined);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('MCP claim uses the CLI linked-worktree path and supports direct execution promotion there', async () => {
+  const fixture = createRepo([{ id: 'TASK-024', status: 'Ready', locks: 'src/app.js' }]);
+  try {
+    const claimed = await mcpCall(fixture.repo, 'fb_lane_claim', {
+      taskId: 'TASK-024',
+      lane: 'Tech',
+      lockedFiles: 'src/app.js',
+      workspacePath: fixture.repo,
+    });
+    assert.strictEqual(claimed.status, 0, output(claimed));
+    assert.ok(claimed.response && !claimed.response.error, JSON.stringify(claimed.response));
+    const message = claimed.response.result.content.map(item => item.text || '').join('\n');
+    assert.match(message, /Branch:\s*tech\/TASK-024-/i);
+    const worktreeMatch = message.match(/Worktree:\s*([^\n]+)/i);
+    assert.ok(worktreeMatch, message);
+    const worktree = worktreeMatch[1].trim();
+    assert.ok(fs.existsSync(worktree), worktree);
+    assert.strictEqual(git(fixture.repo, ['branch', '--show-current']), 'main');
+    assert.match(git(fixture.repo, ['worktree', 'list', '--porcelain']), new RegExp(worktree.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    assertOk(promote(worktree, 'TASK-024', 'tech', 'execution', 'mcp-claim'));
   } finally {
     fixture.cleanup();
   }
@@ -704,8 +846,71 @@ test('completed session close rejects contradictory blocking eval lifecycle and 
     for (const file of [recapPath(worktree, 'eval-close'), path.join(worktree, 'docs', 'handoffs', 'TASK-001.md')]) {
       fs.writeFileSync(file, fs.readFileSync(file, 'utf8').replaceAll('(blocking, fail,', '(blocking, pass,'));
     }
-    fs.writeFileSync(path.join(worktree, 'docs', 'evals', 'session-close.md'), blockingEvalRecord('pass'));
+    fs.writeFileSync(path.join(worktree, 'docs', 'evals', 'session-close.md'), `### EVAL-HARNESS-CLOSE-001\n\n${blockingEvalRecord('pass')}`);
     assertOk(run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'eval-close']));
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('completed close and submit require a complete private-safe Quality Gap for an open subjective product Eval failure', () => {
+  const fixture = createRepo();
+  try {
+    const worktree = addWorktree(fixture, 'session/product-gap-close');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'product-gap-close'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 34;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: product gap close fixture']);
+    const sourceCommit = git(worktree, ['rev-parse', 'HEAD']);
+    appendEvidence(worktree, 'product-gap-close', 'TASK-001', sourceCommit);
+    addSelectedProductEvalEvidence(worktree, 'product-gap-close', 'TASK-001');
+    assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'product-gap-close']));
+    assertFailed(run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'product-gap-close']), /Checking.*Quality Gap|Quality Gap/i);
+    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /Checking.*Quality Gap|Quality Gap/i);
+    const evalPath = path.join(worktree, 'docs', 'evals', 'product-close.md');
+    fs.writeFileSync(evalPath, productQualityGapRecord(`Progress: Checking — product quality target missed
+
+## Quality Gap
+
+Eval ID: EVAL-PRODUCT-CLOSE-001
+Gap status: open
+What is insufficient: TODO
+Failed quality dimension: output relevance and specificity
+Good example: Ground the action in the ceramics launch.
+Bad example: Improve engagement.
+Responsible layer: Product
+Next scoped revision: Ground each action in the supplied context.
+Evidence required for the next candidate: Fresh original-scenario comparison.`));
+    assertFailed(run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'product-gap-close']), /What is insufficient/i);
+    fs.writeFileSync(evalPath, productQualityGapRecord(`Progress: Checking — product quality target missed
+
+## Quality Gap
+
+Eval ID: EVAL-PRODUCT-CLOSE-001
+Gap status: open
+What is insufficient: Private reasoning: hidden chain of thought.
+Failed quality dimension: output relevance and specificity
+Good example: Ground the action in the ceramics launch.
+Bad example: Improve engagement.
+Responsible layer: Product
+Next scoped revision: Ground each action in the supplied context.
+Evidence required for the next candidate: Fresh original-scenario comparison.`));
+    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /private|privacy|reasoning/i);
+    fs.writeFileSync(evalPath, productQualityGapRecord(`Progress: Checking — product quality target missed
+
+## Quality Gap
+
+Eval ID: EVAL-PRODUCT-CLOSE-001
+Gap status: open
+What is insufficient: The functional candidate remains generic.
+Failed quality dimension: output relevance and specificity
+Good example: Ground the action in the ceramics launch.
+Bad example: Improve engagement.
+Responsible layer: Product
+Next scoped revision: Ground each action in the supplied context.
+Evidence required for the next candidate: Fresh original-scenario comparison.`));
+    assertOk(run(worktree, ['submit', 'TASK-001', '--no-tests']));
+    assertOk(run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'product-gap-close']));
   } finally {
     fixture.cleanup();
   }
@@ -969,6 +1174,10 @@ test('blocked and deferred close require blocked validation plus a concrete reas
       git(fixture.repo, ['checkout', '-qb', `session/${outcomeName}`]);
       const id = `close-${outcomeName}`;
       assertOk(promote(fixture.repo, 'TASK-001', 'business', 'planning', id));
+      assertFailed(
+        run(fixture.repo, ['session', 'close', '--outcome', outcomeName, '--session-id', id]),
+        /concrete (Reason|Owner|Next action)|close requires/i
+      );
       const commit = git(fixture.repo, ['rev-parse', '--short', 'HEAD']);
       appendEvidence(fixture.repo, id, 'TASK-001', commit, 'blocked');
       const closed = run(fixture.repo, ['session', 'close', '--outcome', outcomeName, '--session-id', id]);

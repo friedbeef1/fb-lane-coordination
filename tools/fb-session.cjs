@@ -170,6 +170,46 @@ function withRegistryLock(cwd, fn) {
   }
 }
 
+function withSessionMutationLock(cwd, sessionId, fn) {
+  const lockDir = path.join(registryPaths(cwd).common, 'fb-session-mutations', `${assertSafeSessionId(sessionId)}.lock`);
+  fs.mkdirSync(path.dirname(lockDir), { recursive: true });
+  const deadline = Date.now() + LOCK_WAIT_MS;
+  while (true) {
+    try {
+      fs.mkdirSync(lockDir);
+      fs.writeFileSync(path.join(lockDir, 'owner.json'), `${JSON.stringify({
+        pid: process.pid,
+        startedAt: new Date().toISOString(),
+      }, null, 2)}\n`, { flag: 'wx' });
+      break;
+    } catch (err) {
+      if (err.code !== 'EEXIST') throw err;
+      if (!recoverDeadLock(lockDir)) {
+        if (Date.now() >= deadline) throw new Error(`Timed out waiting for the ${sessionId} session mutation lock.`);
+        sleep(LOCK_POLL_MS);
+      }
+    }
+  }
+
+  try {
+    return fn();
+  } finally {
+    fs.rmSync(lockDir, { recursive: true, force: true });
+  }
+}
+
+function waitAtLifecycleTestGate(env = process.env) {
+  const gateDir = env.FB_SESSION_TEST_LIFECYCLE_GATE;
+  if (!gateDir) return;
+  fs.mkdirSync(gateDir, { recursive: true });
+  fs.writeFileSync(path.join(gateDir, 'started'), 'started\n');
+  const deadline = Date.now() + LOCK_WAIT_MS;
+  while (!fs.existsSync(path.join(gateDir, 'release'))) {
+    if (Date.now() >= deadline) throw new Error('Timed out waiting for the session lifecycle test gate.');
+    sleep(LOCK_POLL_MS);
+  }
+}
+
 function atomicWrite(filePath, contents) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   const temp = path.join(path.dirname(filePath), `.${path.basename(filePath)}.${process.pid}.${Date.now()}.tmp`);
@@ -376,9 +416,9 @@ When a meaningful failure occurs, record Failure, Observed, Cause, Recovery atte
 
 ## Closeout
 
-Reason: The session remains active.
-Owner: ${record.lane}.
-Next action: Record the next scoped milestone.
+Reason: Not recorded yet; replace with the concrete blocked or deferred reason before closeout.
+Owner: Not recorded yet; replace with the accountable owner before closeout.
+Next action: Not recorded yet; replace with the next executable recovery action before closeout.
 `;
 }
 
@@ -638,11 +678,9 @@ function resumePendingCheckpoint(cwd, record, reason, branch, allowed) {
   return finishCheckpointPush(cwd, record.sessionId, reason, commit);
 }
 
-function checkpointSession(cwd, args, env) {
-  const sessionId = resolveSessionId(args, env);
-  const reason = String(optionValue(args, '--reason') || '').toLowerCase();
-  if (!CHECKPOINT_REASONS.has(reason)) throw new Error('Checkpoint reason must be scope, decision, blocked, or verification.');
+function checkpointSessionLocked(cwd, sessionId, reason, env) {
   const record = readSession(cwd, sessionId);
+  waitAtLifecycleTestGate(env);
   if (record.state === 'closed') throw new Error(`Session ${sessionId} is closed.`);
   const repoRoot = gitRoot(cwd);
   const branch = assertNonDefaultBranch(cwd, 'checkpoint');
@@ -693,6 +731,13 @@ function checkpointSession(cwd, args, env) {
     throw new Error(`Checkpoint commit ${commit} is preserved in pending state; simulated interruption requires a safe resume.`);
   }
   return finishCheckpointPush(cwd, sessionId, reason, commit);
+}
+
+function checkpointSession(cwd, args, env) {
+  const sessionId = resolveSessionId(args, env);
+  const reason = String(optionValue(args, '--reason') || '').toLowerCase();
+  if (!CHECKPOINT_REASONS.has(reason)) throw new Error('Checkpoint reason must be scope, decision, blocked, or verification.');
+  return withSessionMutationLock(cwd, sessionId, () => checkpointSessionLocked(cwd, sessionId, reason, env));
 }
 
 const RECEIPT_FIELDS = [
@@ -799,11 +844,9 @@ function assertExecutionAuthority(cwd, record, operation = 'Submit', allowedStat
   return task;
 }
 
-function closeSession(cwd, args, env) {
-  const sessionId = resolveSessionId(args, env);
-  const outcome = String(optionValue(args, '--outcome') || '').toLowerCase();
-  if (!CLOSE_OUTCOMES.has(outcome)) throw new Error('Close outcome must be completed, blocked, or deferred.');
+function closeSessionLocked(cwd, sessionId, outcome, env) {
   const record = readSession(cwd, sessionId);
+  waitAtLifecycleTestGate(env);
   if (record.state === 'closed') throw new Error(`Session ${sessionId} is already closed.`);
   const { recap, handoff, combined } = evidenceFiles(cwd, record);
   assertCuratedPrivacy(combined);
@@ -827,6 +870,13 @@ function closeSession(cwd, args, env) {
     current.milestones.push({ reason: 'close', outcome, at, commit: git(cwd, ['rev-parse', 'HEAD']).stdout });
     return current;
   });
+}
+
+function closeSession(cwd, args, env) {
+  const sessionId = resolveSessionId(args, env);
+  const outcome = String(optionValue(args, '--outcome') || '').toLowerCase();
+  if (!CLOSE_OUTCOMES.has(outcome)) throw new Error('Close outcome must be completed, blocked, or deferred.');
+  return withSessionMutationLock(cwd, sessionId, () => closeSessionLocked(cwd, sessionId, outcome, env));
 }
 
 function assertSubmitReady(cwd, taskId) {
@@ -909,11 +959,11 @@ function reviewSession(cwd, args, env, clipboard = copyClipboard) {
   let record = null;
   if (sessionValue) {
     const sessionId = assertSafeSessionId(sessionValue);
-    record = mutateSession(cwd, sessionId, current => {
-      if (current.state === 'closed') throw new Error(`Session ${sessionId} is closed.`);
-      current.state = 'reviewing';
-      return current;
-    });
+    record = withSessionMutationLock(cwd, sessionId, () => mutateSession(cwd, sessionId, current => {
+        if (current.state === 'closed') throw new Error(`Session ${sessionId} is closed.`);
+        current.state = 'reviewing';
+        return current;
+      }));
   }
   const packet = `# FB Session Review
 

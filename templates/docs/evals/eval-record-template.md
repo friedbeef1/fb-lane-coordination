@@ -4,6 +4,8 @@ Use the lifecycle in [docs/fb/evals.md](../fb/evals.md). Copy one `## Eval
 Record` per stable scenario. New records start shadow; Product/BFM records every
 authority change.
 
+### EVAL-HARNESS-001
+
 ## Eval Record
 
 Eval ID: EVAL-HARNESS-001

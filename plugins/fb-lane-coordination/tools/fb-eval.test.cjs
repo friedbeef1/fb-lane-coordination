@@ -303,6 +303,12 @@ test('one structured positive Product approval contract governs changed decision
 
 test('Quality Gaps preserve history while open and closed states remain coherent with their eval record', () => {
   const openRecord = record({ id: 'EVAL-PRODUCT-001', type: 'product', result: 'fail', classification: 'Eval failure', revision: 'Revise the candidate.', good: 'Recommend the named cart-recovery flow.', bad: 'Improve marketing.' });
+  assert.throws(() => validateQualityGaps(openRecord), /Checking.*Quality Gap|Quality Gap.*Checking/i);
+  for (const control of [
+    record({ id: 'EVAL-HARNESS-CONTROL-001', result: 'fail', classification: 'Eval failure', revision: 'Revise the harness.' }),
+    record({ id: 'EVAL-PRODUCT-CONTROL-001', type: 'product', result: 'fail', classification: 'Build failure', revision: 'Repair the build.', good: 'Specific output.', bad: 'Generic output.' }),
+    record({ id: 'EVAL-PRODUCT-CONTROL-002', type: 'product', judgment: 'objective', result: 'fail', classification: 'Eval failure', revision: 'Repair the deterministic output.' }),
+  ]) assert.doesNotThrow(() => validateQualityGaps(control));
   const gap = `${openRecord}\nProgress: Checking — product quality target missed
 
 ## Quality Gap
@@ -588,14 +594,19 @@ ${selected}`;
   try {
     fs.mkdirSync(path.join(root, 'docs', 'evals'), { recursive: true });
     fs.writeFileSync(path.join(root, 'docs', 'evals', 'run.md'), record({ result: 'fail', classification: 'Eval failure', revision: 'None - not yet revised.', rerun: 'not run' }));
+    assert.throws(() => assertSelectedEvalCloseout(root, integration), /anchor|heading/i);
+    fs.writeFileSync(path.join(root, 'docs', 'evals', 'run.md'), `### EVAL-HARNESS-001\n\n${record({ result: 'fail', classification: 'Eval failure', revision: 'None - not yet revised.', rerun: 'not run' })}`);
     assert.doesNotThrow(() => assertSelectedEvalCloseout(root, integration));
+    fs.appendFileSync(path.join(root, 'docs', 'evals', 'run.md'), '\n### EVAL-HARNESS-001\n');
+    assert.throws(() => assertSelectedEvalCloseout(root, integration), /unique|duplicate|anchor|heading/i);
+    fs.writeFileSync(path.join(root, 'docs', 'evals', 'run.md'), `### EVAL-HARNESS-001\n\n${record({ result: 'fail', classification: 'Eval failure', revision: 'None - not yet revised.', rerun: 'not run' })}`);
     assert.throws(() => assertSelectedEvalCloseout(root, integration.replace(/EVAL-HARNESS-001/g, 'EVAL-HARNESS-999')), /EVAL-HARNESS-999/);
     assert.throws(() => assertSelectedEvalCloseout(root, integration.replace(selected, 'Selected eval records: EVAL-HARNESS-001 (shadow, pass, docs/evals/run.md#eval-harness-001).')), /consistent|result/i);
     assert.throws(() => assertSelectedEvalCloseout(root, integration.replace(/docs\/evals\/run\.md#eval-harness-001/g, 'docs/evals/missing.md#eval-harness-001')), /consistent|evidence|record/i);
-    fs.writeFileSync(path.join(root, 'docs', 'evals', 'run.md'), record({
+    fs.writeFileSync(path.join(root, 'docs', 'evals', 'run.md'), `### EVAL-HARNESS-001\n\n${record({
       result: 'fail', classification: 'Eval failure', revision: 'None - not yet revised.', rerun: 'not run',
       authority: 'blocking', previous: 'advisory', approval: 'Product approval: approved; Reference: APPROVED-BLOCK-1', decision: 'Product recorded blocking authority.',
-    }));
+    })}`);
     assert.throws(() => assertSelectedEvalCloseout(root, integration.replaceAll('(shadow', '(blocking')), /blocking.*closeout|Checking/i);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });

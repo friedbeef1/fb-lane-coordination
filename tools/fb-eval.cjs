@@ -199,7 +199,16 @@ function validateQualityGaps(markdown) {
     const [record] = parseEvalRecords(unit);
     const gaps = sections(unit, 'Quality Gap');
     const progress = fieldValue(unit, 'Progress');
+    const fields = record.fields;
+    const requiresOpenProductGap = fields['Eval type'] === 'product'
+      && fields.Judgment === 'subjective'
+      && fields.Disposition === 'open'
+      && ['fail', 'blocked'].includes(fields['Latest result'])
+      && fields['Failure classification'] === 'Eval failure';
     scopedGapCount += gaps.length;
+    if (requiresOpenProductGap && progress !== 'Checking — product quality target missed') {
+      throw new Error(`Open subjective product Eval failure ${record.id} requires Progress: Checking — product quality target missed and a complete ## Quality Gap.`);
+    }
     if (progress === 'Checking — product quality target missed' && gaps.length === 0) throw new Error(`Checking — product quality target missed for ${record.id} requires a complete ## Quality Gap.`);
     for (const gap of gaps) {
       assertPrivacy(gap);
@@ -294,7 +303,10 @@ function assertSelectedEvalCloseout(repoRoot, markdown) {
   const sources = fs.existsSync(evalDir)
     ? fs.readdirSync(evalDir).filter(name => name.endsWith('.md') && !/(?:template|scorecard)/i.test(name)).map(name => ({ name, source: fs.readFileSync(path.join(evalDir, name), 'utf8') }))
     : [];
-  const records = sources.flatMap(file => parseEvalRecords(file.source).map(record => ({ ...record, file: file.name })));
+  const records = sources.flatMap(file => evalRecordUnits(file.source).map(unit => {
+    const [record] = parseEvalRecords(unit);
+    return { ...record, file: file.name, unit, document: file.source };
+  }));
   const byId = new Map();
   for (const record of records) {
     validateRecord(record);
@@ -310,7 +322,11 @@ function assertSelectedEvalCloseout(repoRoot, markdown) {
     if (record.fields['Latest result'] !== result) throw new Error(`Selected eval ${id} result ${result} does not match its record result ${record.fields['Latest result']}.`);
     const expectedEvidence = `docs/evals/${record.file}#${id.toLowerCase()}`;
     if (evidence !== expectedEvidence) throw new Error(`Selected eval ${id} evidence ${evidence} does not match its record evidence ${expectedEvidence}.`);
-    assertEvalCloseout(`## Eval Record\n\n${record.source}`);
+    const escapedId = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const headings = [...record.document.matchAll(new RegExp(`^#{1,6}\\s+${escapedId}\\s*$`, 'gim'))];
+    if (headings.length !== 1) throw new Error(`Selected eval ${id} requires one unique explicit Markdown heading so evidence anchor #${id.toLowerCase()} resolves.`);
+    validateQualityGaps(record.unit);
+    assertEvalCloseout(record.unit);
   }
   return true;
 }
