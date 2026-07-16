@@ -227,7 +227,7 @@ function assertCodexBootstrap(args) {
     assert.ok(!output.includes(brandLine), 'bootstrap console output must not repeat the current FB model line');
     const bundledPack = path.join(__dirname, '..', 'docs', 'fb');
     const generatedPack = path.join(root, 'docs', 'fb');
-    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md']) {
+    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md']) {
       const bundled = path.join(bundledPack, page);
       const generated = path.join(generatedPack, page);
       assert.ok(fs.existsSync(generated), `expected bootstrap to create docs/fb/${page}`);
@@ -463,7 +463,7 @@ test('documents the completed bootstrap and v2 review-authoring contract across 
   ];
   for (const relativePath of setupSkills) {
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
-    assert.match(source, /bootstrap (?:installs|copies) the canonical five-page (?:FB harness|\[FB harness\]\([^)]*\))\s*pack/i, `${relativePath} must describe the completed pack install`);
+    assert.match(source, /bootstrap (?:installs|copies) the canonical six-page (?:FB harness|\[FB harness\]\([^)]*\))\s*pack/i, `${relativePath} must describe the completed pack install`);
     assert.match(source, /thin managed route/i, `${relativePath} must describe thin managed routes`);
     assert.match(source, /preserv(?:e|es|ing) project-owned text/i, `${relativePath} must preserve project-owned text`);
     assert.match(source, /fb-harness-route-start.*fb-harness-route-end/is, `${relativePath} must name the managed replacement boundary`);

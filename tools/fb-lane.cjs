@@ -4,6 +4,12 @@ const fs = require('fs');
 const path = require('path');
 const { execSync, execFileSync } = require('child_process');
 const readline = require('readline');
+const {
+  runSessionCommand,
+  assertSubmitReady,
+  collectSessionDoctorChecks,
+  sessionUsage,
+} = require('./fb-session.cjs');
 
 const FB_MODEL_LINE = ['FB 0.2.0-beta:', 'AI', 'Loop', 'Engineering', 'for', 'Everyday', 'People'].join(' ');
 
@@ -1168,6 +1174,10 @@ function handleDoctor() {
     } catch (err) {
       add('warn', 'Git workspace', 'Not inside a git repository.', 'FB-Lane works best in a version-controlled repo.');
     }
+
+    for (const check of collectSessionDoctorChecks(rootDir)) {
+      add(check.level, check.label, check.detail, check.fix);
+    }
   } finally {
     process.chdir(previousCwd);
   }
@@ -1315,8 +1325,16 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
     lockedFiles: formattedLocks
   });
 
-  // Commit board separately
-  commitBoard(`docs: claim ${taskId} and lock files`);
+  // Commit board separately. In worktree mode, carry the authoritative claim
+  // commit into the execution branch so promotion sees the same board state.
+  const boardCommitted = commitBoard(`docs: claim ${taskId} and lock files`);
+  if (worktreePath && boardCommitted) {
+    const boardCommit = runGit('rev-parse HEAD');
+    execFileSync('git', ['-C', worktreePath, 'cherry-pick', boardCommit], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+  }
 
   // Write local Codex context file to reduce search pain. In worktree mode it goes into the
   // lane's worktree so the session running there reads its own task context.
@@ -1426,7 +1444,7 @@ function addTaskToBoard(boardPath, task) {
 }
 
 // Handle quick-edit task creation and branch checkout
-function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit') {
+function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit', options = {}) {
   const boardPath = findBoardPath();
   if (!boardPath) {
     console.error('❌ Error: PROJECT_BOARD.md not found.');
@@ -1460,26 +1478,51 @@ function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit') {
   const slug = scopeDescription.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const branchName = `quick/${taskId}-${slug}`;
 
-  // Run git checkout
-  console.log('Switching to main and pulling latest changes...');
-  try {
-    runGit('checkout main');
-    runGit('pull origin main');
-  } catch (err) {
-    console.error(`❌ Error: Could not pull main branch safely: ${err.message}`);
-    console.error(`👉 Please stash, commit, or discard your uncommitted changes first.`);
-    process.exit(1);
-  }
-  try {
-    console.log(`Checking out quick branch: ${branchName}...`);
-    runGit(["checkout", "-b", assertSafeBranchName(branchName)]);
-  } catch (err) {
-    console.log(`Branch might exist. Attempting to switch to: ${branchName}...`);
+  // Worktrees are the safe default; --no-worktree keeps the legacy path.
+  let worktreePath = null;
+  if (options.worktree) {
+    const repoRoot = runGit('rev-parse --show-toplevel');
+    const repoBase = path.basename(repoRoot);
+    worktreePath = path.resolve(repoRoot, '..', `${repoBase}-${normLane.toLowerCase()}-${taskId}`);
+    let baseRef = 'main';
     try {
-      runGit(["checkout", assertSafeBranchName(branchName)]);
-    } catch (err2) {
-      console.error(`❌ Error switching branch: ${err2.message}`);
+      runGit('fetch origin main');
+      runGit('rev-parse --verify origin/main');
+      baseRef = 'origin/main';
+    } catch (err) {
+      console.warn('⚠️  Could not fetch origin/main; basing the quick worktree on local main.');
+    }
+    try {
+      runGit(['worktree', 'add', '-b', branchName, worktreePath, baseRef]);
+    } catch (err) {
+      try {
+        runGit(['worktree', 'add', worktreePath, branchName]);
+      } catch (err2) {
+        console.error(`❌ Error creating quick worktree: ${err2.message}`);
+        process.exit(1);
+      }
+    }
+  } else {
+    console.log('Switching to main and pulling latest changes...');
+    try {
+      runGit('checkout main');
+      runGit('pull origin main');
+    } catch (err) {
+      console.error(`❌ Error: Could not pull main branch safely: ${err.message}`);
+      console.error(`👉 Please stash, commit, or discard your uncommitted changes first.`);
       process.exit(1);
+    }
+    try {
+      console.log(`Checking out quick branch: ${branchName}...`);
+      runGit(["checkout", "-b", assertSafeBranchName(branchName)]);
+    } catch (err) {
+      console.log(`Branch might exist. Attempting to switch to: ${branchName}...`);
+      try {
+        runGit(["checkout", assertSafeBranchName(branchName)]);
+      } catch (err2) {
+        console.error(`❌ Error switching branch: ${err2.message}`);
+        process.exit(1);
+      }
     }
   }
 
@@ -1520,11 +1563,18 @@ function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit') {
 
   addTaskToBoard(boardPath, taskRecord);
 
-  // Commit board separately
-  commitBoard(`docs: quick-claim ${taskId} and lock files`);
+  // Commit board separately and carry the claim into the isolated branch.
+  const boardCommitted = commitBoard(`docs: quick-claim ${taskId} and lock files`);
+  if (worktreePath && boardCommitted) {
+    const boardCommit = runGit('rev-parse HEAD');
+    execFileSync('git', ['-C', worktreePath, 'cherry-pick', boardCommit], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+  }
 
   // Write local Codex context file
-  const codexDir = path.join(path.dirname(boardPath), '.codex');
+  const codexDir = path.join(worktreePath || path.dirname(boardPath), '.codex');
   if (!fs.existsSync(codexDir)) {
     fs.mkdirSync(codexDir);
   }
@@ -1548,7 +1598,12 @@ ${scopeDescription} (Quick Edit)
   console.log(`   - Branch: ${branchName}`);
   console.log(`   - Locked: ${formattedLocks}`);
   console.log(`   - Board updated & committed separately.`);
-  console.log(`   - Codex Desktop context written to .codex/current_task.md`);
+  if (worktreePath) {
+    console.log(`   - Worktree: ${worktreePath}`);
+    console.log(`   - Codex context written inside the linked worktree.`);
+  } else {
+    console.log(`   - Codex Desktop context written to .codex/current_task.md`);
+  }
   if (copied) {
     console.log('\n🚀 STARTUP PROMPT COPIED TO CLIPBOARD!');
     console.log('   Simply open a fresh Codex thread and paste (Cmd+V) to begin.\n');
@@ -1618,6 +1673,13 @@ function handleSubmit(taskId, stagingUrl = '') {
   const boardPath = findBoardPath();
   if (!boardPath) {
     console.error('❌ Error: PROJECT_BOARD.md not found.');
+    process.exit(1);
+  }
+
+  try {
+    assertSubmitReady(path.dirname(boardPath), taskId);
+  } catch (err) {
+    console.error(`❌ Error: ${err.message}`);
     process.exit(1);
   }
 
@@ -2044,7 +2106,7 @@ function handleMcpRequest(request) {
   // Ignore other JSON-RPC methods (like notifications)
 }
 
-const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md'];
+const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md'];
 const FB_HARNESS_ROUTE_START = '<!-- fb-harness-route-start -->';
 const FB_HARNESS_ROUTE_END = '<!-- fb-harness-route-end -->';
 
@@ -2061,6 +2123,8 @@ matches the task:
 - Test This Now and Verification Handoff: [evidence.md](docs/fb/evidence.md)
 - Sidechat-parent routing and recovery: [guardrails.md](docs/fb/guardrails.md)
   plus [the project sidechat rule](docs/sidechat-parent-thread-routing.md)
+- Session intake, promotion, checkpoints, recall, review, and closeout:
+  [sessions.md](docs/fb/sessions.md)
 
 Project-specific instructions and stricter safety rules win.
 ${FB_HARNESS_ROUTE_END}`;
@@ -2392,7 +2456,14 @@ function main() {
   const args = process.argv.slice(2);
   const command = args[0] ? args[0].toLowerCase() : '';
 
-  if (command === 'mcp') {
+  if (command === 'session') {
+    try {
+      runSessionCommand(args.slice(1));
+    } catch (err) {
+      console.error(`❌ Error: ${err.message}`);
+      process.exit(1);
+    }
+  } else if (command === 'mcp') {
     runMcpServer();
   } else if (command === 'status') {
     handleStatus();
@@ -2402,16 +2473,16 @@ function main() {
     handleBootstrap(args.slice(1));
   } else if (command === 'claim') {
     const rest = args.slice(1);
-    const useWorktree = rest.some(a => a === '--worktree' || a === '-w');
-    const positional = rest.filter(a => a !== '--worktree' && a !== '-w');
+    const noWorktree = rest.includes('--no-worktree');
+    const positional = rest.filter(a => a !== '--worktree' && a !== '-w' && a !== '--no-worktree');
     const taskId = positional[0];
     const lane = positional[1];
     const locks = positional[2];
     if (!taskId || !lane) {
-      console.error('❌ Error: Usage: node tools/fb-lane.cjs claim <task-id> <lane> [locked_files] [--worktree]');
+      console.error('❌ Error: Usage: node tools/fb-lane.cjs claim <task-id> <lane> [locked_files] [--no-worktree]');
       process.exit(1);
     }
-    handleClaim(taskId, lane, locks, { worktree: useWorktree });
+    handleClaim(taskId, lane, locks, { worktree: !noWorktree });
   } else if (command === 'submit') {
     const taskId = args[1];
     let stagingUrl = args[2] === '--no-tests' ? '' : args[2];
@@ -2421,14 +2492,17 @@ function main() {
     }
     handleSubmit(taskId, stagingUrl);
   } else if (command === 'quick') {
-    const lane = args[1];
-    const lockedFiles = args[2];
-    const scope = args.slice(3).join(' ') || 'Quick Edit';
+    const quickArgs = args.slice(1);
+    const noWorktree = quickArgs.includes('--no-worktree');
+    const positional = quickArgs.filter(arg => arg !== '--worktree' && arg !== '-w' && arg !== '--no-worktree');
+    const lane = positional[0];
+    const lockedFiles = positional[1];
+    const scope = positional.slice(2).join(' ') || 'Quick Edit';
     if (!lane || !lockedFiles) {
       console.error('❌ Error: Usage: node tools/fb-lane.cjs quick <lane> <locked_files> [scope_description]');
       process.exit(1);
     }
-    handleQuick(lane, lockedFiles, scope);
+    handleQuick(lane, lockedFiles, scope, { worktree: !noWorktree });
   } else if (command === 'merge') {
     const taskId = args[1];
     if (!taskId) {
@@ -2441,12 +2515,13 @@ function main() {
 🤖 FB-Lane Automation Tool
 ==========================
 Usage:
+  ${sessionUsage()}
   node tools/fb-lane.cjs bootstrap [--platform codex]   - Bootstrap project board, rules, tools, and folders
   node tools/fb-lane.cjs doctor                         - Check FB-Lane setup health without writing files
   node tools/fb-lane.cjs status                         - Print active tasks & locks
-  node tools/fb-lane.cjs claim <id> <lane> [locks] [-w] - Claim task, checkout branch (or --worktree for parallel BFM execution workers), copy prompt
-  node tools/fb-lane.cjs claim ... --worktree           - Claim into an isolated git worktree for true parallel branches
-  node tools/fb-lane.cjs quick <lane> <locks> [desc]    - Create & claim a fast-track quick task
+  node tools/fb-lane.cjs claim <id> <lane> [locks]      - Claim task in a linked worktree by default
+  node tools/fb-lane.cjs claim ... --no-worktree        - Use the legacy single-checkout compatibility path
+  node tools/fb-lane.cjs quick <lane> <locks> [desc]    - Create a fast-track quick task in a linked worktree
   node tools/fb-lane.cjs submit <id> [url] [--no-tests] - Run tests, submit task, update board, push branch
   node tools/fb-lane.cjs merge <id>                     - Merge branch to main, release locks, delete branch
   node tools/fb-lane.cjs mcp                            - Run local Model Context Protocol (MCP) server

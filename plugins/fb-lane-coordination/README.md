@@ -22,6 +22,7 @@ executes source-changing work.
 - [Lanes, BFM, and durable records](docs/fb/workflow.md)
 - [Test This Now and Verification Handoff](docs/fb/evidence.md)
 - [Safety, sidechats, recovery, and Loop Learning](docs/fb/guardrails.md)
+- [Repository-local sessions and evidence-aware closeout](docs/fb/sessions.md)
 
 Keep `fb-lane`, plugin IDs, MCP names, commands, and configured technical paths
 unchanged. The pack owns operating policy; project instructions own current

@@ -14,8 +14,8 @@ If you already have an AI agent open in your target project workspace, paste thi
 
 ```text
 I want to bootstrap the FB coordination plugin in this workspace.
-Read the template files and CLI utility from the fb-lane-coordination repository.
-Copy tools/fb-lane.cjs to my project's root tools/ directory.
+Read the template files and CLI utilities from the fb-lane-coordination repository.
+Copy tools/fb-lane.cjs and tools/fb-session.cjs to my project's root tools/ directory.
 Run node tools/fb-lane.cjs bootstrap to set up my project board, lane rules, Codex rules, and handoff routing.
 Do not overwrite existing project rules; merge with them conservatively.
 ```
@@ -30,6 +30,7 @@ From your target project root:
 ```bash
 mkdir -p tools
 curl -o tools/fb-lane.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.cjs
+curl -o tools/fb-session.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-session.cjs
 node tools/fb-lane.cjs bootstrap
 ```
 
@@ -39,6 +40,7 @@ What bootstrap creates:
 - lane boundary rules in `AGENTS.md`
 - local Codex rules in `.codex/rules.md`
 - handoff routing index in `docs/handoffs/index.md`
+- the six-page harness, including `docs/fb/sessions.md`
 - Codex-ready lane guidance
 
 ## Upgrade Existing Codex Plugin Install
@@ -79,10 +81,11 @@ node tools/fb-lane.cjs submit TASK-001
 node tools/fb-lane.cjs merge TASK-001
 ```
 
-For concurrent BFM execution workers, prefer worktrees:
+Claims and quick tasks now use linked worktrees by default. Use the compatibility
+flag only when a repository explicitly requires a single checkout:
 
 ```bash
-node tools/fb-lane.cjs claim TASK-001 Tech "src/api.ts" --worktree
+node tools/fb-lane.cjs claim TASK-001 Tech "src/api.ts" --no-worktree
 ```
 
 For a tiny BFM execution slice:
@@ -94,3 +97,14 @@ node tools/fb-lane.cjs quick Tech "src/utils.ts" "Fix db indexing"
 Quick tasks skip the OKR approval gate; they do not bypass the BFM source-change
 boundary. Do not create per-task OKRs or loop health scoring for `TASK-Q-*`
 work.
+
+## Session Data And Removal
+
+Repository-local sessions keep transcript-free JSON under the Git common
+directory and curated recaps in `docs/sessions/`. Upgrades preserve all
+project-owned instruction text outside the managed FB route markers and refresh
+the bundled six-page harness. Before removing the plugin, close or preserve any
+active session evidence. Plugin removal does not delete project-owned boards,
+handoffs, recaps, or instructions. If no session command is running, optional
+clone-local cleanup may remove `fb-sessions` and a confirmed dead
+`fb-sessions.lock` from the Git common directory.

@@ -29,3 +29,4 @@ instructions take precedence when they are stricter.
 - Coordinating lanes or running approved work: [workflow.md](workflow.md)
 - Asking someone to review or proving work: [evidence.md](evidence.md)
 - Safety, recovery, sidechats, and loop escalation: [guardrails.md](guardrails.md)
+- Resuming durable work, checkpoints, recall, review, or closeout: [sessions.md](sessions.md)

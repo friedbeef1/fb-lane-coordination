@@ -47,9 +47,21 @@ function checkActiveCodexSurface(file) {
 
 run('root CLI syntax', 'node', ['--check', 'tools/fb-lane.cjs']);
 run('plugin CLI syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-lane.cjs']);
+run('root session module syntax', 'node', ['--check', 'tools/fb-session.cjs']);
+run('plugin session module syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-session.cjs']);
+run('root session tests syntax', 'node', ['--check', 'tools/fb-session.test.cjs']);
+run('plugin session tests syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-session.test.cjs']);
 
-console.log('\n==> root/package CLI parity');
+console.log('\n==> root/package CLI, session, test, skill, and six-page parity');
 sameFile('tools/fb-lane.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.cjs');
+sameFile('tools/fb-lane.test.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.test.cjs');
+sameFile('tools/fb-session.cjs', 'plugins/fb-lane-coordination/tools/fb-session.cjs');
+sameFile('tools/fb-session.test.cjs', 'plugins/fb-lane-coordination/tools/fb-session.test.cjs');
+sameFile('skills/fb-lane-coordination/SKILL.md', 'plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md');
+sameFile('skills/project-coordination-setup/SKILL.md', 'plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md');
+for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md']) {
+  sameFile(`docs/fb/${page}`, `plugins/fb-lane-coordination/docs/fb/${page}`);
+}
 
 console.log('\n==> legacy runtime/configuration entry points remain absent');
 for (const file of ['.mcp.json', 'tools/run_lane.py', 'CLAUDE.md', 'templates/CLAUDE.md']) {
@@ -81,6 +93,7 @@ for (const dir of ['skills', 'plugins/fb-lane-coordination/skills']) {
 }
 
 run('regression tests', 'node', ['tools/fb-lane.test.cjs']);
+run('focused session tests', 'node', ['tools/fb-session.test.cjs']);
 
 const doctor = run('doctor', 'node', ['tools/fb-lane.cjs', 'doctor'], { capture: true });
 assert.ok(doctor.includes('FB-Lane doctor: Ready'), 'doctor did not report ready');

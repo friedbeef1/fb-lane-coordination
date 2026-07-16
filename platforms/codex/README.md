@@ -26,6 +26,7 @@ The canonical pack is [docs/fb](../../docs/fb/README.md):
 - [workflow](../../docs/fb/workflow.md) for lanes, BFM, and source-of-truth roles;
 - [evidence](../../docs/fb/evidence.md) for Test This Now and Verification Handoff;
 - [guardrails](../../docs/fb/guardrails.md) for safety, sidechat routing, recovery, and Loop Learning.
+- [sessions](../../docs/fb/sessions.md) for durable task intake, promotion, checkpoints, recall, review, and closeout.
 
 For local rule snippets, use [workflow-rules.md](workflow-rules.md). See
 [setup](../../docs/setup.md) and [versioning](../../docs/versioning.md) for

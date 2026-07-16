@@ -13,7 +13,11 @@ handoff index, task-linked handoffs, and applicable workstream cards.
 - [Five-lane ledger, locks, sequencing, and return loop](../../docs/fb/workflow.md)
 - [Test This Now, Verification Handoff, and evidence](../../docs/fb/evidence.md)
 - [Hard stops, recovery, sidechat routing, and escalation](../../docs/fb/guardrails.md)
+- [Session promotion, checkpoints, recall, review, and closeout](../../docs/fb/sessions.md)
 
 Stop before claim/edit/deploy/closeout when approval or locks are unclear.
 Execute only ready, unlocked work in the approved scope; close only after the
 board, source, docs, evidence, and Git state agree or exceptions are explicit.
+For durable work, promote the approved session in its linked worktree and keep
+the Task Receipt, Brief Validation, reciprocal links, verification checkpoint,
+Verification Handoff, and Test This Now aligned before submit or completed close.

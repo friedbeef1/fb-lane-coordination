@@ -12,7 +12,9 @@ then read board truth, handoff routing, linked detail, and workstream summaries.
 - [Workflow and BFM return loop](../../docs/fb/workflow.md)
 - [Review evidence and user test packet](../../docs/fb/evidence.md)
 - [Approval limits, recovery, and Loop Learning](../../docs/fb/guardrails.md)
+- [Repository-local sessions and evidence-aware closeout](../../docs/fb/sessions.md)
 
 Keep ordinary worker lanes plan-only. Product records the approved build brief
 before BFM starts source-changing work, and closes only with aligned board,
-repository, evidence, and Git state.
+repository, evidence, and Git state. Product authors the semantic Brief
+Validation comparison; the CLI enforces complete actionable structure only.

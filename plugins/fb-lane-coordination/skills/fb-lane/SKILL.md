@@ -14,6 +14,7 @@ Product/BFM for approval, sequencing, sensitive surfaces, or reconciled lanes.
 - [Coordinate lanes and approved BFM work](../../docs/fb/workflow.md)
 - [Prepare review evidence](../../docs/fb/evidence.md)
 - [Respect safety, sidechat, recovery, and escalation rules](../../docs/fb/guardrails.md)
+- [Resume durable sessions and curate checkpoint evidence](../../docs/fb/sessions.md)
 
 `PROJECT_BOARD.md` is truth; `docs/handoffs/index.md` is routing; detailed
 handoffs are detail. Ordinary lanes plan only. Use `node tools/fb-lane.cjs

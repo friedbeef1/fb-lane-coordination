@@ -11,5 +11,7 @@ selects only useful lanes, and gets approval before BFM executes a build.
 
 Read [workflow.md](../../docs/fb/workflow.md) for the board/index/handoff order,
 [evidence.md](../../docs/fb/evidence.md) before asking for review, and
-[guardrails.md](../../docs/fb/guardrails.md) for safety and recovery. Keep
+[guardrails.md](../../docs/fb/guardrails.md) for safety and recovery. Use
+[sessions.md](../../docs/fb/sessions.md) only when work must resume across a
+thread handoff, checkpoint, or review. Keep
 simple one-thread work out of FB unless durable coordination is actually needed.

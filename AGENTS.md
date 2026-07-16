@@ -15,6 +15,8 @@ summaries. The reusable FB operating rules live in [docs/fb/](docs/fb/README.md)
   [evidence.md](docs/fb/evidence.md)
 - Hard approvals, Git/lock safety, sidechat-parent-only routing, recovery, retry
   limits, and Loop Learning escalation: [guardrails.md](docs/fb/guardrails.md)
+- Durable session intake, promotion, checkpoints, recall, review, and closeout:
+  [sessions.md](docs/fb/sessions.md)
 
 Use normal work for simple single-thread tasks; use FB light for durable
 multi-thread coordination; escalate to Product/BFM for approval, sequencing,

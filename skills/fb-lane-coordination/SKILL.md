@@ -13,7 +13,11 @@ the durable policy:
 - [Source hierarchy, locks, BFM, and closeout](../../docs/fb/workflow.md)
 - [Test This Now and Verification Handoff](../../docs/fb/evidence.md)
 - [Hard stops, parent-only sidechats, recovery, and Loop Learning](../../docs/fb/guardrails.md)
+- [Durable sessions, checkpoints, recall, review, and closeout](../../docs/fb/sessions.md)
 
 Use `node tools/fb-lane.cjs status` for state. Claims, submissions, merges, and
 source-changing work are BFM actions after Product clears the approval and lock
-gates. Keep technical command names unchanged; do not reproduce the manual here.
+gates. For a durable task, intake is read-only and Product/BFM promotes the
+approved session; submit and completed closeout require the reciprocal receipt,
+validation, verification, and Test This Now evidence. Keep technical command
+names unchanged; do not reproduce the manual here.

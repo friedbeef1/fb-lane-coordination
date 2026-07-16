@@ -13,6 +13,7 @@ truth while leaving simple work simple.
 - [Coordinate and execute](docs/fb/workflow.md) covers lanes, BFM, records, and closeout.
 - [Evidence and review](docs/fb/evidence.md) provides Test This Now and Verification Handoff.
 - [Safety and learning](docs/fb/guardrails.md) covers sidechats, recovery, approval, and small guardrails.
+- [Repository-local sessions](docs/fb/sessions.md) cover durable intake, promotion, checkpoints, recall, review, and evidence-aware closeout.
 
 Install the Codex plugin from this marketplace:
 

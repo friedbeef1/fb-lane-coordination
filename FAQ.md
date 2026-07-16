@@ -28,3 +28,5 @@ defines that packet and the Verification Handoff.
 
 No. Sidechats are planning spaces and route only to their originating parent.
 [guardrails.md](docs/fb/guardrails.md) contains the safety and recovery rules.
+[sessions.md](docs/fb/sessions.md) contains the optional durable-session lifecycle,
+clone-local privacy boundary, checkpoint push behavior, recall, and closeout gate.
