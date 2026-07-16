@@ -2,10 +2,10 @@
 type: fb-lane-handoff
 task: TASK-023
 lane: fb-product
-status: ready
+status: implemented
 okr_fit: aligned
 fb_harness: v2
-Review state: not reviewable
+Review state: completed build
 ---
 
 # TASK-023 — Markdown Eval Loop
@@ -52,12 +52,55 @@ Cleared. TASK-022 passed `TASK_022_SECOND_REPAIR_FULL_GATE_OK` and independent P
 
 Candidate: `codex/fb-eval-loop`, stacked from the accepted TASK-022 commit.
 Test plan: [approved plan](../superpowers/plans/2026-07-16-fb-session-ledger-and-eval-loop.md)
-Commands and results: TASK-023 implementation checks pending; TASK-022 dependency evidence passed.
-Environment: same isolated FB worktree after TASK-022 gate.
-Runnable evidence links: not reviewable — repository harness change only.
-Manual pass criteria: Product review confirms authority, quality-gap, failure, regression, and no-runner boundaries.
-Recovery attempted: none.
-Next Product/BFM recovery action: implement TASK-023 test-first, run the two required walkthroughs and complete local gate, then request task review.
+Commands and results: `node tools/fb-eval.test.cjs` and packaged mirror passed 13/13 each; root/package session suites passed 23/23 each; root/package legacy CLI suites passed 45/45 each; `node tools/fb-lane.validate.cjs` passed ten syntax checks, source/test/skill/template/seven-page parity, validator, doctor Ready, and whitespace.
+Environment: isolated linked worktree on `codex/fb-eval-loop` at implementation commit `240b1b2` plus selected-eval handoff commit `83ee9f0`.
+Runnable evidence links: [eval lifecycle](../fb/evals.md), [walkthrough records](../evals/TASK-023-walkthroughs.md), [root validator](../../tools/fb-eval.cjs), and [focused tests](../../tools/fb-eval.test.cjs).
+Manual pass criteria: Product confirms every authority/transition boundary, both walkthrough closures, the exact Checking/Quality Gap behavior, seven-page preservation, and absence of a judge, runner, score, dashboard, CI job, external integration, or automatic promotion.
+Recovery attempted: The sandbox blocked mechanical mirror writes; scoped write approval was used only for root/package/template parity copies. One packaged-test path resolved from the plugin root and was corrected to the repository root. No product/runtime recovery was needed.
+Known limits: Product-quality evaluation remains explicit Product/user judgment; no hosted or external integration was exercised; independent Product review remains.
+Next Product/BFM recovery action: Perform the independent TASK-023 branch review and keep the candidate in local Staging QA unless separately authorized.
+Selected eval results and evidence: EVAL-HARNESS-DIRECT-LINK-001 (shadow) passed after missing-link revision/rerun/regression capture; EVAL-PRODUCT-CREATOR-SPECIFICITY-001 (shadow) passed after the complete Quality Gap and fresh specific candidate. Neither authority changed.
+
+## Task Receipt
+
+Approved brief and decisions: Implemented the approved Markdown-first eval loop from the accepted TASK-022 base with no runner, judge, score, dashboard, CI job, hosted integration, or authority promotion.
+Confirmed assumptions and approved scope changes: No assumption or scope change was required; both new walkthrough records remained shadow.
+Branch, source commits, and changed surfaces: `codex/fb-eval-loop`; implementation `240b1b2`; selected-eval handoff `83ee9f0`; canonical/package harness, templates, skills, validator/doctor/session integration, tests, and bootstrap routes changed.
+Checks, failures, recovery, and results: Expected missing-module RED; focused 13/13 root/package GREEN; legacy 45/45 CLI and 23/23 session root/package; complete local gate and doctor Ready passed. Scoped sandbox approval handled mirror writes; packaged fixture path was corrected.
+Review state, direct links, limits, and external gates: Completed local repository build; [walkthrough records](../evals/TASK-023-walkthroughs.md); subjective quality stays Product/user judgment; independent Product review is the only remaining local gate.
+Repository state: Implementation and selected-eval handoff are committed; coordination closeout is the final documentation commit.
+Remaining owner and action: Product/BFM performs independent branch review; release, publish, deploy, merge, plugin install, and consumer migration remain unauthorized.
+Selected eval results and evidence: Both selected shadow evals passed their original scenarios with revision, fresh rerun evidence, regression cases, and no authority change.
+
+## Brief Validation
+
+Status: pass
+Satisfied criteria and evidence: Record schema, all authority levels and transitions, approval/demotion, advisory/blocking/mechanical/shadow closeout, selected-eval integration, failure classifications, Quality Gaps, closure evidence, catalog/categories/privacy, bootstrap preservation, and parity have named passing fixtures.
+Missing criteria: No approved implementation criterion remains missing; independent Product review is a post-implementation gate.
+Reason: Focused walkthroughs and the complete local gate satisfy the approved local implementation brief without expanding scope.
+Owner: Product/BFM
+Next action: Perform independent branch review and record findings before any later integration decision.
+Approved scope-change references: The original approved TASK-023 brief applies unchanged.
+
+## Test This Now
+
+- **Outcome type:** Completed local Markdown eval harness
+- **Direct links:** [Eval lifecycle](../fb/evals.md), [walkthrough records](../evals/TASK-023-walkthroughs.md), [validator](../../tools/fb-eval.cjs), and [focused tests](../../tools/fb-eval.test.cjs)
+- **Exact steps and expectations:**
+  1. Open the walkthrough records and confirm both Eval IDs remain shadow, preserve root cause/revision/rerun/regression/fresh evidence, and make no authority change.
+  2. Inspect the creator-commerce Quality Gap and confirm the initial functional/generic output remains `Checking — product quality target missed` until a fresh specific candidate passes the unchanged target.
+  3. Inspect the validator and focused tests and confirm advisory explanation, blocking/mechanical Product-boundary closeout, valid/invalid transition approval, privacy, uniqueness, integration, bootstrap preservation, and seven-page parity are deterministic structure checks only.
+- **Pass criteria:** The lifecycle and records match the approved contract, both original walkthrough scenarios close with fresh evidence, and no prohibited automation or promotion exists.
+- **Known limits:** No semantic judge, numeric score, hosted capture, external integration, CI eval job, release, deployment, merge, plugin install, or consumer migration was exercised.
+- **Failure-report format:** Eval ID; observed field/behavior; expected contract; file and commit; authority and result; environment.
+What was evaluated: Direct-review-link harness completeness and creator-commerce recommendation specificity for the two selected shadow Eval IDs.
+Exact scenarios and expected results: Missing link fails then resolves after revision; generic creator output stays Checking with a complete Quality Gap until a fresh contextual candidate passes.
+Known quality gaps: No gap remains for the two selected scenarios; broader catalog scenarios were intentionally not run.
+Required user judgment: Product confirms subjective creator-commerce specificity and decides any future authority recommendation; no authority change is requested now.
+
+## Verification Checkpoint
+
+Selected eval results and evidence: Both selected shadow records passed their original scenarios at `240b1b2`; the complete local gate passed at `83ee9f0`; walkthrough, handoff, board, and Git evidence agree.
 
 ## Loop Learning
 
@@ -65,3 +108,9 @@ Feedback captured: repeated failures should improve behavior and product quality
 Repeated pattern?: yes
 Tooling needed?: propose eval — explicitly approved.
 Product approval needed?: no
+Failure: Initial harness packet omitted a direct review link; initial creator-commerce candidate was functional but generic.
+Observed: Focused fixtures rejected the missing link and kept generic product output at `Checking — product quality target missed` with a complete Quality Gap.
+Cause: The direct-link field was absent, and the initial product candidate did not use supplied commerce context.
+Recovery attempted: Added the link and contextual revision without weakening either quality target, then reran the original scenarios.
+Result: Both shadow evals passed with fresh evidence and regression cases; no automatic or blocking promotion occurred.
+Reusable lesson: Record classification before revision and preserve the original scenario, root cause, rerun, regression, and authority recommendation in one consistent evidence chain.

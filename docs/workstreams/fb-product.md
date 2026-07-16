@@ -4,7 +4,7 @@ Last Updated: 2026-07-17
 Lane: FB-Product
 
 ## Current Summary
-TASK-022 is Product-accepted in local Staging QA. Commits `9a55314`, `a5b0a7e`, `38710ca`, and `acdd1a6` provide the repository-local session ledger and both complete review-repair cycles. Mirrored 45/45 CLI and 23/23 session suites plus the complete gate passed with `TASK_022_SECOND_REPAIR_FULL_GATE_OK`; the final independent task review found no Critical, Important, or Minor issue. TASK-023 is now In Progress on `codex/fb-eval-loop`. No release, publication, deployment, merge, plugin install, or consumer-project change is authorized.
+TASK-022 is Product-accepted in local Staging QA. Commits `9a55314`, `a5b0a7e`, `38710ca`, and `acdd1a6` provide the repository-local session ledger and both complete review-repair cycles. Mirrored 45/45 CLI and 23/23 session suites plus the complete gate passed with `TASK_022_SECOND_REPAIR_FULL_GATE_OK`; the final independent task review found no Critical, Important, or Minor issue. TASK-023 is now in local Staging QA on `codex/fb-eval-loop`: commits `240b1b2` and `83ee9f0` add the Markdown eval lifecycle, two shadow walkthroughs, deterministic authority/Quality Gap/closeout enforcement, and seven-page bootstrap. Root/package eval 13/13, session 23/23, legacy CLI 45/45, the complete gate, and doctor Ready passed. Independent Product review remains; no eval was promoted and no release, publication, deployment, merge, plugin install, or consumer-project change is authorized.
 
 TASK-021 is in Staging QA (local review only) on `codex/fb-documentation-rebrand`. Final fix `8c54c1c` aligned setup guidance with the completed mirrored five-page bootstrap, made the canonical evidence page author the full opt-in v2 contract, and rejected placeholder-only/TODO/TBD/angle-bracket evidence plus non-actionable blocked next actions. Focused v2 suites passed 14 checks in each mirror; full suites passed 45 checks in each mirror; recovery, four syntax checks, source/test/setup/five-page parity, validator, doctor Ready, and diff checks passed. The final whole-branch re-review found no remaining Critical, Important, or Minor issue. Review state is `not reviewable` because there is no deployed UI. The Product local gate and any separately authorized merge/release decision remain; no push, publication, release, deployment, merge, plugin install, or consumer-project change occurred.
 
@@ -31,10 +31,11 @@ TASK-017 is done: [PR #31](https://github.com/friedbeef1/fb-lane-coordination/pu
 - Rebranded active documentation and generated project guidance to FB, preserving historical records and all `fb-lane` technical identifiers.
 - Added the first-project clarity contract across packaged skills, active guides, bootstrap-generated project instructions, and root/package tests; completed a creator-commerce smoke and final regression review without creating a new command or deploying anything.
 - Implemented and locally verified TASK-021's compact mirrored harness, safe bootstrap migration, corrected setup guidance, canonical v2 authoring contract, and actionable-value enforcement; completed the clean final whole-branch re-review without changing FB's ownership model, technical IDs, or external release state.
+- Implemented and locally verified TASK-023's canonical/package Markdown eval lifecycle, compatibility template, two shadow walkthroughs, deterministic validator/doctor/session closeout integration, and seven-page bootstrap without adding a judge, runner, score, dashboard, CI job, external integration, or authority promotion.
 
 ## Still Pending / Blocked
 
-TASK-023 implementation and its full local gate are active. TASK-021's Product local gate and any separately authorized merge/release decision remain. TASK-020 and TASK-019 have no internal gate. No publication, release, deployment, merge, plugin install, or package/API migration is authorized.
+TASK-023 independent Product review is pending. TASK-021's Product local gate and any separately authorized merge/release decision remain. TASK-020 and TASK-019 have no internal gate. No publication, release, deployment, merge, plugin install, or package/API migration is authorized.
 
 ## Evidence Links
 - PROJECT_BOARD.md
@@ -47,6 +48,8 @@ TASK-023 implementation and its full local gate are active. TASK-021's Product l
 - docs/handoffs/TASK-022.md
 - docs/handoffs/TASK-023.md
 - docs/evals/agent-behavior-scorecard-template.md
+- docs/evals/TASK-023-walkthroughs.md
+- docs/fb/evals.md
 - docs/versioning.md
 
 This card is a revisit summary only. PROJECT_BOARD.md remains the source of truth for status, owner, locks, approved goals, and sequencing. docs/handoffs/index.md remains the routing layer. Do not add full OKRs, QA logs, plans, rationale, or implementation details here.

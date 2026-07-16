@@ -14,7 +14,7 @@
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
 | TASK-022 | Staging QA | FB-Product / BFM + FB-Tech execution | FB Session Harness | Add repository-local session intake, promotion, status, checkpoint, recall, review, and closeout with shared clone-local coordination state and curated committed evidence | Mirrored session/CLI modules and tests, session/harness docs, bootstrap and doctor integration, Product/BFM skills, `PROJECT_BOARD.md`, handoff index, TASK-022 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-022.md); [plan](docs/superpowers/plans/2026-07-16-fb-session-ledger-and-eval-loop.md); commits `9a55314`, `a5b0a7e`, `38710ca`, `acdd1a6`; second repaired full gate and independent task review passed; TASK-023 dependency cleared |
-| TASK-023 | In Progress | FB-Product / BFM + FB-Tech execution | FB Eval Harness | Add the Markdown-first harness/product eval lifecycle, quality-gap revision loop, authority transitions, and deterministic structural enforcement on top of TASK-022 evidence | Canonical/package eval harness pages and templates, mirrored validators/tests, Product/BFM skills, bootstrap routes, `PROJECT_BOARD.md`, handoff index, TASK-023 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-023.md); [plan](docs/superpowers/plans/2026-07-16-fb-session-ledger-and-eval-loop.md); TASK-022 accepted; execution branch `codex/fb-eval-loop` |
+| TASK-023 | Staging QA | FB-Product / BFM + FB-Tech execution | FB Eval Harness | Add the Markdown-first harness/product eval lifecycle, quality-gap revision loop, authority transitions, and deterministic structural enforcement on top of TASK-022 evidence | Canonical/package eval harness pages and templates, mirrored validators/tests, Product/BFM skills, bootstrap routes, `PROJECT_BOARD.md`, handoff index, TASK-023 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-023.md); commits `240b1b2`, `83ee9f0`; full local gate passed; independent Product review pending; no release action |
 | TASK-021 | Staging QA | FB-Product / BFM | FB Harness | Replace duplicated operating prose with a mirrored canonical `docs/fb/` harness pack, safely route fresh/existing projects into it, and enforce opt-in v2 review evidence through the existing validator/doctor | Root/package harness pack, navigational instructions, active docs/skills, mirrored bootstrap/tests, validator/doctor, `PROJECT_BOARD.md`, handoff index, TASK-021 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-021.md); [plan](docs/superpowers/plans/2026-07-16-fb-harness-redesign.md); final fix `8c54c1c`; setup and canonical v2 authoring contracts; actionable placeholder/TODO/TBD rejection; focused v2 14/14 and full 45/45 mirrored suites; recovery, syntax/parity, validator/doctor Ready, diff checks, and final whole-branch re-review passed; local review only; no push, publication, release, deployment, merge, or consumer-repository change authorized |
 | TASK-020 | Staging QA | FB-Product / BFM | Codex Plugin Onboarding | Make FB understandable to first-time project starters: planning-before-build boundary, plain-language progress, decision/assumption separation, distinct lane roles, and review-ready Test This Now packets | Root/package skills and docs, bootstrap-generated instructions, root/package CLI tests, `PROJECT_BOARD.md`, handoff index, TASK-020 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-020.md); [plan](docs/superpowers/plans/2026-07-16-fb-first-project-clarity.md); creator-commerce bootstrap smoke, root/package 28-check suites, syntax/parity, validator, doctor Ready, whitespace, and final review passed; local branch only, no push, publish, release, deployment, or merge authorized |
 | TASK-019 | Staging QA | FB-Product / BFM | Documentation | Rebrand active documentation to FB and use the approved primary tagline/current model line only on approved primary surfaces, while retaining all `fb-lane` technical identifiers and historical records | Active README/FAQ/setup/platform/plugin docs, agent guidance/templates/examples, scorecards, root/package bootstrap text and associated tests, board/index/handoff/workstream records | [Handoff](docs/handoffs/TASK-019.md); [plan](docs/superpowers/plans/2026-07-16-fb-documentation-rebrand.md); root/package 27-check suites, syntax/parity, scoped audit, JSON parse, demo check, clean-worktree validator, doctor Ready, whitespace check, and whole-branch review passed; branch retained locally; no package/API rename, push, publish, deployment, or historical rewrite |
@@ -83,7 +83,7 @@
 ---
 
 ### TASK-023 - Markdown Eval Loop
-*   **Status**: In Progress
+*   **Status**: Staging QA (local review only; no release action)
 *   **Owner / Thread**: FB-Product / BFM + FB-Tech execution
 *   **Area**: FB Eval Harness
 *   **Scope**: Add the approved Markdown-first harness/product eval lifecycle, authority levels, failure classification, Quality Gap revision loop, regression closure, initial harness catalog, reusable product-quality categories, and deterministic structural checks.
@@ -106,10 +106,11 @@
     *   **Plan**: [FB Session Ledger and Eval Loop](docs/superpowers/plans/2026-07-16-fb-session-ledger-and-eval-loop.md)
     *   **Handoff**: [TASK-023](docs/handoffs/TASK-023.md)
 *   **QA Checklist**:
-    *   [ ] Authority, transition, failure, Quality Gap, regression, and session-integration fixtures pass.
-    *   [ ] Harness and creator-commerce product-quality walkthroughs pass.
-    *   [ ] Root/package/template/bootstrap seven-page parity and full local gate pass.
+    *   [x] Authority, transition, failure, Quality Gap, regression, and session-integration fixtures pass.
+    *   [x] Harness and creator-commerce product-quality walkthroughs pass.
+    *   [x] Root/package/template/bootstrap seven-page parity and full local gate pass.
 *   **Latest Update**:
+    *   *2026-07-17*: Implementation commit `240b1b2` and selected-eval handoff commit `83ee9f0` passed root/package eval 13/13, session 23/23, legacy CLI 45/45, ten syntax checks, source/test/skill/template/seven-page parity, doctor Ready, whitespace, bootstrap preservation, and both required walkthroughs. No eval changed from shadow; independent Product review is the remaining local gate.
     *   *2026-07-17*: TASK-022 passed its complete local gate and independent review with no remaining findings. Product/BFM cleared the dependency and claimed TASK-023 for test-first execution on `codex/fb-eval-loop`.
 
 ---
