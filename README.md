@@ -21,6 +21,32 @@ Current plugin build: Codex `0.2.0-beta+codex.20260716052513`. See
 Codex provides powerful agent execution. The missing layer is usually not speed.
 It is alignment.
 
+## First-Project And Review Contract
+
+For a first project or new non-trivial objective, Product starts with this user-facing brief before requesting lane output or clarification questions:
+
+### Project Start Brief
+
+- **What you asked for:** <plain-language outcome>
+- **Your decisions:** <choices already made>
+- **Assumptions to confirm:** <only assumptions that could change the plan>
+- **What FB will plan:** <bounded planning work>
+- **Out of scope:** <explicit exclusions>
+- **Success looks like:** <observable outcome>
+- **Progress:** <current stage and what is complete>
+- **Next action:** <one immediate Product action or user decision>
+
+### How FB works
+
+1. **Lanes plan:** Product selects only relevant lanes; each answers a distinct question.
+2. **Product prepares:** Product turns those plans into one build brief and recommends a path.
+3. **You approve:** Product asks you to approve that build brief before anything is built.
+4. **BFM builds:** Only after explicit `$bfm` does BFM build the approved brief.
+
+Selected lanes must state their distinct question and the decision or risk their answer changes. Skipped lanes are named as `Skipped lanes: <lanes and reason>`. Every clarification question gives **Why this matters**, a **Recommended default**, and **What changes if you choose differently**.
+
+When review is available, Product sends a short **Test This Now** packet with **Outcome type**, **Direct links**, **Exact steps and expectations**, **Pass criteria**, **Known limits**, and a **Failure-report format** (what happened, what was expected, link or screenshot, and environment). If review access is missing, the packet is `Status: blocked — review access is missing`, never ready to test.
+
 FB currently supports Codex only. The Claude Code and Antigravity
 integrations are paused; contributors who want to revive one can follow the
 [paused-integration checklist](docs/paused-integrations.md).

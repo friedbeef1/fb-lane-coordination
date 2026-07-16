@@ -1,5 +1,31 @@
 # FB FAQ
 
+## How does FB start a first project and ask me to review it?
+
+Before asking lanes for output or questions on a first project or new non-trivial objective, Product shows this brief:
+
+### Project Start Brief
+
+- **What you asked for:** <plain-language outcome>
+- **Your decisions:** <choices already made>
+- **Assumptions to confirm:** <only assumptions that could change the plan>
+- **What FB will plan:** <bounded planning work>
+- **Out of scope:** <explicit exclusions>
+- **Success looks like:** <observable outcome>
+- **Progress:** <current stage and what is complete>
+- **Next action:** <one immediate Product action or user decision>
+
+### How FB works
+
+1. **Lanes plan:** Product selects only relevant lanes; each answers a distinct question.
+2. **Product prepares:** Product turns the lane plans into one build brief and recommends a path.
+3. **You approve:** Product asks you to approve that build brief before anything is built.
+4. **BFM builds:** Only after explicit `$bfm` does BFM build the approved brief.
+
+Product names every selected lane, its distinct question, and the decision or risk it changes; it also names `Skipped lanes: <lanes and reason>`. Clarification questions include **Why this matters**, a **Recommended default**, and **What changes if you choose differently**.
+
+For review, you receive a short **Test This Now** packet with **Outcome type**, **Direct links**, **Exact steps and expectations**, **Pass criteria**, **Known limits**, and a **Failure-report format** (what happened, what was expected, link or screenshot, and environment). If you cannot access the review surface, the status is `blocked — review access is missing`, not ready to test.
+
 ## Is this just project management?
 
 No. Project management tracks work. Loop Engineering makes agent work return to

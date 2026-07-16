@@ -11,6 +11,32 @@ description: >-
 ## Overview
 This skill instantiates the **FB coordination model** in any software project directory (SaaS, backend API, mobile/web app, dev tool, etc.). It sets up the project board, updates configuration files safely, and registers specialized subagents to coordinate creative design, technical engineering, and product orchestration without context bleeding.
 
+## First-Project And Review Contract
+
+Bootstrap the active guidance so Product uses this brief for a first project or new non-trivial objective before requesting lane output or clarification questions:
+
+### Project Start Brief
+
+- **What you asked for:** <plain-language outcome>
+- **Your decisions:** <choices already made>
+- **Assumptions to confirm:** <only assumptions that could change the plan>
+- **What FB will plan:** <bounded planning work>
+- **Out of scope:** <explicit exclusions>
+- **Success looks like:** <observable outcome>
+- **Progress:** <current stage and what is complete>
+- **Next action:** <one immediate Product action or user decision>
+
+### How FB works
+
+1. **Lanes plan:** Product selects only relevant lanes; each answers a distinct question.
+2. **Product prepares:** Product reconciles the lane plans into one build brief and recommends a path.
+3. **You approve:** Product asks for approval of that build brief before any build starts.
+4. **BFM builds:** Only after explicit `$bfm` does BFM execute the approved build brief.
+
+The installed guidance must require selected lanes to name their distinct question and the decision or risk it changes, and must name skipped lanes with `Skipped lanes: <lanes and reason>`. Each clarification question must give **Why this matters**, a **Recommended default**, and **What changes if you choose differently**.
+
+The installed review guidance must define a concise **Test This Now** packet: **Outcome type**, **Direct links**, **Exact steps and expectations**, **Pass criteria**, **Known limits**, and a **Failure-report format** (what happened, what was expected, link or screenshot, and environment). Missing review access is `Status: blocked — review access is missing`; it is not a ready-to-test state.
+
 For non-trivial work, the bootstrap must leave an approved OKR tree slot on the board: a Product/workstream or BFM-target OKR (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) plus stable lane OKRs where relevant. Handoffs use compact `Product Goal`, `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR` fields. Product/BFM owns OKR reconciliation and changes OKRs only after discussion and explicit user approval; do not generate a fresh OKR for every task. Bootstrap also creates `docs/handoffs/index.md` so agents discover handoffs through a compact routing table before opening detailed files; `PROJECT_BOARD.md` is truth, the index is routing, `docs/workstreams/<lane>.md` cards are revisit summaries, and detailed handoffs are detail.
 Bootstrap creates `docs/workstreams/fb-product.md`, `docs/workstreams/fb-tech.md`, `docs/workstreams/fb-design.md`, and `docs/workstreams/fb-business.md`. Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then refreshes the relevant card after executing or explicitly deferring a lane handoff. Worker lanes read the board, handoff index, then their card before opening detailed handoffs. Cards must stay compact and not contain full OKRs, QA logs, plans, rationale, copy variants, or implementation detail.
 For BFM/all-handoff processing, Product must also leave the return loop: a five-lane handoff ledger checks `FB-Lane`, `FB-Product`, `FB-Tech`, `FB-Design`, and `FB-Business`; every matching handoff is `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`; missing lane handoffs are recorded as `no handoff found`; board/source/docs/tests agree before closeout; and the closeout includes one health flag: `healthy`, `watch`, `needs Product review`, or `blocked`.

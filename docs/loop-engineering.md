@@ -48,6 +48,32 @@ private worktree, produce a huge unannounced diff, edit source without
 board/lock awareness, or close without BFM reconciliation when multiple outputs
 exist.
 
+## First-Project And Review Contract
+
+For a first project or new non-trivial objective, Product presents this brief before requesting lane output or clarification questions:
+
+### Project Start Brief
+
+- **What you asked for:** <plain-language outcome>
+- **Your decisions:** <choices already made>
+- **Assumptions to confirm:** <only assumptions that could change the plan>
+- **What FB will plan:** <bounded planning work>
+- **Out of scope:** <explicit exclusions>
+- **Success looks like:** <observable outcome>
+- **Progress:** <current stage and what is complete>
+- **Next action:** <one immediate Product action or user decision>
+
+### How FB works
+
+1. **Lanes plan:** Product selects only relevant lanes; each answers a distinct question.
+2. **Product prepares:** Product turns the lane plans into one build brief and recommends a path.
+3. **You approve:** Product asks you to approve that build brief before anything is built.
+4. **BFM builds:** Only after explicit `$bfm` does BFM build the approved brief.
+
+After the card, Product names selected lanes, their distinct question, and the decision or risk their answer changes. It names skipped lanes as `Skipped lanes: <lanes and reason>`. Each clarification question includes **Why this matters**, a **Recommended default**, and **What changes if you choose differently**.
+
+Before review, Product gives the user a short **Test This Now** packet: **Outcome type**, **Direct links**, **Exact steps and expectations**, **Pass criteria**, **Known limits**, and a **Failure-report format** (what happened, what was expected, link or screenshot, and environment). Missing review access is `Status: blocked — review access is missing`, not a ready-to-test state.
+
 ## Sidechat-to-Main Prompt Handoff
 
 Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready handoff for their originating parent main thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; Product/BFM retains those execution and durable-record responsibilities.

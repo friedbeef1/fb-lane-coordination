@@ -16,6 +16,32 @@ Awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.m
 
 Frontend/UI plans and handoffs default to a pre-build visual preview. Include `Visual Preview Decision`: `browser screenshot/mockup`, `imagegen asset/style option`, or `skip with reason`. Use `skip with reason` only for non-visual work, tiny copy, spacing, or single-control fixes. Use browser screenshots/mockups for concrete layout, responsive, component, or flow decisions. Use imagegen for brand direction, logos, hero/illustration assets, camera/lens concepts, or visual style options. If the plan changes what the user will see and a preview is feasible, create or attach the preview before Product/BFM source execution; Product/BFM blocks or asks only when the preview is missing and the visual decision is material.
 
+## First-Project And Review Contract
+
+For a first project or new non-trivial objective, Product presents this brief before requesting lane output or clarification questions:
+
+### Project Start Brief
+
+- **What you asked for:** <plain-language outcome>
+- **Your decisions:** <choices already made>
+- **Assumptions to confirm:** <only assumptions that could change the plan>
+- **What FB will plan:** <bounded planning work>
+- **Out of scope:** <explicit exclusions>
+- **Success looks like:** <observable outcome>
+- **Progress:** <current stage and what is complete>
+- **Next action:** <one immediate Product action or user decision>
+
+### How FB works
+
+1. **Lanes plan:** Product selects only relevant lanes; each answers a distinct question.
+2. **Product prepares:** Product reconciles the lane plans into one build brief and recommends a path.
+3. **You approve:** Product asks for approval of that build brief before any build starts.
+4. **BFM builds:** Only after explicit `$bfm` does BFM execute the approved build brief.
+
+After the card, name every selected lane with its distinct question and the decision or risk its answer changes. Name skipped lanes too, with `Skipped lanes: <lanes and reason>`. Each clarification question must include **Why this matters**, a **Recommended default**, and **What changes if you choose differently**.
+
+Before asking the user to review, give a short **Test This Now** packet: **Outcome type**, **Direct links**, **Exact steps and expectations**, **Pass criteria**, **Known limits**, and a **Failure-report format** (what happened, what was expected, link or screenshot, and environment). If review access is missing, state `Status: blocked — review access is missing`; do not present the work as ready to test.
+
 ## Sidechat-to-Main Prompt Handoff
 
 Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready handoff for their originating parent main thread. Product/BFM retains execution, board-update, and durable-record ownership.
