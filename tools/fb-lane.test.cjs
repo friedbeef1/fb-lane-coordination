@@ -219,8 +219,7 @@ function assertCodexBootstrap(args) {
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
     assert.match(output, /Lanes investigate and plan different parts/, 'bootstrap quick start must say that lanes plan');
     assert.match(output, /Product combines findings into one build brief/, 'bootstrap quick start must say that Product prepares the build brief');
-    assert.match(output, /You approve the brief/, 'bootstrap quick start must say that user approval occurs before execution');
-    assert.match(output, /Only after explicit \$bfm, BFM builds and checks it/, 'bootstrap quick start must preserve the explicit $bfm build boundary');
+    assert.match(output, /You approve the brief\. Only after explicit \$bfm, BFM builds and checks it\./, 'bootstrap quick start must put user approval before the explicit $bfm build boundary');
     assert.match(output, /returning project health/, 'bootstrap quick start must reserve status for returning-project health');
     assert.match(codexRules, /A sidechat prompt is not source of truth/);
     assert.ok(!fs.existsSync(path.join(root, '.mcp.json')), 'expected bootstrap not to create project MCP config');

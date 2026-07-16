@@ -58,3 +58,13 @@
 - RED result: exit 1 with the expected assertion `bootstrap quick start must say that Product prepares the build brief`. The captured output showed the altered phrase, proving this is a behavior assertion rather than a source-only check.
 - Restored the production console phrase exactly without retaining any production-source change.
 - GREEN results: `node tools/fb-lane.test.cjs` and `node plugins/fb-lane-coordination/tools/fb-lane.test.cjs` each passed all 28 checks.
+
+## Final re-review: ordered approval-to-execution boundary
+
+- Replaced the two independent approval and `$bfm` console assertions in both mirrored test files with one ordered expression:
+  `You approve the brief. Only after explicit $bfm, BFM builds and checks it.`
+- Kept the independent lanes-planning and Product-build-brief console assertions unchanged.
+- Controlled RED proof: temporarily reordered only the root console sentence to `Only after explicit $bfm, BFM builds and checks it. You approve the brief.` and ran `node tools/fb-lane.test.cjs`.
+- RED result: exit 1 with the expected assertion `bootstrap quick start must put user approval before the explicit $bfm build boundary`; captured output showed the reversed order.
+- Restored the exact production console text without retaining a source change.
+- GREEN results: root and package suites each passed all 28 checks.
