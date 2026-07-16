@@ -46,3 +46,15 @@
 
 - No board, handoff index, detailed handoff, workstream, or plan files were modified.
 - Only the two mirrored CLI/test pairs, nine requested Task-1 contract surfaces, and this TDD evidence report were changed.
+
+## Final re-review: bootstrap console regression coverage
+
+- Added identical root/package assertions in `tools/fb-lane.test.cjs` and `plugins/fb-lane-coordination/tools/fb-lane.test.cjs` for all four quick-start concepts in fresh bootstrap output:
+  1. lanes investigate and plan different parts;
+  2. Product combines findings into one build brief;
+  3. the user approves the brief before execution; and
+  4. only explicit `$bfm` makes BFM build and check it.
+- Controlled RED proof: after adding the tests, temporarily changed only the root bootstrap console text from `Product combines findings into one build brief.` to `Product summarizes findings.` and ran `node tools/fb-lane.test.cjs`.
+- RED result: exit 1 with the expected assertion `bootstrap quick start must say that Product prepares the build brief`. The captured output showed the altered phrase, proving this is a behavior assertion rather than a source-only check.
+- Restored the production console phrase exactly without retaining any production-source change.
+- GREEN results: `node tools/fb-lane.test.cjs` and `node plugins/fb-lane-coordination/tools/fb-lane.test.cjs` each passed all 28 checks.
