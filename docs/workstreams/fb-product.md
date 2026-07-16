@@ -4,7 +4,7 @@ Last Updated: 2026-07-16
 Lane: FB-Product
 
 ## Current Summary
-TASK-021 is in Staging QA (local review only) on `codex/fb-documentation-rebrand`. `docs/fb/` is now the mirrored canonical harness pack; active instructions route into it; fresh/existing bootstrap preserves project-owned text while maintaining only managed route blocks; and opt-in harness-v2 reviewable handoffs require complete evidence. Fresh and migration smokes, the recovery contract, root/package 41-check suites, four syntax checks, source/test/five-page-pack parity, clean-clone validator, doctor Ready, and whitespace passed. Review state is `not reviewable` because there is no deployed UI. Product branch-diff review and any separately authorized merge/release decision remain; no push, publication, release, deployment, merge, or consumer-project change occurred.
+TASK-021 is in Staging QA (local review only) on `codex/fb-documentation-rebrand`. Final fix `8c54c1c` aligned setup guidance with the completed mirrored five-page bootstrap, made the canonical evidence page author the full opt-in v2 contract, and rejected placeholder-only/TODO/TBD/angle-bracket evidence plus non-actionable blocked next actions. Focused v2 suites passed 14 checks in each mirror; full suites passed 45 checks in each mirror; recovery, four syntax checks, source/test/setup/five-page parity, validator, doctor Ready, and diff checks passed. The final whole-branch re-review found no remaining Critical, Important, or Minor issue. Review state is `not reviewable` because there is no deployed UI. The Product local gate and any separately authorized merge/release decision remain; no push, publication, release, deployment, merge, plugin install, or consumer-project change occurred.
 
 TASK-020 is in Staging QA (local review only) on `codex/fb-documentation-rebrand`. FB now gives new users a Project Start Brief and immediate four-step How FB works card before detailed lane guidance; it separates decisions from assumptions, explains adaptive lanes, makes `$bfm` the explicit post-approval build boundary, shows exact plain-language progress/blocked states, and supplies Test This Now review packets. Fresh creator-commerce bootstrap smoke, root/package 28-check suites, syntax/parity, validator, doctor Ready, whitespace, and final review passed. The branch remains local; no push, publication, release, deployment, or merge is authorized.
 
@@ -28,11 +28,11 @@ TASK-017 is done: [PR #31](https://github.com/friedbeef1/fb-lane-coordination/pu
 - Merged the release bundle to `main` in PR #39 and installed the Codex marketplace plugin build `0.2.0-beta+codex.20260716052513`.
 - Rebranded active documentation and generated project guidance to FB, preserving historical records and all `fb-lane` technical identifiers.
 - Added the first-project clarity contract across packaged skills, active guides, bootstrap-generated project instructions, and root/package tests; completed a creator-commerce smoke and final regression review without creating a new command or deploying anything.
-- Implemented and locally verified TASK-021's compact mirrored harness, safe bootstrap migration, and opt-in v2 review-evidence gate without changing FB's ownership model, technical IDs, or external release state.
+- Implemented and locally verified TASK-021's compact mirrored harness, safe bootstrap migration, corrected setup guidance, canonical v2 authoring contract, and actionable-value enforcement; completed the clean final whole-branch re-review without changing FB's ownership model, technical IDs, or external release state.
 
 ## Still Pending / Blocked
 
-TASK-021 Product branch-diff review and any separately authorized merge/release decision remain. TASK-020 and TASK-019 have no internal gate. No publication, release, deployment, merge, or package/API migration is authorized.
+TASK-021's Product local gate and any separately authorized merge/release decision remain. TASK-020 and TASK-019 have no internal gate. No publication, release, deployment, merge, plugin install, or package/API migration is authorized.
 
 ## Evidence Links
 - PROJECT_BOARD.md

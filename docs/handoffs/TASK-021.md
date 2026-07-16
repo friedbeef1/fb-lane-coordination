@@ -38,7 +38,7 @@ Out of scope: Changing technical identifiers, four-lane ownership, board technic
 
 Success looks like: A fresh or existing project has a compact, durable FB route; new v2 reviewable handoffs cannot close without actionable Test This Now evidence; old work remains valid.
 
-Progress: Checking.
+Progress: Local verification and the final whole-branch re-review are complete; the candidate is ready for the local Product gate.
 
 Next action: Product performs the local branch-diff review and decides whether to authorize a later merge/release action.
 
@@ -61,16 +61,20 @@ Build a mirrored root/package `docs/fb/` harness pack; route active instructions
 
 ## Verification Handoff
 
-Candidate: local branch `codex/fb-documentation-rebrand`; implementation commits `6c9ec20`, `8301463`, `7584aa9`, `6c90f58`, `a505206`, `b1be395`, and `fba33f5`.
+Candidate: local branch `codex/fb-documentation-rebrand`; implementation commits `6c9ec20`, `8301463`, `7584aa9`, `6c90f58`, `a505206`, `b1be395`, `fba33f5`, and final fix `8c54c1c`.
 
-Test plan: fresh creator-commerce bootstrap; existing-project bootstrap migration; root/package suites, syntax/parity, validator, doctor, whitespace, and independent reviews.
+Test plan: fresh creator-commerce bootstrap; existing-project bootstrap migration; focused harness-v2 fixtures; full root/package suites; recovery, syntax/parity, validator, doctor, diff/whitespace; and independent whole-branch re-review.
 
-Environment and results: local macOS worktree, with validator/doctor repeated from a clean local clone of the committed candidate. The standalone fresh smoke created all five root/package-identical pack pages, kept both generated instruction files thin, preserved board → index → linked handoff read order and the first-project contract, and emitted no paused-platform artifacts. The existing-project smoke preserved user-owned prefix/suffix and malformed marker text, replaced only stale complete managed blocks, and was byte-identical after a second rerun. `node tools/workspace-recovery-contract.test.cjs` passed; root/package CLI suites passed 41 checks each; all four Node syntax checks passed; root/package source, test, and five-page-pack parity passed; `node tools/fb-lane.validate.cjs` passed; `node tools/fb-lane.cjs doctor` reported Ready; and `git diff --check` passed.
+Environment and results: local macOS worktree, with validator/doctor verified against the clean committed candidate. The standalone fresh smoke created all five root/package-identical pack pages, kept both generated instruction files thin, preserved board → index → linked handoff read order and the first-project contract, and emitted no paused-platform artifacts. The existing-project smoke preserved user-owned prefix/suffix and malformed marker text, replaced only stale complete managed blocks, and was byte-identical after a second rerun. Final fix `8c54c1c` updated both setup skills to describe the completed canonical-pack install and exact managed-marker replacement boundary; made both canonical evidence pages author the full opt-in v2 contract; and made the mirrored validator/doctor reject placeholder-only values, numbered `TODO`/`TBD` or angle-bracket steps, and non-actionable blocked next actions. Focused v2 suites passed 14 checks in each mirror; full root/package CLI suites passed 45 checks in each mirror; `node tools/workspace-recovery-contract.test.cjs` passed; all four Node syntax checks passed; root/package CLI source, CLI tests, setup skills, and all five harness pages were byte-identical; `node tools/fb-lane.validate.cjs` passed; `node tools/fb-lane.cjs doctor` reported Ready; and committed-range diff/whitespace checks passed.
+
+Final review: [TASK-021 whole-branch re-review](../../.superpowers/sdd/TASK-021-whole-branch-rereview.md) reviewed `dab4934..8c54c1c`, confirmed all three prior Important findings fixed, and found no remaining Critical, Important, or Minor issue. It authorizes no merge, publication, release, deployment, plugin install, or consumer-repository change.
 
 Exact local commands:
 
 ```sh
 node tools/workspace-recovery-contract.test.cjs
+FB_LANE_TEST_FOCUS=v2 node tools/fb-lane.test.cjs
+FB_LANE_TEST_FOCUS=v2 node plugins/fb-lane-coordination/tools/fb-lane.test.cjs
 node tools/fb-lane.test.cjs
 node plugins/fb-lane-coordination/tools/fb-lane.test.cjs
 node --check tools/fb-lane.cjs
@@ -79,10 +83,11 @@ node --check tools/fb-lane.test.cjs
 node --check plugins/fb-lane-coordination/tools/fb-lane.test.cjs
 cmp -s tools/fb-lane.cjs plugins/fb-lane-coordination/tools/fb-lane.cjs
 cmp -s tools/fb-lane.test.cjs plugins/fb-lane-coordination/tools/fb-lane.test.cjs
+cmp -s skills/project-coordination-setup/SKILL.md plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md
 diff -qr docs/fb plugins/fb-lane-coordination/docs/fb
 node tools/fb-lane.validate.cjs
 node tools/fb-lane.cjs doctor
-git diff --check
+git diff --check dab4934..8c54c1c
 ```
 
 Runnable evidence links: not applicable. Review state remains `not reviewable` because this is a reusable harness/plugin change with no deployed UI or consumer repository.
@@ -92,7 +97,8 @@ Manual pass criteria:
 - `AGENTS.md` is concise and routes readers to the durable pack, board, index, and handoff.
 - Fresh bootstrap creates all five pack pages and thin route guidance.
 - Existing-project bootstrap retains user text and updates only the marked route blocks.
-- V2 reviewable handoffs require complete Test This Now evidence; planning-only and historical handoffs still pass.
+- The canonical evidence page authors the full v2 marker/state/brief/Test This Now/link/blocking contract.
+- V2 reviewable handoffs require concrete, actionable Test This Now evidence and reject placeholder-only/TODO/TBD/angle-bracket values; planning-only and historical handoffs still pass.
 
 Recovery: The source worktree contained an unrelated uncommitted Task 4 report, so clean-tree validator/doctor evidence was produced in a clean local clone without modifying or hiding that file. No further recovery was needed. Missing review access is recorded as `Blocked — no review environment yet` with the exact next action; routine verification recovery remains Product/BFM-owned before asking the user to intervene.
 
@@ -100,8 +106,9 @@ Recovery: The source worktree contained an unrelated uncommitted Task 4 report, 
 
 Status: Staging QA (local review only).
 Actioned By: FB-Product / BFM.
-Result: The compact mirrored harness pack, thin routes, safe fresh/existing bootstrap migration, and opt-in v2 review-evidence gate are implemented and locally verified.
-Evidence: Implementation commits `6c9ec20`, `8301463`, `7584aa9`, `6c90f58`, `a505206`, `b1be395`, and `fba33f5`; standalone fresh/existing smokes; recovery-contract pass; root/package 41-check suites; four syntax checks; source/test/five-page-pack parity; clean-clone validator; doctor Ready; and whitespace pass.
-Remaining: Product local branch-diff review, then a separately authorized merge/release decision. There is no deployed UI, so `Review state: not reviewable` remains correct.
-Closeout Note: No push, publication, release, deployment, merge, or consumer-repository change occurred or is authorized by this closeout.
+Result: The compact mirrored harness pack, thin routes, safe fresh/existing bootstrap migration, corrected setup guidance, canonical v2 authoring contract, and actionable review-evidence gate are implemented and locally verified. Placeholder-only/TODO/TBD/angle-bracket evidence and non-actionable blocked next actions are rejected.
+Evidence: Implementation commits `6c9ec20`, `8301463`, `7584aa9`, `6c90f58`, `a505206`, `b1be395`, `fba33f5`, and final fix `8c54c1c`; standalone fresh/existing smokes; focused v2 14-check suites in each mirror; full root/package 45-check suites; recovery-contract pass; four syntax checks; source/test/setup/five-page-pack parity; validator pass; doctor Ready; committed-range diff/whitespace pass; and a final whole-branch re-review with no remaining Critical, Important, or Minor issue.
+Remaining: Product local gate, then any separately authorized merge/release decision. There is no deployed UI, so `Review state: not reviewable` remains correct.
+Closeout Note: No push, publication, release, deployment, merge, plugin install, or consumer-repository change occurred or is authorized by this closeout.
+Loop Health: healthy.
 Loop Learning: Feedback captured: repeated instruction duplication and unstructured review evidence; Repeated pattern?: yes; Tooling needed?: smallest existing validator/doctor extension; Product approval needed?: no - explicit implementation approval received.
