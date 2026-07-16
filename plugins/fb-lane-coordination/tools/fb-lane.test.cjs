@@ -24,6 +24,23 @@ const {
 
 let passed = 0;
 const cliPath = path.join(__dirname, 'fb-lane.cjs');
+const exactProgress = 'Understanding your idea → Ready for your approval → Building → Checking → Complete';
+const exactBlocked = 'Blocked — <reason> / next action';
+const exactHowFbWorks = [
+  '1. Lanes investigate and plan different parts.',
+  '2. Product combines findings into one build brief.',
+  '3. You approve the brief.',
+  '4. Only after explicit `$bfm`, BFM builds and checks it.'
+].join('\n');
+
+function assertExactFirstProjectContract(label, source) {
+  assert.match(source, new RegExp(`\\*\\*Progress:\\*\\* ${exactProgress}`), `${label} must use the exact approved progress wording`);
+  assert.match(source, new RegExp(`\\*\\*Blocked:\\*\\* ${exactBlocked.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}`), `${label} must make blocked work actionable`);
+  const howFbWorks = source.match(/## How FB works\n([\s\S]*?)(?=\n## |\s*$)/);
+  assert.ok(howFbWorks, `${label} must include How FB works`);
+  assert.strictEqual(howFbWorks[1].trim(), exactHowFbWorks, `${label} must contain exactly the four ordered FB steps`);
+}
+
 function test(name, fn) {
   fn();
   passed += 1;
@@ -189,7 +206,7 @@ function assertCodexBootstrap(args) {
       assert.match(source, /Success looks like:/, `${label} must name the success outcome`);
       assert.match(source, /Progress:/, `${label} must name the current user-facing progress`);
       assert.match(source, /## How FB works/, `${label} must explain the FB loop in plain language`);
-      assert.match(source, /Only after explicit `?\$bfm`?/, `${label} must state the BFM build boundary`);
+      assertExactFirstProjectContract(label, source);
       assert.match(source, /## Test This Now/, `${label} must provide the review contract`);
       assert.match(source, /Outcome type/, `${label} must identify the review outcome type`);
       assert.match(source, /Direct links/, `${label} must provide direct review links`);
@@ -198,8 +215,6 @@ function assertCodexBootstrap(args) {
       assert.match(source, /Known limits/, `${label} must disclose known review limits`);
       assert.match(source, /Failure-report format/, `${label} must explain failure reporting`);
       assert.match(source, /Status: blocked — review access is missing/, `${label} must state the missing-review-access response`);
-      assert.match(source, /Understanding your idea → Ready for your approval → Building → Checking → Complete/, `${label} must use the approved plain-language progress states`);
-      assert.match(source, /Blocked — <reason> \/ next action/, `${label} must make blocked work actionable`);
     }
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
     assert.match(output, /returning project health/, 'bootstrap quick start must reserve status for returning-project health');
@@ -289,6 +304,27 @@ test('documents the verification handoff and recovery contract across source, pa
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
     assert.match(source, /Verification Handoff/i, `${relativePath} must generate the verification handoff rule`);
     assert.match(source, /next Product\/BFM recovery action/i, `${relativePath} must generate agent-owned recovery`);
+  }
+});
+
+test('all nine active Task-1 contract surfaces keep exact progress and blocked wording', () => {
+  const repoRoot = process.cwd();
+  const activeContractSurfaces = [
+    'plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-product/SKILL.md',
+    'plugins/fb-lane-coordination/skills/bfm/SKILL.md',
+    'plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md',
+    'README.md',
+    'FAQ.md',
+    'platforms/codex/README.md',
+    'plugins/fb-lane-coordination/README.md',
+    'docs/loop-engineering.md'
+  ];
+
+  for (const relativePath of activeContractSurfaces) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(source, new RegExp(`\\*\\*Progress:\\*\\* ${exactProgress}`), `${relativePath} must use the exact approved progress wording`);
+    assert.match(source, new RegExp(`\\*\\*Blocked:\\*\\* ${exactBlocked.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}`), `${relativePath} must use the exact blocked wording`);
   }
 });
 

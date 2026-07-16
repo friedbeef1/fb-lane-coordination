@@ -1924,9 +1924,10 @@ For a first project or new non-trivial objective, Product starts with:
 - **Next action:** <one immediate Product action or user decision>
 
 ## How FB works
-1. Relevant lanes plan distinct questions; Product prepares one build brief.
-2. You approve that brief before any source-changing work starts.
-3. Only after explicit \`$bfm\`, BFM builds the approved brief and returns evidence.
+1. Lanes investigate and plan different parts.
+2. Product combines findings into one build brief.
+3. You approve the brief.
+4. Only after explicit \`$bfm\`, BFM builds and checks it.
 
 ## Test This Now
 For review, provide Outcome type, Direct links, Exact steps and expectations, Pass criteria, Known limits, and a Failure-report format (what happened, what was expected, link or screenshot, and environment). If review access is missing, say \`Status: blocked — review access is missing\`, not ready to test.`;
@@ -2256,10 +2257,10 @@ ${CODEX_FB_END}`;
   console.log('======================================================================');
   console.log('🚀 QUICK START GUIDE: HOW TO USE FB RIGHT AWAY');
   console.log('======================================================================');
-  console.log('1. Describe your new project normally. FB returns a Project Start Brief before planning or build questions.');
-  console.log('2. Workstreams plan in markdown; Product launches BFM for source-changing execution only after explicit $bfm.');
-  console.log('3. Use $fb-lane status for returning project health: active work, locks, and next coordination context.');
-  console.log('4. Run health checks any time with: node tools/fb-lane.cjs doctor');
+  console.log('1. Describe your new project normally. FB returns a Project Start Brief.');
+  console.log('2. Lanes investigate and plan different parts; Product combines findings into one build brief.');
+  console.log('3. You approve the brief. Only after explicit $bfm, BFM builds and checks it.');
+  console.log('4. Use $fb-lane status for returning project health: active work, locks, and next coordination context.');
   console.log('======================================================================');
   console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');

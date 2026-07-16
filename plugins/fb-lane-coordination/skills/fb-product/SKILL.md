@@ -29,7 +29,8 @@ For a first project or new non-trivial objective, present this brief before requ
 - **What FB will plan:** <bounded planning work>
 - **Out of scope:** <explicit exclusions>
 - **Success looks like:** <observable outcome>
-- **Progress:** <current stage and what is complete>
+- **Progress:** Understanding your idea → Ready for your approval → Building → Checking → Complete
+- **Blocked:** Blocked — <reason> / next action
 - **Next action:** <one immediate Product action or user decision>
 
 ### How FB works
