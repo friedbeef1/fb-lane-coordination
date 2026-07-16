@@ -69,6 +69,8 @@ implement the safe, unblocked local scope.
 At closeout, tell me what was built, what remains proposed, what is
 blocked, and what I should decide next.
 ```
+For setup checks, terminology, result states, and a worked example, read
+the [first-run guide](docs/first-run.md).
 
 ## The Thesis
 
