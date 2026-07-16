@@ -1,6 +1,6 @@
 ---
 name: bfm
-description: Use when Product/Captain must review, sequence, route, integrate, or close out prepared FB-Lane handoff markdowns. Triggers include "BFM", "build from markdown", "process all handoffs", "sequence prepared handoffs", and "execute these handoffs to completion".
+description: Use when Product/Captain must review, sequence, route, integrate, or close out prepared FB handoff markdowns. Triggers include "BFM", "build from markdown", "process all handoffs", "sequence prepared handoffs", and "execute these handoffs to completion".
 ---
 
 # BFM

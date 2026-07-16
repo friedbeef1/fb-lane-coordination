@@ -1,24 +1,24 @@
-# FB-Lane Coordination for Codex
+# FB Coordination for Codex
 
-Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
+Current model name: **FB 0.2.0-beta: AI Loop Engineering for Everyday People**.
 Current plugin build: Codex `0.2.0-beta+codex.20260716052513`. See
 [`docs/versioning.md`](../../docs/versioning.md) for the v1-to-latest
 before/after.
 
-This package is the supported FB-Lane distribution for Codex.
+This package is the supported FB distribution for Codex.
 
-This Codex plugin packages FB-Lane's Loop Engineering workflow:
+This Codex plugin packages FB's Loop Engineering workflow:
 
 - skills for BFM, Product, Tech, Design, Business, and overall lane coordination
 - an `fb-lane` MCP server backed by `tools/fb-lane.cjs`
 - a repo marketplace entry at `.agents/plugins/marketplace.json`
 
-Codex already provides the concurrency. FB-Lane provides the Product Lead loop
+Codex already provides the concurrency. FB provides the Product Lead loop
 around it: approved Product/workstream OKRs, plan-only workstreams, BFM execution, evidence return,
 BFM reconciliation, and clean closeout. The full operating model lives in
 [`docs/loop-engineering.md`](../../docs/loop-engineering.md).
 
-FB-Lane's framework OKR is simple: help Product Leads run multi-agent work
+FB's framework OKR is simple: help Product Leads run multi-agent work
 without losing alignment between goals, evidence, board state, and repo truth.
 Use closeout health flags (`healthy`, `watch`, `needs Product review`,
 `blocked`) instead of per-task OKRs or numeric loop scoring.
@@ -97,11 +97,11 @@ the Pre-Execution Card Snapshot, Goal Approval Gate, Story Split Pass,
 Dependency And Lock Pass, Unblocked Sequence, and Recheck Before Claim before
 claiming, editing, or submitting.
 
-Treat FB-Lane as an optional coordination protocol, not as the thing that makes Codex parallel.
+Treat FB as an optional coordination protocol, not as the thing that makes Codex parallel.
 Default to normal/simple coding for single-thread work, simple fixes, read-only questions, code
 explanations, isolated edits, or independent work where Codex worktrees are enough.
 
-Use FB-Lane light when the objective mentions handoffs, board items, lanes, BFM, Product, Design,
+Use FB light when the objective mentions handoffs, board items, lanes, BFM, Product, Design,
 Business, coordination files, board-locked files, multiple threads/agents/workstreams, or durable
 context. Keep quick tasks lightweight: read the board/locks and avoid extra handoff or OKR ceremony
 unless another lane or Product must continue it.
@@ -270,7 +270,7 @@ source-change boundary.
 ## Workspace Requirement
 
 The target repo should have `AGENTS.md`, `PROJECT_BOARD.md`, and `tools/fb-lane.cjs`.
-If they are missing, ask Codex to bootstrap FB-Lane from this plugin before starting lane work.
+If they are missing, ask Codex to bootstrap FB from this plugin before starting lane work.
 
 Before source execution, read board/status/locks and the relevant handoff index.
 During isolated work, name the task, branch/worktree, lane, and locked files. At

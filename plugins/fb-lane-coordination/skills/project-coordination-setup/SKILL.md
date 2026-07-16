@@ -2,20 +2,20 @@
 name: project-coordination-setup
 description: >-
   Bootstraps a project with the product-agnostic four-lane multi-agent coordination model,
-  PROJECT_BOARD.md template, and registers the FB-Product, FB-Tech, FB-Design,
-  and FB-Business subagents.
+  PROJECT_BOARD.md template, and registers the FB Product, FB Tech, FB Design,
+  and FB Business subagents.
 ---
 
 # Project Coordination Bootstrapper
 
 ## Overview
-This skill instantiates the **Four-Lane Multi-Thread Coordination Model** in any software project directory (SaaS, backend API, mobile/web app, dev tool, etc.). It sets up the project board, updates configuration files safely, and registers specialized subagents to coordinate creative design, technical engineering, and product orchestration without context bleeding.
+This skill instantiates the **FB coordination model** in any software project directory (SaaS, backend API, mobile/web app, dev tool, etc.). It sets up the project board, updates configuration files safely, and registers specialized subagents to coordinate creative design, technical engineering, and product orchestration without context bleeding.
 
 For non-trivial work, the bootstrap must leave an approved OKR tree slot on the board: a Product/workstream or BFM-target OKR (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Approval`, `Justification`) plus stable lane OKRs where relevant. Handoffs use compact `Product Goal`, `Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, and `Evidence Against Product OKR` fields. Product/BFM owns OKR reconciliation and changes OKRs only after discussion and explicit user approval; do not generate a fresh OKR for every task. Bootstrap also creates `docs/handoffs/index.md` so agents discover handoffs through a compact routing table before opening detailed files; `PROJECT_BOARD.md` is truth, the index is routing, `docs/workstreams/<lane>.md` cards are revisit summaries, and detailed handoffs are detail.
 Bootstrap creates `docs/workstreams/fb-product.md`, `docs/workstreams/fb-tech.md`, `docs/workstreams/fb-design.md`, and `docs/workstreams/fb-business.md`. Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then refreshes the relevant card after executing or explicitly deferring a lane handoff. Worker lanes read the board, handoff index, then their card before opening detailed handoffs. Cards must stay compact and not contain full OKRs, QA logs, plans, rationale, copy variants, or implementation detail.
 For BFM/all-handoff processing, Product must also leave the return loop: a five-lane handoff ledger checks `FB-Lane`, `FB-Product`, `FB-Tech`, `FB-Design`, and `FB-Business`; every matching handoff is `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`; missing lane handoffs are recorded as `no handoff found`; board/source/docs/tests agree before closeout; and the closeout includes one health flag: `healthy`, `watch`, `needs Product review`, or `blocked`.
 
-Bootstrap guidance must also include objective mode selection: default to normal/simple coding unless the objective mentions coordination triggers. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
+Bootstrap guidance must also include objective mode selection: default to normal/simple coding unless the objective mentions coordination triggers. Use FB light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 
 Bootstrap guidance must include awareness, isolation, integration: `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
 
@@ -52,24 +52,24 @@ To bootstrap a workspace, run through the **Execution Steps** in the Workflow be
 
 ### Phase 2: Merge or Create AGENTS.md
 *   **Case A: AGENTS.md does NOT exist**: Create it using the template below.
-*   **Case B: AGENTS.md exists**: Append the **FB-Lane Coordination Rules** section to the end of the file, preserving all original content.
+*   **Case B: AGENTS.md exists**: Append the **FB Coordination Rules** section to the end of the file, preserving all original content.
 
 #### **AGENTS.md Template / Append Block:**
 ```markdown
-## FB-Lane Coordination Rules
+## FB Coordination Rules
 
-This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development.
+This project uses the standard **FB coordination model** to enable safe concurrent development.
 
 ### 0. Mode Selection Trigger Rule
 - Default to normal/simple coding for one-thread work with no listed coordination trigger.
-- Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Keep quick tasks lightweight.
+- Use FB light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Keep quick tasks lightweight.
 - Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 
 ### 1. Lane Scopes & Boundaries
-- **FB-Product (PM / Integration User Value)**: Owns final product decisions, the approved Product/workstream OKR and relevant stable lane OKRs, task prioritization, scoping, BFM launch, staging/live deployments, and release gates. Prioritizes the backlog on the project board, sequencing tasks based on OKR alignment and value-vs-effort mix. Product is read-only on application/source code and may write coordination markdown only.
-- **FB-Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, security rules, and functional test suites. *Does not make styling, layout geometry, or visual changes.*
-- **FB-Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
-- **FB-Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only code capacity.*
+- **FB Product (PM / Integration User Value)**: Owns final product decisions, the approved Product/workstream OKR and relevant stable lane OKRs, task prioritization, scoping, BFM launch, staging/live deployments, and release gates. Prioritizes the backlog on the project board, sequencing tasks based on OKR alignment and value-vs-effort mix. Product is read-only on application/source code and may write coordination markdown only.
+- **FB Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, security rules, and functional test suites. *Does not make styling, layout geometry, or visual changes.*
+- **FB Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
+- **FB Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only code capacity.*
 - **The User (Supervisor / Reviewer)**: Gives instructions to Product or directly to specific lanes, and reviews staging outputs. The Product agent prompts the user for approval before promoting backlog items to Ready.
 
 ### 2. The Board Loop & Resource Locking
@@ -133,21 +133,21 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 - `Ready`: Triaged tasks, fully scoped, ready to be claimed.
 - `In Progress`: Tasks currently being worked on by an owner.
 - `Staging QA`: Features deployed to staging, awaiting visual/functional verification.
-- `Done`: Checked, verified, and merged to production by FB-Product.
+- `Done`: Checked, verified, and merged to production by FB Product.
 
 ## Active Workstreams
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-001 | Ready | FB-Product | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \| [PR #1](https://github.com/example/repo/pull/1) |
+| TASK-001 | Ready | FB Product | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \| [PR #1](https://github.com/example/repo/pull/1) |
 
 ### TASK-001 - Project Setup & Bootstrap
 *   - Status: Ready
-*   - Owner / Thread: FB-Product
+*   - Owner / Thread: FB Product
 *   - Area: Setup
 *   - Scope: Create initial files, initialize repository layout.
 *   - Out of Scope: Writing application business logic.
 *   - Goal Alignment Session:
-*       - Objective: Bootstrap FB-Lane safely so future non-trivial tasks have a stable approved Product/workstream OKR, relevant lane OKRs, clear locks, and durable handoffs.
+*       - Objective: Bootstrap FB safely so future non-trivial tasks have a stable approved Product/workstream OKR, relevant lane OKRs, clear locks, and durable handoffs.
 *       - Key Results:
 *           - Board, rules, CLI, and handoff folder exist.
 *           - `doctor` reports no blocking setup errors.
@@ -214,10 +214,10 @@ If `PROJECT_BOARD.md` does not exist, create it with the following structure:
 ### Phase 4: Register the Subagents
 Run the `define_subagent` tool to register the four specialized workstreams in the current workspace using these definitions:
 
-1.  **FB-Product**: PM and Integration User Value Optimizer. Scopes tasks, spawns subagent threads, merges code, runs release gates, and manages deployments.
-2.  **FB-Tech**: Tech Lead and Core Developer. Implements backend migrations, serverless functions, security logic, and runs development tests.
-3.  **FB-Design**: UI/UX Designer and Layout Auditor. Edits frontend styles, handles page geometry layout, and performs visual audits on staging.
-4.  **FB-Business**: Business copywriter and positioning strategist. Focuses on onboarding text, documentation, user-facing messaging, and pricing/marketing copy. (Set `enable_write_tools = false`).
+1.  **FB Product**: PM and Integration User Value Optimizer. Scopes tasks, spawns subagent threads, merges code, runs release gates, and manages deployments.
+2.  **FB Tech**: Tech Lead and Core Developer. Implements backend migrations, serverless functions, security logic, and runs development tests.
+3.  **FB Design**: UI/UX Designer and Layout Auditor. Edits frontend styles, handles page geometry layout, and performs visual audits on staging.
+4.  **FB Business**: Business copywriter and positioning strategist. Focuses on onboarding text, documentation, user-facing messaging, and pricing/marketing copy. (Set `enable_write_tools = false`).
 
 ---
 

@@ -1,21 +1,21 @@
-# FB-Lane on Codex
+# FB on Codex
 
 This page is the tactical Codex setup and usage guide. For the Product Lead
 operating model, read [Loop Engineering](../../docs/loop-engineering.md).
 
-> **Status:** FB-Lane on Codex is a public beta.
+> **Status:** FB on Codex is a public beta.
 
-The current model name is **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
+The current model name is **FB 0.2.0-beta: AI Loop Engineering for Everyday People**.
 The current Codex plugin build is `0.2.0-beta+codex.20260716052513`; check
 `codex plugin list` for the active installed build.
 For the v1-to-latest before/after, read
-[FB-Lane Versions](../../docs/versioning.md).
+[FB Versions](../../docs/versioning.md).
 
-Codex is a local developer agent that operates directly on your filesystem and git workspace. It already supports native subagents for parallel work, worktrees for isolated background tasks, plugins for reusable workflows, skills for task-specific instructions, and MCP servers for shared tools and context. FB-Lane does not replace those capabilities.
+Codex is a local developer agent that operates directly on your filesystem and git workspace. It already supports native subagents for parallel work, worktrees for isolated background tasks, plugins for reusable workflows, skills for task-specific instructions, and MCP servers for shared tools and context. FB does not replace those capabilities.
 
-The Codex pain point is narrower: once you start using those capabilities for real product work, someone still has to answer "who owns this?", "which files are safe to edit?", "what finished?", "what must Product integrate first?", and "what did the other lane decide?". FB-Lane gives Codex a lightweight product-coordination contract for that layer.
+The Codex pain point is narrower: once you start using those capabilities for real product work, someone still has to answer "who owns this?", "which files are safe to edit?", "what finished?", "what must Product integrate first?", and "what did the other lane decide?". FB gives Codex a lightweight product-coordination contract for that layer.
 
-> **Codex reality check:** Codex already has concurrency and isolation primitives. FB-Lane is not what makes Codex parallel. FB-Lane is the shared-state protocol that makes parallel lane work easier to trust: lane identity, file claims, status checks, handoffs, and Product/Captain integration.
+> **Codex reality check:** Codex already has concurrency and isolation primitives. FB is not what makes Codex parallel. FB is the shared-state protocol that makes parallel lane work easier to trust: lane identity, file claims, status checks, handoffs, and Product/Captain integration.
 
 Use that protocol only when it reduces coordination risk. For a one-thread fix, a read-only answer,
 or independent work where Codex worktrees already provide enough isolation, use Codex directly and
@@ -23,9 +23,9 @@ skip the board/handoff ceremony.
 
 ## 📺 How-To Video
 
-> 📺 **[Watch the FB-Lane on Codex Video on YouTube](https://youtu.be/nVEGruk2R7Y)** (Cmd/Ctrl + click to open in a new tab)
+> 📺 **[Watch the FB on Codex Video on YouTube](https://youtu.be/nVEGruk2R7Y)** (Cmd/Ctrl + click to open in a new tab)
 > 
-> [![FB-Lane on Codex Demo Video](https://img.youtube.com/vi/nVEGruk2R7Y/maxresdefault.jpg)](https://youtu.be/nVEGruk2R7Y)
+> [![FB on Codex Demo Video](https://img.youtube.com/vi/nVEGruk2R7Y/maxresdefault.jpg)](https://youtu.be/nVEGruk2R7Y)
 
 ## ⚡ Quick Setup
 
@@ -95,7 +95,7 @@ If the same coordination friction, stale state, missing evidence, or rework
 pattern repeats, Product/BFM should proactively propose one small guardrail for
 approval instead of silently changing the process.
 
-If the project itself still needs FB-Lane repo files, run the Codex-only bootstrap from the project
+If the project itself still needs FB repo files, run the Codex-only bootstrap from the project
 root:
 
 ```bash
@@ -114,7 +114,7 @@ If you are not using the Codex plugin installer, use the fallback setup paths in
 ---
 
 ## The Pain Point This Solves in Codex
-Codex already has subagents, skills, plugins, MCP, and worktrees. FB-Lane only
+Codex already has subagents, skills, plugins, MCP, and worktrees. FB only
 adds the Product loop around them:
 
 - workstreams plan in markdown

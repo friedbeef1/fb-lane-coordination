@@ -2,6 +2,9 @@
 
 ## Unreleased - 2026-07-16
 
+- Docs: rebranded active public documentation to FB; technical identifiers and
+  prior changelog entries remain unchanged.
+
 - Release: published Codex plugin build `0.2.0-beta+codex.20260716052513` with
   the verified Codex-only distribution, verification-handoff, and workspace-
   recovery guidance.

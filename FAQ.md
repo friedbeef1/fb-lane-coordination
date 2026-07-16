@@ -1,4 +1,4 @@
-# FB-Lane FAQ
+# FB FAQ
 
 ## Is this just project management?
 
@@ -16,14 +16,14 @@ Codex already provides a lot of the execution machinery:
 
 - Codex has plugins, skills, subagents, MCP, and worktrees.
 
-FB-Lane does not replace those primitives. It adds the coordination contract:
+FB does not replace those primitives. It adds the coordination contract:
 approved goal, owner, evidence, merge/defer decision, and BFM source-change gate.
 
 Think of it as awareness, isolation, integration: the board and handoff index are
 the shared standup, branches/worktrees are separate desks for execution, and BFM
 is Product/release review.
 
-## When should I skip FB-Lane?
+## When should I skip FB?
 
 Skip it when none of the listed coordination triggers apply. Default to
 normal/simple coding for:
@@ -36,7 +36,7 @@ normal/simple coding for:
 - throwaway experiments
 - independent work where native worktrees are enough
 
-Use FB-Lane light when the objective mentions handoffs, board items, lanes, BFM,
+Use FB light when the objective mentions handoffs, board items, lanes, BFM,
 Product, Design, Business, coordination files, board-locked files, multiple
 threads/agents/workstreams, or durable context. Keep quick tasks lightweight:
 read the board/locks and avoid extra handoff or OKR ceremony unless another lane
@@ -60,7 +60,7 @@ Loop Engineering is the practice of keeping five things aligned:
 
 Read the full model in [docs/loop-engineering.md](docs/loop-engineering.md).
 
-## Does FB-Lane have its own OKR?
+## Does FB have its own OKR?
 
 Yes. The framework OKR is the north star: help Product Leads run multi-agent
 work without losing alignment between goals, evidence, board state, and repo
@@ -71,9 +71,9 @@ is still safe, Product/BFM flags `watch`. If the miss can affect sequencing,
 scope, or closeout safety, Product/BFM flags `needs Product review` or
 `blocked`.
 
-## Is FB-Lane CI/CD?
+## Is FB CI/CD?
 
-No. FB-Lane is a coordination loop. It has CI readiness evidence for Product/BFM
+No. FB is a coordination loop. It has CI readiness evidence for Product/BFM
 closeout, and CI can be required before merge. Staging, live deploy, plugin
 release, and publish decisions remain manual Product decisions.
 
@@ -163,7 +163,7 @@ does not hard-block quick `TASK-Q-*` work.
 It should not become a giant rule engine. Use `doctor` for obvious missing or
 stale structure; use Product/BFM judgment for loop health.
 
-## Does FB-Lane improve itself automatically?
+## Does FB improve itself automatically?
 
 Not silently. Product/BFM should proactively propose a small guardrail when the
 same workflow failure, stale state, missing evidence, or preventable rework
@@ -316,9 +316,6 @@ loaded.
 
 ## What version is this?
 
-The current GitHub documentation line is **FB-Lane 0.2.0-beta: Loop Engineering
-public beta**.
-
 Current plugin build: Codex `0.2.0-beta+codex.20260716052513`. Use
 `codex plugin list | rg "fb-lane-coordination"` to see the installed build.
 
@@ -330,17 +327,7 @@ Those integrations are paused and are not supported, installed, released, or
 tested. Contributors may revive an integration by following the
 [paused-integration checklist](docs/paused-integrations.md).
 
-## Why is it called FB-Lane?
+## Why is it called FB?
 
-Because **Flow Builder** sounded better than “the thing that stops projects
-from getting stuck.”
-
-Some alternate expansions survived the naming process:
-
-- Friction Breaker
-- Force Build
-- Full Build
-- Fried Beef
-
-The official name is Flow Builder. The unofficial names are available for team
-folklore.
+FB is the product name. It describes a practical loop that helps everyday
+people guide AI work from an approved goal to evidence-based closeout.

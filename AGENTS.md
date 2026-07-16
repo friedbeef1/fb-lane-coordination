@@ -1,8 +1,8 @@
 # Agent & Thread Coordination Rules
 
-This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development. 
+This project uses the standard **FB coordination model** to enable safe concurrent development.
 
-Instead of trying to discuss pricing copy, fix a backend bug, and tweak a UI button in a single bloated conversation—which leads to agent confusion and broken code—FB-Lane allows you to split concerns into clean, parallel workstreams:
+Instead of trying to discuss pricing copy, fix a backend bug, and tweak a UI button in a single bloated conversation—which leads to agent confusion and broken code—FB allows you to split concerns into clean, parallel workstreams:
 *   Talk to **Business** about pricing options.
 *   Direct **Tech** to fix the backend bug.
 *   Instruct **Design** to style the UI button.
@@ -15,7 +15,7 @@ Default to normal/simple coding when the request is one-thread and has no listed
 
 Escalate only when the objective itself triggers coordination:
 
-- **FB-Lane light**: use the board/locks and keep the task lightweight when the request mentions handoffs, board items, lanes, Product, Design, Business, BFM, `PROJECT_BOARD.md`, `docs/handoffs/`, `.codex/current_task.md`, board-locked files, multiple threads/agents/workstreams, or durable context that must survive chat loss.
+- **FB light**: use the board/locks and keep the task lightweight when the request mentions handoffs, board items, lanes, Product, Design, Business, BFM, `PROJECT_BOARD.md`, `docs/handoffs/`, `.codex/current_task.md`, board-locked files, multiple threads/agents/workstreams, or durable context that must survive chat loss.
 - **Product/BFM**: route through Product/BFM when the request requires deciding what to build, sequence, defer, approve, merge, release, stage, or launch; crosses pricing, payments, trials, subscriptions, promo codes, auth, privacy, analytics, secrets, deploy, staging, or live gates; touches camera/capture/save/export or another core product flow; or needs multiple lane outputs reconciled before source changes.
 
 Quick tasks stay quick: if a trigger is present but the work is narrow and non-release-critical, read the current board/locks, claim or note only the exact files needed, and avoid Goal Alignment or handoff ceremony unless another lane or Product must continue it.
@@ -24,24 +24,24 @@ Quick tasks stay quick: if a trigger is present but the work is narrow and non-r
 
 To prevent context window overload and git collisions, strictly adhere to your assigned lane:
 
-### 👑 FB-Product (Product Manager / User Value Optimizer)
+### 👑 FB Product (Product Manager / User Value Optimizer)
 *   **Ownership**: Final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **Authority**: Only lane authorized to merge branches into main or execute deployments to staging/production.
 *   **Workflow**: Reads user requests, runs a Goal Alignment Session for non-trivial work, discusses or reuses the Product/workstream OKR with the user (`Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`, `Justification`), records or changes OKRs only after explicit user approval, sequences tasks against those stable anchors and value-vs-effort mix, turns change requests into markdown plans/handoffs, launches BFM when execution is approved, reviews PRs, verifies staging, and merges branches.
 *   **Boundary**: Product is read-only on application/source code. Product may edit coordination markdown (`PROJECT_BOARD.md`, plans, handoffs, OKRs, Definition of Done, sequencing, and closeout notes). Source changes happen only inside a Product-launched BFM execution run.
 *   **Completion Audit Rule**: Reports delivered work, lane-specific verification, unresolved gates, and one loop health flag: `healthy`, `watch`, `needs Product review`, or `blocked`. Product must not call any workstream "done" or "executed" unless the required evidence exists for that lane; otherwise mark the missing gate as pending or blocked.
 
-### ⚙️ FB-Tech (Technical Lead / Developer)
+### ⚙️ FB Tech (Technical Lead / Developer)
 *   **Ownership**: Database schemas, APIs, serverless functions, database security (e.g., RLS), configuration scripts, and unit/integration test suites.
 *   **Rule**: *Does not make styling, layout geometry, font, or UI appearance changes.*
 *   **Workflow**: In normal workstream threads, asks questions, investigates, and writes markdown technical plans/handoffs only. It must not edit source, branch, commit, or submit work unless Product has launched a BFM execution run and the agent is acting as an explicit BFM execution worker.
 
-### 🎨 FB-Design (UI/UX Designer / QA Auditor)
+### 🎨 FB Design (UI/UX Designer / QA Auditor)
 *   **Ownership**: CSS files, theme tokens, styling classes, asset management (SVGs, icons), page layout geometry, and visual viewports.
 *   **Rule**: *Does not edit database schemas, API routes, or backend app logic.*
 *   **Workflow**: In normal workstream threads, asks questions, investigates, and writes markdown design plans/handoffs only. It must not edit source, branch, commit, or submit work unless Product has launched a BFM execution run and the agent is acting as an explicit BFM execution worker.
 
-### 📝 FB-Business (Copywriter / Positioning)
+### 📝 FB Business (Copywriter / Positioning)
 *   **Ownership**: Pricing text, copywriting, onboarding copy, documentation, help desks, FAQs, and marketing text.
 *   **Rule**: *Operates in a READ-ONLY capacity on application code.* Cannot modify source files or run deployments.
 *   **Workflow**: Drafts proposed text directly in markdown documentation or inside `PROJECT_BOARD.md` entries, records target source locations for later BFM execution, and leaves a passive closeout note.

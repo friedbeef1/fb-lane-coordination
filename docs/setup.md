@@ -2,9 +2,9 @@
 
 This page is tactical. For the operating model behind these commands, read
 [Loop Engineering](loop-engineering.md). For version naming and the v1-to-latest
-before/after, read [FB-Lane Versions](versioning.md).
+before/after, read [FB Versions](versioning.md).
 
-FB-Lane currently supports Codex only. Start with the
+FB currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
 setup paths when you are not installing through the plugin flow.
 
@@ -13,7 +13,7 @@ setup paths when you are not installing through the plugin flow.
 If you already have an AI agent open in your target project workspace, paste this:
 
 ```text
-I want to bootstrap the FB-Lane Coordination Plugin in this workspace.
+I want to bootstrap the FB coordination plugin in this workspace.
 Read the template files and CLI utility from the fb-lane-coordination repository.
 Copy tools/fb-lane.cjs to my project's root tools/ directory.
 Run node tools/fb-lane.cjs bootstrap to set up my project board, lane rules, Codex rules, and handoff routing.
@@ -44,7 +44,7 @@ What bootstrap creates:
 ## Upgrade Existing Codex Plugin Install
 
 When the plugin source has been updated and merged, reinstall the plugin from the
-configured FB-Lane marketplace:
+configured FB marketplace:
 
 ```bash
 codex plugin marketplace upgrade fb-lane

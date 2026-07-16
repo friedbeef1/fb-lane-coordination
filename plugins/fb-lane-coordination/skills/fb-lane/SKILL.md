@@ -1,13 +1,11 @@
 ---
 name: fb-lane
-description: Use when coordinating concurrent Codex work across Product, Tech, Design, and Business lanes with FB-Lane board claims, file locks, handoffs, and Product integration.
+description: Use when coordinating concurrent Codex work across Product, Tech, Design, and Business lanes with FB board claims, file locks, handoffs, and Product integration.
 ---
 
-# FB-Lane Coordination
+# FB Coordination
 
 Use this skill when the user wants multiple Codex instructions to run concurrently without lanes stepping on each other.
-
-Codex supplies the concurrency. FB-Lane supplies shared coordination:
 
 - `PROJECT_BOARD.md` is the source of truth for tasks, owners, locks, links, and QA state.
 - `.codex/current_task.md` records the active claimed task for a lane.
@@ -18,11 +16,11 @@ Codex supplies the concurrency. FB-Lane supplies shared coordination:
 
 ## Scope Boundary
 
-FB-Lane is a thin coordination protocol, not a default wrapper for all Codex work.
+FB is a thin coordination protocol, not a default wrapper for all Codex work.
 
-Default to normal/simple coding for one-thread work with no listed coordination trigger. Skip FB-Lane for read-only questions, simple code explanations, tiny fixes, isolated edits, or independent work where Codex worktrees are enough. When skipping, use ordinary Codex workflow and avoid creating board noise.
+Default to normal/simple coding for one-thread work with no listed coordination trigger. Skip FB for read-only questions, simple code explanations, tiny fixes, isolated edits, or independent work where Codex worktrees are enough. When skipping, use ordinary Codex workflow and avoid creating board noise.
 
-Use FB-Lane light when the objective mentions handoffs, board items, lanes, BFM, Product, Design, Business, coordination files such as `PROJECT_BOARD.md`, `docs/handoffs/`, or `.codex/current_task.md`, board-locked files, multiple threads/agents/workstreams, or durable context that must survive chat loss. Keep quick tasks lightweight: read the board/locks, claim or note only the exact files needed, and avoid Goal Alignment or handoff ceremony unless another lane or Product must continue it.
+Use FB light when the objective mentions handoffs, board items, lanes, BFM, Product, Design, Business, coordination files such as `PROJECT_BOARD.md`, `docs/handoffs/`, or `.codex/current_task.md`, board-locked files, multiple threads/agents/workstreams, or durable context that must survive chat loss. Keep quick tasks lightweight: read the board/locks, claim or note only the exact files needed, and avoid Goal Alignment or handoff ceremony unless another lane or Product must continue it.
 
 Escalate to Product/BFM when the work requires deciding what to build, sequence, defer, approve, merge, release, stage, or launch; crosses pricing, payments, trials, subscriptions, promo codes, auth, privacy, analytics, secrets, deploy, staging, or live gates; touches camera/capture/save/export or another core product flow; or needs multiple lane outputs reconciled before source changes.
 
@@ -124,7 +122,7 @@ $fb-business rewrite the onboarding copy.
 ## Start Of Work
 
 1. Read `AGENTS.md`, `PROJECT_BOARD.md`, `docs/handoffs/index.md` if present, relevant `docs/workstreams/<lane>.md` cards if present, and `.codex/current_task.md` if present.
-2. Run or request FB-Lane status:
+2. Run or request FB status:
    - MCP: call `fb_lane_status` with `workspacePath` set to the active repo root when needed.
    - CLI fallback: `node tools/fb-lane.cjs status`.
 3. If setup looks suspect, run `node tools/fb-lane.cjs doctor` before claiming work.
@@ -185,7 +183,7 @@ Product must read handoffs before integration.
 ## Return-Loop Rule
 
 When the user says "run BFM" or "process all lane handoffs", Product must not close until every discovered handoff has one explicit status: `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`.
-Product must also show the five-lane ledger in the chat stream so missing FB-Business, FB-Design, FB-Product, FB-Tech, or FB-Lane handoffs are visible rather than silently skipped.
+Product must also show the five-lane ledger in the chat stream so missing FB Business, FB Design, FB Product, FB Tech, or FB handoffs are visible rather than silently skipped.
 
 Return checks are mandatory for non-trivial handoff execution:
 

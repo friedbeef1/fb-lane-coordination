@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-019 | Staging QA | FB-Product / BFM | Documentation | Rebrand active documentation to FB and use the approved primary tagline/current model line only on approved primary surfaces, while retaining all `fb-lane` technical identifiers and historical records | Active README/FAQ/setup/platform/plugin docs, agent guidance/templates/examples, scorecards, root/package bootstrap text and associated tests, board/index/handoff/workstream records | [Handoff](docs/handoffs/TASK-019.md); [plan](docs/superpowers/plans/2026-07-16-fb-documentation-rebrand.md); root/package 27-check suites, syntax/parity, scoped audit, JSON parse, and whitespace check passed; no package/API rename, publish, deployment, or historical rewrite |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
 | TASK-018 | Done | FB-Product / BFM | Coordination | Add a generic Verification Handoff and workspace-recovery contract so Product/BFM owns routine test recovery, explicit 15 GiB/15-second bounded health defaults, clean-clone recovery, and evidence before user testing | `tools/fb-lane.cjs`, packaged CLI/test copies, root/package rules, templates, skills, scorecards, loop docs, board/handoff/workstream records | [Handoff](docs/handoffs/TASK-018.md); [plan](docs/superpowers/plans/2026-07-15-verification-handoff-contract.md); focused recovery-contract test, root/package 27-check suites, syntax/parity, clean-clone validator/doctor, whitespace checks, Product review, and [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) release passed |
 | TASK-CODEX-ONLY-001 | Done | FB-Product / BFM | Codex Plugin | Make Codex the sole supported, shipped, documented, and tested FB-Lane integration; disable Claude Code and Antigravity paths while preserving concise contributor reference notes | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, both CLI tests, `.claude-plugin/**`, `.claude/agents/**`, `platforms/claude-code/**`, `platforms/antigravity/**`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `docs/setup.md`, `docs/versioning.md`, `docs/paused-integrations.md`, `plugins/fb-lane-coordination/.mcp.json`, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-CODEX-ONLY-001.md`, `docs/workstreams/fb-product.md` | [Handoff](docs/handoffs/TASK-CODEX-ONLY-001.md); Product review, [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39), and installed-marketplace smoke passed for `0.2.0-beta+codex.20260716052513` |
@@ -38,6 +39,39 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-019 - FB documentation rebrand
+*   **Status**: Staging QA
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Documentation
+*   **Scope**: Rebrand all active human-facing and agent-facing documentation, templates, examples, skills, and bootstrap-generated project entry points to `FB`. Use the approved primary tagline/current model line only on primary brand surfaces.
+*   **Out of Scope**: Renaming `fb-lane` / `fb-lane-coordination` package IDs, plugin IDs, CLI commands, paths, MCP names, configuration keys, historical handoffs/plans/changelog entries, archived upstream material, publishing, release, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Give everyday users one clear, consistent public name and value proposition without breaking the installed Codex integration or rewriting historical evidence.
+    *   **Key Results**:
+        *   Active documentation and generated project instructions show `FB` as the product name and the approved tagline on primary surfaces.
+        *   Technical identifiers remain exactly compatible.
+        *   Historical records keep their original wording and remain auditable.
+    *   **Definition of Done**: Scoped wording audit, root/package parity, tests, validator, doctor, and whitespace checks pass; board, index, detailed handoff, and workstream card agree.
+    *   **Gate / Review Point**: Product branch-diff review; no publication or deployment is authorized.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly approved the public rebrand and chose to preserve history and technical identifiers.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Public documentation, generated bootstrap docs, Codex plugin instructions, templates, examples, and agent skills only.
+    *   **Locked Files**: Active Markdown guidance and templates, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, related CLI tests, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-019.md`, and `docs/workstreams/fb-product.md`.
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/fb-documentation-rebrand` (local; no PR or publish authorized)
+    *   **Plan**: [FB documentation rebrand](docs/superpowers/plans/2026-07-16-fb-documentation-rebrand.md)
+    *   **Handoff**: [TASK-019](docs/handoffs/TASK-019.md)
+*   **QA Checklist**:
+    *   [x] Public docs, internal guidance, templates, examples, bootstrap output, and visible package metadata use the FB brand and preserve technical identifiers.
+    *   [x] Slice reviews caught and resolved tagline-placement, technical-ledger, and exact-assertion issues.
+    *   [x] Root/package 27-check CLI suites, syntax, CLI/test parity, JSON parsing, demo check, scoped audit, and whitespace checks passed.
+    *   [ ] Clean-worktree validator and doctor, then Product branch-diff review. No publication or deployment is authorized.
+*   **Latest Update**:
+    *   *2026-07-16*: Implemented the active-doc rebrand on `codex/fb-documentation-rebrand`. Product display copy is now FB; the tagline is limited to primary public/bootstrap surfaces; historical records and `fb-lane` technical identifiers are retained. Clean-worktree validation remains.
 
 ---
 

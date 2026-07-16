@@ -1,13 +1,11 @@
-# FB-Lane Versions
+# FB Versions
 
 ## Current Naming
 
-Call the current GitHub documentation line **FB-Lane 0.2.0-beta: Loop
-Engineering public beta**.
+The current GitHub documentation line uses the FB 0.2.0-beta product name.
 
 The Codex plugin manifest for this line is
-`0.2.0-beta+codex.20260716052513`. Treat that as the installed plugin build ID;
-the product model name is still **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
+`0.2.0-beta+codex.20260716052513`. Treat that as the installed plugin build ID.
 
 Codex is the only supported and released integration. Claude Code and
 Antigravity are paused; contributors can use the
@@ -15,7 +13,7 @@ Antigravity are paused; contributors can use the
 
 ## Before And After
 
-| Area | v1: four-lane coordination plugin | Latest: 0.2.0-beta Loop Engineering |
+| Area | v1: four-lane coordination plugin | Latest: FB 0.2.0-beta |
 |---|---|---|
 | Core idea | Split work across Product, Tech, Design, and Business lanes. | Keep goal, plans, evidence, board state, and repo truth aligned through a return loop. |
 | Product role | Sequence and review lane work. | Own goals, BFM execution launch, reconciliation, merge gates, and release decisions. |
@@ -39,5 +37,5 @@ v1 was useful for avoiding collisions. The latest version is meant to reduce
 rework: agents can move fast, but they must return to the approved goal,
 evidence, board, docs, tests, and git state before calling work complete.
 
-Use FB-Lane when coordination risk is real. Skip it for one-thread fixes,
+Use FB when coordination risk is real. Skip it for one-thread fixes,
 read-only questions, tiny edits, and independent experiments.

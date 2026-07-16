@@ -1,12 +1,12 @@
 <!-- fb-lane-start -->
-## FB-Lane Coordination
+## FB Coordination
 
-This project uses the FB-Lane Four-Lane Coordination Model.
+This project uses the FB coordination model.
 
 ### Mode selection
 Default to normal/simple coding for one-thread work with no listed coordination trigger. Escalate only when the objective mentions handoffs, board items, lanes, Product, Design, Business, BFM, coordination files, board-locked files, multiple threads/agents/workstreams, durable context, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets, deploy/staging/live, camera/capture/save/export or another core product flow, or decisions to build, sequence, defer, approve, merge, or release.
 
-Use **FB-Lane light** for narrow triggered work: read the board/locks, keep the task lightweight, and avoid extra ceremony. Use **Product/BFM** when sequencing, approval, merge/release, provider/security/payment gates, core UX, or multiple lane outputs must be reconciled before source changes.
+Use **FB light** for narrow triggered work: read the board/locks, keep the task lightweight, and avoid extra ceremony. Use **Product/BFM** when sequencing, approval, merge/release, provider/security/payment gates, core UX, or multiple lane outputs must be reconciled before source changes.
 
 ### On every session start
 1. Read `PROJECT_BOARD.md` — check active tasks and file locks.
@@ -18,10 +18,10 @@ Use **FB-Lane light** for narrow triggered work: read the board/locks, keep the 
 7. Before source execution, confirm board/status/locks and the relevant handoff index.
 
 ### Lane boundaries
-- **FB-Tech**: backend, APIs, schemas, tests only. Never touch CSS or layout.
-- **FB-Design**: CSS, tokens, layout only. Never touch backend logic or schemas.
-- **FB-Business**: read-only on source code. Write to markdown docs only.
-- **FB-Product**: direction, sequencing, BFM launch, integration, merges, and deployments. Product is read-only on application/source code and may write coordination markdown only.
+- **FB Tech**: backend, APIs, schemas, tests only. Never touch CSS or layout.
+- **FB Design**: CSS, tokens, layout only. Never touch backend logic or schemas.
+- **FB Business**: read-only on source code. Write to markdown docs only.
+- **FB Product**: direction, sequencing, BFM launch, integration, merges, and deployments. Product is read-only on application/source code and may write coordination markdown only.
 - **All workstreams**: plan-only by default. They may ask questions, investigate, and write markdown plans/handoffs. Source changes happen only inside a Product-launched BFM execution run.
 - If the user says `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM, confirm whether to prepare the Product/BFM handoff or execute here as an explicit one-off exception before editing source.
 - **Workstream status cards**: Product/BFM refreshes `docs/workstreams/<lane>.md` after executing or explicitly deferring a lane handoff. Returning lanes use it to report already-executed work, pending or blocked work, and evidence links without reopening every detailed handoff.
@@ -45,7 +45,7 @@ Sidechat output format: Decision summary, Scope, Out of scope, Recommended owner
 
 
 ### Goal Alignment Session
-- For non-trivial work, FB-Product/BFM owns the approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant.
+- For non-trivial work, FB Product/BFM owns the approved OKR tree in `PROJECT_BOARD.md`: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant.
 - BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree.
 - `/goal` is a Product/BFM shortcut into this same Goal Alignment Session. It shows, creates, clarifies, or asks approval for the current goal; it must not create a second goal system or a separate `/goals` flow.
 - Workstream chats do not own `/goal`; when they prepare a handoff, they propose or challenge goal fit for Product/BFM to reconcile.
@@ -87,7 +87,7 @@ Workspace recovery: when Git, file reads, worktrees, or test runners repeatedly 
 - `node tools/fb-lane.cjs status` — view all tasks and locks
 - `node tools/fb-lane.cjs claim <id> <lane>` — BFM execution worker claims task, checkout branch, lock files
 - `node tools/fb-lane.cjs submit <id>` — run tests, push branch, mark Staging QA
-- `node tools/fb-lane.cjs merge <id>` — merge to main, release locks (FB-Product only)
+- `node tools/fb-lane.cjs merge <id>` — merge to main, release locks (FB Product only)
 
 ### Rules
 - Never commit directly to `main`.

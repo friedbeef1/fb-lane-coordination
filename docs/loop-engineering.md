@@ -1,14 +1,13 @@
 # Loop Engineering
 
-Loop Engineering is the FB-Lane operating model. It is the discipline of making
+Loop Engineering is the FB operating model. It is the discipline of making
 agent work return to the approved goal, the evidence, the board, and the repo
 before Product calls the work complete.
 
 It is not a new app lifecycle. It is a small control loop for AI execution.
 
-Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
 Current plugin build: Codex `0.2.0-beta+codex.20260716052513`. For the
-v1-to-latest before/after, see [FB-Lane Versions](versioning.md).
+v1-to-latest before/after, see [FB Versions](versioning.md).
 
 ## Why The Loop Exists
 
@@ -69,9 +68,9 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 - Exact instruction for Product/BFM:
 
 
-## FB-Lane Framework OKR
+## FB Framework OKR
 
-This OKR governs FB-Lane itself. It is not copied into every project as
+This OKR governs FB itself. It is not copied into every project as
 ceremony.
 
 **Objective:** Help Product Leads run multi-agent work without losing alignment
@@ -308,7 +307,7 @@ Rules:
 
 ## Progressive Disclosure Files
 
-FB-Lane uses four layers so agents can restart without reading everything:
+FB uses four layers so agents can restart without reading everything:
 
 | Layer | File | Purpose |
 |---|---|---|
@@ -354,7 +353,7 @@ coordination trigger. Do not create board noise for read-only questions,
 code explanations, tiny fixes, isolated edits, or independent experiments where
 native worktrees are enough.
 
-Use FB-Lane light when the objective mentions handoffs, board items, lanes, BFM,
+Use FB light when the objective mentions handoffs, board items, lanes, BFM,
 Product, Design, Business, coordination files such as `PROJECT_BOARD.md` or
 `docs/handoffs/`, board-locked files, multiple threads/agents/workstreams, or
 durable context that must survive chat loss. Read the board/locks, keep the
@@ -526,7 +525,7 @@ missing handoff status, missing evidence, or source/docs/tests disagree.
 
 ## CI Readiness
 
-FB-Lane is not CI/CD. Its CI readiness loop gives Product/BFM closeout evidence:
+FB is not CI/CD. Its CI readiness loop gives Product/BFM closeout evidence:
 local validation plus the GitHub Actions readiness signal. CI can be required
 before merge while staging, live deploy, plugin release, and publish decisions
 remain manual.

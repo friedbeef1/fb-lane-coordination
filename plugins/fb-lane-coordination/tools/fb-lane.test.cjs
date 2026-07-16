@@ -150,11 +150,14 @@ function assertCodexBootstrap(args) {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe']
     });
+    const brandLine = ['FB 0.2.0-beta:', 'AI', 'Loop', 'Engineering', 'for', 'Everyday', 'People'].join(' ');
+    assert.ok(!output.includes(brandLine), 'bootstrap console output must not repeat the current FB model line');
     const indexPath = path.join(root, 'docs', 'handoffs', 'index.md');
     assert.ok(fs.existsSync(indexPath), 'expected bootstrap to create docs/handoffs/index.md');
     assert.match(fs.readFileSync(indexPath, 'utf8'), /type: fb-lane-handoff-index/);
     const evalTemplatePath = path.join(root, 'docs', 'evals', 'agent-behavior-scorecard-template.md');
     assert.ok(fs.existsSync(evalTemplatePath), 'expected bootstrap to create docs/evals/agent-behavior-scorecard-template.md');
+    assert.ok(!fs.readFileSync(evalTemplatePath, 'utf8').includes(brandLine), 'generated scorecard must not repeat the current FB model line');
     assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /Non-Product Execution Gate/);
     assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /## Verification Handoff/);
     assert.match(fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8'), /Sidechat-to-Main Prompt Handoff/);
@@ -166,6 +169,11 @@ function assertCodexBootstrap(args) {
     const board = fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8');
     const agents = fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8');
     const codexRules = fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8');
+    assert.ok(!board.includes(brandLine), 'generated project board must not repeat the current FB model line');
+    for (const [label, source] of [['AGENTS.md', agents], ['.codex/rules.md', codexRules]]) {
+      assert.ok(source.includes(brandLine), `${label} must include the current FB model line exactly`);
+      assert.doesNotMatch(source, /FB-Lane (?:Four-Lane|light|Coordination)/, `${label} must use the visible FB product name`);
+    }
     for (const [label, source] of [['PROJECT_BOARD.md', board], ['AGENTS.md', agents], ['.codex/rules.md', codexRules]]) {
       assert.match(source, /sidechat-parent-thread-routing\.md/, `${label} must link to the canonical rule`);
       assert.doesNotMatch(source, /paste-ready prompt for the main Product\/BFM thread/i, `${label} must not choose a destination by Product/BFM role`);

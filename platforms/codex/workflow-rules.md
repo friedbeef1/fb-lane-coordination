@@ -1,11 +1,11 @@
 # Codex Workflow Rules
 
-Add these rules to your local Codex project rules directory (e.g. `.codex/rules.md` or global instructions) to instruct the Codex agent on how to behave within the FB-Lane coordination model.
+Add these rules to your local Codex project rules directory (e.g. `.codex/rules.md` or global instructions) to instruct the Codex agent on how to behave within the FB coordination model.
 
 ```markdown
-# FB-Lane Git and Coordination Rules for Codex
+# FB Git and Coordination Rules for Codex
 
-You are running in a project workspace coordinated by the FB-Lane model. You must adhere to the following guidelines.
+You are running in a project workspace coordinated by the FB model. You must adhere to the following guidelines.
 
 ## 1. Inspect State & Scope First
 Before executing any file modifications or running setup scripts:

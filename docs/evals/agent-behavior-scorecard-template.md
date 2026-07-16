@@ -1,4 +1,4 @@
-# FB-Lane Agent Behavior Scorecard
+# FB Agent Behavior Scorecard
 
 Use this only when `Loop Learning` shows a repeated agent-behavior failure or Product/BFM wants a non-quick closeout check. Do not use it for routine quick tasks unless the same failure pattern repeats.
 

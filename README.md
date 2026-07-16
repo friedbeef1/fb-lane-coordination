@@ -1,9 +1,9 @@
-# FB-Lane: Loop Engineering for AI Work
+# FB: AI Loop Engineering for Everyday People
 
 AI agents execute fast. Product work still fails when they do not return to the
 goal, the evidence, the board, and the real repo state.
 
-FB-Lane is a lightweight implementation of **Loop Engineering**: a way for a
+FB is a lightweight implementation of **Loop Engineering**: a way for a
 Product Lead to approve the goal, let specialist lanes plan, launch BFM for
 execution, and force the work back through evidence before anything is called
 done.
@@ -12,7 +12,7 @@ done.
 [Versioning](docs/versioning.md) | [FAQ](FAQ.md) | [Setup](docs/setup.md) |
 [Maintenance](docs/maintenance.md) | [Changelog](CHANGELOG.md)
 
-Current model name: **FB-Lane 0.2.0-beta: Loop Engineering public beta**.
+Current model name: **FB 0.2.0-beta: AI Loop Engineering for Everyday People**.
 Current plugin build: Codex `0.2.0-beta+codex.20260716052513`. See
 [Versioning](docs/versioning.md).
 
@@ -21,7 +21,7 @@ Current plugin build: Codex `0.2.0-beta+codex.20260716052513`. See
 Codex provides powerful agent execution. The missing layer is usually not speed.
 It is alignment.
 
-FB-Lane currently supports Codex only. The Claude Code and Antigravity
+FB currently supports Codex only. The Claude Code and Antigravity
 integrations are paused; contributors who want to revive one can follow the
 [paused-integration checklist](docs/paused-integrations.md).
 
@@ -41,7 +41,7 @@ Loop Engineering keeps five things aligned:
 4. the board state Product uses to sequence
 5. the repo truth in source, docs, tests, and git
 
-FB-Lane gives that loop a small set of files and commands: `PROJECT_BOARD.md`,
+FB gives that loop a small set of files and commands: `PROJECT_BOARD.md`,
 `docs/handoffs/index.md`, lane plans/handoffs, file claims during BFM execution,
 `doctor`, and BFM/Product closeout checks.
 
@@ -58,10 +58,10 @@ private worktree should produce a huge unannounced diff, edit source without
 board/lock awareness, or close while multiple outputs still need BFM
 reconciliation.
 
-FB-Lane is not CI/CD. It includes CI readiness evidence for Product/BFM
+FB is not CI/CD. It includes CI readiness evidence for Product/BFM
 closeout: automated merge safety, manual release control.
 
-FB-Lane evals are lightweight behavior checks for the agents themselves. They
+FB evals are lightweight behavior checks for the agents themselves. They
 answer: did Product/BFM run the loop correctly? Keep them as Markdown
 scorecards until repeated failures justify automation. Use the generic
 scorecard shape in `docs/evals/agent-behavior-scorecard-template.md` only when
@@ -126,7 +126,7 @@ evidence, board state, and repo truth aligned before closeout.
 
 The short before/after table is in [docs/versioning.md](docs/versioning.md).
 
-## FB-Lane Framework OKR
+## FB Framework OKR
 
 This is the framework north star, not a project ritual.
 
@@ -143,7 +143,7 @@ between goals, evidence, board state, and repo truth.
   `PROJECT_BOARD.md` is truth, `docs/handoffs/index.md` is routing, and detailed
   handoffs are detail.
 
-**Definition of Done:** FB-Lane docs, skills, bootstrap templates, `doctor`, and
+**Definition of Done:** FB docs, skills, bootstrap templates, `doctor`, and
 Product/BFM closeout guidance all support the return loop without per-task OKR
 generation, numeric loop scoring, a giant `doctor`, a second-board handoff
 index, or quick-task ceremony.
@@ -250,7 +250,7 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 
 ## Why Product Leads Care
 
-FB-Lane is for the Product Lead who wants agent speed without becoming the human
+FB is for the Product Lead who wants agent speed without becoming the human
 traffic controller.
 
 It makes these questions visible in the repo:
@@ -266,9 +266,9 @@ The point is not to add ceremony. The point is to make the return loop explicit
 enough that agents cannot finish by saying "done" when the board, source, docs,
 or tests say otherwise.
 
-## How FB-Lane Implements The Loop
+## How FB Implements The Loop
 
-| Loop need | FB-Lane mechanism |
+| Loop need | FB mechanism |
 |---|---|
 | Approved Product/workstream OKR | `Goal Alignment Session` block in `PROJECT_BOARD.md` |
 | Goal shortcut | `/goal` opens the same Product/BFM Goal Alignment Session; it is not a second goal system |
@@ -303,7 +303,7 @@ or tests say otherwise.
 ## When To Use It
 
 Default to normal/simple coding when the request is one-thread and has no listed
-coordination trigger. Skip FB-Lane for:
+coordination trigger. Skip FB for:
 
 - read-only questions
 - code explanations
@@ -311,7 +311,7 @@ coordination trigger. Skip FB-Lane for:
 - isolated edits
 - independent experiments where native worktrees are enough
 
-Use **FB-Lane light** when the objective mentions handoffs, board items, lanes,
+Use **FB light** when the objective mentions handoffs, board items, lanes,
 BFM, Product, Design, Business, coordination files such as `PROJECT_BOARD.md` or
 `docs/handoffs/`, board-locked files, multiple threads/agents/workstreams, or
 durable context that must survive chat loss. Keep it lightweight: read the
@@ -327,7 +327,7 @@ changes.
 
 ## Start Here
 
-Use FB-Lane with Codex:
+Use FB with Codex:
 
 | Platform | Maturity | Guide | Best for |
 |---|---|---|---|
@@ -338,7 +338,7 @@ model lives in [docs/loop-engineering.md](docs/loop-engineering.md).
 
 ## CLI Quick Reference
 
-Run from a project root that has been bootstrapped with FB-Lane:
+Run from a project root that has been bootstrapped with FB:
 
 | Command | Purpose |
 |---|---|
@@ -373,7 +373,7 @@ resources, cleanup evidence, or the pending cleanup gate.
 
 ## Codex Plugin Upgrade
 
-For an existing Codex install, refresh from the FB-Lane marketplace:
+For an existing Codex install, refresh from the FB marketplace:
 
 ```bash
 codex plugin add fb-lane-coordination@fb-lane

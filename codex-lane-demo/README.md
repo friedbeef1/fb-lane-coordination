@@ -1,6 +1,6 @@
 # Codex Lane Demo Video
 
-This HyperFrames composition explains the Codex value of FB-Lane: start from a Product/Captain prompt or talk directly to multiple lane threads, let Codex run safe work concurrently, and use shared claims/handoffs so lanes pass back to Product without overwriting each other.
+This HyperFrames composition explains the Codex value of FB: start from a Product/Captain prompt or talk directly to multiple lane threads, let Codex run safe work concurrently, and use shared claims/handoffs so lanes pass back to Product without overwriting each other.
 
 ## Output
 

@@ -5,6 +5,8 @@ const path = require('path');
 const { execSync, execFileSync } = require('child_process');
 const readline = require('readline');
 
+const FB_MODEL_LINE = ['FB 0.2.0-beta:', 'AI', 'Loop', 'Engineering', 'for', 'Everyday', 'People'].join(' ');
+
 function expandHome(filePath) {
   if (!filePath || typeof filePath !== 'string') {
     return filePath;
@@ -277,7 +279,9 @@ This card is a revisit summary only. PROJECT_BOARD.md remains the source of trut
 }
 
 function agentBehaviorScorecardTemplate() {
-  return `# FB-Lane Agent Behavior Scorecard
+  return `# FB Agent Behavior Scorecard
+
+> Approved primary tagline/current model line.
 
 Use this only when \`Loop Learning\` shows a repeated agent-behavior failure or Product/BFM wants a non-quick closeout check. Do not use it for routine quick tasks.
 
@@ -1849,12 +1853,12 @@ function handleBootstrap(args = []) {
     process.exit(1);
   }
 
-  console.log(`🚀 Bootstrapping FB-Lane Coordination Plugin (${options.platform})...\n`);
+  console.log(`🚀 Bootstrapping FB (${options.platform})...\n`);
   const rootDir = process.cwd();
 
   // 0. Auto-detect project metadata from package.json and git remote URL
   let projectName = path.basename(rootDir);
-  let projectDescription = 'A project using the FB-Lane coordination plugin.';
+  let projectDescription = 'A project using FB coordination.';
   const pkgPath = path.join(rootDir, 'package.json');
   if (fs.existsSync(pkgPath)) {
     try {
@@ -1912,6 +1916,8 @@ When a sidechat prepares work for Product/BFM, use this output shape:
   if (!fs.existsSync(boardPath)) {
     const boardTemplate = `# Project Board — ${projectName}
 > ${projectDescription}
+>
+> Approved primary tagline/current model line.
 
 ## Statuses
 - \`Inbox\`: Newly requested tasks requiring triage.
@@ -1937,7 +1943,7 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 *   **Scope**: Create initial files, initialize repository layout.
 *   **Out of Scope**: Writing application business logic.
 *   **Goal Alignment Session**:
-    *   **Objective**: Give Product one ready-to-run FB-Lane workspace bootstrap with approved OKRs, generated coordination files, basic commands, and clear next-step guidance.
+    *   **Objective**: Give Product one ready-to-run FB workspace bootstrap with approved OKRs, generated coordination files, basic commands, and clear next-step guidance.
     *   **Key Results**:
         *   Board, rules, CLI, and handoff folder exist.
         *   \`doctor\` reports no blocking setup errors.
@@ -1962,7 +1968,7 @@ When a sidechat prepares work for Product/BFM, use this output shape:
     *   *2026-06-15*: Scoped task and marked ready for execution.
 
 ### Mode Selection Trigger Rule
-- Default to normal/simple coding unless the objective has a coordination trigger. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
+- Default to normal/simple coding unless the objective has a coordination trigger. Use FB light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 - Keep quick tasks lightweight: read board/locks, claim or note only exact files needed, and skip extra ceremony unless another lane or Product must continue it.
 
 ### Goal Alignment Session (non-trivial tasks only)
@@ -2016,10 +2022,12 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   if (!fs.existsSync(agentsPath)) {
     const agentsTemplate = `# Agent & Thread Coordination Rules — ${projectName}
 
-This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development.
+> ${FB_MODEL_LINE}
+
+This project uses the standard **FB Four-Lane Coordination Model** to enable safe concurrent development.
 
 ### 0. Mode Selection Trigger Rule
-- Default to normal/simple coding unless the objective has a coordination trigger. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
+- Default to normal/simple coding unless the objective has a coordination trigger. Use FB light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 - Keep quick tasks lightweight: read board/locks, claim or note only exact files needed, and skip extra ceremony unless another lane or Product must continue it.
 
 ### 1. Lane Scopes & Boundaries
@@ -2119,12 +2127,14 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
     const CODEX_FB_START = '<!-- fb-lane-start -->';
     const CODEX_FB_END = '<!-- fb-lane-end -->';
     const codexFbBlock = `${CODEX_FB_START}
-## FB-Lane Coordination
+## FB Coordination
 
-This project uses the FB-Lane Four-Lane Coordination Model.
+> ${FB_MODEL_LINE}
+
+This project uses the FB Four-Lane Coordination Model.
 
 ### Mode selection
-Default to normal/simple coding unless the objective has a coordination trigger. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
+Default to normal/simple coding unless the objective has a coordination trigger. Use FB light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 
 ### On every session start
 1. Read \`PROJECT_BOARD.md\` — check active tasks and file locks.
@@ -2196,7 +2206,7 @@ ${CODEX_FB_END}`;
 
     if (!fs.existsSync(codexRulesPath)) {
       fs.writeFileSync(codexRulesPath, codexFbBlock + '\n', 'utf8');
-      console.log('📝 Created .codex/rules.md with FB-Lane section.');
+      console.log('📝 Created .codex/rules.md with FB section.');
     } else {
       const existingCodex = fs.readFileSync(codexRulesPath, 'utf8');
       if (existingCodex.includes(CODEX_FB_START)) {
@@ -2206,28 +2216,28 @@ ${CODEX_FB_END}`;
           codexFbBlock
         );
         fs.writeFileSync(codexRulesPath, updatedCodex, 'utf8');
-        console.log('🔄 Updated existing FB-Lane section in .codex/rules.md.');
+        console.log('🔄 Updated existing FB section in .codex/rules.md.');
       } else {
         // Append — never overwrite user's existing rules
         const appendedCodex = existingCodex.trimEnd() + '\n\n---\n\n' + codexFbBlock + '\n';
         fs.writeFileSync(codexRulesPath, appendedCodex, 'utf8');
-        console.log('✅ Appended FB-Lane section to your existing .codex/rules.md.');
+        console.log('✅ Appended FB section to your existing .codex/rules.md.');
       }
     }
   } else {
     console.log('ℹ️  Skipping Codex rules for this platform.');
   }
 
-  console.log('\n🎉 FB-Lane Plugin bootstrapped successfully!');
+  console.log('\n🎉 FB bootstrapped successfully!');
   console.log('======================================================================');
-  console.log('🚀 QUICK START GUIDE: HOW TO USE FB-LANE RIGHT AWAY');
+  console.log('🚀 QUICK START GUIDE: HOW TO USE FB RIGHT AWAY');
   console.log('======================================================================');
   console.log('1. Open this workspace in Codex.');
   console.log('2. Start with: $fb-lane status');
   console.log('3. Describe the work normally. Workstreams plan in markdown; Product launches BFM for source-changing execution.');
   console.log('4. Run health checks any time with: node tools/fb-lane.cjs doctor');
   console.log('======================================================================');
-  console.log('👉 Codex: Start a new thread and use `$fb-lane status` or select the FB-Lane plugin prompt.');
+  console.log('👉 Codex: Start a new thread and use `$fb-lane status` or select the FB plugin prompt.');
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');
 }
 
