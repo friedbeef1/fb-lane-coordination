@@ -38,18 +38,18 @@ Success looks like: The harness and product-quality walkthroughs close only with
 
 ## Dependency
 
-Blocked by TASK-022 full local verification and task review. No TASK-023 source changes begin before that gate passes.
+Cleared. TASK-022 passed `TASK_022_SECOND_REPAIR_FULL_GATE_OK` and independent Product task review with no remaining findings.
 
 ## Verification Handoff
 
-Candidate: stacked from TASK-022 verified commit; not created yet.
+Candidate: `codex/fb-eval-loop`, stacked from the accepted TASK-022 commit.
 Test plan: [approved plan](../superpowers/plans/2026-07-16-fb-session-ledger-and-eval-loop.md)
-Commands and results: pending dependency.
+Commands and results: TASK-023 implementation checks pending; TASK-022 dependency evidence passed.
 Environment: same isolated FB worktree after TASK-022 gate.
 Runnable evidence links: not reviewable — repository harness change only.
 Manual pass criteria: Product review confirms authority, quality-gap, failure, regression, and no-runner boundaries.
 Recovery attempted: none.
-Next Product/BFM recovery action: finish and review TASK-022, then claim this task.
+Next Product/BFM recovery action: implement TASK-023 test-first, run the two required walkthroughs and complete local gate, then request task review.
 
 ## Loop Learning
 

@@ -55,7 +55,7 @@ Runnable evidence links: [root session module](../../tools/fb-session.cjs), [foc
 Manual pass criteria: Product branch-diff review confirms the exact seven-command interface, privacy boundary, checkpoint/closeout evidence gates, bootstrap preservation, and compatibility flag.
 Recovery attempted: corrected the original packaged focused-test root resolver; repaired every Critical/Important review finding regression-first; corrected two repair-fixture assertions that used a blank-line section boundary and an obsolete managed-route marker, then reran the authoritative gate.
 Known limits: local CLI, Git, bootstrap, and documentation behavior only; no hosted capture, provider, release, publication, deployment, merge, plugin install, or consumer migration was exercised.
-Next Product/BFM recovery action: perform the task-scoped branch-diff review; keep TASK-023 blocked until that review accepts this candidate.
+Next Product/BFM recovery action: none for TASK-022; Product accepted the task-scoped review and cleared TASK-023 to begin.
 
 ## Implementation Summary
 
@@ -95,7 +95,7 @@ Branch, source commits, and changed surfaces: `codex/fb-session-ledger`; base `9
 Checks, failures, recovery, and results: Strict RED-to-GREEN repair evidence, mirrored 45/45 and 23/23 suites, recovery, syntax/parity, validator, doctor Ready, whitespace, creator-commerce, migration, and self-review passed.
 Review state, direct links, limits, and external gates: completed build; direct source/test/guide links above; local-only evidence; Product task review remains the external gate before TASK-023.
 Repository state: Base implementation and coordination commits plus two logical local review-repair commits; no push, merge, release, publication, deployment, plugin install, or consumer-repository change is authorized or performed.
-Remaining owner and action: FB-Product/BFM reviews the TASK-022 branch diff and either accepts the gate or records an actionable blocker; TASK-023 remains blocked meanwhile.
+Remaining owner and action: No TASK-022 implementation action remains; TASK-023 is now the active next owner/task.
 
 ## Brief Validation
 
@@ -129,13 +129,23 @@ The authoritative complete second-repair gate ended with `TASK_022_SECOND_REPAIR
 
 ## Remaining Gates
 
-Product task-scoped branch-diff review only. TASK-023 remains blocked. Live deploy, release, publication, merge, plugin installation, and consumer migration remain unauthorized.
+No TASK-022 local gate remains. Live deploy, release, publication, merge, plugin installation, and consumer migration remain unauthorized.
 
 ## Product Status Recommendation
 
 lane-verification-passed
 
-Closeout note - TASK-022: lane-verification-passed after the second review repair. Delivered: repository-local session ledger, final-boundary submit/close authority, per-Failure validation, field-aware evidence placeholders, canonical privacy gates, crash-resume checkpoints, six-page bootstrap, real default-worktree fixtures, and mirrored validation. Evidence: base `9a55314`, coordination `a5b0a7e`, first repair `38710ca`, second repair at branch HEAD, `TASK_022_SECOND_REPAIR_FULL_GATE_OK`, and self-review. Remaining: Product task review; TASK-023 stays blocked. Handoff: docs/handoffs/TASK-022.md.
+Closeout note - TASK-022: lane-verification-passed and Product-accepted. Delivered: repository-local session ledger, final-boundary submit/close authority, per-Failure validation, field-aware evidence placeholders, canonical privacy gates, crash-resume checkpoints, six-page bootstrap, real default-worktree fixtures, and mirrored validation. Evidence: commits `9a55314`, `a5b0a7e`, `38710ca`, `acdd1a6`, `TASK_022_SECOND_REPAIR_FULL_GATE_OK`, and independent final review with no findings. Remaining: external release actions remain unauthorized; TASK-023 is active. Handoff: docs/handoffs/TASK-022.md.
+
+## Product/BFM Closeout
+
+Status: implemented and Product-accepted locally
+Actioned By: FB-Product / BFM
+Result: The full TASK-022 brief is implemented; both review repair cycles are complete; the final task review found no Critical, Important, or Minor issue.
+Evidence: Commits `9a55314`, `a5b0a7e`, `38710ca`, `acdd1a6`; `TASK_022_SECOND_REPAIR_FULL_GATE_OK`; final task review Approved.
+Remaining: No TASK-022 local work. Publication, release, deployment, merge, plugin installation, and consumer migration remain separate gates.
+Closeout Note: TASK-023 may begin from this verified commit.
+Loop Learning: Feedback captured: unsafe evidence and authority edge cases; Repeated pattern?: yes; Tooling needed?: regression guardrails implemented; Product approval needed?: no.
 
 ## Loop Learning
 
