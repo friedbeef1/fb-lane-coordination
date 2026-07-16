@@ -32,10 +32,10 @@ Evidence Against Product OKR: None identified.
 
 ## Product/BFM Closeout
 
-Status: Staging QA; Product branch-diff review pending.
+Status: Staging QA; internal review complete and branch retained locally.
 Actioned By: FB-Product / BFM.
 Result: Active public/internal documentation, bootstrap-generated guidance, examples, and visible package metadata now use FB. The tagline is limited to root README, packaged plugin README, Codex platform guide, and bootstrap-generated entry points. Historical records and technical identifiers are unchanged.
-Evidence: Three independent implementation slices and four scoped reviews passed; root/package CLI suites passed 27 checks each; syntax, root/package CLI/test parity, JSON parsing, demo check, scoped wording audit, clean-worktree `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor` (Ready), and `git diff --check` passed.
-Remaining: Product branch-diff review. No release or publish is authorized.
+Evidence: Three independent implementation slices, four scoped reviews, and an independent whole-branch review passed; root/package CLI suites passed 27 checks each; syntax, root/package CLI/test parity, JSON parsing, demo check, scoped wording audit, clean-worktree `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor` (Ready), and `git diff --check` passed.
+Remaining: No internal verification gate. The branch is intentionally local; no push, release, or publish is authorized.
 Closeout Note: Staging-only documentation evidence is complete; no package/API migration occurred.
 Loop Learning: Feedback captured: none; Repeated pattern?: no; Tooling needed?: none; Product approval needed?: no.
