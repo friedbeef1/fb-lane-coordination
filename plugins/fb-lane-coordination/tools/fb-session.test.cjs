@@ -16,6 +16,7 @@ const isPackagedCopy = path.basename(containingRoot) === 'fb-lane-coordination'
 const rootDir = isPackagedCopy ? path.resolve(__dirname, '..', '..', '..') : containingRoot;
 const cliPath = path.join(__dirname, 'fb-lane.cjs');
 const packageCliPath = path.join(rootDir, 'plugins', 'fb-lane-coordination', 'tools', 'fb-lane.cjs');
+const { collectSessionDoctorChecks, runSessionCommand } = require(path.join(__dirname, 'fb-session.cjs'));
 const cleanEnv = {
   ...process.env,
   CODEX_THREAD_ID: '',
@@ -217,11 +218,11 @@ Remaining owner and action: Product owns final branch-diff review.
 
 Status: ${validationStatus}
 Satisfied criteria and evidence: The approved CLI, Git, and evidence criteria have named results.
-Missing criteria: ${validationStatus === 'pass' ? 'None' : 'External review access'}
-Reason: ${validationStatus === 'pass' ? 'None' : 'The external reviewer is unavailable.'}
+Missing criteria: ${validationStatus === 'pass' ? 'No approved implementation criterion remains missing.' : 'External review access'}
+Reason: ${validationStatus === 'pass' ? 'The named focused checks satisfy every approved local criterion.' : 'The external reviewer is unavailable.'}
 Owner: Product
 Next action: Product performs the final branch-diff review.
-Approved scope-change references: None.
+Approved scope-change references: The original approved brief applies without a scope change.
 
 ## Closeout
 
@@ -248,11 +249,11 @@ Remaining owner and action: Product owns final branch-diff review.
 
 Status: ${validationStatus}
 Satisfied criteria and evidence: The approved CLI, Git, and evidence criteria have named results.
-Missing criteria: ${validationStatus === 'pass' ? 'None' : 'External review access'}
-Reason: ${validationStatus === 'pass' ? 'None' : 'The external reviewer is unavailable.'}
+Missing criteria: ${validationStatus === 'pass' ? 'No approved implementation criterion remains missing.' : 'External review access'}
+Reason: ${validationStatus === 'pass' ? 'The named focused checks satisfy every approved local criterion.' : 'The external reviewer is unavailable.'}
 Owner: Product
 Next action: Product performs the final branch-diff review.
-Approved scope-change references: None.
+Approved scope-change references: The original approved brief applies without a scope change.
 
 ## Verification Handoff
 
@@ -276,6 +277,13 @@ Next Product/BFM recovery action: Product reviews the branch diff.
 - **Known limits:** Local CLI behavior only.
 - **Failure-report format:** Observed result; expected result; branch and commit; environment.
 `);
+}
+
+function replaceSection(markdown, heading, replacement) {
+  const escaped = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`(^##\\s+${escaped}\\s*$)[\\s\\S]*?(?=^##\\s+|(?![\\s\\S]))`, 'm');
+  assert.match(markdown, pattern, `fixture must contain ${heading}`);
+  return markdown.replace(pattern, `$1\n\n${replacement.trim()}\n\n`);
 }
 
 function spawnRun(cwd, args, env = {}) {
@@ -436,22 +444,29 @@ test('verification checkpoint commits and pushes only recap and linked handoff w
   }
 });
 
-test('checkpoint rejects unrelated staging, planning source dirt, placeholders, private reasoning, and secrets', () => {
-  const fixture = createRepo();
-  try {
-    git(fixture.repo, ['checkout', '-qb', 'session/privacy']);
-    assertOk(promote(fixture.repo, 'TASK-001', 'product', 'planning', 'privacy'));
-    const recap = recapPath(fixture.repo, 'privacy');
-    const handoffPath = path.join(fixture.repo, 'docs', 'handoffs', 'TASK-001.md');
-    fs.appendFileSync(recap, '\nDecision: TODO\nPrivate reasoning: hidden chain\nAPI_TOKEN=secret-value\n');
-    fs.appendFileSync(handoffPath, '\n[Session recap](../sessions/privacy.md)\n');
-    fs.writeFileSync(path.join(fixture.repo, 'src', 'dirty.js'), 'x\n');
-    git(fixture.repo, ['add', 'src/dirty.js']);
-    const result = run(fixture.repo, ['session', 'checkpoint', '--reason', 'decision', '--session-id', 'privacy']);
-    assertFailed(result, /staged|source dirt|placeholder|private|secret|token/i);
-    assert.strictEqual(git(fixture.repo, ['rev-parse', '--short', 'HEAD']), git(fixture.remote, ['rev-parse', '--short', 'main']));
-  } finally {
-    fixture.cleanup();
+test('checkpoint independently rejects unrelated staging, placeholders, private reasoning, and secrets', () => {
+  const cases = [
+    { id: 'unrelated-stage', recap: 'Decision: Keep scope bounded.\n', staged: true, pattern: /unrelated staged/i },
+    { id: 'placeholder', recap: 'Decision: TODO\n', pattern: /placeholder|TODO/i },
+    { id: 'private-reasoning', recap: 'Decision: Keep scope bounded.\nPrivate reasoning: hidden chain\n', pattern: /private[- ]reasoning/i },
+    { id: 'secret', recap: 'Decision: Keep scope bounded.\nAPI_TOKEN=secret-value\n', pattern: /secret|token/i },
+  ];
+  for (const item of cases) {
+    const fixture = createRepo();
+    try {
+      git(fixture.repo, ['checkout', '-qb', `session/${item.id}`]);
+      assertOk(promote(fixture.repo, 'TASK-001', 'product', 'planning', item.id));
+      fs.appendFileSync(recapPath(fixture.repo, item.id), `\n${item.recap}`);
+      fs.appendFileSync(path.join(fixture.repo, 'docs', 'handoffs', 'TASK-001.md'), `\n[Session recap](../sessions/${item.id}.md)\nDecision: Keep scope bounded.\n`);
+      if (item.staged) {
+        fs.writeFileSync(path.join(fixture.repo, 'src', 'dirty.js'), 'x\n');
+        git(fixture.repo, ['add', 'src/dirty.js']);
+      }
+      assertFailed(run(fixture.repo, ['session', 'checkpoint', '--reason', 'decision', '--session-id', item.id]), item.pattern);
+      assert.strictEqual(git(fixture.repo, ['rev-parse', 'HEAD']), git(fixture.remote, ['rev-parse', 'main']));
+    } finally {
+      fixture.cleanup();
+    }
   }
 });
 
@@ -469,6 +484,36 @@ test('failed checkpoint push preserves the new commit, marks the session blocked
     assert.notStrictEqual(git(fixture.repo, ['rev-parse', 'HEAD']), before);
     assert.strictEqual(git(fixture.repo, ['branch', '--show-current']), 'session/push-fails');
     assert.strictEqual(readSession(fixture.repo, 'push-fails').state, 'blocked');
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('checkpoint persists commit-before-push state and safely resumes without duplicate commits or milestones', () => {
+  const fixture = createRepo();
+  try {
+    git(fixture.repo, ['checkout', '-qb', 'session/crash-resume']);
+    assertOk(promote(fixture.repo, 'TASK-001', 'tech', 'planning', 'crash-resume'));
+    fs.appendFileSync(recapPath(fixture.repo, 'crash-resume'), '\nDecision: Resume the exact preserved checkpoint commit.\n');
+    fs.appendFileSync(path.join(fixture.repo, 'docs', 'handoffs', 'TASK-001.md'), '\n[Session recap](../sessions/crash-resume.md)\nDecision: Resume the exact preserved checkpoint commit.\n');
+    const interrupted = run(
+      fixture.repo,
+      ['session', 'checkpoint', '--reason', 'decision', '--session-id', 'crash-resume'],
+      { FB_SESSION_TEST_INTERRUPT_AFTER_CHECKPOINT_COMMIT: '1' }
+    );
+    assertFailed(interrupted, /interrupt|resume|pending/i);
+    const preservedCommit = git(fixture.repo, ['rev-parse', 'HEAD']);
+    const pending = readSession(fixture.repo, 'crash-resume').pendingCheckpoint;
+    assert.strictEqual(pending.commit, preservedCommit);
+    assert.throws(() => git(fixture.remote, ['rev-parse', 'refs/heads/session/crash-resume']));
+
+    const resumed = run(fixture.repo, ['session', 'checkpoint', '--reason', 'decision', '--session-id', 'crash-resume']);
+    assertOk(resumed);
+    assert.strictEqual(git(fixture.repo, ['rev-parse', 'HEAD']), preservedCommit);
+    assert.strictEqual(git(fixture.remote, ['rev-parse', 'refs/heads/session/crash-resume']), preservedCommit);
+    const record = readSession(fixture.repo, 'crash-resume');
+    assert.strictEqual(record.pendingCheckpoint, undefined);
+    assert.strictEqual(record.milestones.filter(item => item.reason === 'decision' && item.commit === preservedCommit).length, 1);
   } finally {
     fixture.cleanup();
   }
@@ -506,6 +551,108 @@ test('submit and completed close require active execution, reciprocal evidence, 
   }
 });
 
+test('completed close and submit require complete actionable evidence from the canonical handoff only', () => {
+  const missingCanonical = createRepo();
+  try {
+    const worktree = addWorktree(missingCanonical, 'session/canonical-missing');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'canonical-missing'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 31;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: canonical evidence fixture']);
+    const sourceCommit = git(worktree, ['rev-parse', 'HEAD']);
+    appendEvidence(worktree, 'canonical-missing', 'TASK-001', sourceCommit);
+    assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'canonical-missing']));
+    const handoffPath = path.join(worktree, 'docs', 'handoffs', 'TASK-001.md');
+    const withoutReceipt = replaceSection(fs.readFileSync(handoffPath, 'utf8'), 'Task Receipt', '');
+    fs.writeFileSync(handoffPath, withoutReceipt);
+    assertFailed(
+      run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'canonical-missing']),
+      /canonical handoff|Task Receipt/i
+    );
+  } finally {
+    missingCanonical.cleanup();
+  }
+
+  const placeholders = createRepo();
+  try {
+    const worktree = addWorktree(placeholders, 'session/canonical-placeholders');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'canonical-placeholders'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 32;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: placeholder evidence fixture']);
+    const sourceCommit = git(worktree, ['rev-parse', 'HEAD']);
+    appendEvidence(worktree, 'canonical-placeholders', 'TASK-001', sourceCommit);
+    assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'canonical-placeholders']));
+    const handoffPath = path.join(worktree, 'docs', 'handoffs', 'TASK-001.md');
+    let markdown = fs.readFileSync(handoffPath, 'utf8');
+    markdown = replaceSection(markdown, 'Task Receipt', `
+Approved brief and decisions: Not recorded yet; completed closeout remains blocked.
+Confirmed assumptions and approved scope changes: Not recorded yet; completed closeout remains blocked.
+Branch, source commits, and changed surfaces: Not recorded yet; completed closeout remains blocked.
+Checks, failures, recovery, and results: Not recorded yet; completed closeout remains blocked.
+Review state, direct links, limits, and external gates: Not recorded yet; completed closeout remains blocked.
+Repository state: Not recorded yet; completed closeout remains blocked.
+Remaining owner and action: Not recorded yet; completed closeout remains blocked.
+`);
+    markdown = replaceSection(markdown, 'Brief Validation', `
+Status: pass
+Satisfied criteria and evidence: None
+Missing criteria: None
+Reason: None
+Owner: None
+Next action: None
+Approved scope-change references: None
+`);
+    markdown = replaceSection(markdown, 'Verification Handoff', 'Placeholder evidence.');
+    markdown = replaceSection(markdown, 'Test This Now', 'Placeholder evidence.');
+    fs.writeFileSync(handoffPath, markdown);
+    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /Task Receipt|Brief Validation|Verification Handoff|Test This Now|actionable|placeholder/i);
+  } finally {
+    placeholders.cleanup();
+  }
+});
+
+test('submit revalidates current board approval, locks, handoff, branch, and registered linked worktree', () => {
+  const fixture = createRepo();
+  try {
+    const worktree = addWorktree(fixture, 'session/submit-authority');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'submit-authority'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 41;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: submit authority fixture']);
+    const sourceCommit = git(worktree, ['rev-parse', 'HEAD']);
+    appendEvidence(worktree, 'submit-authority', 'TASK-001', sourceCommit);
+    assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'submit-authority']));
+
+    const boardPath = path.join(worktree, 'PROJECT_BOARD.md');
+    const originalBoard = fs.readFileSync(boardPath, 'utf8');
+    fs.writeFileSync(boardPath, originalBoard.replace('| TASK-001 | In Progress |', '| TASK-001 | Staging QA |'));
+    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /In Progress|authoritative board|approval/i);
+    fs.writeFileSync(boardPath, originalBoard.replace('**Approval**: approved', '**Approval**: pending'));
+    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /approved|approval/i);
+    fs.writeFileSync(boardPath, originalBoard.replace('| src/app.js |', '| src/other.js |'));
+    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /lock|authoritative/i);
+    fs.writeFileSync(boardPath, originalBoard);
+
+    const handoffPath = path.join(worktree, 'docs', 'handoffs', 'TASK-001.md');
+    const parkedHandoff = `${handoffPath}.parked`;
+    fs.renameSync(handoffPath, parkedHandoff);
+    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /handoff/i);
+    fs.renameSync(parkedHandoff, handoffPath);
+
+    const sessionFilePath = sessionPath(worktree, 'submit-authority');
+    const originalRecord = readSession(worktree, 'submit-authority');
+    fs.writeFileSync(sessionFilePath, `${JSON.stringify({ ...originalRecord, worktree: fixture.repo }, null, 2)}\n`);
+    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /linked worktree|recorded worktree|registered/i);
+    fs.writeFileSync(sessionFilePath, `${JSON.stringify(originalRecord, null, 2)}\n`);
+
+    git(worktree, ['checkout', '-qb', 'session/submit-wrong-branch']);
+    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /session branch|recorded branch|branch/i);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
 test('blocked and deferred close require blocked validation plus a concrete reason, owner, and next action', () => {
   for (const outcomeName of ['blocked', 'deferred']) {
     const fixture = createRepo();
@@ -524,14 +671,32 @@ test('blocked and deferred close require blocked validation plus a concrete reas
   }
 });
 
-test('recall searches only committed Markdown in HEAD or already-fetched refs and emits deterministic exact citations', () => {
+test('recall searches only curated FB records, rejects private data, and emits deterministic full-SHA citations', () => {
   const fixture = createRepo();
   try {
     git(fixture.repo, ['checkout', '-qb', 'knowledge/branch']);
     fs.mkdirSync(path.join(fixture.repo, 'docs', 'knowledge'), { recursive: true });
-    fs.writeFileSync(path.join(fixture.repo, 'docs', 'knowledge', 'note.md'), '# Curated note\n\nNeedle phrase for recall.\n');
-    git(fixture.repo, ['add', 'docs/knowledge/note.md']);
-    git(fixture.repo, ['commit', '-qm', 'docs: add curated note']);
+    fs.writeFileSync(path.join(fixture.repo, 'docs', 'knowledge', 'note.md'), '# Ordinary note\n\nUncurated needle must stay hidden.\n');
+    fs.writeFileSync(path.join(fixture.repo, 'docs', 'handoffs', 'TASK-RECALL.md'), `---
+type: fb-lane-handoff
+task: TASK-RECALL
+---
+
+# Curated recall handoff
+
+Needle phrase for recall.
+`);
+    fs.writeFileSync(path.join(fixture.repo, 'docs', 'handoffs', 'TASK-SECRET.md'), `---
+type: fb-lane-handoff
+task: TASK-SECRET
+---
+
+# Unsafe recall handoff
+
+Leaky needle API_TOKEN=super-secret-value
+`);
+    git(fixture.repo, ['add', 'docs/knowledge/note.md', 'docs/handoffs/TASK-RECALL.md', 'docs/handoffs/TASK-SECRET.md']);
+    git(fixture.repo, ['commit', '-qm', 'docs: add recall fixtures']);
     const commit = git(fixture.repo, ['rev-parse', 'HEAD']);
     git(fixture.repo, ['push', '-q', '-u', 'origin', 'knowledge/branch']);
     git(fixture.repo, ['checkout', '-q', 'main']);
@@ -539,16 +704,18 @@ test('recall searches only committed Markdown in HEAD or already-fetched refs an
     assertFailed(headOnly, /no committed curated Markdown|no matches/i);
     const allRefs = run(fixture.repo, ['session', 'recall', 'Needle phrase', '--all-refs']);
     assertOk(allRefs);
-    assert.match(allRefs.stdout, /docs\/knowledge\/note\.md#L3/);
+    assert.match(allRefs.stdout, /docs\/handoffs\/TASK-RECALL\.md#L8/);
     assert.match(allRefs.stdout, /refs\/remotes\/origin\/knowledge\/branch/);
-    assert.match(allRefs.stdout, new RegExp(commit.slice(0, 12)));
+    assert.match(allRefs.stdout, new RegExp(commit));
     assert.match(allRefs.stdout, /Needle phrase for recall\./);
+    assertFailed(run(fixture.repo, ['session', 'recall', 'Uncurated needle', '--all-refs']), /no committed curated Markdown|no matches/i);
+    assertFailed(run(fixture.repo, ['session', 'recall', 'Leaky needle', '--all-refs']), /privacy|secret|no committed curated Markdown|no matches/i);
   } finally {
     fixture.cleanup();
   }
 });
 
-test('review writes a paste-ready Markdown packet to stdout and clone-local state but no tracked file', () => {
+test('review writes a paste-ready Markdown packet without tracked files and makes clipboard failure actionable', () => {
   const fixture = createRepo();
   try {
     git(fixture.repo, ['checkout', '-qb', 'session/review-source']);
@@ -557,14 +724,72 @@ test('review writes a paste-ready Markdown packet to stdout and clone-local stat
     git(fixture.repo, ['add', 'src/app.js']);
     git(fixture.repo, ['commit', '-qm', 'feat: review source']);
     const before = git(fixture.repo, ['status', '--porcelain']);
-    const review = run(fixture.repo, ['session', 'review', 'HEAD', '--session-id', 'review-1']);
-    assertOk(review);
-    assert.match(review.stdout, /^# FB Session Review/m);
-    assert.match(review.stdout, /src\/app\.js/);
+    const successOutput = [];
+    const originalLog = console.log;
+    try {
+      console.log = (...values) => successOutput.push(values.join(' '));
+      runSessionCommand(['review', 'HEAD', '--session-id', 'review-1'], {
+        cwd: fixture.repo,
+        env: cleanEnv,
+        copyToClipboard: () => true,
+      });
+    } finally {
+      console.log = originalLog;
+    }
+    assert.match(successOutput.join('\n'), /^# FB Session Review/m);
+    assert.match(successOutput.join('\n'), /src\/app\.js/);
     assert.strictEqual(git(fixture.repo, ['status', '--porcelain']), before);
     assert.strictEqual(readSession(fixture.repo, 'review-1').state, 'reviewing');
+
+    const failureOutput = [];
+    try {
+      console.log = (...values) => failureOutput.push(values.join(' '));
+      assert.throws(() => runSessionCommand(['review', 'HEAD', '--session-id', 'review-1'], {
+        cwd: fixture.repo,
+        env: cleanEnv,
+        copyToClipboard: () => false,
+      }), /clipboard.*failed|failed.*clipboard/i);
+    } finally {
+      console.log = originalLog;
+    }
+    assert.match(failureOutput.join('\n'), /^# FB Session Review/m);
+    assert.match(failureOutput.join('\n'), /src\/app\.js/);
+    assert.strictEqual(git(fixture.repo, ['status', '--porcelain']), before);
   } finally {
     fixture.cleanup();
+  }
+});
+
+test('doctor verifies execution worktree registration/branch and the bundled MCP server route', () => {
+  const executionFixture = createRepo();
+  try {
+    const worktree = addWorktree(executionFixture, 'session/doctor-worktree');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'doctor-worktree'));
+    const recordPath = sessionPath(worktree, 'doctor-worktree');
+    const record = readSession(worktree, 'doctor-worktree');
+    fs.writeFileSync(recordPath, `${JSON.stringify({ ...record, worktree: executionFixture.repo }, null, 2)}\n`);
+    const location = collectSessionDoctorChecks(executionFixture.repo).find(check => check.label === 'Session branch/worktree requirements');
+    assert.strictEqual(location.level, 'fail', JSON.stringify(location));
+    assert.match(location.detail, /worktree|branch|registered/i);
+  } finally {
+    executionFixture.cleanup();
+  }
+
+  const pluginFixture = createRepo();
+  try {
+    const pluginRoot = path.join(pluginFixture.repo, 'plugins', 'fb-lane-coordination');
+    fs.mkdirSync(path.join(pluginRoot, '.codex-plugin'), { recursive: true });
+    fs.mkdirSync(path.join(pluginRoot, 'tools'), { recursive: true });
+    fs.writeFileSync(path.join(pluginRoot, '.codex-plugin', 'plugin.json'), `${JSON.stringify({ mcpServers: './.mcp.json' }, null, 2)}\n`);
+    fs.writeFileSync(path.join(pluginRoot, '.mcp.json'), `${JSON.stringify({
+      mcpServers: { 'fb-lane': { command: 'node', args: ['./tools/missing-server.cjs', 'mcp'], cwd: '.' } },
+    }, null, 2)}\n`);
+    fs.writeFileSync(path.join(pluginRoot, 'tools', 'fb-session.cjs'), '// A decoy file must not make doctor pass.\n');
+    const server = collectSessionDoctorChecks(pluginFixture.repo).find(check => check.label === 'Plugin session server resolution');
+    assert.strictEqual(server.level, 'fail', JSON.stringify(server));
+    assert.match(server.detail, /configuration|missing-server|resolve|tool/i);
+  } finally {
+    pluginFixture.cleanup();
   }
 });
 
@@ -595,11 +820,52 @@ test('bootstrap preserves project-owned instructions, installs six canonical pag
   }
 });
 
-test('claim and quick default to linked worktrees while --no-worktree preserves the compatibility path', () => {
-  const source = fs.readFileSync(cliPath, 'utf8');
-  assert.match(source, /--no-worktree/);
-  assert.match(source, /worktree:\s*!noWorktree/);
-  assert.match(source, /handleQuick\([^\n]+\{\s*worktree:\s*!noWorktree\s*\}/);
+test('claim and quick execute linked worktrees by default while --no-worktree executes the compatibility path', () => {
+  const claimFixture = createRepo([{ id: 'TASK-001', status: 'Ready', locks: 'src/app.js' }]);
+  try {
+    const claimed = run(claimFixture.repo, ['claim', 'TASK-001', 'Tech', 'src/app.js']);
+    assertOk(claimed);
+    const claimedPath = path.join(claimFixture.parent, 'repo-tech-TASK-001');
+    assert.ok(fs.existsSync(claimedPath));
+    assert.strictEqual(git(claimedPath, ['branch', '--show-current']), 'tech/TASK-001-scope-for-task-001');
+    const registeredClaimPath = fs.realpathSync(claimedPath);
+    assert.match(git(claimFixture.repo, ['worktree', 'list', '--porcelain']), new RegExp(`worktree ${registeredClaimPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+    assert.match(fs.readFileSync(path.join(claimedPath, 'PROJECT_BOARD.md'), 'utf8'), /\| TASK-001 \| In Progress \| FB-Tech \|/);
+  } finally {
+    claimFixture.cleanup();
+  }
+
+  const quickFixture = createRepo();
+  try {
+    const quick = run(quickFixture.repo, ['quick', 'Tech', 'src/quick.js', 'Real quick worktree']);
+    assertOk(quick);
+    const branch = /Branch:\s+(quick\/TASK-Q-\d+-real-quick-worktree)/.exec(quick.stdout)?.[1];
+    const worktree = /Worktree:\s+([^\n]+)/.exec(quick.stdout)?.[1]?.trim();
+    assert.ok(branch && worktree, output(quick));
+    assert.ok(fs.existsSync(worktree));
+    assert.strictEqual(git(worktree, ['branch', '--show-current']), branch);
+    const registeredQuickPath = fs.realpathSync(worktree);
+    assert.match(git(quickFixture.repo, ['worktree', 'list', '--porcelain']), new RegExp(`worktree ${registeredQuickPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+  } finally {
+    quickFixture.cleanup();
+  }
+
+  for (const command of [
+    ['claim', 'TASK-001', 'Tech', 'src/app.js', '--no-worktree'],
+    ['quick', 'Tech', 'src/quick.js', 'Compatibility path', '--no-worktree'],
+  ]) {
+    const fixture = command[0] === 'claim'
+      ? createRepo([{ id: 'TASK-001', status: 'Ready', locks: 'src/app.js' }])
+      : createRepo();
+    try {
+      const result = run(fixture.repo, command);
+      assertOk(result);
+      assert.strictEqual(git(fixture.repo, ['worktree', 'list', '--porcelain']).split(/\n(?=worktree )/).length, 1);
+      assert.notStrictEqual(git(fixture.repo, ['branch', '--show-current']), 'main');
+    } finally {
+      fixture.cleanup();
+    }
+  }
 });
 
 test('public session behavior is identical through the packaged CLI', () => {

@@ -75,6 +75,25 @@ function isLinkedWorktree(cwd = process.cwd()) {
   return listed.includes(root);
 }
 
+function registeredWorktree(cwd, worktreePath, branch) {
+  let expectedPath;
+  try {
+    expectedPath = fs.realpathSync(worktreePath);
+  } catch (err) {
+    return false;
+  }
+  const entries = git(cwd, ['worktree', 'list', '--porcelain']).stdout.split(/\r?\n\r?\n/);
+  return entries.some(entry => {
+    const lines = entry.split(/\r?\n/);
+    const pathLine = lines.find(line => line.startsWith('worktree '));
+    const branchLine = lines.find(line => line.startsWith('branch '));
+    if (!pathLine || !branchLine) return false;
+    const candidate = pathLine.slice('worktree '.length);
+    if (!fs.existsSync(candidate)) return false;
+    return fs.realpathSync(candidate) === expectedPath && branchLine.slice('branch '.length) === `refs/heads/${branch}`;
+  });
+}
+
 function sleep(milliseconds) {
   const view = new Int32Array(new SharedArrayBuffer(4));
   Atomics.wait(view, 0, 0, milliseconds);
@@ -206,6 +225,12 @@ function validateRecord(record, expectedId = '') {
   if (!MODES.has(record.mode)) throw new Error(`Session ${record.sessionId} has unsupported mode ${JSON.stringify(record.mode)}.`);
   if (!LANES.has(record.lane)) throw new Error(`Session ${record.sessionId} has unsupported lane ${JSON.stringify(record.lane)}.`);
   if (!Array.isArray(record.locks) || !Array.isArray(record.milestones)) throw new Error(`Session ${record.sessionId} has malformed locks or milestones.`);
+  if (record.pendingCheckpoint && (
+    !CHECKPOINT_REASONS.has(record.pendingCheckpoint.reason)
+    || !record.pendingCheckpoint.branch
+    || !Array.isArray(record.pendingCheckpoint.allowed)
+    || !record.pendingCheckpoint.baseCommit
+  )) throw new Error(`Session ${record.sessionId} has malformed pending checkpoint state.`);
   return record;
 }
 
@@ -480,7 +505,7 @@ function fieldValue(markdown, label) {
 
 function actionable(value, options = {}) {
   const normalized = String(value || '').trim().replace(/^\*+|\*+$/g, '').trim();
-  if (!normalized || /^<[^>]+>$/.test(normalized) || /^(?:todo|tbd|placeholder|example)$/i.test(normalized)) return false;
+  if (!normalized || /^<[^>]+>$/.test(normalized) || /\b(?:todo|tbd|placeholder|example|not recorded(?: yet)?)\b/i.test(normalized)) return false;
   if (!options.allowNone && /^(?:none|n\/a|not recorded(?: yet)?)[.!]?$/i.test(normalized)) return false;
   return true;
 }
@@ -490,7 +515,7 @@ function assertCuratedPrivacy(markdown) {
     throw new Error('Curated session evidence rejects raw-transcript and private-reasoning sections.');
   }
   if (/\b(?:TODO|TBD)\b|<[^>\n]+>/i.test(markdown)) throw new Error('Curated session evidence rejects TODO, TBD, example, and angle-bracket placeholders.');
-  const secretLine = /(?:^|\n)\s*(?:[-*]\s*)?(?:[A-Z0-9_]*(?:API[_-]?KEY|TOKEN|PASSWORD|SECRET|CREDENTIAL)[A-Z0-9_]*|Authorization|Environment value)\s*[:=]\s*(?!none\b|not\b|redacted\b)\S+/i;
+  const secretLine = /\b(?:[A-Z0-9_]*(?:API[_-]?KEY|TOKEN|PASSWORD|SECRET|CREDENTIAL)[A-Z0-9_]*|Authorization|Environment value)\s*[:=]\s*(?!none\b|not\b|redacted\b)\S+/i;
   if (secretLine.test(markdown)) throw new Error('Curated session evidence rejects obvious secrets, credentials, tokens, and environment values.');
 }
 
@@ -539,6 +564,75 @@ function changedPaths(cwd, args) {
   return result.stdout.split(/\r?\n/).map(value => value.trim()).filter(Boolean);
 }
 
+function finishCheckpointPush(cwd, sessionId, reason, commit) {
+  const push = git(cwd, ['push', '-u', 'origin', 'HEAD'], { allowFailure: true });
+  if (push.status !== 0) {
+    mutateSession(cwd, sessionId, current => {
+      current.state = 'blocked';
+      current.lastFailure = {
+        failure: 'Checkpoint push failed',
+        observed: push.stderr || push.stdout,
+        cause: 'The configured origin rejected or could not receive the push.',
+        recoveryAttempted: 'No force push, rebase, rollback, or branch change was attempted.',
+        result: `Commit ${commit} was preserved locally with pending checkpoint state for a normal retry.`,
+        reusableLesson: 'Repair origin access, then rerun the same checkpoint to push the preserved commit normally.',
+      };
+      return current;
+    });
+    throw new Error(`Checkpoint commit ${commit} was preserved, but push failed; session is blocked and can resume. ${push.stderr || push.stdout}`);
+  }
+  const updated = mutateSession(cwd, sessionId, current => {
+    const at = new Date().toISOString();
+    current.state = reason === 'blocked' ? 'blocked' : 'active';
+    current.lastMilestoneAt = at;
+    if (!current.milestones.some(item => item.reason === reason && item.commit === commit)) {
+      current.milestones.push({ reason, at, commit, pushed: true });
+    }
+    delete current.pendingCheckpoint;
+    return current;
+  });
+  return { record: updated, commit };
+}
+
+function resumePendingCheckpoint(cwd, record, reason, branch, allowed) {
+  const pending = record.pendingCheckpoint;
+  if (!pending) return null;
+  if (pending.reason !== reason) throw new Error(`Session ${record.sessionId} has a pending ${pending.reason} checkpoint; rerun that reason before starting ${reason}.`);
+  if (pending.branch !== branch || pending.allowed.join('\n') !== allowed.join('\n')) {
+    throw new Error(`Pending checkpoint ${record.sessionId} no longer matches its recorded branch or coordination files.`);
+  }
+  const head = git(cwd, ['rev-parse', 'HEAD']).stdout;
+  let commit = pending.commit || '';
+  if (!commit) {
+    if (head === pending.baseCommit) {
+      mutateSession(cwd, record.sessionId, current => {
+        delete current.pendingCheckpoint;
+        return current;
+      });
+      return null;
+    }
+    const parent = git(cwd, ['rev-parse', `${head}^`], { allowFailure: true });
+    const subject = git(cwd, ['show', '-s', '--format=%s', head]).stdout;
+    const committed = changedPaths(cwd, ['show', '--pretty=', '--name-only', head]).sort();
+    if (parent.status !== 0 || parent.stdout !== pending.baseCommit
+      || subject !== `docs(session): ${record.sessionId} ${reason} checkpoint`
+      || committed.join('\n') !== [...allowed].sort().join('\n')) {
+      throw new Error(`Pending checkpoint ${record.sessionId} cannot safely identify the preserved commit; no push, rollback, rebase, or branch change was attempted.`);
+    }
+    commit = head;
+    mutateSession(cwd, record.sessionId, current => {
+      current.pendingCheckpoint.commit = commit;
+      return current;
+    });
+  }
+  if (head !== commit) throw new Error(`Pending checkpoint ${record.sessionId} requires preserved commit ${commit} at HEAD; no automatic history rewrite was attempted.`);
+  const committed = changedPaths(cwd, ['show', '--pretty=', '--name-only', commit]).sort();
+  if (committed.join('\n') !== [...allowed].sort().join('\n')) {
+    throw new Error(`Pending checkpoint ${record.sessionId} commit contains files outside its recorded coordination boundary.`);
+  }
+  return finishCheckpointPush(cwd, record.sessionId, reason, commit);
+}
+
 function checkpointSession(cwd, args, env) {
   const sessionId = resolveSessionId(args, env);
   const reason = String(optionValue(args, '--reason') || '').toLowerCase();
@@ -550,6 +644,8 @@ function checkpointSession(cwd, args, env) {
   if (branch !== record.branch) throw new Error(`Checkpoint must run on the session branch ${record.branch}.`);
   if (!record.handoff) throw new Error('Checkpoint requires a linked handoff.');
   const allowed = [record.recap, record.handoff].map(value => value.replace(/\\/g, '/'));
+  const resumed = resumePendingCheckpoint(cwd, record, reason, branch, allowed);
+  if (resumed) return resumed;
   const recapPath = path.join(repoRoot, record.recap);
   const handoffPath = path.join(repoRoot, record.handoff);
   if (!fs.existsSync(recapPath) || !fs.existsSync(handoffPath)) throw new Error('Checkpoint requires the recap and linked handoff files.');
@@ -568,35 +664,30 @@ function checkpointSession(cwd, args, env) {
   const recap = fs.readFileSync(recapPath, 'utf8');
   const handoff = fs.readFileSync(handoffPath, 'utf8');
   assertCheckpointEvidence(reason, recap, handoff, record);
+  const baseCommit = git(cwd, ['rev-parse', 'HEAD']).stdout;
+  mutateSession(cwd, sessionId, current => {
+    current.pendingCheckpoint = {
+      reason,
+      branch,
+      allowed,
+      baseCommit,
+      preparedAt: new Date().toISOString(),
+    };
+    return current;
+  });
   git(cwd, ['add', '--', ...allowed]);
   const stagedAfter = changedPaths(cwd, ['diff', '--cached', '--name-only']);
   if (stagedAfter.some(value => !allowed.includes(value))) throw new Error('Checkpoint staging escaped the recap and linked handoff boundary.');
   git(cwd, ['commit', '-m', `docs(session): ${sessionId} ${reason} checkpoint`]);
   const commit = git(cwd, ['rev-parse', 'HEAD']).stdout;
-  const push = git(cwd, ['push', '-u', 'origin', 'HEAD'], { allowFailure: true });
-  if (push.status !== 0) {
-    mutateSession(cwd, sessionId, current => {
-      current.state = 'blocked';
-      current.lastFailure = {
-        failure: 'Checkpoint push failed',
-        observed: push.stderr || push.stdout,
-        cause: 'The configured origin rejected or could not receive the push.',
-        recoveryAttempted: 'No force push, rebase, rollback, or branch change was attempted.',
-        result: `Commit ${commit} was preserved locally.`,
-        reusableLesson: 'Repair origin access, then push the preserved commit normally.',
-      };
-      return current;
-    });
-    throw new Error(`Checkpoint commit ${commit} was preserved, but push failed; session is blocked. ${push.stderr || push.stdout}`);
-  }
-  const updated = mutateSession(cwd, sessionId, current => {
-    const at = new Date().toISOString();
-    current.state = reason === 'blocked' ? 'blocked' : 'active';
-    current.lastMilestoneAt = at;
-    current.milestones.push({ reason, at, commit, pushed: true });
+  mutateSession(cwd, sessionId, current => {
+    current.pendingCheckpoint.commit = commit;
     return current;
   });
-  return { record: updated, commit };
+  if (env.FB_SESSION_TEST_INTERRUPT_AFTER_CHECKPOINT_COMMIT === '1') {
+    throw new Error(`Checkpoint commit ${commit} is preserved in pending state; simulated interruption requires a safe resume.`);
+  }
+  return finishCheckpointPush(cwd, sessionId, reason, commit);
 }
 
 const RECEIPT_FIELDS = [
@@ -607,6 +698,24 @@ const RECEIPT_FIELDS = [
   'Review state, direct links, limits, and external gates',
   'Repository state',
   'Remaining owner and action',
+];
+const VERIFICATION_HANDOFF_FIELDS = [
+  'Candidate',
+  'Test plan',
+  'Commands and results',
+  'Environment',
+  'Runnable evidence links',
+  'Manual pass criteria',
+  'Recovery attempted',
+  'Known limits',
+  'Next Product/BFM recovery action',
+];
+const TEST_THIS_NOW_FIELDS = [
+  'Outcome type',
+  'Direct links',
+  'Pass criteria',
+  'Known limits',
+  'Failure-report format',
 ];
 
 function evidenceFiles(cwd, record) {
@@ -622,21 +731,65 @@ function assertCompletedEvidence(cwd, record) {
   const { recap, handoff, combined } = evidenceFiles(cwd, record);
   assertCuratedPrivacy(combined);
   assertStructuredFailures(combined);
-  const receipt = lastSection(handoff, 'Task Receipt') || lastSection(recap, 'Task Receipt');
+  if (!handoff) throw new Error('Completed reviewable work requires the canonical linked handoff.');
+  const receipt = lastSection(handoff, 'Task Receipt');
+  if (!receipt) throw new Error('The canonical handoff requires a complete Task Receipt.');
   const missingReceipt = RECEIPT_FIELDS.filter(label => !actionable(fieldValue(receipt, label), { allowNone: false }));
   if (missingReceipt.length) throw new Error(`Task Receipt is incomplete: ${missingReceipt.join(', ')}.`);
-  const validation = lastSection(handoff, 'Brief Validation') || lastSection(recap, 'Brief Validation');
+  const validation = lastSection(handoff, 'Brief Validation');
+  if (!validation) throw new Error('The canonical handoff requires Brief Validation.');
   if (!/^pass$/i.test(fieldValue(validation, 'Status'))) throw new Error('Completed reviewable work requires Brief Validation: pass.');
   for (const label of ['Satisfied criteria and evidence', 'Missing criteria', 'Reason', 'Owner', 'Next action', 'Approved scope-change references']) {
-    if (!actionable(fieldValue(validation, label), { allowNone: true })) throw new Error(`Brief Validation is missing ${label}.`);
+    if (!actionable(fieldValue(validation, label), { allowNone: false })) throw new Error(`Brief Validation is missing actionable ${label}.`);
   }
   if (!record.milestones.some(item => item.reason === 'verification' && item.commit)) throw new Error('Completed reviewable work requires a verification checkpoint.');
-  if (!lastSection(handoff, 'Verification Handoff')) throw new Error('Completed reviewable work requires Verification Handoff.');
-  if (!lastSection(handoff, 'Test This Now')) throw new Error('Completed reviewable work requires Test This Now.');
+  const verification = lastSection(handoff, 'Verification Handoff');
+  if (!verification) throw new Error('Completed reviewable work requires Verification Handoff.');
+  const missingVerification = VERIFICATION_HANDOFF_FIELDS.filter(label => !actionable(fieldValue(verification, label), { allowNone: false }));
+  if (missingVerification.length) throw new Error(`Verification Handoff is incomplete: ${missingVerification.join(', ')}.`);
+  const testNow = lastSection(handoff, 'Test This Now');
+  if (!testNow) throw new Error('Completed reviewable work requires Test This Now.');
+  const missingTestNow = TEST_THIS_NOW_FIELDS.filter(label => !actionable(fieldValue(testNow, label), { allowNone: false }));
+  if (missingTestNow.length || !/^\s*\d+\.\s+\S+/m.test(testNow)) {
+    throw new Error(`Test This Now is incomplete${missingTestNow.length ? `: ${missingTestNow.join(', ')}` : ': exact numbered steps and expectations are required'}.`);
+  }
   if (!handoff.includes(`../sessions/${record.sessionId}.md`) || !recap.includes(`../handoffs/${path.basename(record.handoff || '')}`)) {
     throw new Error('Completed reviewable work requires reciprocal recap and handoff links.');
   }
   return true;
+}
+
+function assertExecutionAuthority(cwd, record) {
+  const repoRoot = gitRoot(cwd);
+  const task = readBoardTask(repoRoot, record.taskId);
+  if (!task || task.status !== 'In Progress') throw new Error(`Submit requires ${record.taskId} to remain In Progress on the current authoritative board.`);
+  if (!task.approved) throw new Error(`Submit requires ${record.taskId} to remain approved on the current authoritative board.`);
+  if (!task.handoff || task.handoff !== record.handoff || !fs.existsSync(path.join(repoRoot, task.handoff))) {
+    throw new Error(`Submit requires the current authoritative handoff ${record.handoff || task.handoff || record.taskId}.`);
+  }
+  const currentLocks = [...task.locks].sort();
+  const recordedLocks = [...record.locks].sort();
+  if (currentLocks.length === 0 || currentLocks.join('\n') !== recordedLocks.join('\n')) {
+    throw new Error('Submit requires declared locks to match the current authoritative board.');
+  }
+  if (currentBranch(cwd) !== record.branch) throw new Error(`Submit must run on recorded session branch ${record.branch}.`);
+  let currentPath = '';
+  let recordedPath = '';
+  try {
+    currentPath = fs.realpathSync(repoRoot);
+    recordedPath = fs.realpathSync(record.worktree);
+  } catch (err) {}
+  if (!currentPath || currentPath !== recordedPath || !isLinkedWorktree(cwd) || !registeredWorktree(cwd, record.worktree, record.branch)) {
+    throw new Error(`Submit requires recorded worktree ${record.worktree} to be a registered linked worktree on ${record.branch}.`);
+  }
+  for (const other of listSessions(cwd)) {
+    if (other.sessionId === record.sessionId || other.state === 'closed' || other.mode !== 'execution') continue;
+    for (const requested of record.locks) {
+      const conflict = other.locks.find(active => locksOverlap(requested, active));
+      if (conflict) throw new Error(`Submit lock ${requested} conflicts with ${conflict} held by ${other.sessionId}.`);
+    }
+  }
+  return task;
 }
 
 function closeSession(cwd, args, env) {
@@ -671,14 +824,25 @@ function closeSession(cwd, args, env) {
 function assertSubmitReady(cwd, taskId) {
   const candidates = listSessions(cwd).filter(record => record.taskId === taskId && record.mode === 'execution' && record.state === 'active');
   if (candidates.length !== 1) throw new Error(`Submit requires one active execution session for ${taskId}.`);
+  assertExecutionAuthority(cwd, candidates[0]);
   assertCompletedEvidence(cwd, candidates[0]);
   return candidates[0];
+}
+
+function isCuratedRecallRecord(file, markdown) {
+  if (file === 'PROJECT_BOARD.md') return true;
+  if (/^docs\/workstreams\/[^/]+\.md$/i.test(file)) return true;
+  const type = /^type:\s*([^\n]+)$/im.exec(markdown)?.[1]?.trim().toLowerCase() || '';
+  if (/^docs\/handoffs\/[^/]+\.md$/i.test(file)) return type === 'fb-lane-handoff';
+  if (/^docs\/sessions\/[^/]+\.md$/i.test(file)) return type === 'fb-session-recap';
+  return false;
 }
 
 function recallSession(cwd, args) {
   const allRefs = args.includes('--all-refs');
   const query = args.filter(arg => arg !== '--all-refs').join(' ').trim();
   if (!query) throw new Error('session recall requires <query>.');
+  assertCuratedPrivacy(query);
   const refs = ['HEAD'];
   if (allRefs) {
     const fetched = git(cwd, ['for-each-ref', '--format=%(refname)', 'refs/heads', 'refs/remotes']).stdout
@@ -692,11 +856,16 @@ function recallSession(cwd, args) {
     if (commitResult.status !== 0) continue;
     const commit = commitResult.stdout;
     const files = git(cwd, ['ls-tree', '-r', '--name-only', ref]).stdout.split(/\r?\n/)
-      .filter(file => file.endsWith('.md') && !/(?:^|\/)(?:transcripts?|private-reasoning|chain-of-thought)(?:\/|$)/i.test(file))
+      .filter(file => file.endsWith('.md'))
       .sort();
     for (const file of files) {
       const shown = git(cwd, ['show', `${ref}:${file}`], { allowFailure: true });
-      if (shown.status !== 0 || /^#{1,6}\s+(?:raw\s+)?transcript\b|^#{1,6}\s+(?:private reasoning|chain of thought)\b/im.test(shown.stdout)) continue;
+      if (shown.status !== 0 || !isCuratedRecallRecord(file, shown.stdout)) continue;
+      try {
+        assertCuratedPrivacy(shown.stdout);
+      } catch (err) {
+        continue;
+      }
       shown.stdout.split(/\r?\n/).forEach((line, index) => {
         if (line.toLowerCase().includes(needle)) matches.push({ ref, commit, file, line: index + 1, text: line.trim() });
       });
@@ -705,7 +874,7 @@ function recallSession(cwd, args) {
   matches.sort((a, b) => a.ref.localeCompare(b.ref) || a.file.localeCompare(b.file) || a.line - b.line || a.text.localeCompare(b.text));
   if (matches.length === 0) throw new Error(`No committed curated Markdown matches for ${JSON.stringify(query)}.`);
   return `# FB Session Recall\n\nQuery: ${query}\n\n${matches.map(match =>
-    `- source: ${match.file}#L${match.line} | ref: ${match.ref} | commit: ${match.commit.slice(0, 12)} | ${match.text}`
+    `- source: ${match.file}#L${match.line} | ref: ${match.ref} | commit: ${match.commit} | ${match.text}`
   ).join('\n')}`;
 }
 
@@ -754,8 +923,7 @@ ${changed.length ? changed.map(file => `- \`${file}\``).join('\n') : '- No chang
 
 Compare this candidate against the approved Build Brief, Task Receipt, Brief Validation, Verification Handoff, Test This Now evidence, known limits, and repository state. Report findings by severity with exact file references.
 `;
-  clipboard(packet);
-  return packet;
+  return { packet, copied: clipboard(packet) === true };
 }
 
 function validateHarnessParity(repoRoot) {
@@ -772,6 +940,37 @@ function validateHarnessParity(repoRoot) {
     if (!fs.existsSync(canonical) || !fs.existsSync(packaged) || fs.readFileSync(canonical, 'utf8') !== fs.readFileSync(packaged, 'utf8')) mismatches.push(`tools/${file}`);
   }
   return mismatches;
+}
+
+function validatePluginServerResolution(pluginRoot) {
+  try {
+    const manifestPath = path.join(pluginRoot, '.codex-plugin', 'plugin.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    if (!actionable(manifest.mcpServers)) throw new Error('plugin manifest does not declare mcpServers');
+    const configPath = path.resolve(pluginRoot, manifest.mcpServers);
+    const rootPrefix = `${path.resolve(pluginRoot)}${path.sep}`;
+    if (!configPath.startsWith(rootPrefix) || !fs.existsSync(configPath)) throw new Error(`MCP configuration does not resolve inside the plugin: ${manifest.mcpServers}`);
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    const server = config.mcpServers && config.mcpServers['fb-lane'];
+    if (!server || server.command !== 'node' || !Array.isArray(server.args) || !server.args.includes('mcp')) {
+      throw new Error('MCP configuration requires the fb-lane node server with the mcp argument');
+    }
+    const serverCwd = path.resolve(pluginRoot, server.cwd || '.');
+    if (serverCwd !== path.resolve(pluginRoot)) throw new Error(`MCP server cwd must resolve to the bundled plugin root: ${server.cwd}`);
+    const toolArg = server.args.find(arg => /\.cjs$/i.test(arg));
+    if (!toolArg) throw new Error('MCP configuration does not declare a CommonJS tool path');
+    const toolPath = path.resolve(serverCwd, toolArg);
+    const expectedTool = path.join(pluginRoot, 'tools', 'fb-lane.cjs');
+    if (toolPath !== expectedTool || !fs.existsSync(toolPath)) throw new Error(`MCP tool path does not resolve to bundled tools/fb-lane.cjs: ${toolArg}`);
+    const toolSource = fs.readFileSync(toolPath, 'utf8');
+    if (!/require\(['"]\.\/fb-session\.cjs['"]\)/.test(toolSource)) throw new Error('Bundled MCP tool does not resolve the session module');
+    const sessionPath = path.join(path.dirname(toolPath), 'fb-session.cjs');
+    require.resolve(toolPath);
+    require.resolve(sessionPath);
+    return { ok: true, detail: 'Bundled plugin manifest resolves .mcp.json to tools/fb-lane.cjs mcp and fb-session.cjs.' };
+  } catch (err) {
+    return { ok: false, detail: `Bundled plugin server configuration cannot resolve: ${err.message}` };
+  }
 }
 
 function collectSessionDoctorChecks(repoRoot) {
@@ -795,7 +994,19 @@ function collectSessionDoctorChecks(repoRoot) {
     const worktree = record.worktree && fs.existsSync(record.worktree) ? record.worktree : repoRoot;
     if (!fs.existsSync(path.join(worktree, record.recap)) || (record.handoff && !fs.existsSync(path.join(worktree, record.handoff)))) linkProblems.push(record.sessionId);
     if (record.state !== 'closed' && (!record.branch || record.branch === defaultBranch(repoRoot))) branchProblems.push(`${record.sessionId} (branch)`);
-    if (record.mode === 'execution' && record.state !== 'closed' && (!record.worktree || !fs.existsSync(record.worktree))) branchProblems.push(`${record.sessionId} (worktree)`);
+    if (record.mode === 'execution' && record.state !== 'closed') {
+      let validExecutionLocation = Boolean(record.worktree && fs.existsSync(record.worktree)
+        && registeredWorktree(repoRoot, record.worktree, record.branch));
+      if (validExecutionLocation) {
+        try {
+          validExecutionLocation = currentBranch(record.worktree) === record.branch
+            && fs.realpathSync(gitRoot(record.worktree)) === fs.realpathSync(record.worktree);
+        } catch (err) {
+          validExecutionLocation = false;
+        }
+      }
+      if (!validExecutionLocation) branchProblems.push(`${record.sessionId} (registered worktree/branch)`);
+    }
     if (computedState(record) === 'stale') stale.push(record.sessionId);
   }
   add(linkProblems.length ? 'fail' : 'ok', 'Session recap/handoff links', linkProblems.length ? `Missing linked records: ${linkProblems.join(', ')}` : 'Live session records resolve their recap and handoff links.', 'Restore the linked curated Markdown or close the invalid session honestly.');
@@ -813,8 +1024,8 @@ function collectSessionDoctorChecks(repoRoot) {
   if (fs.existsSync(pluginRoot)) {
     const mismatches = validateHarnessParity(repoRoot);
     add(mismatches.length ? 'fail' : 'ok', 'Session harness parity', mismatches.length ? `Root/package mismatch: ${mismatches.join(', ')}` : 'Root/package session modules, tests, and six harness pages match.', 'Restore the canonical/package mirrors before closeout.');
-    const pluginServer = path.join(pluginRoot, 'tools', 'fb-session.cjs');
-    add(fs.existsSync(pluginServer) ? 'ok' : 'fail', 'Plugin session server resolution', fs.existsSync(pluginServer) ? 'Packaged CLI can resolve fb-session.cjs.' : 'Packaged fb-session.cjs is missing.', 'Restore plugins/fb-lane-coordination/tools/fb-session.cjs.');
+    const pluginServer = validatePluginServerResolution(pluginRoot);
+    add(pluginServer.ok ? 'ok' : 'fail', 'Plugin session server resolution', pluginServer.detail, 'Restore the bundled plugin manifest, .mcp.json route, tools/fb-lane.cjs, and fb-session.cjs resolution chain.');
   } else {
     add('ok', 'Session harness parity', 'Consumer repository detected; installed package-source parity is not applicable here.');
     add('ok', 'Plugin session server resolution', `The active CLI resolved ${path.basename(__filename)}.`);
@@ -864,7 +1075,9 @@ function runSessionCommand(args, options = {}) {
     return;
   }
   if (command === 'review') {
-    console.log(reviewSession(cwd, rest, env, options.copyToClipboard || copyClipboard));
+    const review = reviewSession(cwd, rest, env, options.copyToClipboard || copyClipboard);
+    console.log(review.packet);
+    if (!review.copied) throw new Error('Review packet was printed to stdout, but the clipboard write failed. Copy the stdout packet manually and retry only if clipboard delivery is required.');
     return;
   }
   if (command === 'close') {

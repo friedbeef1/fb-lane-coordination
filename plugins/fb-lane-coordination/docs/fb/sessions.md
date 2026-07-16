@@ -54,11 +54,16 @@ source. Scope, decision, blocked, and verification checkpoints validate their
 own evidence. A successful checkpoint commits and runs
 `git push -u origin HEAD` only on a non-default branch. If push fails, the
 commit stays intact, the session becomes blocked, and the CLI does not force,
-rebase, roll back, or switch branches.
+rebase, roll back, or switch branches. Pending checkpoint state is persisted
+before the commit so an interruption after commit and before push can resume by
+pushing that exact commit and recording one milestone; a rerun never needs new
+recap/handoff edits and never duplicates or rewrites the commit.
 
 ## Receipt, validation, and closeout
 
-The canonical Task Receipt records the approved brief and decisions; confirmed
+The canonical linked handoff is the only completed-work authority; a recap
+cannot substitute for missing handoff evidence. Its Task Receipt records the
+approved brief and decisions; confirmed
 assumptions and approved scope changes; branch, source commits, and changed
 surfaces; checks, failures, recovery, and results; review state, direct links,
 limits, and external gates; repository state; and remaining owner/action.
@@ -66,21 +71,36 @@ limits, and external gates; repository state; and remaining owner/action.
 Brief Validation is `pass` or `blocked`. Product/BFM authors the semantic
 comparison. The deterministic CLI only checks complete actionable structure:
 satisfied criteria/evidence; missing criteria/reason/owner/next action; and
-approved scope-change references.
+approved scope-change references. `None`, generated setup text, TODO/TBD,
+examples, and placeholders do not satisfy completed evidence.
 
 Completed reviewable work requires passing Brief Validation, a complete Task
 Receipt, verification checkpoint, Verification Handoff, reciprocal recap and
-handoff links, and Test This Now. Blocked or deferred closeout requires blocked
+handoff links, and Test This Now. Verification Handoff requires its candidate,
+plan, commands/results, environment, runnable links, manual pass criteria,
+recovery, limits, and next recovery action. Test This Now requires actionable
+outcome, links, numbered steps/expectations, pass criteria, limits, and failure
+format. Blocked or deferred closeout requires blocked
 validation plus a concrete reason, owner, and next action. `submit` applies the
-same evidence gate and additionally requires one active execution session.
+same evidence gate and additionally requires one active execution session. It
+revalidates the current board's In Progress approval, declared locks, linked
+handoff, current branch, and registered linked worktree immediately before
+submission instead of trusting an older session record.
 
 ## Recall, review, and privacy boundary
 
-`recall` searches committed curated Markdown in `HEAD`; `--all-refs` adds only
-already-fetched local heads and remotes. It never fetches. Results cite exact
-source path and line, ref, commit, and matching text in deterministic order.
+`recall` searches only explicit FB records: `PROJECT_BOARD.md`, workstream
+cards, typed `fb-lane-handoff` files under `docs/handoffs/`, and typed
+`fb-session-recap` files under `docs/sessions/`. `HEAD` is the default;
+`--all-refs` adds only already-fetched local heads and remotes. It never fetches
+or scans ordinary Markdown. Query and candidate content pass the same
+transcript/private-reasoning/secret rejection before output. Results cite exact
+source path and line, ref, full commit SHA, and matching text in deterministic
+order.
 `review` prints and copies a paste-ready Markdown packet while writing no
-tracked review file; its only mutation is clone-local session state.
+tracked review file; its only mutation is clone-local session state. If the
+clipboard write fails, stdout still contains the complete packet and the
+command exits nonzero with manual-copy recovery instead of claiming success.
 
 Committed curated Markdown is the default durable record. Clone-local JSON is
 transcript-free and should be deleted only after useful curated evidence is

@@ -2022,6 +2022,8 @@ function handleMcpRequest(request) {
           const { taskId, stagingUrl } = toolArgs;
           assertSafeTaskId(taskId);
 
+          assertSubmitReady(workspaceRoot, taskId);
+
           runHook('pre-submit', boardPath);
 
           // Run local tests first under MCP
