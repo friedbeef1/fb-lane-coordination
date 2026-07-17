@@ -47,6 +47,31 @@ verification checkpoint is reusable only when it explicitly records the
 required automated checks as passed for the same candidate commit and no
 runtime-affecting change followed it.
 
+## Way of Working and Distribution
+
+This is the default FB delivery contract, not a task-specific exception.
+
+- The canonical `docs/fb/` harness defines automated verification, optional
+  review evidence, Ready-to-ship state, safety precedence, and the Push Live
+  approval boundary.
+- Root coordination, Product, BFM, lane-routing, setup, and quickstart skills
+  use the same contract and terminology.
+- Bootstrap-generated project instructions route new and upgraded projects to
+  this workflow without overwriting project-owned instructions.
+- The Codex plugin receives mechanically generated copies of every canonical
+  runtime, test, harness, and shared-skill surface declared in the package
+  manifest. Plugin-only skills restate the same user-facing behavior without
+  creating a second policy source.
+- Root README, FAQ, setup, Codex guide, plugin README, examples, and templates
+  explain the simple sequence: automated checks, optional links, Ready to ship,
+  then Push Live approval.
+- Existing technical identifiers, commands, board statuses, package IDs, and
+  safety gates remain compatible. Historical records remain factual.
+
+Documentation must not describe routine user testing, PR review, staging, a
+handoff file, or owner transfer as a required verification stage. Those may
+provide evidence or coordination, but automated checks determine readiness.
+
 ## Live Boundary
 
 `Push Live` is the sole ordinary user prompt after verification. It authorizes
@@ -68,6 +93,11 @@ Focused root/package tests must prove:
 - safety triggers override the ordinary path;
 - checkpoint reuse requires the same candidate and explicit passed checks;
 - `Push Live` is required, candidate-bound, and single-use.
+- canonical harness, bootstrap output, shared skills, plugin-only routers, and
+  public documentation present the same delivery sequence;
+- generated plugin mirrors match their declared canonical sources;
+- no active guidance makes routine user QA, PR review, staging, handoff-file
+  creation, or owner transfer a prerequisite for Ready to ship.
 
 The implementation slice runs focused tests, package synchronization, syntax,
 whitespace, and doctor. It does not perform a live push.
