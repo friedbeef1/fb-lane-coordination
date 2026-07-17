@@ -41,6 +41,12 @@ FB keeps the candidate in **Checking**, diagnoses the evidence, and makes only
 scoped repairs within the declared loop budget. It does not silently change the
 approved outcome or weaken a valid test.
 
+## Can a sidechat hand work to any main task?
+
+No. A sidechat routes only to the parent task it was opened from. If that
+parent cannot be identified, FB gives you a paste-ready handoff instead of
+guessing another destination. See [safety, routing, and recovery](docs/fb/guardrails.md).
+
 ## How is FB different from vanilla Codex or Kurrent Capacitor?
 
 Codex emphasizes executing software work. Capacitor emphasizes comprehensive
