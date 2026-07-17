@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-026
 lane: fb-product
-status: in-progress
+status: staging-qa
 okr_fit: aligned
 ---
 
@@ -35,9 +35,9 @@ Recovery: Product/BFM owns implementation and test recovery; ambiguity falls bac
 
 ## Product/BFM Closeout
 
-Status: In Progress.
+Status: Staging QA — local Product review complete.
 Actioned By: FB-Product / BFM.
-Result: Pending implementation.
-Evidence: MirrorCam pilot handoff accepted as upstream requirements; TASK-025 gate is clean.
-Remaining: Implement and verify locally; all external-action gates remain closed.
+Result: The existing FB workflow now classifies approved corrections internally, reuses matching linked worktrees, places new workers under the primary checkout, shows the three queue buckets, reuses proven broad verification only after coordination-only changes, and runs an optional project preflight before mutation. No public command or status was added.
+Evidence: Candidate `a6b00ab`; the focused contract first failed on missing helpers, then passed in root/package. CLI 70/70, session 32/32 (including real worktree reuse/placement and preflight failure), eval 18/18, beginner 10/10, positioning/two-speed contracts, full validator, doctor Ready, source/test/doc parity, syntax, and whitespace passed.
+Remaining: Product may review or merge the local branch. Release, publication, deployment, plugin install, and consumer-project changes remain separate and unauthorized.
 Loop Learning: Feedback captured: yes; Repeated pattern?: yes; Tooling needed?: small amendments to existing seams; Product approval needed?: no - explicitly approved.

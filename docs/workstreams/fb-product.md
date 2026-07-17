@@ -4,7 +4,7 @@ Last Updated: 2026-07-17
 Lane: FB-Product
 
 ## Current Summary
-TASK-026 is in progress on `codex/fb-beginner-clarity`. It sequences the approved MirrorCam two-speed lessons into the existing FB workflow: internal Quick/Full classification, exact matching-worktree reuse and primary `.worktrees` placement, compact queue visibility, proportional verification, and optional project-owned preflight. The MirrorCam Node pin remains project evidence, not an FB-wide requirement. All external-action gates remain closed.
+TASK-026 is Product-accepted in local Staging QA on `codex/fb-beginner-clarity` at candidate `a6b00ab`. It sequences the approved MirrorCam two-speed lessons into the existing FB workflow: internal Quick/Full classification, exact matching-worktree reuse and primary `.worktrees` placement, compact queue visibility, proportional verification, and optional project-owned preflight. CLI 70/70, session 32/32, eval 18/18, beginner 10/10, positioning/two-speed contracts, validator, doctor Ready, parity, and whitespace passed. The MirrorCam Node pin remains project evidence, not an FB-wide requirement. All external-action gates remain closed.
 
 TASK-025 is Product-accepted in local Staging QA on `codex/fb-beginner-clarity` at candidate `3af1f17`. It adds an honest, evidence-backed explanation of FB beside vanilla Codex and Kurrent Capacitor, including their overlap in session intelligence, two rendered Mermaid diagrams, real pain-point mapping, and concrete examples. Focused root/package positioning, CLI 70/70, session 31/31, eval 18/18, beginner 10/10, validator, doctor Ready, parity, and whitespace passed. Runtime, integration, publication, release, deployment, and merge remain out of scope.
 

@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-026 | In Progress | FB-Product / BFM + FB-Tech execution | BFM Efficiency | Add internal Quick/Full BFM classification, matching worktree reuse and primary placement, compact queue visibility, proportional verification, and optional project preflight | Mirrored CLI/session modules and tests, canonical/package workflow/session/guardrail/BFM guidance, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-026.md); [plan](docs/superpowers/plans/2026-07-17-bfm-two-speed-efficiency.md); local-only implementation gate |
+| TASK-026 | Staging QA | FB-Product / BFM + FB-Tech execution | BFM Efficiency | Add internal Quick/Full BFM classification, matching worktree reuse and primary placement, compact queue visibility, proportional verification, and optional project preflight | Mirrored CLI/session modules and tests, canonical/package workflow/session/guardrail/BFM guidance, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-026.md); candidate `a6b00ab`; CLI 70/70, session 32/32, eval 18/18, beginner 10/10, positioning/two-speed root/package, validator, doctor Ready, parity, and whitespace passed; local-only gate |
 | TASK-025 | Staging QA | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Explain FB beside vanilla Codex and Kurrent Capacitor with honest overlap, evidence-backed pain points, rendered diagrams, and concrete examples | Canonical/package comparison page, public/harness README routers, FAQ, focused test/validator, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-025.md); candidate `3af1f17`; focused root/package positioning contract, CLI 70/70, session 31/31, eval 18/18, beginner 10/10, validator, doctor Ready, parity, and whitespace passed; local-only gate |
 | TASK-024 | Staging QA | FB-Product / BFM + FB-Tech execution | Beginner Experience | Add a beginner-facing mode, status, pause, and next-action layer while preserving the existing technical coordination engine | Canonical/package harness, public docs, root/package skills, mirrored CLI/MCP and tests, bootstrap examples/templates, shadow evals, `PROJECT_BOARD.md`, handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-024.md); candidate `cc13389`; root/package CLI 70/70, session 31/31, eval 18/18, beginner 10/10; recovery, validator, doctor Ready, parity, whitespace, task reviews, and final whole-branch re-review passed; local-only release gate remains closed |
 | TASK-022 | Staging QA | FB-Product / BFM + FB-Tech execution | FB Session Harness | Add repository-local session intake, promotion, status, checkpoint, recall, review, and closeout with shared clone-local coordination state and curated committed evidence | Mirrored session/CLI modules and tests, session/harness docs, bootstrap and doctor integration, Product/BFM skills, `PROJECT_BOARD.md`, handoff index, TASK-022 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-022.md); final submit repair `f94dce9`; CLI/MCP final validation, board commit, and push share the session lifecycle lock; session 31/31, full gate, and final combined review passed with no findings |
@@ -50,7 +50,7 @@
 ---
 
 ### TASK-026 - BFM Two-Speed Efficiency
-*   **Status**: In Progress
+*   **Status**: Staging QA (local Product review only)
 *   **Owner / Thread**: FB-Product / BFM + FB-Tech execution
 *   **Area**: BFM Efficiency
 *   **Scope**: Amend existing session-ledger, claim/worktree, status, submit, and guidance seams with the approved two-speed efficiency contract.
@@ -65,9 +65,10 @@
 *   **Affected Screens / Locks**: Mirrored CLI/session modules and tests, canonical/package workflow/session/guardrail/BFM guidance, board/handoff/index/current-task/Product card.
 *   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-17-bfm-two-speed-efficiency.md); [Handoff](docs/handoffs/TASK-026.md); branch `codex/fb-beginner-clarity`.
 *   **QA Checklist**:
-    *   [ ] Quick/Full, worktree, queue, proportional-verification, and preflight acceptance checks pass.
-    *   [ ] Root/package sources, tests, and guidance remain aligned.
-    *   [ ] Full validator, doctor Ready, and whitespace pass.
+    *   [x] Quick/Full, worktree, queue, proportional-verification, and preflight acceptance checks pass.
+    *   [x] Root/package sources, tests, and guidance remain aligned.
+    *   [x] Full validator, doctor Ready, and whitespace pass.
+*   **Latest Update**: *2026-07-17*: Candidate `a6b00ab` passed CLI 70/70, session 32/32, eval 18/18, beginner 10/10, root/package positioning and two-speed contracts, full validator, doctor Ready, source/test/doc parity, syntax, and whitespace. The MirrorCam Node pin remains project-only evidence; no external action is authorized.
 
 ---
 
