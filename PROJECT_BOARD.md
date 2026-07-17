@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-024 | In Progress | FB-Product / BFM + FB-Tech execution | Beginner Experience | Add a beginner-facing mode, status, pause, and next-action layer while preserving the existing technical coordination engine | Canonical/package harness, public docs, root/package skills, mirrored CLI/MCP and tests, bootstrap examples/templates, shadow evals, `PROJECT_BOARD.md`, handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-024.md); [plan](docs/superpowers/plans/2026-07-17-fb-beginner-clarity-and-status-layer.md); baseline root/package CLI 45/45; no release/install/merge/deploy |
 | TASK-022 | Staging QA | FB-Product / BFM + FB-Tech execution | FB Session Harness | Add repository-local session intake, promotion, status, checkpoint, recall, review, and closeout with shared clone-local coordination state and curated committed evidence | Mirrored session/CLI modules and tests, session/harness docs, bootstrap and doctor integration, Product/BFM skills, `PROJECT_BOARD.md`, handoff index, TASK-022 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-022.md); final submit repair `f94dce9`; CLI/MCP final validation, board commit, and push share the session lifecycle lock; session 31/31, full gate, and final combined review passed with no findings |
 | TASK-023 | Staging QA | FB-Product / BFM + FB-Tech execution | FB Eval Harness | Add the Markdown-first harness/product eval lifecycle, quality-gap revision loop, authority transitions, and deterministic structural enforcement on top of TASK-022 evidence | Canonical/package eval harness pages and templates, mirrored validators/tests, Product/BFM skills, bootstrap routes, `PROJECT_BOARD.md`, handoff index, TASK-023 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-023.md); final integrated repair `fe733a1` plus submit compatibility `f94dce9`; eval 18/18, session 31/31, full gate, and final combined review passed with no findings; no release action |
 | TASK-021 | Staging QA | FB-Product / BFM | FB Harness | Replace duplicated operating prose with a mirrored canonical `docs/fb/` harness pack, safely route fresh/existing projects into it, and enforce opt-in v2 review evidence through the existing validator/doctor | Root/package harness pack, navigational instructions, active docs/skills, mirrored bootstrap/tests, validator/doctor, `PROJECT_BOARD.md`, handoff index, TASK-021 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-021.md); [plan](docs/superpowers/plans/2026-07-16-fb-harness-redesign.md); final fix `8c54c1c`; setup and canonical v2 authoring contracts; actionable placeholder/TODO/TBD rejection; focused v2 14/14 and full 45/45 mirrored suites; recovery, syntax/parity, validator/doctor Ready, diff checks, and final whole-branch re-review passed; local review only; no push, publication, release, deployment, merge, or consumer-repository change authorized |
@@ -43,6 +44,39 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-024 - FB Beginner Clarity and Status Layer
+*   **Status**: In Progress (local implementation and review only)
+*   **Owner / Thread**: FB-Product / BFM + FB-Tech execution
+*   **Area**: Beginner Experience
+*   **Scope**: Make ordinary-task mode, coordinated planning, BFM execution, status, pauses, next actions, and review instructions understandable to everyday non-technical users while preserving the technical coordination engine.
+*   **Out of Scope**: Popup, wizard, dashboard, persistent tutorial, technical identifier or board-enum migration, autonomous judging, release, publication, deployment, merge, plugin install, or consumer-repository change.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let an everyday user understand what FB is doing now, why it paused, what they need to do, and what happens next without reading internal coordination terminology.
+    *   **Key Results**:
+        *   Simple work, coordinated planning, and approved BFM execution have distinct plain-language entry messages and examples.
+        *   CLI/MCP status defaults to a beginner card with objective, stage, progress, pause, next owner/action, and review link while technical details remain opt-in.
+        *   Approval waits and genuine blockers use one visible pause contract, and three shadow evals preserve the feedback as regression scenarios.
+    *   **Definition of Done**: Tiny-task, creator-commerce, and approved-BFM walkthroughs; status-stage fixtures; pause/recovery fixtures; root/package parity; complete CLI/session/eval/recovery/validator/doctor/whitespace gate; task and whole-branch independent reviews pass.
+    *   **Gate / Review Point**: Stop after the local candidate passes Product review. Version bump, merge, marketplace install, release, publication, deployment, and consumer migration require separate explicit approval.
+    *   **Approval**: approved
+    *   **Justification**: James approved the beginner-clarity plan after the current candidate was audited against older user feedback.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Codex plugin first replies, status responses, pause/recovery updates, generated project guidance, public documentation, and manual eval scenarios.
+    *   **Locked Files**: canonical/package harness pages, public docs, root/package coordination/Product/BFM/setup skills, mirrored CLI/MCP sources and tests, bootstrap examples/templates, shadow eval records, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-024.md`, `.codex/current_task.md`, and `docs/workstreams/fb-product.md`.
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/fb-beginner-clarity` (isolated local worktree; no PR or release action authorized)
+    *   **Plan**: [FB beginner clarity and status layer](docs/superpowers/plans/2026-07-17-fb-beginner-clarity-and-status-layer.md)
+    *   **Handoff**: [TASK-024](docs/handoffs/TASK-024.md)
+*   **QA Checklist**:
+    *   [ ] Beginner contract and BFM terminology are aligned across active root/package/bootstrap surfaces.
+    *   [ ] CLI and MCP status card fixtures pass, including details-mode parity and task-resolution precedence.
+    *   [ ] Pause-card and three shadow eval scenarios pass the focused walkthroughs.
+    *   [ ] Full local gate and independent task/whole-branch reviews pass.
+*   **Latest Update**:
+    *   *2026-07-17*: Product/BFM claimed the approved task on the isolated branch. Baseline root/package CLI suites passed 45/45. Release and all external-action gates remain closed.
 
 ---
 
