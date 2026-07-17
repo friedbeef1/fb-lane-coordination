@@ -133,12 +133,33 @@ for (const [label, source, hrefs] of [
 }
 
 assert.match(canonical, /> Codex executes software work\.\s+> Capacitor is a session-intelligence platform\.\s+> FB is a product-delivery harness that includes curated session intelligence\./);
-assert.match(canonical, /\| System \| Good because \| Gap FB addresses \|/);
-assert.match(canonical, /\| Vanilla Codex \| Directly executes clear software tasks\. \|/);
-assert.match(canonical, /\| Git worktrees \| Isolate branches and allow parallel implementation without mixing files\. \|/);
-assert.match(canonical, /\| Kurrent Capacitor \| Automatically captures, recalls, observes, and evaluates agent sessions\. \|/);
-assert.match(canonical, /\| BMAD \| Provides a broad role-based AI development methodology\. \|/);
-assert.match(canonical, /\| FB \| Connects six product workstreams to Codex implementation, verification, and delivery\. \| — \|/);
+const comparisonHeader = '| System | Good because | Gap | How FB addresses the gap |';
+const oldComparisonHeader = '| System | Good because | Gap FB addresses |';
+const comparisonRows = [
+  ['Vanilla Codex', 'Directly executes clear software tasks.', 'Decisions, evidence, priorities, verification, and release authority can remain scattered across chats.', 'FB captures durable handoffs, reconciles six workstreams, verifies the result, and preserves explicit release approval.'],
+  ['Git worktrees', 'Isolate branches and support parallel implementation.', 'Isolation does not determine what to build, resolve competing recommendations, or verify the product outcome.', 'FB connects worktree execution to approved priorities, coordinated implementation, and outcome verification.'],
+  ['Kurrent Capacitor', 'Automatically captures, recalls, observes, and evaluates agent sessions.', 'Session intelligence alone does not define the approved product outcome or own delivery authority and closeout.', 'FB connects curated evidence to the brief, user decisions, execution authority, testing, and closeout.'],
+  ['BMAD', 'Provides a broad role-based AI development methodology.', 'A broad methodology can require more process than a focused repository-local Codex delivery loop.', 'FB provides a smaller loop around ready handoffs, Codex implementation, automated verification, and explicit release approval.'],
+  ['FB', 'Connects six product workstreams to Codex implementation, verification, and delivery.', '—', '—'],
+];
+
+function assertComparisonTable(label, page) {
+  assert.ok(page.includes(comparisonHeader), `${label} must contain the four ordered comparison columns`);
+  assert.ok(!page.includes(oldComparisonHeader), `${label} must reject the old three-column comparison header`);
+  for (const [system, good, gap, response] of comparisonRows) {
+    const row = `| ${system} | ${good} | ${gap} | ${response} |`;
+    assert.ok(page.includes(row), `${label} must contain exact comparison row: ${system}`);
+    if (system !== 'FB') {
+      assert.ok(gap.length > 0 && response.length > 0, `${label} ${system} must have non-empty Gap and FB-response cells`);
+      assert.notStrictEqual(gap, response, `${label} ${system} must separate the gap from the FB response`);
+    } else {
+      assert.strictEqual(gap, '—', `${label} FB Gap must be an em dash`);
+      assert.strictEqual(response, '—', `${label} FB response must be an em dash`);
+    }
+  }
+}
+
+assertComparisonTable('Why FB', canonical);
 assert.match(compact, /overlap substantially in session recall, evidence, and evaluation/i);
 assert.match(compact, /may provide richer session telemetry/i);
 assert.match(compact, /optional evidence provider to FB/i);
@@ -147,14 +168,14 @@ assert.match(canonical, /Capacitor can show that three agents attempted a featur
 assert.strictEqual((canonical.match(/```mermaid/g) || []).length, 1, 'comparison page must contain one FB-only Mermaid diagram');
 
 for (const page of deliveredPages) {
-  assert.match(page.content, /\| System \| Good because \| Gap FB addresses \|/);
+  assertComparisonTable(page.label, page.content);
   assert.match(page.content, /\| Git worktrees \|/);
   assert.match(page.content, /\| FB \|[^\n]+\| — \|/);
   assert.strictEqual((page.content.match(/```mermaid/g) || []).length, 1, `${page.label} must contain one FB-only Mermaid diagram`);
   assert.doesNotMatch(page.content, /GitHub Spec Kit|Better choice when/i);
 }
 
-assert.match(rootReadme, /\| System \| Good because \| Gap FB addresses \|/);
+assertComparisonTable('README', rootReadme);
 assert.match(rootReadme, /\| Git worktrees \|/);
 assert.match(rootReadme, /\| (?:\*\*)?FB(?:\*\*)? \|[^\n]+\| — \|/);
 assert.doesNotMatch(rootReadme, /GitHub Spec Kit|Better choice when/i);
