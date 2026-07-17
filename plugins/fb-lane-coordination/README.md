@@ -17,6 +17,7 @@ source-changing work only after approval and explicit `$bfm`.
 
 ## Read by task
 
+- [Why FB: Codex, Capacitor, and FB](docs/why-fb.md)
 - [Harness overview](docs/fb/README.md)
 - [Project Start Brief and approval](docs/fb/start.md)
 - [Lanes, BFM, and durable records](docs/fb/workflow.md)

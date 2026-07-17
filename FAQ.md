@@ -1,5 +1,14 @@
 # FB FAQ
 
+## How is FB different from vanilla Codex or Kurrent Capacitor?
+
+Codex executes software work. Capacitor is a session-intelligence platform. FB
+is a product-delivery harness that includes curated session intelligence.
+Capacitor and FB overlap in recall, evidence, and evaluation; FB connects those
+records to the approved product brief, execution authority, quality, closeout,
+and exactly what the user should test. See [Why FB](docs/why-fb.md) for the
+honest comparison, diagrams, evidence-backed pain points, and examples.
+
 ## Do I need FB for every task?
 
 No. Use normal work for simple one-thread questions or isolated edits. Use FB

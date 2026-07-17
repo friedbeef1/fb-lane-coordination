@@ -26,6 +26,7 @@ instructions take precedence when they are stricter.
 
 ## Read by task
 
+- Comparing FB with vanilla Codex or Kurrent Capacitor: [Why FB](../why-fb.md)
 - Starting a project or explaining the plan: [start.md](start.md)
 - Coordinating lanes or running approved work: [workflow.md](workflow.md)
 - Asking someone to review or proving work: [evidence.md](evidence.md)

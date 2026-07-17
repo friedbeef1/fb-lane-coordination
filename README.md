@@ -12,6 +12,7 @@ explicit `$bfm`.
 
 ## Start here
 
+- [Why FB](docs/why-fb.md) compares FB honestly with vanilla Codex and Kurrent Capacitor, including their overlap, real pain points, diagrams, and examples.
 - [The FB harness](docs/fb/README.md) explains when to use it and the source hierarchy.
 - [Start an objective](docs/fb/start.md) has the Project Start Brief and approval-before-BFM boundary.
 - [Coordinate and execute](docs/fb/workflow.md) covers lanes, BFM, records, and closeout.

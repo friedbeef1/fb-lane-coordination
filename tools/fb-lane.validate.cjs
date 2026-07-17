@@ -57,6 +57,8 @@ run('root eval tests syntax', 'node', ['--check', 'tools/fb-eval.test.cjs']);
 run('plugin eval tests syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-eval.test.cjs']);
 run('root beginner-experience smoke syntax', 'node', ['--check', 'tools/fb-beginner-experience.test.cjs']);
 run('plugin beginner-experience smoke syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-beginner-experience.test.cjs']);
+run('root product-positioning contract syntax', 'node', ['--check', 'tools/fb-product-positioning.test.cjs']);
+run('plugin product-positioning contract syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-product-positioning.test.cjs']);
 
 console.log('\n==> root/package CLI, session, eval, test, skill, and seven-page parity');
 sameFile('tools/fb-lane.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.cjs');
@@ -66,6 +68,8 @@ sameFile('tools/fb-session.test.cjs', 'plugins/fb-lane-coordination/tools/fb-ses
 sameFile('tools/fb-eval.cjs', 'plugins/fb-lane-coordination/tools/fb-eval.cjs');
 sameFile('tools/fb-eval.test.cjs', 'plugins/fb-lane-coordination/tools/fb-eval.test.cjs');
 sameFile('tools/fb-beginner-experience.test.cjs', 'plugins/fb-lane-coordination/tools/fb-beginner-experience.test.cjs');
+sameFile('tools/fb-product-positioning.test.cjs', 'plugins/fb-lane-coordination/tools/fb-product-positioning.test.cjs');
+sameFile('docs/why-fb.md', 'plugins/fb-lane-coordination/docs/why-fb.md');
 sameFile('skills/fb-lane-coordination/SKILL.md', 'plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md');
 sameFile('skills/project-coordination-setup/SKILL.md', 'plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md');
 for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md']) {
@@ -105,6 +109,7 @@ run('regression tests', 'node', ['tools/fb-lane.test.cjs']);
 run('focused session tests', 'node', ['tools/fb-session.test.cjs']);
 run('focused eval tests', 'node', ['tools/fb-eval.test.cjs']);
 run('focused beginner-experience smoke', 'node', ['tools/fb-beginner-experience.test.cjs']);
+run('focused product-positioning contract', 'node', ['tools/fb-product-positioning.test.cjs']);
 
 const doctor = run('doctor', 'node', ['tools/fb-lane.cjs', 'doctor'], { capture: true });
 assert.ok(doctor.includes('FB-Lane doctor: Ready'), 'doctor did not report ready');
