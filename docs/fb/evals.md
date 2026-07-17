@@ -109,15 +109,15 @@ These curated judgment scenarios start in shadow and never block work. Keep
 internal evidence in durable records; omit it from beginner updates unless the
 user must judge it.
 
-### Beginner mode selection
+### EVAL-HARNESS-MODE-001 — Beginner workstream-first route
 
 Authority: shadow
-Trigger: A new request is classified as a simple task, coordinated planning, or approved Build For Me work.
-Scenario: Compare a tiny one-file rename, a creator-commerce objective needing reconciled lanes, and approved multi-surface work invoked with `$bfm`.
-Quality target: The user can tell whether FB is acting directly, planning only, or building the approved plan.
-Must pass: The rename stays ordinary Codex work; creator-commerce starts with planning and the seven-field Project Start Brief; approved work uses the exact Build For Me transition sentence.
-Must not happen: FB must not add lanes to the rename, imply planning is execution, or start source work without approval and explicit `$bfm`.
-Evidence required: The three visible responses and the selected mode rationale.
+Trigger: A new request needs planning or evidence, relevant workstream handoffs become ready, or the user says `$bfm`.
+Scenario: Follow one visible workstream-first route from the matching workstream discussions through ready handoffs, `$bfm`, Product reconciliation, consolidated Project Start Brief and Build Brief recording, and execution.
+Quality target: The user sees one continuous route and is never asked to choose an execution mode.
+Must pass: Product/User is selected only for user needs, outcomes, requirements, feedback, acceptance criteria, or product priority; relevant workstreams create ready handoffs before `$bfm`; after invocation Product scans all six, reconciles and records both briefs without a routine second approval.
+Must not happen: Product/User must not become universal intake, Project Start Brief must not precede workstream handoffs, and FB must not expose a mode menu or mode-selection rationale.
+Evidence required: The visible workstream-first sequence, conditional Product/User selection, ready-handoff evidence, and post-`$bfm` reconciliation/brief record.
 Owner: Product/BFM
 
 ### Beginner status clarity

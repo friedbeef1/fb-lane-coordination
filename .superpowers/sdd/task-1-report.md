@@ -77,3 +77,29 @@ Repair verification output:
 
 Repair concerns: none. No full validator, push, merge, release, deployment, or
 broader cleanup was performed.
+
+## Final bounded repair loop 2 of 2
+
+- `workflow.md` now states that, after `$bfm`, Product records the consolidated
+  Build Brief and carries forward or records pre-`$bfm` ready-scope approval.
+  There is no routine second approval; only the five decision/safety/scope
+  exceptions pause execution.
+- `EVAL-HARNESS-MODE-001` retains shadow authority and the complete scenario
+  schema while testing one visible workstream-first route, conditional
+  Product/User selection, ready handoffs before `$bfm`, post-invocation Product
+  reconciliation and both briefs, and no visible mode rationale.
+
+Focused RED: the beginner catalog test failed on the stale `Beginner mode
+selection` scenario name/content before the docs changed.
+
+Focused GREEN and exact output:
+
+- Root/package beginner experience: `FB beginner-experience smoke passed
+  (10/10).` each.
+- Root/package eval: `TASK-023 eval tests passed (18/18).` each.
+- Root/package CLI: `70 checks passed.` each.
+- Package mirror check: `Checked 27 package mirrors.`
+- Affected test syntax checks and `git diff --check`: passed with no output.
+
+No full validator, broader cleanup, push, merge, release, or deployment was
+performed. Concerns: none.

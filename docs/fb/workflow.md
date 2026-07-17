@@ -53,7 +53,10 @@ Worker lanes return evidence against the existing goal; they do not create a
 new OKR for every task. `/goal` is only a Product/BFM shortcut into this same
 session. Quick `TASK-Q-*` work may skip this extra ceremony.
 
-Before source-changing work, Product records the Build Brief and approval. The
+After `$bfm`, Product records the consolidated Build Brief and carries forward
+or records the pre-`$bfm` ready-scope approval before source-changing work. This
+does not require a routine second approval; pause only for changed decisions,
+disputed priorities, sensitive boundaries, conflicts, or unclear scope. The
 Build Brief repeats the quality bar, selected eval IDs and authority,
 mechanical versus judgment evidence, and remaining user judgment. See
 [evals.md](evals.md). Product defines concrete product scenarios with Good and

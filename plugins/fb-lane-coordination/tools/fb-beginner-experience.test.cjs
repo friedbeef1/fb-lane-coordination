@@ -131,7 +131,7 @@ test('active coordination, Product, BFM, lane, setup, and quickstart skills rout
 test('canonical eval catalog defines three complete beginner scenarios at shadow authority', () => {
   const canonical = read('docs/fb/evals.md');
   const packaged = read('plugins/fb-lane-coordination/docs/fb/evals.md');
-  const expectedScenarios = ['Beginner mode selection', 'Beginner status clarity', 'Stop and recovery clarity'];
+  const expectedScenarios = ['EVAL-HARNESS-MODE-001 — Beginner workstream-first route', 'Beginner status clarity', 'Stop and recovery clarity'];
   for (const [label, source] of [['canonical', canonical], ['packaged', packaged]]) {
     const catalog = section(source, 'Beginner experience shadow scenarios');
     const actualScenarios = [...catalog.matchAll(/^###\s+(.+)$/gm)].map(match => match[1]);
@@ -148,6 +148,11 @@ test('canonical eval catalog defines three complete beginner scenarios at shadow
   }
   assert.match(catalog, /internal evidence[\s\S]*durable records/i);
   assert.match(catalog, /beginner updates[\s\S]*(?:judge|judgment)/i);
+  const workstreamFirst = section(catalog, expectedScenarios[0], 3);
+  assert.match(workstreamFirst, /one visible workstream-first route/i);
+  assert.match(workstreamFirst, /Product\/User[\s\S]*(?:only|conditional)/i);
+  assert.match(workstreamFirst, /ready handoffs[\s\S]*`\$bfm`[\s\S]*Product reconciliation[\s\S]*Project Start Brief[\s\S]*Build Brief/i);
+  assert.doesNotMatch(workstreamFirst, /simple task|coordinated planning|Approved Build For Me|three visible responses|mode rationale|exact Build For Me transition/i);
   assert.doesNotMatch(catalog, /Authority:\s*(?:advisory|blocking|mechanical)/i);
 });
 
