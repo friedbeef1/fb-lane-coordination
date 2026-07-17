@@ -1,7 +1,7 @@
 {
   "name": "fb-lane",
   "interface": {
-    "displayName": "FB-Lane"
+    "displayName": "FB"
   },
   "plugins": [
     {

@@ -1,5 +1,7 @@
 # FB FAQ
 
+This FAQ describes the current **FB 0.3.0-beta** six-workstream model.
+
 ## What does FB stand for?
 
 FB officially stands for **Focus Bridge**: it bridges user goals, six

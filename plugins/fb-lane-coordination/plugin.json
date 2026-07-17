@@ -1,7 +1,7 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.2.0-beta+codex.20260716052513",
-  "description": "FB plugin for plan-only workstreams, Product-launched BFM execution, handoffs, and integration gates.",
+  "version": "0.3.0-beta+codex.20260717150502",
+  "description": "FB connects six product workstreams to Product-led BFM implementation, automated verification, repair, and explicit release approval.",
   "author": {
     "name": "FB Contributors",
     "url": "https://github.com/friedbeef1"
