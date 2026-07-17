@@ -796,7 +796,7 @@ function parseDetailLines(lines) {
     : null;
   const blockersMatch = detailStr.match(/\*\s+\*\*(?:Blockers?|Pause Reason)\*\*:\s*(.*)/i);
   const nextActionMatch = detailStr.match(/\*\s+\*\*(?:Next Owner\s*\/\s*Action|Next Action\s*\/\s*Owner|Next Action)\*\*:\s*(.*)/i);
-  const reviewLinkMatch = detailStr.match(/\*\s+\*\*(?:Test\s*\/\s*Review Link|Test Link|Review Link|Staging URL)\*\*:\s*(.*)/i);
+  const reviewLinkMatches = [...detailStr.matchAll(/^\s*\*\s+\*\*(?:Test\s*\/\s*Review Link|Test Link|Review Link|Staging URL)\*\*:\s*(.*)$/gim)];
 
   return {
     raw: detailStr,
@@ -812,7 +812,9 @@ function parseDetailLines(lines) {
       || concreteStatusValue(latestUpdateMatch ? latestUpdateMatch[1] : ''),
     blockers: blockersMatch ? blockersMatch[1].trim() : '',
     nextAction: nextActionMatch ? nextActionMatch[1].trim() : '',
-    reviewLink: explicitReviewLink(reviewLinkMatch ? reviewLinkMatch[1] : '')
+    reviewLink: reviewLinkMatches
+      .map(match => explicitReviewLink(match[1]))
+      .find(Boolean) || ''
   };
 }
 
@@ -825,13 +827,22 @@ function concreteStatusValue(value) {
 function explicitReviewLink(value) {
   const normalized = concreteStatusValue(value);
   if (!normalized) return '';
-  return /\[[^\]]+\]\([^)]+\)/.test(normalized) || /https?:\/\/\S+/i.test(normalized)
-    ? normalized
-    : '';
+  const markdownTargets = [...normalized.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)].map(match => match[1].trim());
+  const plainTargets = normalized.match(/https?:\/\/[^\s)>]+/gi) || [];
+  const targets = [...new Set([...markdownTargets, ...plainTargets])];
+  if (!targets.length) return '';
+  if (targets.some(target => /(?:example|todo|template)/i.test(target))) return '';
+  return normalized;
 }
 
 function normalizedStatus(value) {
-  return String(value || '').trim().toLowerCase();
+  const normalized = String(value || '').trim().toLowerCase();
+  const recognized = [
+    'staging qa', 'in progress', 'verification', 'approved', 'waiting', 'ready',
+    'staged', 'local', 'blocked', 'closed', 'completed', 'complete', 'done'
+  ];
+  return recognized.find(status => normalized === status || new RegExp(`^${status}\\s*(?:—|–|-|:)\\s+`).test(normalized))
+    || normalized;
 }
 
 function isCompleteStatus(value) {

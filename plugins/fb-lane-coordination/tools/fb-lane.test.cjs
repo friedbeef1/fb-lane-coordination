@@ -331,7 +331,7 @@ test('status current-task fallback wins before highest-priority incomplete board
   try {
     writeStatusFixture(root, [
       { id: 'TASK-201', status: 'Ready', scope: 'Higher board item' },
-      { id: 'TASK-202', status: 'Staging QA', scope: 'Current-task review', reviewLink: '[Review](https://review.example.test/task-202)' },
+      { id: 'TASK-202', status: 'Staging QA', scope: 'Current-task review', reviewLink: '[Review](https://review.acme.test/task-202)' },
     ], { currentTask: { id: 'TASK-202', objective: 'Current task review objective' } });
     const result = runStatus(root);
     assert.strictEqual(result.status, 0, result.stderr);
@@ -358,6 +358,30 @@ test('status current-task state overrides stale board In Progress', () => {
   }
 });
 
+test('status current-task descriptive status prefixes map to beginner stages', () => {
+  const fixtures = [
+    ['In Progress — approved implementation and local verification only; no release authorized', 'Building'],
+    ['Ready — awaiting Product approval before implementation', 'Ready for your approval'],
+    ['Verification — local checks are still running', 'Checking'],
+    ['Complete — focused verification passed', 'Complete'],
+    ['Blocked — provider credentials are unavailable', 'Blocked'],
+  ];
+
+  for (const [status, expectedStage] of fixtures) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+    try {
+      writeStatusFixture(root, [
+        { id: 'TASK-211', status: 'In Progress', scope: 'Descriptive current-task state', blockers: 'Provider credentials are unavailable.' },
+      ], { currentTask: { id: 'TASK-211', objective: 'Repository-shaped current task', status } });
+      const result = runStatus(root);
+      assert.strictEqual(result.status, 0, result.stderr);
+      assert.match(result.stdout, new RegExp(`Stage: ${expectedStage.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}`), status);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
 test('status Staging QA ignores general deliverable links and placeholder review evidence', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
   try {
@@ -378,14 +402,60 @@ test('status Staging QA becomes review-ready only from explicit review evidence'
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
   try {
     writeStatusFixture(root, [
-      { id: 'TASK-213', status: 'Staging QA', scope: 'Candidate with explicit staging access', links: '[Handoff](docs/handoffs/TASK-213.md)', stagingUrl: '[Open staging](https://review.example.test/task-213)' },
+      { id: 'TASK-213', status: 'Staging QA', scope: 'Candidate with explicit staging access', links: '[Handoff](docs/handoffs/TASK-213.md)', stagingUrl: '[Open staging](https://review.acme.test/task-213)' },
     ]);
     const result = runStatus(root);
     assert.strictEqual(result.status, 0, result.stderr);
     assert.match(result.stdout, /Stage: Ready for review/);
-    assert.match(result.stdout, /Test \/ review link: \[Open staging\]\(https:\/\/review\.example\.test\/task-213\)/);
+    assert.match(result.stdout, /Test \/ review link: \[Open staging\]\(https:\/\/review\.acme\.test\/task-213\)/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status review evidence skips an earlier canonical placeholder and uses the first actionable field', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  try {
+    writeStatusFixture(root, [
+      {
+        id: 'TASK-214',
+        status: 'Staging QA',
+        scope: 'Candidate with placeholder then actionable evidence',
+        stagingUrl: '[Staging Link](https://staging.example.com)',
+        testLink: '[Open focused review](https://review.acme.test/task-214)',
+        reviewLink: '[Later review](https://review.acme.test/task-214/later)',
+      },
+    ]);
+    const result = runStatus(root);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Stage: Ready for review/);
+    assert.match(result.stdout, /Test \/ review link: \[Open focused review\]\(https:\/\/review\.acme\.test\/task-214\)/);
+    assert.doesNotMatch(result.stdout, /staging\.example\.com|Later review/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status review evidence rejects example, TODO, and template URLs in every explicit field', () => {
+  const fixtures = [
+    { stagingUrl: '[Staging Link](https://staging.example.com)' },
+    { testLink: '[TODO review](https://review.acme.test/todo)' },
+    { reviewLink: '[Template review](https://review.acme.test/template)' },
+  ];
+
+  for (const [index, evidence] of fixtures.entries()) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+    try {
+      writeStatusFixture(root, [
+        { id: `TASK-22${index}`, status: 'Staging QA', scope: 'Placeholder-only review evidence', ...evidence },
+      ]);
+      const result = runStatus(root);
+      assert.strictEqual(result.status, 0, result.stderr);
+      assert.match(result.stdout, /Stage: Checking/);
+      assert.match(result.stdout, /Test \/ review link: Not available yet\./);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
   }
 });
 
@@ -420,13 +490,13 @@ test('status stage mapping keeps technical states behind beginner labels', () =>
   assert.strictEqual(visibleStageFor({ status: 'Local' }), 'Checking');
   assert.strictEqual(visibleStageFor({ phase: 'verification' }), 'Checking');
   assert.strictEqual(visibleStageFor({ environment: 'local' }), 'Checking');
-  assert.strictEqual(visibleStageFor({ status: 'Staged', reviewLink: 'https://review.example.test' }), 'Ready for review');
-  assert.strictEqual(visibleStageFor({ status: 'Staging QA', reviewLink: 'https://review.example.test' }), 'Ready for review');
+  assert.strictEqual(visibleStageFor({ status: 'Staged', reviewLink: 'https://review.acme.test' }), 'Ready for review');
+  assert.strictEqual(visibleStageFor({ status: 'Staging QA', reviewLink: 'https://review.acme.test' }), 'Ready for review');
   assert.strictEqual(visibleStageFor({ status: 'Staging QA', reviewLink: '(None)' }), 'Checking');
   assert.strictEqual(visibleStageFor({ status: 'Staging QA' }), 'Checking');
   assert.strictEqual(visibleStageFor({ status: 'In Progress', mode: 'planning', state: 'active' }), 'Understanding');
   assert.strictEqual(visibleStageFor({ status: 'In Progress', mode: 'review', state: 'reviewing' }), 'Checking');
-  assert.strictEqual(visibleStageFor({ status: 'In Progress', mode: 'review', state: 'reviewing', reviewLink: 'https://review.example.test' }), 'Ready for review');
+  assert.strictEqual(visibleStageFor({ status: 'In Progress', mode: 'review', state: 'reviewing', reviewLink: 'https://review.acme.test' }), 'Ready for review');
   assert.strictEqual(visibleStageFor({ status: 'In Progress', mode: 'execution', state: 'blocked' }), 'Blocked');
   assert.strictEqual(visibleStageFor({ state: 'closed' }), 'Complete');
   assert.strictEqual(visibleStageFor({ status: 'Blocked', blockers: 'Provider credentials unavailable.' }), 'Blocked');
@@ -503,7 +573,7 @@ test('status MCP exposes details schema and shares beginner and technical render
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
   try {
     writeStatusFixture(root, [
-      { id: 'TASK-501', status: 'Staging QA', scope: 'MCP status candidate', locks: '`mcp-secret.js`', reviewLink: '[Review](https://review.example.test/task-501)' },
+      { id: 'TASK-501', status: 'Staging QA', scope: 'MCP status candidate', locks: '`mcp-secret.js`', reviewLink: '[Review](https://review.acme.test/task-501)' },
     ]);
     const listed = mcpRequest(root, { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} });
     const schema = listed.result.tools.find(tool => tool.name === 'fb_lane_status').inputSchema;
