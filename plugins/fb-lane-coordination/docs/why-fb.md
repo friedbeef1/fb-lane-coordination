@@ -71,6 +71,8 @@ flowchart TB
     N --> BG
 ```
 
+For the complete operating view, open the [Full FB Loop Diagram](fb/full-loop.md).
+
 ## The honest overlap
 
 Capacitor is session-centric. It emphasizes comprehensive automatic history:

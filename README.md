@@ -79,6 +79,9 @@ flowchart TB
     N --> BG
 ```
 
+[Full FB Loop Diagram](docs/fb/full-loop.md) — handoff states,
+Product reconciliation, Quick and Full BFM, repair, review, and release.
+
 A workstream with nothing useful records **None relevant**. It does not invent
 work merely to participate.
 

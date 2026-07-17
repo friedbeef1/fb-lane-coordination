@@ -17,6 +17,9 @@ function read(relativePath) {
 const canonical = read('docs/why-fb.md');
 const packaged = read('plugins/fb-lane-coordination/docs/why-fb.md');
 const rootReadme = read('README.md');
+const harnessReadme = read('docs/fb/README.md');
+const fullLoop = read('docs/fb/full-loop.md');
+const packagedFullLoop = read('plugins/fb-lane-coordination/docs/fb/full-loop.md');
 const compact = canonical.replace(/\s+/g, ' ');
 
 const deliveredPages = [
@@ -59,6 +62,20 @@ assert.match(rootReadme, /\| Git worktrees \|/);
 assert.match(rootReadme, /\| (?:\*\*)?FB(?:\*\*)? \|[^\n]+\| — \|/);
 assert.doesNotMatch(rootReadme, /GitHub Spec Kit|Better choice when/i);
 assert.strictEqual((rootReadme.match(/```mermaid/g) || []).length, 1, 'README must contain one FB-only Mermaid diagram');
+assert.match(rootReadme, /\[Full FB Loop Diagram\]\(docs\/fb\/full-loop\.md\)/, 'README must link directly to the full diagram');
+assert.match(canonical, /\[Full FB Loop Diagram\]\(fb\/full-loop\.md\)/, 'Why FB must link directly to the full diagram');
+assert.match(harnessReadme, /\[Full FB Loop Diagram\]\(full-loop\.md\)/, 'harness navigation must link directly to the full diagram');
+assert.strictEqual((fullLoop.match(/```mermaid/g) || []).length, 1, 'full loop page must contain one rendered Mermaid diagram');
+assert.strictEqual(fullLoop, packagedFullLoop, 'full loop page must be mechanically mirrored');
+
+for (const term of [
+  'Product/User', 'Business', 'Design', 'Tech', 'Discovery', 'Bugs',
+  'ready', 'blocked', 'None relevant', 'Product reconciles', 'Quick BFM',
+  'Full BFM', 'Codex implements', 'Automated checks', 'Scoped repair',
+  'Optional review links', 'Ready to ship', 'Push Live', 'Results and feedback',
+]) {
+  assert.match(fullLoop, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), `full loop page must show ${term}`);
+}
 
 for (const evidence of ['TASK-020.md', 'TASK-022.md', 'TASK-024.md', 'TASK-023-walkthroughs.md', 'TASK-026.md']) {
   assert.match(canonical, new RegExp(evidence.replace('.', '\\.')), `pain-point map must cite ${evidence}`);
