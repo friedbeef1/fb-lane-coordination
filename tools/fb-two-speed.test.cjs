@@ -17,6 +17,7 @@ const containingRoot = path.resolve(__dirname, '..');
 const isPackagedCopy = path.basename(containingRoot) === 'fb-lane-coordination'
   && path.basename(path.resolve(containingRoot, '..')) === 'plugins';
 const repoRoot = isPackagedCopy ? path.resolve(__dirname, '..', '..', '..') : containingRoot;
+const surfaceRoot = isPackagedCopy ? containingRoot : repoRoot;
 
 const approvedPatch = {
   id: 'TASK-100',
@@ -75,17 +76,25 @@ assert.deepStrictEqual(
 assert.strictEqual(verificationReuseDecision(['src/app.js'], true).reuse, false);
 assert.strictEqual(verificationReuseDecision(['docs/README.md'], false).reuse, false);
 
-for (const page of ['workflow.md', 'sessions.md', 'guardrails.md']) {
-  const canonical = fs.readFileSync(path.join(repoRoot, 'docs', 'fb', page), 'utf8');
-  const packaged = fs.readFileSync(path.join(repoRoot, 'plugins', 'fb-lane-coordination', 'docs', 'fb', page), 'utf8');
-  assert.strictEqual(packaged, canonical, `${page} must remain mirrored`);
-}
-const workflow = fs.readFileSync(path.join(repoRoot, 'docs', 'fb', 'workflow.md'), 'utf8');
-assert.match(workflow, /Quick BFM Patch/);
-assert.match(workflow, /Ambiguity,[\s\S]*Full BFM/i);
+const readHarness = page => fs.readFileSync(path.join(surfaceRoot, 'docs', 'fb', page), 'utf8');
+const overview = readHarness('README.md');
+for (const mode of ['Normal Codex', 'Quick BFM', 'Full BFM']) assert.match(overview, new RegExp(mode));
+assert.match(overview, /one `TASK-Q-\*` Quick Record/);
+assert.match(overview, /Auth,[\s\S]*ambiguity[\s\S]*Full BFM/i);
+
+const workflow = readHarness('workflow.md');
+assert.match(workflow, /Quick BFM/);
+assert.match(workflow, /ambiguity/i);
 assert.match(workflow, /<primary>\/\.worktrees\//);
-const guardrails = fs.readFileSync(path.join(repoRoot, 'docs', 'fb', 'guardrails.md'), 'utf8');
+for (const contract of ['five total agent iterations', 'two repair loops', 'one reviewer', 'no-progress cycle', 'current brief', 'candidate\/diff', 'specific feedback', 'required evidence']) assert.match(workflow, new RegExp(contract, 'i'));
+assert.match(workflow, /at most one full validator/);
+
+const sessions = readHarness('sessions.md');
+for (const contract of ['Efficiency Receipt', 'without requiring\\s+a board row', 'transcripts', 'unavailable']) assert.match(sessions, new RegExp(contract, 'i'));
+
+const guardrails = readHarness('guardrails.md');
 assert.match(guardrails, /hooks\.preflight/);
 assert.match(guardrails, /no global Node version/i);
+for (const contract of ['third repair', 'repeated broad', 'sixth agent iteration', 'fb-package-sync\\.cjs[\\s\\S]{0,30}--check']) assert.match(guardrails, new RegExp(contract, 'i'));
 
 console.log('BFM two-speed efficiency contract passed.');

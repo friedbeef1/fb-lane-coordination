@@ -29,3 +29,8 @@ Use it for approval waits and genuine stops.
 After setup, Product owns current goals and task sequencing; lanes use the
 board and index before detailed handoffs; source-changing execution starts only
 through approved BFM.
+
+The installed harness also routes Normal Codex, Quick BFM, and Full BFM and
+keeps package mirrors generated from canonical root files. Do not add a second
+board/index/session record for Quick BFM; its single Quick Record and local
+Efficiency Receipt are the durable boundary.

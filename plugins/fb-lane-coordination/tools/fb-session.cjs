@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
 const { assertSelectedEvalCloseout, validateSelectedEvalIntegration } = require('./fb-eval.cjs');
+const { verificationBudget } = require('./fb-efficiency.cjs');
 
 const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const LANES = new Set(['product', 'tech', 'design', 'business', 'bfm', 'coordination']);
@@ -552,7 +553,8 @@ const COORDINATION_ONLY_PATH = /^(?:docs\/|PROJECT_BOARD\.md$|AGENTS\.md$|README
 function verificationReuseDecision(changedPaths, hasVerificationCheckpoint) {
   const paths = [...new Set((changedPaths || []).map(value => String(value).trim()).filter(Boolean))];
   if (!hasVerificationCheckpoint) return { reuse: false, reason: 'no verification checkpoint' };
-  if (paths.some(file => !COORDINATION_ONLY_PATH.test(file))) return { reuse: false, reason: 'source or runtime changed after verification' };
+  const budget = verificationBudget(paths, { broadValidatorPassed: true });
+  if (!budget.reuseCheckpoint || paths.some(file => !COORDINATION_ONLY_PATH.test(file))) return { reuse: false, reason: 'source or runtime changed after verification' };
   return { reuse: true, reason: 'coordination-only changes after a verification checkpoint' };
 }
 

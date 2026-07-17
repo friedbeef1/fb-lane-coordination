@@ -104,6 +104,22 @@ an unbounded temporary runner as passing evidence. If checks hang, record a
 After five failed debug retries, label the board task `Blocked - Debug Retry
 Limit Exceeded`, attach current logs, and notify the user rather than loop.
 
+## Efficiency stop predicates
+
+Quick and Full BFM stop on success, a third repair attempt, a repeated broad
+validator, one no-progress cycle, a sixth agent iteration, or an exceeded
+declared elapsed-time budget. Authoritative token and cost ceilings also stop a
+run when the provider supplies those values; unavailable usage is recorded as
+`unavailable`, not estimated. Product/BFM then records one decision: correct an
+invalid process/test, narrow the claim to required evidence, reclassify Full
+BFM, or mark a genuine Product/external blocker. It does not automatically add
+another reviewer, worker, durable record, or broad gate.
+
+Package mirrors are generated only from canonical root sources declared in
+`tools/fb-package-manifest.json`. Use `node tools/fb-package-sync.cjs --write`
+to generate and `--check` to detect drift. Fix a broken mirror at its canonical
+source or manifest, never by independently editing generated package files.
+
 ## Loop Learning and small escalation
 
 Closeout records `Loop Learning`: feedback captured, whether the pattern

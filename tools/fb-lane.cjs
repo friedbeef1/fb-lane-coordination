@@ -15,6 +15,12 @@ const {
   submitVerificationReuse,
 } = require('./fb-session.cjs');
 const { collectEvalDoctorChecks } = require('./fb-eval.cjs');
+const {
+  classifyExecutionMode,
+  renderQuickRecord,
+  parseQuickRecord,
+  findQuickRecord,
+} = require('./fb-efficiency.cjs');
 
 const FB_MODEL_LINE = ['FB 0.2.0-beta:', 'AI', 'Loop', 'Engineering', 'for', 'Everyday', 'People'].join(' ');
 
@@ -110,18 +116,12 @@ function assertSafeLane(lane) {
   return lane;
 }
 
-const FULL_BFM_RISK = /\b(?:feature|lanes?|multi[- ]?lane|core[- ]?flow|provider|privacy|auth(?:entication|orization)?|payment|analytics|live(?:[- ]release)?|deploy(?:ment)?|release|launch|OKR|unresolved decision)\b/i;
-const QUICK_BFM_SIGNAL = /\b(?:fix|patch|correct|repair|typo|copy|documentation|docs-only|regression)\b/i;
-
 function classifyBfmClass(task = {}, options = {}) {
-  const details = task.details || {};
-  const approval = typeof details === 'object' ? details.approval : '';
-  const text = [task.area, task.owner, task.scope, task.locks].filter(Boolean).join(' ');
-  const approved = /^approved\b/i.test(String(approval || ''));
-  const bounded = /quick[- ]?fix/i.test(String(task.area || '')) || QUICK_BFM_SIGNAL.test(String(task.scope || ''));
-  const multipleOwners = ((String(task.owner || '').match(/\bFB-/g) || []).length > 1);
-  if (options.lockConflict || multipleOwners || !approved || !bounded || FULL_BFM_RISK.test(text)) return 'Full BFM';
-  return 'Quick BFM Patch';
+  const classified = classifyExecutionMode({
+    ...task,
+    successCriteria: task.successCriteria || 'The focused correction contract passes.',
+  }, options);
+  return classified.mode === 'Quick BFM' ? 'Quick BFM Patch' : 'Full BFM';
 }
 
 function parseWorktreePorcelain(markdown = '') {
@@ -1314,6 +1314,24 @@ function handleStatus(options = {}) {
   }
   const { tasks } = parseBoard(boardPath);
   const rootDir = path.dirname(boardPath);
+  const currentTaskPath = path.join(rootDir, '.codex', 'current_task.md');
+  const current = fs.existsSync(currentTaskPath) ? parseCurrentTask(fs.readFileSync(currentTaskPath, 'utf8')) : null;
+  const quickPath = current && current.id.startsWith('TASK-Q-') ? findQuickRecord(rootDir, current.id) : null;
+  if (quickPath && !options.details) {
+    const quick = parseQuickRecord(fs.readFileSync(quickPath, 'utf8'));
+    console.log([
+      'FB status',
+      `Current objective: ${quick.scope || quick.taskId}`,
+      'Working mode: Quick BFM',
+      `Stage: ${quick.status === 'complete' ? 'Complete' : 'Building'}`,
+      `Completed work: ${quick.status === 'complete' ? 'Quick correction closed.' : 'Quick Record created.'}`,
+      'Pause reason: None.',
+      'Your input: None required.',
+      `Next action / owner: ${quick.owner || 'Product'} / ${quick.status === 'complete' ? 'review the result' : 'run the focused verification plan'}.`,
+      `Test / review link: docs/handoffs/${quick.taskId}.md`,
+    ].join('\n'));
+    return;
+  }
   console.log(options.details
     ? `\n${renderTechnicalStatus(tasks)}\n`
     : renderBeginnerStatus(statusInputs(rootDir, tasks)));
@@ -1955,49 +1973,33 @@ function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit', options
     }
   }
 
-  // Resolve Git remote URL
-  let repoUrl = 'https://github.com/example/repo';
-  try {
-    const gitRemote = runGit('config --get remote.origin.url');
-    if (gitRemote) {
-      let cleanUrl = gitRemote.trim();
-      if (cleanUrl.endsWith('.git')) {
-        cleanUrl = cleanUrl.slice(0, -4);
-      }
-      if (cleanUrl.startsWith('git@')) {
-        cleanUrl = cleanUrl.replace(':', '/').replace('git@', 'https://');
-      } else if (cleanUrl.startsWith('ssh://git@')) {
-        cleanUrl = cleanUrl.replace('ssh://git@', 'https://');
-      }
-      repoUrl = cleanUrl;
-    }
-  } catch (err) {}
-
   // Format locks
   const formattedLocks = lockedFiles.split(',').map(f => `\`${f.trim()}\``).join(', ');
 
-  // Add to board
-  const taskRecord = {
+  const quickRoot = path.dirname(boardPath);
+  const relativeRecord = path.join('docs', 'handoffs', `${taskId}.md`);
+  const quickRecordPath = path.join(quickRoot, relativeRecord);
+  fs.mkdirSync(path.dirname(quickRecordPath), { recursive: true });
+  fs.writeFileSync(quickRecordPath, renderQuickRecord({
     id: taskId,
-    status: 'In Progress',
-    owner: owner,
-    area: area,
+    approvedCorrection: scopeDescription,
     scope: scopeDescription,
+    owner,
     locks: formattedLocks,
-    lockedFiles: formattedLocks,
-    links: `[Branch](${repoUrl}/tree/${branchName})`,
-    repoUrl: repoUrl,
-    branchName: branchName,
-    details: {},
-  };
-
-  addTaskToBoard(boardPath, taskRecord);
-
-  // Commit board separately and carry the claim into the isolated branch.
-  const boardCommitted = commitBoard(`docs: quick-claim ${taskId} and lock files`);
-  if (worktreePath && boardCommitted) {
-    const boardCommit = runGit('rev-parse HEAD');
-    execFileSync('git', ['-C', worktreePath, 'cherry-pick', boardCommit], {
+    successCriteria: `The focused contract for ${lockedFiles} passes.`,
+    verificationPlan: `Run only the focused checks for ${lockedFiles}.`,
+    branch: branchName,
+    worktree: worktreePath || quickRoot,
+    brief: 'Current approved Quick correction.',
+    candidate: branchName,
+    feedback: scopeDescription,
+    requiredEvidence: `Focused evidence for ${lockedFiles}.`,
+  }));
+  runGit(['add', relativeRecord]);
+  runGit(['commit', '-m', `docs: create ${taskId} Quick Record`]);
+  if (worktreePath) {
+    const recordCommit = runGit('rev-parse HEAD');
+    execFileSync('git', ['-C', worktreePath, 'cherry-pick', recordCommit], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe']
     });
@@ -2011,7 +2013,7 @@ function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit', options
   const contextContent = `# Active Task Context
 * **Current Task**: ${taskId}
 * **Lane**: ${owner}
-* **BFM Class**: ${classifyBfmClass(taskRecord)}
+* **BFM Class**: Quick BFM
 * **Feature Branch**: ${branchName}
 * **Locked Files**: ${formattedLocks}
 
@@ -2028,8 +2030,8 @@ ${scopeDescription} (Quick Edit)
   console.log(`\n✅ Quick edit task ${taskId} successfully claimed!`);
   console.log(`   - Branch: ${branchName}`);
   console.log(`   - Locked: ${formattedLocks}`);
-  console.log(`   - BFM class: ${classifyBfmClass(taskRecord)}`);
-  console.log(`   - Board updated & committed separately.`);
+  console.log(`   - BFM class: Quick BFM`);
+  console.log(`   - Quick Record: ${relativeRecord}`);
   if (worktreePath) {
     console.log(`   - Worktree: ${worktreePath}`);
     console.log(`   - Codex context written inside the linked worktree.`);
@@ -2108,8 +2110,47 @@ function handleSubmit(taskId, stagingUrl = '') {
     process.exit(1);
   }
 
+  const workspaceRoot = path.dirname(boardPath);
+  const quickPath = taskId.startsWith('TASK-Q-') ? findQuickRecord(workspaceRoot, taskId) : null;
+  if (quickPath) {
+    const markdown = fs.readFileSync(quickPath, 'utf8');
+    const reviewer = (markdown.match(/^Reviewer:\s*(.+)$/mi) || [])[1]?.trim();
+    const evidence = (markdown.match(/^Focused evidence:\s*(.+)$/mi) || [])[1]?.trim();
+    const reviewers = Number((markdown.match(/^Reviewers:\s*(\d+)$/mi) || [])[1]);
+    const repairs = Number((markdown.match(/^Repair loops:\s*(\d+)$/mi) || [])[1]);
+    const broadRuns = Number((markdown.match(/^Broad validator runs:\s*(\d+)$/mi) || [])[1]);
+    if (!reviewer || /^pending$/i.test(reviewer) || reviewer.includes(',')) {
+      console.error('❌ Error: Quick BFM submit requires exactly one named reviewer in the Quick Record.');
+      process.exit(1);
+    }
+    if (!evidence || /^pending$/i.test(evidence)) {
+      console.error('❌ Error: Quick BFM submit requires focused evidence in the Quick Record.');
+      process.exit(1);
+    }
+    if (reviewers !== 1 || repairs > 2 || broadRuns > 1) {
+      console.error('❌ Error: Quick BFM reviewer, repair-loop, or broad-validator budget is not satisfied.');
+      process.exit(1);
+    }
+    try { runHook('pre-submit', boardPath); } catch (err) {
+      console.error(`❌ Hook pre-submit failed: ${err.message}`);
+      process.exit(1);
+    }
+    fs.writeFileSync(quickPath, markdown.replace(/^Status:\s*in-progress$/mi, 'Status: complete'));
+    const relative = path.relative(workspaceRoot, quickPath);
+    runGit(['add', relative]);
+    if (runGit(['diff', '--cached', '--name-only', '--', relative])) {
+      runGit(['commit', '-m', `docs: close ${taskId} Quick Record`]);
+    }
+    try { runHook('post-submit', boardPath); } catch (err) {
+      console.error(`❌ Hook post-submit failed: ${err.message}`);
+      process.exit(1);
+    }
+    console.log(`✅ Quick BFM ${taskId} closed from its single Quick Record.`);
+    return;
+  }
+
   try {
-    assertSubmitReady(path.dirname(boardPath), taskId);
+    assertSubmitReady(workspaceRoot, taskId);
   } catch (err) {
     console.error(`❌ Error: ${err.message}`);
     process.exit(1);

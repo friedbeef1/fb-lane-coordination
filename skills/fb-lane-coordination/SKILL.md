@@ -13,6 +13,11 @@ Build For Me (BFM) is the execution mode used only after approval and explicit
 `$bfm`. The beginner-facing mode messages and seven-field brief stay canonical
 in the start guide.
 
+Route clear isolated low-risk work to Normal Codex, approved bounded
+corrections to one-record Quick BFM, and ambiguity or sensitive/material risk
+to Full BFM. The canonical workflow owns progress, resource, reviewer,
+verification, and stop budgets; do not reproduce or relax them here.
+
 - [Project Start Brief, lanes, and approval](../../docs/fb/start.md)
 - [Source hierarchy, locks, BFM, and closeout](../../docs/fb/workflow.md)
 - [Test This Now and Verification Handoff](../../docs/fb/evidence.md)

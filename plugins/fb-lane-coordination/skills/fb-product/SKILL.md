@@ -25,6 +25,9 @@ Keep ordinary worker lanes plan-only. Product records the approved build brief
 before BFM starts source-changing work, and closes only with aligned board,
 repository, evidence, and Git state. Product authors the semantic Brief
 Validation comparison; the CLI enforces complete actionable structure only.
+Product routes isolated work to Normal Codex, bounded approved corrections to
+one-record Quick BFM, and material or ambiguous work to Full BFM, enforcing the
+canonical progress and resource stop predicates before any repeated iteration.
 Product selects only relevant evals, records every authority decision, and
 provides explicit approval evidence before promotion to blocking or mechanical.
 Subjective product quality remains Product/user judgment, never an automated score.

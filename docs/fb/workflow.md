@@ -75,19 +75,45 @@ material decision lacks a preview.
 6. Classify work as `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`. Recheck status immediately before a claim.
 7. Select only relevant eval IDs from [evals.md](evals.md), record their authority, and separate mechanical evidence from Product/user judgment.
 
-## Two-speed execution
+## Three-mode execution
 
-Product/BFM classifies approved execution internally; this adds no command or
-board status. **Quick BFM Patch** is only for a bounded correction with clear
-approval, no lock conflict, and no new provider, privacy, auth, payment,
-analytics, live-release, core-flow, multi-lane, or OKR decision. Ambiguity,
-features, and risk-bearing work use **Full BFM**.
+Use **Normal Codex** for clear isolated low-risk work, **Quick BFM** for an
+approved bounded correction, and **Full BFM** for ambiguity or material risk.
+Safety gates run first. Quick BFM owns exactly one committed
+`docs/handoffs/TASK-Q-*.md` Quick Record; it does not add a board row, index
+row, workstream card, session recap, separate Task Receipt, or separate
+Verification Handoff. Needing any of those reclassifies the task Full BFM.
+
+Quick BFM permits five total agent iterations, two repair loops, one reviewer,
+no repeated broad validator, no no-progress cycle, and 30 elapsed minutes
+unless its approved record declares another limit. Full BFM defaults to five
+iterations, two repairs, two reviewers, one final broad validator, no
+no-progress cycle, and 120 minutes. A sixth iteration, third repair, repeated
+broad gate, or one cycle without a material source, evidence, test-state,
+blocker-recovery, or approved-direction delta stops the run. Authoritative
+provider token/cost ceilings apply only when supplied; otherwise record
+`unavailable` and never estimate them from a transcript.
+
+Before every repeated worker, repair, review, or gate, compare the candidate
+with its predecessor. Reworded reports, repeated checks, another opinion, and
+equivalent evidence are not progress. Workers receive only the current brief,
+candidate/diff, specific feedback, and required evidence—never accumulated
+conversation history, transcripts, unrelated reports, or private reasoning.
+Stop immediately when the explicit success predicates pass.
 
 Reuse an exact matching linked worktree. If none exists, resolve the primary
 checkout from `git worktree list --porcelain` and create the worker under
 `<primary>/.worktrees/`; never create `.worktrees` beneath a linked worktree.
 Status keeps the queue compact with `Current`, `Next ready`, and `External
 blocks`, including `None` when a bucket is empty.
+
+Verification is proportional: coordination-only closeout runs structure,
+link, and whitespace checks; documentation runs its factual, structural, link,
+and render contract; test-only work runs the affected suite. Runtime,
+validator, generated runtime, or execution configuration runs focused tests
+plus at most one full validator after the final runtime checkpoint. Sensitive
+work uses Full-BFM safety/release gates. A later runtime change invalidates the
+checkpoint; coordination-only closeout reuses it without runtime suites.
 
 Execute only ready, unlocked work within the same approved goal or scope. A
 different board item needs Product approval. During execution, record task,

@@ -19,14 +19,6 @@ function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
 
-function sameFile(a, b) {
-  assert.strictEqual(
-    fs.readFileSync(a, 'utf8'),
-    fs.readFileSync(b, 'utf8'),
-    `${a} differs from ${b}`
-  );
-}
-
 function requireAbsent(file) {
   assert.ok(!fs.existsSync(file), `${file} must not be restored`);
 }
@@ -61,23 +53,11 @@ run('root product-positioning contract syntax', 'node', ['--check', 'tools/fb-pr
 run('plugin product-positioning contract syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-product-positioning.test.cjs']);
 run('root two-speed contract syntax', 'node', ['--check', 'tools/fb-two-speed.test.cjs']);
 run('plugin two-speed contract syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-two-speed.test.cjs']);
+run('root efficiency module syntax', 'node', ['--check', 'tools/fb-efficiency.cjs']);
+run('plugin efficiency module syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-efficiency.cjs']);
+run('package synchronizer syntax', 'node', ['--check', 'tools/fb-package-sync.cjs']);
 
-console.log('\n==> root/package CLI, session, eval, test, skill, and seven-page parity');
-sameFile('tools/fb-lane.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.cjs');
-sameFile('tools/fb-lane.test.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.test.cjs');
-sameFile('tools/fb-session.cjs', 'plugins/fb-lane-coordination/tools/fb-session.cjs');
-sameFile('tools/fb-session.test.cjs', 'plugins/fb-lane-coordination/tools/fb-session.test.cjs');
-sameFile('tools/fb-eval.cjs', 'plugins/fb-lane-coordination/tools/fb-eval.cjs');
-sameFile('tools/fb-eval.test.cjs', 'plugins/fb-lane-coordination/tools/fb-eval.test.cjs');
-sameFile('tools/fb-beginner-experience.test.cjs', 'plugins/fb-lane-coordination/tools/fb-beginner-experience.test.cjs');
-sameFile('tools/fb-product-positioning.test.cjs', 'plugins/fb-lane-coordination/tools/fb-product-positioning.test.cjs');
-sameFile('docs/why-fb.md', 'plugins/fb-lane-coordination/docs/why-fb.md');
-sameFile('tools/fb-two-speed.test.cjs', 'plugins/fb-lane-coordination/tools/fb-two-speed.test.cjs');
-sameFile('skills/fb-lane-coordination/SKILL.md', 'plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md');
-sameFile('skills/project-coordination-setup/SKILL.md', 'plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md');
-for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md']) {
-  sameFile(`docs/fb/${page}`, `plugins/fb-lane-coordination/docs/fb/${page}`);
-}
+run('declared package mirrors', 'node', ['tools/fb-package-sync.cjs', '--check']);
 
 console.log('\n==> legacy runtime/configuration entry points remain absent');
 for (const file of ['.mcp.json', 'tools/run_lane.py', 'CLAUDE.md', 'templates/CLAUDE.md']) {
@@ -114,6 +94,7 @@ run('focused eval tests', 'node', ['tools/fb-eval.test.cjs']);
 run('focused beginner-experience smoke', 'node', ['tools/fb-beginner-experience.test.cjs']);
 run('focused product-positioning contract', 'node', ['tools/fb-product-positioning.test.cjs']);
 run('focused two-speed contract', 'node', ['tools/fb-two-speed.test.cjs']);
+run('focused efficiency contract', 'node', ['tools/fb-efficiency.test.cjs']);
 
 const doctor = run('doctor', 'node', ['tools/fb-lane.cjs', 'doctor'], { capture: true });
 assert.ok(doctor.includes('FB-Lane doctor: Ready'), 'doctor did not report ready');

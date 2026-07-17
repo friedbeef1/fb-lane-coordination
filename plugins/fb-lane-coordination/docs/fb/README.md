@@ -17,12 +17,21 @@ Read the smallest relevant layer, in this order:
 `AGENTS.md` is a navigator into this pack. Project rules and task-specific
 instructions take precedence when they are stricter.
 
-## Choose the smallest mode
+## Choose the smallest execution mode
 
-- **Normal work:** one-thread questions, explanations, tiny fixes, and isolated edits.
-- **FB light:** handoffs, board items, lanes, locks, multiple threads, or durable context.
-- **Product planning:** deciding scope or sequence; handling sensitive surfaces (payments, auth, privacy, analytics, secrets); core product flows; or reconciling several lane outputs before source changes.
-- **Build For Me (BFM):** source execution, checks, merge, staging, release, or launch only after approval and explicit `$bfm`.
+Build For Me (BFM) is FB's execution path only after Product approval and
+explicit `$bfm`; Normal Codex remains the default when that coordination is
+unnecessary.
+
+- **Normal Codex:** clear, isolated, low-risk work. It creates no FB record and runs only directly relevant checks.
+- **Quick BFM:** an approved bounded correction with one owner, explicit locks and success criteria, one `TASK-Q-*` Quick Record, one reviewer, proportional focused checks, and one closeout in that same record.
+- **Full BFM:** material product, architecture, security, provider, release, multi-lane, conflicting-lock, or unclear work. It keeps the board, index, handoff, session, evidence, and closeout model.
+
+Auth, privacy, payments, secrets, destructive data, provider state, releases,
+deployments, publications, production migrations, material architecture/core
+flows, multiple owners, and ambiguity always require Full BFM. Normal Codex is
+the default when no durable coordination is needed. See
+[workflow.md](workflow.md) for execution budgets and stop predicates.
 
 ## Read by task
 

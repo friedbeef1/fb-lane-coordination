@@ -129,6 +129,23 @@ transcript-free and should be deleted only after useful curated evidence is
 preserved. Any hosted storage, transcript capture, analytics, or other external
 capture needs a separate explicit approval and privacy review.
 
+## Quick Records and local metrics
+
+Quick BFM uses one `TASK-Q-*` Quick Record instead of the Full-BFM session
+recap and reciprocal evidence set. It contains approval, scope, owner, locks,
+focused verification, minimal worker context, one reviewer decision, one
+closeout, and an Efficiency Receipt. Status reads that record without requiring
+a board row. Submit closes that same file and must not invoke runtime suites or
+a full validator for coordination-only closeout.
+
+The receipt records elapsed user wait, tool calls, focused and repeated checks,
+broad-validator count, repair loops, reviewer count, provider tokens or
+`unavailable`, and circuit-breaker state. Metrics are curated and local. They
+exclude transcripts, hidden/private reasoning, secrets, authentication tokens,
+environment values, and unredacted private data. Hosted metrics or external
+integrations remain optional and require separate explicit approval and privacy
+review.
+
 ## Install, upgrade, and removal
 
 Bootstrap confirms the seven-page harness and adds or refreshes only the managed

@@ -7,8 +7,9 @@ description: Use when concurrent Codex work needs board-aware FB lanes, locks, h
 
 Read [the FB harness](../../docs/fb/README.md), then the project board, handoff
 index, linked handoff, and relevant workstream card. Use the smallest mode:
-normal work for isolated tasks, FB light for durable coordination, and
-Product/BFM for approval, sequencing, sensitive surfaces, or reconciled lanes.
+Normal Codex for isolated low-risk tasks, one-record Quick BFM for approved
+bounded corrections, and Full BFM for approval, sensitive surfaces, ambiguity,
+or reconciled lanes.
 Build For Me (BFM) is the execution mode used only after approval and explicit
 `$bfm`.
 

@@ -1494,6 +1494,8 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
 
   const quickFixture = createRepo();
   try {
+    const boardBefore = fs.readFileSync(path.join(quickFixture.repo, 'PROJECT_BOARD.md'), 'utf8');
+    const indexBefore = fs.readFileSync(path.join(quickFixture.repo, 'docs', 'handoffs', 'index.md'), 'utf8');
     const quick = run(quickFixture.repo, ['quick', 'Tech', 'src/quick.js', 'Real quick worktree']);
     assertOk(quick);
     const branch = /Branch:\s+(quick\/TASK-Q-\d+-real-quick-worktree)/.exec(quick.stdout)?.[1];
@@ -1504,6 +1506,27 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
     assert.strictEqual(git(worktree, ['branch', '--show-current']), branch);
     const registeredQuickPath = fs.realpathSync(worktree);
     assert.match(git(quickFixture.repo, ['worktree', 'list', '--porcelain']), new RegExp(`worktree ${registeredQuickPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+    const taskId = /TASK-Q-\d+/.exec(branch)?.[0];
+    const record = path.join(worktree, 'docs', 'handoffs', `${taskId}.md`);
+    assert.ok(fs.existsSync(record));
+    assert.match(fs.readFileSync(record, 'utf8'), /mode: Quick BFM/i);
+    assert.strictEqual(fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8'), boardBefore);
+    assert.strictEqual(fs.readFileSync(path.join(worktree, 'docs', 'handoffs', 'index.md'), 'utf8'), indexBefore);
+    assert.ok(!fs.existsSync(path.join(worktree, 'docs', 'sessions')));
+    const status = run(worktree, ['status']);
+    assertOk(status);
+    assert.match(status.stdout, /Working mode: Quick BFM/);
+
+    const ready = fs.readFileSync(record, 'utf8')
+      .replace('Reviewer: pending', 'Reviewer: FB-Product')
+      .replace('Reviewer decision: pending', 'Reviewer decision: approved')
+      .replace('Focused evidence: pending', 'Focused evidence: focused quick test passed')
+      .replace('Reviewers: 0', 'Reviewers: 1');
+    fs.writeFileSync(record, ready);
+    const submitted = run(worktree, ['submit', taskId, '--no-tests']);
+    assertOk(submitted);
+    assert.match(fs.readFileSync(record, 'utf8'), /Status: complete/);
+    assert.strictEqual(fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8'), boardBefore);
   } finally {
     quickFixture.cleanup();
   }

@@ -25,8 +25,9 @@ judge it.
 Stop before claim/edit/deploy/closeout when approval or locks are unclear.
 Execute only ready, unlocked work in the approved scope; close only after the
 board, source, docs, evidence, and Git state agree or exceptions are explicit.
-Classify approved execution internally as Quick BFM Patch only for bounded,
-low-risk corrective work; ambiguity or risk uses Full BFM. Reuse a matching
+Route clear isolated work to Normal Codex, an approved bounded correction to
+one-record Quick BFM, and ambiguity or material risk to Full BFM. Apply the
+canonical progress, resource, reviewer, verification, and stop budgets. Reuse a matching
 linked worktree or place a new one under the primary checkout's `.worktrees`,
 and keep `Current`, `Next ready`, and `External blocks` visible.
 For durable work, promote the approved session in its linked worktree and keep
