@@ -2,7 +2,7 @@
 
 * **Current Task**: TASK-029 FB Six-Workstream Loop
 * **Lane**: FB-Product / BFM + FB-Tech execution
-* **Status**: In Progress — approved six-workstream implementation; no release checkpoint requested
+* **Status**: Ready to ship — focused root/package contracts passed; no release checkpoint requested
 * **BFM Class**: Full BFM
 * **Branch**: `codex/fb-six-workstreams`
 * **Worktree**: `/Users/jamesyeang/.codex/worktrees/fb-lane-objective-checkpoints`

@@ -53,6 +53,19 @@ try {
     ],
   });
 
+  const sparse = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-six-none-relevant-'));
+  try {
+    fs.mkdirSync(path.join(sparse, 'docs', 'handoffs'), { recursive: true });
+    fs.writeFileSync(path.join(sparse, 'docs', 'handoffs', 'product.md'), handoff('PRODUCT-ONLY', 'fb-product', 'ready'));
+    const sparseScan = scanWorkstreamHandoffs(sparse);
+    assert.deepStrictEqual(sparseScan.selected, ['docs/handoffs/product.md']);
+    for (const lane of ['business', 'design', 'tech', 'discovery', 'bugs']) {
+      assert.deepStrictEqual(sparseScan.workstreams[lane], { ready: [], blocked: [], summary: 'None relevant' }, `${lane} must report an explicit None relevant disposition`);
+    }
+  } finally {
+    fs.rmSync(sparse, { recursive: true, force: true });
+  }
+
   fs.writeFileSync(path.join(root, 'docs', 'handoffs', '12-cross-workstream-duplicate.md'), handoff('PRODUCT-1', 'fb-bugs', 'ready', 'Contradictory duplicate.'));
   assert.throws(() => scanWorkstreamHandoffs(root), /duplicate|contradict/i);
 
@@ -74,6 +87,28 @@ try {
   assert.match(source, /enum: \['Tech', 'Design', 'Business', 'Product', 'Discovery', 'Bugs'\]/);
   const session = fs.readFileSync(path.join(__dirname, 'fb-session.cjs'), 'utf8');
   assert.match(session, /'product', 'tech', 'design', 'business', 'discovery', 'bugs', 'bfm', 'coordination'/);
+
+  const read = relative => fs.readFileSync(path.join(__dirname, '..', relative), 'utf8');
+  const readme = read('README.md');
+  assert.match(readme, /Product\/User[\s\S]*Business[\s\S]*Design[\s\S]*Tech[\s\S]*Discovery[\s\S]*Bugs/);
+  assert.match(readme, /Create a handoff MD for Product\/BFM/);
+  assert.match(readme, /\$bfm[\s\S]*Ready[\s\S]*to ship[\s\S]*Push Live/);
+  assert.match(readme, /codex plugin marketplace add friedbeef1\/fb-lane-coordination/);
+
+  if (fs.existsSync(path.join(root, 'FAQ.md'))) {
+    assert.match(readme, /FB is a Codex plugin that connects six product workstreams in one continuous[\s\S]*delivery loop/);
+    assert.match(readme, /Question → Investigate → Gather evidence → Recommend → Create handoff MD/);
+    assert.match(readme, /Vanilla Codex[\s\S]*Kurrent Capacitor[\s\S]*GitHub Spec Kit[\s\S]*BMAD[\s\S]*\*\*FB\*\*/);
+    assert.match(readme, /Focus Bridge/);
+    const faq = read('FAQ.md');
+    assert.match(faq, /one process/i);
+    assert.match(faq, /Feature Builder[\s\S]*Flow Booster[\s\S]*Fast Build[\s\S]*Fried Beef/);
+  }
+
+  const guardrails = read('docs/fb/guardrails.md');
+  assert.match(guardrails, /Low-ceremony execution rule/);
+  assert.match(guardrails, /one bounded candidate[\s\S]*complete candidate before review[\s\S]*at most one reviewer[\s\S]*one focused verification pass/i);
+  assert.match(guardrails, /Report progress only when source, evidence, test state, blocker recovery, or an[\s\S]*approved decision materially changes/i);
 } finally {
   fs.rmSync(root, { recursive: true, force: true });
 }

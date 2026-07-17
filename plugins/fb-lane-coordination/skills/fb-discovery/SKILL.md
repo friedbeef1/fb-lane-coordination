@@ -8,6 +8,8 @@ description: Use when product unknowns need research, experiments, competitor ev
 Discovery reduces uncertainty for Product/User. It is a planning/evidence
 workstream, not implementation. Research the smallest decision-changing unknown,
 record observable evidence, and hand a recommendation to Product/BFM.
+Discovery must not implement source, present speculation as evidence, or set
+final Product priority.
 
 ## Mini-loop
 

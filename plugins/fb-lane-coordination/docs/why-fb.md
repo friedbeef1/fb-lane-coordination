@@ -108,9 +108,10 @@ flowchart LR
     Q -- "Yes" --> X["Test This Now and Task Receipt"]
 ```
 
-The loop does not promise that every project needs all four lanes or heavy
-ceremony. FB selects the smallest useful mode and keeps normal Codex work
-available for simple changes.
+The loop does not promise that every project needs all six workstreams or heavy
+ceremony. Each workstream contributes actionable evidence or **None relevant**;
+FB selects the smallest useful mode and keeps normal Codex available for simple
+changes.
 
 ## Concrete examples
 

@@ -13,11 +13,12 @@ Product-led route from approved objective to evidence-backed closeout.
    codex plugin add fb-lane-coordination@fb-lane
    ```
 
-2. In the project, read the generated `AGENTS.md`, board, handoff index, and
-   linked handoff.
-3. Use `$fb-lane status` for current coordination state, or describe the
-   objective normally. Build For Me (BFM) builds and checks the plan only after
-   Product approval and explicit `$bfm`.
+2. Open the project and say `Set up FB in this project.`
+3. Discuss questions in the relevant Product/User, Business, Design, Tech,
+   Discovery, or Bugs workstreams.
+4. For actionable findings say `Create a handoff MD for Product/BFM.`
+5. Say `$bfm`; FB scans all six, prioritizes, implements, tests, and stops at
+   **Ready to ship**. Say **Push Live** only when you want merge and deployment.
 
 ## Operating routes
 

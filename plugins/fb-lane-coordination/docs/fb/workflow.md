@@ -6,11 +6,13 @@ Build For Me (BFM) is the execution mode only after approval and explicit
 
 ## Ownership and durable records
 
-- **Product:** scopes, prioritizes, resolves conflicts, approves goals, launches BFM, reviews staging, and is the only lane authorized to merge to main or deploy. Product may update coordination markdown but is read-only on application source outside BFM.
+- **Product/User:** owns user outcomes, requirements, real feedback, priorities, acceptance criteria, reconciliation, and release gates. It labels inference as assumptions and never invents user evidence.
 - **Tech:** owns schemas, APIs, serverless/security/configuration, and tests; it does not make styling, layout, font, or appearance changes.
 - **Design:** owns CSS, tokens, assets, layout geometry, and visual viewports; it does not edit schemas, API routes, or backend logic.
 - **Business:** owns pricing/copy/onboarding/docs/help/marketing; it is read-only on application code and does not deploy.
-- **All worker lanes:** investigate and write lane plans/handoffs in ordinary chats; none starts source execution without Product-launched BFM.
+- **Discovery:** owns research, unknowns, experiments, competitor evidence, and feasibility evidence; it does not implement or set final priority.
+- **Bugs:** owns reproduction, severity, affected-user impact, regression evidence, and verification requirements; it does not quietly fix source.
+- **All workstreams:** investigate and write plans/handoffs in ordinary chats; none starts source execution without Product-launched BFM.
 - **BFM execution workers:** may claim locked files, use an isolated branch/worktree, edit, verify, and submit only within an approved BFM run.
 
 The board is truth; the handoff index is routing; detailed handoffs are detail;
@@ -69,8 +71,10 @@ material decision lacks a preview.
 1. Read `AGENTS.md`, board, current-task record if present, the handoff index, then only linked handoffs.
 2. Show the target card: status, owner, scope, locks, blockers, gates, checks, links, intentional dirt, and approved goal.
 3. If approval is missing, stale, changed, or unclear, stop before claim, edit, deploy, or closeout.
-4. Make a five-lane ledger (`FB-Lane`, Product, Tech, Design, Business). Each
-   lane is either linked to relevant output or explicitly recorded as `no relevant handoff/lane output found` with the locations checked. Each found handoff ends as `implemented`, `already done`, `blocked`, `out of scope`, or `explicitly deferred`; do not silently omit a missing lane.
+4. Scan the six workstreams in order: Product/User, Business, Design, Tech,
+   Discovery, Bugs. Each is linked to ready/blocked output or recorded as **None
+   relevant**. Include only valid `ready` handoffs; exclude implemented, done,
+   and deferred work; stop to reconcile duplicates or contradictions.
 5. Run a Story Split Pass. Split mixed risks, locks, gates, review surfaces, blocked work, and ready work; otherwise say `No split needed`.
 6. Classify work as `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`. Recheck status immediately before a claim.
 7. Select only relevant eval IDs from [evals.md](evals.md), record their authority, and separate mechanical evidence from Product/user judgment.

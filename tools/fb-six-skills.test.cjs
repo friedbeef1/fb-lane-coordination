@@ -7,49 +7,37 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 
 function read(relative) {
-  return fs.readFileSync(path.join(root, relative), 'utf8');
+  let target = path.join(root, relative);
+  const packagePrefix = 'plugins/fb-lane-coordination/';
+  if (!fs.existsSync(target) && relative.startsWith(packagePrefix)) {
+    target = path.join(root, relative.slice(packagePrefix.length));
+  }
+  return fs.readFileSync(target, 'utf8');
 }
 
 function assertDiscoverySkill() {
   const skill = read('plugins/fb-lane-coordination/skills/fb-discovery/SKILL.md');
-  for (const pattern of [
-    /unknowns/i,
-    /research/i,
-    /experiments?/i,
-    /competitor/i,
-    /opportunit/i,
-    /feasibility/i,
-    /finding/i,
-    /hypoth/i,
-    /docs\/handoffs\/<TASK-ID>\.md/,
-    /lane:\s*fb-discovery/i,
-    /status:\s*ready/i,
-    /Mini-loop Evidence/i,
-    /Evidence Against Product OKR/i,
-    /plan-only|planning\/evidence/i,
-    /Product\/BFM/i
-  ]) assert.match(skill, pattern, `Discovery skill must include ${pattern}`);
+  assert.match(skill, /reduces uncertainty[\s\S]{0,220}planning\/evidence[\s\S]{0,220}smallest decision-changing unknown/i);
+  assert.match(skill, /must not implement source, present speculation as evidence, or set[\s\S]{0,40}final Product priority/i);
+  assert.match(skill, /Research the smallest decision-changing unknown[\s\S]*Gather the smallest useful research, experiment, competitor, opportunity, or[\s\S]*Compare evidence[\s\S]*Create or update `docs\/handoffs\/<TASK-ID>\.md`/i);
+  assert.match(skill, /Do not mark a[\s\S]{0,80}hypothesis or an unrun experiment ready as if it were a finding/i);
+  assert.match(skill, /lane:\s*fb-discovery[\s\S]{0,80}status:\s*ready/i);
 }
 
 function assertBugsSkill() {
   const skill = read('plugins/fb-lane-coordination/skills/fb-bugs/SKILL.md');
-  for (const pattern of [
-    /reproduc/i,
-    /observable/i,
-    /severity/i,
-    /affected users?/i,
-    /regression/i,
-    /expected/i,
-    /actual/i,
-    /status:\s*blocked/i,
-    /docs\/handoffs\/<TASK-ID>\.md/,
-    /lane:\s*fb-bugs/i,
-    /status:\s*ready/i,
-    /Mini-loop Evidence/i,
-    /Evidence Against Product OKR/i,
-    /plan-only|planning\/evidence/i,
-    /Product\/BFM/i
-  ]) assert.match(skill, pattern, `Bugs skill must include ${pattern}`);
+  assert.match(skill, /ready[\s\S]{0,80}requires observable reproduction evidence/i);
+  assert.match(skill, /Record environment[\s\S]*minimal steps[\s\S]*expected behavior[\s\S]*actual[\s\S]*affected users[\s\S]*severity/i);
+  assert.match(skill, /Set `status: ready` only when[\s\S]{0,180}observable reproduction[\s\S]{0,120}severity[\s\S]{0,120}affected users[\s\S]{0,120}regression or verification evidence/i);
+  assert.match(skill, /Otherwise[\s\S]{0,60}status: blocked[\s\S]{0,80}missing evidence/i);
+  assert.match(skill, /lane:\s*fb-bugs[\s\S]{0,80}status:\s*ready/i);
+}
+
+function assertProductEvidenceBoundary() {
+  const skill = read('plugins/fb-lane-coordination/skills/fb-product/SKILL.md');
+  assert.match(skill, /Product inference and assumptions are not user evidence[\s\S]{0,80}label them as[\s\S]{0,20}assumptions/i);
+  assert.match(skill, /Actual user evidence requires observed or recorded user input/i);
+  assert.match(skill, /never fabricate or impersonate user feedback/i);
 }
 
 const SIX = /Product\/User[\s\S]*Business[\s\S]*Design[\s\S]*Tech[\s\S]*Discovery[\s\S]*Bugs/i;
@@ -86,5 +74,6 @@ function assertAlignedSkills() {
 
 assertDiscoverySkill();
 assertBugsSkill();
+assertProductEvidenceBoundary();
 assertAlignedSkills();
 console.log('six-workstream skill behavior contract passed');

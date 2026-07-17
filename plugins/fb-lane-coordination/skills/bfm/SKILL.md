@@ -46,6 +46,10 @@ one-record Quick BFM, and ambiguity or material risk to Full BFM. Apply the
 canonical progress, resource, reviewer, verification, and stop budgets. Reuse a matching
 linked worktree or place a new one under the primary checkout's `.worktrees`,
 and keep `Current`, `Next ready`, and `External blocks` visible.
+For closely related low-risk skill, documentation, template, or contract edits,
+produce one bounded candidate and test their distinct behavior with one focused
+structural contract. Review only the complete candidate, with at most one
+reviewer and one focused verification pass; stop immediately when it passes.
 For durable work, promote the approved session in its linked worktree and keep
 the Task Receipt, Brief Validation, reciprocal links, verification checkpoint,
 Verification Handoff, and Test This Now aligned before submit or completed close.

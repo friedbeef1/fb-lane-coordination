@@ -3,6 +3,13 @@
 Last Updated: 2026-07-17
 Lane: FB-Product
 
+## TASK-029 — Six-workstream loop
+
+- Status: Ready to ship
+- Outcome: Product/User, Business, Design, Tech, Discovery, and Bugs are first-class planning/evidence workstreams; `$bfm` reconciles their ready handoffs and preserves None relevant/blocked dispositions.
+- Verification: focused root/package runtime and skill contracts, 25 generated mirrors, syntax, and whitespace passed.
+- Release gate: no merge, publication, deployment, or plugin install until explicit Push Live.
+
 ## Current Summary
 TASK-028 is local Staging QA at `284e465`, not blocked. The release-first revision retains Normal Codex / Quick BFM / Full BFM routing, a single committed Quick Record, mechanical package generation, privacy-safe worker context, and resource/loop budgets while making focused checks the default. Sensitive work retains immediate safety/approval gates. A full validator is eligible only when a Product-owned handoff explicitly requests a release checkpoint; staging, integration, owner transfer, review, and a handoff artifact do not request one. System-run smoke is the default review contract. No release checkpoint, broad validator, repeated review, or external action is requested.
 

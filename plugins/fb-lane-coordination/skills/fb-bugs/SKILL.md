@@ -46,6 +46,10 @@ versus actual behavior, severity with rationale, affected users and reach,
 frequency, regression evidence or `not established`, suspected area clearly
 labeled as a hypothesis, fix acceptance criteria, risks, and next owner.
 
+Set `status: ready` only when the handoff contains an observable reproduction,
+severity, affected users, and regression or verification evidence. Otherwise
+set `status: blocked` and name the missing evidence.
+
 For non-trivial work include:
 
 ```md

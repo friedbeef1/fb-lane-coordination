@@ -38,3 +38,7 @@ canonical progress and resource stop predicates before any repeated iteration.
 Product selects only relevant evals, records every authority decision, and
 provides explicit approval evidence before promotion to blocking or mechanical.
 Subjective product quality remains Product/user judgment, never an automated score.
+
+Product inference and assumptions are not user evidence: label them as
+assumptions. Actual user evidence requires observed or recorded user input;
+never fabricate or impersonate user feedback.
