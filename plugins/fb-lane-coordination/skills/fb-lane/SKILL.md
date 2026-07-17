@@ -9,6 +9,7 @@ Read [the FB harness](../../docs/fb/README.md), then the project board, handoff
 index, linked handoff, and relevant workstream card. Use the smallest mode:
 normal work for isolated tasks, FB light for durable coordination, and
 Product/BFM for approval, sequencing, sensitive surfaces, or reconciled lanes.
+Build For Me (BFM) is the execution mode used only after the plan is approved.
 
 - [Start and clarify an objective](../../docs/fb/start.md)
 - [Coordinate lanes and approved BFM work](../../docs/fb/workflow.md)

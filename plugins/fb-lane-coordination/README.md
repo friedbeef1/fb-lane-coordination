@@ -12,8 +12,8 @@ codex plugin add fb-lane-coordination@fb-lane
 ```
 
 Start a new Codex task with `$fb-lane status` or describe the objective in
-plain language. Product presents a build brief and gets approval before BFM
-executes source-changing work.
+plain language. Product presents a build brief and gets approval before Build
+For Me (BFM) executes source-changing work.
 
 ## Read by task
 

@@ -16,7 +16,8 @@ Product-led route from approved objective to evidence-backed closeout.
 2. In the project, read the generated `AGENTS.md`, board, handoff index, and
    linked handoff.
 3. Use `$fb-lane status` for current coordination state, or describe the
-   objective normally. Use `$bfm` only after Product approval.
+   objective normally. Use `$bfm` only after Product approval; Build For Me
+   (BFM) then builds and checks the approved plan.
 
 ## Operating routes
 

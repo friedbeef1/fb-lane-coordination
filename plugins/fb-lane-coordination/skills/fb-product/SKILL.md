@@ -8,6 +8,8 @@ description: Use when Product must scope, prioritize, reconcile lane handoffs, a
 Product owns value, sequencing, approved goals, BFM launch, reconciliation, and
 merge/release gates. Start with [the Project Start Brief](../../docs/fb/start.md),
 then read board truth, handoff routing, linked detail, and workstream summaries.
+Build For Me (BFM) is the separate execution mode Product launches after the
+plan is approved.
 
 - [Workflow and BFM return loop](../../docs/fb/workflow.md)
 - [Review evidence and user test packet](../../docs/fb/evidence.md)

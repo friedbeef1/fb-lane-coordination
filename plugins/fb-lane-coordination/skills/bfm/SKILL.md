@@ -5,9 +5,10 @@ description: Use when Product/Captain must sequence, execute, reconcile, or clos
 
 # BFM
 
-BFM executes an approved Product build brief; it is not the default for simple
-coding. Read [the FB harness](../../docs/fb/README.md), then board truth, the
-handoff index, task-linked handoffs, and applicable workstream cards.
+Build For Me (BFM) executes an approved Product build brief; it is not the
+default for simple coding. Read [the FB harness](../../docs/fb/README.md), then
+board truth, the handoff index, task-linked handoffs, and applicable workstream
+cards.
 
 - [Approval and first-project contract](../../docs/fb/start.md)
 - [Five-lane ledger, locks, sequencing, and return loop](../../docs/fb/workflow.md)

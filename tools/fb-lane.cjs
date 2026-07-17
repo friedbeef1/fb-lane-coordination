@@ -2108,6 +2108,10 @@ Read [the FB harness](docs/fb/README.md) after \`PROJECT_BOARD.md\`,
 \`docs/handoffs/index.md\`, and the linked handoff. Use the focused page that
 matches the task:
 
+This is a simple task, so I’ll handle it directly without lanes or a build brief.
+FB will prepare the plan first. It is not building yet.
+Build For Me (BFM) will now build and check the approved plan.
+
 - First project, plan, lanes, or approval: [start.md](docs/fb/start.md)
 - Ownership, BFM execution, and closeout: [workflow.md](docs/fb/workflow.md)
 - Test This Now and Verification Handoff: [evidence.md](docs/fb/evidence.md)
@@ -2215,27 +2219,6 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 - Acceptance criteria:
 - Gates/risks:
 - Exact instruction for Product/BFM:`;
-
-  const firstProjectContract = `## Project Start Brief
-For a first project or new non-trivial objective, Product starts with:
-- **What you asked for:** <plain-language outcome>
-- **Your decisions:** <choices already made>
-- **Assumptions to confirm:** <only assumptions that could change the plan>
-- **Success looks like:** <observable outcome and review evidence>
-- **Progress:** Understanding your idea → Ready for your approval → Building → Checking → Complete
-- **Blocked:** Blocked — <reason> / next action
-- **What FB will plan:** <bounded planning work>
-- **Out of scope:** <explicit exclusions>
-- **Next action:** <one immediate Product action or user decision>
-
-## How FB works
-1. Lanes investigate and plan different parts.
-2. Product combines findings into one build brief.
-3. You approve the brief.
-4. Only after explicit \`$bfm\`, BFM builds and checks it.
-
-## Test This Now
-For review, provide Outcome type, Direct links, Exact steps and expectations, Pass criteria, Known limits, and a Failure-report format (what happened, what was expected, link or screenshot, and environment). If review access is missing, say \`Status: blocked — review access is missing\`, not ready to test.`;
 
   // 1. Create PROJECT_BOARD.md if missing
   const boardPath = path.join(rootDir, 'PROJECT_BOARD.md');
@@ -2440,10 +2423,11 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('======================================================================');
   console.log('🚀 QUICK START GUIDE: HOW TO USE FB RIGHT AWAY');
   console.log('======================================================================');
-  console.log('1. Describe your new project normally. FB returns a Project Start Brief.');
-  console.log('2. Lanes investigate and plan different parts; Product combines findings into one build brief.');
-  console.log('3. You approve the brief. Only after explicit $bfm, BFM builds and checks it.');
-  console.log('4. Use $fb-lane status for returning project health: active work, locks, and next coordination context.');
+  console.log('1. Describe your new project normally. This is a simple task, so I’ll handle it directly without lanes or a build brief.');
+  console.log('2. FB will prepare the plan first. It is not building yet. Lanes investigate and plan different parts.');
+  console.log('3. Product combines findings into one build brief. You approve the brief. Only after explicit $bfm, BFM builds and checks it.');
+  console.log('4. Build For Me (BFM) will now build and check the approved plan.');
+  console.log('5. Use $fb-lane status for returning project health: active work, locks, and next coordination context.');
   console.log('======================================================================');
   console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');

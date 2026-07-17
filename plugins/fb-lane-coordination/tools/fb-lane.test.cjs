@@ -33,13 +33,45 @@ const exactHowFbWorks = [
   '3. You approve the brief.',
   '4. Only after explicit `$bfm`, BFM builds and checks it.'
 ].join('\n');
+const exactSimpleTaskMessage = 'This is a simple task, so I’ll handle it directly without lanes or a build brief.';
+const exactPlanningMessage = 'FB will prepare the plan first. It is not building yet.';
+const exactBuildMessage = 'Build For Me (BFM) will now build and check the approved plan.';
+const projectStartBriefFields = [
+  'What you asked for',
+  'Your decisions',
+  'Assumptions to confirm',
+  'What FB will plan',
+  'Out of scope',
+  'Success looks like',
+  'Next action'
+];
 
 function assertExactFirstProjectContract(label, source) {
-  assert.match(source, new RegExp(`\\*\\*Progress:\\*\\* ${exactProgress}`), `${label} must use the exact approved progress wording`);
-  assert.match(source, new RegExp(`\\*\\*Blocked:\\*\\* ${exactBlocked.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}`), `${label} must make blocked work actionable`);
+  for (const message of [exactSimpleTaskMessage, exactPlanningMessage, exactBuildMessage]) {
+    assert.ok(source.includes(message), `${label} must include the exact beginner mode message: ${message}`);
+  }
+  assert.ok(source.includes(`**Progress:** ${exactProgress}`), `${label} must preserve the approved progress wording`);
+  assert.ok(source.includes(`**Blocked:** ${exactBlocked}`), `${label} must keep blocked work actionable`);
   const howFbWorks = source.match(/## How FB works\n([\s\S]*?)(?=\n## |\s*$)/);
   assert.ok(howFbWorks, `${label} must include How FB works`);
-  assert.strictEqual(howFbWorks[1].trim(), exactHowFbWorks, `${label} must contain exactly the four ordered FB steps`);
+  assert.ok(howFbWorks[1].includes(exactHowFbWorks), `${label} must preserve the four ordered FB steps`);
+
+  const brief = source.match(/## Project Start Brief\n([\s\S]*?)(?=\n## |\s*$)/);
+  assert.ok(brief, `${label} must include Project Start Brief`);
+  const visibleFields = [...brief[1].matchAll(/^- \*\*([^:*]+):\*\*/gm)].map(match => match[1]);
+  assert.deepStrictEqual(visibleFields, projectStartBriefFields, `${label} must expose exactly the seven approved beginner fields`);
+  assert.doesNotMatch(brief[1], /eval|OKR|authority|mechanical versus judgment|quality bar/i, `${label} must keep advanced mechanics out of the visible brief`);
+
+  for (const term of ['Lane', 'Handoff', 'Build For Me (BFM)', 'Gate', 'Quality Gap']) {
+    assert.ok(source.includes(`**${term}:**`), `${label} must define ${term} inline`);
+  }
+  for (const mode of ['Simple task', 'Coordinated planning', 'Approved Build For Me']) {
+    assert.match(source, new RegExp(`^### ${mode}$`, 'm'), `${label} must include the ${mode} example`);
+  }
+  for (const clarificationField of ['Why this matters', 'Recommended default', 'What changes if you choose differently']) {
+    assert.match(source, new RegExp(`\\*\\*${clarificationField}\\*\\*`), `${label} must preserve the ${clarificationField} clarification field`);
+  }
+  assert.doesNotMatch(source, /Build Flow Manager/i, `${label} must use Build For Me terminology`);
 }
 
 function test(name, fn) {
@@ -249,6 +281,7 @@ function assertCodexBootstrap(args) {
     const board = fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8');
     const agents = fs.readFileSync(path.join(root, 'AGENTS.md'), 'utf8');
     const codexRules = fs.readFileSync(path.join(root, '.codex', 'rules.md'), 'utf8');
+    assertExactFirstProjectContract('fresh bootstrap docs/fb/start.md', fs.readFileSync(path.join(generatedPack, 'start.md'), 'utf8'));
     assert.ok(!board.includes(brandLine), 'generated project board must not repeat the current FB model line');
     for (const [label, source] of [['PROJECT_BOARD.md', board], ['AGENTS.md', agents], ['.codex/rules.md', codexRules]]) {
       assert.match(source, /sidechat-parent-thread-routing\.md/, `${label} must link to the canonical rule`);
@@ -268,6 +301,9 @@ function assertCodexBootstrap(args) {
       const handoffRead = source.indexOf('the linked handoff');
       assert.ok(boardRead >= 0 && boardRead < indexRead && indexRead < handoffRead, `${label} must state the board → index → linked handoff read order`);
       assert.doesNotMatch(source, /## Project Start Brief|## Test This Now|### Verification Handoff/, `${label} must remain a thin route layer`);
+      for (const message of [exactSimpleTaskMessage, exactPlanningMessage, exactBuildMessage]) {
+        assert.ok(source.includes(message), `${label} must carry the concise beginner mode contract`);
+      }
     }
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
     assert.match(output, /Lanes investigate and plan different parts/, 'bootstrap quick start must say that lanes plan');
@@ -506,6 +542,48 @@ test('all nine active Task-1 contract surfaces keep exact progress and blocked w
   for (const relativePath of activeContractSurfaces) {
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
     assert.match(source, /(?:docs\/)?fb\/start\.md/, `${relativePath} must route first-project guidance to the canonical harness page`);
+  }
+});
+
+test('publishes one beginner interaction contract across root, package, skills, and examples', () => {
+  const repoRoot = process.cwd();
+  const canonicalStart = fs.readFileSync(path.join(repoRoot, 'docs/fb/start.md'), 'utf8');
+  const packagedStart = fs.readFileSync(path.join(repoRoot, 'plugins/fb-lane-coordination/docs/fb/start.md'), 'utf8');
+  assertExactFirstProjectContract('docs/fb/start.md', canonicalStart);
+  assert.strictEqual(packagedStart, canonicalStart, 'packaged start.md must match the canonical beginner contract');
+
+  const activeEntryPoints = [
+    'docs/fb/README.md',
+    'docs/fb/workflow.md',
+    'docs/fb/evidence.md',
+    'README.md',
+    'FAQ.md',
+    'platforms/codex/README.md',
+    'plugins/fb-lane-coordination/README.md',
+    'examples/my-app/AGENTS.md',
+    'skills/fb-lane-coordination/SKILL.md',
+    'skills/project-coordination-setup/SKILL.md',
+    'skills/quickstart/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-lane/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-product/SKILL.md',
+    'plugins/fb-lane-coordination/skills/bfm/SKILL.md',
+    'plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md'
+  ];
+  for (const relativePath of activeEntryPoints) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.doesNotMatch(source, /Build Flow Manager/i, `${relativePath} must not use the retired beginner-facing expansion`);
+    assert.match(source, /(?:docs\/fb\/|\.\.\/\.\.\/docs\/fb\/)?start\.md/, `${relativePath} must route beginner guidance to start.md`);
+    assert.match(source, /Build\s+For\s+Me\s+\(BFM\)/, `${relativePath} must define BFM for beginners`);
+  }
+
+  for (const relativePath of ['tools/fb-lane.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.cjs']) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.doesNotMatch(source, /\bfirstProjectContract\b/, `${relativePath} must not retain the stale inline first-project contract`);
+    assert.doesNotMatch(source, /Build Flow Manager/i, `${relativePath} must use Build For Me terminology`);
+    for (const message of [exactSimpleTaskMessage, exactPlanningMessage, exactBuildMessage]) {
+      assert.ok(source.includes(message), `${relativePath} must generate the concise beginner mode contract`);
+    }
   }
 });
 

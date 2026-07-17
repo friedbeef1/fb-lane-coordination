@@ -1,5 +1,8 @@
 # Evidence and review
 
+Use the seven-field Project Start Brief and Build For Me (BFM) boundary from
+[start.md](start.md) before preparing execution or review evidence.
+
 ## Test This Now
 
 Harness-v2 review enforcement is opt-in. Add `fb_harness: v2` to the detailed

@@ -9,6 +9,9 @@ Read [the FB harness](../../docs/fb/README.md) before acting, then read the
 board, index, linked handoff, and relevant workstream card. The harness owns
 the durable policy:
 
+Build For Me (BFM) is the post-approval execution mode. The beginner-facing
+mode messages and seven-field brief stay canonical in the start guide.
+
 - [Project Start Brief, lanes, and approval](../../docs/fb/start.md)
 - [Source hierarchy, locks, BFM, and closeout](../../docs/fb/workflow.md)
 - [Test This Now and Verification Handoff](../../docs/fb/evidence.md)

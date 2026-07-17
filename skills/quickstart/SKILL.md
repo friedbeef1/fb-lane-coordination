@@ -7,7 +7,8 @@ description: Use when a new project needs the smallest practical introduction to
 
 Start with [the FB harness](../../docs/fb/README.md). For a new non-trivial
 objective, Product uses [the Project Start Brief](../../docs/fb/start.md),
-selects only useful lanes, and gets approval before BFM executes a build.
+selects only useful lanes, and gets approval before Build For Me (BFM) executes
+a build.
 
 Read [workflow.md](../../docs/fb/workflow.md) for the board/index/handoff order,
 [evidence.md](../../docs/fb/evidence.md) before asking for review, and

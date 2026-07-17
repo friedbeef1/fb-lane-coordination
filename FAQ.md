@@ -9,7 +9,8 @@ part of the objective. See [the mode guide](docs/fb/README.md).
 ## What happens before a build starts?
 
 Product gives the Project Start Brief, selects only useful lanes, records a
-build brief, and asks for approval. BFM executes only after explicit `$bfm`.
+build brief, and asks for approval. Build For Me (BFM) executes only after
+explicit `$bfm`.
 The complete user-facing contract is in [start.md](docs/fb/start.md).
 
 ## Where do I find the current task?

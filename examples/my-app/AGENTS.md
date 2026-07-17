@@ -2,6 +2,10 @@
 
 This project uses the standard **FB coordination model** to enable safe concurrent development.
 
+Use the beginner mode and approval contract in [docs/fb/start.md](docs/fb/start.md).
+For simple work, stay direct. For coordinated work, FB plans first and waits
+for approval. Build For Me (BFM) then builds and checks the approved plan.
+
 ### 1. Lane Scopes & Boundaries
 *   **FB Product (PM / User Value Optimizer)**: Owns final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.
 *   **FB Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, database security, configuration scripts, and unit/integration test suites. *Does not make styling, layout geometry, or UI changes.*

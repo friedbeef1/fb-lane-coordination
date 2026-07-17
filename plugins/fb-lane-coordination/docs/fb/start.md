@@ -1,68 +1,78 @@
 # Start an FB objective
 
-For a first project or new non-trivial objective, Product presents this brief
-before requesting lane output or clarification questions:
+FB uses the smallest mode that fits the work. Simple work stays direct;
+coordinated work is planned before any source-changing execution begins.
+
+## Choose the mode
+
+### Simple task
+
+Example: change one label in one file with no shared locks or durable handoff.
+
+This is a simple task, so I’ll handle it directly without lanes or a build brief.
+
+### Coordinated planning
+
+Example: plan a creator-commerce launch that needs Product, copy, and technical
+questions reconciled before anyone changes source.
+
+FB will prepare the plan first. It is not building yet.
+
+### Approved Build For Me
+
+Example: the user has approved the reconciled plan and explicitly invoked
+`$bfm` for the bounded implementation.
+
+Build For Me (BFM) will now build and check the approved plan.
+
+## Terms in plain language
+
+- **Lane:** a focused planning view, such as Product, Tech, Design, or Business.
+- **Handoff:** the durable note that passes decisions, scope, and evidence to the next owner.
+- **Build For Me (BFM):** the execution mode that builds an explicitly approved plan.
+- **Gate:** a required approval, review, or check before work moves forward.
+- **Quality Gap:** the recorded difference between the approved target and the result that was checked.
 
 ## Project Start Brief
+
+For a first project or new non-trivial objective, Product presents exactly this
+visible brief before requesting lane output or clarification questions:
 
 - **What you asked for:** <plain-language outcome>
 - **Your decisions:** <choices already made>
 - **Assumptions to confirm:** <only assumptions that could change the plan>
 - **What FB will plan:** <bounded planning work>
 - **Out of scope:** <explicit exclusions>
-- **Success looks like:** <observable outcome>
-- **Quality bar:** <approved observable product or harness target>
-- **Selected eval IDs and authority:** <only relevant IDs; do not run the whole catalog>
-- **Mechanical versus judgment evidence:** <objective checks versus Product/user judgment>
-- **Remaining user judgment:** <decision the evidence cannot make>
-- **Progress:** Understanding your idea → Ready for your approval → Building → Checking → Complete
-- **Blocked:** Blocked — <reason> / next action
+- **Success looks like:** <observable outcome and review evidence>
 - **Next action:** <one immediate Product action or user decision>
 
-## How FB works
-
-1. **Lanes plan:** Product selects only relevant lanes; each answers a distinct question.
-2. **Product prepares:** Product reconciles the lane plans into one build brief and recommends a path.
-3. **You approve:** Product asks for approval of that build brief before any build starts.
-4. **BFM builds:** Only after explicit `$bfm` does BFM execute the approved build brief.
+## Clarifications
 
 Name each selected lane, its distinct question, and the decision or risk its
 answer changes. Also write `Skipped lanes: <lanes and reason>`. Every
 clarification includes **Why this matters**, a **Recommended default**, and
 **What changes if you choose differently**.
 
-## Approval boundary
+## How FB works
 
-For non-trivial work, Product owns one approved Goal Alignment Session on the
-board: `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`,
-`Approval`, and `Justification`. Each relevant lane handoff has a compact
-`## Goal Alignment Session` with:
+1. Lanes investigate and plan different parts.
+2. Product combines findings into one build brief.
+3. You approve the brief.
+4. Only after explicit `$bfm`, BFM builds and checks it.
 
-```md
-Product Goal: <existing approved Product/workstream goal, if known>
-Workstream Goal: <plain-language lane contribution for Product/user approval>
-Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
-User Approval Needed: yes | no
-Mini-loop Evidence: <smallest real verification evidence>
-Evidence Against Product OKR: <weakening/blocking evidence> | None identified
-```
+After approval and explicit `$bfm`, say:
 
-Worker lanes return that evidence against the existing goal; they do not create
-a new OKR for every task. `/goal` is only a Product/BFM shortcut into this same
-session. Quick `TASK-Q-*` work may skip this extra ceremony.
+Build For Me (BFM) will now build and check the approved plan.
 
-Before source-changing work, Product records the build brief and approval. The
-Build Brief repeats the quality bar, selected eval IDs/authority, mechanical
-versus judgment evidence, and remaining user judgment. Product defines concrete
-product scenarios with Good/Bad examples; reusable categories alone are not a
-test.
-Ordinary lane chats are plan-only; BFM is the execution mode after Product has
-cleared the approval gate. See [workflow.md](workflow.md).
+## Progress and pauses
 
-## Visual Preview Decision
+- **Progress:** Understanding your idea → Ready for your approval → Building → Checking → Complete
+- **Blocked:** Blocked — <reason> / next action
 
-For a user-visible UI plan, record `browser screenshot/mockup`, `imagegen
-asset/style option`, or `skip with reason`. Skip only for non-visual work or a
-tiny copy, spacing, or single-control change. Attach a feasible material visual
-preview before BFM source execution; Product/BFM blocks or asks only when that
-material decision lacks a preview.
+## Internal planning details
+
+The visible brief stays concise. Product records goal alignment, approval,
+locks, sequencing, and visual-preview decisions through [workflow.md](workflow.md).
+Eval selection, authority, evidence types, judgment boundaries, and Quality Gap
+closure live in [evals.md](evals.md). Ordinary lanes remain plan-only until the
+explicit Build For Me boundary is cleared.

@@ -1,5 +1,8 @@
 # Coordinate and execute
 
+The beginner-facing mode and approval contract lives in [start.md](start.md).
+Build For Me (BFM) is the execution mode for an explicitly approved plan.
+
 ## Ownership and durable records
 
 - **Product:** scopes, prioritizes, resolves conflicts, approves goals, launches BFM, reviews staging, and is the only lane authorized to merge to main or deploy. Product may update coordination markdown but is read-only on application source outside BFM.
@@ -27,6 +30,38 @@ missing, stale, or vague index. Its compact columns are `Task / Topic`, `Lane`,
 plans, OKRs, logs, and QA stay in the detailed handoff. Product/BFM adds
 `## Product/BFM Closeout` to that handoff, then refreshes the relevant compact
 workstream card after execution or explicit deferral.
+
+## Internal approval record
+
+For non-trivial work, Product owns one approved Goal Alignment Session on the
+board: `Objective`, `Key Results`, `Definition of Done`, `Gate / Review Point`,
+`Approval`, and `Justification`. Each relevant lane handoff has a compact
+`## Goal Alignment Session` with:
+
+```md
+Product Goal: <existing approved Product/workstream goal, if known>
+Workstream Goal: <plain-language lane contribution for Product/user approval>
+Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+User Approval Needed: yes | no
+Mini-loop Evidence: <smallest real verification evidence>
+Evidence Against Product OKR: <weakening/blocking evidence> | None identified
+```
+
+Worker lanes return evidence against the existing goal; they do not create a
+new OKR for every task. `/goal` is only a Product/BFM shortcut into this same
+session. Quick `TASK-Q-*` work may skip this extra ceremony.
+
+Before source-changing work, Product records the Build Brief and approval. The
+Build Brief repeats the quality bar, selected eval IDs and authority,
+mechanical versus judgment evidence, and remaining user judgment. See
+[evals.md](evals.md). Product defines concrete product scenarios with Good and
+Bad examples; reusable categories alone are not a test.
+
+For a user-visible UI plan, record `browser screenshot/mockup`, `imagegen
+asset/style option`, or `skip with reason`. Skip only for non-visual work or a
+tiny copy, spacing, or single-control change. Attach a feasible material visual
+preview before BFM source execution; Product/BFM blocks or asks only when that
+material decision lacks a preview.
 
 ## Before an approved BFM run
 
