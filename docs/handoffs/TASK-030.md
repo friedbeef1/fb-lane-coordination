@@ -1,8 +1,25 @@
+---
+type: fb-lane-handoff
+task: TASK-030
+lane: fb-product
+status: implemented
+okr_fit: aligned
+---
+
 # TASK-030 - FB 0.3.0-beta Release Candidate
 
 Owner: FB-Product / BFM
 Status: Staging QA
 Environment: local release-candidate worktree
+
+## Goal Alignment Session
+
+Product Goal: Make the latest six-workstream FB system installable and usable through the existing GitHub Codex marketplace.
+Workstream Goal: Release a validated `0.3.0-beta` plugin whose packaged prompts, skills, MCP server, documentation, and version records agree.
+Lane OKR Fit: aligned
+User Approval Needed: no — James approved the release plan and explicitly said Push Live.
+Mini-loop Evidence: The candidate passed focused source/package contracts, one complete release validator, an isolated installed-package smoke, and independent review; GitHub CI identified this missing durable OKR record before merge.
+Evidence Against Product OKR: None identified.
 
 ## Scope
 

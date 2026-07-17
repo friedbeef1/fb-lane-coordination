@@ -53,6 +53,24 @@
 
 ---
 
+### TASK-030 - FB 0.3.0-beta Plugin Release
+*   **Status**: Staging QA (Push Live approved; GitHub readiness repair in progress)
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Codex Plugin Release
+*   **Scope**: Rebuild and release the existing GitHub marketplace plugin as `0.3.0-beta+codex.20260717150502`, with six-workstream metadata, prompts, generated mirrors, current diagrams, and verified bundled MCP resolution.
+*   **Out of Scope**: Identifier migration, non-Codex integrations, consumer-repository mutation, hosted telemetry, or publication outside the existing GitHub marketplace.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make the latest six-workstream FB system installable and usable through the existing GitHub Codex marketplace.
+    *   **Key Results**: Both manifests and active release records agree on the exact build; packaged prompts and skills cover all six workstreams and the `$bfm`/Ready-to-ship/Push-Live flow; generated mirrors agree; the plugin installs in an isolated Codex home; the bundled MCP route resolves; GitHub readiness passes.
+    *   **Definition of Done**: PR #44 is merged to `main`, marketplace upgrade and reinstall report `0.3.0-beta+codex.20260717150502` installed and enabled, and TASK-030 records the release evidence.
+    *   **Gate / Review Point**: Push Live is approved. Merge waits only for the required GitHub readiness check; public install verification follows merge.
+    *   **Approval**: approved
+    *   **Justification**: James approved the 0.3.0-beta release plan and explicitly authorized Push Live.
+*   **Affected Screens / Locks**: Plugin manifests, marketplace copy, package mirrors, active release docs/tests, and TASK-030 coordination records.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-030.md); [plan](docs/superpowers/plans/2026-07-17-fb-0.3.0-beta-release.md); [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44).
+
+---
+
 ### TASK-029 - FB Six-Workstream Loop
 *   **Status**: Staging QA (Ready to ship; GitHub release gate active)
 *   **Owner / Thread**: FB-Product / BFM + six workstreams
