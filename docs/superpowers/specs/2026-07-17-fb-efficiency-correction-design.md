@@ -1,5 +1,19 @@
 # FB Efficiency Correction Design
 
+## Release-first amendment (TASK-028)
+
+This amendment supersedes the routine runtime-candidate full-validator policy
+below. Verification has three explicit levels: focused check, immediate safety
+gate, and release checkpoint. Focused checks are the default for integration,
+staging, owner transfer, review, and Markdown handoffs. Sensitive work keeps
+its immediate safety/approval gate. A full validator is eligible only when a
+Product-owned handoff explicitly requests a release checkpoint. That checkpoint
+allows one initial full pass and, only after an initial failure followed by a
+consolidated material repair batch, one final full pass; a third repair, no
+progress, unjustified repeated broad gate, or final failure blocks for Product
+direction. A handoff file is an artifact, not an owner transfer, review package,
+or release checkpoint.
+
 ## Decision
 
 FB will use three execution modes with explicit ceremony and verification

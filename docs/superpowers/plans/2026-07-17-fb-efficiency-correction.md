@@ -1,5 +1,17 @@
 # FB Efficiency Correction Implementation Plan
 
+## Release-first revision (TASK-028)
+
+This revision supersedes Task 2's routine full-validator and reviewer closeout.
+Implement and verify focused root/package contracts locally. Preserve every
+sensitive trigger as an immediate safety/approval gate. A full validator is
+eligible only under an explicit Product-owned release-checkpoint request; it is
+not implied by staging, integration, owner transfer, review, or a handoff file.
+The system-run smoke/result/evidence contract is the default accessible review
+packet, with `Your input needed: none`; missing access uses the canonical blocked
+environment and Product/BFM recovery action. TASK-028 remains local Staging QA
+at `284e465` with no release checkpoint requested.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Make Normal Codex the default for simple isolated work, make Quick BFM a one-record bounded-correction path, and reserve existing Full BFM ceremony for material risk.

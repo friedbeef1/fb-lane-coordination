@@ -34,3 +34,7 @@ The installed harness also routes Normal Codex, Quick BFM, and Full BFM and
 keeps package mirrors generated from canonical root files. Do not add a second
 board/index/session record for Quick BFM; its single Quick Record and local
 Efficiency Receipt are the durable boundary.
+
+The harness distinguishes focused checks, immediate safety gates, and release
+checkpoints. A full validator needs an explicit Product-owned release-checkpoint
+request; a Markdown handoff artifact or review transfer alone is not one.

@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-028
 lane: fb-product
-status: blocked
+status: staging-qa
 okr_fit: aligned
 ---
 
@@ -30,7 +30,9 @@ Evidence Against Product OKR: None identified.
 - Implement the approved design in one integrated test-first implementation
   pass plus one bounded verification and closeout pass.
 - Preserve public commands, technical identifiers, and all sensitive-action gates.
-- Run focused checks per task and the full validator once after the final runtime-affecting checkpoint.
+- Run focused checks by default, preserve immediate safety/approval gates, and
+  allow a full validator only when a Product-owned handoff explicitly requests
+  a release checkpoint.
 - Enforce per-run agent, repair, reviewer, broad-gate, time, progress, and
   authoritative token/cost budgets while minimizing worker context.
 
@@ -42,18 +44,35 @@ Evidence Against Product OKR: None identified.
 
 Candidate: local branch `codex/fb-beginner-clarity` at `284e465`.
 
-Test plan: focused red/green contracts for each task; generated package drift check; root/package behavior checks; one final full validator; doctor; whitespace; independent review.
+Test plan: focused root/package release-first contracts, generated package drift
+check, syntax, and whitespace. System-run smoke is the default review contract.
+No release checkpoint is requested.
 
-Recovery: Product/BFM owns failures. Two repair loops, one no-progress cycle, five agent iterations, an attempted repeated broad gate, or an exceeded declared resource budget triggers the approved circuit-breaker decision instead of automatic repetition.
+Recovery: Product/BFM owns failures. Sensitive triggers retain their immediate
+safety/approval gate. A release checkpoint permits one initial full pass and,
+only after its failure and a consolidated material repair batch, one final pass;
+a third repair, no progress, an unjustified repeated broad gate, or final failure
+blocks for Product direction.
 
 ## Product/BFM Closeout
 
-Status: Blocked — validation/review circuit breaker reached.
+Status: Staging QA — local candidate; no release checkpoint requested.
 Actioned By: FB-Product / BFM + FB-Tech execution.
-Result: Three-mode routing, Quick Record flow, package generation, proportional verification, resource budgets, and focused contracts are implemented locally at `576839f`, `1aff659`, and `284e465`.
-Evidence: Initial red package-sync contract; focused root/package package-sync 10/10, efficiency 6/6, session/CLI 34/34; generated-mirror check (22 files); syntax and whitespace. The one permitted full validator ran at `576839f` and passed its root regression/session checks before the two later, reviewer-driven runtime repairs. Review 1 found Quick primary-checkout and sensitive-routing defects; review 2 confirmed those repairs and found the final approval-boundary defects. Reports: `.superpowers/sdd/task-028-integrated-report.md`, `.superpowers/sdd/task-028-repair-1-report.md`, and `.superpowers/sdd/task-028-repair-2-report.md`.
-Remaining: Explicit Product approval is required to reset the resource budget for a second full validator and final independent re-review of `284e465`; do not run either automatically.
-Health: needs Product review.
-Branch/worktree state: clean local branch after `284e465`.
-Efficiency Receipt: Agent iterations 5/5; repair loops 2/2; reviewers 1 unique reviewer with one re-review; broad validators 1/1; repeated broad gates 0; no-progress cycles 0; tokens/cost unavailable; external monitoring not used. User wait/tool-call/repeated-check metrics are recorded locally by the Quick Record contract; no hosted capture occurred.
-Loop Learning: Feedback captured: issue found; Repeated pattern?: approval and worktree boundaries need end-to-end CLI tests, not only pure-policy tests; Tooling needed?: no further automatic tooling; Product approval needed?: yes, before any budget reset.
+Result: The release-first revision retains the three-mode and Quick Record
+contracts while replacing routine runtime-candidate full validation with explicit
+focused checks, immediate safety gates, and Product-owned release checkpoints.
+Evidence: Local candidate `284e465`; focused root/package policy and
+documentation contracts, mechanical package-sync check, syntax, and whitespace.
+Accessible review packets use `System verification: passed`, smoke/result/evidence,
+optional review links, and `Your input needed: none`; unavailable access uses the
+canonical blocked environment and Product/BFM recovery action.
+Remaining: A release checkpoint is not requested. Product may explicitly request
+one later; only then is a full validator eligible. Release, publication,
+deployment, install, push, merge, and consumer changes remain unauthorized.
+Health: local Staging QA.
+Branch/worktree state: local candidate `284e465` plus this release-first revision.
+Efficiency Receipt: broad validator runs for this revision: 0; repeated broad
+gates: 0; external monitoring not used; tokens/cost unavailable.
+Loop Learning: Feedback captured: yes; Repeated pattern?: routine validator debt
+was confusing local QA; Tooling needed?: no new tool; Product approval needed?:
+only for a future release checkpoint.

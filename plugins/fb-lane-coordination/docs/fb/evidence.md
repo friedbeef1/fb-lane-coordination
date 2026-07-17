@@ -28,6 +28,8 @@ Before asking a user to review, provide concrete, actionable values in this
 canonical bullet/bold format; do not leave `TODO`, `TBD`, example tokens, or
 angle-bracket prompts in place:
 
+- **System verification:** passed — smoke/result/evidence are recorded below.
+- **Your input needed:** none.
 - **Outcome type:** Runnable sandbox for the approved build
 - **Direct links:** [Open the review surface](review/sandbox.html)
 - **Exact steps and expectations:**
@@ -39,7 +41,9 @@ angle-bracket prompts in place:
 - **What was evaluated:** selected eval IDs and authority with the evaluated surface.
 - **Exact scenarios and expected results:** original scenario plus concrete expectation.
 - **Known quality gaps:** unresolved gaps or an explicit scoped none/limit.
-- **Required user judgment:** approval or product judgment not replaced by checks.
+- **Required user judgment:** only subjective judgment, unavailable access, a real
+  device/account/payment/permission gate, a scope-changing decision, or final
+  release approval not replaced by checks.
 
 Local Markdown links must resolve relative to the handoff file. Remote links
 are checked only for valid Markdown-link shape and are not fetched.
@@ -63,6 +67,12 @@ What happens after: FB verifies the link, updates Test This Now, and returns the
 
 This remains blocked until Product/BFM completes the action and supplies the
 runnable review environment.
+
+System-run smoke is the default review contract. An accessible candidate says
+`System verification: passed`, records its smoke/result/evidence, may include
+review links, and says `Your input needed: none`. A handoff file is a Markdown
+artifact: it is not itself an owner transfer, review package, or release
+checkpoint.
 
 ## Verification Handoff
 

@@ -106,14 +106,25 @@ Limit Exceeded`, attach current logs, and notify the user rather than loop.
 
 ## Efficiency stop predicates
 
+FB uses three explicit verification levels: a focused check for the changed
+surface, an immediate safety gate for sensitive work, and a release checkpoint.
+The full validator is eligible only when a Product-owned handoff explicitly
+requests a release checkpoint. Integration, staging, owner transfer, review,
+or the existence of a handoff file do not request one. Preserve every sensitive
+trigger and its immediate safety/approval gate.
+
 Quick and Full BFM stop on success, a third repair attempt, a repeated broad
 validator, one no-progress cycle, a sixth agent iteration, or an exceeded
-declared elapsed-time budget. Authoritative token and cost ceilings also stop a
-run when the provider supplies those values; unavailable usage is recorded as
-`unavailable`, not estimated. Product/BFM then records one decision: correct an
-invalid process/test, narrow the claim to required evidence, reclassify Full
-BFM, or mark a genuine Product/external blocker. It does not automatically add
-another reviewer, worker, durable record, or broad gate.
+declared elapsed-time budget. A release checkpoint permits one initial full
+pass and, only after that pass fails and a consolidated material repair batch,
+one final pass. A third repair, no progress, an unjustified repeated broad gate,
+or a final failure blocks for Product direction. Authoritative token and cost
+ceilings also stop a run when the provider supplies those values; unavailable
+usage is recorded as `unavailable`, not estimated. Product/BFM then records one
+decision: correct an invalid process/test, narrow the claim to required
+evidence, reclassify Full BFM, or mark a genuine Product/external blocker. It
+does not automatically add another reviewer, worker, durable record, or broad
+gate.
 
 Package mirrors are generated only from canonical root sources declared in
 `tools/fb-package-manifest.json`. Use `node tools/fb-package-sync.cjs --write`

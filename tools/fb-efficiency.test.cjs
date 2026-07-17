@@ -92,11 +92,36 @@ test('verification class and budget are proportional', () => {
   ];
   for (const [paths, expected] of fixtures) assert.strictEqual(classifyChangedSurface(paths), expected);
   assert.deepStrictEqual(verificationBudget(['docs/why-fb.md'], {}), {
+    level: 'focused check',
     focused: ['documentation-contract'], runFullValidator: false, reuseCheckpoint: false, blockedReason: null,
   });
   assert.strictEqual(verificationBudget(['PROJECT_BOARD.md'], { broadValidatorPassed: true }).reuseCheckpoint, true);
-  assert.strictEqual(verificationBudget(['tools/fb-lane.cjs'], { broadValidatorRuns: 0, finalRuntimeCheckpoint: true }).runFullValidator, true);
+  assert.strictEqual(verificationBudget(['tools/fb-lane.cjs'], { broadValidatorRuns: 0, finalRuntimeCheckpoint: true }).runFullValidator, false);
   assert.match(verificationBudget(['tools/fb-lane.cjs'], { broadValidatorRuns: 1 }).blockedReason, /already ran/i);
+});
+
+test('runtime candidates use focused and immediate-safety gates unless Product requests a release checkpoint', () => {
+  const runtime = ['tools/fb-lane.cjs'];
+  assert.deepStrictEqual(verificationBudget(runtime, { finalRuntimeCheckpoint: true }), {
+    level: 'focused check',
+    focused: ['runtime-focused'],
+    runFullValidator: false,
+    reuseCheckpoint: false,
+    blockedReason: null,
+  });
+  assert.deepStrictEqual(verificationBudget(runtime, {
+    finalRuntimeCheckpoint: true,
+    releaseCheckpointRequested: true,
+  }), {
+    level: 'release checkpoint',
+    focused: ['runtime-focused'],
+    runFullValidator: true,
+    reuseCheckpoint: false,
+    blockedReason: null,
+  });
+  const immediateSafety = verificationBudget(['supabase/migrations/001.sql'], {});
+  assert.strictEqual(immediateSafety.level, 'immediate safety gate');
+  assert.match(immediateSafety.blockedReason, /safety and approval/i);
 });
 
 test('run budget blocks repeated or exhausted work and requires material progress', () => {

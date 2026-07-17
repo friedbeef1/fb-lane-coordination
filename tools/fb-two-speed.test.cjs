@@ -95,6 +95,9 @@ for (const contract of ['Efficiency Receipt', 'without requiring\\s+a board row'
 const guardrails = readHarness('guardrails.md');
 assert.match(guardrails, /hooks\.preflight/);
 assert.match(guardrails, /no global Node version/i);
-for (const contract of ['third repair', 'repeated broad', 'sixth agent iteration', 'fb-package-sync\\.cjs[\\s\\S]{0,30}--check']) assert.match(guardrails, new RegExp(contract, 'i'));
+for (const contract of ['third repair', 'repeated broad', 'sixth agent iteration', 'fb-package-sync\\.cjs[\\s\\S]{0,30}--check', 'release checkpoint', 'explicitly\\s+requests']) assert.match(guardrails, new RegExp(contract, 'i'));
+
+const evidence = readHarness('evidence.md');
+for (const contract of ['System verification: passed', 'Your input needed: none', 'smoke/result/evidence', 'Blocked — no review environment yet', 'Product/BFM owns review-access recovery']) assert.match(evidence, new RegExp(contract, 'i'));
 
 console.log('BFM two-speed efficiency contract passed.');

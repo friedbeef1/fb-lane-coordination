@@ -17,6 +17,9 @@ Route clear isolated low-risk work to Normal Codex, approved bounded
 corrections to one-record Quick BFM, and ambiguity or sensitive/material risk
 to Full BFM. The canonical workflow owns progress, resource, reviewer,
 verification, and stop budgets; do not reproduce or relax them here.
+Use focused checks by default. Only a Product-owned handoff that explicitly
+requests a release checkpoint makes a full validator eligible; sensitive work
+keeps its immediate safety/approval gate.
 
 - [Project Start Brief, lanes, and approval](../../docs/fb/start.md)
 - [Source hierarchy, locks, BFM, and closeout](../../docs/fb/workflow.md)

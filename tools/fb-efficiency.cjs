@@ -168,12 +168,13 @@ function classifyChangedSurface(paths = []) {
 
 function verificationBudget(paths, checkpoint = {}) {
   const surface = classifyChangedSurface(paths);
-  if (surface === 'sensitive') return { focused: [], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'Sensitive work requires Full BFM safety and release gates.' };
-  if (surface === 'documentation') return { focused: ['documentation-contract'], runFullValidator: false, reuseCheckpoint: false, blockedReason: null };
-  if (surface === 'test') return { focused: ['directly-affected-test'], runFullValidator: false, reuseCheckpoint: false, blockedReason: null };
-  if (surface === 'coordination') return { focused: ['structure', 'links', 'whitespace'], runFullValidator: false, reuseCheckpoint: checkpoint.broadValidatorPassed === true, blockedReason: null };
-  if ((checkpoint.broadValidatorRuns || 0) >= 1) return { focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'The broad validator already ran; a repeated broad gate is blocked.' };
-  return { focused: ['runtime-focused'], runFullValidator: checkpoint.finalRuntimeCheckpoint === true, reuseCheckpoint: false, blockedReason: null };
+  if (surface === 'sensitive') return { level: 'immediate safety gate', focused: [], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'Sensitive work requires Full BFM safety and approval gates.' };
+  if (surface === 'documentation') return { level: 'focused check', focused: ['documentation-contract'], runFullValidator: false, reuseCheckpoint: false, blockedReason: null };
+  if (surface === 'test') return { level: 'focused check', focused: ['directly-affected-test'], runFullValidator: false, reuseCheckpoint: false, blockedReason: null };
+  if (surface === 'coordination') return { level: 'focused check', focused: ['structure', 'links', 'whitespace'], runFullValidator: false, reuseCheckpoint: checkpoint.broadValidatorPassed === true, blockedReason: null };
+  if ((checkpoint.broadValidatorRuns || 0) >= 1) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'The broad validator already ran; a repeated broad gate is blocked.' };
+  if (checkpoint.releaseCheckpointRequested === true && checkpoint.finalRuntimeCheckpoint === true) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: true, reuseCheckpoint: false, blockedReason: null };
+  return { level: 'focused check', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: null };
 }
 
 function hasMaterialProgress(previous = {}, current = {}) {

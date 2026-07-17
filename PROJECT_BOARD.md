@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-028 | Blocked | FB-Product / BFM + FB-Tech execution | Harness Efficiency | Implement the approved three-mode router, single Quick Record, verification and resource budgets, progress-delta gate, minimal worker context, circuit breaker, mechanical package mirrors, and Efficiency Receipt | Canonical/package CLI and session modules/tests, new efficiency and package-sync modules/tests, canonical harness and applicable skills, validator, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-028.md); [spec](docs/superpowers/specs/2026-07-17-fb-efficiency-correction-design.md); candidate `284e465`; 5/5 iteration and 2/2 repair budget reached after one validator at `576839f`; explicit Product reset required before a second validator/re-review; local-only gate |
+| TASK-028 | Staging QA | FB-Product / BFM + FB-Tech execution | Harness Efficiency | Revise the local harness to focused checks, immediate safety gates, and explicit Product-owned release checkpoints; retain the three-mode router, Quick Record, budgets, and generated mirrors | Canonical/package efficiency and documentation contracts, canonical harness and skills, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-028.md); [spec](docs/superpowers/specs/2026-07-17-fb-efficiency-correction-design.md); local candidate `284e465`; no release checkpoint requested; focused local QA only |
 | TASK-027 | Staging QA | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Extend the canonical Why FB story with evidence-backed TASK-026 two-speed pain points, mapped solutions, an updated delivery-loop diagram, and a corrective-patch example | `docs/why-fb.md`, packaged mirror, mirrored evidence, root/package positioning tests, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-027.md); final review found repairs; local candidate repair and Product re-review pending; all external-action gates remain closed |
 | TASK-026 | Staging QA | FB-Product / BFM + FB-Tech execution | BFM Efficiency | Add internal Quick/Full BFM classification, matching worktree reuse and primary placement, compact queue visibility, proportional verification, and optional project preflight | Mirrored CLI/session modules and tests, canonical/package workflow/session/guardrail/BFM guidance, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-026.md); candidate `a6b00ab`; CLI 70/70, session 32/32, eval 18/18, beginner 10/10, positioning/two-speed root/package, validator, doctor Ready, parity, and whitespace passed; local-only gate |
 | TASK-025 | Staging QA | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Explain FB beside vanilla Codex and Kurrent Capacitor with honest overlap, evidence-backed pain points, rendered diagrams, and concrete examples | Canonical/package comparison page, public/harness README routers, FAQ, focused test/validator, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-025.md); candidate `3af1f17`; focused root/package positioning contract, CLI 70/70, session 31/31, eval 18/18, beginner 10/10, validator, doctor Ready, parity, and whitespace passed; local-only gate |
@@ -52,15 +52,15 @@
 ---
 
 ### TASK-028 - FB Efficiency Correction
-*   **Status**: Blocked (validation/review circuit breaker reached)
+*   **Status**: Staging QA (local candidate; no release checkpoint requested)
 *   **Owner / Thread**: FB-Product / BFM + FB-Tech execution
 *   **Area**: Harness Efficiency
 *   **Scope**: Implement the approved three-mode router, one-record Quick flow, proportional verification and resource budgets, progress-delta gate, efficiency circuit breaker, minimal worker context, canonical package generation, structural documentation contracts, and repository-local Efficiency Receipt.
 *   **Out of Scope**: Dashboard, hosted telemetry, transcript capture, autonomous judge, public command or identifier change, release, publication, deployment, install, consumer migration, push, PR, merge, or origin reconciliation.
 *   **Goal Alignment Session**:
     *   **Objective**: Reduce user wait, tool calls, repeated checks, review loops, and token use for low-risk work without weakening sensitive-action or release gates.
-    *   **Key Results**: Normal Codex creates no FB ceremony; Quick BFM creates one Quick Record and one review/closeout path; Full BFM retains safety; docs-only Quick runs no runtime suites; runtime work runs the full validator at most once; resource, progress, context, and loop budgets stop waste; package mirrors are generated; local efficiency metrics are recorded.
-*   **Definition of Done**: Approved acceptance criteria pass in focused root/package tests, one final full validator passes after the final runtime checkpoint, doctor is Ready, mirrors are generated and current, independent review passes, and the branch remains local.
+    *   **Key Results**: Normal Codex creates no FB ceremony; Quick BFM creates one Quick Record and one review/closeout path; Full BFM retains safety; focused checks are default; sensitive triggers retain immediate safety/approval gates; a full validator is eligible only for an explicit Product-owned release checkpoint; resource, progress, context, and loop budgets stop waste; package mirrors are generated; local efficiency metrics are recorded.
+*   **Definition of Done**: Approved acceptance criteria pass in focused root/package tests, mirrors are generated and current, and the branch remains local. A release checkpoint, validator, and final release approval are separate Product-owned gates when explicitly requested.
     *   **Gate / Review Point**: Local Product review only. All external actions remain closed.
     *   **Approval**: approved
     *   **Justification**: James approved the written efficiency design and explicitly asked for execution.
@@ -69,8 +69,9 @@
 *   **QA Checklist**:
     *   [x] Mode, Quick Record, verification-budget, circuit-breaker, generator, structural-doc, and receipt contracts pass in focused root/package checks.
     *   [x] Root/package runtime behavior and generated surfaces align; package-sync checks 22 generated mirrors.
-    *   [ ] The full validator ran once at `576839f`, but reviewer-driven runtime repairs ended at `284e465`; the 5-iteration/2-repair circuit breaker prohibits the needed second validator and final re-review without explicit Product approval.
-*   **Latest Update**: *2026-07-17*: Local candidate `284e465` implements the approved harness. The initial independent review found Quick primary-checkout, sensitive-route, budget-enforcement, and duplicate-drift defects; repair/re-review then found approval-boundary gaps. Focused root/package contracts pass after two material repair loops. Budget use is 5/5 agent iterations, 2/2 repairs, one unique reviewer plus re-review, one validator at `576839f`, and no repeated broad gate. Blocked pending explicit Product budget reset; no external action is authorized.
+    *   [x] Local candidate `284e465` is retained for Staging QA with no release checkpoint requested; its obsolete blocked-validator debt is removed.
+    *   [ ] Product may explicitly request a release checkpoint later; only then is a full validator eligible.
+*   **Latest Update**: *2026-07-17*: Release-first revision replaces routine runtime-candidate full validation with focused checks, immediate safety gates, and Product-owned release checkpoints. System smoke is the default review contract. TASK-028 is a local Staging QA candidate at `284e465`; no release checkpoint, broad validator, review repetition, or external action is requested.
 
 ---
 

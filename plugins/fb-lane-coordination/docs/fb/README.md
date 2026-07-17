@@ -33,6 +33,11 @@ flows, multiple owners, and ambiguity always require Full BFM. Normal Codex is
 the default when no durable coordination is needed. See
 [workflow.md](workflow.md) for execution budgets and stop predicates.
 
+Verification has three levels: focused check, immediate safety gate, and
+release checkpoint. A full validator is eligible only when a Product-owned
+handoff explicitly requests that release checkpoint; a handoff artifact,
+owner transfer, staging, or review does not request one.
+
 ## Read by task
 
 - Comparing FB with vanilla Codex or Kurrent Capacitor: [Why FB](../why-fb.md)

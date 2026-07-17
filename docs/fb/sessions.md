@@ -138,6 +138,11 @@ closeout, and an Efficiency Receipt. Status reads that record without requiring
 a board row. Submit closes that same file and must not invoke runtime suites or
 a full validator for coordination-only closeout.
 
+For all modes, use a focused check by default. Sensitive work stops at its
+immediate safety/approval gate. A Product-owned handoff must explicitly request
+a release checkpoint before a full validator is eligible; a handoff Markdown
+file, owner transfer, staging, or review alone is not that request.
+
 The receipt records elapsed user wait, tool calls, focused and repeated checks,
 broad-validator count, repair loops, reviewer count, provider tokens or
 `unavailable`, and circuit-breaker state. Metrics are curated and local. They
