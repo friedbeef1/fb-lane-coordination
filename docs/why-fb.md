@@ -11,7 +11,8 @@ review step obvious.
 
 This is a difference in emphasis, not three completely separate categories.
 [OpenAI Codex](https://openai.com/codex/) executes software work. [Kurrent
-Capacitor](https://capacitor.kurrent.io/) and FB overlap substantially in
+Capacitor](https://capacitor.kurrent.io/docs/getting-started/what-is-capacitor/)
+and FB overlap substantially in
 session recall, evidence, and evaluation. FB adds a repository-local product
 authority and delivery loop around that intelligence.
 
@@ -76,6 +77,10 @@ feedback or a checked reproduction in this repository.
 | Proposed, blocked, building, checking, and complete work were hard to distinguish. | [TASK-020](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-020.md) and [TASK-024 status evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-024.md) | Tie plain-language progress to technical state and always name the blocker owner and next action. | One visible status and a concrete pause card. |
 | Returning to a task required reconstructing decisions, tests, failures, and recovery. | [TASK-022 session-ledger evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-022.md) | Keep curated session recaps, checkpoints, Task Receipts, Brief Validation, and repository recall. | A durable answer to what changed, why, what passed, and who acts next. |
 | A feature could work technically but still be generic or not useful enough. | [TASK-023 creator-commerce walkthrough](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/evals/TASK-023-walkthroughs.md) | Keep the result in Checking, record a Quality Gap, and revise against the approved quality target. | Honest product-quality status and a specific next review candidate. |
+| Repeated runtime/worktree rediscovery slowed resumed work. | [TASK-026 two-speed evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-026.md) | **project-preflight** plus **matching-worktree-reuse**. | An optional project-owned preflight runs before mutation, and an exact existing worker is resumed instead of rediscovered or duplicated. |
+| Nested worktree placement made the execution path harder to trust. | [TASK-026 two-speed evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-026.md) | **primary-checkout-placement**. | A new worker is placed under the primary checkout's `.worktrees/` directory, never beneath another linked worktree. |
+| Unnecessary broad reruns after documentation-only closeout repeated already-proven work. | [TASK-026 two-speed evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-026.md) | **proportional-verification** with verification-checkpoint-reuse. | Coordination-only changes can reuse a successful broad checkpoint; source or runtime changes run the broad gate again. |
+| Obscured queue state made it difficult to see what was active, ready, or externally blocked. | [TASK-026 two-speed evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-026.md) | **compact-queue-status**. | One compact view names Current, Next ready, and External blocks, including explicit empty states. |
 
 ## What the delivery loop adds
 
@@ -85,11 +90,21 @@ flowchart LR
     B --> D["Decisions and assumptions"]
     D --> L["Useful lanes investigate"]
     L --> A["Product brief and approval"]
-    A --> E["BFM executes with Codex"]
-    E --> V["Checks, session evidence, and evals"]
-    V --> Q{"Approved outcome met?"}
+    A --> C{"Internal BFM classification"}
+    C -- "Bounded approved correction" --> P["Quick BFM Patch"]
+    C -- "Feature or broader change" --> F["Full BFM"]
+    C -- "Uncertainty or risk" --> S["Safe fallback"]
+    P --> H{"Only coordination files changed after a proven checkpoint?"}
+    H -- "Yes" --> R["Verification checkpoint reuse"]
+    H -- "No prior checkpoint" --> V["Proportional verification"]
+    H -- "Source or runtime changed" --> S
+    S --> F
+    F --> E["Codex execution"]
+    E --> V
+    R --> Q{"Approved outcome met?"}
+    V --> Q
     Q -- "No" --> G["Quality Gap or blocked next action"]
-    G --> E
+    G --> S
     Q -- "Yes" --> X["Test This Now and Task Receipt"]
 ```
 
@@ -121,3 +136,13 @@ does not call it complete merely because tests pass. It reports **Checking —
 product quality target missed**, records the gap and examples, produces a new
 candidate, and asks the user to judge the remaining product question through a
 new Test This Now packet.
+
+### Corrective patch on an approved task
+
+Suppose an approved status card has one incorrect label. FB can classify that
+bounded, unlocked correction internally as a **Quick BFM Patch**, reuse the
+matching worktree, and run the project's optional preflight before mutation.
+If only coordination Markdown changed after a successful broad checkpoint, it
+can reuse that checkpoint and verify the patch proportionally. If the scope is
+uncertain, a lock conflicts, or source/runtime files change, **Safe fallback**
+returns the work to **Full BFM** and fresh broad verification.
