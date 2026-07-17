@@ -39,6 +39,9 @@ For approval waits or genuine stops, use the canonical beginner pause card in
 judge it.
 
 Stop before claim/edit/deploy/closeout when approval or locks are unclear.
+At intake, reject a non-quick handoff whose board target lacks the approved Goal
+Alignment Session copied from its Project/Build Brief; Product repairs the
+board record before execution. Never invent an OKR merely to clear the gate.
 Execute only ready, unlocked work in the approved scope; close only after the
 board, source, docs, evidence, and Git state agree or exceptions are explicit.
 Route clear isolated work to Normal Codex, an approved bounded correction to

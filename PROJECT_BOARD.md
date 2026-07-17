@@ -52,6 +52,24 @@
 
 ---
 
+### TASK-029 - FB Six-Workstream Loop
+*   **Status**: Staging QA (Ready to ship; GitHub release gate active)
+*   **Owner / Thread**: FB-Product / BFM + six workstreams
+*   **Area**: Product Model
+*   **Scope**: Expand FB to Product/User, Business, Design, Tech, Discovery, and Bugs; make `$bfm` reconcile all six ready-handoff sources; align runtime, plugin skills, bootstrap, public documentation, generated mirrors, and focused contracts.
+*   **Out of Scope**: Transcript capture, automatic chat discovery, mandatory six-way approval, marketplace publication, consumer migration, or release without explicit Push Live.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make FB understandable and operable as one continuous product-delivery loop that reduces the user's manual coordination across six distinct workstreams.
+    *   **Key Results**: All six workstreams are accepted by runtime, sessions, handoffs, bootstrap, and skills; `$bfm` selects only valid ready handoffs in canonical order; blocked and None relevant dispositions remain visible; public guidance explains one workflow from chat to handoff to BFM to Ready to ship to Push Live; low-risk execution follows the low-ceremony rule.
+    *   **Definition of Done**: Root/package six-workstream runtime and skill contracts pass, 25 generated mirrors agree, the release validator reports Ready, and GitHub's required check passes before merge.
+    *   **Gate / Review Point**: Push Live was approved; merge remains blocked until the required GitHub validator passes. Marketplace publication remains separate.
+    *   **Approval**: approved
+    *   **Justification**: James supplied and approved the six-workstream implementation plan and separately approved the release/test-contract and missing-OKR corrections.
+*   **Affected Screens / Locks**: Runtime/session/CLI/MCP, bootstrap, skills, canonical/package docs/tests, and TASK-029 coordination records.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-029.md); [plan](docs/superpowers/plans/2026-07-17-fb-six-workstream-loop.md); [PR #43](https://github.com/friedbeef1/fb-lane-coordination/pull/43).
+
+---
+
 ### TASK-028 - FB Efficiency Correction
 *   **Status**: Staging QA (local candidate; no release checkpoint requested)
 *   **Owner / Thread**: FB-Product / BFM + FB-Tech execution
