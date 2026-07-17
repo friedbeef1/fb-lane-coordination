@@ -2995,7 +2995,7 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('======================================================================');
   console.log('1. Describe your new project normally.');
   console.log('2. Simple task: This is a simple task, so I’ll handle it directly without lanes or a build brief.');
-  console.log('3. Coordinated planning: FB will prepare the plan first. It is not building yet. Lanes investigate and plan different parts.');
+  console.log('3. Coordinated planning: FB will prepare the plan first. It is not building yet. Six workstreams investigate relevant parts; irrelevant ones record None relevant.');
   console.log('4. Product combines findings into one build brief. You approve the brief. Only after explicit $bfm, BFM builds and checks it. After approval, use explicit $bfm to start Build For Me execution.');
   console.log('5. Use $fb-lane status for returning project health: current objective, visible stage, and next action.');
   console.log('======================================================================');

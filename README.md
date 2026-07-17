@@ -60,6 +60,9 @@ flowchart LR
 A workstream with nothing useful records **None relevant**. It does not invent
 work merely to participate.
 
+Build For Me (BFM) is the execution step. It begins only after Product approval
+and explicit `$bfm`; see [start and approval](docs/fb/start.md).
+
 ## Install
 
 ```bash
@@ -97,6 +100,7 @@ not require comprehensive transcript capture or hosted telemetry. See
 - [Start and approval](docs/fb/start.md)
 - [Workflow and `$bfm`](docs/fb/workflow.md)
 - [Evidence and review](docs/fb/evidence.md)
+- [Safety, sidechat routing, and recovery](docs/fb/guardrails.md)
 
 Technical identifiers such as `fb-lane`, `fb-lane-coordination`, plugin IDs,
 commands, MCP names, and paths remain unchanged.

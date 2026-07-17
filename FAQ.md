@@ -25,6 +25,9 @@ relevant**. FB never manufactures work just to fill a lane.
 
 ## What happens when I say `$bfm`?
 
+Build For Me (BFM) begins only after Product approval and explicit `$bfm`; see
+[start and approval](docs/fb/start.md).
+
 Product scans Product/User, Business, Design, Tech, Discovery, and Bugs. It
 includes valid `ready` handoffs, keeps blocked work visible, excludes completed
 or deferred work, reconciles conflicts, prioritizes the sequence, directs Codex

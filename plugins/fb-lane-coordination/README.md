@@ -14,8 +14,9 @@ codex plugin add fb-lane-coordination@fb-lane
 Open the project and say `Set up FB in this project.` Discuss questions in the
 relevant Product/User, Business, Design, Tech, Discovery, or Bugs workstreams.
 For actionable findings say `Create a handoff MD for Product/BFM.` Then say
-`$bfm`: FB scans all six, prioritizes, implements, tests, and stops at **Ready
-to ship**. Only **Push Live** authorizes merge or deployment.
+`$bfm`. After Product approval and explicit `$bfm`, Build For Me (BFM) scans
+all six, prioritizes, implements, tests, and stops at **Ready to ship**. Only
+**Push Live** authorizes merge or deployment.
 
 ## Read by task
 
