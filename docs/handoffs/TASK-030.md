@@ -16,14 +16,13 @@ all six workstreams, and the Ready-to-ship/Push-Live boundary. Run only the
 focused package, plugin, six-workstream, six-skill, positioning, metadata,
 syntax, link, and whitespace checks requested for this candidate.
 
-## Boundaries
+## Worker Boundaries
 
 - Preserve `fb-lane-coordination`, marketplace `fb-lane`, `$bfm`, CLI paths,
   MCP names, and historical version evidence.
-- Do not run the complete repository validator or install the plugin.
-- Do not push, open a PR, merge, publish, deploy, or release.
-- Commit the complete local candidate and hand it back for the later release
-  checkpoint.
+- The implementation worker did not run the complete repository validator,
+  install the plugin, push, open a PR, merge, publish, deploy, or release.
+- Product/BFM owns the single release checkpoint and external release boundary.
 
 ## Evidence
 
@@ -37,10 +36,25 @@ syntax, link, and whitespace checks requested for this candidate.
 - Root and packaged six-workstream, six-skill, and positioning contracts passed.
 - Focused syntax, JSON parsing, Markdown-link resolution across nine touched
   active surfaces, and `git diff --check` passed.
+- The single complete release validator passed, including 70/70 CLI checks and
+  the session, eval, beginner, positioning, two-speed, efficiency, doctor,
+  package-parity, and whitespace gates.
+- A fresh temporary `CODEX_HOME` installed and enabled
+  `fb-lane-coordination@fb-lane` at
+  `0.3.0-beta+codex.20260717150502`. The installed cache contained all six
+  workstream skills, current README/Why FB/full-loop diagrams, a valid relative
+  bundled MCP route, and syntax-valid MCP server code. The temporary home was
+  removed after the smoke.
+- Independent review found two Important weaknesses in the new metadata test.
+  Repair `db1f527` made packaged execution inspect package-local content, added
+  a deterministic drift failure, and enforced the exact build ID across active
+  release records. Focused rechecks passed and re-review approved the repair
+  with no remaining findings.
 
 ## Product/BFM Closeout
 
-Disposition: implemented locally and ready for the later release checkpoint.
-The complete repository validator and isolated temporary-Codex-home install
-smoke were intentionally not run under this worker brief. Push, PR, merge,
-marketplace upgrade, publication, deployment, and release were not performed.
+Disposition: **Ready to ship**. Candidate source, package, release validator,
+isolated install, MCP route, and independent review are green. Pushing this
+review branch does not authorize release. Merge to `main`, public marketplace
+upgrade/reinstall, publication, and release remain blocked until James says
+**Push Live**.

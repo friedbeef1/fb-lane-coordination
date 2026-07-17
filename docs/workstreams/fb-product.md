@@ -5,10 +5,10 @@ Lane: FB-Product
 
 ## TASK-030 — FB 0.3.0-beta release candidate
 
-- Status: Staging QA
+- Status: Ready to ship
 - Outcome: Rebuilt local candidate `0.3.0-beta+codex.20260717150502` with six-workstream metadata, prompts, package mirrors, and focused release-contract proof.
-- Verification: RED/GREEN metadata; plugin validation; 27-mirror parity; root/package six-workstream, six-skill, positioning, and metadata; syntax, JSON, focused links, and whitespace passed.
-- Release gate: no full validator, install, push, PR, merge, publication, deployment, or release in this task.
+- Verification: RED/GREEN metadata; plugin validation; 27-mirror parity; root/package focused contracts; one complete release validator; isolated installed-package/MCP smoke; test-contract repair `db1f527`; independent re-review approved with no remaining findings.
+- Release gate: **Push Live** is required before merge, public marketplace upgrade/reinstall, publication, deployment, or release.
 
 ## TASK-029 — Six-workstream loop
 
