@@ -2674,9 +2674,11 @@ Read [the FB harness](docs/fb/README.md) after \`PROJECT_BOARD.md\`,
 \`docs/handoffs/index.md\`, and the linked handoff. Use the focused page that
 matches the task:
 
-- **Simple task:** This is a simple task, so I’ll handle it directly without lanes or a build brief.
-- **Coordinated planning:** FB will prepare the plan first. It is not building yet.
-- **After approval and explicit \`$bfm\`:** Build For Me (BFM) will now build and check the approved plan.
+Start in whichever workstream matches the question whenever planning or
+evidence is useful. Product/User is only for user and product questions, not
+universal intake. Relevant workstreams create ready handoffs. After they are
+ready, the user says \`$bfm\`; Product reconciles all six and BFM executes the
+approved scope.
 
 For returning-project health, use \`$fb-lane status\` for the beginner card.
 For operational lock inspection, use CLI \`node tools/fb-lane.cjs status --details\`
@@ -2994,10 +2996,10 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('🚀 QUICK START GUIDE: HOW TO USE FB RIGHT AWAY');
   console.log('======================================================================');
   console.log('1. Describe your new project normally.');
-  console.log('2. Simple task: This is a simple task, so I’ll handle it directly without lanes or a build brief.');
-  console.log('3. Coordinated planning: FB will prepare the plan first. It is not building yet. Six workstreams investigate relevant parts; irrelevant ones record None relevant.');
-  console.log('4. Product combines findings into one build brief. You approve the brief. Only after explicit $bfm, BFM builds and checks it. After approval, use explicit $bfm to start Build For Me execution.');
-  console.log('5. Use $fb-lane status for returning project health: current objective, visible stage, and next action.');
+  console.log('2. FB starts in whichever workstream matches the question; Product/User is only for user and product questions.');
+  console.log('3. Relevant workstreams investigate and create ready handoffs.');
+  console.log('4. When actionable handoffs are ready, say $bfm. Product scans all six, reconciles and prioritizes, then BFM executes approved scope.');
+  console.log('5. BFM stops at Ready to ship. Only Push Live authorizes release.');
   console.log('======================================================================');
   console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');

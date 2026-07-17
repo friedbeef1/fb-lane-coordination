@@ -160,7 +160,7 @@ feedback or a checked reproduction in this repository.
 
 | Observed pain | Repository evidence | FB response | What the user sees |
 |---|---|---|---|
-| “I expected a working product” while FB was still planning. | [TASK-020 feedback record](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-020.md) | Separate planning from authorized execution. | A Project Start Brief, then an explicit `$bfm` build boundary. |
+| “I expected a working product” while FB was still planning. | [TASK-020 feedback record](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-020.md) | Separate workstream evidence from authorized execution. | Ready handoffs, then `$bfm` reconciliation and execution. |
 | “What was I supposed to test?” | [TASK-020 feedback record](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-020.md) and [missing-link eval walkthrough](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/evals/TASK-023-walkthroughs.md) | Require review evidence before asking for feedback. | **Test This Now** with direct links, exact steps, expected results, pass criteria, and limits. |
 | Lanes, BFM, decisions, assumptions, and build scope were unclear. | [TASK-020 feedback record](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-020.md) | Explain roles early and preserve the approved choices. | A How FB works card plus separate **Your decisions** and **Assumptions to confirm** sections. |
 | Proposed, blocked, building, checking, and complete work were hard to distinguish. | [TASK-020](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-020.md) and [TASK-024 status evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-024.md) | Tie plain-language progress to technical state and always name the blocker owner and next action. | One visible status and a concrete pause card. |
@@ -178,9 +178,9 @@ verification checkpoint reuse, and safe fallback remain implementation details
 in the [workflow guide](fb/workflow.md), not extra product-story branches.
 
 The loop does not promise that every project needs all six workstreams or heavy
-ceremony. Each workstream contributes actionable evidence or **None relevant**;
-FB selects the smallest useful mode and keeps normal Codex available for simple
-changes.
+ceremony. Matching workstreams contribute actionable evidence; FB keeps its
+execution routing private and records **None relevant** only for a required
+six-workstream disposition.
 
 ## Concrete examples
 

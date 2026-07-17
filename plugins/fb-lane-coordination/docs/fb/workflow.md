@@ -1,8 +1,7 @@
 # Coordinate and execute
 
-The beginner-facing mode and approval contract lives in [start.md](start.md).
-Build For Me (BFM) is the execution mode only after approval and explicit
-`$bfm`.
+The public workstream-first and `$bfm` reconciliation contract lives in
+[start.md](start.md). Internal execution classification is not a user choice.
 
 ## Ownership and durable records
 
@@ -79,10 +78,10 @@ material decision lacks a preview.
 6. Classify work as `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`. Recheck status immediately before a claim.
 7. Select only relevant eval IDs from [evals.md](evals.md), record their authority, and separate mechanical evidence from Product/user judgment.
 
-## Three-mode execution
+## Internal execution routing
 
-Use **Normal Codex** for clear isolated low-risk work, **Quick BFM** for an
-approved bounded correction, and **Full BFM** for ambiguity or material risk.
+Agents classify clear isolated low-risk work, approved bounded corrections, and
+ambiguous or material-risk work internally; do not expose this as a menu.
 Safety gates run first. Quick BFM owns exactly one committed
 `docs/handoffs/TASK-Q-*.md` Quick Record; it does not add a board row, index
 row, workstream card, session recap, separate Task Receipt, or separate

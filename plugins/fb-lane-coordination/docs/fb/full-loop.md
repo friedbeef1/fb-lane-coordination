@@ -33,17 +33,14 @@ flowchart TB
         NR["None relevant<br/>No work manufactured"]
     end
 
-    RH --> PR
+    RH --> BFM["User says $bfm"]
+    BFM --> PR
     BH --> PR
     NR --> PR
     PR["Product reconciles<br/>duplicates, conflicts, dependencies, and priority"]
     PR --> A{"Approved and clear?"}
-    A -->|"Bounded correction"| Q["Quick BFM"]
-    A -->|"Material, risky, or multi-workstream"| F["Full BFM"]
-    A -->|"Decision, evidence, or access missing"| X["Blocked<br/>Owner and next action"]
-
-    Q --> C["Codex implements"]
-    F --> C
+    A -->|"Yes"| C["BFM implements"]
+    A -->|"Changed decision, conflict, sensitive boundary, or unclear scope"| X["Paused<br/>Owner and next action"]
     C --> V["Automated checks"]
     V -->|"Focused failure evidence"| R["Scoped repair"]
     R --> C
@@ -65,8 +62,8 @@ flowchart TB
 
 - Only valid `ready` handoffs enter execution. `blocked` work remains visible,
   while **None relevant** prevents a workstream from inventing work.
-- Product reconciles the evidence and chooses the sequence. Quick BFM handles
-  approved bounded corrections; Full BFM handles material or risky work.
+- After ready handoffs, `$bfm` activates Product reconciliation and execution
+  of already-approved ready scope. Internal routing remains private.
 - FB runs automated checks and owns scoped repair within its loop budget.
   Optional review links provide visibility without returning routine QA to the
   user.

@@ -5,9 +5,9 @@ description: Use when Product/Captain must sequence, execute, reconcile, or clos
 
 # BFM
 
-Build For Me (BFM) executes a Product build brief only after approval and
-explicit `$bfm`; it is not the default for simple coding. Read [the FB
-harness](../../docs/fb/README.md), then
+After actionable workstream handoffs are ready, `$bfm` activates Product
+reconciliation and authorizes execution of already-approved ready scope. Read
+[the FB harness](../../docs/fb/README.md), then
 board truth, the handoff index, task-linked handoffs, and applicable workstream
 cards.
 
@@ -21,9 +21,13 @@ const { scanWorkstreamHandoffs } = require('./tools/fb-lane.cjs');
 const scan = scanWorkstreamHandoffs(projectRoot);
 ```
 
-Use `scan.selected` in canonical order, report blocked entries and `None
-relevant`, and stop on the scanner's duplicate or contradictory ready-handoff
-error. Do not duplicate scanner selection rules in the skill. Integrate only
+Use `scan.selected` in canonical order, report blocked entries, and record
+`None relevant` only when the six-workstream scan/report requires a disposition.
+Stop on duplicate or contradictory ready-handoff errors. Product reconciles
+duplicates, conflicts, and dependencies, prioritizes, and creates the Project
+Start Brief plus Build Brief before execution. Pause only for a changed
+decision, disputed priority, sensitive boundary, conflict, or unclear scope.
+Do not duplicate scanner selection rules in the skill. Integrate only
 relevant ready work and stop at **Ready to ship**. Only **Push Live** authorizes
 merge or deployment.
 
@@ -44,8 +48,7 @@ Alignment Session copied from its Project/Build Brief; Product repairs the
 board record before execution. Never invent an OKR merely to clear the gate.
 Execute only ready, unlocked work in the approved scope; close only after the
 board, source, docs, evidence, and Git state agree or exceptions are explicit.
-Route clear isolated work to Normal Codex, an approved bounded correction to
-one-record Quick BFM, and ambiguity or material risk to Full BFM. Apply the
+Apply private agent routing and the
 canonical progress, resource, reviewer, verification, and stop budgets. Reuse a matching
 linked worktree or place a new one under the primary checkout's `.worktrees`,
 and keep `Current`, `Next ready`, and `External blocks` visible.

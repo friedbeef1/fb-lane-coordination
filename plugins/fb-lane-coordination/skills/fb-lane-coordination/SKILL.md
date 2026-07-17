@@ -9,26 +9,26 @@ Read [the FB harness](../../docs/fb/README.md) before acting, then read the
 board, index, linked handoff, and relevant workstream card. The harness owns
 the durable policy:
 
-The one loop has six planning/evidence workstreams: Product/User (technical slug
+The public path starts in whichever of the six planning/evidence workstreams
+matches the question: Product/User (technical slug
 `product`), Business, Design, Tech, Discovery, and Bugs. Each relevant
 workstream runs a mini-loop and records a ready or blocked
-`docs/handoffs/<TASK-ID>.md`. BFM scans and reconciles relevant ready handoffs;
-inactive workstreams need no manufactured work. Delivery stops at **Ready to
+`docs/handoffs/<TASK-ID>.md`. Product/User applies only to user needs, outcomes,
+requirements, feedback, acceptance criteria, and product priorities; it is not
+the universal intake coordinator. Inactive workstreams need no manufactured
+work or `None relevant` entry except in a six-workstream scan/report. After
+actionable handoffs are ready, `$bfm` activates Product reconciliation and
+execution of already-approved scope. Delivery stops at **Ready to
 ship**. Only **Push Live** authorizes merge or deployment.
 
-Build For Me (BFM) is the execution mode used only after approval and explicit
-`$bfm`. The beginner-facing mode messages and seven-field brief stay canonical
-in the start guide.
-
-Route clear isolated low-risk work to Normal Codex, approved bounded
-corrections to one-record Quick BFM, and ambiguity or sensitive/material risk
-to Full BFM. The canonical workflow owns progress, resource, reviewer,
+Keep agent classification private: FB selects internal routing rather than
+asking users to choose a mode. The canonical workflow owns progress, resource, reviewer,
 verification, and stop budgets; do not reproduce or relax them here.
 Use focused checks by default. Only a Product-owned handoff that explicitly
 requests a release checkpoint makes a full validator eligible; sensitive work
 keeps its immediate safety/approval gate.
 
-- [Project Start Brief, lanes, and approval](../../docs/fb/start.md)
+- [Workstream-first start and `$bfm` reconciliation](../../docs/fb/start.md)
 - [Source hierarchy, locks, BFM, and closeout](../../docs/fb/workflow.md)
 - [Test This Now and Verification Handoff](../../docs/fb/evidence.md)
 - [Hard stops, parent-only sidechats, recovery, and Loop Learning](../../docs/fb/guardrails.md)

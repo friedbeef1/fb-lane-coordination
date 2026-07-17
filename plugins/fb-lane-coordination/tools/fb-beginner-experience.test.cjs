@@ -151,22 +151,24 @@ test('canonical eval catalog defines three complete beginner scenarios at shadow
   assert.doesNotMatch(catalog, /Authority:\s*(?:advisory|blocking|mechanical)/i);
 });
 
-test('three onboarding walkthroughs preserve the approved mode transitions', () => {
+test('onboarding exposes one workstream-first path and reconciles only after $bfm', () => {
   const start = read('docs/fb/start.md');
-  const simple = section(start, 'Simple task', 3);
-  assert.match(simple, /change one label in one file/i);
-  assert.match(simple, /This is a simple task, so I’ll handle it directly without lanes or a build brief\./);
+  assert.doesNotMatch(start, /^## Choose the mode|^### (?:Simple task|Coordinated planning|Approved Build For Me)/m);
+  assert.doesNotMatch(start, /Normal Codex|Quick BFM|Full BFM/);
+  assert.match(start, /start in whichever of the six workstreams matches the question/i);
+  assert.match(start, /Product\/User[^\n]*(?:only|when)[^\n]*(?:user needs|user outcomes|requirements|feedback|acceptance criteria|product priority)/i);
+  assert.match(start, /not (?:the )?(?:universal )?coordinator at intake/i);
+  assert.match(start, /ready handoff MD/i);
+  assert.match(start, /None relevant[^\n]*only[^\n]*six-workstream (?:scan|report)/i);
+  assertOrdered(start, ['ready handoffs', '`$bfm`', 'Product reconciliation', 'Project Start Brief', 'Build Brief', 'Ready to ship', 'Push Live'], 'single public sequence');
 
-  const planning = section(start, 'Coordinated planning', 3);
-  assert.match(planning, /creator-commerce/i);
-  assert.match(planning, /FB will prepare the plan first\. It is not building yet\./);
   const brief = section(start, 'Project Start Brief');
   const visibleFields = [...brief.matchAll(/^- \*\*([^:*]+):\*\*/gm)].map(match => match[1]);
-  assert.deepStrictEqual(visibleFields, startBriefFields, 'creator-commerce planning must use the seven-field visible brief');
-
-  const build = section(start, 'Approved Build For Me', 3);
-  assert.match(build, /explicitly invoked\s+`\$bfm`/i);
-  assert.match(build, /Build For Me \(BFM\) will now build and check the approved plan\./);
+  assert.deepStrictEqual(visibleFields, startBriefFields, 'Product reconciliation must retain the seven-field visible brief');
+  assert.match(start, /scan all six/i);
+  assert.match(start, /duplicates[^\n]*conflicts[^\n]*dependencies/i);
+  assert.match(start, /authorizes execution of (?:the )?already-approved ready scope/i);
+  assert.match(start, /pauses?[^\n]*(?:changed decision|disputed priority|sensitive boundary|conflict|unclear scope)/i);
 });
 
 test('Test This Now makes system verification primary and keeps review links optional when no input is needed', () => {

@@ -6,18 +6,17 @@ description: Use when concurrent Codex work needs board-aware FB lanes, locks, h
 # FB coordination
 
 Read [the FB harness](../../docs/fb/README.md), then the project board, handoff
-index, linked handoff, and relevant workstream card. Use the smallest mode:
-Normal Codex for isolated low-risk tasks, one-record Quick BFM for approved
-bounded corrections, and Full BFM for approval, sensitive surfaces, ambiguity,
-or reconciled lanes.
-Build For Me (BFM) is the execution mode used only after approval and explicit
-`$bfm`.
+index, linked handoff, and relevant workstream card. Publicly, start in whichever
+workstream matches the question; FB selects any internal routing without asking
+the user to choose a mode.
 
 The one loop has six planning/evidence workstreams: Product/User (technical slug
 `product`), Business, Design, Tech, Discovery, and Bugs. Each relevant
 workstream runs a mini-loop and records a ready or blocked
-`docs/handoffs/<TASK-ID>.md`. BFM scans relevant ready handoffs and treats
-inactive workstreams as `None relevant`; it stops at **Ready to ship**. Only
+`docs/handoffs/<TASK-ID>.md`. Product/User is used only for user/product
+questions, not universal intake. After ready handoffs, `$bfm` activates Product
+reconciliation and approved execution. Inactive workstreams receive `None
+relevant` only in a required six-workstream scan/report. BFM stops at **Ready to ship**. Only
 **Push Live** authorizes merge or deployment.
 
 - [Start and clarify an objective](../../docs/fb/start.md)

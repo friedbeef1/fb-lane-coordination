@@ -19,15 +19,16 @@ evidence-backed closeout.
 3. Discuss questions in the relevant Product/User, Business, Design, Tech,
    Discovery, or Bugs workstreams.
 4. For actionable findings say `Create a handoff MD for Product/BFM.`
-5. After Product approval and explicit `$bfm`, Build For Me (BFM) scans all six,
-   prioritizes, implements, tests, and stops at
+5. After actionable handoffs are ready, say `$bfm`. Product scans all six,
+   reconciles and prioritizes, creates the durable briefs, and BFM implements,
+   tests, and stops at
    **Ready to ship**. Say **Push Live** only when you want merge and deployment.
 
 ## Operating routes
 
 The canonical pack is [docs/fb](../../docs/fb/README.md):
 
-- [start](../../docs/fb/start.md) for the Project Start Brief and reviewable plan;
+- [start](../../docs/fb/start.md) for workstream-first intake and `$bfm` reconciliation;
 - [workflow](../../docs/fb/workflow.md) for lanes, BFM, and source-of-truth roles;
 - [evidence](../../docs/fb/evidence.md) for Test This Now and Verification Handoff;
 - [guardrails](../../docs/fb/guardrails.md) for safety, sidechat routing, recovery, and Loop Learning.

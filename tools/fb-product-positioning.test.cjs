@@ -216,12 +216,13 @@ assert.strictEqual(fullLoop, packagedFullLoop, 'full loop page must be mechanica
 
 for (const term of [
   'Product/User', 'Business', 'Design', 'Tech', 'Discovery', 'Bugs',
-  'ready', 'blocked', 'None relevant', 'Product reconciles', 'Quick BFM',
-  'Full BFM', 'Codex implements', 'Automated checks', 'Scoped repair',
+  'ready', 'blocked', 'None relevant', 'User says $bfm', 'Product reconciles',
+  'BFM implements', 'Automated checks', 'Scoped repair',
   'Optional review links', 'Ready to ship', 'Push Live', 'Results and feedback',
 ]) {
   assert.match(fullLoop, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), `full loop page must show ${term}`);
 }
+assert.doesNotMatch(fullLoop, /Quick BFM|Full BFM|Normal Codex/i, 'public full-loop diagram must not expose internal mode choices');
 
 for (const evidence of ['TASK-020.md', 'TASK-022.md', 'TASK-024.md', 'TASK-023-walkthroughs.md', 'TASK-026.md']) {
   assert.match(canonical, new RegExp(evidence.replace('.', '\\.')), `pain-point map must cite ${evidence}`);

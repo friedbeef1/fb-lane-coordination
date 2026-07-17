@@ -102,14 +102,16 @@ flowchart TB
     N --> BG
 ```
 
-[Full FB Loop Diagram](docs/fb/full-loop.md) — handoff states,
-Product reconciliation, Quick and Full BFM, repair, review, and release.
+[Full FB Loop Diagram](docs/fb/full-loop.md) — handoff states, post-`$bfm`
+Product reconciliation, repair, review, and release.
 
-A workstream with nothing useful records **None relevant**. It does not invent
-work merely to participate.
+A workstream with nothing useful does not invent work merely to participate;
+record **None relevant** only when a six-workstream scan/report requires it.
 
-Build For Me (BFM) is the execution step. It begins only after Product approval
-and explicit `$bfm`; see [start and approval](docs/fb/start.md).
+When actionable ready handoffs exist, the user says `$bfm`. Product then scans
+all six, reconciles and prioritizes, creates the Project Start Brief plus Build
+Brief, and BFM executes already-approved scope; see [the start
+contract](docs/fb/start.md).
 
 ## Install
 
