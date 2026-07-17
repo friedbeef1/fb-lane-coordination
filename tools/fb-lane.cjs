@@ -115,7 +115,7 @@ function assertSafeTaskId(taskId) {
 function assertSafeLane(lane) {
   if (typeof lane !== 'string' || !LANE_PATTERN.test(lane)) {
     throw new Error(
-      `Invalid lane ${JSON.stringify(lane)}: expected a name like "Tech", "Design", "Product" or "Business".`
+      `Invalid lane ${JSON.stringify(lane)}: expected a name like "Tech", "Design", "Product", "Business", "Discovery" or "Bugs".`
     );
   }
   return lane;
@@ -320,8 +320,8 @@ For new handoffs, add a short frontmatter block when useful:
 ---
 type: fb-lane-handoff
 task: TASK-...
-lane: fb-product | fb-tech | fb-design | fb-business
-status: ready | implemented | blocked | deferred | done
+lane: fb-product | fb-tech | fb-design | fb-business | fb-discovery | fb-bugs
+status: ready | actioned | implemented | blocked | deferred | done
 okr_fit: aligned | suggest approach change | blocked by OKR ambiguity
 ---
 \`\`\`
@@ -334,8 +334,54 @@ const WORKSTREAM_STATUS_CARDS = [
   ['fb-product.md', 'FB-Product'],
   ['fb-tech.md', 'FB-Tech'],
   ['fb-design.md', 'FB-Design'],
-  ['fb-business.md', 'FB-Business']
+  ['fb-business.md', 'FB-Business'],
+  ['fb-discovery.md', 'FB-Discovery'],
+  ['fb-bugs.md', 'FB-Bugs']
 ];
+
+const BFM_WORKSTREAMS = ['product', 'business', 'design', 'tech', 'discovery', 'bugs'];
+
+function handoffFrontmatter(markdown) {
+  const match = String(markdown).match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
+  if (!match) return null;
+  const metadata = {};
+  for (const line of match[1].split(/\r?\n/)) {
+    const field = line.match(/^([a-z_]+):\s*(.*?)\s*$/i);
+    if (field) metadata[field[1].toLowerCase()] = field[2];
+  }
+  return metadata;
+}
+
+function scanWorkstreamHandoffs(rootDir) {
+  const handoffsDir = path.join(rootDir, 'docs', 'handoffs');
+  const workstreams = Object.fromEntries(BFM_WORKSTREAMS.map(workstream => [workstream, { ready: [], blocked: [] }]));
+  const selectedByTask = new Map();
+  const files = fs.existsSync(handoffsDir)
+    ? fs.readdirSync(handoffsDir).filter(file => file.endsWith('.md') && file !== 'index.md').sort()
+    : [];
+  for (const file of files) {
+    const relative = `docs/handoffs/${file}`;
+    const metadata = handoffFrontmatter(fs.readFileSync(path.join(handoffsDir, file), 'utf8'));
+    if (!metadata || metadata.type !== 'fb-lane-handoff') continue;
+    const workstream = String(metadata.lane || '').replace(/^fb-/, '').toLowerCase();
+    if (!BFM_WORKSTREAMS.includes(workstream)) continue;
+    const status = String(metadata.status || '').toLowerCase();
+    if (status === 'blocked') workstreams[workstream].blocked.push(relative);
+    if (status !== 'ready') continue;
+    const task = String(metadata.task || '').trim();
+    if (!task) throw new Error(`Ready handoff ${relative} requires task metadata.`);
+    if (selectedByTask.has(task)) {
+      throw new Error(`Duplicate or contradictory ready handoffs for ${task}: ${selectedByTask.get(task)} and ${relative}.`);
+    }
+    selectedByTask.set(task, relative);
+    workstreams[workstream].ready.push(relative);
+  }
+  for (const workstream of BFM_WORKSTREAMS) {
+    const result = workstreams[workstream];
+    if (result.ready.length === 0 && result.blocked.length === 0) result.summary = 'None relevant';
+  }
+  return { workstreams, selected: [...selectedByTask.values()] };
+}
 
 function workstreamStatusCardTemplate(laneName) {
   return `# ${laneName} Workstream Status
@@ -1907,8 +1953,8 @@ function handleQuick(lane, lockedFiles, scopeDescription = '', options = {}) {
   }
 
   const normLane = lane.charAt(0).toUpperCase() + lane.slice(1).toLowerCase();
-  if (!['Tech', 'Design', 'Business', 'Product'].includes(normLane)) {
-    console.error('❌ Error: Invalid lane. Must be Tech, Design, Business, or Product.');
+  if (!['Tech', 'Design', 'Business', 'Product', 'Discovery', 'Bugs'].includes(normLane)) {
+    console.error('❌ Error: Invalid lane. Must be Tech, Design, Business, Product, Discovery, or Bugs.');
     process.exit(1);
   }
 
@@ -2473,7 +2519,7 @@ function handleMcpRequest(request) {
             type: 'object',
             properties: {
               taskId: { type: 'string', description: 'The task ID, e.g. TASK-001' },
-              lane: { type: 'string', enum: ['Tech', 'Design', 'Business', 'Product'], description: 'The lane claiming the task' },
+              lane: { type: 'string', enum: ['Tech', 'Design', 'Business', 'Product', 'Discovery', 'Bugs'], description: 'The lane claiming the task' },
               lockedFiles: { type: 'string', description: 'Comma-separated list of files to lock' },
               workspacePath: { type: 'string', description: 'Optional workspace/repo path to search for PROJECT_BOARD.md from.' }
             },
@@ -3062,4 +3108,5 @@ module.exports = {
   renderQueueSummary,
   TASK_ID_PATTERN,
   LANE_PATTERN,
+  scanWorkstreamHandoffs,
 };

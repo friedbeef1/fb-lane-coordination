@@ -1,6 +1,7 @@
 [
   "tools/fb-lane.cjs",
   "tools/fb-lane.test.cjs",
+  "tools/fb-six-workstreams.test.cjs",
   "tools/fb-session.cjs",
   "tools/fb-session.test.cjs",
   "tools/fb-eval.cjs",
