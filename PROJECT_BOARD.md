@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-030 | Staging QA | FB-Product / BFM | Codex Plugin Release Candidate | Rebuild the Codex plugin as `0.3.0-beta`, align active metadata/prompts/docs with the six-workstream loop, and prove the bounded release-candidate contracts | Both plugin manifests, marketplace/plugin copy, active version/setup/changelog/release records, focused metadata contract, declared package mirrors | [Handoff](docs/handoffs/TASK-030.md); [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44); candidate `0.3.0-beta+codex.20260717150502`; focused checks, single release validator, isolated installed-package smoke, and independent review passed; **Ready to ship**; **Push Live** required for merge/release |
+| TASK-030 | Done | FB-Product / BFM | Codex Plugin Release | Release the Codex plugin as `0.3.0-beta`, align active metadata/prompts/docs with the six-workstream loop, and prove the packaged install | None | [Handoff](docs/handoffs/TASK-030.md); [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44) merged; `0.3.0-beta+codex.20260717150502` installed and enabled; GitHub readiness and live cache proof passed |
 | TASK-029 | Staging QA | FB-Product / BFM + six workstreams | Product Model | Expand FB to Product/User, Business, Design, Tech, Discovery, and Bugs; make `$bfm` reconcile all six ready-handoff sources and align the plugin and public story | Runtime/session/CLI/MCP, bootstrap, skills, canonical/package docs/tests, TASK-029 records | [Handoff](docs/handoffs/TASK-029.md); branch `codex/fb-six-workstreams`; root/package focused contracts, 25-mirror parity, syntax, and whitespace passed; Ready to ship; no release checkpoint |
 | TASK-028 | Staging QA | FB-Product / BFM + FB-Tech execution | Harness Efficiency | Revise the local harness to focused checks, immediate safety gates, and explicit Product-owned release checkpoints; retain the three-mode router, Quick Record, budgets, and generated mirrors | Canonical/package efficiency and documentation contracts, canonical harness and skills, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-028.md); [spec](docs/superpowers/specs/2026-07-17-fb-efficiency-correction-design.md); local candidate `284e465`; no release checkpoint requested; focused local QA only |
 | TASK-027 | Staging QA | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Extend the canonical Why FB story with evidence-backed TASK-026 two-speed pain points, mapped solutions, an updated delivery-loop diagram, and a corrective-patch example | `docs/why-fb.md`, packaged mirror, mirrored evidence, root/package positioning tests, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-027.md); final review found repairs; local candidate repair and Product re-review pending; all external-action gates remain closed |
@@ -54,7 +54,7 @@
 ---
 
 ### TASK-030 - FB 0.3.0-beta Plugin Release
-*   **Status**: Staging QA (Push Live approved; GitHub readiness repair in progress)
+*   **Status**: Done (released and installed)
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Codex Plugin Release
 *   **Scope**: Rebuild and release the existing GitHub marketplace plugin as `0.3.0-beta+codex.20260717150502`, with six-workstream metadata, prompts, generated mirrors, current diagrams, and verified bundled MCP resolution.
@@ -63,11 +63,12 @@
     *   **Objective**: Make the latest six-workstream FB system installable and usable through the existing GitHub Codex marketplace.
     *   **Key Results**: Both manifests and active release records agree on the exact build; packaged prompts and skills cover all six workstreams and the `$bfm`/Ready-to-ship/Push-Live flow; generated mirrors agree; the plugin installs in an isolated Codex home; the bundled MCP route resolves; GitHub readiness passes.
     *   **Definition of Done**: PR #44 is merged to `main`, marketplace upgrade and reinstall report `0.3.0-beta+codex.20260717150502` installed and enabled, and TASK-030 records the release evidence.
-    *   **Gate / Review Point**: Push Live is approved. Merge waits only for the required GitHub readiness check; public install verification follows merge.
+    *   **Gate / Review Point**: Passed. Push Live was approved, GitHub readiness passed, and public install verification succeeded.
     *   **Approval**: approved
     *   **Justification**: James approved the 0.3.0-beta release plan and explicitly authorized Push Live.
 *   **Affected Screens / Locks**: Plugin manifests, marketplace copy, package mirrors, active release docs/tests, and TASK-030 coordination records.
 *   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-030.md); [plan](docs/superpowers/plans/2026-07-17-fb-0.3.0-beta-release.md); [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44).
+*   **Latest Update**: *2026-07-17*: PR #44 merged as `7e122ae`; the GitHub marketplace upgraded and Codex installed/enabled `0.3.0-beta+codex.20260717150502`; six skills, MCP route, server syntax, and current diagrams passed installed-cache proof.
 
 ---
 

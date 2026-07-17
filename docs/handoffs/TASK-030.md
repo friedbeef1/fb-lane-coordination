@@ -2,15 +2,15 @@
 type: fb-lane-handoff
 task: TASK-030
 lane: fb-product
-status: implemented
+status: done
 okr_fit: aligned
 ---
 
-# TASK-030 - FB 0.3.0-beta Release Candidate
+# TASK-030 - FB 0.3.0-beta Release
 
 Owner: FB-Product / BFM
-Status: Staging QA
-Environment: local release-candidate worktree
+Status: Done
+Environment: GitHub `main` and installed Codex marketplace plugin
 
 ## Goal Alignment Session
 
@@ -70,8 +70,10 @@ syntax, link, and whitespace checks requested for this candidate.
 
 ## Product/BFM Closeout
 
-Disposition: **Ready to ship**. Candidate source, package, release validator,
-isolated install, MCP route, and independent review are green. Pushing this
-review branch and opening [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44)
-does not authorize release. Merge to `main`, public marketplace upgrade/reinstall,
-publication, and release remain blocked until James says **Push Live**.
+Disposition: **Done**. James said **Push Live**; [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44)
+passed GitHub readiness and merged to `main` as `7e122ae`. The configured
+`fb-lane` marketplace upgraded successfully, and Codex installed and enabled
+`fb-lane-coordination@fb-lane` at `0.3.0-beta+codex.20260717150502`. Final
+installed-cache proof confirmed all six workstream skills, the relative bundled
+MCP route and syntax-valid server, README, Why FB, and the full loop diagram.
+Remaining user action: start a new Codex task to load the refreshed plugin.
