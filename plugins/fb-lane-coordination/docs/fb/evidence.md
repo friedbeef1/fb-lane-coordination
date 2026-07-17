@@ -45,12 +45,20 @@ Local Markdown links must resolve relative to the handoff file. Remote links
 are checked only for valid Markdown-link shape and are not fetched.
 
 If access is absent, state `Status: blocked — review access is missing`; do not
-call it ready to test. For a not-yet-runnable v2 handoff, use this blocking form
+call it ready to test. For a not-yet-runnable v2 handoff, use the
+[canonical beginner pause card](guardrails.md#canonical-beginner-pause-card)
 with a concrete next action:
 
 ```md
-Blocked — no review environment yet
-Next Product/BFM action: create the runnable review environment and add its direct Markdown link.
+Paused here
+
+Why: Blocked — no review environment yet; review access is missing.
+What FB already tried: Confirmed that no runnable review environment or direct link is available.
+What can continue safely: Product/BFM can prepare the environment and preserve completed verification evidence.
+What I need from you: Nothing yet unless Product/BFM identifies an external access decision only you can make.
+Next action and owner: Product/BFM owns review-access recovery.
+Next Product/BFM action: Create the runnable review environment and add its direct Markdown link.
+What happens after: FB verifies the link, updates Test This Now, and returns the candidate for review.
 ```
 
 This remains blocked until Product/BFM completes the action and supplies the

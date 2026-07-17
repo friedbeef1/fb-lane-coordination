@@ -73,7 +73,7 @@ test('canonical pause card covers every beginner-facing stop without mislabeling
   assert.match(pause, /hide|hidden|omit/i);
 });
 
-test('active coordination, Product, BFM, setup, and quickstart skills route pauses to guardrails', () => {
+test('active coordination, Product, BFM, lane, setup, and quickstart skills route pauses to guardrails', () => {
   const skills = [
     'skills/fb-lane-coordination/SKILL.md',
     'skills/project-coordination-setup/SKILL.md',
@@ -82,12 +82,15 @@ test('active coordination, Product, BFM, setup, and quickstart skills route paus
     'plugins/fb-lane-coordination/skills/fb-lane/SKILL.md',
     'plugins/fb-lane-coordination/skills/fb-product/SKILL.md',
     'plugins/fb-lane-coordination/skills/bfm/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-business/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-design/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-tech/SKILL.md',
     'plugins/fb-lane-coordination/skills/project-coordination-setup/SKILL.md',
   ];
   for (const relativePath of skills) {
     const source = read(relativePath);
     assert.match(source, /guardrails\.md/, `${relativePath} must route to guardrails.md`);
-    assert.match(source, /canonical (?:beginner )?pause card/i, `${relativePath} must route beginner pauses to the canonical card`);
+    assert.match(source, /canonical\s+(?:beginner\s+)?pause\s+card/i, `${relativePath} must route beginner pauses to the canonical card`);
   }
 });
 
@@ -97,7 +100,15 @@ test('canonical eval catalog defines three complete beginner scenarios at shadow
   assert.strictEqual(packaged, canonical, 'packaged eval guidance must match the canonical catalog');
 
   const catalog = section(canonical, 'Beginner experience shadow scenarios');
-  for (const name of ['Beginner mode selection', 'Beginner status clarity', 'Stop and recovery clarity']) {
+  const expectedScenarios = ['Beginner mode selection', 'Beginner status clarity', 'Stop and recovery clarity'];
+  const actualScenarios = [...catalog.matchAll(/^###\s+(.+)$/gm)].map(match => match[1]);
+  assert.deepStrictEqual(actualScenarios, expectedScenarios, 'beginner experience catalog must contain exactly three scenarios');
+  assert.strictEqual(
+    [...catalog.matchAll(/^Authority:\s*shadow\s*$/gmi)].length,
+    3,
+    'each of the exactly three beginner experience scenarios must start shadow'
+  );
+  for (const name of expectedScenarios) {
     const scenario = section(catalog, name, 3);
     assert.match(scenario, /Authority:\s*shadow/i, `${name} must start shadow`);
     for (const field of ['Trigger:', 'Scenario:', 'Quality target:', 'Must pass:', 'Must not happen:', 'Evidence required:', 'Owner:']) {
@@ -135,6 +146,23 @@ test('every review request uses direct links and step-by-step Test This Now evid
   assert.match(steps[1], /^\s*1\.\s+\S+/m);
   assert.match(steps[1], /^\s*2\.\s+\S+/m);
   assert.match(evidence, /Before asking a user to review/i);
+
+  assert.match(
+    evidence,
+    /\[canonical beginner pause card\]\(guardrails\.md#canonical-beginner-pause-card\)/i,
+    'missing review access must route to the canonical pause card'
+  );
+  const missingAccess = evidence.match(/```md\n([\s\S]*?Blocked — no review environment yet[\s\S]*?)```/);
+  assert.ok(missingAccess, 'missing review access must retain validator-compatible blocked wording');
+  assert.match(missingAccess[1], /Paused here/);
+  assertOrdered(missingAccess[1], pauseFields, 'missing-review pause card');
+  assert.match(missingAccess[1], /Why:\s*Blocked — no review environment yet/i);
+  assert.match(missingAccess[1], /Next Product\/BFM action:\s*\S+/i);
+  assert.doesNotMatch(
+    missingAccess[1],
+    /^Blocked — no review environment yet\s*$/m,
+    'missing review access must not fall back to the legacy two-line response'
+  );
 });
 
 let failed = 0;
