@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-025 | In Progress | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Explain FB beside vanilla Codex and Kurrent Capacitor with honest overlap, evidence-backed pain points, rendered diagrams, and concrete examples | Canonical/package comparison page, public/harness README routers, FAQ, focused test/validator, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-025.md); [plan](docs/superpowers/plans/2026-07-17-fb-product-positioning.md); baseline beginner 10/10, recovery, validator, and doctor Ready passed; local-only gate |
 | TASK-024 | Staging QA | FB-Product / BFM + FB-Tech execution | Beginner Experience | Add a beginner-facing mode, status, pause, and next-action layer while preserving the existing technical coordination engine | Canonical/package harness, public docs, root/package skills, mirrored CLI/MCP and tests, bootstrap examples/templates, shadow evals, `PROJECT_BOARD.md`, handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-024.md); candidate `cc13389`; root/package CLI 70/70, session 31/31, eval 18/18, beginner 10/10; recovery, validator, doctor Ready, parity, whitespace, task reviews, and final whole-branch re-review passed; local-only release gate remains closed |
 | TASK-022 | Staging QA | FB-Product / BFM + FB-Tech execution | FB Session Harness | Add repository-local session intake, promotion, status, checkpoint, recall, review, and closeout with shared clone-local coordination state and curated committed evidence | Mirrored session/CLI modules and tests, session/harness docs, bootstrap and doctor integration, Product/BFM skills, `PROJECT_BOARD.md`, handoff index, TASK-022 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-022.md); final submit repair `f94dce9`; CLI/MCP final validation, board commit, and push share the session lifecycle lock; session 31/31, full gate, and final combined review passed with no findings |
 | TASK-023 | Staging QA | FB-Product / BFM + FB-Tech execution | FB Eval Harness | Add the Markdown-first harness/product eval lifecycle, quality-gap revision loop, authority transitions, and deterministic structural enforcement on top of TASK-022 evidence | Canonical/package eval harness pages and templates, mirrored validators/tests, Product/BFM skills, bootstrap routes, `PROJECT_BOARD.md`, handoff index, TASK-023 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-023.md); final integrated repair `fe733a1` plus submit compatibility `f94dce9`; eval 18/18, session 31/31, full gate, and final combined review passed with no findings; no release action |
@@ -44,6 +45,22 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-025 - FB Product Positioning and Comparison
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Product / BFM + FB-Business and FB-Design guidance
+*   **Area**: Product Positioning
+*   **Scope**: Publish an honest Codex/Capacitor/FB comparison, rendered diagrams, evidence-backed pain-point mapping, and concrete examples with root/package parity.
+*   **Out of Scope**: Runtime behavior, external integrations, telemetry, transcript capture, hosted storage, autonomous evaluation, release, publication, deployment, merge, or consumer-repository changes.
+*   **Affected Screens / Locks**: Canonical/package comparison page, root/package public and harness README routers, FAQ, focused test/validator, board/handoff/index/current-task/Product card.
+*   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-17-fb-product-positioning.md); [Handoff](docs/handoffs/TASK-025.md); branch `codex/fb-beginner-clarity`.
+*   **QA Checklist**:
+    *   [ ] Focused positioning contract passes after observed red state.
+    *   [ ] All pain points cite existing user-feedback or eval evidence.
+    *   [ ] Root/package page and test mirrors are byte-identical.
+    *   [ ] Validator, doctor, links, wording scan, and whitespace pass.
 
 ---
 
