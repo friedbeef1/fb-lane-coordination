@@ -16,7 +16,12 @@ const isPackagedCopy = path.basename(containingRoot) === 'fb-lane-coordination'
 const rootDir = isPackagedCopy ? path.resolve(__dirname, '..', '..', '..') : containingRoot;
 const cliPath = path.join(__dirname, 'fb-lane.cjs');
 const packageCliPath = path.join(rootDir, 'plugins', 'fb-lane-coordination', 'tools', 'fb-lane.cjs');
-const { collectSessionDoctorChecks, runSessionCommand } = require(path.join(__dirname, 'fb-session.cjs'));
+const {
+  collectSessionDoctorChecks,
+  recordAutomatedVerification,
+  runSessionCommand,
+  submitVerificationReuse,
+} = require(path.join(__dirname, 'fb-session.cjs'));
 const cleanEnv = {
   ...process.env,
   CODEX_THREAD_ID: '',
@@ -825,6 +830,44 @@ test('submit and completed close require active execution, reciprocal evidence, 
     assert.strictEqual(readSession(worktree, 'close-complete').state, 'closed');
     assert.strictEqual(readSession(worktree, 'close-complete').outcome, 'completed');
     assertFailed(promote(worktree, 'TASK-999', 'tech', 'planning', 'close-complete'), /closed|reuse/i);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('automated verification evidence is explicit, validated, candidate-bound, and coordination-reusable', () => {
+  const fixture = createRepo();
+  try {
+    const worktree = addWorktree(fixture, 'session/automated-evidence');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'automated-evidence'));
+    const registryPath = path.join(commonDir(worktree), 'fb-sessions', 'automated-evidence.json');
+    const generic = readSession(worktree, 'automated-evidence');
+    generic.milestones.push({ reason: 'verification', at: '2026-07-17T00:00:00.000Z', commit: git(worktree, ['rev-parse', 'HEAD']) });
+    fs.writeFileSync(registryPath, `${JSON.stringify(generic, null, 2)}\n`);
+    assert.strictEqual(submitVerificationReuse(worktree, 'TASK-001').reuse, false, 'generic verification milestones must not count');
+
+    const candidateCommit = git(worktree, ['rev-parse', 'HEAD']);
+    const evidence = {
+      status: 'passed',
+      candidateCommit,
+      checkedAt: '2026-07-17T00:00:00.000Z',
+      checks: [{ id: 'project-test', result: 'passed' }],
+      safetyGate: { result: 'not-applicable', approvalRef: '' },
+      optionalLinks: [],
+    };
+    const stored = recordAutomatedVerification(worktree, 'TASK-001', evidence);
+    assert.deepStrictEqual(stored.automatedVerification, evidence);
+    assert.deepStrictEqual(readSession(worktree, 'automated-evidence').automatedVerification, evidence);
+    assert.strictEqual(submitVerificationReuse(worktree, 'TASK-001').reuse, true);
+
+    fs.appendFileSync(path.join(worktree, 'docs', 'handoffs', 'TASK-001.md'), '\nCoordination closeout only.\n');
+    assert.strictEqual(submitVerificationReuse(worktree, 'TASK-001').reuse, true);
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 9;\n');
+    assert.strictEqual(submitVerificationReuse(worktree, 'TASK-001').reuse, false);
+
+    assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', { ...evidence, status: 'failed' }), /passed|evidence/i);
+    assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', { ...evidence, candidateCommit: 'stale' }), /commit|evidence/i);
+    assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', { ...evidence, checks: [{ id: 'project-test', result: 'failed' }] }), /passed|check/i);
   } finally {
     fixture.cleanup();
   }

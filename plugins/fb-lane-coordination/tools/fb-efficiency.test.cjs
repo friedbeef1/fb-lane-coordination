@@ -19,6 +19,8 @@ const {
   minimalWorkerContext,
   renderEfficiencyReceipt,
   validateQuickRecordForSubmit,
+  selectAutomatedChecks,
+  automatedVerificationDecision,
 } = require('./fb-efficiency.cjs');
 
 const bounded = {
@@ -155,6 +157,65 @@ test('release checkpoint lifecycle requires a Product-owned handoff and permits 
     { ...request, initialPass: 'failed', consolidatedMaterialRepairBatch: true, finalPass: 'passed' },
     { ...request, initialPass: 'failed', consolidatedMaterialRepairBatch: true, finalPass: 'failed' },
   ]) assert.match(verificationBudget(runtime, { finalRuntimeCheckpoint: true, releaseCheckpoint: checkpoint }).blockedReason, /repair batch|final pass|Product direction/i);
+});
+
+test('automated checks select deterministic coordination and project runtime commands', () => {
+  const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-automated-checks-'));
+  fs.writeFileSync(path.join(repoRoot, 'package.json'), JSON.stringify({ scripts: { test: 'node test.cjs' } }));
+  assert.deepStrictEqual(selectAutomatedChecks(['docs/fb/evidence.md', 'PROJECT_BOARD.md'], repoRoot), [
+    { id: 'structure', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] },
+    { id: 'links', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] },
+    { id: 'whitespace', command: 'git', args: ['diff', '--check'] },
+  ]);
+  assert.deepStrictEqual(selectAutomatedChecks(['src/app.js'], repoRoot), [
+    { id: 'project-test', command: 'npm', args: ['test'] },
+  ]);
+  assert.throws(() => selectAutomatedChecks(['src/app.js'], fs.mkdtempSync(path.join(os.tmpdir(), 'fb-no-tests-'))), /runtime.*test|test.*runtime/i);
+});
+
+test('automated verification is candidate-bound, safety-first, and requires explicit passed checks', () => {
+  const commit = '0123456789abcdef0123456789abcdef01234567';
+  const ready = automatedVerificationDecision({
+    candidateCommit: commit,
+    checkedCommit: commit,
+    changedPaths: ['src/app.js'],
+    checkResults: [{ id: 'project-test', result: 'passed' }],
+    safetyGate: { result: 'not-applicable', approvalRef: '' },
+    optionalLinks: [],
+  });
+  assert.strictEqual(ready.status, 'Ready to ship');
+  assert.strictEqual(ready.reusable, true);
+  assert.deepStrictEqual(ready.optionalLinks, []);
+  assert.strictEqual(ready.prompt, [
+    'Automated checks passed. Optional review links are available above.',
+    'Say **Push Live** to deploy.',
+  ].join('\n'));
+
+  assert.strictEqual(automatedVerificationDecision({
+    candidateCommit: commit, checkedCommit: commit, changedPaths: ['src/app.js'],
+    checkResults: [{ id: 'project-test', result: 'failed' }],
+    safetyGate: { result: 'not-applicable', approvalRef: '' }, optionalLinks: [],
+  }).status, 'Checking');
+  assert.strictEqual(automatedVerificationDecision({
+    candidateCommit: commit, checkedCommit: commit, changedPaths: ['supabase/migrations/001.sql'],
+    checkResults: [{ id: 'project-test', result: 'passed' }],
+    safetyGate: { result: 'pending', approvalRef: '' }, optionalLinks: [],
+  }).status, 'Blocked');
+  assert.strictEqual(automatedVerificationDecision({
+    candidateCommit: commit, checkedCommit: commit, changedPaths: ['src/app.js'],
+    checkResults: [{ id: 'project-test', result: 'passed' }],
+    safetyGate: { result: 'not-applicable', approvalRef: '' }, optionalLinks: [], bypassRequested: true,
+  }).status, 'Blocked');
+  assert.strictEqual(automatedVerificationDecision({
+    candidateCommit: commit, checkedCommit: 'fedcba9876543210fedcba9876543210fedcba98', changedPaths: ['docs/handoff.md'],
+    checkResults: [{ id: 'structure', result: 'passed' }],
+    safetyGate: { result: 'not-applicable', approvalRef: '' }, optionalLinks: [],
+  }).reusable, false);
+  assert.strictEqual(automatedVerificationDecision({
+    candidateCommit: commit, checkedCommit: commit, changedPaths: ['src/app.js'],
+    checkResults: [{ id: 'structure', result: 'passed' }],
+    safetyGate: { result: 'not-applicable', approvalRef: '' }, optionalLinks: [],
+  }).reusable, false);
 });
 
 test('run budget blocks repeated or exhausted work and requires material progress', () => {

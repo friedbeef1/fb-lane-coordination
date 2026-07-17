@@ -187,6 +187,71 @@ function verificationBudget(paths, checkpoint = {}) {
   return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'The release checkpoint request is incomplete.' };
 }
 
+function selectAutomatedChecks(paths = [], repoRoot = process.cwd()) {
+  const surface = classifyChangedSurface(paths);
+  if (surface === 'coordination' || surface === 'documentation') {
+    return [
+      { id: 'structure', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] },
+      { id: 'links', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] },
+      { id: 'whitespace', command: 'git', args: ['diff', '--check'] },
+    ];
+  }
+  const packagePath = path.join(path.resolve(repoRoot), 'package.json');
+  let packageJson = null;
+  try {
+    packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+  } catch (err) {
+    throw new Error('Runtime changes require a project test script.');
+  }
+  if (!packageJson.scripts || typeof packageJson.scripts.test !== 'string' || !packageJson.scripts.test.trim()) {
+    throw new Error('Runtime changes require a project test script.');
+  }
+  return [{ id: 'project-test', command: 'npm', args: ['test'] }];
+}
+
+function automatedVerificationDecision(input = {}) {
+  const changedPaths = Array.isArray(input.changedPaths) ? input.changedPaths.map(String) : [];
+  const checks = Array.isArray(input.checkResults) ? input.checkResults.map(check => ({ id: check.id, result: check.result })) : [];
+  const optionalLinks = Array.isArray(input.optionalLinks) ? [...input.optionalLinks] : [];
+  const candidateCommit = String(input.candidateCommit || '');
+  const sameCandidate = /^[0-9a-f]{40}$/i.test(candidateCommit) && candidateCommit === String(input.checkedCommit || '');
+  const surface = classifyChangedSurface(changedPaths);
+  const requiredIds = ['coordination', 'documentation'].includes(surface)
+    ? ['structure', 'links', 'whitespace']
+    : ['project-test'];
+  const checksPassed = requiredIds.every(id => checks.some(check => check.id === id && check.result === 'passed'));
+  const safetyRequired = surface === 'sensitive';
+  const safetyPassed = input.safetyGate && (
+    (input.safetyGate.result === 'passed' && typeof input.safetyGate.approvalRef === 'string' && input.safetyGate.approvalRef.trim())
+    || (!safetyRequired && input.safetyGate.result === 'not-applicable')
+  );
+  let status = 'Checking';
+  let reason = 'Required automated checks have not passed for the current candidate.';
+  if (input.bypassRequested) {
+    status = 'Blocked';
+    reason = 'Verification bypass requests cannot produce Ready to ship.';
+  } else if (!safetyPassed) {
+    status = 'Blocked';
+    reason = safetyRequired ? 'Sensitive changes require a passed safety gate.' : 'The safety gate is unresolved.';
+  } else if (sameCandidate && checksPassed) {
+    status = 'Ready to ship';
+    reason = 'Required automated checks passed for the current candidate.';
+  }
+  const reusable = status === 'Ready to ship';
+  return {
+    status,
+    reusable,
+    reason,
+    candidateCommit,
+    checks,
+    optionalLinks,
+    prompt: reusable ? [
+      'Automated checks passed. Optional review links are available above.',
+      'Say **Push Live** to deploy.',
+    ].join('\n') : '',
+  };
+}
+
 function hasMaterialProgress(previous = {}, current = {}) {
   return ['source', 'generated', 'evidence', 'testState', 'blockerRecovery', 'approvedDirection']
     .some(key => current[key] !== undefined && current[key] !== previous[key]);
@@ -233,4 +298,4 @@ Circuit breaker triggered: ${metrics.circuitBreakerTriggered ? 'yes' : 'no'}
 `;
 }
 
-module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, verificationBudget, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, renderEfficiencyReceipt };
+module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, verificationBudget, selectAutomatedChecks, automatedVerificationDecision, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, renderEfficiencyReceipt };

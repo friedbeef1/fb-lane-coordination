@@ -5,7 +5,6 @@ const fs = require('fs');
 const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
 const { assertSelectedEvalCloseout, validateSelectedEvalIntegration } = require('./fb-eval.cjs');
-const { verificationBudget } = require('./fb-efficiency.cjs');
 
 const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const LANES = new Set(['product', 'tech', 'design', 'business', 'bfm', 'coordination']);
@@ -273,7 +272,35 @@ function validateRecord(record, expectedId = '') {
     || !Array.isArray(record.pendingCheckpoint.allowed)
     || !record.pendingCheckpoint.baseCommit
   )) throw new Error(`Session ${record.sessionId} has malformed pending checkpoint state.`);
+  if (record.automatedVerification) validateAutomatedVerification(record.automatedVerification);
   return record;
+}
+
+function validateAutomatedVerification(evidence) {
+  if (!evidence || typeof evidence !== 'object' || evidence.status !== 'passed') {
+    throw new Error('Automated verification evidence must have status passed.');
+  }
+  if (!/^[0-9a-f]{40}$/i.test(String(evidence.candidateCommit || ''))) {
+    throw new Error('Automated verification evidence requires a full candidate commit.');
+  }
+  if (!Number.isFinite(Date.parse(String(evidence.checkedAt || '')))) {
+    throw new Error('Automated verification evidence requires a valid checkedAt timestamp.');
+  }
+  if (!Array.isArray(evidence.checks) || evidence.checks.length === 0
+    || evidence.checks.some(check => !check || typeof check.id !== 'string' || !check.id || check.result !== 'passed')) {
+    throw new Error('Automated verification evidence requires named passed checks.');
+  }
+  if (!evidence.safetyGate || !['passed', 'not-applicable'].includes(evidence.safetyGate.result)
+    || typeof evidence.safetyGate.approvalRef !== 'string') {
+    throw new Error('Automated verification evidence requires a passed or not-applicable safety gate.');
+  }
+  if (evidence.safetyGate.result === 'passed' && !evidence.safetyGate.approvalRef.trim()) {
+    throw new Error('A passed safety gate requires an approval reference.');
+  }
+  if (!Array.isArray(evidence.optionalLinks) || evidence.optionalLinks.some(link => typeof link !== 'string')) {
+    throw new Error('Automated verification optional links must be an array of strings.');
+  }
+  return evidence;
 }
 
 function listSessions(cwd) {
@@ -550,23 +577,45 @@ function sessionQueueLines(tasks, currentId) {
 
 const COORDINATION_ONLY_PATH = /^(?:docs\/|PROJECT_BOARD\.md$|AGENTS\.md$|README\.md$|FAQ\.md$|CHANGELOG\.md$|\.codex\/(?:rules|current_task)\.md$)/;
 
-function verificationReuseDecision(changedPaths, hasVerificationCheckpoint) {
+function verificationReuseDecision(changedPaths, automatedVerification) {
   const paths = [...new Set((changedPaths || []).map(value => String(value).trim()).filter(Boolean))];
-  if (!hasVerificationCheckpoint) return { reuse: false, reason: 'no verification checkpoint' };
-  const budget = verificationBudget(paths, { broadValidatorPassed: true });
-  if (!budget.reuseCheckpoint || paths.some(file => !COORDINATION_ONLY_PATH.test(file))) return { reuse: false, reason: 'source or runtime changed after verification' };
-  return { reuse: true, reason: 'coordination-only changes after a verification checkpoint' };
+  try {
+    validateAutomatedVerification(automatedVerification);
+  } catch (err) {
+    return { reuse: false, reason: 'no explicit passed automated verification evidence' };
+  }
+  if (paths.some(file => !COORDINATION_ONLY_PATH.test(file))) return { reuse: false, reason: 'source or runtime changed after automated verification' };
+  return { reuse: true, reason: 'coordination-only changes after passed automated verification' };
 }
 
 function submitVerificationReuse(cwd, taskId) {
   const record = listSessions(cwd).find(item => item.taskId === taskId && item.mode === 'execution' && item.state !== 'closed');
-  if (!record) return verificationReuseDecision([], false);
-  const checkpoint = [...record.milestones].reverse().find(item => item.reason === 'verification' && item.commit);
-  if (!checkpoint) return verificationReuseDecision([], false);
-  const committed = git(cwd, ['diff', '--name-only', `${checkpoint.commit}..HEAD`], { allowFailure: true }).stdout.split(/\r?\n/);
+  if (!record || !record.automatedVerification) return verificationReuseDecision([], null);
+  const candidate = record.automatedVerification.candidateCommit;
+  if (git(cwd, ['rev-parse', '--verify', candidate], { allowFailure: true }).status !== 0) {
+    return { reuse: false, reason: 'automated verification candidate is unavailable' };
+  }
+  const committed = git(cwd, ['diff', '--name-only', `${candidate}..HEAD`], { allowFailure: true }).stdout.split(/\r?\n/);
   const working = git(cwd, ['diff', '--name-only', 'HEAD'], { allowFailure: true }).stdout.split(/\r?\n/);
   const untracked = git(cwd, ['ls-files', '--others', '--exclude-standard'], { allowFailure: true }).stdout.split(/\r?\n/);
-  return verificationReuseDecision([...committed, ...working, ...untracked], true);
+  return verificationReuseDecision([...committed, ...working, ...untracked], record.automatedVerification);
+}
+
+function recordAutomatedVerification(cwd, taskId, evidence) {
+  validateAutomatedVerification(evidence);
+  const sessions = listSessions(cwd).filter(item => item.taskId === taskId && item.mode === 'execution' && item.state !== 'closed');
+  if (sessions.length !== 1) throw new Error(`Automated verification requires one active execution session for ${taskId}.`);
+  const sessionId = sessions[0].sessionId;
+  return withSessionMutationLock(cwd, sessionId, () => mutateSession(cwd, sessionId, current => {
+    if (current.taskId !== taskId || current.mode !== 'execution' || current.state === 'closed') {
+      throw new Error(`Automated verification requires one active execution session for ${taskId}.`);
+    }
+    if (git(cwd, ['rev-parse', 'HEAD']).stdout !== evidence.candidateCommit) {
+      throw new Error('Automated verification evidence must match the current candidate commit.');
+    }
+    current.automatedVerification = JSON.parse(JSON.stringify(evidence));
+    return current;
+  }));
 }
 
 function markdownSections(markdown, heading) {
@@ -1211,6 +1260,7 @@ module.exports = {
   withRegistryLock,
   computedState,
   verificationReuseDecision,
+  recordAutomatedVerification,
   submitVerificationReuse,
   runSessionCommand,
   assertSubmitReady,
