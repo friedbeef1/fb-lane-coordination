@@ -16,6 +16,10 @@ function read(relativePath) {
 
 const canonical = read('docs/why-fb.md');
 const packaged = read('plugins/fb-lane-coordination/docs/why-fb.md');
+const rootReadme = read('README.md');
+const harnessReadme = read('docs/fb/README.md');
+const fullLoop = read('docs/fb/full-loop.md');
+const packagedFullLoop = read('plugins/fb-lane-coordination/docs/fb/full-loop.md');
 const compact = canonical.replace(/\s+/g, ' ');
 
 const deliveredPages = [
@@ -32,21 +36,45 @@ const deliveredPages = [
 ];
 
 assert.match(canonical, /> Codex executes software work\.\s+> Capacitor is a session-intelligence platform\.\s+> FB is a product-delivery harness that includes curated session intelligence\./);
-assert.match(canonical, /\| Vanilla Codex \| Execute software work \|/);
-assert.match(canonical, /\| Kurrent Capacitor \| Automatically capture, observe, recall, and evaluate agent sessions \|/);
-assert.match(canonical, /\| FB \| Define, authorize, coordinate, verify, and explain a product outcome \|/);
+assert.match(canonical, /\| System \| Good because \| Gap FB addresses \|/);
+assert.match(canonical, /\| Vanilla Codex \| Directly executes clear software tasks\. \|/);
+assert.match(canonical, /\| Git worktrees \| Isolate branches and allow parallel implementation without mixing files\. \|/);
+assert.match(canonical, /\| Kurrent Capacitor \| Automatically captures, recalls, observes, and evaluates agent sessions\. \|/);
+assert.match(canonical, /\| BMAD \| Provides a broad role-based AI development methodology\. \|/);
+assert.match(canonical, /\| FB \| Connects six product workstreams to Codex implementation, verification, and delivery\. \| — \|/);
 assert.match(compact, /overlap substantially in session recall, evidence, and evaluation/i);
 assert.match(compact, /may provide richer session telemetry/i);
 assert.match(compact, /optional evidence provider to FB/i);
 assert.match(compact, /would not replace FB's approved brief, board, handoff, or closeout authority/i);
 assert.match(canonical, /Capacitor can show that three agents attempted a feature/i);
-assert.strictEqual((canonical.match(/```mermaid/g) || []).length, 2, 'comparison page must contain two rendered Mermaid diagrams');
+assert.strictEqual((canonical.match(/```mermaid/g) || []).length, 1, 'comparison page must contain one FB-only Mermaid diagram');
 
 for (const page of deliveredPages) {
-  assert.match(page.content, /\| Vanilla Codex \| Execute software work \|/);
-  assert.match(page.content, /\| Kurrent Capacitor \| Automatically capture, observe, recall, and evaluate agent sessions \|/);
-  assert.match(page.content, /\| FB \| Define, authorize, coordinate, verify, and explain a product outcome \|/);
-  assert.strictEqual((page.content.match(/```mermaid/g) || []).length, 2, `${page.label} must contain two Mermaid diagrams`);
+  assert.match(page.content, /\| System \| Good because \| Gap FB addresses \|/);
+  assert.match(page.content, /\| Git worktrees \|/);
+  assert.match(page.content, /\| FB \|[^\n]+\| — \|/);
+  assert.strictEqual((page.content.match(/```mermaid/g) || []).length, 1, `${page.label} must contain one FB-only Mermaid diagram`);
+  assert.doesNotMatch(page.content, /GitHub Spec Kit|Better choice when/i);
+}
+
+assert.match(rootReadme, /\| System \| Good because \| Gap FB addresses \|/);
+assert.match(rootReadme, /\| Git worktrees \|/);
+assert.match(rootReadme, /\| (?:\*\*)?FB(?:\*\*)? \|[^\n]+\| — \|/);
+assert.doesNotMatch(rootReadme, /GitHub Spec Kit|Better choice when/i);
+assert.strictEqual((rootReadme.match(/```mermaid/g) || []).length, 1, 'README must contain one FB-only Mermaid diagram');
+assert.match(rootReadme, /\[Full FB Loop Diagram\]\(docs\/fb\/full-loop\.md\)/, 'README must link directly to the full diagram');
+assert.match(canonical, /\[Full FB Loop Diagram\]\(fb\/full-loop\.md\)/, 'Why FB must link directly to the full diagram');
+assert.match(harnessReadme, /\[Full FB Loop Diagram\]\(full-loop\.md\)/, 'harness navigation must link directly to the full diagram');
+assert.strictEqual((fullLoop.match(/```mermaid/g) || []).length, 1, 'full loop page must contain one rendered Mermaid diagram');
+assert.strictEqual(fullLoop, packagedFullLoop, 'full loop page must be mechanically mirrored');
+
+for (const term of [
+  'Product/User', 'Business', 'Design', 'Tech', 'Discovery', 'Bugs',
+  'ready', 'blocked', 'None relevant', 'Product reconciles', 'Quick BFM',
+  'Full BFM', 'Codex implements', 'Automated checks', 'Scoped repair',
+  'Optional review links', 'Ready to ship', 'Push Live', 'Results and feedback',
+]) {
+  assert.match(fullLoop, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), `full loop page must show ${term}`);
 }
 
 for (const evidence of ['TASK-020.md', 'TASK-022.md', 'TASK-024.md', 'TASK-023-walkthroughs.md', 'TASK-026.md']) {
@@ -67,6 +95,8 @@ for (const page of deliveredPages) {
 
 assert.match(canonical, /(?<!!)\[[^\]]+\]\(https:\/\/openai\.com\/codex\/\)/, 'comparison page must use the official OpenAI Codex Markdown destination');
 assert.match(canonical, /(?<!!)\[[^\]]+\]\(https:\/\/capacitor\.kurrent\.io\/docs\/getting-started\/what-is-capacitor\/\)/, 'comparison page must use the official Kurrent Capacitor Markdown destination');
+assert.match(canonical, /https:\/\/git-scm\.com\/docs\/git-worktree/, 'comparison page must use the official Git worktree documentation');
+assert.match(canonical, /https:\/\/github\.com\/bmad-code-org\/BMAD-METHOD/, 'comparison page must link to BMAD');
 
 const task026Rows = canonical
   .split('\n')
@@ -133,22 +163,26 @@ for (const row of task026Rows) {
   assert.ok(row.userVisibleEffect.length > 0, 'each TASK-026 row must describe a user-visible effect');
 }
 
-const mermaidBlocks = [...canonical.matchAll(/```mermaid\s*\n([\s\S]*?)```/g)].map((match) => match[1]);
-const deliveryLoop = mermaidBlocks[1] || '';
-
-assert.match(deliveryLoop, /^(?!\s*%%)\s*P\s*-->\s*H\{"All changes match the coordination-only allowlist after a proven checkpoint\?"\}/m);
-assert.match(deliveryLoop, /^(?!\s*%%)\s*H\s*--\s*"Yes"\s*-->\s*R\["Verification checkpoint reuse"\]/m);
-assert.match(deliveryLoop, /^(?!\s*%%)\s*H\s*--\s*"Change outside the allowlist"\s*-->\s*S\s*$/m);
-assert.match(deliveryLoop, /^(?!\s*%%)\s*S\s*-->\s*F\s*$/m);
-
-for (const node of ['Quick BFM Patch', 'Full BFM', 'Verification checkpoint reuse', 'Safe fallback']) {
-  const escapedNode = node.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const nodeDeclaration = new RegExp(
-    `^(?!\\s*%%).*?\\b[A-Za-z][A-Za-z0-9_-]*\\s*(?:\\[+|\\{+|\\(+)\\s*"${escapedNode}"\\s*(?:\\]+|\\}+|\\)+)`,
-    'mi',
-  );
-  assert.match(deliveryLoop, nodeDeclaration, `delivery loop must declare a ${node} node`);
+function assertFbLoopDiagram(label, page) {
+  const diagram = [...page.matchAll(/```mermaid\s*\n([\s\S]*?)```/g)][0]?.[1] || '';
+  for (const [id, workstream] of [
+    ['PU', 'Product/User'], ['BU', 'Business'], ['DE', 'Design'],
+    ['TE', 'Tech'], ['DI', 'Discovery'], ['BG', 'Bugs'],
+  ]) {
+    assert.match(diagram, new RegExp(`${id}\\["${workstream}<br\\/>Question → Evidence<br\\/>→ Recommendation → Question"\\]`), `${label} must show the ${workstream} mini-loop`);
+    assert.match(diagram, new RegExp(`${id}\\s*-->\\s*H`), `${label} must feed ${workstream} into ready handoffs`);
+    assert.match(diagram, new RegExp(`N\\s*-->\\s*${id}`), `${label} must return new questions to ${workstream}`);
+  }
+  for (const step of ['Ready handoff MD files', '$bfm scans all six', 'Prioritize and sequence', 'Codex implements', 'Automated testing and repair', 'Ready to ship', 'Push Live', 'Results and feedback']) {
+    assert.ok(diagram.includes(`"${step}"`), `${label} must contain ${step}`);
+  }
+  assert.match(diagram, /H\s*-->\s*B\s*-->\s*P\s*-->\s*C\s*-->\s*T\s*-->\s*S\s*-->\s*L\s*-->\s*D\s*-->\s*F/, `${label} must show one closed BFM delivery sequence`);
+  assert.match(diagram, /F\s*-->\s*N/, `${label} must return delivery results to the mini-loops`);
+  assert.doesNotMatch(diagram, /Capacitor|worktree|Quick BFM|Full BFM|Safe fallback/i);
 }
+
+assertFbLoopDiagram('Why FB', canonical);
+assertFbLoopDiagram('README', rootReadme);
 
 for (const example of [
   'Creator-commerce project',

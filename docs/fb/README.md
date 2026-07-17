@@ -41,6 +41,7 @@ owner transfer, staging, or review does not request one.
 
 ## Read by task
 
+- Seeing the complete workstream-to-release system: [Full FB Loop Diagram](full-loop.md)
 - Comparing FB with vanilla Codex or Kurrent Capacitor: [Why FB](../why-fb.md)
 - Starting a project or explaining the plan: [start.md](start.md)
 - Coordinating lanes or running approved work: [workflow.md](workflow.md)

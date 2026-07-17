@@ -9,6 +9,7 @@
   "tools/fb-eval.test.cjs",
   "tools/fb-beginner-experience.test.cjs",
   "tools/fb-product-positioning.test.cjs",
+  "tools/fb-plugin-metadata.test.cjs",
   "tools/fb-two-speed.test.cjs",
   "tools/fb-efficiency.cjs",
   "tools/fb-efficiency.test.cjs",
@@ -22,6 +23,7 @@
   "docs/fb/guardrails.md",
   "docs/fb/sessions.md",
   "docs/fb/evals.md",
+  "docs/fb/full-loop.md",
   "skills/fb-lane-coordination/SKILL.md",
   "skills/project-coordination-setup/SKILL.md"
 ]

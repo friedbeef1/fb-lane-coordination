@@ -98,7 +98,10 @@ try {
   if (fs.existsSync(path.join(root, 'FAQ.md'))) {
     assert.match(readme, /FB is a Codex plugin that connects six product workstreams in one continuous[\s\S]*delivery loop/);
     assert.match(readme, /Question → Investigate → Gather evidence → Recommend → Create handoff MD/);
-    assert.match(readme, /Vanilla Codex[\s\S]*Kurrent Capacitor[\s\S]*GitHub Spec Kit[\s\S]*BMAD[\s\S]*\*\*FB\*\*/);
+    assert.match(readme, /Vanilla Codex[\s\S]*Git worktrees[\s\S]*Kurrent Capacitor[\s\S]*BMAD[\s\S]*\*\*FB\*\*/);
+    assert.match(readme, /\| System \| Good because \| Gap FB addresses \|/);
+    assert.match(readme, /\| \*\*FB\*\* \|[^\n]+\| — \|/);
+    assert.doesNotMatch(readme, /GitHub Spec Kit|Better choice when/i);
     assert.match(readme, /Focus Bridge/);
     const faq = read('FAQ.md');
     assert.match(faq, /one process/i);

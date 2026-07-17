@@ -16,30 +16,62 @@ and FB overlap substantially in
 session recall, evidence, and evaluation. FB adds a repository-local product
 authority and delivery loop around that intelligence.
 
-## Strongest emphasis
+## Honest comparison
 
-| System | Strongest emphasis |
-|---|---|
-| Vanilla Codex | Execute software work |
-| Kurrent Capacitor | Automatically capture, observe, recall, and evaluate agent sessions |
-| FB | Define, authorize, coordinate, verify, and explain a product outcome |
+| System | Good because | Gap FB addresses |
+|---|---|---|
+| Vanilla Codex | Directly executes clear software tasks. | Product decisions, evidence, priorities, verification, and release authority can remain scattered across chats. |
+| Git worktrees | Isolate branches and allow parallel implementation without mixing files. | Worktrees do not decide what should be built, reconcile recommendations, prioritize work, preserve user decisions, or verify the product outcome. |
+| Kurrent Capacitor | Automatically captures, recalls, observes, and evaluates agent sessions. | FB connects curated evidence to the approved brief, product decisions, execution authority, user-facing testing, and closeout. |
+| BMAD | Provides a broad role-based AI development methodology. | FB provides a smaller repository-local Codex loop focused on ready handoffs, implementation, automated verification, and explicit release approval. |
+| FB | Connects six product workstreams to Codex implementation, verification, and delivery. | — |
 
-Use vanilla Codex when the task is small and the desired change is already
-clear. Use Capacitor when comprehensive session visibility and automatic
-history are the primary need. Use FB when the work needs an approved product
-brief, explicit authority, coordinated lanes, durable product truth, quality
-gates, or a user-facing test plan. They can be used together.
+References: [OpenAI Codex](https://openai.com/codex/), [Git
+worktree](https://git-scm.com/docs/git-worktree), [Kurrent
+Capacitor](https://capacitor.kurrent.io/docs/getting-started/what-is-capacitor/),
+and [BMAD](https://github.com/bmad-code-org/BMAD-METHOD).
+
+## Loop engineering in one picture
 
 ```mermaid
-flowchart LR
-    U["User outcome"] --> FB["FB product-delivery harness"]
-    FB --> C["Codex software execution"]
-    C --> R["Working result"]
-    R --> FB
-    K["Kurrent Capacitor session intelligence"] <--> C
-    K -. "optional evidence" .-> FB
-    FB --> T["Curated repository truth"]
+flowchart TB
+    subgraph M["Six workstream mini-loops"]
+        direction LR
+        PU["Product/User<br/>Question → Evidence<br/>→ Recommendation → Question"]
+        BU["Business<br/>Question → Evidence<br/>→ Recommendation → Question"]
+        DE["Design<br/>Question → Evidence<br/>→ Recommendation → Question"]
+        TE["Tech<br/>Question → Evidence<br/>→ Recommendation → Question"]
+        DI["Discovery<br/>Question → Evidence<br/>→ Recommendation → Question"]
+        BG["Bugs<br/>Question → Evidence<br/>→ Recommendation → Question"]
+    end
+
+    PU --> H
+    BU --> H
+    DE --> H
+    TE --> H
+    DI --> H
+    BG --> H
+    H["Ready handoff MD files"]
+    B["$bfm scans all six"]
+    P["Prioritize and sequence"]
+    C["Codex implements"]
+    T["Automated testing and repair"]
+    S["Ready to ship"]
+    L["Push Live"]
+    D["Merge and deploy"]
+    F["Results and feedback"]
+    N["New questions and results"]
+    H --> B --> P --> C --> T --> S --> L --> D --> F
+    F --> N
+    N --> PU
+    N --> BU
+    N --> DE
+    N --> TE
+    N --> DI
+    N --> BG
 ```
+
+For the complete operating view, open the [Full FB Loop Diagram](fb/full-loop.md).
 
 ## The honest overlap
 
@@ -84,29 +116,9 @@ feedback or a checked reproduction in this repository.
 
 ## What the delivery loop adds
 
-```mermaid
-flowchart LR
-    I["Idea"] --> B["Project Start Brief"]
-    B --> D["Decisions and assumptions"]
-    D --> L["Useful lanes investigate"]
-    L --> A["Product brief and approval"]
-    A --> C{"Internal BFM classification"}
-    C -- "Bounded approved correction" --> P["Quick BFM Patch"]
-    C -- "Feature or broader change" --> F["Full BFM"]
-    C -- "Uncertainty or risk" --> S["Safe fallback"]
-    P --> H{"All changes match the coordination-only allowlist after a proven checkpoint?"}
-    H -- "Yes" --> R["Verification checkpoint reuse"]
-    H -- "No prior checkpoint" --> V["Proportional verification"]
-    H -- "Change outside the allowlist" --> S
-    S --> F
-    F --> E["Codex execution"]
-    E --> V
-    R --> Q{"Approved outcome met?"}
-    V --> Q
-    Q -- "No" --> G["Quality Gap or blocked next action"]
-    G --> S
-    Q -- "Yes" --> X["Test This Now and Task Receipt"]
-```
+The product story stays at the loop level shown above. Quick BFM, Full BFM,
+verification checkpoint reuse, and safe fallback remain implementation details
+in the [workflow guide](fb/workflow.md), not extra product-story branches.
 
 The loop does not promise that every project needs all six workstreams or heavy
 ceremony. Each workstream contributes actionable evidence or **None relevant**;

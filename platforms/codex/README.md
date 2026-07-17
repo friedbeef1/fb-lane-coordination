@@ -1,8 +1,10 @@
 # FB for Codex
 
-FB is the supported Codex distribution for **FB 0.2.0-beta: AI Loop Engineering
-for Everyday People**. Codex provides threads, skills, and worktrees; FB adds a
-Product-led route from approved objective to evidence-backed closeout.
+FB is the supported Codex distribution for **FB 0.3.0-beta: AI Loop Engineering
+for Everyday People**. The current release-candidate build is
+`0.3.0-beta+codex.20260717150502`. Codex provides threads, skills, and
+worktrees; FB adds a Product-led route from approved objective to
+evidence-backed closeout.
 
 ## Start
 

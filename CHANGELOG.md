@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.3.0-beta release candidate - 2026-07-17
+
+- Plugin: rebuilt both active manifests as
+  `0.3.0-beta+codex.20260717150502` while preserving the
+  `fb-lane-coordination` plugin ID, `fb-lane` marketplace name, `$bfm`, CLI
+  paths, and MCP names.
+- Product model: refreshed marketplace metadata and default prompts for
+  Product/User, Business, Design, Tech, Discovery, Bugs, ready handoffs,
+  six-workstream `$bfm` reconciliation, automated testing and bounded repair,
+  **Ready to ship**, and the separate **Push Live** release approval.
+- Packaging: added a focused manifest/release metadata contract and regenerated
+  every declared plugin mirror, including the full FB loop diagram.
+- Boundary: this is a committed local candidate only. The full repository
+  validator, isolated install smoke, push/PR, merge, marketplace upgrade,
+  publication, deployment, and public release remain later explicit gates.
+
 ## Unreleased - 2026-07-16
 
 - Coordination: added the repository-local seven-command session ledger with

@@ -2,6 +2,9 @@
 
 **AI Loop Engineering for Everyday People**
 
+Current Codex release candidate: **FB 0.3.0-beta**
+(`0.3.0-beta+codex.20260717150502`).
+
 **FB is a Codex plugin that connects six product workstreams in one continuous
 delivery loop. Each workstream investigates part of the problem; `$bfm` brings
 their ready recommendations together, prioritizes the work, directs Codex
@@ -42,20 +45,45 @@ Question → Investigate → Gather evidence → Recommend → Create handoff MD
 ```
 
 ```mermaid
-flowchart LR
-    U["Goal or feedback"] --> W["Six workstream mini-loops"]
-    W --> H["Ready handoff MD files"]
-    H --> B["Say $bfm"]
-    B --> P["Product reconciles and prioritizes"]
-    P --> C["Codex implements"]
-    C --> T["FB tests and repairs"]
-    T --> R["Optional review links"]
-    R --> S["Ready to ship"]
-    S --> L["Say Push Live"]
-    L --> D["Merge and deploy"]
-    D --> F["Results, feedback, discoveries, and bugs"]
-    F --> W
+flowchart TB
+    subgraph M["Six workstream mini-loops"]
+        direction LR
+        PU["Product/User<br/>Question → Evidence<br/>→ Recommendation → Question"]
+        BU["Business<br/>Question → Evidence<br/>→ Recommendation → Question"]
+        DE["Design<br/>Question → Evidence<br/>→ Recommendation → Question"]
+        TE["Tech<br/>Question → Evidence<br/>→ Recommendation → Question"]
+        DI["Discovery<br/>Question → Evidence<br/>→ Recommendation → Question"]
+        BG["Bugs<br/>Question → Evidence<br/>→ Recommendation → Question"]
+    end
+
+    PU --> H
+    BU --> H
+    DE --> H
+    TE --> H
+    DI --> H
+    BG --> H
+    H["Ready handoff MD files"]
+    B["$bfm scans all six"]
+    P["Prioritize and sequence"]
+    C["Codex implements"]
+    T["Automated testing and repair"]
+    S["Ready to ship"]
+    L["Push Live"]
+    D["Merge and deploy"]
+    F["Results and feedback"]
+    N["New questions and results"]
+    H --> B --> P --> C --> T --> S --> L --> D --> F
+    F --> N
+    N --> PU
+    N --> BU
+    N --> DE
+    N --> TE
+    N --> DI
+    N --> BG
 ```
+
+[Full FB Loop Diagram](docs/fb/full-loop.md) — handoff states,
+Product reconciliation, Quick and Full BFM, repair, review, and release.
 
 A workstream with nothing useful records **None relevant**. It does not invent
 work merely to participate.
@@ -81,13 +109,18 @@ codex plugin add fb-lane-coordination@fb-lane
 
 ## Honest comparison
 
-| System | Strongest emphasis | Better choice when… |
+| System | Good because | Gap FB addresses |
 |---|---|---|
-| [Vanilla Codex](https://openai.com/codex/) | Execute software work | The task is clear, isolated, and does not need durable product coordination. |
-| [Kurrent Capacitor](https://capacitor.kurrent.io/docs/getting-started/what-is-capacitor/) | Automatically capture, observe, recall, and evaluate agent sessions | Comprehensive automatic session history and telemetry are the priority. |
-| [GitHub Spec Kit](https://github.github.com/spec-kit/) | Specification-driven development | You want a structured specification workflow around implementation. |
-| [BMAD](https://github.com/bmad-code-org/BMAD-METHOD) | Role-based agile AI development | You want a broad methodology with specialized agent roles. |
-| **FB** | Define, authorize, coordinate, verify, and explain a product outcome | You need six product perspectives connected to approved decisions, Codex execution, testing, and a human release boundary. |
+| Vanilla Codex | Directly executes clear software tasks. | Product decisions, evidence, priorities, verification, and release authority can remain scattered across chats. |
+| Git worktrees | Isolate branches and allow parallel implementation without mixing files. | Worktrees do not decide what should be built, reconcile recommendations, prioritize work, preserve user decisions, or verify the product outcome. |
+| Kurrent Capacitor | Automatically captures, recalls, observes, and evaluates agent sessions. | FB connects curated evidence to the approved brief, product decisions, execution authority, user-facing testing, and closeout. |
+| BMAD | Provides a broad role-based AI development methodology. | FB provides a smaller repository-local Codex loop focused on ready handoffs, implementation, automated verification, and explicit release approval. |
+| **FB** | Connects six product workstreams to Codex implementation, verification, and delivery. | — |
+
+References: [OpenAI Codex](https://openai.com/codex/), [Git
+worktree](https://git-scm.com/docs/git-worktree), [Kurrent
+Capacitor](https://capacitor.kurrent.io/docs/getting-started/what-is-capacitor/),
+and [BMAD](https://github.com/bmad-code-org/BMAD-METHOD).
 
 FB also provides curated session recall and evaluation, but it deliberately does
 not require comprehensive transcript capture or hosted telemetry. See
