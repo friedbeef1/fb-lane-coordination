@@ -1,5 +1,7 @@
 # FB
 
+[Overview](README.md) · [Agile Teams](docs/fb-for-agile-teams.md) · [Why FB](docs/why-fb.md) · [Full Loop](docs/fb/full-loop.md)
+
 **AI Loop Engineering for Everyday People**
 
 Current Codex release candidate: **FB 0.3.0-beta**
@@ -12,6 +14,19 @@ implementation, runs automated checks, and prepares the result for release.**
 
 FB means **Focus Bridge**: it bridges discussion, evidence, implementation, and
 delivery.
+
+These are product-delivery and coordination gaps that can arise around ordinary
+Codex use, not defects in Codex itself.
+
+| Codex issue | Codex problem solved by FB |
+|---|---|
+| Important decisions remain scattered across chats | FB turns actionable decisions and evidence into repository-local handoff MD files. |
+| Codex may start building before the goal and boundaries are clear | FB separates planning from implementation and requires an approved brief before `$bfm`. |
+| User evidence, decisions, and AI assumptions can become mixed together | Product/User records each category separately before implementation. |
+| Outputs from several Codex tasks must be combined manually | `$bfm` scans ready handoffs across all six workstreams, reconciles conflicts, and sequences the work. |
+| Failed checks can return responsibility to the user | FB runs automated checks and owns bounded diagnosis and repair. |
+| Progress and readiness can be difficult to interpret | FB reports Current, Next, Blocked, optional review links, and Ready to ship. |
+| Codex can perform a merge or deployment when instructed, but product approval may be unclear | FB reserves merge and deployment authority for the explicit phrase **Push Live**. |
 
 ## Problems FB solves
 
@@ -27,6 +42,9 @@ delivery.
 | Nobody knows whether work is ready | FB reports automated verification, optional links, and **Ready to ship**. |
 | AI releases without final approval | Only **Push Live** authorizes merge or deployment. |
 
+See the [Why FB evidence](docs/why-fb.md#pain-points-fb-is-designed-to-address)
+behind these problem mappings.
+
 ## One big loop, six mini-loops
 
 | Workstream | Its question |
@@ -39,6 +57,8 @@ delivery.
 | Bugs | What is broken and how do we prove it? |
 
 Each relevant workstream follows:
+
+For the human-team interpretation, see [Agile Teams](docs/fb-for-agile-teams.md).
 
 ```text
 Question → Investigate → Gather evidence → Recommend → Create handoff MD
@@ -129,7 +149,7 @@ not require comprehensive transcript capture or hosted telemetry. See
 ## Learn more
 
 - [FAQ](FAQ.md)
-- [FB for Agile Teams](docs/fb-for-agile-teams.md)
+- [FB for Agile Teams — the long version](docs/fb-for-agile-teams.md)
 - [How the harness works](docs/fb/README.md)
 - [Start and approval](docs/fb/start.md)
 - [Workflow and `$bfm`](docs/fb/workflow.md)

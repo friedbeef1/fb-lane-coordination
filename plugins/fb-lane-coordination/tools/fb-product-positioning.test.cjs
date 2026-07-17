@@ -20,6 +20,7 @@ const rootReadme = read('README.md');
 const harnessReadme = read('docs/fb/README.md');
 const fullLoop = read('docs/fb/full-loop.md');
 const packagedFullLoop = read('plugins/fb-lane-coordination/docs/fb/full-loop.md');
+const agileTeams = read('docs/fb-for-agile-teams.md');
 const compact = canonical.replace(/\s+/g, ' ');
 
 const deliveredPages = [
@@ -34,6 +35,102 @@ const deliveredPages = [
     absolutePath: path.join(repoRoot, 'plugins/fb-lane-coordination/docs/why-fb.md'),
   },
 ];
+
+const codexProblemRows = [
+  '| Important decisions remain scattered across chats | FB turns actionable decisions and evidence into repository-local handoff MD files. |',
+  '| Codex may start building before the goal and boundaries are clear | FB separates planning from implementation and requires an approved brief before `$bfm`. |',
+  '| User evidence, decisions, and AI assumptions can become mixed together | Product/User records each category separately before implementation. |',
+  '| Outputs from several Codex tasks must be combined manually | `$bfm` scans ready handoffs across all six workstreams, reconciles conflicts, and sequences the work. |',
+  '| Failed checks can return responsibility to the user | FB runs automated checks and owns bounded diagnosis and repair. |',
+  '| Progress and readiness can be difficult to interpret | FB reports Current, Next, Blocked, optional review links, and Ready to ship. |',
+  '| Codex can perform a merge or deployment when instructed, but product approval may be unclear | FB reserves merge and deployment authority for the explicit phrase **Push Live**. |',
+];
+
+function assertNavigation(label, page, destinations) {
+  const navigation = destinations
+    .map(({ text, href }) => `[${text}](${href})`)
+    .join(' · ');
+  assert.ok(page.includes(navigation), `${label} must contain the compact four-destination navigation`);
+  assert.strictEqual(page.split(navigation).length - 1, 1, `${label} must contain the compact navigation exactly once`);
+}
+
+function assertLocalDestination(label, sourceRelativePath, href) {
+  if (/^https?:\/\//.test(href)) return;
+  const [relativePath, anchor] = href.split('#');
+  const targetRelativePath = path.normalize(path.join(path.dirname(sourceRelativePath), relativePath));
+  const targetPath = path.join(repoRoot, targetRelativePath);
+  assert.ok(fs.existsSync(targetPath), `${label} local path must resolve: ${href}`);
+  if (!anchor) return;
+  const target = fs.readFileSync(targetPath, 'utf8');
+  const anchors = [...target.matchAll(/^#{1,6}\s+(.+)$/gm)].map(([, heading]) => heading
+    .toLowerCase()
+    .replace(/[`*_]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-'));
+  assert.ok(anchors.includes(anchor), `${label} anchor must resolve: ${href}`);
+}
+
+assertNavigation('README', rootReadme, [
+  { text: 'Overview', href: 'README.md' },
+  { text: 'Agile Teams', href: 'docs/fb-for-agile-teams.md' },
+  { text: 'Why FB', href: 'docs/why-fb.md' },
+  { text: 'Full Loop', href: 'docs/fb/full-loop.md' },
+]);
+assertNavigation('Agile Teams', agileTeams, [
+  { text: 'Overview', href: '../README.md' },
+  { text: 'Agile Teams', href: 'fb-for-agile-teams.md' },
+  { text: 'Why FB', href: 'why-fb.md' },
+  { text: 'Full Loop', href: 'fb/full-loop.md' },
+]);
+for (const page of deliveredPages) {
+  assertNavigation(page.label, page.content, [
+    { text: 'Overview', href: '../README.md' },
+    { text: 'Agile Teams', href: 'https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/fb-for-agile-teams.md' },
+    { text: 'Why FB', href: 'why-fb.md' },
+    { text: 'Full Loop', href: 'fb/full-loop.md' },
+  ]);
+}
+for (const [label, page] of [['canonical Full Loop', fullLoop], ['packaged Full Loop', packagedFullLoop]]) {
+  assertNavigation(label, page, [
+    { text: 'Overview', href: '../../README.md' },
+    { text: 'Agile Teams', href: 'https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/fb-for-agile-teams.md' },
+    { text: 'Why FB', href: '../why-fb.md' },
+    { text: 'Full Loop', href: 'full-loop.md' },
+  ]);
+}
+
+for (const [label, page] of [['README', rootReadme], ['Why FB', canonical], ['packaged Why FB', packaged]]) {
+  assert.match(page, /\| Codex issue \| Codex problem solved by FB \|/i, `${label} must contain the exact Codex problem-map header`);
+  for (const row of codexProblemRows) assert.ok(page.includes(row), `${label} must contain exact mapping: ${row}`);
+}
+assert.match(rootReadme, /not defects? in Codex/i, 'README must frame the map as coordination gaps rather than Codex defects');
+assert.match(canonical, /not defects? in Codex/i, 'Why FB must frame the map as coordination gaps rather than Codex defects');
+for (const evidence of ['TASK-020.md', 'TASK-022.md', 'TASK-024.md', 'TASK-023-walkthroughs.md']) {
+  assert.match(canonical, new RegExp(evidence.replace('.', '\\.')), `Why FB Codex map must connect to ${evidence}`);
+}
+
+assert.match(rootReadme, /Problems FB solves[\s\S]*\[Why FB evidence\]\(docs\/why-fb\.md#pain-points-fb-is-designed-to-address\)/, 'README problem tables must route to Why FB evidence');
+assert.match(rootReadme, /One big loop, six mini-loops[\s\S]*\[Agile Teams\]\(docs\/fb-for-agile-teams\.md\)[\s\S]*\[Full FB Loop Diagram\]\(docs\/fb\/full-loop\.md\)/, 'README loop must route to Agile Teams and Full Loop');
+assert.match(agileTeams, /The short version[\s\S]*\[Full Loop\]\(fb\/full-loop\.md\)/, 'Agile diagram must route to Full Loop');
+assert.match(agileTeams, /FB and familiar agile-team work[\s\S]*\[Why FB comparison\]\(why-fb\.md#honest-comparison\)/, 'Agile mapping must route to Why FB comparison');
+assert.match(agileTeams, /What happens in a real example[\s\S]*\[Why FB examples\]\(why-fb\.md#concrete-examples\)/, 'Agile example must route to Why FB examples');
+assert.match(agileTeams, /How `\$bfm` relates to Scrum and Kanban[\s\S]*\[workflow\]\(fb\/workflow\.md\)/, 'Agile $bfm section must route to workflow');
+assert.match(agileTeams, /What FB deliberately does not do[\s\S]*\[guardrails\]\(fb\/guardrails\.md\)/, 'Agile boundaries must route to guardrails');
+assert.match(canonical, /Honest comparison[\s\S]*\[Agile Teams\]\(https:\/\/github\.com\/friedbeef1\/fb-lane-coordination\/blob\/main\/docs\/fb-for-agile-teams\.md\)/, 'Why FB comparison must route to Agile Teams');
+assert.match(fullLoop, /\[workflow\]\(workflow\.md\)/, 'Full Loop must route to workflow');
+assert.strictEqual((agileTeams.match(/```mermaid/g) || []).length, 1, 'Agile Teams must contain exactly one Mermaid diagram');
+
+for (const [label, source, hrefs] of [
+  ['README', 'README.md', ['README.md', 'docs/fb-for-agile-teams.md', 'docs/why-fb.md', 'docs/fb/full-loop.md', 'docs/why-fb.md#pain-points-fb-is-designed-to-address']],
+  ['Agile Teams', 'docs/fb-for-agile-teams.md', ['../README.md', 'fb-for-agile-teams.md', 'why-fb.md', 'fb/full-loop.md', 'why-fb.md#honest-comparison', 'why-fb.md#concrete-examples', 'fb/workflow.md', 'fb/guardrails.md']],
+  ['Why FB', 'docs/why-fb.md', ['../README.md', 'why-fb.md', 'fb/full-loop.md']],
+  ['Full Loop', 'docs/fb/full-loop.md', ['../../README.md', '../why-fb.md', 'full-loop.md', 'workflow.md']],
+  ['packaged Why FB', 'plugins/fb-lane-coordination/docs/why-fb.md', ['../README.md', 'why-fb.md', 'fb/full-loop.md']],
+  ['packaged Full Loop', 'plugins/fb-lane-coordination/docs/fb/full-loop.md', ['../../README.md', '../why-fb.md', 'full-loop.md', 'workflow.md']],
+]) {
+  for (const href of hrefs) assertLocalDestination(label, source, href);
+}
 
 assert.match(canonical, /> Codex executes software work\.\s+> Capacitor is a session-intelligence platform\.\s+> FB is a product-delivery harness that includes curated session intelligence\./);
 assert.match(canonical, /\| System \| Good because \| Gap FB addresses \|/);

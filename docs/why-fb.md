@@ -1,5 +1,7 @@
 # Why FB
 
+[Overview](../README.md) · [Agile Teams](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/fb-for-agile-teams.md) · [Why FB](why-fb.md) · [Full Loop](fb/full-loop.md)
+
 **FB is the product-delivery layer around software execution.** It is useful
 when the challenge is not only writing code, but preserving what the user
 approved, coordinating the work, checking product quality, and making the next
@@ -16,7 +18,32 @@ and FB overlap substantially in
 session recall, evidence, and evaluation. FB adds a repository-local product
 authority and delivery loop around that intelligence.
 
+The following are product-delivery and coordination gaps that can arise around
+ordinary Codex use, not defects in Codex itself.
+
+| Codex issue | Codex problem solved by FB |
+|---|---|
+| Important decisions remain scattered across chats | FB turns actionable decisions and evidence into repository-local handoff MD files. |
+| Codex may start building before the goal and boundaries are clear | FB separates planning from implementation and requires an approved brief before `$bfm`. |
+| User evidence, decisions, and AI assumptions can become mixed together | Product/User records each category separately before implementation. |
+| Outputs from several Codex tasks must be combined manually | `$bfm` scans ready handoffs across all six workstreams, reconciles conflicts, and sequences the work. |
+| Failed checks can return responsibility to the user | FB runs automated checks and owns bounded diagnosis and repair. |
+| Progress and readiness can be difficult to interpret | FB reports Current, Next, Blocked, optional review links, and Ready to ship. |
+| Codex can perform a merge or deployment when instructed, but product approval may be unclear | FB reserves merge and deployment authority for the explicit phrase **Push Live**. |
+
+Evidence by row: 1, 2, 3, and 5 connect to the [TASK-020 feedback
+record](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-020.md);
+4 connects to the [TASK-029 six-workstream handoff](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-029.md);
+6 connects to
+[TASK-024 status evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-024.md)
+and the [TASK-022 session-ledger evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-022.md);
+and 7 connects to the approval-boundary feedback in TASK-020. The
+[TASK-023 walkthroughs](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/evals/TASK-023-walkthroughs.md)
+show how failed checks and product-quality gaps remain owned inside the loop.
+
 ## Honest comparison
+
+For the longer human-team mapping, see [Agile Teams](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/fb-for-agile-teams.md).
 
 | System | Good because | Gap FB addresses |
 |---|---|---|
