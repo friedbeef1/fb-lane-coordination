@@ -515,11 +515,56 @@ function statusSession(cwd, args, env) {
   const includeAll = args.includes('--all');
   const records = explicit ? [readSession(cwd, assertSafeSessionId(explicit))] : listSessions(cwd)
     .filter(record => includeAll || record.state !== 'closed');
-  if (records.length === 0) return 'No matching repository-local sessions.';
-  return records.map(record => {
+  if (records.length === 0) return 'No matching repository-local sessions.\nCurrent: None\nNext ready: None\nExternal blocks: None';
+  const sessionLines = records.map(record => {
     const state = computedState(record);
     return `${record.sessionId} | ${record.taskId} | ${record.lane}/${record.mode} | ${state} | branch ${record.branch} | locks ${record.locks.join(', ') || 'none'}`;
-  }).join('\n');
+  });
+  const tasks = readBoardTasks(gitRoot(cwd));
+  const currentId = records.find(record => !['closed', 'stale'].includes(computedState(record)))?.taskId || '';
+  return [...sessionLines, ...sessionQueueLines(tasks, currentId)].join('\n');
+}
+
+function readBoardTasks(repoRoot) {
+  const boardPath = path.join(repoRoot, 'PROJECT_BOARD.md');
+  if (!fs.existsSync(boardPath)) return [];
+  return fs.readFileSync(boardPath, 'utf8').split(/\r?\n/)
+    .filter(line => /^\|\s*TASK-/i.test(line))
+    .map(splitBoardRow)
+    .filter(cells => cells.length >= 7)
+    .map(cells => ({ id: cells[0], status: cells[1], scope: cells[4], links: cells[6] }));
+}
+
+function sessionQueueLines(tasks, currentId) {
+  const current = tasks.find(task => task.id === currentId)
+    || tasks.find(task => /^in progress$/i.test(task.status));
+  const next = tasks.find(task => /^ready$/i.test(task.status) && (!current || task.id !== current.id));
+  const blocked = tasks.filter(task => /^blocked\b/i.test(task.status));
+  return [
+    `Current: ${current ? `${current.id} — ${current.scope}` : 'None'}`,
+    `Next ready: ${next ? `${next.id} — ${next.scope}` : 'None'}`,
+    `External blocks: ${blocked.length ? blocked.map(task => `${task.id} — ${task.scope}`).join('; ') : 'None'}`,
+  ];
+}
+
+const COORDINATION_ONLY_PATH = /^(?:docs\/|PROJECT_BOARD\.md$|AGENTS\.md$|README\.md$|FAQ\.md$|CHANGELOG\.md$|\.codex\/(?:rules|current_task)\.md$)/;
+
+function verificationReuseDecision(changedPaths, hasVerificationCheckpoint) {
+  const paths = [...new Set((changedPaths || []).map(value => String(value).trim()).filter(Boolean))];
+  if (!hasVerificationCheckpoint) return { reuse: false, reason: 'no verification checkpoint' };
+  if (paths.some(file => !COORDINATION_ONLY_PATH.test(file))) return { reuse: false, reason: 'source or runtime changed after verification' };
+  return { reuse: true, reason: 'coordination-only changes after a verification checkpoint' };
+}
+
+function submitVerificationReuse(cwd, taskId) {
+  const record = listSessions(cwd).find(item => item.taskId === taskId && item.mode === 'execution' && item.state !== 'closed');
+  if (!record) return verificationReuseDecision([], false);
+  const checkpoint = [...record.milestones].reverse().find(item => item.reason === 'verification' && item.commit);
+  if (!checkpoint) return verificationReuseDecision([], false);
+  const committed = git(cwd, ['diff', '--name-only', `${checkpoint.commit}..HEAD`], { allowFailure: true }).stdout.split(/\r?\n/);
+  const working = git(cwd, ['diff', '--name-only', 'HEAD'], { allowFailure: true }).stdout.split(/\r?\n/);
+  const untracked = git(cwd, ['ls-files', '--others', '--exclude-standard'], { allowFailure: true }).stdout.split(/\r?\n/);
+  return verificationReuseDecision([...committed, ...working, ...untracked], true);
 }
 
 function markdownSections(markdown, heading) {
@@ -1178,6 +1223,8 @@ module.exports = {
   listSessions,
   withRegistryLock,
   computedState,
+  verificationReuseDecision,
+  submitVerificationReuse,
   runSessionCommand,
   assertSubmitReady,
   withSubmitLifecycleTransaction,

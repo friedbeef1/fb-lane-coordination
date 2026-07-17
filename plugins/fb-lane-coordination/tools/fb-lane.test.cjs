@@ -291,7 +291,8 @@ test('status default uses active session before current task and board priority'
     assert.match(result.stdout, /Your input:/);
     assert.match(result.stdout, /Next action \/ owner: FB-Tech \/ implement the shared renderer\./);
     assert.match(result.stdout, /Test \/ review link: \[Focused test\]\(review\/status\.html\)/);
-    assert.doesNotMatch(result.stdout, /First board priority|Current task should lose|secret-first|Locks|authority|Gate|Staging QA/i);
+    assert.match(result.stdout, /Next ready: TASK-101 — First board priority/);
+    assert.doesNotMatch(result.stdout, /Current task should lose|secret-first|\bLocks\b|authority|\bGate\b|Staging QA/i);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -388,7 +389,8 @@ test('status current-task fallback wins before highest-priority incomplete board
     assert.strictEqual(result.status, 0, result.stderr);
     assert.match(result.stdout, /Current objective: Current task review objective/);
     assert.match(result.stdout, /Stage: Ready for review/);
-    assert.doesNotMatch(result.stdout, /Higher board item|Staging QA/);
+    assert.match(result.stdout, /Next ready: TASK-201 — Higher board item/);
+    assert.doesNotMatch(result.stdout, /Staging QA/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -760,7 +762,7 @@ test('status MCP exposes details schema and shares beginner and technical render
     const beginnerText = beginner.result.content[0].text;
     assert.match(beginnerText, /Current objective: MCP status candidate/);
     assert.match(beginnerText, /Stage: Ready for review/);
-    assert.doesNotMatch(beginnerText, /Staging QA|Locks|mcp-secret/i);
+    assert.doesNotMatch(beginnerText, /Staging QA|\bLocks\b|mcp-secret/i);
 
     const details = mcpRequest(root, { jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'fb_lane_status', arguments: { workspacePath: root, details: true } } });
     const detailsText = details.result.content[0].text;

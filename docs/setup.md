@@ -93,6 +93,24 @@ flag only when a repository explicitly requires a single checkout:
 node tools/fb-lane.cjs claim TASK-001 Tech "src/api.ts" --no-worktree
 ```
 
+FB reuses an exact matching linked worktree. Otherwise it resolves the primary
+checkout from Git and creates the worker under `<primary>/.worktrees/`, never
+under the linked worktree that happened to launch the command.
+
+Projects may add an optional runtime-agnostic preflight to `.fb-lane.json`:
+
+```json
+{
+  "hooks": {
+    "preflight": "./scripts/workspace-health.sh"
+  }
+}
+```
+
+The command runs before claim or quick-task mutation. Its failure stops with
+the project command visible. FB does not supply a global Node version or assume
+a package manager.
+
 For a tiny BFM execution slice:
 
 ```bash
@@ -101,7 +119,9 @@ node tools/fb-lane.cjs quick Tech "src/utils.ts" "Fix db indexing"
 
 Quick tasks skip the OKR approval gate; they do not bypass the BFM source-change
 boundary. Do not create per-task OKRs or loop health scoring for `TASK-Q-*`
-work.
+work. The existing public `quick` command is not itself the internal **Quick BFM
+Patch** classification; an approved existing task receives that class only when
+the bounded low-risk rules in [workflow.md](fb/workflow.md) pass.
 
 ## Session Data And Removal
 

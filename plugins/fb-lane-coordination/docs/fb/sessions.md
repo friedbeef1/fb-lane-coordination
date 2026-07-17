@@ -64,6 +64,14 @@ A verification checkpoint with selected evals records their IDs, authority,
 results, and evidence. It keeps mechanical evidence separate from judgment and
 does not run unrelated catalog evals.
 
+Status also shows `Current`, `Next ready`, and `External blocks` so the active
+queue is legible without reading every recap. After a successful verification
+checkpoint, submit may reuse that broad proof when every later change is
+coordination-only Markdown or a managed board/rules record. Any source,
+runtime, configuration, or test change after the checkpoint runs the broad
+gate again. This is verification reuse, not a bypass; `--no-tests` remains a
+separate explicit exception.
+
 ## Receipt, validation, and closeout
 
 The canonical linked handoff is the only completed-work authority; a recap

@@ -1467,7 +1467,7 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
   try {
     const claimed = run(claimFixture.repo, ['claim', 'TASK-001', 'Tech', 'src/app.js']);
     assertOk(claimed);
-    const claimedPath = path.join(claimFixture.parent, 'repo-tech-TASK-001');
+    const claimedPath = path.join(claimFixture.repo, '.worktrees', 'tech-TASK-001-scope-for-task-001');
     assert.ok(fs.existsSync(claimedPath));
     assert.strictEqual(git(claimedPath, ['branch', '--show-current']), 'tech/TASK-001-scope-for-task-001');
     const registeredClaimPath = fs.realpathSync(claimedPath);
@@ -1475,6 +1475,21 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
     assert.match(fs.readFileSync(path.join(claimedPath, 'PROJECT_BOARD.md'), 'utf8'), /\| TASK-001 \| In Progress \| FB-Tech \|/);
   } finally {
     claimFixture.cleanup();
+  }
+
+  const reuseFixture = createRepo([{ id: 'TASK-001', status: 'Ready', locks: 'src/app.js' }]);
+  try {
+    const branch = 'tech/TASK-001-scope-for-task-001';
+    const existing = path.join(reuseFixture.repo, '.worktrees', 'existing-task-001');
+    fs.mkdirSync(path.dirname(existing), { recursive: true });
+    git(reuseFixture.repo, ['worktree', 'add', '-b', branch, existing, 'main']);
+    const claimed = run(reuseFixture.repo, ['claim', 'TASK-001', 'Tech', 'src/app.js']);
+    assertOk(claimed);
+    assert.match(claimed.stdout, /Reusing matching worktree/);
+    assert.match(claimed.stdout, new RegExp(existing.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+    assert.strictEqual(git(reuseFixture.repo, ['worktree', 'list', '--porcelain']).match(/^worktree /gm).length, 2);
+  } finally {
+    reuseFixture.cleanup();
   }
 
   const quickFixture = createRepo();
@@ -1485,6 +1500,7 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
     const worktree = /Worktree:\s+([^\n]+)/.exec(quick.stdout)?.[1]?.trim();
     assert.ok(branch && worktree, output(quick));
     assert.ok(fs.existsSync(worktree));
+    assert.ok(fs.realpathSync(worktree).startsWith(path.join(fs.realpathSync(quickFixture.repo), '.worktrees') + path.sep));
     assert.strictEqual(git(worktree, ['branch', '--show-current']), branch);
     const registeredQuickPath = fs.realpathSync(worktree);
     assert.match(git(quickFixture.repo, ['worktree', 'list', '--porcelain']), new RegExp(`worktree ${registeredQuickPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
@@ -1507,6 +1523,22 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
     } finally {
       fixture.cleanup();
     }
+  }
+});
+
+test('project-owned preflight stops claim before board or worktree mutation', () => {
+  const fixture = createRepo([{ id: 'TASK-001', status: 'Ready', locks: 'src/app.js' }]);
+  try {
+    fs.writeFileSync(path.join(fixture.repo, '.fb-lane.json'), JSON.stringify({
+      hooks: { preflight: `${JSON.stringify(process.execPath)} -e "process.exit(7)"` },
+    }));
+    const before = fs.readFileSync(path.join(fixture.repo, 'PROJECT_BOARD.md'), 'utf8');
+    const result = run(fixture.repo, ['claim', 'TASK-001', 'Tech', 'src/app.js']);
+    assertFailed(result, /Hook preflight failed/i);
+    assert.strictEqual(fs.readFileSync(path.join(fixture.repo, 'PROJECT_BOARD.md'), 'utf8'), before);
+    assert.strictEqual(git(fixture.repo, ['worktree', 'list', '--porcelain']).match(/^worktree /gm).length, 1);
+  } finally {
+    fixture.cleanup();
   }
 });
 

@@ -12,6 +12,7 @@ const {
   sessionUsage,
   listSessions,
   computedState,
+  submitVerificationReuse,
 } = require('./fb-session.cjs');
 const { collectEvalDoctorChecks } = require('./fb-eval.cjs');
 
@@ -107,6 +108,72 @@ function assertSafeLane(lane) {
     );
   }
   return lane;
+}
+
+const FULL_BFM_RISK = /\b(?:feature|lanes?|multi[- ]?lane|core[- ]?flow|provider|privacy|auth(?:entication|orization)?|payment|analytics|live(?:[- ]release)?|deploy(?:ment)?|release|launch|OKR|unresolved decision)\b/i;
+const QUICK_BFM_SIGNAL = /\b(?:fix|patch|correct|repair|typo|copy|documentation|docs-only|regression)\b/i;
+
+function classifyBfmClass(task = {}, options = {}) {
+  const details = task.details || {};
+  const approval = typeof details === 'object' ? details.approval : '';
+  const text = [task.area, task.owner, task.scope, task.locks].filter(Boolean).join(' ');
+  const approved = /^approved\b/i.test(String(approval || ''));
+  const bounded = /quick[- ]?fix/i.test(String(task.area || '')) || QUICK_BFM_SIGNAL.test(String(task.scope || ''));
+  const multipleOwners = ((String(task.owner || '').match(/\bFB-/g) || []).length > 1);
+  if (options.lockConflict || multipleOwners || !approved || !bounded || FULL_BFM_RISK.test(text)) return 'Full BFM';
+  return 'Quick BFM Patch';
+}
+
+function parseWorktreePorcelain(markdown = '') {
+  return String(markdown).trim().split(/\r?\n\r?\n/).filter(Boolean).map(block => {
+    const lines = block.split(/\r?\n/);
+    const worktree = lines.find(line => line.startsWith('worktree '));
+    const branch = lines.find(line => line.startsWith('branch refs/heads/'));
+    return {
+      path: worktree ? path.resolve(worktree.slice('worktree '.length)) : '',
+      branch: branch ? branch.slice('branch refs/heads/'.length) : '',
+    };
+  }).filter(record => record.path);
+}
+
+function resolveWorktreePlan(records, branchName) {
+  if (!records.length) throw new Error('Git did not report a primary checkout for worktree placement.');
+  const primary = records[0].path;
+  const existing = records.find(record => record.branch === branchName);
+  if (existing) return { path: existing.path, reuse: true, primary };
+  const directory = branchName.replace(/[^A-Za-z0-9._-]+/g, '-');
+  return { path: path.join(primary, '.worktrees', directory), reuse: false, primary };
+}
+
+function ensureWorktreeContainerIgnored(primary) {
+  try {
+    runGit(['-C', primary, 'check-ignore', '-q', '.worktrees']);
+    return;
+  } catch (err) {
+    const exclude = runGit(['-C', primary, 'rev-parse', '--git-path', 'info/exclude']);
+    const excludePath = path.resolve(primary, exclude);
+    const current = fs.existsSync(excludePath) ? fs.readFileSync(excludePath, 'utf8') : '';
+    if (!/^\.worktrees\/$/m.test(current)) {
+      fs.mkdirSync(path.dirname(excludePath), { recursive: true });
+      fs.appendFileSync(excludePath, `${current && !current.endsWith('\n') ? '\n' : ''}.worktrees/\n`);
+    }
+  }
+}
+
+function renderQueueSummary(tasks = [], currentId = '') {
+  const current = tasks.find(task => task.id === currentId)
+    || tasks.find(task => /^in progress$/i.test(task.status));
+  const next = tasks.find(task => /^ready$/i.test(task.status) && (!current || task.id !== current.id));
+  const blocked = tasks.filter(task => /^blocked\b/i.test(task.status));
+  const blockerText = blocked.map(task => {
+    const reason = task.details && task.details.blockers ? task.details.blockers : task.scope;
+    return `${task.id} — ${reason}`;
+  });
+  return [
+    `Current: ${current ? `${current.id} — ${current.scope}` : 'None'}`,
+    `Next ready: ${next ? `${next.id} — ${next.scope}` : 'None'}`,
+    `External blocks: ${blockerText.length ? blockerText.join('; ') : 'None'}`,
+  ].join('\n');
 }
 
 // A branch name is safe to hand to git as a positional ref when it is
@@ -1039,6 +1106,7 @@ function renderBeginnerStatus(inputs = {}) {
   if (!target) {
     return [
       'FB status',
+      renderQueueSummary(inputs.tasks || [], ''),
       'Current objective: No active objective found.',
       'Working mode: Planning',
       'Stage: Understanding',
@@ -1088,6 +1156,7 @@ function renderBeginnerStatus(inputs = {}) {
 
   const lines = [
     'FB status',
+    renderQueueSummary(inputs.tasks || [], task.id),
     `Current objective: ${objective}`,
     `Working mode: ${workingModeFor(target, stage)}`,
     `Stage: ${stage}`,
@@ -1550,6 +1619,12 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
   }
 
   try {
+    runHook('preflight', boardPath);
+  } catch (err) {
+    console.error(`❌ Project preflight failed: ${err.message}`);
+    process.exit(1);
+  }
+  try {
     runHook('pre-claim', boardPath);
   } catch (err) {
     console.error(`❌ Hook pre-claim failed: ${err.message}`);
@@ -1596,30 +1671,42 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
 
   // Run git checkout (in-place) or create an isolated worktree for parallel BFM execution workers.
   let worktreePath = null;
+  let worktreeReused = false;
   if (options.worktree) {
     // Worktree mode: leave the primary checkout (FB-Product) where it is so the board stays
     // authoritative here, and give this execution worker its own directory on its own branch off main.
-    const repoRoot = runGit('rev-parse --show-toplevel');
-    const repoBase = path.basename(repoRoot);
-    worktreePath = path.resolve(repoRoot, '..', `${repoBase}-${lane.toLowerCase()}-${taskId}`);
-    let baseRef = 'main';
-    try {
-      runGit('fetch origin main');
-      runGit('rev-parse --verify origin/main');
-      baseRef = 'origin/main';
-    } catch (err) {
-      console.warn('⚠️  Could not fetch origin/main; basing the worktree on local main.');
-    }
-    try {
-      console.log(`Creating worktree at ${worktreePath} on new branch ${branchName}...`);
-      runGit(['worktree', 'add', '-b', branchName, worktreePath, baseRef]);
-    } catch (err) {
-      console.log(`Branch might exist. Attaching a worktree to: ${branchName}...`);
-      try {
-        runGit(['worktree', 'add', worktreePath, branchName]);
-      } catch (err2) {
-        console.error(`❌ Error creating worktree: ${err2.message}`);
+    const records = parseWorktreePorcelain(runGit(['worktree', 'list', '--porcelain']));
+    const plan = resolveWorktreePlan(records, branchName);
+    worktreePath = plan.path;
+    worktreeReused = plan.reuse;
+    if (worktreeReused) {
+      if (runGit(['-C', worktreePath, 'status', '--porcelain'])) {
+        console.error(`❌ Error: Matching worktree ${worktreePath} is not clean; resolve its owner state before reuse.`);
         process.exit(1);
+      }
+      console.log(`Reusing matching worktree at ${worktreePath} for ${branchName}...`);
+    } else {
+      let baseRef = 'main';
+      try {
+        runGit('fetch origin main');
+        runGit('rev-parse --verify origin/main');
+        baseRef = 'origin/main';
+      } catch (err) {
+        console.warn('⚠️  Could not fetch origin/main; basing the worktree on local main.');
+      }
+      ensureWorktreeContainerIgnored(plan.primary);
+      fs.mkdirSync(path.dirname(worktreePath), { recursive: true });
+      try {
+        console.log(`Creating worktree at ${worktreePath} on new branch ${branchName}...`);
+        runGit(['worktree', 'add', '-b', branchName, worktreePath, baseRef]);
+      } catch (err) {
+        console.log(`Branch might exist. Attaching a worktree to: ${branchName}...`);
+        try {
+          runGit(['worktree', 'add', worktreePath, branchName]);
+        } catch (err2) {
+          console.error(`❌ Error creating worktree: ${err2.message}`);
+          process.exit(1);
+        }
       }
     }
   } else {
@@ -1660,7 +1747,7 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
   // Commit board separately. In worktree mode, carry the authoritative claim
   // commit into the execution branch so promotion sees the same board state.
   const boardCommitted = commitBoard(`docs: claim ${taskId} and lock files`);
-  if (worktreePath && boardCommitted) {
+  if (worktreePath && boardCommitted && fs.realpathSync(worktreePath) !== fs.realpathSync(path.dirname(boardPath))) {
     const boardCommit = runGit('rev-parse HEAD');
     execFileSync('git', ['-C', worktreePath, 'cherry-pick', boardCommit], {
       encoding: 'utf8',
@@ -1678,6 +1765,7 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
   const contextContent = `# Active Task Context
 * **Current Task**: ${taskId}
 * **Lane**: FB-${lane.charAt(0).toUpperCase() + lane.slice(1).toLowerCase()}
+* **BFM Class**: ${classifyBfmClass(task)}
 * **Feature Branch**: ${branchName}
 * **Locked Files**: ${formattedLocks}
 
@@ -1693,6 +1781,7 @@ ${task.scope}
   console.log(`\n✅ Task ${taskId} successfully claimed!`);
   console.log(`   - Branch: ${branchName}`);
   console.log(`   - Locked: ${formattedLocks}`);
+  console.log(`   - BFM class: ${classifyBfmClass(task)}`);
   console.log(`   - Board updated & committed separately.`);
   if (worktreePath) {
     console.log(`   - Worktree: ${worktreePath} (board stays authoritative in this checkout)`);
@@ -1784,6 +1873,12 @@ function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit', options
   }
 
   try {
+    runHook('preflight', boardPath);
+  } catch (err) {
+    console.error(`❌ Project preflight failed: ${err.message}`);
+    process.exit(1);
+  }
+  try {
     runHook('pre-claim', boardPath);
   } catch (err) {
     console.error(`❌ Hook pre-claim failed: ${err.message}`);
@@ -1813,10 +1908,12 @@ function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit', options
   // Worktrees are the safe default; --no-worktree keeps the legacy path.
   let worktreePath = null;
   if (options.worktree) {
-    const repoRoot = runGit('rev-parse --show-toplevel');
-    const repoBase = path.basename(repoRoot);
-    worktreePath = path.resolve(repoRoot, '..', `${repoBase}-${normLane.toLowerCase()}-${taskId}`);
+    const records = parseWorktreePorcelain(runGit(['worktree', 'list', '--porcelain']));
+    const plan = resolveWorktreePlan(records, branchName);
+    worktreePath = plan.path;
     let baseRef = 'main';
+    ensureWorktreeContainerIgnored(plan.primary);
+    fs.mkdirSync(path.dirname(worktreePath), { recursive: true });
     try {
       runGit('fetch origin main');
       runGit('rev-parse --verify origin/main');
@@ -1890,7 +1987,8 @@ function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit', options
     lockedFiles: formattedLocks,
     links: `[Branch](${repoUrl}/tree/${branchName})`,
     repoUrl: repoUrl,
-    branchName: branchName
+    branchName: branchName,
+    details: {},
   };
 
   addTaskToBoard(boardPath, taskRecord);
@@ -1913,6 +2011,7 @@ function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit', options
   const contextContent = `# Active Task Context
 * **Current Task**: ${taskId}
 * **Lane**: ${owner}
+* **BFM Class**: ${classifyBfmClass(taskRecord)}
 * **Feature Branch**: ${branchName}
 * **Locked Files**: ${formattedLocks}
 
@@ -1929,6 +2028,7 @@ ${scopeDescription} (Quick Edit)
   console.log(`\n✅ Quick edit task ${taskId} successfully claimed!`);
   console.log(`   - Branch: ${branchName}`);
   console.log(`   - Locked: ${formattedLocks}`);
+  console.log(`   - BFM class: ${classifyBfmClass(taskRecord)}`);
   console.log(`   - Board updated & committed separately.`);
   if (worktreePath) {
     console.log(`   - Worktree: ${worktreePath}`);
@@ -2017,7 +2117,10 @@ function handleSubmit(taskId, stagingUrl = '') {
 
   const noTests = process.argv.includes('--no-tests');
 
-  if (!noTests) {
+  const verificationReuse = submitVerificationReuse(path.dirname(boardPath), taskId);
+  if (!noTests && verificationReuse.reuse) {
+    console.log(`ℹ️  Reusing the proven broad verification gate: ${verificationReuse.reason}.`);
+  } else if (!noTests) {
     try {
       runTests(boardPath);
     } catch (err) {
@@ -2852,6 +2955,10 @@ module.exports = {
   selectStatusTarget,
   renderBeginnerStatus,
   renderTechnicalStatus,
+  classifyBfmClass,
+  parseWorktreePorcelain,
+  resolveWorktreePlan,
+  renderQueueSummary,
   TASK_ID_PATTERN,
   LANE_PATTERN,
 };

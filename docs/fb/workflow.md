@@ -75,6 +75,20 @@ material decision lacks a preview.
 6. Classify work as `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`. Recheck status immediately before a claim.
 7. Select only relevant eval IDs from [evals.md](evals.md), record their authority, and separate mechanical evidence from Product/user judgment.
 
+## Two-speed execution
+
+Product/BFM classifies approved execution internally; this adds no command or
+board status. **Quick BFM Patch** is only for a bounded correction with clear
+approval, no lock conflict, and no new provider, privacy, auth, payment,
+analytics, live-release, core-flow, multi-lane, or OKR decision. Ambiguity,
+features, and risk-bearing work use **Full BFM**.
+
+Reuse an exact matching linked worktree. If none exists, resolve the primary
+checkout from `git worktree list --porcelain` and create the worker under
+`<primary>/.worktrees/`; never create `.worktrees` beneath a linked worktree.
+Status keeps the queue compact with `Current`, `Next ready`, and `External
+blocks`, including `None` when a bucket is empty.
+
 Execute only ready, unlocked work within the same approved goal or scope. A
 different board item needs Product approval. During execution, record task,
 lane, branch/worktree, and locks. At closeout, name clean, merged, stale,

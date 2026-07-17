@@ -44,6 +44,12 @@ feature branch, or close it and release locks when permanently rejected. Verify
 staging before requesting production promotion, and adapt to another lane’s
 change rather than reverting it.
 
+A project may define `hooks.preflight` in `.fb-lane.json`. FB runs it before
+claim or quick-task mutation and surfaces the exact project command on failure.
+The hook is optional and project-owned: FB assumes no global Node version,
+package manager, provider, or runtime. A failed preflight stops before board or
+worktree mutation.
+
 ## Canonical beginner pause card
 
 Use one visible card whenever FB must pause for safe recovery, a lock conflict,
