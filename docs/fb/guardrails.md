@@ -44,6 +44,34 @@ feature branch, or close it and release locks when permanently rejected. Verify
 staging before requesting production promotion, and adapt to another lane’s
 change rather than reverting it.
 
+## Canonical beginner pause card
+
+Use one visible card whenever FB must pause for safe recovery, a lock conflict,
+missing review access, or an external-only action. Keep the explanation about
+the user’s outcome and the next safe move:
+
+```text
+Paused here
+
+Why:
+What FB already tried:
+What can continue safely:
+What I need from you:
+Next action and owner:
+What happens after:
+```
+
+An approval wait uses the same fields but changes the title to
+`Waiting for your approval`; it is never `Blocked`. Reserve `Blocked` for a genuine
+inability to continue. Product/BFM owns safe recovery and lock resolution
+before asking the user to act. Ask the user only for a real approval or an
+external-only manual, device, account, or provider action.
+
+Keep internal evidence in durable records. This includes commands, retries,
+hashes, lock details, and eval metadata. Hide them from the beginner update
+unless the user must judge that evidence or needs one detail to complete the
+requested action.
+
 ## Sidechats and recovery
 
 Sidechats are discussion/planning spaces. They hand off only to their

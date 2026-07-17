@@ -103,6 +103,45 @@ These are reusable scenario names, not automatically selected checks:
 Existing deterministic protections keep mechanical status. New judgment
 scenarios start shadow.
 
+## Beginner experience shadow scenarios
+
+These curated judgment scenarios start in shadow and never block work. Keep
+internal evidence in durable records; omit it from beginner updates unless the
+user must judge it.
+
+### Beginner mode selection
+
+Authority: shadow
+Trigger: A new request is classified as a simple task, coordinated planning, or approved Build For Me work.
+Scenario: Compare a tiny one-file rename, a creator-commerce objective needing reconciled lanes, and approved multi-surface work invoked with `$bfm`.
+Quality target: The user can tell whether FB is acting directly, planning only, or building the approved plan.
+Must pass: The rename stays ordinary Codex work; creator-commerce starts with planning and the seven-field Project Start Brief; approved work uses the exact Build For Me transition sentence.
+Must not happen: FB must not add lanes to the rename, imply planning is execution, or start source work without approval and explicit `$bfm`.
+Evidence required: The three visible responses and the selected mode rationale.
+Owner: Product/BFM
+
+### Beginner status clarity
+
+Authority: shadow
+Trigger: FB reports progress or a returning user asks what is happening.
+Scenario: Review the beginner status card across understanding, approval, building, checking, review-ready, complete, and genuine inability states.
+Quality target: The user can identify the current objective, mode, stage, completed work, pause or input needed, next action and owner, and review link without decoding internal coordination state.
+Must pass: The visible status uses beginner labels and includes only information needed to understand or move the objective forward.
+Must not happen: Locks, authority, gates, raw enums such as `Staging QA`, or internal evidence must not leak into the default update unless the user must judge them.
+Evidence required: Default status output for each state plus the explicit technical-details view.
+Owner: Product/BFM
+
+### Stop and recovery clarity
+
+Authority: shadow
+Trigger: Work waits for approval, safe recovery, a lock conflict, missing review access, or an external-only action.
+Scenario: Review the canonical pause card for each trigger and compare the approval-wait title with a genuine blocked state.
+Quality target: The user understands why FB paused, what FB tried, what remains safe, what input is needed, who acts next, and what resumes afterward.
+Must pass: Approval says `Waiting for your approval`, while genuine inability uses the complete pause card with an actionable next owner.
+Must not happen: An approval wait must not say `Blocked`; FB must not offload safe recovery or expose unnecessary internal evidence.
+Evidence required: One completed pause card per trigger and the linked durable recovery or approval record.
+Owner: Product/BFM
+
 ## Reusable product-quality categories
 
 Projects define concrete scenarios and examples in their Build Brief. The

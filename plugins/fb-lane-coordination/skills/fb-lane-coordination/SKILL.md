@@ -20,6 +20,10 @@ in the start guide.
 - [Durable sessions, checkpoints, recall, review, and closeout](../../docs/fb/sessions.md)
 - [Eval selection, authority, Quality Gaps, and revision closure](../../docs/fb/evals.md)
 
+For approval waits or genuine stops, use the canonical beginner pause card in
+`guardrails.md`; keep internal evidence in durable records unless the user must
+judge it.
+
 Use `node tools/fb-lane.cjs status` for state. Claims, submissions, merges, and
 source-changing work are BFM actions after Product clears the approval and lock
 gates. For a durable task, intake is read-only and Product/BFM promotes the

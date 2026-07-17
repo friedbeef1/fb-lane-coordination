@@ -23,6 +23,9 @@ the first-project source.
 - [Repository-local session lifecycle and privacy boundary](../../docs/fb/sessions.md)
 - [Markdown eval lifecycle and Quality Gaps](../../docs/fb/evals.md)
 
+The installed `guardrails.md` is also the source for the canonical beginner pause card.
+Use it for approval waits and genuine stops.
+
 After setup, Product owns current goals and task sequencing; lanes use the
 board and index before detailed handoffs; source-changing execution starts only
 through approved BFM.

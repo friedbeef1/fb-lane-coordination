@@ -46,6 +46,9 @@ When acting in BFM-assigned coordination or source-integration support, do not c
 
 ## Boundaries
 
+When a user-facing update must pause, route it through the canonical beginner
+pause card in `docs/fb/guardrails.md`; keep detailed evidence in the handoff.
+
 - Treat application source code as read-only.
 - Do not edit backend logic, UI implementation files, migrations, or deploy config.
 - Do not branch, commit, submit, merge, deploy, or change provider state from ordinary workstream chat.

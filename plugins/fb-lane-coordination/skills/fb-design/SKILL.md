@@ -50,6 +50,9 @@ When acting as a BFM execution worker, do not claim files, edit, submit, or clos
 
 ## Boundaries
 
+When a user-facing update must pause, route it through the canonical beginner
+pause card in `docs/fb/guardrails.md`; keep detailed evidence in the handoff.
+
 - Do not edit database schemas, API routes, auth logic, backend services, or migrations.
 - Do not merge to main or deploy live.
 - Do not edit application/source files, branch, commit, submit, or run provider changes from ordinary workstream chat.

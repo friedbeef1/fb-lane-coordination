@@ -19,6 +19,10 @@ Build For Me (BFM) is the execution mode used only after approval and explicit
 - [Resume durable sessions and curate checkpoint evidence](../../docs/fb/sessions.md)
 - [Select evals and record Quality Gap revision evidence](../../docs/fb/evals.md)
 
+For approval waits or genuine stops, use the canonical beginner pause card in
+`guardrails.md`; keep internal evidence in durable records unless the user must
+judge it.
+
 `PROJECT_BOARD.md` is truth; `docs/handoffs/index.md` is routing; detailed
 handoffs are detail. Ordinary lanes plan only. Use `node tools/fb-lane.cjs
 status` to inspect current coordination state; claims and source changes occur

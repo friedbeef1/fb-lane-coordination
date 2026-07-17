@@ -18,6 +18,10 @@ cards.
 - [Session promotion, checkpoints, recall, review, and closeout](../../docs/fb/sessions.md)
 - [Selected evals, authority, Quality Gaps, and revision closure](../../docs/fb/evals.md)
 
+For approval waits or genuine stops, use the canonical beginner pause card in
+`guardrails.md`; keep internal evidence in durable records unless the user must
+judge it.
+
 Stop before claim/edit/deploy/closeout when approval or locks are unclear.
 Execute only ready, unlocked work in the approved scope; close only after the
 board, source, docs, evidence, and Git state agree or exceptions are explicit.

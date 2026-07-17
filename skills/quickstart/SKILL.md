@@ -16,3 +16,5 @@ Read [workflow.md](../../docs/fb/workflow.md) for the board/index/handoff order,
 [sessions.md](../../docs/fb/sessions.md) only when work must resume across a
 thread handoff, checkpoint, or review. Keep
 simple one-thread work out of FB unless durable coordination is actually needed.
+Use the canonical beginner pause card in `guardrails.md` for approval waits or
+genuine stops.

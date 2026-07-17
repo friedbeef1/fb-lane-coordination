@@ -17,6 +17,10 @@ approval and explicit `$bfm`.
 - [Repository-local sessions and evidence-aware closeout](../../docs/fb/sessions.md)
 - [Eval selection, authority decisions, and product-quality loops](../../docs/fb/evals.md)
 
+For approval waits or genuine stops, use the canonical beginner pause card in
+`guardrails.md`; keep internal evidence in durable records unless the user must
+judge it.
+
 Keep ordinary worker lanes plan-only. Product records the approved build brief
 before BFM starts source-changing work, and closes only with aligned board,
 repository, evidence, and Git state. Product authors the semantic Brief
