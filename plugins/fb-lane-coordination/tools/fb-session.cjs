@@ -599,11 +599,22 @@ function verificationReuseDecision(changedPaths, automatedVerification) {
   return { reuse: true, reason: 'coordination-only changes after passed automated verification' };
 }
 
+function authoritativeSessionBase(record) {
+  const promotion = Array.isArray(record.milestones)
+    ? record.milestones.find(item => item && item.reason === 'promotion' && /^[0-9a-f]{40}$/i.test(String(item.commit || '')))
+    : null;
+  return promotion ? promotion.commit : '';
+}
+
 function submitVerificationReuse(cwd, taskId) {
   const record = listSessions(cwd).find(item => item.taskId === taskId && item.mode === 'execution' && item.state !== 'closed');
   if (!record || !record.automatedVerification) return verificationReuseDecision([], null);
   const candidate = record.automatedVerification.candidateCommit;
   const base = record.automatedVerification.baseCommit;
+  const authoritativeBase = authoritativeSessionBase(record);
+  if (!authoritativeBase || base !== authoritativeBase || base === candidate) {
+    return { reuse: false, reason: 'automated verification base does not match the authoritative session promotion commit' };
+  }
   if (git(cwd, ['rev-parse', '--verify', candidate], { allowFailure: true }).status !== 0) {
     return { reuse: false, reason: 'automated verification candidate is unavailable' };
   }
@@ -649,6 +660,10 @@ function recordAutomatedVerification(cwd, taskId, evidence) {
     }
     if (git(cwd, ['rev-parse', 'HEAD']).stdout !== evidence.candidateCommit) {
       throw new Error('Automated verification evidence must match the current candidate commit.');
+    }
+    const authoritativeBase = authoritativeSessionBase(current);
+    if (!authoritativeBase || evidence.baseCommit !== authoritativeBase || evidence.baseCommit === evidence.candidateCommit) {
+      throw new Error('Automated verification base must equal the authoritative session promotion commit and precede the candidate.');
     }
     if (git(cwd, ['rev-parse', '--verify', evidence.baseCommit], { allowFailure: true }).status !== 0) {
       throw new Error('Automated verification base commit is unavailable.');

@@ -87,3 +87,18 @@ Repair commit message: `fix: verify the complete candidate range`
 - Persistence requires the base to exist and be an ancestor of the candidate, derives paths using a successful `git diff --name-only baseCommit..candidateCommit`, and rejects missing/unrelated bases, incomplete multi-commit or merge paths, and any supplied manifest mismatch.
 - Manifest selection and safety classification are bound to the exact full range before the policy decision may be stored.
 - Reuse rechecks base-to-candidate ancestry, the full range paths, and the selected manifest before checking later candidate-to-HEAD coordination-only changes.
+
+## Authoritative-base repair
+
+Repair commit message: `fix: bind verification base to session promotion`
+
+### RED and GREEN
+
+- RED: `node tools/fb-session.test.cjs` exited 1 because `baseCommit === candidateCommit` reached a changed-path mismatch instead of an authoritative-base rejection, proving a caller-selected late base was still accepted far enough to truncate derivation.
+- GREEN: root/package efficiency PASS 11/11 each; root/package session PASS 37/37 each; declared mirror sync PASS 22/22; syntax PASS 8/8; whitespace PASS.
+
+### Binding
+
+- The immutable full-SHA commit on the existing `reason: promotion` session milestone is the authoritative base; no new session schema is needed.
+- Persistence and reuse both require evidence `baseCommit` to equal that promotion commit and reject `baseCommit === candidateCommit`.
+- Focused fixtures prove a truthful promotion-to-merge multi-commit range passes while a candidate-equal base and an improperly late related base reject before range or manifest acceptance.

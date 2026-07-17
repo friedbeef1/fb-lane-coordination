@@ -888,14 +888,14 @@ test('automated verification evidence is explicit, validated, candidate-bound, a
 test('automated verification persistence enforces sensitive safety and reuse fails closed on ancestry or git status errors', () => {
   const fixture = createRepo([{ id: 'TASK-001', locks: 'auth/config.js' }]);
   try {
-    fs.mkdirSync(path.join(fixture.repo, 'auth'));
-    fs.writeFileSync(path.join(fixture.repo, 'auth', 'config.js'), 'module.exports = true;\n');
-    git(fixture.repo, ['add', 'auth/config.js']);
-    git(fixture.repo, ['commit', '-qm', 'feat: sensitive auth fixture']);
     const worktree = addWorktree(fixture, 'session/sensitive-evidence');
     assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'sensitive-evidence'));
+    const baseCommit = git(worktree, ['rev-parse', 'HEAD']);
+    fs.mkdirSync(path.join(worktree, 'auth'));
+    fs.writeFileSync(path.join(worktree, 'auth', 'config.js'), 'module.exports = true;\n');
+    git(worktree, ['add', 'auth/config.js']);
+    git(worktree, ['commit', '-qm', 'feat: sensitive auth fixture']);
     const candidateCommit = git(worktree, ['rev-parse', 'HEAD']);
-    const baseCommit = git(worktree, ['rev-parse', `${candidateCommit}^`]);
     const changedPaths = ['auth/config.js'];
     const evidence = {
       status: 'passed', baseCommit, candidateCommit, checkedAt: '2026-07-17T00:00:00.000Z',
@@ -941,6 +941,7 @@ test('automated evidence derives the complete multi-commit and merge-sensitive c
     fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 2;\n');
     git(worktree, ['add', 'src/app.js']);
     git(worktree, ['commit', '-qm', 'feat: first range commit']);
+    const lateRelatedBase = git(worktree, ['rev-parse', 'HEAD']);
     git(worktree, ['checkout', '-qb', 'range-sensitive', baseCommit]);
     fs.mkdirSync(path.join(worktree, 'auth'));
     fs.writeFileSync(path.join(worktree, 'auth', 'merge.js'), 'module.exports = true;\n');
@@ -957,6 +958,13 @@ test('automated evidence derives the complete multi-commit and merge-sensitive c
       safetyGate: { result: 'passed', approvalRef: 'APPROVAL-MERGE-001' }, optionalLinks: [],
     };
     assert.doesNotThrow(() => recordAutomatedVerification(worktree, 'TASK-001', evidence));
+    assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', { ...evidence, baseCommit: candidateCommit }), /authoritative|promotion|base/i);
+    assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', {
+      ...evidence,
+      baseCommit: lateRelatedBase,
+      changedPaths: ['auth/merge.js'],
+      checkManifest: selectAutomatedChecks(['auth/merge.js'], worktree),
+    }), /authoritative|promotion|base/i);
     assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', { ...evidence, baseCommit: '' }), /base/i);
     const unrelated = git(worktree, ['commit-tree', git(worktree, ['rev-parse', 'HEAD^{tree}']), '-m', 'unrelated base']);
     assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', { ...evidence, baseCommit: unrelated }), /ancestor|base/i);
