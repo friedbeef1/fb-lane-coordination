@@ -10,6 +10,8 @@ const {
   withSubmitLifecycleTransaction,
   collectSessionDoctorChecks,
   sessionUsage,
+  listSessions,
+  computedState,
 } = require('./fb-session.cjs');
 const { collectEvalDoctorChecks } = require('./fb-eval.cjs');
 
@@ -780,6 +782,12 @@ function parseDetailLines(lines) {
   const scopeMatch = detailStr.match(/\*\s+\*\*Scope\*\*:\s*(.*)/i);
   const lockedFilesMatch = detailStr.match(/\*\s+\*\*Locked\s+Files\*\*:\s*(.*)/i);
   const screensMatch = detailStr.match(/\*\s+\*\*Screens\*\*:\s*(.*)/i);
+  const objectiveMatch = detailStr.match(/\*\s+\*\*Objective\*\*:\s*(.*)/i);
+  const approvalMatch = detailStr.match(/\*\s+\*\*Approval\*\*:\s*(.*)/i);
+  const completedWorkMatch = detailStr.match(/\*\s+\*\*(?:Completed Work|Completed|Updates?)\*\*:\s*(.*)/i);
+  const blockersMatch = detailStr.match(/\*\s+\*\*(?:Blockers?|Pause Reason)\*\*:\s*(.*)/i);
+  const nextActionMatch = detailStr.match(/\*\s+\*\*(?:Next Owner\s*\/\s*Action|Next Action\s*\/\s*Owner|Next Action)\*\*:\s*(.*)/i);
+  const reviewLinkMatch = detailStr.match(/\*\s+\*\*(?:Test\s*\/\s*Review Link|Review Link|Staging URL)\*\*:\s*(.*)/i);
 
   return {
     raw: detailStr,
@@ -788,8 +796,182 @@ function parseDetailLines(lines) {
     area: areaMatch ? areaMatch[1].trim() : '',
     scope: scopeMatch ? scopeMatch[1].trim() : '',
     lockedFiles: lockedFilesMatch ? lockedFilesMatch[1].trim() : '',
-    screens: screensMatch ? screensMatch[1].trim() : ''
+    screens: screensMatch ? screensMatch[1].trim() : '',
+    objective: objectiveMatch ? objectiveMatch[1].trim() : '',
+    approval: approvalMatch ? approvalMatch[1].trim() : '',
+    completedWork: completedWorkMatch ? completedWorkMatch[1].trim() : '',
+    blockers: blockersMatch ? blockersMatch[1].trim() : '',
+    nextAction: nextActionMatch ? nextActionMatch[1].trim() : '',
+    reviewLink: reviewLinkMatch ? reviewLinkMatch[1].trim() : ''
   };
+}
+
+function normalizedStatus(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function isCompleteStatus(value) {
+  return ['done', 'complete', 'completed', 'closed'].includes(normalizedStatus(value));
+}
+
+function visibleStageFor(context = {}) {
+  const status = normalizedStatus(context.status);
+  const phase = normalizedStatus(context.phase);
+  const mode = normalizedStatus(context.mode);
+  const state = normalizedStatus(context.state);
+  const environment = normalizedStatus(context.environment);
+  const blockers = String(context.blockers || '').trim();
+
+  if (status === 'blocked' || phase === 'blocked' || (context.genuineInability && blockers)) return 'Blocked';
+  if (state === 'closed' || isCompleteStatus(status) || phase === 'closed') return 'Complete';
+  if (['staging qa', 'staged'].includes(status) && context.reviewLink) return 'Ready for review';
+  if (mode === 'review' || phase === 'verification' || ['verification', 'local', 'staged'].includes(status) || ['local', 'sandbox', 'staging', 'staged', 'completed build', 'completed-build'].includes(environment)) return 'Checking';
+  if (mode === 'execution' || phase === 'execution' || status === 'in progress') return 'Building';
+  if (['ready', 'approved', 'waiting'].includes(status) || ['approved', 'waiting'].includes(phase)) return 'Ready for your approval';
+  return 'Understanding';
+}
+
+function parseCurrentTask(markdown = '') {
+  const taskMatch = String(markdown).match(/\*\*Current Task\*\*:\s*([^\n]+)/i);
+  const statusMatch = String(markdown).match(/\*\*Status\*\*:\s*([^\n]+)/i);
+  if (!taskMatch) return null;
+  const value = taskMatch[1].replace(/`/g, '').trim();
+  const idMatch = value.match(/^([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*-\d+)\b/);
+  if (!idMatch) return null;
+  return {
+    id: idMatch[1],
+    objective: value.slice(idMatch[0].length).trim(),
+    status: statusMatch ? statusMatch[1].trim() : ''
+  };
+}
+
+function selectStatusTarget({ tasks = [], sessions = [], currentTask = null } = {}) {
+  const activeSession = sessions
+    .filter(session => session && session.state !== 'closed')
+    .sort((left, right) => String(right.updatedAt || '').localeCompare(String(left.updatedAt || '')))[0];
+  if (activeSession) {
+    return {
+      source: 'session',
+      session: activeSession,
+      currentTask: null,
+      task: tasks.find(task => task.id === activeSession.taskId) || { id: activeSession.taskId, status: '', scope: activeSession.taskId, links: '', details: null }
+    };
+  }
+
+  if (currentTask) {
+    const task = tasks.find(candidate => candidate.id === currentTask.id);
+    if (task) return { source: 'current-task', session: null, currentTask, task };
+  }
+
+  const task = tasks.find(candidate => !isCompleteStatus(candidate.status)) || tasks[0] || null;
+  return task ? { source: 'board', session: null, currentTask: null, task } : null;
+}
+
+function statusInputs(rootDir, tasks) {
+  let sessions = [];
+  try {
+    sessions = listSessions(rootDir).filter(session => computedState(session) !== 'closed');
+  } catch (err) {
+    sessions = [];
+  }
+
+  const currentTaskPath = path.join(rootDir, '.codex', 'current_task.md');
+  const currentTask = fs.existsSync(currentTaskPath)
+    ? parseCurrentTask(fs.readFileSync(currentTaskPath, 'utf8'))
+    : null;
+  return { tasks, sessions, currentTask };
+}
+
+function workingModeFor(target, stage) {
+  if (target.session && target.session.mode) {
+    return target.session.mode.charAt(0).toUpperCase() + target.session.mode.slice(1);
+  }
+  return {
+    Understanding: 'Planning',
+    'Ready for your approval': 'Waiting for approval',
+    Building: 'Execution',
+    Checking: 'Verification',
+    'Ready for review': 'Review',
+    Complete: 'Complete',
+    Blocked: 'Paused'
+  }[stage] || 'Planning';
+}
+
+function renderBeginnerStatus(inputs = {}) {
+  const target = selectStatusTarget(inputs);
+  if (!target) {
+    return [
+      'FB status',
+      'Current objective: No active objective found.',
+      'Working mode: Planning',
+      'Stage: Understanding',
+      'Completed work: Nothing recorded yet.',
+      'Pause reason: None — no work is active.',
+      'Your input: Describe the next objective.',
+      'Next action / owner: Product / choose the next objective.',
+      'Test / review link: Not available yet.'
+    ].join('\n');
+  }
+
+  const { task, session, currentTask } = target;
+  const details = task.details || {};
+  const objective = (currentTask && currentTask.objective) || details.objective || task.scope || task.id;
+  const reviewLink = details.reviewLink || (task.links && task.links !== '(None)' ? task.links : '');
+  const stage = visibleStageFor({
+    status: task.status || (currentTask && currentTask.status),
+    mode: session && session.mode,
+    state: session && session.state,
+    blockers: details.blockers,
+    reviewLink
+  });
+  const blocked = stage === 'Blocked';
+  const userInput = {
+    Understanding: 'Confirm the goal or answer any open questions.',
+    'Ready for your approval': 'Approve or revise the proposed plan.',
+    Building: 'None right now.',
+    Checking: 'None right now.',
+    'Ready for review': 'Review the candidate using the link below.',
+    Complete: 'None.',
+    Blocked: 'Help resolve the pause reason above.'
+  }[stage];
+  const defaultNextAction = {
+    Understanding: 'Product / finish understanding the objective.',
+    'Ready for your approval': 'You / approve or revise the plan.',
+    Building: `${task.owner || 'Build For Me'} / continue the approved build.`,
+    Checking: `${task.owner || 'Build For Me'} / finish the focused checks.`,
+    'Ready for review': 'You / review the candidate.',
+    Complete: 'Product / choose the next objective.',
+    Blocked: `${task.owner || 'Product'} / resolve the recorded pause reason.`
+  }[stage];
+
+  return [
+    'FB status',
+    `Current objective: ${objective}`,
+    `Working mode: ${workingModeFor(target, stage)}`,
+    `Stage: ${stage}`,
+    `Completed work: ${details.completedWork || 'Nothing completed yet.'}`,
+    `Pause reason: ${blocked ? (details.blockers || 'Work cannot continue with the current information or access.') : 'None — work is moving.'}`,
+    `Your input: ${userInput}`,
+    `Next action / owner: ${details.nextAction || defaultNextAction}`,
+    `Test / review link: ${reviewLink || 'Not available yet.'}`
+  ].join('\n');
+}
+
+function renderTechnicalStatus(tasks, options = {}) {
+  if (options.format === 'mcp') {
+    const workspace = options.workspaceRoot ? `Workspace: ${options.workspaceRoot}\n` : '';
+    return `${workspace}Active Workstreams:\n` + tasks.map(task =>
+      `[${task.id}] Status: ${task.status} | Owner: ${task.owner} | Locks: ${task.locks || 'None'} | Scope: ${task.scope}`
+    ).join('\n');
+  }
+
+  const lines = ['📋 Active Workstreams:', '='.repeat(80)];
+  for (const task of tasks) {
+    lines.push(`[${task.id}] - ${task.status.padEnd(12)} | ${task.owner.padEnd(12)} | Area: ${task.area.padEnd(8)} | Scope: ${task.scope}`);
+    if (task.locks && task.locks !== '(None)') lines.push(`       🔒 Locks: ${task.locks}`);
+  }
+  lines.push('='.repeat(80));
+  return lines.join('\n');
 }
 
 // Safely update a task in PROJECT_BOARD.md
@@ -911,22 +1093,17 @@ function getRoleInstructions(lane) {
 }
 
 // CLI Command implementations
-function handleStatus() {
+function handleStatus(options = {}) {
   const boardPath = findBoardPath();
   if (!boardPath) {
     console.error('❌ Error: PROJECT_BOARD.md not found in this workspace.');
     process.exit(1);
   }
   const { tasks } = parseBoard(boardPath);
-  console.log('\n📋 Active Workstreams:');
-  console.log('='.repeat(80));
-  tasks.forEach(t => {
-    console.log(`[${t.id}] - ${t.status.padEnd(12)} | ${t.owner.padEnd(12)} | Area: ${t.area.padEnd(8)} | Scope: ${t.scope}`);
-    if (t.locks && t.locks !== '(None)' && t.locks !== '') {
-      console.log(`       🔒 Locks: ${t.locks}`);
-    }
-  });
-  console.log('='.repeat(80) + '\n');
+  const rootDir = path.dirname(boardPath);
+  console.log(options.details
+    ? `\n${renderTechnicalStatus(tasks)}\n`
+    : renderBeginnerStatus(statusInputs(rootDir, tasks)));
 }
 
 function handleDoctor() {
@@ -1920,11 +2097,12 @@ function handleMcpRequest(request) {
       tools: [
         {
           name: 'fb_lane_status',
-          description: 'Get the current status of the project board, active tasks, and file locks.',
+          description: 'Get the beginner project status card, with optional raw technical details.',
           inputSchema: {
             type: 'object',
             properties: {
-              workspacePath: { type: 'string', description: 'Optional workspace/repo path to search for PROJECT_BOARD.md from.' }
+              workspacePath: { type: 'string', description: 'Optional workspace/repo path to search for PROJECT_BOARD.md from.' },
+              details: { type: 'boolean', description: 'Show the raw technical workstream table.' }
             }
           }
         },
@@ -1986,9 +2164,9 @@ function handleMcpRequest(request) {
       try {
         if (name === 'fb_lane_status') {
           const { tasks } = parseBoard(boardPath);
-          message = `Workspace: ${workspaceRoot}\nActive Workstreams:\n` + tasks.map(t =>
-            `[${t.id}] Status: ${t.status} | Owner: ${t.owner} | Locks: ${t.locks || 'None'} | Scope: ${t.scope}`
-          ).join('\n');
+          message = toolArgs.details
+            ? renderTechnicalStatus(tasks, { format: 'mcp', workspaceRoot })
+            : renderBeginnerStatus(statusInputs(workspaceRoot, tasks));
         } else if (name === 'fb_lane_claim') {
           const { taskId, lane, lockedFiles } = toolArgs;
           assertSafeTaskId(taskId);
@@ -2232,7 +2410,7 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 - \`Inbox\`: Newly requested tasks requiring triage.
 - \`Ready\`: Triaged tasks, fully scoped, ready to be claimed.
 - \`In Progress\`: Tasks currently being worked on by an owner.
-- \`Staging QA\`: Features deployed to staging, awaiting visual/functional verification.
+- \`Staging QA\`: Candidate awaiting verification. Record the actual local, sandbox, staging, or completed-build environment separately.
 - \`Done\`: Checked, verified, and merged to production by FB-Product.
 
 ---
@@ -2427,7 +2605,7 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('2. Simple task: This is a simple task, so I’ll handle it directly without lanes or a build brief.');
   console.log('3. Coordinated planning: FB will prepare the plan first. It is not building yet. Lanes investigate and plan different parts.');
   console.log('4. Product combines findings into one build brief. You approve the brief. Only after explicit $bfm, BFM builds and checks it. After approval, use explicit $bfm to start Build For Me execution.');
-  console.log('5. Use $fb-lane status for returning project health: active work, locks, and next coordination context.');
+  console.log('5. Use $fb-lane status for returning project health: current objective, visible stage, and next action.');
   console.log('======================================================================');
   console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');
@@ -2447,7 +2625,7 @@ function main() {
   } else if (command === 'mcp') {
     runMcpServer();
   } else if (command === 'status') {
-    handleStatus();
+    handleStatus({ details: args.includes('--details') });
   } else if (command === 'doctor') {
     handleDoctor();
   } else if (command === 'bootstrap') {
@@ -2499,7 +2677,7 @@ Usage:
   ${sessionUsage()}
   node tools/fb-lane.cjs bootstrap [--platform codex]   - Bootstrap project board, rules, tools, and folders
   node tools/fb-lane.cjs doctor                         - Check FB-Lane setup health without writing files
-  node tools/fb-lane.cjs status                         - Print active tasks & locks
+  node tools/fb-lane.cjs status [--details]             - Print the beginner status card or raw technical table
   node tools/fb-lane.cjs claim <id> <lane> [locks]      - Claim task in a linked worktree by default
   node tools/fb-lane.cjs claim ... --no-worktree        - Use the legacy single-checkout compatibility path
   node tools/fb-lane.cjs quick <lane> <locks> [desc]    - Create a fast-track quick task in a linked worktree
@@ -2522,6 +2700,10 @@ module.exports = {
   assertSafeTaskId,
   assertSafeLane,
   assertSafeBranchName,
+  visibleStageFor,
+  selectStatusTarget,
+  renderBeginnerStatus,
+  renderTechnicalStatus,
   TASK_ID_PATTERN,
   LANE_PATTERN,
 };

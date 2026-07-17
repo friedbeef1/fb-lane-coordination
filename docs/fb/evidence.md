@@ -20,6 +20,10 @@ with `Review state: not reviewable` is also exempt from review-packet checks.
 The other three states are reviewable and require a complete `## Test This Now`
 packet before `doctor` will accept them.
 
+The board enum `Staging QA` means only that a candidate awaits verification.
+Record its actual environment separately as local, sandbox, staging, or
+completed build; the enum alone is not evidence of a staging deployment.
+
 Before asking a user to review, provide concrete, actionable values in this
 canonical bullet/bold format; do not leave `TODO`, `TBD`, example tokens, or
 angle-bracket prompts in place:

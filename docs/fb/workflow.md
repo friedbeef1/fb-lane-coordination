@@ -94,6 +94,11 @@ staging links; structured handoff, unlock, and closeout. Before resuming, check
 board status, outside changes, current deployment authorization, uncommitted
 scope/dirt, and whether the next action still belongs to the assigned lane.
 
+`Staging QA` is the internal board enum for a candidate awaiting verification;
+it does not claim that the candidate is deployed to a staging host. Record the
+actual review environment separately as local, sandbox, staging, or completed
+build.
+
 ## Return loop
 
 After each slice, return to the board. After coding, return to the handoff;

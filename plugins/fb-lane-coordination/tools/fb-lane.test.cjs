@@ -20,6 +20,7 @@ const {
   assertSafeTaskId,
   assertSafeLane,
   assertSafeBranchName,
+  visibleStageFor,
 } = require('./fb-lane.cjs');
 
 let passed = 0;
@@ -165,6 +166,212 @@ try {
   process.chdir(prevCwd);
   fs.rmSync(tmp, { recursive: true, force: true });
 }
+
+console.log('beginner status');
+function writeStatusFixture(root, tasks, options = {}) {
+  execFileSync('git', ['init', '-q'], { cwd: root, stdio: 'ignore' });
+  const rows = tasks.map(task =>
+    `| ${task.id} | ${task.status} | ${task.owner || 'FB-Tech'} | ${task.area || 'CLI'} | ${task.scope} | ${task.locks || '(None)'} | ${task.links || '(None)'} |`
+  ).join('\n');
+  const details = tasks.map(task => `
+### ${task.id} - ${task.scope}
+*   **Status**: ${task.status}
+*   **Owner / Thread**: ${task.owner || 'FB-Tech'}
+*   **Area**: ${task.area || 'CLI'}
+*   **Scope**: ${task.scope}
+*   **Goal Alignment Session**:
+    *   **Objective**: ${task.objective || task.scope}
+    *   **Approval**: ${task.approval || 'pending'}
+    *   **Gate / Review Point**: Product review.
+*   **Completed Work**: ${task.completedWork || 'Nothing completed yet.'}
+*   **Blockers**: ${task.blockers || 'None'}
+*   **Next Owner / Action**: ${task.nextAction || 'Product / choose the next approved action.'}
+*   **Test / Review Link**: ${task.reviewLink || task.links || '(None)'}
+*   **Affected Screens / Locks**:
+    *   **Locked Files**: ${task.locks || '(None)'}
+`).join('\n');
+  fs.writeFileSync(path.join(root, 'PROJECT_BOARD.md'), `# Project Board
+
+## Active Workstreams
+
+| ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
+|---|---|---|---|---|---|---|
+${rows}
+${details}`);
+
+  if (options.currentTask) {
+    fs.mkdirSync(path.join(root, '.codex'), { recursive: true });
+    fs.writeFileSync(path.join(root, '.codex', 'current_task.md'), `# Active Task Context
+
+* **Current Task**: ${options.currentTask.id} ${options.currentTask.objective || ''}
+* **Status**: ${options.currentTask.status || 'In Progress'}
+`);
+  }
+
+  if (options.session) {
+    const sessionsDir = path.join(root, '.git', 'fb-sessions');
+    fs.mkdirSync(sessionsDir, { recursive: true });
+    const now = new Date().toISOString();
+    fs.writeFileSync(path.join(sessionsDir, `${options.session.sessionId}.json`), `${JSON.stringify({
+      version: 1,
+      sessionId: options.session.sessionId,
+      taskId: options.session.taskId,
+      lane: options.session.lane || 'tech',
+      mode: options.session.mode,
+      state: options.session.state || 'active',
+      outcome: null,
+      branch: 'codex/status-fixture',
+      worktree: root,
+      handoff: '',
+      recap: `docs/sessions/${options.session.sessionId}.md`,
+      locks: [],
+      createdAt: now,
+      updatedAt: now,
+      lastMilestoneAt: now,
+      milestones: [],
+    }, null, 2)}\n`);
+  }
+}
+
+function runStatus(root, args = []) {
+  return spawnSync('node', [cliPath, 'status', ...args], { cwd: root, encoding: 'utf8' });
+}
+
+function mcpRequest(root, request) {
+  const result = spawnSync('node', [cliPath, 'mcp'], {
+    cwd: root,
+    encoding: 'utf8',
+    input: `${JSON.stringify(request)}\n`,
+  });
+  const responseLine = result.stdout.split(/\r?\n/).find(line => line.trim().startsWith('{'));
+  assert.ok(responseLine, result.stderr || result.stdout);
+  return JSON.parse(responseLine);
+}
+
+test('status default uses active session before current task and board priority', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  try {
+    writeStatusFixture(root, [
+      { id: 'TASK-101', status: 'Ready', scope: 'First board priority', locks: '`secret-first.js`' },
+      { id: 'TASK-102', status: 'Staging QA', scope: 'Current-task candidate' },
+      { id: 'TASK-103', status: 'In Progress', scope: 'Session-selected objective', completedWork: 'Status fixtures written.', nextAction: 'FB-Tech / implement the shared renderer.', reviewLink: '[Focused test](review/status.html)' },
+    ], {
+      currentTask: { id: 'TASK-102', objective: 'Current task should lose to session' },
+      session: { sessionId: 'status-active', taskId: 'TASK-103', mode: 'execution' },
+    });
+    const result = runStatus(root);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Current objective: Session-selected objective/);
+    assert.match(result.stdout, /Working mode: Execution/);
+    assert.match(result.stdout, /Stage: Building/);
+    assert.match(result.stdout, /Completed work: Status fixtures written\./);
+    assert.match(result.stdout, /Pause reason:/);
+    assert.match(result.stdout, /Your input:/);
+    assert.match(result.stdout, /Next action \/ owner: FB-Tech \/ implement the shared renderer\./);
+    assert.match(result.stdout, /Test \/ review link: \[Focused test\]\(review\/status\.html\)/);
+    assert.doesNotMatch(result.stdout, /First board priority|Current task should lose|secret-first|Locks|authority|Gate|Staging QA/i);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status current-task fallback wins before highest-priority incomplete board item', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  try {
+    writeStatusFixture(root, [
+      { id: 'TASK-201', status: 'Ready', scope: 'Higher board item' },
+      { id: 'TASK-202', status: 'Staging QA', scope: 'Current-task review', reviewLink: '[Review](https://review.example.test/task-202)' },
+    ], { currentTask: { id: 'TASK-202', objective: 'Current task review objective' } });
+    const result = runStatus(root);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Current objective: Current task review objective/);
+    assert.match(result.stdout, /Stage: Ready for review/);
+    assert.doesNotMatch(result.stdout, /Higher board item|Staging QA/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status board fallback selects the highest-priority incomplete item', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  try {
+    writeStatusFixture(root, [
+      { id: 'TASK-301', status: 'Done', scope: 'Already complete' },
+      { id: 'TASK-302', status: 'Ready', scope: 'Approve the status slice', approval: 'pending' },
+      { id: 'TASK-303', status: 'In Progress', scope: 'Lower-priority build' },
+    ]);
+    const result = runStatus(root);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Current objective: Approve the status slice/);
+    assert.match(result.stdout, /Stage: Ready for your approval/);
+    assert.doesNotMatch(result.stdout, /Already complete|Lower-priority build/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status stage mapping keeps technical states behind beginner labels', () => {
+  assert.strictEqual(typeof visibleStageFor, 'function');
+  assert.strictEqual(visibleStageFor({ phase: 'intake' }), 'Understanding');
+  assert.strictEqual(visibleStageFor({ mode: 'planning' }), 'Understanding');
+  assert.strictEqual(visibleStageFor({ status: 'Ready', approval: 'pending' }), 'Ready for your approval');
+  assert.strictEqual(visibleStageFor({ status: 'Approved' }), 'Ready for your approval');
+  assert.strictEqual(visibleStageFor({ status: 'Waiting' }), 'Ready for your approval');
+  assert.strictEqual(visibleStageFor({ phase: 'waiting' }), 'Ready for your approval');
+  assert.strictEqual(visibleStageFor({ mode: 'execution' }), 'Building');
+  assert.strictEqual(visibleStageFor({ status: 'Verification' }), 'Checking');
+  assert.strictEqual(visibleStageFor({ status: 'Local' }), 'Checking');
+  assert.strictEqual(visibleStageFor({ phase: 'verification' }), 'Checking');
+  assert.strictEqual(visibleStageFor({ environment: 'local' }), 'Checking');
+  assert.strictEqual(visibleStageFor({ status: 'Staged', reviewLink: 'https://review.example.test' }), 'Ready for review');
+  assert.strictEqual(visibleStageFor({ status: 'Staging QA', reviewLink: 'https://review.example.test' }), 'Ready for review');
+  assert.strictEqual(visibleStageFor({ state: 'closed' }), 'Complete');
+  assert.strictEqual(visibleStageFor({ status: 'Blocked', blockers: 'Provider credentials unavailable.' }), 'Blocked');
+});
+
+test('status details preserves the raw technical table', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  try {
+    writeStatusFixture(root, [
+      { id: 'TASK-401', status: 'Staging QA', scope: 'Raw status candidate', locks: '`tools/fb-lane.cjs`' },
+    ]);
+    const result = runStatus(root, ['--details']);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Active Workstreams/);
+    assert.match(result.stdout, /TASK-401/);
+    assert.match(result.stdout, /Staging QA/);
+    assert.match(result.stdout, /Locks: `tools\/fb-lane\.cjs`/);
+    assert.doesNotMatch(result.stdout, /Current objective:/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status MCP exposes details schema and shares beginner and technical renderers', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  try {
+    writeStatusFixture(root, [
+      { id: 'TASK-501', status: 'Staging QA', scope: 'MCP status candidate', locks: '`mcp-secret.js`', reviewLink: '[Review](https://review.example.test/task-501)' },
+    ]);
+    const listed = mcpRequest(root, { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} });
+    const schema = listed.result.tools.find(tool => tool.name === 'fb_lane_status').inputSchema;
+    assert.deepStrictEqual(schema.properties.details, { type: 'boolean', description: 'Show the raw technical workstream table.' });
+
+    const beginner = mcpRequest(root, { jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'fb_lane_status', arguments: { workspacePath: root } } });
+    const beginnerText = beginner.result.content[0].text;
+    assert.match(beginnerText, /Current objective: MCP status candidate/);
+    assert.match(beginnerText, /Stage: Ready for review/);
+    assert.doesNotMatch(beginnerText, /Staging QA|Locks|mcp-secret/i);
+
+    const details = mcpRequest(root, { jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'fb_lane_status', arguments: { workspacePath: root, details: true } } });
+    const detailsText = details.result.content[0].text;
+    assert.match(detailsText, /TASK-501/);
+    assert.match(detailsText, /Staging QA/);
+    assert.match(detailsText, /mcp-secret\.js/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
 
 console.log('handoff index');
 function writeDoctorFixture(root, handoffCount = 4) {
