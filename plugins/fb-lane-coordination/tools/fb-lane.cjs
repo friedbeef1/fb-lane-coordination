@@ -861,6 +861,54 @@ function placeholderReviewTarget(target) {
   return /(?:^|[/?#&=])(?:TODO|TBD)(?=$|[/?#&=])/i.test(route);
 }
 
+function markdownLinks(value) {
+  return [...String(value || '').matchAll(/\[[^\]\n]+\]\(\s*(?:<([^>\n]+)>|([^\s)]+))(?:\s+['"][^)]*['"])?\s*\)/g)]
+    .map(match => ({ markdown: match[0], target: match[1] || match[2] }))
+    .filter(link => link.target);
+}
+
+function safeExistingLocalPath(rootDir, baseDir, target) {
+  if (!target || /^[a-z][a-z0-9+.-]*:/i.test(target)) return '';
+  let localTarget = target.split(/[?#]/, 1)[0];
+  try {
+    localTarget = decodeURIComponent(localTarget);
+  } catch (err) {
+    return '';
+  }
+  if (!localTarget || path.isAbsolute(localTarget) || localTarget.includes('\0')) return '';
+
+  const resolved = path.resolve(baseDir, localTarget);
+  const rootWithSep = rootDir.endsWith(path.sep) ? rootDir : `${rootDir}${path.sep}`;
+  if (resolved !== rootDir && !resolved.startsWith(rootWithSep)) return '';
+  if (!fs.existsSync(resolved) || !fs.statSync(resolved).isFile()) return '';
+  try {
+    const realRoot = fs.realpathSync(rootDir);
+    const realResolved = fs.realpathSync(resolved);
+    const realRootWithSep = realRoot.endsWith(path.sep) ? realRoot : `${realRoot}${path.sep}`;
+    return realResolved === realRoot || realResolved.startsWith(realRootWithSep) ? resolved : '';
+  } catch (err) {
+    return '';
+  }
+}
+
+function linkedHandoffReviewLink(rootDir, task) {
+  const expectedHandoff = path.join(rootDir, 'docs', 'handoffs', `${task.id}.md`);
+  const handoff = markdownLinks(task.links)
+    .map(link => safeExistingLocalPath(rootDir, rootDir, link.target))
+    .find(candidate => candidate === expectedHandoff);
+  if (!handoff) return '';
+
+  const reviewSection = markdownSection(fs.readFileSync(handoff, 'utf8'), 'Test This Now');
+  const directLinks = reviewFieldValue(reviewSection, 'Direct links');
+  for (const link of markdownLinks(directLinks)) {
+    const actionable = explicitReviewLink(link.markdown);
+    if (!actionable) continue;
+    if (/^https?:\/\//i.test(link.target)) return actionable;
+    if (safeExistingLocalPath(rootDir, path.dirname(handoff), link.target)) return actionable;
+  }
+  return '';
+}
+
 function normalizedStatus(value) {
   const normalized = String(value || '').trim().toLowerCase();
   const recognized = [
@@ -933,11 +981,23 @@ function selectStatusTarget({ tasks = [], sessions = [], currentTask = null } = 
   return task ? { source: 'board', session: null, currentTask: null, task } : null;
 }
 
+function sessionBelongsToWorkspace(rootDir, session) {
+  if (!session || !session.worktree) return false;
+  try {
+    return fs.realpathSync(rootDir) === fs.realpathSync(session.worktree);
+  } catch (err) {
+    return false;
+  }
+}
+
 function statusInputs(rootDir, tasks) {
   let sessions = [];
   let sessionWarning = '';
   try {
-    sessions = listSessions(rootDir).filter(session => computedState(session) !== 'closed');
+    sessions = listSessions(rootDir).filter(session =>
+      !['closed', 'stale'].includes(computedState(session))
+      && sessionBelongsToWorkspace(rootDir, session)
+    );
   } catch (err) {
     sessions = [];
     sessionWarning = `Session registry could not be read: ${err.message}`;
@@ -947,7 +1007,16 @@ function statusInputs(rootDir, tasks) {
   const currentTask = fs.existsSync(currentTaskPath)
     ? parseCurrentTask(fs.readFileSync(currentTaskPath, 'utf8'))
     : null;
-  return { tasks, sessions, currentTask, sessionWarning };
+  const selected = selectStatusTarget({ tasks, sessions, currentTask });
+  const tasksWithReviewEvidence = tasks.map(task => {
+    if (!selected || task.id !== selected.task.id) return task;
+    if (task.details && task.details.reviewLink) return task;
+    const reviewLink = linkedHandoffReviewLink(rootDir, task);
+    return reviewLink
+      ? { ...task, details: { ...(task.details || {}), reviewLink } }
+      : task;
+  });
+  return { tasks: tasksWithReviewEvidence, sessions, currentTask, sessionWarning };
 }
 
 function workingModeFor(target, stage) {
@@ -2364,6 +2433,10 @@ matches the task:
 - **Simple task:** This is a simple task, so I’ll handle it directly without lanes or a build brief.
 - **Coordinated planning:** FB will prepare the plan first. It is not building yet.
 - **After approval and explicit \`$bfm\`:** Build For Me (BFM) will now build and check the approved plan.
+
+For returning-project health, use \`$fb-lane status\` for the beginner card.
+For operational lock inspection, use CLI \`node tools/fb-lane.cjs status --details\`
+or MCP \`fb_lane_status({details:true})\`.
 
 - First project, plan, lanes, or approval: [start.md](docs/fb/start.md)
 - Ownership, BFM execution, and closeout: [workflow.md](docs/fb/workflow.md)

@@ -229,22 +229,23 @@ ${details}`);
 `);
   }
 
-  if (options.session) {
+  const sessions = options.sessions || (options.session ? [options.session] : []);
+  for (const session of sessions) {
     const sessionsDir = path.join(root, '.git', 'fb-sessions');
     fs.mkdirSync(sessionsDir, { recursive: true });
-    const now = new Date().toISOString();
-    fs.writeFileSync(path.join(sessionsDir, `${options.session.sessionId}.json`), `${JSON.stringify({
+    const now = session.updatedAt || new Date().toISOString();
+    fs.writeFileSync(path.join(sessionsDir, `${session.sessionId}.json`), `${JSON.stringify({
       version: 1,
-      sessionId: options.session.sessionId,
-      taskId: options.session.taskId,
-      lane: options.session.lane || 'tech',
-      mode: options.session.mode,
-      state: options.session.state || 'active',
+      sessionId: session.sessionId,
+      taskId: session.taskId,
+      lane: session.lane || 'tech',
+      mode: session.mode,
+      state: session.state || 'active',
       outcome: null,
-      branch: 'codex/status-fixture',
-      worktree: root,
+      branch: session.branch || 'codex/status-fixture',
+      worktree: Object.prototype.hasOwnProperty.call(session, 'worktree') ? session.worktree : root,
       handoff: '',
-      recap: `docs/sessions/${options.session.sessionId}.md`,
+      recap: `docs/sessions/${session.sessionId}.md`,
       locks: [],
       createdAt: now,
       updatedAt: now,
@@ -293,6 +294,56 @@ test('status default uses active session before current task and board priority'
     assert.doesNotMatch(result.stdout, /First board priority|Current task should lose|secret-first|Locks|authority|Gate|Staging QA/i);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status ignores the newest computed-stale session so current task wins', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  try {
+    writeStatusFixture(root, [
+      { id: 'TASK-104', status: 'In Progress', scope: 'Current worktree objective' },
+      { id: 'TASK-105', status: 'In Progress', scope: 'Newest but stale objective' },
+    ], {
+      currentTask: { id: 'TASK-104', objective: 'Current task survives stale session' },
+      sessions: [{
+        sessionId: 'status-stale-newest',
+        taskId: 'TASK-105',
+        mode: 'execution',
+        updatedAt: new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(),
+      }],
+    });
+    const result = runStatus(root);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Current objective: Current task survives stale session/);
+    assert.doesNotMatch(result.stdout, /Newest but stale objective/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status ignores an active foreign-worktree session so current task wins', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  const foreign = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-foreign-worktree-'));
+  try {
+    writeStatusFixture(root, [
+      { id: 'TASK-106', status: 'In Progress', scope: 'Local current objective' },
+      { id: 'TASK-107', status: 'In Progress', scope: 'Foreign worktree objective' },
+    ], {
+      currentTask: { id: 'TASK-106', objective: 'Current task survives foreign session' },
+      sessions: [{
+        sessionId: 'status-foreign-active',
+        taskId: 'TASK-107',
+        mode: 'execution',
+        worktree: foreign,
+      }],
+    });
+    const result = runStatus(root);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Current objective: Current task survives foreign session/);
+    assert.doesNotMatch(result.stdout, /Foreign worktree objective/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(foreign, { recursive: true, force: true });
   }
 });
 
@@ -456,6 +507,105 @@ test('status review evidence skips an earlier canonical placeholder and uses the
     assert.doesNotMatch(result.stdout, /staging\.example\.com|Later review/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status resolves TASK-022 and TASK-023 shaped canonical handoff review links', () => {
+  const fixtures = [
+    ['TASK-022', 'tools/fb-session.cjs', 'Root session module'],
+    ['TASK-023', 'tools/fb-eval.cjs', 'Eval validator'],
+  ];
+  for (const [taskId, target, label] of fixtures) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-handoff-'));
+    try {
+      writeStatusFixture(root, [{
+        id: taskId,
+        status: 'Staging QA',
+        scope: `${taskId} review candidate`,
+        links: `[Handoff](docs/handoffs/${taskId}.md)`,
+      }]);
+      fs.mkdirSync(path.join(root, 'docs', 'handoffs'), { recursive: true });
+      fs.mkdirSync(path.join(root, 'tools'), { recursive: true });
+      fs.writeFileSync(path.join(root, target), '// review fixture\n');
+      fs.writeFileSync(path.join(root, 'docs', 'handoffs', `${taskId}.md`), `# ${taskId}\n\n## Test This Now\n\n- **Direct links:** [Placeholder](https://example.com/review), [${label}](../../${target})\n- **Exact steps and expectations:**\n  1. Open the linked file.\n`);
+
+      const result = runStatus(root);
+      assert.strictEqual(result.status, 0, result.stderr);
+      assert.match(result.stdout, /Stage: Ready for review/);
+      assert.ok(result.stdout.includes(`Test / review link: [${label}](../../${target})`));
+      assert.doesNotMatch(result.stdout, /Placeholder|example\.com/);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test('status keeps explicit board review evidence ahead of linked handoff evidence', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-handoff-'));
+  try {
+    writeStatusFixture(root, [{
+      id: 'TASK-215',
+      status: 'Staging QA',
+      scope: 'Explicit review candidate',
+      links: '[Handoff](docs/handoffs/TASK-215.md)',
+      reviewLink: '[Board review](https://review.acme.test/task-215)',
+    }]);
+    fs.mkdirSync(path.join(root, 'docs', 'handoffs'), { recursive: true });
+    fs.mkdirSync(path.join(root, 'tools'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'tools', 'handoff-review.cjs'), '// fixture\n');
+    fs.writeFileSync(path.join(root, 'docs', 'handoffs', 'TASK-215.md'), `## Test This Now\n\n- **Direct links:** [Handoff review](../../tools/handoff-review.cjs)\n`);
+
+    const result = runStatus(root);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Test \/ review link: \[Board review\]\(https:\/\/review\.acme\.test\/task-215\)/);
+    assert.doesNotMatch(result.stdout, /Handoff review/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status rejects unsafe or unavailable linked handoff review evidence', () => {
+  const fixtures = [
+    { name: 'escaped handoff', handoff: '[Handoff](../TASK-216.md)' },
+    { name: 'missing handoff', handoff: '[Handoff](docs/handoffs/TASK-216.md)' },
+    { name: 'remote handoff', handoff: '[Handoff](https://review.acme.test/TASK-216.md)' },
+    { name: 'escaped direct link', handoff: '[Handoff](docs/handoffs/TASK-216.md)', direct: '[Escape](../../../outside.md)' },
+    { name: 'missing direct link', handoff: '[Handoff](docs/handoffs/TASK-216.md)', direct: '[Missing](../../tools/missing.cjs)' },
+    { name: 'placeholder direct link', handoff: '[Handoff](docs/handoffs/TASK-216.md)', direct: '[Example](https://example.com/review)' },
+  ];
+  for (const fixture of fixtures) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-handoff-'));
+    const outsidePaths = [];
+    try {
+      writeStatusFixture(root, [{
+        id: 'TASK-216',
+        status: 'Staging QA',
+        scope: fixture.name,
+        links: fixture.handoff,
+      }]);
+      if (fixture.direct) {
+        fs.mkdirSync(path.join(root, 'docs', 'handoffs'), { recursive: true });
+        fs.writeFileSync(path.join(root, 'docs', 'handoffs', 'TASK-216.md'), `## Test This Now\n\n- **Direct links:** ${fixture.direct}\n`);
+      }
+      if (fixture.name === 'escaped handoff') {
+        const outsideHandoff = path.join(path.dirname(root), 'TASK-216.md');
+        fs.writeFileSync(outsideHandoff, '## Test This Now\n\n- **Direct links:** [Outside](https://review.acme.test/outside)\n');
+        outsidePaths.push(outsideHandoff);
+      }
+      if (fixture.name === 'escaped direct link') {
+        const outsideReview = path.join(path.dirname(root), 'outside.md');
+        fs.writeFileSync(outsideReview, '# Outside review evidence\n');
+        outsidePaths.push(outsideReview);
+      }
+
+      const result = runStatus(root);
+      assert.strictEqual(result.status, 0, result.stderr);
+      assert.match(result.stdout, /Stage: Checking/);
+      assert.match(result.stdout, /Test \/ review link: Not available yet\./);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+      for (const outsidePath of outsidePaths) fs.rmSync(outsidePath, { force: true });
+    }
   }
 });
 
@@ -771,6 +921,9 @@ function assertCodexBootstrap(args) {
       assert.ok(boardRead >= 0 && boardRead < indexRead && indexRead < handoffRead, `${label} must state the board → index → linked handoff read order`);
       assert.doesNotMatch(source, /## Project Start Brief|## Test This Now|### Verification Handoff/, `${label} must remain a thin route layer`);
       assertConditionalModeContract(label, source);
+      assert.match(source, /node tools\/fb-lane\.cjs status --details/, `${label} must opt into technical details for lock inspection`);
+      assert.match(source, /fb_lane_status\(\{details:true\}\)/, `${label} must request MCP details for lock inspection`);
+      assert.match(source, /returning-project health[\s\S]*\$fb-lane status/i, `${label} must keep default status for returning health`);
     }
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
     assert.match(output, /Lanes investigate and plan different parts/, 'bootstrap quick start must say that lanes plan');
@@ -1054,6 +1207,42 @@ test('publishes one beginner interaction contract across root, package, skills, 
     assert.doesNotMatch(source, /Build Flow Manager/i, `${relativePath} must use Build For Me terminology`);
     assertConditionalModeContract(relativePath, source);
   }
+});
+
+test('active operational lock guidance always opts into status details', () => {
+  const repoRoot = process.cwd();
+  const lockGuides = [
+    'plugins/fb-lane-coordination/skills/fb-tech/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-design/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-business/SKILL.md',
+    'examples/my-app/.codex/rules.md',
+  ];
+  for (const relativePath of lockGuides) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(source, /node tools\/fb-lane\.cjs status --details/, `${relativePath} must use CLI details for lock inspection`);
+    assert.match(source, /fb_lane_status\(\{details:true\}\)/, `${relativePath} must use MCP details for lock inspection`);
+    assert.doesNotMatch(source, /(?:locks with|tasks and locks)[^\n]*`(?:fb_lane_status|node tools\/fb-lane\.cjs status)`/i, `${relativePath} must not claim default status exposes locks`);
+  }
+
+  for (const relativePath of [
+    'skills/fb-lane-coordination/SKILL.md',
+    'plugins/fb-lane-coordination/skills/fb-lane-coordination/SKILL.md',
+  ]) {
+    const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+    assert.match(source, /node tools\/fb-lane\.cjs status` for state/, `${relativePath} must preserve default status for ordinary health`);
+  }
+});
+
+test('example AGENTS beginner-contract link resolves to the canonical in-repo page', () => {
+  const repoRoot = process.cwd();
+  const relativePath = 'examples/my-app/AGENTS.md';
+  const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
+  const link = source.match(/\[docs\/fb\/start\.md\]\(([^)]+)\)/);
+  assert.ok(link, `${relativePath} must link the beginner contract`);
+  const resolved = path.resolve(path.dirname(path.join(repoRoot, relativePath)), link[1]);
+  assert.ok(fs.existsSync(resolved), `${relativePath} beginner-contract link must resolve in-repo`);
+  assert.strictEqual(resolved, path.join(repoRoot, 'docs', 'fb', 'start.md'));
+  assert.ok(!fs.existsSync(path.join(repoRoot, 'examples', 'my-app', 'docs', 'fb')), 'example must not copy a redundant harness pack');
 });
 
 test('bootstrap defaults to Codex-only output', () => {

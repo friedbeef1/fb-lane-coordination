@@ -55,20 +55,54 @@ function test(name, fn) {
   tests.push([name, fn]);
 }
 
-test('canonical pause card covers every beginner-facing stop without mislabeling approval', () => {
+function canonicalPauseGuidance() {
   const canonical = read('docs/fb/guardrails.md');
   const packaged = read('plugins/fb-lane-coordination/docs/fb/guardrails.md');
   assert.strictEqual(packaged, canonical, 'packaged guardrails must match the canonical pause contract');
+  return section(canonical, 'Canonical beginner pause card');
+}
 
-  const pause = section(canonical, 'Canonical beginner pause card');
+function assertCanonicalPauseShape(pause, label) {
   assert.match(pause, /Paused here/);
-  assertOrdered(pause, pauseFields, 'canonical pause card');
-  for (const trigger of ['safe recovery', 'lock conflict', 'missing review access', 'external-only action']) {
-    assert.match(pause, new RegExp(trigger, 'i'), `pause guidance must cover ${trigger}`);
-  }
+  assertOrdered(pause, pauseFields, label);
+}
+
+test('approval waits route to the approval title instead of Blocked', () => {
+  const pause = canonicalPauseGuidance();
+  assertCanonicalPauseShape(pause, 'approval pause card');
   assert.match(pause, /approval wait/i);
   assert.match(pause, /Waiting for your approval/);
   assert.match(pause, /(?:never|not) `?Blocked`?/i);
+});
+
+test('safe recovery stays with Product/BFM before asking the user to act', () => {
+  const pause = canonicalPauseGuidance();
+  assertCanonicalPauseShape(pause, 'safe-recovery pause card');
+  assert.match(pause, /safe recovery/i);
+  assert.match(pause, /Product\/BFM owns safe recovery/i);
+});
+
+test('lock conflicts route to Product/BFM lock resolution', () => {
+  const pause = canonicalPauseGuidance();
+  assertCanonicalPauseShape(pause, 'lock-conflict pause card');
+  assert.match(pause, /lock conflict/i);
+  assert.match(pause, /Product\/BFM owns[\s\S]*lock resolution/i);
+});
+
+test('missing review access routes to the review-access recovery card', () => {
+  const pause = canonicalPauseGuidance();
+  assertCanonicalPauseShape(pause, 'missing-review pause card');
+  assert.match(pause, /missing review access/i);
+  const evidence = read('docs/fb/evidence.md');
+  assert.match(evidence, /Why:\s*Blocked — no review environment yet; review access is missing\./i);
+  assert.match(evidence, /Next action and owner:\s*Product\/BFM owns review-access recovery\./i);
+});
+
+test('external-only actions ask the user only for the exact manual boundary', () => {
+  const pause = canonicalPauseGuidance();
+  assertCanonicalPauseShape(pause, 'external-only pause card');
+  assert.match(pause, /external-only action/i);
+  assert.match(pause, /Ask the user only for[\s\S]*external-only manual, device, account, or provider action/i);
   assert.match(pause, /internal evidence[\s\S]*durable records/i);
   assert.match(pause, /hide|hidden|omit/i);
 });
@@ -163,6 +197,21 @@ test('every review request uses direct links and step-by-step Test This Now evid
     /^Blocked — no review environment yet\s*$/m,
     'missing review access must not fall back to the legacy two-line response'
   );
+});
+
+test('actual reviewable TASK-022 and TASK-023 handoffs include direct links and numbered steps', () => {
+  for (const taskId of ['TASK-022', 'TASK-023']) {
+    const handoff = read(`docs/handoffs/${taskId}.md`);
+    assert.match(handoff, /^Review state:\s*(?:runnable sandbox|staging candidate|completed build)\s*$/im, `${taskId} must remain reviewable`);
+    const review = section(handoff, 'Test This Now');
+    const directLinks = review.match(/^- \*\*Direct links:\*\*\s*(.+)$/m);
+    assert.ok(directLinks, `${taskId} must expose Direct links in Test This Now`);
+    assert.match(directLinks[1], /\[[^\]]+\]\([^)]+\)/, `${taskId} Direct links must contain an actionable Markdown link`);
+    const exactSteps = review.match(/^- \*\*Exact steps and expectations:\*\*([\s\S]*?)(?=\n- \*\*)/m);
+    assert.ok(exactSteps, `${taskId} must expose exact steps and expectations`);
+    assert.match(exactSteps[1], /^\s*1\.\s+\S+/m, `${taskId} must include step 1`);
+    assert.match(exactSteps[1], /^\s*2\.\s+\S+/m, `${taskId} must include step 2`);
+  }
 });
 
 let failed = 0;

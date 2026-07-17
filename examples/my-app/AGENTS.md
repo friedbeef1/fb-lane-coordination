@@ -2,7 +2,7 @@
 
 This project uses the standard **FB coordination model** to enable safe concurrent development.
 
-Use the beginner mode and approval contract in [docs/fb/start.md](docs/fb/start.md).
+Use the beginner mode and approval contract in [docs/fb/start.md](../../docs/fb/start.md).
 For simple work, stay direct. For coordinated work, FB plans first and waits
 for approval. Build For Me (BFM) builds and checks the plan only after approval
 and explicit `$bfm`.
