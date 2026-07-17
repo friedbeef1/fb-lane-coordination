@@ -89,11 +89,17 @@ assert.strictEqual(verificationReuseDecision(['docs/README.md'], false).reuse, f
 
 const readHarness = page => fs.readFileSync(path.join(surfaceRoot, 'docs', 'fb', page), 'utf8');
 const overview = readHarness('README.md');
-for (const mode of ['Normal Codex', 'Quick BFM', 'Full BFM']) assert.match(overview, new RegExp(mode));
-assert.match(overview, /one `TASK-Q-\*` Quick Record/);
-assert.match(overview, /Auth,[\s\S]*ambiguity[\s\S]*Full BFM/i);
+assert.match(overview, /Start with the matching workstream/);
+assert.match(overview, /risk and execution classification internal/);
+assert.match(overview, /user never chooses a mode/);
+assert.doesNotMatch(overview, /Normal Codex|Quick BFM|Full BFM|TASK-Q-/);
 
 const workflow = readHarness('workflow.md');
+for (const mode of ['Quick BFM', 'Full BFM']) assert.match(workflow, new RegExp(mode));
+assert.match(workflow, /Agents classify clear isolated low-risk work/);
+assert.match(workflow, /exactly one committed[\s\S]*`docs\/handoffs\/TASK-Q-\*\.md` Quick Record/);
+assert.match(workflow, /ambiguous or material-risk work internally/);
+assert.match(workflow, /Sensitive[\s\S]*Full-BFM safety\/release gates/);
 assert.match(workflow, /Quick BFM/);
 assert.match(workflow, /ambiguity/i);
 assert.match(workflow, /<primary>\/\.worktrees\//);
