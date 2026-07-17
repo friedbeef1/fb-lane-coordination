@@ -380,7 +380,7 @@ function scanWorkstreamHandoffs(rootDir) {
     const result = workstreams[workstream];
     if (result.ready.length === 0 && result.blocked.length === 0) result.summary = 'None relevant';
   }
-  return { workstreams, selected: [...selectedByTask.values()] };
+  return { workstreams, selected: BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready) };
 }
 
 function workstreamStatusCardTemplate(laneName) {

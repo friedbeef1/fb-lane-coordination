@@ -66,3 +66,53 @@ The mechanically generated packaged copy passed with the same output after one t
 - Unknown/legacy handoffs without supported metadata are ignored rather than rewritten.
 - Duplicate ready task IDs fail closed even if their files or lane metadata differ.
 - Concern: the scanner is an exported runtime primitive for BFM integration; Task 2 owns the BFM skill wiring and must call it rather than reimplement scan semantics.
+
+## Review Fix Evidence
+
+### RED
+
+Command:
+
+```sh
+node tools/fb-six-workstreams.test.cjs
+```
+
+Exact result: exit 1 at `tools/fb-six-workstreams.test.cjs:37`.
+
+```text
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  selected: [
++   'docs/handoffs/01-bugs.md',
++   'docs/handoffs/02-discovery.md',
++   'docs/handoffs/03-tech.md',
++   'docs/handoffs/04-design.md',
++   'docs/handoffs/05-business.md',
+    'docs/handoffs/06-product.md',
+-   'docs/handoffs/05-business.md',
+-   'docs/handoffs/04-design.md',
+-   'docs/handoffs/03-tech.md',
+-   'docs/handoffs/02-discovery.md',
+-   'docs/handoffs/01-bugs.md'
+  ]
+```
+
+The fixture deliberately put ready handoffs in lexical Bugs, Discovery, Tech, Design, Business, Product filename order. It also included a legacy `implemented` handoff that must remain excluded and a cross-workstream duplicate ready task that must stop the scan globally.
+
+### Fix
+
+`scanWorkstreamHandoffs()` continues to traverse sorted filenames and use its global task map for duplicate detection, but now derives `selected` by flattening the populated workstream buckets in `BFM_WORKSTREAMS` order.
+
+### GREEN
+
+```text
+$ node tools/fb-six-workstreams.test.cjs
+six-workstream runtime contract passed
+
+$ node tools/fb-package-sync.cjs --write
+Synchronized 24 package mirrors.
+
+$ node plugins/fb-lane-coordination/tools/fb-six-workstreams.test.cjs
+six-workstream runtime contract passed
+```

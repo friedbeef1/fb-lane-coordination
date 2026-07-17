@@ -20,27 +20,40 @@ const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-six-workstreams-'));
 try {
   fs.mkdirSync(path.join(root, 'docs', 'handoffs'), { recursive: true });
   const records = [
-    ['P-1.md', handoff('P-1', 'fb-product', 'ready')],
-    ['D-1.md', handoff('D-1', 'fb-design', 'blocked', 'Blocked by a missing preview.')],
-    ['T-1.md', handoff('T-1', 'fb-tech', 'actioned')],
-    ['X-1.md', handoff('X-1', 'fb-discovery', 'deferred')],
-    ['B-1.md', handoff('B-1', 'fb-bugs', 'done')],
+    ['01-bugs.md', handoff('BUG-1', 'fb-bugs', 'ready')],
+    ['02-discovery.md', handoff('DISCOVERY-1', 'fb-discovery', 'ready')],
+    ['03-tech.md', handoff('TECH-1', 'fb-tech', 'ready')],
+    ['04-design.md', handoff('DESIGN-1', 'fb-design', 'ready')],
+    ['05-business.md', handoff('BUSINESS-1', 'fb-business', 'ready')],
+    ['06-product.md', handoff('PRODUCT-1', 'fb-product', 'ready')],
+    ['07-design-blocked.md', handoff('DESIGN-2', 'fb-design', 'blocked', 'Blocked by a missing preview.')],
+    ['08-tech-actioned.md', handoff('TECH-2', 'fb-tech', 'actioned')],
+    ['09-discovery-deferred.md', handoff('DISCOVERY-2', 'fb-discovery', 'deferred')],
+    ['10-bugs-done.md', handoff('BUG-2', 'fb-bugs', 'done')],
+    ['11-business-implemented.md', handoff('BUSINESS-2', 'fb-business', 'implemented')],
   ];
   for (const [file, source] of records) fs.writeFileSync(path.join(root, 'docs', 'handoffs', file), source);
 
   assert.deepStrictEqual(scanWorkstreamHandoffs(root), {
     workstreams: {
-      product: { ready: ['docs/handoffs/P-1.md'], blocked: [] },
-      business: { ready: [], blocked: [], summary: 'None relevant' },
-      design: { ready: [], blocked: ['docs/handoffs/D-1.md'] },
-      tech: { ready: [], blocked: [], summary: 'None relevant' },
-      discovery: { ready: [], blocked: [], summary: 'None relevant' },
-      bugs: { ready: [], blocked: [], summary: 'None relevant' },
+      product: { ready: ['docs/handoffs/06-product.md'], blocked: [] },
+      business: { ready: ['docs/handoffs/05-business.md'], blocked: [] },
+      design: { ready: ['docs/handoffs/04-design.md'], blocked: ['docs/handoffs/07-design-blocked.md'] },
+      tech: { ready: ['docs/handoffs/03-tech.md'], blocked: [] },
+      discovery: { ready: ['docs/handoffs/02-discovery.md'], blocked: [] },
+      bugs: { ready: ['docs/handoffs/01-bugs.md'], blocked: [] },
     },
-    selected: ['docs/handoffs/P-1.md'],
+    selected: [
+      'docs/handoffs/06-product.md',
+      'docs/handoffs/05-business.md',
+      'docs/handoffs/04-design.md',
+      'docs/handoffs/03-tech.md',
+      'docs/handoffs/02-discovery.md',
+      'docs/handoffs/01-bugs.md',
+    ],
   });
 
-  fs.writeFileSync(path.join(root, 'docs', 'handoffs', 'P-2.md'), handoff('P-1', 'fb-product', 'ready', 'Contradictory duplicate.'));
+  fs.writeFileSync(path.join(root, 'docs', 'handoffs', '12-cross-workstream-duplicate.md'), handoff('PRODUCT-1', 'fb-bugs', 'ready', 'Contradictory duplicate.'));
   assert.throws(() => scanWorkstreamHandoffs(root), /duplicate|contradict/i);
 
   const boot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-six-bootstrap-'));
