@@ -4,6 +4,8 @@ Last Updated: 2026-07-17
 Lane: FB-Product
 
 ## Current Summary
+TASK-027 is approved and In Progress on `codex/fb-beginner-clarity`. It extends the existing Why FB comparison with TASK-026's real two-speed coordination pain, the implemented preflight/worktree/verification/queue responses, an updated Quick-versus-Full delivery loop, and a corrective-patch example. The focused contract will be extended test-first and the complete local gate will run before review. Runtime, reconciliation, push, PR, merge, publication, release, and deployment remain out of scope.
+
 TASK-026 is Product-accepted in local Staging QA on `codex/fb-beginner-clarity` at candidate `a6b00ab`. It sequences the approved MirrorCam two-speed lessons into the existing FB workflow: internal Quick/Full classification, exact matching-worktree reuse and primary `.worktrees` placement, compact queue visibility, proportional verification, and optional project-owned preflight. CLI 70/70, session 32/32, eval 18/18, beginner 10/10, positioning/two-speed contracts, validator, doctor Ready, parity, and whitespace passed. The MirrorCam Node pin remains project evidence, not an FB-wide requirement. All external-action gates remain closed.
 
 TASK-025 is Product-accepted in local Staging QA on `codex/fb-beginner-clarity` at candidate `3af1f17`. It adds an honest, evidence-backed explanation of FB beside vanilla Codex and Kurrent Capacitor, including their overlap in session intelligence, two rendered Mermaid diagrams, real pain-point mapping, and concrete examples. Focused root/package positioning, CLI 70/70, session 31/31, eval 18/18, beginner 10/10, validator, doctor Ready, parity, and whitespace passed. Runtime, integration, publication, release, deployment, and merge remain out of scope.
@@ -49,6 +51,7 @@ TASK-024 has no remaining local implementation or review gate; its version/merge
 ## Evidence Links
 - PROJECT_BOARD.md
 - docs/handoffs/index.md
+- docs/handoffs/TASK-027.md
 - docs/handoffs/TASK-017.md
 - docs/handoffs/TASK-018.md
 - docs/handoffs/TASK-019.md

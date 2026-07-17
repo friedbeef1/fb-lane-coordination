@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-027 | In Progress | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Extend the canonical Why FB story with evidence-backed TASK-026 two-speed pain points, mapped solutions, an updated delivery-loop diagram, and a corrective-patch example | `docs/why-fb.md`, packaged mirror, root/package positioning tests, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-027.md); [plan](docs/superpowers/plans/2026-07-17-complete-fb-product-story.md); local-only review gate |
 | TASK-026 | Staging QA | FB-Product / BFM + FB-Tech execution | BFM Efficiency | Add internal Quick/Full BFM classification, matching worktree reuse and primary placement, compact queue visibility, proportional verification, and optional project preflight | Mirrored CLI/session modules and tests, canonical/package workflow/session/guardrail/BFM guidance, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-026.md); candidate `a6b00ab`; CLI 70/70, session 32/32, eval 18/18, beginner 10/10, positioning/two-speed root/package, validator, doctor Ready, parity, and whitespace passed; local-only gate |
 | TASK-025 | Staging QA | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Explain FB beside vanilla Codex and Kurrent Capacitor with honest overlap, evidence-backed pain points, rendered diagrams, and concrete examples | Canonical/package comparison page, public/harness README routers, FAQ, focused test/validator, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-025.md); candidate `3af1f17`; focused root/package positioning contract, CLI 70/70, session 31/31, eval 18/18, beginner 10/10, validator, doctor Ready, parity, and whitespace passed; local-only gate |
 | TASK-024 | Staging QA | FB-Product / BFM + FB-Tech execution | Beginner Experience | Add a beginner-facing mode, status, pause, and next-action layer while preserving the existing technical coordination engine | Canonical/package harness, public docs, root/package skills, mirrored CLI/MCP and tests, bootstrap examples/templates, shadow evals, `PROJECT_BOARD.md`, handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-024.md); candidate `cc13389`; root/package CLI 70/70, session 31/31, eval 18/18, beginner 10/10; recovery, validator, doctor Ready, parity, whitespace, task reviews, and final whole-branch re-review passed; local-only release gate remains closed |
@@ -46,6 +47,29 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-027 - Complete the FB Product Story
+*   **Status**: In Progress (local documentation candidate)
+*   **Owner / Thread**: FB-Product / BFM + FB-Business and FB-Design guidance
+*   **Area**: Product Positioning
+*   **Scope**: Extend the existing Why FB page and focused contract with the real TASK-026 two-speed pain points, implemented responses, updated delivery loop, and corrective-patch example.
+*   **Out of Scope**: Runtime, command, package identifier, release, publication, deployment, push, merge, or origin/main reconciliation.
+*   **Goal Alignment Session**:
+    *   **Objective**: Explain how FB turns real coordination friction into a faster, safer product-delivery loop without overstating its relationship to Codex or Kurrent Capacitor.
+    *   **Key Results**: TASK-026 evidence is mapped to five implemented responses; Quick and Full BFM plus verification reuse and safe fallback appear in the rendered loop; four examples and official product links are enforced in both mirrors.
+    *   **Definition of Done**: Focused root/package positioning tests, byte parity, evidence-link and Mermaid checks, CLI/session/eval/beginner/two-speed suites, validator, doctor Ready, whitespace, and independent review pass.
+    *   **Gate / Review Point**: Keep the branch local and review-ready; reconciliation, push, PR, merge, release, and publication remain separate.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly requested implementation of the Complete the FB Product Story plan.
+*   **Affected Screens / Locks**: Canonical/package Why FB page, root/package positioning tests, and TASK-027 coordination records.
+*   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-17-complete-fb-product-story.md); [Handoff](docs/handoffs/TASK-027.md); branch `codex/fb-beginner-clarity`.
+*   **QA Checklist**:
+    *   [ ] Focused positioning contract fails for the missing TASK-026 story, then passes after documentation changes.
+    *   [ ] Canonical/package comparison and test mirrors are byte-identical.
+    *   [ ] Full local documentation and harness gates pass.
+*   **Latest Update**: *2026-07-17*: Approved documentation-only slice claimed; no runtime or external action is authorized.
 
 ---
 
