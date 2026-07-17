@@ -25,9 +25,22 @@ Example: the user has approved the reconciled plan and explicitly invoked
 
 Build For Me (BFM) will now build and check the approved plan.
 
+## The six workstreams
+
+- **Product/User:** the user outcome, requirements, evidence, priorities, and acceptance criteria.
+- **Business:** market, positioning, pricing, distribution, and commercial risks.
+- **Design:** flows, interaction, accessibility, information design, and visual quality.
+- **Tech:** architecture, feasibility, security, performance, and integrations.
+- **Discovery:** unknowns, research, experiments, and decision-changing evidence.
+- **Bugs:** reproduction, severity, affected users, and regression evidence.
+
+Every relevant workstream uses the same mini-loop: **Question → Investigate →
+Gather evidence → Recommend → Create handoff MD**. If there is no useful
+contribution, record **None relevant**.
+
 ## Terms in plain language
 
-- **Lane:** a focused planning view, such as Product, Tech, Design, or Business.
+- **Workstream:** a focused planning and evidence view.
 - **Handoff:** the durable note that passes decisions, scope, and evidence to the next owner.
 - **Build For Me (BFM):** the execution mode used only after approval and explicit `$bfm`.
 - **Gate:** a required approval, review, or check before work moves forward.
@@ -48,14 +61,14 @@ visible brief before requesting lane output or clarification questions:
 
 ## Clarifications
 
-Name each selected lane, its distinct question, and the decision or risk its
-answer changes. Also write `Skipped lanes: <lanes and reason>`. Every
+Name each selected workstream, its distinct question, and the decision or risk its
+answer changes. Also write `None relevant: <workstreams and reason>`. Every
 clarification includes **Why this matters**, a **Recommended default**, and
 **What changes if you choose differently**.
 
 ## How FB works
 
-1. Lanes investigate and plan different parts.
+1. Six workstreams investigate relevant parts; irrelevant ones record None relevant.
 2. Product combines findings into one build brief.
 3. You approve the brief.
 4. Only after explicit `$bfm`, BFM builds and checks it.

@@ -31,7 +31,7 @@ const cliPath = path.join(__dirname, 'fb-lane.cjs');
 const exactProgress = 'Understanding your idea → Ready for your approval → Building → Checking → Complete';
 const exactBlocked = 'Blocked — <reason> / next action';
 const exactHowFbWorks = [
-  '1. Lanes investigate and plan different parts.',
+  '1. Six workstreams investigate relevant parts; irrelevant ones record None relevant.',
   '2. Product combines findings into one build brief.',
   '3. You approve the brief.',
   '4. Only after explicit `$bfm`, BFM builds and checks it.'
@@ -84,7 +84,7 @@ function assertExactFirstProjectContract(label, source) {
   assert.ok(source.includes(`**Blocked:** ${exactBlocked}`), `${label} must keep blocked work actionable`);
   const howFbWorks = source.match(/## How FB works\n([\s\S]*?)(?=\n## |\s*$)/);
   assert.ok(howFbWorks, `${label} must include How FB works`);
-  assert.ok(howFbWorks[1].includes(exactHowFbWorks), `${label} must preserve the four ordered FB steps`);
+  assert.ok(howFbWorks[1].includes(exactHowFbWorks), `${label} must preserve the four ordered six-workstream FB steps`);
 
   const brief = source.match(/## Project Start Brief\n([\s\S]*?)(?=\n## |\s*$)/);
   assert.ok(brief, `${label} must include Project Start Brief`);
@@ -92,7 +92,7 @@ function assertExactFirstProjectContract(label, source) {
   assert.deepStrictEqual(visibleFields, projectStartBriefFields, `${label} must expose exactly the seven approved beginner fields`);
   assert.doesNotMatch(brief[1], /eval|OKR|authority|mechanical versus judgment|quality bar/i, `${label} must keep advanced mechanics out of the visible brief`);
 
-  for (const term of ['Lane', 'Handoff', 'Build For Me (BFM)', 'Gate', 'Quality Gap']) {
+  for (const term of ['Workstream', 'Handoff', 'Build For Me (BFM)', 'Gate', 'Quality Gap']) {
     assert.ok(source.includes(`**${term}:**`), `${label} must define ${term} inline`);
   }
   assert.match(source, /\*\*Build For Me \(BFM\):\*\*[^\n]*after approval and explicit `\$bfm`/i, `${label} must put both execution gates in the BFM definition`);
@@ -939,7 +939,7 @@ function assertCodexBootstrap(args) {
       assert.match(source, /returning-project health[\s\S]*\$fb-lane status/i, `${label} must keep default status for returning health`);
     }
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
-    assert.match(output, /Lanes investigate and plan different parts/, 'bootstrap quick start must say that lanes plan');
+    assert.match(output, /Six workstreams investigate relevant parts; irrelevant ones record None relevant/, 'bootstrap quick start must explain relevant and inactive workstreams');
     assert.match(output, /Product combines findings into one build brief/, 'bootstrap quick start must say that Product prepares the build brief');
     assert.match(output, /You approve the brief\. Only after explicit \$bfm, BFM builds and checks it\./, 'bootstrap quick start must put user approval before the explicit $bfm build boundary');
     assert.ok(!output.includes(exactBuildMessage), 'bootstrap completion must not announce that Build For Me execution is starting');

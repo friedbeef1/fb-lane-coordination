@@ -9,6 +9,13 @@ Read [the FB harness](../../docs/fb/README.md) before acting, then read the
 board, index, linked handoff, and relevant workstream card. The harness owns
 the durable policy:
 
+The one loop has six planning/evidence workstreams: Product/User (technical slug
+`product`), Business, Design, Tech, Discovery, and Bugs. Each relevant
+workstream runs a mini-loop and records a ready or blocked
+`docs/handoffs/<TASK-ID>.md`. BFM scans and reconciles relevant ready handoffs;
+inactive workstreams need no manufactured work. Delivery stops at **Ready to
+ship**. Only **Push Live** authorizes merge or deployment.
+
 Build For Me (BFM) is the execution mode used only after approval and explicit
 `$bfm`. The beginner-facing mode messages and seven-field brief stay canonical
 in the start guide.

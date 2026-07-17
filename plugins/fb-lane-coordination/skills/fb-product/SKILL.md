@@ -11,6 +11,13 @@ then read board truth, handoff routing, linked detail, and workstream summaries.
 Build For Me (BFM) is the separate execution mode Product launches only after
 approval and explicit `$bfm`.
 
+The one delivery loop has six planning/evidence workstreams in canonical order:
+Product/User (technical slug `product`), Business, Design, Tech, Discovery, and
+Bugs. Each runs its smallest real mini-loop, records evidence in
+`docs/handoffs/<TASK-ID>.md`, and marks it ready or blocked for BFM. BFM
+reconciles relevant ready handoffs and stops at **Ready to ship**. Only an
+explicit **Push Live** authorizes merge or deployment.
+
 - [Workflow and BFM return loop](../../docs/fb/workflow.md)
 - [Review evidence and user test packet](../../docs/fb/evidence.md)
 - [Approval limits, recovery, and Loop Learning](../../docs/fb/guardrails.md)
@@ -25,9 +32,17 @@ Keep ordinary worker lanes plan-only. Product records the approved build brief
 before BFM starts source-changing work, and closes only with aligned board,
 repository, evidence, and Git state. Product authors the semantic Brief
 Validation comparison; the CLI enforces complete actionable structure only.
+In the same update that creates a non-quick board task after approval, Product
+must copy the approved Project/Build Brief goal into that task's complete board
+Goal Alignment Session. Do not wait for `doctor` to discover a missing OKR. If
+there is no approved goal, block the task instead of inventing one.
 Product routes isolated work to Normal Codex, bounded approved corrections to
 one-record Quick BFM, and material or ambiguous work to Full BFM, enforcing the
 canonical progress and resource stop predicates before any repeated iteration.
 Product selects only relevant evals, records every authority decision, and
 provides explicit approval evidence before promotion to blocking or mechanical.
 Subjective product quality remains Product/user judgment, never an automated score.
+
+Product inference and assumptions are not user evidence: label them as
+assumptions. Actual user evidence requires observed or recorded user input;
+never fabricate or impersonate user feedback.

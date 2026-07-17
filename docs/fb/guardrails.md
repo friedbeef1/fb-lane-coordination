@@ -139,6 +139,20 @@ Package mirrors are generated only from canonical root sources declared in
 to generate and `--check` to detect drift. Fix a broken mirror at its canonical
 source or manifest, never by independently editing generated package files.
 
+## Low-ceremony execution rule
+
+For closely related, low-risk documentation, skill, template, or contract
+changes, make one bounded candidate rather than assigning sibling changes
+sequentially. Do not require each sibling to fail and pass independently when
+one focused structural contract can prove their distinct behavior. Prepare the
+complete candidate before review; Quick BFM permits at most one reviewer and
+one focused verification pass. Do not add another reviewer, narration loop,
+mirror-by-mirror check, or broad validator after the success predicates pass.
+Report progress only when source, evidence, test state, blocker recovery, or an
+approved decision materially changes. Two repair loops, one no-progress cycle,
+one repeated broad gate, or five agent iterations triggers immediate process
+reassessment rather than more automatic work.
+
 ## Loop Learning and small escalation
 
 Closeout records `Loop Learning`: feedback captured, whether the pattern

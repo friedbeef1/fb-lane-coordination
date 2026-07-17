@@ -8,7 +8,7 @@ const { assertSelectedEvalCloseout, validateSelectedEvalIntegration } = require(
 const { automatedVerificationDecision, selectAutomatedChecks } = require('./fb-efficiency.cjs');
 
 const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
-const LANES = new Set(['product', 'tech', 'design', 'business', 'bfm', 'coordination']);
+const LANES = new Set(['product', 'tech', 'design', 'business', 'discovery', 'bugs', 'bfm', 'coordination']);
 const MODES = new Set(['planning', 'execution', 'review']);
 const STATES = new Set(['active', 'blocked', 'reviewing', 'closed']);
 const CHECKPOINT_REASONS = new Set(['scope', 'decision', 'blocked', 'verification']);

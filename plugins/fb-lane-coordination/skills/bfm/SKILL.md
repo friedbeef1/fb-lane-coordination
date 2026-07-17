@@ -11,6 +11,22 @@ harness](../../docs/fb/README.md), then
 board truth, the handoff index, task-linked handoffs, and applicable workstream
 cards.
 
+The one loop has six planning/evidence workstreams: Product/User (technical slug
+`product`), Business, Design, Tech, Discovery, and Bugs. Each workstream runs a
+mini-loop and records ready or blocked evidence in `docs/handoffs/<TASK-ID>.md`.
+At intake, call the runtime's exported scanner semantics directly:
+
+```js
+const { scanWorkstreamHandoffs } = require('./tools/fb-lane.cjs');
+const scan = scanWorkstreamHandoffs(projectRoot);
+```
+
+Use `scan.selected` in canonical order, report blocked entries and `None
+relevant`, and stop on the scanner's duplicate or contradictory ready-handoff
+error. Do not duplicate scanner selection rules in the skill. Integrate only
+relevant ready work and stop at **Ready to ship**. Only **Push Live** authorizes
+merge or deployment.
+
 - [Approval and first-project contract](../../docs/fb/start.md)
 - [Five-lane ledger, locks, sequencing, and return loop](../../docs/fb/workflow.md)
 - [Test This Now, Verification Handoff, and evidence](../../docs/fb/evidence.md)
@@ -23,6 +39,9 @@ For approval waits or genuine stops, use the canonical beginner pause card in
 judge it.
 
 Stop before claim/edit/deploy/closeout when approval or locks are unclear.
+At intake, reject a non-quick handoff whose board target lacks the approved Goal
+Alignment Session copied from its Project/Build Brief; Product repairs the
+board record before execution. Never invent an OKR merely to clear the gate.
 Execute only ready, unlocked work in the approved scope; close only after the
 board, source, docs, evidence, and Git state agree or exceptions are explicit.
 Route clear isolated work to Normal Codex, an approved bounded correction to
@@ -30,6 +49,10 @@ one-record Quick BFM, and ambiguity or material risk to Full BFM. Apply the
 canonical progress, resource, reviewer, verification, and stop budgets. Reuse a matching
 linked worktree or place a new one under the primary checkout's `.worktrees`,
 and keep `Current`, `Next ready`, and `External blocks` visible.
+For closely related low-risk skill, documentation, template, or contract edits,
+produce one bounded candidate and test their distinct behavior with one focused
+structural contract. Review only the complete candidate, with at most one
+reviewer and one focused verification pass; stop immediately when it passes.
 For durable work, promote the approved session in its linked worktree and keep
 the Task Receipt, Brief Validation, reciprocal links, verification checkpoint,
 Verification Handoff, and Test This Now aligned before submit or completed close.

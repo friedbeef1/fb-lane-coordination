@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-029 | Staging QA | FB-Product / BFM + six workstreams | Product Model | Expand FB to Product/User, Business, Design, Tech, Discovery, and Bugs; make `$bfm` reconcile all six ready-handoff sources and align the plugin and public story | Runtime/session/CLI/MCP, bootstrap, skills, canonical/package docs/tests, TASK-029 records | [Handoff](docs/handoffs/TASK-029.md); branch `codex/fb-six-workstreams`; root/package focused contracts, 25-mirror parity, syntax, and whitespace passed; Ready to ship; no release checkpoint |
 | TASK-028 | Staging QA | FB-Product / BFM + FB-Tech execution | Harness Efficiency | Revise the local harness to focused checks, immediate safety gates, and explicit Product-owned release checkpoints; retain the three-mode router, Quick Record, budgets, and generated mirrors | Canonical/package efficiency and documentation contracts, canonical harness and skills, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-028.md); [spec](docs/superpowers/specs/2026-07-17-fb-efficiency-correction-design.md); local candidate `284e465`; no release checkpoint requested; focused local QA only |
 | TASK-027 | Staging QA | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Extend the canonical Why FB story with evidence-backed TASK-026 two-speed pain points, mapped solutions, an updated delivery-loop diagram, and a corrective-patch example | `docs/why-fb.md`, packaged mirror, mirrored evidence, root/package positioning tests, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-027.md); final review found repairs; local candidate repair and Product re-review pending; all external-action gates remain closed |
 | TASK-026 | Staging QA | FB-Product / BFM + FB-Tech execution | BFM Efficiency | Add internal Quick/Full BFM classification, matching worktree reuse and primary placement, compact queue visibility, proportional verification, and optional project preflight | Mirrored CLI/session modules and tests, canonical/package workflow/session/guardrail/BFM guidance, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-026.md); candidate `a6b00ab`; CLI 70/70, session 32/32, eval 18/18, beginner 10/10, positioning/two-speed root/package, validator, doctor Ready, parity, and whitespace passed; local-only gate |
@@ -48,6 +49,24 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-029 - FB Six-Workstream Loop
+*   **Status**: Staging QA (Ready to ship; GitHub release gate active)
+*   **Owner / Thread**: FB-Product / BFM + six workstreams
+*   **Area**: Product Model
+*   **Scope**: Expand FB to Product/User, Business, Design, Tech, Discovery, and Bugs; make `$bfm` reconcile all six ready-handoff sources; align runtime, plugin skills, bootstrap, public documentation, generated mirrors, and focused contracts.
+*   **Out of Scope**: Transcript capture, automatic chat discovery, mandatory six-way approval, marketplace publication, consumer migration, or release without explicit Push Live.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make FB understandable and operable as one continuous product-delivery loop that reduces the user's manual coordination across six distinct workstreams.
+    *   **Key Results**: All six workstreams are accepted by runtime, sessions, handoffs, bootstrap, and skills; `$bfm` selects only valid ready handoffs in canonical order; blocked and None relevant dispositions remain visible; public guidance explains one workflow from chat to handoff to BFM to Ready to ship to Push Live; low-risk execution follows the low-ceremony rule.
+    *   **Definition of Done**: Root/package six-workstream runtime and skill contracts pass, 25 generated mirrors agree, the release validator reports Ready, and GitHub's required check passes before merge.
+    *   **Gate / Review Point**: Push Live was approved; merge remains blocked until the required GitHub validator passes. Marketplace publication remains separate.
+    *   **Approval**: approved
+    *   **Justification**: James supplied and approved the six-workstream implementation plan and separately approved the release/test-contract and missing-OKR corrections.
+*   **Affected Screens / Locks**: Runtime/session/CLI/MCP, bootstrap, skills, canonical/package docs/tests, and TASK-029 coordination records.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-029.md); [plan](docs/superpowers/plans/2026-07-17-fb-six-workstream-loop.md); [PR #43](https://github.com/friedbeef1/fb-lane-coordination/pull/43).
 
 ---
 

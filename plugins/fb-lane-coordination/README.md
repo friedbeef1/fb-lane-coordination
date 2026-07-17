@@ -11,9 +11,12 @@ codex plugin marketplace add friedbeef1/fb-lane-coordination
 codex plugin add fb-lane-coordination@fb-lane
 ```
 
-Start a new Codex task with `$fb-lane status` or describe the objective in
-plain language. Product presents the plan first. Build For Me (BFM) executes
-source-changing work only after approval and explicit `$bfm`.
+Open the project and say `Set up FB in this project.` Discuss questions in the
+relevant Product/User, Business, Design, Tech, Discovery, or Bugs workstreams.
+For actionable findings say `Create a handoff MD for Product/BFM.` Then say
+`$bfm`. After Product approval and explicit `$bfm`, Build For Me (BFM) scans
+all six, prioritizes, implements, tests, and stops at **Ready to ship**. Only
+**Push Live** authorizes merge or deployment.
 
 ## Read by task
 

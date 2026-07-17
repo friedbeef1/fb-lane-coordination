@@ -1,8 +1,9 @@
 # FB Harness
 
-FB is an optional, repository-local coordination harness. It helps a Product
-lead carry an approved objective from planning to testable evidence without
-turning ordinary coding into ceremony.
+FB is a Codex plugin and repository-local product-delivery harness. Six
+workstreams run small evidence loops; `$bfm` consolidates their ready handoffs,
+directs implementation and automated checking, and stops at **Ready to ship**.
+Only **Push Live** authorizes merge or deployment.
 
 ## Source of truth
 

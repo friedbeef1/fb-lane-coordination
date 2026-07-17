@@ -1,42 +1,57 @@
 # FB FAQ
 
+## What does FB stand for?
+
+FB officially stands for **Focus Bridge**: it bridges user goals, six
+workstreams, Codex implementation, verification, and delivery. It could have
+been Feature Builder, Flow Booster, Fast Build—or, naturally, **Fried Beef**.
+But Focus Bridge is the official name.
+
+## Is FB a Codex plugin?
+
+Yes. FB adds product coordination, durable handoffs, automated verification,
+and a release boundary around Codex software execution.
+
+## Is there a beginner process and a normal process?
+
+No. There is one process: discuss, capture actionable handoffs, say `$bfm`, let
+FB implement and test, optionally review links, then say **Push Live**. Simple
+isolated work can still use normal Codex without FB ceremony.
+
+## Must all six workstreams contribute?
+
+No. Each workstream either contributes an actionable handoff or records **None
+relevant**. FB never manufactures work just to fill a lane.
+
+## What happens when I say `$bfm`?
+
+Build For Me (BFM) begins only after Product approval and explicit `$bfm`; see
+[start and approval](docs/fb/start.md).
+
+Product scans Product/User, Business, Design, Tech, Discovery, and Bugs. It
+includes valid `ready` handoffs, keeps blocked work visible, excludes completed
+or deferred work, reconciles conflicts, prioritizes the sequence, directs Codex
+implementation, and runs automated checks.
+
+## Does `$bfm` deploy?
+
+No. `$bfm` stops at **Ready to ship**. Only **Push Live** authorizes merge or
+deployment.
+
+## What if automated checks fail?
+
+FB keeps the candidate in **Checking**, diagnoses the evidence, and makes only
+scoped repairs within the declared loop budget. It does not silently change the
+approved outcome or weaken a valid test.
+
+## Can a sidechat hand work to any main task?
+
+No. A sidechat routes only to the parent task it was opened from. If that
+parent cannot be identified, FB gives you a paste-ready handoff instead of
+guessing another destination. See [safety, routing, and recovery](docs/fb/guardrails.md).
+
 ## How is FB different from vanilla Codex or Kurrent Capacitor?
 
-Codex executes software work. Capacitor is a session-intelligence platform. FB
-is a product-delivery harness that includes curated session intelligence.
-Capacitor and FB overlap in recall, evidence, and evaluation; FB connects those
-records to the approved product brief, execution authority, quality, closeout,
-and exactly what the user should test. See [Why FB](docs/why-fb.md) for the
-honest comparison, diagrams, evidence-backed pain points, and examples.
-
-## Do I need FB for every task?
-
-No. Use normal work for simple one-thread questions or isolated edits. Use FB
-when durable coordination, lanes, handoffs, locks, or Product/BFM decisions are
-part of the objective. See [the mode guide](docs/fb/README.md).
-
-## What happens before a build starts?
-
-Product gives the Project Start Brief, selects only useful lanes, records a
-build brief, and asks for approval. Build For Me (BFM) executes only after
-approval and explicit `$bfm`.
-The complete user-facing contract is in [start.md](docs/fb/start.md).
-
-## Where do I find the current task?
-
-`PROJECT_BOARD.md` is truth, `docs/handoffs/index.md` routes to detail, and
-workstream cards are summaries. [workflow.md](docs/fb/workflow.md) explains the
-read order and ownership.
-
-## How do I test an outcome?
-
-Ask for the Test This Now packet: direct links, exact steps, pass criteria,
-known limits, and a failure-report format. [evidence.md](docs/fb/evidence.md)
-defines that packet and the Verification Handoff.
-
-## Can a sidechat execute work or choose another main thread?
-
-No. Sidechats are planning spaces and route only to their originating parent.
-[guardrails.md](docs/fb/guardrails.md) contains the safety and recovery rules.
-[sessions.md](docs/fb/sessions.md) contains the optional durable-session lifecycle,
-clone-local privacy boundary, checkpoint push behavior, recall, and closeout gate.
+Codex emphasizes executing software work. Capacitor emphasizes comprehensive
+session intelligence. FB emphasizes delivering an approved product outcome and
+includes curated session intelligence. See [Why FB](docs/why-fb.md).
