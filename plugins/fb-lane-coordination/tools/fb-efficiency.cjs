@@ -158,8 +158,8 @@ function validateQuickRecordForSubmit(markdown, options = {}) {
 function classifyChangedSurface(paths = []) {
   const values = paths.map(String);
   const coordination = /^(?:PROJECT_BOARD\.md|AGENTS\.md|CHANGELOG\.md|\.codex\/(?:rules|current_task)\.md|docs\/(?:handoffs|workstreams|sessions)\/)/;
-  if (values.length === 0 || values.every(file => coordination.test(file))) return 'coordination';
   if (values.some(file => /(?:supabase\/migrations|secrets?|auth|payments?|release|deploy|\.github\/workflows)/i.test(file))) return 'sensitive';
+  if (values.length === 0 || values.every(file => coordination.test(file))) return 'coordination';
   if (values.some(file => /(?:^|\/)(?:tools|src|lib)\/(?!.*\.test\.)|package\.json|fb-lane\.validate/.test(file))) return 'runtime';
   if (values.some(file => /(?:\.test\.|\/tests?\/)/.test(file))) return 'test';
   if (values.some(file => /^docs\/|^README\.md$|^FAQ\.md$/.test(file))) return 'documentation';
@@ -172,9 +172,19 @@ function verificationBudget(paths, checkpoint = {}) {
   if (surface === 'documentation') return { level: 'focused check', focused: ['documentation-contract'], runFullValidator: false, reuseCheckpoint: false, blockedReason: null };
   if (surface === 'test') return { level: 'focused check', focused: ['directly-affected-test'], runFullValidator: false, reuseCheckpoint: false, blockedReason: null };
   if (surface === 'coordination') return { level: 'focused check', focused: ['structure', 'links', 'whitespace'], runFullValidator: false, reuseCheckpoint: checkpoint.broadValidatorPassed === true, blockedReason: null };
-  if ((checkpoint.broadValidatorRuns || 0) >= 1) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'The broad validator already ran; a repeated broad gate is blocked.' };
-  if (checkpoint.releaseCheckpointRequested === true && checkpoint.finalRuntimeCheckpoint === true) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: true, reuseCheckpoint: false, blockedReason: null };
-  return { level: 'focused check', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: null };
+  const release = checkpoint.releaseCheckpoint;
+  if (checkpoint.releaseCheckpointRequested === true && !release) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'A release checkpoint requires a Product-owned handoff request.' };
+  if (!release) return { level: 'focused check', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: null };
+  const validOwner = release.requestedBy === 'Product';
+  const validHandoff = /^docs\/handoffs\/[^/]+\.md$/.test(String(release.handoffPath || ''));
+  if (!validOwner || !validHandoff) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'A release checkpoint requires a Product-owned handoff request.' };
+  if (release.initialPass === 'pending' && checkpoint.finalRuntimeCheckpoint === true) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: true, reuseCheckpoint: false, blockedReason: null };
+  if (release.initialPass === 'passed') return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'The initial release-checkpoint pass already passed.' };
+  if (release.initialPass === 'failed' && release.consolidatedMaterialRepairBatch !== true) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'A failed initial pass requires a consolidated material repair batch before the final pass.' };
+  if (release.initialPass === 'failed' && release.consolidatedMaterialRepairBatch === true && release.finalPass === 'pending' && checkpoint.finalRuntimeCheckpoint === true) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: true, reuseCheckpoint: false, blockedReason: null };
+  if (release.initialPass === 'failed' && release.consolidatedMaterialRepairBatch === true && release.finalPass === 'failed') return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'Final pass failed; Product direction is required.' };
+  if (release.initialPass === 'failed' && release.consolidatedMaterialRepairBatch === true) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'The final pass already ran.' };
+  return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'The release checkpoint request is incomplete.' };
 }
 
 function hasMaterialProgress(previous = {}, current = {}) {

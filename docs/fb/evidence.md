@@ -24,18 +24,19 @@ The board enum `Staging QA` means only that a candidate awaits verification.
 Record its actual environment separately as local, sandbox, staging, or
 completed build; the enum alone is not evidence of a staging deployment.
 
-Before asking a user to review, provide concrete, actionable values in this
-canonical bullet/bold format; do not leave `TODO`, `TBD`, example tokens, or
-angle-bracket prompts in place:
+For an accessible candidate, record this canonical bullet/bold packet. Do not
+leave `TODO`, `TBD`, example tokens, or angle-bracket prompts in place. System
+verification is primary; review links are optional and `Your input needed: none`
+does not ask the user to perform routine manual testing:
 
 - **System verification:** passed — smoke/result/evidence are recorded below.
 - **Your input needed:** none.
 - **Outcome type:** Runnable sandbox for the approved build
-- **Direct links:** [Open the review surface](review/sandbox.html)
+- **Direct links:** Optional review links — [Open the review surface](review/sandbox.html)
 - **Exact steps and expectations:**
-  1. Open the direct link and confirm the approved build loads.
-  2. Complete the named review flow and compare the visible result with the Build Brief.
-- **Pass criteria:** The approved flow completes and the expected result is visible.
+  1. System smoke opens the candidate and records the result/evidence.
+  2. System verification confirms the approved flow and expected result.
+- **Pass criteria:** System smoke passes and its recorded evidence matches the approved flow.
 - **Known limits:** External account and device coverage are not included in this review.
 - **Failure-report format:** what happened, what was expected, link or screenshot, and environment.
 - **What was evaluated:** selected eval IDs and authority with the evaluated surface.

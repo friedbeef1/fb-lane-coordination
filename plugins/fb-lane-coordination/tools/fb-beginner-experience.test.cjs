@@ -169,14 +169,15 @@ test('three onboarding walkthroughs preserve the approved mode transitions', () 
   assert.match(build, /Build For Me \(BFM\) will now build and check the approved plan\./);
 });
 
-test('every review request uses direct links and step-by-step Test This Now evidence', () => {
+test('Test This Now makes system verification primary and keeps review links optional when no input is needed', () => {
   const evidence = section(read('docs/fb/evidence.md'), 'Test This Now');
-  assert.match(evidence, /\*\*Direct links:\*\*\s*\[[^\]]+\]\([^)]+\)/);
-  const steps = evidence.match(/\*\*Exact steps and expectations:\*\*([\s\S]*?)(?=\n- \*\*)/);
-  assert.ok(steps, 'Test This Now must include exact steps and expectations');
-  assert.match(steps[1], /^\s*1\.\s+\S+/m);
-  assert.match(steps[1], /^\s*2\.\s+\S+/m);
-  assert.match(evidence, /Before asking a user to review/i);
+  assert.match(evidence, /\*\*System verification:\*\* passed/i);
+  assert.match(evidence, /\*\*Your input needed:\*\* none/i);
+  assert.match(evidence, /\*\*Direct links:\*\* Optional review links/i);
+  assert.doesNotMatch(evidence, /Your input needed:\*\* none[\s\S]{0,600}Complete the named review flow/i);
+  for (const label of ['Outcome type', 'Exact steps and expectations', 'Pass criteria', 'Known limits', 'Failure-report format', 'What was evaluated', 'Exact scenarios and expected results', 'Known quality gaps', 'Required user judgment']) assert.match(evidence, new RegExp(`\\*\\*${label}:\\*\\*`));
+  assert.match(evidence, /(?:only\s+)?subjective judgment, unavailable access, a real[\s\S]*final\s+release approval/i);
+  assert.match(evidence, /For an accessible candidate/i);
 
   assert.match(
     evidence,

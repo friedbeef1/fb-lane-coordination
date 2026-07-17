@@ -97,7 +97,7 @@ test('verification class and budget are proportional', () => {
   });
   assert.strictEqual(verificationBudget(['PROJECT_BOARD.md'], { broadValidatorPassed: true }).reuseCheckpoint, true);
   assert.strictEqual(verificationBudget(['tools/fb-lane.cjs'], { broadValidatorRuns: 0, finalRuntimeCheckpoint: true }).runFullValidator, false);
-  assert.match(verificationBudget(['tools/fb-lane.cjs'], { broadValidatorRuns: 1 }).blockedReason, /already ran/i);
+  assert.strictEqual(verificationBudget(['tools/fb-lane.cjs'], { broadValidatorRuns: 1 }).runFullValidator, false);
 });
 
 test('runtime candidates use focused and immediate-safety gates unless Product requests a release checkpoint', () => {
@@ -111,7 +111,7 @@ test('runtime candidates use focused and immediate-safety gates unless Product r
   });
   assert.deepStrictEqual(verificationBudget(runtime, {
     finalRuntimeCheckpoint: true,
-    releaseCheckpointRequested: true,
+    releaseCheckpoint: { requestedBy: 'Product', handoffPath: 'docs/handoffs/TASK-100.md', initialPass: 'pending' },
   }), {
     level: 'release checkpoint',
     focused: ['runtime-focused'],
@@ -122,6 +122,39 @@ test('runtime candidates use focused and immediate-safety gates unless Product r
   const immediateSafety = verificationBudget(['supabase/migrations/001.sql'], {});
   assert.strictEqual(immediateSafety.level, 'immediate safety gate');
   assert.match(immediateSafety.blockedReason, /safety and approval/i);
+});
+
+test('sensitive triggers take precedence even inside coordination handoffs', () => {
+  const budget = verificationBudget(['docs/handoffs/TASK-RELEASE-AUTH.md'], {});
+  assert.strictEqual(budget.level, 'immediate safety gate');
+  assert.match(budget.blockedReason, /safety and approval/i);
+});
+
+test('release checkpoint lifecycle requires a Product-owned handoff and permits only initial then proven final passes', () => {
+  const runtime = ['tools/fb-lane.cjs'];
+  const request = {
+    requestedBy: 'Product',
+    handoffPath: 'docs/handoffs/TASK-100.md',
+    initialPass: 'pending',
+  };
+  const unproven = verificationBudget(runtime, { finalRuntimeCheckpoint: true, releaseCheckpointRequested: true });
+  assert.strictEqual(unproven.runFullValidator, false);
+  assert.match(unproven.blockedReason, /Product-owned handoff/i);
+  assert.deepStrictEqual(verificationBudget(runtime, { finalRuntimeCheckpoint: true, releaseCheckpoint: request }), {
+    level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: true, reuseCheckpoint: false, blockedReason: null,
+  });
+  assert.match(verificationBudget(runtime, { finalRuntimeCheckpoint: true, releaseCheckpoint: { ...request, initialPass: 'passed' } }).blockedReason, /already passed/i);
+  assert.deepStrictEqual(verificationBudget(runtime, {
+    finalRuntimeCheckpoint: true,
+    releaseCheckpoint: { ...request, initialPass: 'failed', consolidatedMaterialRepairBatch: true, finalPass: 'pending' },
+  }), {
+    level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: true, reuseCheckpoint: false, blockedReason: null,
+  });
+  for (const checkpoint of [
+    { ...request, initialPass: 'failed' },
+    { ...request, initialPass: 'failed', consolidatedMaterialRepairBatch: true, finalPass: 'passed' },
+    { ...request, initialPass: 'failed', consolidatedMaterialRepairBatch: true, finalPass: 'failed' },
+  ]) assert.match(verificationBudget(runtime, { finalRuntimeCheckpoint: true, releaseCheckpoint: checkpoint }).blockedReason, /repair batch|final pass|Product direction/i);
 });
 
 test('run budget blocks repeated or exhausted work and requires material progress', () => {
