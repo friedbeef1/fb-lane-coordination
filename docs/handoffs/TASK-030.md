@@ -55,6 +55,6 @@ syntax, link, and whitespace checks requested for this candidate.
 
 Disposition: **Ready to ship**. Candidate source, package, release validator,
 isolated install, MCP route, and independent review are green. Pushing this
-review branch does not authorize release. Merge to `main`, public marketplace
-upgrade/reinstall, publication, and release remain blocked until James says
-**Push Live**.
+review branch and opening [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44)
+does not authorize release. Merge to `main`, public marketplace upgrade/reinstall,
+publication, and release remain blocked until James says **Push Live**.
