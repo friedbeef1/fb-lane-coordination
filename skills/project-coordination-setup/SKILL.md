@@ -12,6 +12,13 @@ bootstrap preserves project-owned text and replaces only a complete block from
 `<!-- fb-harness-route-start -->` through `<!-- fb-harness-route-end -->`;
 unmatched markers and all text outside that exact boundary remain untouched.
 
+Setup provisions the one six-workstream loop: Product/User (technical slug
+`product`), Business, Design, Tech, Discovery, and Bugs. It preserves existing
+project-owned cards and adds only missing cards. Each relevant workstream runs a
+mini-loop and records a ready or blocked `docs/handoffs/<TASK-ID>.md` for the BFM
+scanner; inactive workstreams need no manufactured work. BFM stops at **Ready to
+ship**. Only **Push Live** authorizes merge or deployment.
+
 The installed [start.md](../../docs/fb/start.md) defines Build For Me (BFM) as
 the execution mode used only after approval and explicit `$bfm`, and remains
 the first-project source.

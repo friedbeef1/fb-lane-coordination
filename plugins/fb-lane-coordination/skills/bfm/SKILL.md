@@ -11,6 +11,22 @@ harness](../../docs/fb/README.md), then
 board truth, the handoff index, task-linked handoffs, and applicable workstream
 cards.
 
+The one loop has six planning/evidence workstreams: Product/User (technical slug
+`product`), Business, Design, Tech, Discovery, and Bugs. Each workstream runs a
+mini-loop and records ready or blocked evidence in `docs/handoffs/<TASK-ID>.md`.
+At intake, call the runtime's exported scanner semantics directly:
+
+```js
+const { scanWorkstreamHandoffs } = require('./tools/fb-lane.cjs');
+const scan = scanWorkstreamHandoffs(projectRoot);
+```
+
+Use `scan.selected` in canonical order, report blocked entries and `None
+relevant`, and stop on the scanner's duplicate or contradictory ready-handoff
+error. Do not duplicate scanner selection rules in the skill. Integrate only
+relevant ready work and stop at **Ready to ship**. Only **Push Live** authorizes
+merge or deployment.
+
 - [Approval and first-project contract](../../docs/fb/start.md)
 - [Five-lane ledger, locks, sequencing, and return loop](../../docs/fb/workflow.md)
 - [Test This Now, Verification Handoff, and evidence](../../docs/fb/evidence.md)

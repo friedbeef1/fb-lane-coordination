@@ -11,6 +11,13 @@ then read board truth, handoff routing, linked detail, and workstream summaries.
 Build For Me (BFM) is the separate execution mode Product launches only after
 approval and explicit `$bfm`.
 
+The one delivery loop has six planning/evidence workstreams in canonical order:
+Product/User (technical slug `product`), Business, Design, Tech, Discovery, and
+Bugs. Each runs its smallest real mini-loop, records evidence in
+`docs/handoffs/<TASK-ID>.md`, and marks it ready or blocked for BFM. BFM
+reconciles relevant ready handoffs and stops at **Ready to ship**. Only an
+explicit **Push Live** authorizes merge or deployment.
+
 - [Workflow and BFM return loop](../../docs/fb/workflow.md)
 - [Review evidence and user test packet](../../docs/fb/evidence.md)
 - [Approval limits, recovery, and Loop Learning](../../docs/fb/guardrails.md)

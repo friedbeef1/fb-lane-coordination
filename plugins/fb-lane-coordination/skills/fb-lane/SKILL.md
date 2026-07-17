@@ -13,6 +13,13 @@ or reconciled lanes.
 Build For Me (BFM) is the execution mode used only after approval and explicit
 `$bfm`.
 
+The one loop has six planning/evidence workstreams: Product/User (technical slug
+`product`), Business, Design, Tech, Discovery, and Bugs. Each relevant
+workstream runs a mini-loop and records a ready or blocked
+`docs/handoffs/<TASK-ID>.md`. BFM scans relevant ready handoffs and treats
+inactive workstreams as `None relevant`; it stops at **Ready to ship**. Only
+**Push Live** authorizes merge or deployment.
+
 - [Start and clarify an objective](../../docs/fb/start.md)
 - [Coordinate lanes and approved BFM work](../../docs/fb/workflow.md)
 - [Prepare review evidence](../../docs/fb/evidence.md)
