@@ -143,6 +143,34 @@ const comparisonRows = [
   ['FB', 'Connects six product workstreams to Codex implementation, verification, and delivery.', '—', '—'],
 ];
 
+const exceptionalFitRows = [
+  ['The task is completely specified, mechanical, disposable, finishable in one session, and needs no durable decisions, coordination, follow-up, sensitive handling, or release governance.', 'Vanilla Codex', 'It executes immediately without creating records that will never be reused.'],
+  ['A mature engineering organization already owns requirements, prioritization, CI, review, and release—and needs only native branch isolation.', 'Git worktrees', 'Worktrees provide isolation without introducing another coordination system.'],
+  ['The primary requirement is comprehensive or forensic capture of large volumes of agent-session activity across teams.', 'Kurrent Capacitor', 'Capacitor provides richer automatic session telemetry and history than FB’s curated records.'],
+  ['The organization explicitly wants a prescribed, role-heavy methodology with formal personas and lifecycle ceremonies.', 'BMAD', 'BMAD provides a broader formal methodology than FB’s repository-local delivery loop.'],
+];
+
+const stackRows = [
+  ['Vanilla Codex', 'Reading, editing, running, testing, and explaining software work', 'Approved product context, coordinated handoffs, verification ownership, and release boundaries', 'FB is a Codex plugin; Codex remains the execution engine.'],
+  ['Git worktrees', 'Native branch and filesystem isolation for parallel changes', 'Priorities, ownership, locks, sequencing, and outcome verification', 'FB may use ordinary Git worktrees; it does not replace Git.'],
+  ['Kurrent Capacitor', 'Automatic session capture, recall, telemetry, and cross-agent history', 'Curated product truth tied to decisions, scope, acceptance, and closeout', 'Capacitor can be an optional evidence source. Important conclusions must enter FB handoffs; no automatic integration currently exists.'],
+  ['BMAD', 'Formal discovery, planning, role-based analysis, PRDs, architecture, and UX artifacts', 'Repository-local delivery, reconciliation, Codex execution, automated checks, and explicit release approval', 'Approved BMAD artifacts can enter FB as evidence or ready handoffs. FB remains the delivery authority to avoid competing systems of record.'],
+];
+
+for (const [label, page] of [['README', rootReadme], ['Why FB', canonical], ['packaged Why FB', packaged]]) {
+  assert.ok(page.includes('## When something else is genuinely a better fit'), `${label} must document exceptional alternatives`);
+  assert.ok(page.includes('Most product work benefits from FB when decisions, implementation, verification, and release must remain connected. Another tool is a better fit only when one of these narrower conditions describes the primary goal.'), `${label} must introduce the narrow exceptional cases`);
+  for (const row of exceptionalFitRows) assert.ok(page.includes(`| ${row.join(' | ')} |`), `${label} must contain exceptional fit row: ${row[1]}`);
+  assert.ok(page.includes('If these conditions sound unusually specific, they probably are. Ordinary evolving product work still benefits from FB connecting decisions, implementation, verification, and release.'), `${label} must explain why the exceptions are narrow`);
+  assert.ok(page.includes('Describe the outcome and use FB normally. FB decides how much coordination, evidence, and verification the situation requires.'), `${label} must state automatic FB routing`);
+  assert.ok(page.includes('## How FB works with your existing stack'), `${label} must document stack augmentation`);
+  assert.ok(page.includes('| Existing tool | Keep using it for | What FB adds | Integration boundary |'), `${label} must contain the exact stack table headers`);
+  for (const row of stackRows) assert.ok(page.includes(`| ${row.join(' | ')} |`), `${label} must contain stack row: ${row[0]}`);
+  assert.ok(page.includes('A team can use BMAD to produce a formal PRD, Capacitor to preserve detailed session history, Git worktrees to isolate parallel implementation, and Codex to write the software. FB connects the approved parts: it turns the PRD and relevant evidence into durable handoffs, sequences work across worktrees, verifies the delivered outcome, and waits for **Push Live**.'), `${label} must contain the combined stack example`);
+  assert.ok(page.includes('FB is fully open source, repository-local, and requires no FB-hosted service.'), `${label} must contain the open-source deployment boundary`);
+  assert.match(page, /documented workflows[^\n]*not built-in automatic adapters/i, `${label} must label stack use as documented workflows rather than automatic adapters`);
+}
+
 function assertComparisonTable(label, page) {
   assert.ok(page.includes(comparisonHeader), `${label} must contain the four ordered comparison columns`);
   assert.ok(!page.includes(oldComparisonHeader), `${label} must reject the old three-column comparison header`);
