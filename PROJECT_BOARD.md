@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-027 | In Progress | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Extend the canonical Why FB story with evidence-backed TASK-026 two-speed pain points, mapped solutions, an updated delivery-loop diagram, and a corrective-patch example | `docs/why-fb.md`, packaged mirror, root/package positioning tests, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-027.md); [plan](docs/superpowers/plans/2026-07-17-complete-fb-product-story.md); local-only review gate |
+| TASK-027 | Staging QA | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Extend the canonical Why FB story with evidence-backed TASK-026 two-speed pain points, mapped solutions, an updated delivery-loop diagram, and a corrective-patch example | `docs/why-fb.md`, packaged mirror, root/package positioning tests, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-027.md); candidate `081dd6c`; positioning, full harness gates, doctor Ready, parity, whitespace, and independent reviews passed; local-only gate |
 | TASK-026 | Staging QA | FB-Product / BFM + FB-Tech execution | BFM Efficiency | Add internal Quick/Full BFM classification, matching worktree reuse and primary placement, compact queue visibility, proportional verification, and optional project preflight | Mirrored CLI/session modules and tests, canonical/package workflow/session/guardrail/BFM guidance, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-026.md); candidate `a6b00ab`; CLI 70/70, session 32/32, eval 18/18, beginner 10/10, positioning/two-speed root/package, validator, doctor Ready, parity, and whitespace passed; local-only gate |
 | TASK-025 | Staging QA | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Explain FB beside vanilla Codex and Kurrent Capacitor with honest overlap, evidence-backed pain points, rendered diagrams, and concrete examples | Canonical/package comparison page, public/harness README routers, FAQ, focused test/validator, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-025.md); candidate `3af1f17`; focused root/package positioning contract, CLI 70/70, session 31/31, eval 18/18, beginner 10/10, validator, doctor Ready, parity, and whitespace passed; local-only gate |
 | TASK-024 | Staging QA | FB-Product / BFM + FB-Tech execution | Beginner Experience | Add a beginner-facing mode, status, pause, and next-action layer while preserving the existing technical coordination engine | Canonical/package harness, public docs, root/package skills, mirrored CLI/MCP and tests, bootstrap examples/templates, shadow evals, `PROJECT_BOARD.md`, handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-024.md); candidate `cc13389`; root/package CLI 70/70, session 31/31, eval 18/18, beginner 10/10; recovery, validator, doctor Ready, parity, whitespace, task reviews, and final whole-branch re-review passed; local-only release gate remains closed |
@@ -51,7 +51,7 @@
 ---
 
 ### TASK-027 - Complete the FB Product Story
-*   **Status**: In Progress (local documentation candidate)
+*   **Status**: Staging QA (local Product review only)
 *   **Owner / Thread**: FB-Product / BFM + FB-Business and FB-Design guidance
 *   **Area**: Product Positioning
 *   **Scope**: Extend the existing Why FB page and focused contract with the real TASK-026 two-speed pain points, implemented responses, updated delivery loop, and corrective-patch example.
@@ -66,10 +66,10 @@
 *   **Affected Screens / Locks**: Canonical/package Why FB page, root/package positioning tests, and TASK-027 coordination records.
 *   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-17-complete-fb-product-story.md); [Handoff](docs/handoffs/TASK-027.md); branch `codex/fb-beginner-clarity`.
 *   **QA Checklist**:
-    *   [ ] Focused positioning contract fails for the missing TASK-026 story, then passes after documentation changes.
-    *   [ ] Canonical/package comparison and test mirrors are byte-identical.
-    *   [ ] Full local documentation and harness gates pass.
-*   **Latest Update**: *2026-07-17*: Approved documentation-only slice claimed; no runtime or external action is authorized.
+    *   [x] Focused positioning contract failed for the missing TASK-026 story, then passed after documentation changes.
+    *   [x] Canonical/package comparison and test mirrors are byte-identical; five local evidence targets, both exact official Markdown links, and exactly two Mermaid blocks passed.
+    *   [x] Root/package CLI 70/70, session 32/32, eval 18/18, beginner 10/10, positioning/two-speed contracts, validator, doctor Ready, whitespace, and independent task/whole-slice reviews passed.
+*   **Latest Update**: *2026-07-17*: Candidate `081dd6c` passed the complete local gate and independent re-reviews with no Critical, Important, or Minor finding. TASK-027 moved to local Staging QA; reconciliation, push, PR, merge, publication, release, deployment, install, and runtime/package-identifier changes remain unauthorized and did not occur.
 
 ---
 
