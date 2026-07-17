@@ -15,116 +15,208 @@
 - Quick BFM produces one `TASK-Q-*` Quick Record, one execution pass, proportional focused checks, one reviewer, and one closeout update.
 - Full BFM remains mandatory for auth, privacy, payments, secrets, destructive changes, provider state, releases, material architecture, multi-lane work, lock conflicts, or unclear scope.
 - The full validator runs at most once after the final runtime-affecting checkpoint and never after coordination-only closeout.
-- A third repair loop or attempted repeated broad gate triggers the circuit breaker.
+- Stop immediately when success predicates pass.
+- Stop on two repair loops, one no-progress cycle, a repeated broad gate, five total agent iterations, or an exceeded time, authoritative-token, or cost budget.
+- Before every repeated iteration, require a material progress delta in source, evidence, test state, blocker recovery, or approved direction.
+- Quick BFM receives one reviewer; Full BFM receives at most two reviewers unless a new run is explicitly approved.
+- Workers receive only the current task brief, candidate or diff, specific feedback, and required evidence—never accumulated transcripts or conversation history.
 - Root files are canonical; package mirrors are generated mechanically.
+- Local efficiency metrics are the default. Webhooks, Grafana, hosted monitoring, and external usage capture require separate approval.
 - Metrics exclude transcripts, hidden reasoning, secrets, authentication tokens, environment values, and private data.
 - No push, PR, merge, release, publication, deployment, install, or consumer migration.
 
+## Run budget for this implementation
+
+| Resource | Budget |
+|---|---:|
+| Agent iterations, including reviewers | 5 |
+| Integrated implementation passes | 1 |
+| Repair loops | 2 |
+| Reviewers | 2 |
+| Full validators | 1, after the final runtime checkpoint |
+| No-progress cycles | 0 |
+| Elapsed time | 120 minutes |
+| Tokens and cost | `unavailable` unless authoritative provider usage is supplied |
+
+The paused Task 1 attempt created only the untracked red-test draft
+`tools/fb-package-sync.test.cjs`. Resume from that candidate instead of
+discarding or recreating it.
+
 ---
 
-### Task 1: Mechanical package synchronization
+### Task 1: Integrated efficiency harness implementation
 
 **Files:**
 - Create: `tools/fb-package-manifest.json`
 - Create: `tools/fb-package-sync.cjs`
-- Create: `tools/fb-package-sync.test.cjs`
-- Modify: `tools/fb-lane.validate.cjs`
-- Generate: declared files under `plugins/fb-lane-coordination/`
-
-**Interfaces:**
-- `loadManifest(repoRoot) -> string[]`
-- `syncPackage(repoRoot, { write }) -> { checked: string[], drift: string[] }`
-- CLI: `node tools/fb-package-sync.cjs --write|--check`
-
-- [ ] Write failing fixtures proving `--check` reports a missing target and changed target without rewriting, and `--write` creates exact declared targets.
-- [ ] Add a manifest covering existing true mirrors: canonical CLI/session/eval modules and tests, focused beginner/positioning/two-speed tests, `docs/why-fb.md`, TASK-026 evidence, seven `docs/fb/` pages, and root skills that already have package mirrors.
-- [ ] Implement path-safe manifest loading. Reject absolute paths, `..`, duplicate sources/targets, and any target outside `plugins/fb-lane-coordination/`.
-- [ ] Implement atomic `--write` and read-only `--check`.
-- [ ] Replace validator `sameFile` mirror assertions with one package-sync `--check`; retain semantic and syntax checks.
-- [ ] Run only `node tools/fb-package-sync.test.cjs`, `node tools/fb-package-sync.cjs --check`, and validator syntax. Do not run the full validator.
-- [ ] Commit the task.
-
-### Task 2: Three-mode router and single Quick Record
-
-**Files:**
+- Create or continue: `tools/fb-package-sync.test.cjs`
 - Create: `tools/fb-efficiency.cjs`
 - Create: `tools/fb-efficiency.test.cjs`
 - Modify: `tools/fb-lane.cjs`
 - Modify: `tools/fb-lane.test.cjs`
-- Generate: packaged module, CLI, and tests through `fb-package-sync --write`
-
-**Interfaces:**
-- `classifyExecutionMode(task, options) -> { mode: 'Normal Codex'|'Quick BFM'|'Full BFM', reason: string }`
-- `renderQuickRecord(input) -> string`
-- `parseQuickRecord(markdown) -> object`
-- `findQuickRecord(repoRoot, taskId) -> string|null`
-- Existing `classifyBfmClass` remains as a compatibility wrapper returning `Quick BFM Patch` or `Full BFM`.
-
-- [ ] Write failing classification fixtures for Normal, approved bounded Quick, ambiguous Full, multi-owner Full, and every preserved sensitive-risk trigger.
-- [ ] Write failing Quick CLI fixtures proving one `docs/handoffs/TASK-Q-*.md` is created while `PROJECT_BOARD.md`, the handoff index, workstream cards, and session recap paths remain unchanged.
-- [ ] Implement the pure router with safety precedence.
-- [ ] Implement the compact Quick Record with approval, scope, owner, locks, verification plan, reviewer, closeout, and Efficiency Receipt fields.
-- [ ] Change the existing `quick` command to create and commit that record instead of a board row while preserving branch/worktree and hook behavior.
-- [ ] Make status identify Quick mode from the current Quick Record without requiring a board row.
-- [ ] Generate package mirrors and run only efficiency, CLI quick/status, package-sync, syntax, and parity checks. Do not run the full validator.
-- [ ] Commit the task.
-
-### Task 3: Quick closeout, verification budget, circuit breaker, and receipt
-
-**Files:**
-- Modify: `tools/fb-efficiency.cjs`
-- Modify: `tools/fb-efficiency.test.cjs`
 - Modify: `tools/fb-session.cjs`
 - Modify: `tools/fb-session.test.cjs`
-- Modify: `tools/fb-lane.cjs`
-- Modify: `tools/fb-lane.test.cjs`
-- Generate: packaged mirrors through `fb-package-sync --write`
-
-**Interfaces:**
-- `classifyChangedSurface(paths) -> 'coordination'|'documentation'|'test'|'runtime'|'sensitive'`
-- `verificationBudget(paths, checkpoint) -> { focused: string[], runFullValidator: boolean, reuseCheckpoint: boolean, blockedReason: string|null }`
-- `evaluateCircuitBreaker(state, event) -> { blocked: boolean, reason: string|null, state: object }`
-- `renderEfficiencyReceipt(metrics) -> string`
-- `closeQuickRecord(markdown, closeout) -> string`
-
-- [ ] Write failing fixtures for every change class, zero runtime suites after coordination closeout, zero full validators for docs-only work, and exactly one full-validator allowance after the final runtime checkpoint.
-- [ ] Write failing circuit-breaker fixtures for two allowed repair loops, a blocked third loop, one allowed broad gate, and a blocked repeated broad gate.
-- [ ] Write failing receipt fixtures for wait time, tool calls, focused checks, repeated checks, repair loops, reviewer count, broad-gate count, tokens-or-unavailable, and privacy rejection.
-- [ ] Implement the pure budget, circuit, and receipt functions; store only clone-local counters and curated Quick Record output.
-- [ ] Make `submit TASK-Q-*` validate one reviewer, focused evidence, budgets, and circuit state; update and commit the same Quick Record once; preserve existing Full-BFM submit behavior.
-- [ ] Ensure coordination-only Quick closeout cannot invoke `runTests` or the full validator.
-- [ ] Generate mirrors and run only efficiency, Quick submit, session-budget, package-sync, syntax, and parity checks. Do not run the full validator.
-- [ ] Commit the task.
-
-### Task 4: Harness guidance, structural contracts, pilot, and final gate
-
-**Files:**
+- Modify: `tools/fb-lane.validate.cjs`
 - Modify: `docs/fb/README.md`
 - Modify: `docs/fb/workflow.md`
 - Modify: `docs/fb/sessions.md`
 - Modify: `docs/fb/guardrails.md`
 - Modify: `skills/fb-lane-coordination/SKILL.md`
 - Modify: `skills/project-coordination-setup/SKILL.md`
-- Modify: applicable plugin-only lane and BFM skills as concise routers
-- Modify: `tools/fb-two-speed.test.cjs`
-- Modify: documentation contract tests that currently assert exact copies
-- Modify: `tools/fb-lane.validate.cjs`
-- Generate: all declared package mirrors
+- Modify: applicable plugin-only BFM and lane router skills
+- Modify: `tools/fb-two-speed.test.cjs` and affected documentation contracts
+- Generate: declared package mirrors under `plugins/fb-lane-coordination/`
 
 **Interfaces:**
-- Documentation contracts validate required facts, headings, tables, links, Mermaid nodes and edges, and prohibited contradictions.
-- `fb-package-sync --check` is the only byte-drift authority.
 
-- [ ] Write failing structural and factual contracts for the three modes, safety precedence, one Quick Record, one reviewer, one closeout, verification budget, circuit breaker, generator ownership, and Efficiency Receipt.
-- [ ] Remove whole-file equality assertions from individual documentation tests; keep semantic assertions and local-target resolution.
-- [ ] Update concise canonical guidance and plugin routers without duplicating the operating manual.
-- [ ] Add the five-task pilot and hard limits to Product/BFM guidance.
-- [ ] Generate package mirrors and run every directly affected focused root/package suite once.
-- [ ] Run `node tools/fb-package-sync.cjs --check`, syntax, link and manifest checks, and whitespace.
-- [ ] Run `node tools/fb-lane.validate.cjs` exactly once after the final runtime-affecting commit. Record the checkpoint commit and do not amend runtime or test files afterward.
-- [ ] Run standalone doctor and one independent final review. Repair at most twice; if another repair or repeated broad gate is requested, invoke the circuit-breaker decision instead of continuing automatically.
-- [ ] Commit implementation evidence, then update TASK-028 coordination records only. After that coordination-only closeout, run focused structural, package-sync, doctor, and whitespace checks without rerunning runtime suites or the full validator.
+```js
+classifyExecutionMode(task, options)
+// -> { mode: 'Normal Codex'|'Quick BFM'|'Full BFM', reason: string }
 
-## Execution order
+renderQuickRecord(input)            // -> Markdown string
+parseQuickRecord(markdown)          // -> structured record
+findQuickRecord(repoRoot, taskId)   // -> path|null
+closeQuickRecord(markdown, closeout)// -> updated Markdown string
 
-Tasks are serial because they share canonical CLI, session, and test surfaces. Each task uses one implementer and one reviewer. Product/BFM performs one final review after Task 4. The branch remains local after closeout.
+classifyChangedSurface(paths)
+// -> 'coordination'|'documentation'|'test'|'runtime'|'sensitive'
+
+verificationBudget(paths, checkpoint)
+// -> { focused, runFullValidator, reuseCheckpoint, blockedReason }
+
+evaluateRunBudget(state, event)
+// -> { blocked, reason, materialProgressRequired, state }
+
+renderEfficiencyReceipt(metrics)    // -> Markdown section
+
+loadManifest(repoRoot)              // -> manifest entries
+syncPackage(repoRoot, { write })    // -> { checked, drift }
+```
+
+- [ ] **Step 1: Preserve and run the paused package-sync RED candidate.**
+
+Run `node tools/fb-package-sync.test.cjs`. Expected: failure because the
+manifest/synchronizer does not exist. Record that result; do not recreate the
+test or run unrelated suites.
+
+- [ ] **Step 2: Complete failing focused contracts before production changes.**
+
+Add focused tests for:
+
+- path-safe `--write` and read-only `--check` package synchronization;
+- Normal, approved bounded Quick, ambiguous Full, multi-owner Full, and every
+  preserved sensitive-risk trigger;
+- one Quick Record with no board/index/card/recap duplicates;
+- Quick status without a board row;
+- coordination, documentation, test, runtime, and sensitive verification
+  classes;
+- zero runtime suites after coordination-only closeout;
+- zero full validators for docs-only work and one final runtime allowance;
+- two allowed repair loops, a blocked third loop, one allowed broad gate, a
+  blocked repeated broad gate, a blocked no-progress cycle, and a blocked sixth
+  agent iteration;
+- elapsed-time and authoritative token/cost budget exhaustion;
+- a material progress comparison before repeated iterations;
+- one-reviewer Quick enforcement and minimal worker-context fields;
+- Efficiency Receipt fields and privacy rejection;
+- structural/factual docs contracts without whole-file assertions.
+
+Run only the new focused tests. Expected: failures for missing behavior.
+
+- [ ] **Step 3: Implement mechanical package synchronization.**
+
+Create a path-safe manifest for existing true mirrors. Reject absolute paths,
+`..`, duplicate sources or targets, and targets outside
+`plugins/fb-lane-coordination/`. Implement atomic `--write` and read-only
+`--check`. Replace validator mirror-by-mirror equality with one sync `--check`;
+retain semantic and syntax checks.
+
+- [ ] **Step 4: Implement the mode router and Quick Record flow.**
+
+Add the pure policy module. Keep `classifyBfmClass` as a compatibility wrapper.
+Change the existing `quick` command to create and commit one
+`docs/handoffs/TASK-Q-*.md` instead of a board row while preserving hooks,
+branch, and worktree behavior. Make status read that record without requiring a
+board row. Preserve Full-BFM claim behavior.
+
+- [ ] **Step 5: Implement Quick closeout and run budgets.**
+
+Make `submit TASK-Q-*` validate one reviewer, focused evidence, run budgets,
+and circuit state; update and commit the same Quick Record once. Preserve
+existing Full-BFM submit behavior. A coordination-only Quick closeout must not
+invoke runtime tests or the full validator. Provider tokens and cost are
+enforced only when authoritative values are supplied; otherwise record
+`unavailable`.
+
+- [ ] **Step 6: Implement progress and context boundaries.**
+
+Before a repeated worker, repair, review, or gate, compare against the previous
+candidate and require a material delta in source, evidence, test state, blocker
+recovery, or approved direction. Represent worker input as only the current
+brief, candidate/diff, specific feedback, and required evidence. Reject
+accumulated transcript/history fields.
+
+- [ ] **Step 7: Update canonical guidance and generate mirrors.**
+
+Document the three modes, one Quick Record, resource budgets, progress delta,
+stop predicates, minimal worker context, local metrics, and optional external
+integrations concisely. Generate declared mirrors mechanically. Remove exact
+copy assertions from individual docs tests; the synchronizer remains the only
+byte-drift authority.
+
+- [ ] **Step 8: Run focused GREEN checks once.**
+
+Run the new efficiency and sync tests plus directly affected CLI, session,
+two-speed, and documentation contracts in root and package form. Run sync
+`--check`, syntax, and whitespace. Do not run the full validator.
+
+- [ ] **Step 9: Stop when Task 1 predicates pass and commit once.**
+
+Commit the integrated runtime/test/docs candidate. Record its hash as the final
+runtime-affecting checkpoint. Do not amend runtime or test files after this
+point unless Task 2's reviewer finds a concrete defect and the progress-delta
+gate allows a repair.
+
+### Task 2: One validator, bounded review, and coordination-only closeout
+
+**Files:**
+- Modify only concrete repair targets if an independent reviewer finds a defect
+  and the resource/progress budgets permit it.
+- Modify after acceptance: `PROJECT_BOARD.md`, `docs/handoffs/TASK-028.md`,
+  `docs/handoffs/index.md`, `docs/workstreams/fb-product.md`, and ignored
+  `.codex/current_task.md`.
+
+- [ ] **Step 1: Run the full validator exactly once.**
+
+Run `node tools/fb-lane.validate.cjs` from the clean final runtime checkpoint.
+Expected: `FB-Lane readiness validation passed.` Record the commit and count
+`Broad validators: 1`.
+
+- [ ] **Step 2: Dispatch one independent reviewer with minimal context.**
+
+Give the reviewer only this plan, the final candidate diff, specific acceptance
+criteria, and required evidence. Do not include the conversation transcript or
+accumulated implementation reports.
+
+- [ ] **Step 3: Apply the progress-delta and circuit-breaker gates.**
+
+If review is clean, stop review immediately. If findings exist, compare the
+next proposed iteration with the current candidate. Continue only for a
+concrete source, evidence, test, blocker, or approved-decision delta. Permit at
+most two repair loops, five total agent iterations, no repeated broad validator,
+and no no-progress cycle. A runtime repair consumes focused checks but does not
+automatically rerun the full validator; if safe completion would require a
+second broad gate, stop and record the circuit-breaker decision.
+
+- [ ] **Step 4: Close coordination without runtime reruns.**
+
+After acceptance, update TASK-028 coordination records once with the candidate,
+checks, reviewer, budget use, Efficiency Receipt, remaining external gates, and
+clean branch/worktree state. Run only package-sync `--check`, focused structural
+contracts, standalone doctor, whitespace, and clean status. Do not rerun CLI,
+session, eval, beginner, or the full validator.
+
+- [ ] **Step 5: Keep the branch local.**
+
+Do not fetch, reconcile, push, open a PR, merge, publish, release, deploy,
+install, or modify a consumer repository.

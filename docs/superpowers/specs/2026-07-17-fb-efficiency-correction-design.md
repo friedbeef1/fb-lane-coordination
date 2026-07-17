@@ -160,6 +160,49 @@ Product/BFM must then choose and record one action in the Quick Record:
 The harness must not automatically dispatch another reviewer, repeat the full
 validator, or add another durable record after the circuit breaker fires.
 
+## Resource and loop budgets
+
+Every Quick or Full BFM run declares enforceable budgets before execution.
+Normal Codex stops when its requested result and focused checks pass and does
+not create FB budget records.
+
+| Resource | Quick BFM default | Full BFM default | Hard stop |
+|---|---:|---:|---|
+| Agent iterations, including implementers and reviewers | 5 | 5 | A sixth iteration is not dispatched |
+| Repair loops | 2 | 2 | A third repair loop is blocked |
+| Reviewers | 1 | 2 | Another reviewer requires a new approved run |
+| Broad validators | 0 for docs-only; 1 for runtime | 1 after the final runtime checkpoint | Any repeated broad gate is blocked |
+| No-progress cycles | 0 | 0 | One no-progress cycle stops the run |
+| Elapsed time | 30 minutes unless the approved record states another limit | 120 minutes unless the approved record states another limit | Stop when the declared limit is reached |
+| Tokens and cost | Declared only when authoritative provider usage is available | Declared only when authoritative provider usage is available | Stop at the declared token or cost ceiling |
+
+Token and cost budgets are not estimated from transcript length. When the
+provider does not expose authoritative usage, the record states `unavailable`
+and the other budgets remain enforceable.
+
+Before every repeated worker, repair, review, or verification iteration, FB
+compares the new candidate with the previous one. Continuation requires at
+least one material progress delta:
+
+- source or generated output changed toward an acceptance criterion;
+- required evidence became complete or more specific;
+- test state changed for the intended reason;
+- a blocker recovery action changed the environment or access state; or
+- Product approved a decision that changes the permitted direction.
+
+Rewording a report, repeating the same test, adding another opinion, or
+recreating equivalent evidence is not progress. One cycle without a material
+delta stops the run and invokes the circuit-breaker decision.
+
+Workers receive only the current task brief, current candidate or diff,
+specific feedback, and required evidence. Controllers do not forward full
+transcripts, accumulated conversation history, unrelated earlier reports, or
+private reasoning.
+
+The run stops immediately when its explicit success predicates pass. It also
+stops on two repair loops, one no-progress cycle, a repeated broad gate, five
+agent iterations, or an exceeded elapsed-time, token, or cost budget.
+
 ## Canonical documentation and package generation
 
 Root documentation and tests remain canonical. Package mirrors are generated
@@ -225,13 +268,20 @@ Each Quick task must satisfy these hard limits:
 - zero broad validators for documentation-only work;
 - at most one broad validator for runtime-affecting work;
 - zero runtime-suite reruns after coordination-only closeout;
-- no more than two repair loops.
+- no more than two repair loops;
+- no more than five total agent iterations;
+- no no-progress cycle;
+- no exceeded elapsed-time, token, or cost budget.
 
 The pilot succeeds when median user wait time, tool calls, repeated checks,
 review loops, and available token use are lower than the comparison baseline
 without a missed safety gate or false completion claim. Product records the
 baseline and result; the harness does not add hosted telemetry or autonomous
 scoring.
+
+Local metrics are the default. Webhooks, Grafana, hosted monitoring, and
+external provider-usage capture are optional integrations and require separate
+Product approval before configuration or data leaves the repository.
 
 ## Compatibility and migration
 
@@ -278,6 +328,13 @@ scoring.
 10. Auth, privacy, payments, destructive changes, provider state, release, and
     unclear-scope fixtures always route to Full BFM or an explicit approval
     gate.
+11. A repeated iteration cannot proceed without a material progress delta.
+12. Five agent iterations, two repair loops, one no-progress cycle, a repeated
+    broad gate, or an exceeded declared resource budget stops the run.
+13. Worker context contains only the current brief, candidate, specific
+    feedback, and required evidence.
+14. External monitoring and usage capture remain disabled unless separately
+    approved.
 
 ## Out of scope
 

@@ -27,9 +27,12 @@ Evidence Against Product OKR: None identified.
 
 ## Scope
 
-- Implement the approved design in four dependent, test-first tasks.
+- Implement the approved design in one integrated test-first implementation
+  pass plus one bounded verification and closeout pass.
 - Preserve public commands, technical identifiers, and all sensitive-action gates.
 - Run focused checks per task and the full validator once after the final runtime-affecting checkpoint.
+- Enforce per-run agent, repair, reviewer, broad-gate, time, progress, and
+  authoritative token/cost budgets while minimizing worker context.
 
 ## Out Of Scope
 
@@ -41,7 +44,7 @@ Candidate: local branch `codex/fb-beginner-clarity` after the final implementati
 
 Test plan: focused red/green contracts for each task; generated package drift check; root/package behavior checks; one final full validator; doctor; whitespace; independent review.
 
-Recovery: Product/BFM owns failures. Two repair loops or an attempted repeated broad gate triggers the approved circuit-breaker decision instead of automatic repetition.
+Recovery: Product/BFM owns failures. Two repair loops, one no-progress cycle, five agent iterations, an attempted repeated broad gate, or an exceeded declared resource budget triggers the approved circuit-breaker decision instead of automatic repetition.
 
 ## Product/BFM Closeout
 
