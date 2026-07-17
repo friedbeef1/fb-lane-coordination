@@ -5,8 +5,8 @@ when the challenge is not only writing code, but preserving what the user
 approved, coordinating the work, checking product quality, and making the next
 review step obvious.
 
-> Codex executes software work.  
-> Capacitor is a session-intelligence platform.  
+> Codex executes software work.
+> Capacitor is a session-intelligence platform.
 > FB is a product-delivery harness that includes curated session intelligence.
 
 This is a difference in emphasis, not three completely separate categories.

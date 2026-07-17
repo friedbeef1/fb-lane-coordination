@@ -19,7 +19,7 @@ For an ordinary release candidate:
    than asking James to perform routine QA.
 4. FB reports `Ready to ship` and displays exactly:
 
-   > Automated checks passed. Optional review links are available above.  
+   > Automated checks passed. Optional review links are available above.
    > Say **Push Live** to deploy.
 
 5. No live mutation occurs until James says `Push Live` in the current

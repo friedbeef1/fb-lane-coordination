@@ -6,8 +6,8 @@ Explain where FB fits beside vanilla Codex and Kurrent Capacitor without inventi
 
 ## Approved positioning
 
-> Codex executes software work.  
-> Capacitor is a session-intelligence platform.  
+> Codex executes software work.
+> Capacitor is a session-intelligence platform.
 > FB is a product-delivery harness that includes curated session intelligence.
 
 Capacitor and FB overlap in recall, evidence, and evaluation. Capacitor is session-centric and may provide richer automatic telemetry. FB is outcome-centric: it keeps curated product truth in the repository and connects evidence to an approved brief, user decisions, assumptions, authority, product quality, and user-facing testing. A future Capacitor integration may supply evidence to FB but cannot replace the board, approved brief, handoff, or closeout authority.
