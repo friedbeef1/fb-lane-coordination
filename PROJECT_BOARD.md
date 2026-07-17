@@ -4,7 +4,7 @@
 - `Inbox`: Newly requested tasks requiring triage.
 - `Ready`: Triaged tasks, fully scoped, ready to be claimed.
 - `In Progress`: Tasks currently being worked on by an owner.
-- `Staging QA`: Features deployed to staging, awaiting visual/functional verification.
+- `Staging QA`: Candidate awaiting verification. Record the actual local, sandbox, staging, or completed-build environment separately.
 - `Done`: Checked, verified, and merged to production by FB-Product.
 
 ---
@@ -13,6 +13,16 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-028 | Staging QA | FB-Product / BFM + FB-Tech execution | Harness Efficiency | Revise the local harness to focused checks, immediate safety gates, and explicit Product-owned release checkpoints; retain the three-mode router, Quick Record, budgets, and generated mirrors | Canonical/package efficiency and documentation contracts, canonical harness and skills, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-028.md); [spec](docs/superpowers/specs/2026-07-17-fb-efficiency-correction-design.md); local candidate `284e465`; no release checkpoint requested; focused local QA only |
+| TASK-027 | Staging QA | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Extend the canonical Why FB story with evidence-backed TASK-026 two-speed pain points, mapped solutions, an updated delivery-loop diagram, and a corrective-patch example | `docs/why-fb.md`, packaged mirror, mirrored evidence, root/package positioning tests, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-027.md); final review found repairs; local candidate repair and Product re-review pending; all external-action gates remain closed |
+| TASK-026 | Staging QA | FB-Product / BFM + FB-Tech execution | BFM Efficiency | Add internal Quick/Full BFM classification, matching worktree reuse and primary placement, compact queue visibility, proportional verification, and optional project preflight | Mirrored CLI/session modules and tests, canonical/package workflow/session/guardrail/BFM guidance, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-026.md); candidate `a6b00ab`; CLI 70/70, session 32/32, eval 18/18, beginner 10/10, positioning/two-speed root/package, validator, doctor Ready, parity, and whitespace passed; local-only gate |
+| TASK-025 | Staging QA | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Explain FB beside vanilla Codex and Kurrent Capacitor with honest overlap, evidence-backed pain points, rendered diagrams, and concrete examples | Canonical/package comparison page, public/harness README routers, FAQ, focused test/validator, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-025.md); candidate `3af1f17`; focused root/package positioning contract, CLI 70/70, session 31/31, eval 18/18, beginner 10/10, validator, doctor Ready, parity, and whitespace passed; local-only gate |
+| TASK-024 | Staging QA | FB-Product / BFM + FB-Tech execution | Beginner Experience | Add a beginner-facing mode, status, pause, and next-action layer while preserving the existing technical coordination engine | Canonical/package harness, public docs, root/package skills, mirrored CLI/MCP and tests, bootstrap examples/templates, shadow evals, `PROJECT_BOARD.md`, handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-024.md); candidate `cc13389`; root/package CLI 70/70, session 31/31, eval 18/18, beginner 10/10; recovery, validator, doctor Ready, parity, whitespace, task reviews, and final whole-branch re-review passed; local-only release gate remains closed |
+| TASK-022 | Staging QA | FB-Product / BFM + FB-Tech execution | FB Session Harness | Add repository-local session intake, promotion, status, checkpoint, recall, review, and closeout with shared clone-local coordination state and curated committed evidence | Mirrored session/CLI modules and tests, session/harness docs, bootstrap and doctor integration, Product/BFM skills, `PROJECT_BOARD.md`, handoff index, TASK-022 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-022.md); final submit repair `f94dce9`; CLI/MCP final validation, board commit, and push share the session lifecycle lock; session 31/31, full gate, and final combined review passed with no findings |
+| TASK-023 | Staging QA | FB-Product / BFM + FB-Tech execution | FB Eval Harness | Add the Markdown-first harness/product eval lifecycle, quality-gap revision loop, authority transitions, and deterministic structural enforcement on top of TASK-022 evidence | Canonical/package eval harness pages and templates, mirrored validators/tests, Product/BFM skills, bootstrap routes, `PROJECT_BOARD.md`, handoff index, TASK-023 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-023.md); final integrated repair `fe733a1` plus submit compatibility `f94dce9`; eval 18/18, session 31/31, full gate, and final combined review passed with no findings; no release action |
+| TASK-021 | Staging QA | FB-Product / BFM | FB Harness | Replace duplicated operating prose with a mirrored canonical `docs/fb/` harness pack, safely route fresh/existing projects into it, and enforce opt-in v2 review evidence through the existing validator/doctor | Root/package harness pack, navigational instructions, active docs/skills, mirrored bootstrap/tests, validator/doctor, `PROJECT_BOARD.md`, handoff index, TASK-021 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-021.md); [plan](docs/superpowers/plans/2026-07-16-fb-harness-redesign.md); final fix `8c54c1c`; setup and canonical v2 authoring contracts; actionable placeholder/TODO/TBD rejection; focused v2 14/14 and full 45/45 mirrored suites; recovery, syntax/parity, validator/doctor Ready, diff checks, and final whole-branch re-review passed; local review only; no push, publication, release, deployment, merge, or consumer-repository change authorized |
+| TASK-020 | Staging QA | FB-Product / BFM | Codex Plugin Onboarding | Make FB understandable to first-time project starters: planning-before-build boundary, plain-language progress, decision/assumption separation, distinct lane roles, and review-ready Test This Now packets | Root/package skills and docs, bootstrap-generated instructions, root/package CLI tests, `PROJECT_BOARD.md`, handoff index, TASK-020 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-020.md); [plan](docs/superpowers/plans/2026-07-16-fb-first-project-clarity.md); creator-commerce bootstrap smoke, root/package 28-check suites, syntax/parity, validator, doctor Ready, whitespace, and final review passed; local branch only, no push, publish, release, deployment, or merge authorized |
+| TASK-019 | Staging QA | FB-Product / BFM | Documentation | Rebrand active documentation to FB and use the approved primary tagline/current model line only on approved primary surfaces, while retaining all `fb-lane` technical identifiers and historical records | Active README/FAQ/setup/platform/plugin docs, agent guidance/templates/examples, scorecards, root/package bootstrap text and associated tests, board/index/handoff/workstream records | [Handoff](docs/handoffs/TASK-019.md); [plan](docs/superpowers/plans/2026-07-16-fb-documentation-rebrand.md); root/package 27-check suites, syntax/parity, scoped audit, JSON parse, demo check, clean-worktree validator, doctor Ready, whitespace check, and whole-branch review passed; branch retained locally; no package/API rename, push, publish, deployment, or historical rewrite |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
 | TASK-018 | Done | FB-Product / BFM | Coordination | Add a generic Verification Handoff and workspace-recovery contract so Product/BFM owns routine test recovery, explicit 15 GiB/15-second bounded health defaults, clean-clone recovery, and evidence before user testing | `tools/fb-lane.cjs`, packaged CLI/test copies, root/package rules, templates, skills, scorecards, loop docs, board/handoff/workstream records | [Handoff](docs/handoffs/TASK-018.md); [plan](docs/superpowers/plans/2026-07-15-verification-handoff-contract.md); focused recovery-contract test, root/package 27-check suites, syntax/parity, clean-clone validator/doctor, whitespace checks, Product review, and [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) release passed |
 | TASK-CODEX-ONLY-001 | Done | FB-Product / BFM | Codex Plugin | Make Codex the sole supported, shipped, documented, and tested FB-Lane integration; disable Claude Code and Antigravity paths while preserving concise contributor reference notes | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, both CLI tests, `.claude-plugin/**`, `.claude/agents/**`, `platforms/claude-code/**`, `platforms/antigravity/**`, `README.md`, `FAQ.md`, `CHANGELOG.md`, `docs/setup.md`, `docs/versioning.md`, `docs/paused-integrations.md`, `plugins/fb-lane-coordination/.mcp.json`, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-CODEX-ONLY-001.md`, `docs/workstreams/fb-product.md` | [Handoff](docs/handoffs/TASK-CODEX-ONLY-001.md); Product review, [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39), and installed-marketplace smoke passed for `0.2.0-beta+codex.20260716052513` |
@@ -38,6 +48,319 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-028 - FB Efficiency Correction
+*   **Status**: Staging QA (local candidate; no release checkpoint requested)
+*   **Owner / Thread**: FB-Product / BFM + FB-Tech execution
+*   **Area**: Harness Efficiency
+*   **Scope**: Implement the approved three-mode router, one-record Quick flow, proportional verification and resource budgets, progress-delta gate, efficiency circuit breaker, minimal worker context, canonical package generation, structural documentation contracts, and repository-local Efficiency Receipt.
+*   **Out of Scope**: Dashboard, hosted telemetry, transcript capture, autonomous judge, public command or identifier change, release, publication, deployment, install, consumer migration, push, PR, merge, or origin reconciliation.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce user wait, tool calls, repeated checks, review loops, and token use for low-risk work without weakening sensitive-action or release gates.
+    *   **Key Results**: Normal Codex creates no FB ceremony; Quick BFM creates one Quick Record and one review/closeout path; Full BFM retains safety; focused checks are default; sensitive triggers retain immediate safety/approval gates; a full validator is eligible only for an explicit Product-owned release checkpoint; resource, progress, context, and loop budgets stop waste; package mirrors are generated; local efficiency metrics are recorded.
+*   **Definition of Done**: Approved acceptance criteria pass in focused root/package tests, mirrors are generated and current, and the branch remains local. A release checkpoint, validator, and final release approval are separate Product-owned gates when explicitly requested.
+    *   **Gate / Review Point**: Local Product review only. All external actions remain closed.
+    *   **Approval**: approved
+    *   **Justification**: James approved the written efficiency design and explicitly asked for execution.
+*   **Affected Screens / Locks**: Canonical/package CLI and session modules/tests; new efficiency/package-sync modules, tests, and manifest; validator; canonical harness/applicable skills; TASK-028 coordination records.
+*   **Links & Deliverables**: [Spec](docs/superpowers/specs/2026-07-17-fb-efficiency-correction-design.md); [Plan](docs/superpowers/plans/2026-07-17-fb-efficiency-correction.md); [Handoff](docs/handoffs/TASK-028.md); branch `codex/fb-beginner-clarity`.
+*   **QA Checklist**:
+    *   [x] Mode, Quick Record, verification-budget, circuit-breaker, generator, structural-doc, and receipt contracts pass in focused root/package checks.
+    *   [x] Root/package runtime behavior and generated surfaces align; package-sync checks 22 generated mirrors.
+    *   [x] Local candidate `284e465` is retained for Staging QA with no release checkpoint requested; its obsolete blocked-validator debt is removed.
+    *   [ ] Product may explicitly request a release checkpoint later; only then is a full validator eligible.
+*   **Latest Update**: *2026-07-17*: Release-first revision replaces routine runtime-candidate full validation with focused checks, immediate safety gates, and Product-owned release checkpoints. System smoke is the default review contract. TASK-028 is a local Staging QA candidate at `284e465`; no release checkpoint, broad validator, review repetition, or external action is requested.
+
+---
+
+### TASK-027 - Complete the FB Product Story
+*   **Status**: Staging QA (candidate repair complete only after full local gate; Product re-review pending)
+*   **Owner / Thread**: FB-Product / BFM + FB-Business and FB-Design guidance
+*   **Area**: Product Positioning
+*   **Scope**: Extend the existing Why FB page and focused contract with the real TASK-026 two-speed pain points, implemented responses, updated delivery loop, and corrective-patch example.
+*   **Out of Scope**: Runtime, command, package identifier, release, publication, deployment, push, merge, or origin/main reconciliation.
+*   **Goal Alignment Session**:
+    *   **Objective**: Explain how FB turns real coordination friction into a faster, safer product-delivery loop without overstating its relationship to Codex or Kurrent Capacitor.
+    *   **Key Results**: TASK-026 evidence is mapped to five implemented responses; Quick and Full BFM plus verification reuse and safe fallback appear in the rendered loop; four examples and official product links are enforced in both mirrors.
+    *   **Definition of Done**: Focused root/package positioning tests, byte parity, evidence-link and Mermaid checks, CLI/session/eval/beginner/two-speed suites, validator, doctor Ready, whitespace, and independent review pass.
+    *   **Gate / Review Point**: Keep the branch local and review-ready; reconciliation, push, PR, merge, release, and publication remain separate.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly requested implementation of the Complete the FB Product Story plan.
+*   **Affected Screens / Locks**: Canonical/package Why FB page, root/package positioning tests, and TASK-027 coordination records.
+*   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-17-complete-fb-product-story.md); [Handoff](docs/handoffs/TASK-027.md); branch `codex/fb-beginner-clarity`.
+*   **QA Checklist**:
+    *   [x] The evidence-target regression failed in both distribution contexts before the mirrored link/artifact repair, then passed.
+    *   [x] Canonical/package comparison, positioning-test, and TASK-026 evidence mirrors are byte-identical; each delivered page resolves `evidence/TASK-026-two-speed.md` in its own filesystem context.
+    *   [x] Root/package CLI 70/70, session 32/32, eval 18/18, beginner 10/10, positioning and two-speed suites, page/test/evidence parity, link resolution, syntax, whitespace, clean-tree validator, and standalone doctor passed.
+    *   [ ] Product re-review accepts the repaired whole slice.
+*   **Latest Update**: *2026-07-17*: Final review found a stale current-task pointer, a non-portable TASK-026 evidence link, and overstated review closeout. The focused RED/GREEN, all requested root/package suites, mirror parity, evidence-target checks, whitespace, clean-tree validator, and standalone doctor passed after the one focused repair commit. Product re-review remains pending. Reconciliation, fetch, push, PR, merge, publication, release, deployment, install, runtime changes, and identifier changes remain unauthorized.
+
+---
+
+### TASK-026 - BFM Two-Speed Efficiency
+*   **Status**: Staging QA (local Product review only)
+*   **Owner / Thread**: FB-Product / BFM + FB-Tech execution
+*   **Area**: BFM Efficiency
+*   **Scope**: Amend existing session-ledger, claim/worktree, status, submit, and guidance seams with the approved two-speed efficiency contract.
+*   **Out of Scope**: New commands/statuses, global Node pin, dashboard, runner, provider/deploy behavior, MirrorCam source, release, publication, install, deployment, or merge.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make long Product/BFM runs faster to resume and harder to mis-route without weakening safety or evidence.
+    *   **Key Results**: Matching worktrees are reused; nested worktrees are prevented; ambiguous work classifies Full; queue fields are explicit; docs-only closeout reuses proven runtime evidence; project preflight failure is actionable.
+    *   **Definition of Done**: All six supplied acceptance checks, root/package parity, full validator, doctor Ready, and whitespace pass.
+    *   **Gate / Review Point**: Local Product review only; release, publication, deployment, merge, plugin install, and consumer-project changes remain separate.
+    *   **Approval**: approved
+    *   **Justification**: James supplied the MirrorCam-approved handoff and asked upstream FB to act on it.
+*   **Affected Screens / Locks**: Mirrored CLI/session modules and tests, canonical/package workflow/session/guardrail/BFM guidance, board/handoff/index/current-task/Product card.
+*   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-17-bfm-two-speed-efficiency.md); [Handoff](docs/handoffs/TASK-026.md); branch `codex/fb-beginner-clarity`.
+*   **QA Checklist**:
+    *   [x] Quick/Full, worktree, queue, proportional-verification, and preflight acceptance checks pass.
+    *   [x] Root/package sources, tests, and guidance remain aligned.
+    *   [x] Full validator, doctor Ready, and whitespace pass.
+*   **Latest Update**: *2026-07-17*: Candidate `a6b00ab` passed CLI 70/70, session 32/32, eval 18/18, beginner 10/10, root/package positioning and two-speed contracts, full validator, doctor Ready, source/test/doc parity, syntax, and whitespace. The MirrorCam Node pin remains project-only evidence; no external action is authorized.
+
+---
+
+### TASK-025 - FB Product Positioning and Comparison
+*   **Status**: Staging QA (local Product review only)
+*   **Owner / Thread**: FB-Product / BFM + FB-Business and FB-Design guidance
+*   **Area**: Product Positioning
+*   **Scope**: Publish an honest Codex/Capacitor/FB comparison, rendered diagrams, evidence-backed pain-point mapping, and concrete examples with root/package parity.
+*   **Out of Scope**: Runtime behavior, external integrations, telemetry, transcript capture, hosted storage, autonomous evaluation, release, publication, deployment, merge, or consumer-repository changes.
+*   **Goal Alignment Session**:
+    *   **Objective**: Help everyday users understand when vanilla Codex, Kurrent Capacitor, and FB are useful without hiding their overlap.
+    *   **Key Results**: The canonical comparison states the approved three-system emphasis; every pain point links to existing user-feedback or eval evidence; root/package mirrors and focused tests pass.
+    *   **Definition of Done**: Two rendered Mermaid diagrams, three concrete examples, concise entry-point links, focused contract, validator, doctor Ready, parity, wording, and whitespace checks pass.
+    *   **Gate / Review Point**: Local Product review only; release, publication, deployment, merge, plugin install, and consumer-project changes remain separate and unauthorized.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly supplied the positioning, honest-comparison rules, concrete example, and real-pain-point requirement.
+*   **Affected Screens / Locks**: Canonical/package comparison page, root/package public and harness README routers, FAQ, focused test/validator, board/handoff/index/current-task/Product card.
+*   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-17-fb-product-positioning.md); [Handoff](docs/handoffs/TASK-025.md); branch `codex/fb-beginner-clarity`.
+*   **QA Checklist**:
+    *   [x] Focused positioning contract passes after observed red state.
+    *   [x] All pain points cite existing user-feedback or eval evidence.
+    *   [x] Root/package page and test mirrors are byte-identical.
+    *   [x] Validator, doctor, wording, and whitespace checks pass.
+*   **Latest Update**: *2026-07-17*: Candidate `3af1f17` plus board repair `53b387e` passed the focused root/package positioning contract, CLI 70/70, session 31/31, eval 18/18, beginner 10/10, full validator, doctor Ready, mirror parity, and whitespace. No release, publication, deployment, merge, plugin install, or consumer-project change is authorized.
+
+---
+
+### TASK-024 - FB Beginner Clarity and Status Layer
+*   **Status**: Staging QA (local Product review passed; release remains separate)
+*   **Owner / Thread**: FB-Product / BFM + FB-Tech execution
+*   **Area**: Beginner Experience
+*   **Scope**: Make ordinary-task mode, coordinated planning, BFM execution, status, pauses, next actions, and review instructions understandable to everyday non-technical users while preserving the technical coordination engine.
+*   **Out of Scope**: Popup, wizard, dashboard, persistent tutorial, technical identifier or board-enum migration, autonomous judging, release, publication, deployment, merge, plugin install, or consumer-repository change.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let an everyday user understand what FB is doing now, why it paused, what they need to do, and what happens next without reading internal coordination terminology.
+    *   **Key Results**:
+        *   Simple work, coordinated planning, and approved BFM execution have distinct plain-language entry messages and examples.
+        *   CLI/MCP status defaults to a beginner card with objective, stage, progress, pause, next owner/action, and review link while technical details remain opt-in.
+        *   Approval waits and genuine blockers use one visible pause contract, and three shadow evals preserve the feedback as regression scenarios.
+    *   **Definition of Done**: Tiny-task, creator-commerce, and approved-BFM walkthroughs; status-stage fixtures; pause/recovery fixtures; root/package parity; complete CLI/session/eval/recovery/validator/doctor/whitespace gate; task and whole-branch independent reviews pass.
+    *   **Gate / Review Point**: Stop after the local candidate passes Product review. Version bump, merge, marketplace install, release, publication, deployment, and consumer migration require separate explicit approval.
+    *   **Approval**: approved
+    *   **Justification**: James approved the beginner-clarity plan after the current candidate was audited against older user feedback.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Codex plugin first replies, status responses, pause/recovery updates, generated project guidance, public documentation, and manual eval scenarios.
+    *   **Locked Files**: canonical/package harness pages, public docs, root/package coordination/Product/BFM/setup skills, mirrored CLI/MCP sources and tests, bootstrap examples/templates, shadow eval records, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-024.md`, `.codex/current_task.md`, and `docs/workstreams/fb-product.md`.
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/fb-beginner-clarity` (isolated local worktree; no PR or release action authorized)
+    *   **Plan**: [FB beginner clarity and status layer](docs/superpowers/plans/2026-07-17-fb-beginner-clarity-and-status-layer.md)
+    *   **Handoff**: [TASK-024](docs/handoffs/TASK-024.md)
+*   **QA Checklist**:
+    *   [x] Beginner contract and BFM terminology are aligned across active root/package/bootstrap surfaces.
+    *   [x] CLI and MCP status card fixtures pass, including details-mode parity, worktree-safe task resolution, and linked-handoff review evidence.
+    *   [x] Pause-card and exactly three shadow eval scenarios pass the focused walkthroughs.
+    *   [x] Full local gate and independent task/whole-branch reviews pass.
+*   **Latest Update**:
+    *   *2026-07-17*: Candidate `cc13389` passed root/package CLI 70/70, session 31/31, eval 18/18, beginner 10/10, recovery, validator, doctor Ready, syntax/parity, committed-diff whitespace, all task reviews, and final whole-branch re-review with no Critical, Important, or Minor finding. Product accepted the local candidate in Staging QA. No eval authority changed and no push, merge, marketplace install, publication, deployment, release, or consumer migration is authorized.
+    *   *2026-07-17*: Product/BFM claimed the approved task on the isolated branch. Baseline root/package CLI suites passed 45/45. Release and all external-action gates remain closed.
+
+---
+
+### TASK-022 - Repository-Local Session Ledger
+*   **Status**: Staging QA (local Product review only)
+*   **Owner / Thread**: FB-Product / BFM + FB-Tech execution
+*   **Area**: FB Session Harness
+*   **Scope**: Add the approved repository-local session command family, atomic shared live registry, durable session recaps, Task Receipts, Brief Validation, structured failure evidence, deterministic recall/review, default execution worktrees, submit/doctor enforcement, and root/package/bootstrap parity.
+*   **Out of Scope**: Transcript capture, hosted storage, external providers, dashboards, autonomous judging, release, publication, deployment, merge, or consumer-repository changes.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let every durable Codex task resume and close from repository truth without requiring James to reconstruct decisions, state, tests, or recovery history.
+    *   **Key Results**:
+        *   All seven session commands behave identically in root and packaged CLIs and remain safe under twelve concurrent sessions.
+        *   Completed reviewable work cannot close without a passing Brief Validation, complete Task Receipt, verification checkpoint, Verification Handoff, and Test This Now evidence.
+        *   Fresh and existing-project bootstrap safely inherit the six-page harness while preserving project-owned instructions.
+    *   **Definition of Done**: Focused session tests, root/package suites, concurrency and local-bare-remote smokes, syntax/parity, validator, doctor, whitespace, creator-commerce/migration smokes, and independent review pass.
+    *   **Gate / Review Point**: TASK-023 may begin only after the TASK-022 local gate and task review pass. No release, publication, deployment, merge, or consumer migration is authorized.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly requested implementation of the full session-ledger plan and chose automatic non-default-branch checkpoint pushes and linked-worktree execution.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Codex CLI/session coordination, generated harness guidance, handoff closeout evidence, and setup/doctor output.
+    *   **Locked Files**: `tools/fb-session.cjs`, `plugins/fb-lane-coordination/tools/fb-session.cjs`, focused session tests and mirrored CLI tests, `tools/fb-lane.cjs`, packaged CLI mirror, `docs/fb/sessions.md`, packaged harness mirror, `docs/sessions/**`, relevant skills/templates/setup docs, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-022.md`, `.codex/current_task.md`, and `docs/workstreams/fb-product.md`.
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/fb-session-ledger` (isolated local worktree; no PR yet)
+    *   **Plan**: [FB Session Ledger and Eval Loop](docs/superpowers/plans/2026-07-16-fb-session-ledger-and-eval-loop.md)
+    *   **Handoff**: [TASK-022](docs/handoffs/TASK-022.md)
+*   **QA Checklist**:
+    *   [x] Session command, validation, concurrency, recall, review, checkpoint-push, and closeout fixtures pass.
+    *   [x] Root/package behavior, source, test, and six-page harness parity pass.
+    *   [x] Validator, doctor, bootstrap smokes, syntax, whitespace, and final combined review pass.
+*   **Latest Update**:
+    *   *2026-07-17*: Final combined TASK-022/TASK-023 review approved the complete 21-commit package with no Critical, Important, or Minor issue. Fresh verification passed CLI 45/45, root/package session 31/31, root/package eval 18/18, recovery, doctor Ready, parity, and committed-diff checks. The branch remains local Staging QA; all external-action gates remain closed.
+    *   *2026-07-17*: Final submit lifecycle repair `f94dce9` wraps CLI and MCP final `assertSubmitReady`, board mutation/commit, and push in the same per-session transaction as checkpoint/close/review. Deterministic submit-versus-close, submit-versus-blocking-checkpoint, and close-wins-first regressions pass for both routes; unrelated sessions retain independent locks. Root/package session suites pass 31/31 and the complete clean gate passes. External-action boundaries are unchanged.
+    *   *2026-07-17*: Final integrated TASK-022/TASK-023 repair `fe733a1` added a clone-wide per-session mutation boundary across checkpoint, close, and review state changes; deterministic two-checkpoint and checkpoint-versus-close regressions; non-actionable generated closeout placeholders; and MCP claim parity with the CLI linked-worktree path. Root/package session suites pass 28/28, recovery passes, and the complete clean gate passes. Staging QA and external-action boundaries are unchanged.
+    *   *2026-07-17*: Product accepted TASK-023 after final independent re-review found no remaining Critical, Important, or Minor issue. The exact no-change approval boundary and Quality Gap privacy repair at `fe4c62e`, durable evidence at `d2bd03c`, root/package eval 18/18, session 24/24, legacy CLI 45/45, doctor Ready, and `TASK_023_THIRD_REPAIR_FULL_GATE_OK` form the accepted local candidate. No eval changed authority and no external action is authorized.
+    *   *2026-07-17*: Product accepted TASK-022 after final independent re-review found no remaining Critical, Important, or Minor issue. Commits `9a55314`, `a5b0a7e`, `38710ca`, and `acdd1a6` plus `TASK_022_SECOND_REPAIR_FULL_GATE_OK` form the verified base; TASK-023 dependency is cleared.
+    *   *2026-07-17*: Second review repair completed regression-first: CLI/MCP submit now revalidates after hooks/tests at the mutation boundary, completed execution close revalidates current authority, every Failure block validates independently, and legitimate lowercase `example` prose remains valid while numbered placeholders fail. Mirrored focused suites pass 23/23 and the complete gate passed with `TASK_022_SECOND_REPAIR_FULL_GATE_OK`; TASK-023 remains blocked pending Product acceptance.
+    *   *2026-07-17*: Critical/Important review repairs completed with strict regression-first evidence. Mirrored focused suites now pass 19/19, mirrored legacy suites pass 45/45, and the clean-copy repair gate passed recovery, syntax/parity, validator, doctor Ready, whitespace, creator-commerce bootstrap, and existing-project migration with `TASK_022_REPAIR_FULL_GATE_OK`. TASK-023 remains blocked pending Product acceptance.
+    *   *2026-07-16*: Implementation commit `9a55314` passed mirrored 45/45 CLI suites, mirrored 15/15 session suites, recovery, syntax/parity, validator, doctor Ready, scoped whitespace, creator-commerce bootstrap, existing-project migration, and self-review. Moved to local Staging QA; TASK-023 remains blocked pending Product task review.
+    *   *2026-07-16*: Approved plan claimed on `codex/fb-session-ledger` after clean 45-check root/package baselines, recovery contract, syntax, and doctor Ready. TASK-023 remains dependency-blocked.
+
+---
+
+### TASK-023 - Markdown Eval Loop
+*   **Status**: Staging QA (local review only; no release action)
+*   **Owner / Thread**: FB-Product / BFM + FB-Tech execution
+*   **Area**: FB Eval Harness
+*   **Scope**: Add the approved Markdown-first harness/product eval lifecycle, authority levels, failure classification, Quality Gap revision loop, regression closure, initial harness catalog, reusable product-quality categories, and deterministic structural checks.
+*   **Out of Scope**: Autonomous judges, semantic scoring, dashboards, numeric scores, CI eval jobs, hosted capture, automatic promotion, blocking promotion during this task, release, publication, deployment, merge, or consumer-repository changes.
+*   **Goal Alignment Session**:
+    *   **Objective**: Turn repeated harness and product-quality failures into evidence-backed improvement loops without silently expanding policy or weakening quality criteria.
+    *   **Key Results**:
+        *   Root/package harness and templates share one eval record and authority contract.
+        *   Selected eval results flow through Build Brief, Verification Handoff, Test This Now, Task Receipt, and session closeout without running irrelevant evals.
+        *   The two required harness/product walkthroughs prove revision, rerun, regression capture, and honest Checking behavior.
+    *   **Definition of Done**: Eval lifecycle fixtures, both walkthroughs, root/package/template/bootstrap seven-page parity, validator, doctor, CLI suites, syntax, whitespace, and independent review pass.
+    *   **Gate / Review Point**: Begin only from TASK-022's verified commit. No new eval is promoted to blocking; no external release action is authorized.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly approved the consecutive-task sequence and the Markdown-first eval-loop plan.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Build Brief selection, Verification Handoff, Test This Now, session closeout, eval records, and bootstrap guidance.
+    *   **Locked Files**: `docs/fb/evals.md`, packaged harness mirror, `docs/evals/**`, template/package mirrors, relevant Product/BFM skills, bootstrap routes, validator/doctor and tests, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-023.md`, `.codex/current_task.md`, and `docs/workstreams/fb-product.md`.
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/fb-eval-loop`, stacked from the accepted TASK-022 commit; no PR yet
+    *   **Plan**: [FB Session Ledger and Eval Loop](docs/superpowers/plans/2026-07-16-fb-session-ledger-and-eval-loop.md)
+    *   **Handoff**: [TASK-023](docs/handoffs/TASK-023.md)
+*   **QA Checklist**:
+    *   [x] Authority, transition, failure, Quality Gap, regression, and session-integration fixtures pass.
+    *   [x] Harness and creator-commerce product-quality walkthroughs pass.
+    *   [x] Root/package/template/bootstrap seven-page parity and full local gate pass.
+*   **Latest Update**:
+    *   *2026-07-17*: Final combined TASK-022/TASK-023 review approved the complete 21-commit package with no Critical, Important, or Minor issue. Product Quality Gap, selected-anchor, authority, privacy, and submit-serialization repairs remain intact; both walkthrough evals remain shadow and all external-action gates remain closed.
+    *   *2026-07-17*: Final integrated TASK-022/TASK-023 repair `fe733a1` requires complete private-safe Quality Gaps for open failed/blocked subjective Product Eval failures, applies the rule through selected session close/submit, and resolves each selected evidence reference through one exact explicit Markdown heading. Root/package eval suites pass 18/18, session suites pass 28/28, legacy CLI passes 45/45, selected closeout and recovery pass, doctor is Ready, and the complete clean gate passes. Both walkthrough evals remain shadow and no external action occurred.
+    *   *2026-07-17*: Implementation commit `240b1b2` and selected-eval handoff commit `83ee9f0` passed root/package eval 13/13, session 23/23, legacy CLI 45/45, ten syntax checks, source/test/skill/template/seven-page parity, doctor Ready, whitespace, bootstrap preservation, and both required walkthroughs. No eval changed from shadow; independent Product review is the remaining local gate.
+    *   *2026-07-17*: Review repair commit `3d44afc` closed all six findings regression-first: positive-only approval evidence, coherent blocking/mechanical closeout through a real session-close path, six-surface selected-record consistency, open/closed Quality Gap history, complete fallback copies, and explicit subjective/objective judgment. Root/package eval 15/15, session 24/24, legacy CLI 45/45, the clean complete gate, doctor Ready, mirror parity, and whitespace passed; independent Product re-review remains.
+    *   *2026-07-17*: Second re-review repair commit `2b48f98` closed the three remaining findings regression-first: the exact fallback archive flow now bootstraps with all runtime/docs/template assets, one positive approval parser governs every approval context, and mixed closed/open Quality Gaps validate per record/file. Root/package eval 18/18, session 24/24, legacy CLI 45/45, and clean full gate `TASK_023_SECOND_REREVIEW_FULL_GATE_OK` passed; independent Product re-review remains.
+    *   *2026-07-17*: Third repair commit `fe4c62e` closed two Important findings regression-first: no-change decisions now use one exact allowlisted sentence with no suffixes, and every Quality Gap field receives the record privacy/secret boundary. Root/package eval 18/18, session 24/24, legacy CLI 45/45, and clean full gate `TASK_023_THIRD_REPAIR_FULL_GATE_OK` passed; independent Product re-review remains.
+    *   *2026-07-17*: TASK-022 passed its complete local gate and independent review with no remaining findings. Product/BFM cleared the dependency and claimed TASK-023 for test-first execution on `codex/fb-eval-loop`.
+
+---
+
+### TASK-021 - FB Harness Redesign
+*   **Status**: Staging QA (local review only; no deployment)
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: FB Harness
+*   **Scope**: Establish a compact, mirrored `docs/fb/` operational pack; reduce active entry points to navigation; safely add/update only marked FB route blocks during bootstrap; and make the existing validator/doctor enforce complete review evidence for opt-in harness-v2 reviewable handoffs.
+*   **Out of Scope**: New CLI command, wizard, dashboard, eval runner, CI job, board-status replacement, release, deployment, publication, consumer-project changes, technical-ID migration, or wholesale existing-project rewrite.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let an everyday user move from an idea to an approved build brief and testable evidence while FB carries routine coordination and QA work.
+    *   **Key Results**:
+        *   Root and packaged plugin share one small repository-local harness pack, and active entry points route into it instead of duplicating policy.
+        *   Fresh bootstrap creates the pack; existing-project reruns preserve project-owned instructions and replace only explicit managed route blocks.
+        *   New harness-v2 reviewable handoffs fail the existing closeout checks until their Test This Now packet is complete, while historical/planning handoffs remain valid.
+    *   **Definition of Done**: Fresh and existing-project smokes prove the pack and idempotent routing; root/package tests, syntax/parity, validator, doctor, whitespace, and independent review pass without any release action.
+    *   **Gate / Review Point**: Product branch-diff review after all local verification. No push, publication, plugin install, release, deployment, or merge is authorized.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly approved the FB Harness Redesign after first-project feedback showed duplicated instructions and manual test coordination were creating avoidable friction.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Codex plugin onboarding, generated repository guidance, durable handoffs, user review packets, and active documentation only.
+    *   **Locked Files**: `AGENTS.md`, `templates/AGENTS.md`, `README.md`, `FAQ.md`, `docs/loop-engineering.md`, `platforms/codex/README.md`, `plugins/fb-lane-coordination/README.md`, relevant root/package skills, `docs/fb/**`, `plugins/fb-lane-coordination/docs/fb/**`, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, root/package CLI tests, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-021.md`, and `docs/workstreams/fb-product.md`.
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/fb-documentation-rebrand` (existing isolated branch; local execution only)
+    *   **Plan**: [FB Harness Redesign](docs/superpowers/plans/2026-07-16-fb-harness-redesign.md)
+    *   **Handoff**: [TASK-021](docs/handoffs/TASK-021.md)
+*   **QA Checklist**:
+    *   [x] Canonical root/package harness packs and concise navigators are aligned.
+    *   [x] Fresh and existing-project bootstrap routing is complete, safe, and idempotent.
+    *   [x] Harness-v2 authoring guidance is canonical and complete; actionable-value enforcement rejects placeholder-only values, numbered `TODO`/`TBD` steps, angle-bracket prompts, and non-actionable blocked next actions without retrofitting old handoffs.
+    *   [x] Focused v2 root/package suites pass 14 checks each; full root/package suites pass 45 checks each; syntax/parity, validator, doctor Ready, whitespace/diff, recovery contract, and standalone smokes pass.
+    *   [x] Final whole-branch re-review found no remaining Critical, Important, or Minor issue after setup guidance, v2 authoring-contract, and placeholder-rejection fixes in `8c54c1c`.
+    *   [ ] Product local gate and any separately authorized merge/release decision remain.
+    *   [x] No push, publication, release, deployment, merge, or consumer-repository change occurred.
+*   **Latest Update**:
+    *   *2026-07-16*: Final fix `8c54c1c` aligned mirrored setup guidance with the completed five-page bootstrap, made the canonical evidence page author the complete opt-in v2 contract, and rejected placeholder-only/TODO/TBD/angle-bracket review values and blocked next actions. Focused v2 suites passed 14/14 in each mirror; full suites passed 45/45 in each mirror; recovery, four syntax checks, root/package source/test/setup/five-page parity, validator, doctor Ready, and diff checks passed. The final whole-branch re-review found no remaining Critical, Important, or Minor issue. TASK-021 remains in Staging QA for the local Product gate only; `Review state: not reviewable`; no push, publication, release, deployment, merge, plugin install, or consumer-repository change occurred.
+    *   *2026-07-16*: Local integration verification passed: fresh creator-commerce and existing-project migration smokes; workspace-recovery contract; root/package 41-check suites; four Node syntax checks; root/package source, test, and five-page-pack parity; clean-clone validator; doctor Ready; and whitespace checks. Review state is `not reviewable` because this reusable harness/plugin change has no deployed UI. TASK-021 is in Staging QA for local Product branch-diff review only; merge and release remain separate Product gates.
+    *   *2026-07-16*: Product/BFM claimed the approved harness redesign on the isolated branch. The existing first-project clarity contract remains in scope; source hierarchy, safe migration, and review-evidence enforcement are the new work. No external release action is authorized.
+
+---
+
+### TASK-020 - FB First-Project Clarity
+*   **Status**: Staging QA (local review only; no deployment)
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Codex Plugin Onboarding
+*   **Scope**: Make first-project guidance unmistakably explain that lanes plan, Product assembles and approves the build brief, and BFM builds only after explicit `$bfm` approval. Add decision/assumption separation, a plain-language progress card, distinct lane contributions, and a short user-facing `Test This Now` review packet with direct links and step-by-step criteria.
+*   **Out of Scope**: New persistent wizard/state, new CLI commands, board/status-model replacement, changes to the four-lane or BFM ownership model, plugin publication, release, deployment, technical identifier migration, or consumer-repository changes.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let a first-time everyday user understand what FB will produce now, what will be built later, what requires their approval, and exactly how to review a runnable result.
+    *   **Key Results**:
+        *   Plugin skills, active guides, and bootstrap output share one first-project and build-boundary contract.
+        *   Every user-facing review request supplies a direct link, step-by-step test plan, pass criteria, known limits, and a failure-report format.
+        *   Root and packaged tests prove generated guidance carries the contract and remains byte-aligned.
+    *   **Definition of Done**: A fresh creator-commerce walkthrough unambiguously distinguishes plan, approval, build, verification, complete, and blocked states; selected lanes state their distinct contribution; root/package checks and documentation parity pass.
+    *   **Gate / Review Point**: Product branch-diff review after root/package tests, syntax/parity, validator, doctor, whitespace, and fresh bootstrap smoke. No publication, release, or deployment is authorized.
+    *   **Approval**: approved
+    *   **Justification**: James approved the new-user clarity plan after feedback showed confusion about expected outputs, BFM/lane roles, assumptions, statuses, and test responsibilities.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Codex plugin first-project prompts, generated project instructions, user-facing review handoffs, and active setup documentation.
+    *   **Locked Files**: `README.md`, `FAQ.md`, `platforms/codex/README.md`, `docs/loop-engineering.md`, `plugins/fb-lane-coordination/README.md`, relevant root/package skills, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, root/package CLI tests, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-020.md`, and `docs/workstreams/fb-product.md`.
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/fb-documentation-rebrand` (existing isolated branch; local only)
+    *   **Plan**: [FB first-project clarity](docs/superpowers/plans/2026-07-16-fb-first-project-clarity.md)
+    *   **Handoff**: [TASK-020](docs/handoffs/TASK-020.md)
+*   **QA Checklist**:
+    *   [x] First-project contract, How FB works card, exact progress states, lane contribution rule, and Test This Now packet are aligned across skills and active docs.
+    *   [x] Bootstrap-generated `AGENTS.md` and `.codex/rules.md` carry the concise contract, including the four ordered How FB works steps and the explicit approval-before-`$bfm` boundary.
+    *   [x] Fresh creator-commerce bootstrap smoke, root/package 28-check suites, syntax/parity, validator, doctor Ready, whitespace, and independent slice/final reviews passed.
+    *   [x] No new command, publish, release, deployment, merge, or consumer-repository change occurred.
+*   **Latest Update**:
+    *   *2026-07-16*: Product/BFM claimed the approved first-project clarity implementation in the existing isolated branch. Work is local only; no publication, release, or deployment is authorized.
+    *   *2026-07-16*: Implemented and independently reviewed the Project Start Brief, immediate four-step How FB works card, adaptive lane explanation, decision/assumption separation, exact user-facing progress and blocked states, Test This Now review packet, and explicit BFM build boundary. Fresh creator-commerce bootstrap smoke passed; root/package 28-check suites, syntax/parity, readiness validation, doctor Ready, whitespace, and final review passed. Branch remains local; no push, publication, release, deployment, or merge is authorized.
+
+---
+
+### TASK-019 - FB documentation rebrand
+*   **Status**: Staging QA
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Documentation
+*   **Scope**: Rebrand all active human-facing and agent-facing documentation, templates, examples, skills, and bootstrap-generated project entry points to `FB`. Use the approved primary tagline/current model line only on primary brand surfaces.
+*   **Out of Scope**: Renaming `fb-lane` / `fb-lane-coordination` package IDs, plugin IDs, CLI commands, paths, MCP names, configuration keys, historical handoffs/plans/changelog entries, archived upstream material, publishing, release, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Give everyday users one clear, consistent public name and value proposition without breaking the installed Codex integration or rewriting historical evidence.
+    *   **Key Results**:
+        *   Active documentation and generated project instructions show `FB` as the product name and the approved tagline on primary surfaces.
+        *   Technical identifiers remain exactly compatible.
+        *   Historical records keep their original wording and remain auditable.
+    *   **Definition of Done**: Scoped wording audit, root/package parity, tests, validator, doctor, and whitespace checks pass; board, index, detailed handoff, and workstream card agree.
+    *   **Gate / Review Point**: Product branch-diff review; no publication or deployment is authorized.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly approved the public rebrand and chose to preserve history and technical identifiers.
+*   **Affected Screens / Locks**:
+    *   **Screens**: Public documentation, generated bootstrap docs, Codex plugin instructions, templates, examples, and agent skills only.
+    *   **Locked Files**: Active Markdown guidance and templates, `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs`, related CLI tests, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `docs/handoffs/TASK-019.md`, and `docs/workstreams/fb-product.md`.
+*   **Links & Deliverables**:
+    *   **Git Branch / PR**: `codex/fb-documentation-rebrand` (local; no PR or publish authorized)
+    *   **Plan**: [FB documentation rebrand](docs/superpowers/plans/2026-07-16-fb-documentation-rebrand.md)
+    *   **Handoff**: [TASK-019](docs/handoffs/TASK-019.md)
+*   **QA Checklist**:
+    *   [x] Public docs, internal guidance, templates, examples, bootstrap output, and visible package metadata use the FB brand and preserve technical identifiers.
+    *   [x] Slice reviews caught and resolved tagline-placement, technical-ledger, and exact-assertion issues.
+    *   [x] Root/package 27-check CLI suites, syntax, CLI/test parity, JSON parsing, demo check, scoped audit, and whitespace checks passed.
+    *   [x] Clean-worktree `node tools/fb-lane.validate.cjs`, `node tools/fb-lane.cjs doctor`, and demo `npm run check` passed.
+    *   [x] Independent whole-branch review passed. The branch remains local; no push, publication, or deployment is authorized.
+*   **Latest Update**:
+    *   *2026-07-16*: Implemented the active-doc rebrand on `codex/fb-documentation-rebrand`. Product display copy is now FB; the tagline is limited to primary public/bootstrap surfaces; historical records and `fb-lane` technical identifiers are retained. Root/package 27-check suites, syntax/parity, scoped audit, JSON parse, demo check, clean-worktree validator, doctor Ready, whitespace checks, and whole-branch review passed; the branch remains local and unreleased.
 
 ---
 

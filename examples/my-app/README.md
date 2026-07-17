@@ -1,4 +1,4 @@
-# FB-Lane Example: `my-app`
+# FB Example: `my-app`
 
 This is a minimal, fictional project that shows what a repo looks like **after running `node tools/fb-lane.cjs bootstrap`**.
 
@@ -35,19 +35,19 @@ The `PROJECT_BOARD.md` and `AGENTS.md` headers are personalised with your projec
 
 ## Example workflow (step by step)
 
-Imagine `my-app` is a simple todo web app. Here's how the team uses FB-Lane:
+Imagine `my-app` is a simple todo web app. Here's how the team uses FB:
 
 ### Step 1 — Product scopes a task
-A user tells **FB-Product**: *"We need a dark mode toggle."*
+A user tells **FB Product**: *"We need a dark mode toggle."*
 
 Product adds it to `PROJECT_BOARD.md`:
 
 | ID | Status | Owner | Area | Scope |
 |---|---|---|---|---|
-| TASK-001 | Ready | FB-Product | UI | Add dark mode toggle to the header |
+| TASK-001 | Ready | FB Product | UI | Add dark mode toggle to the header |
 
 ### Step 2 — Design claims it
-The **FB-Design** thread runs:
+The **FB Design** thread runs:
 ```bash
 node tools/fb-lane.cjs claim TASK-001 Design src/styles/theme.css
 ```
@@ -76,10 +76,10 @@ Branch merged to `main`, locks released, status → `Done`.
 
 | Lane | Owns | Never touches |
 |------|------|--------------|
-| FB-Product | Merges, deployments, backlog | Day-to-day code |
-| FB-Tech | APIs, DB schemas, logic | CSS, layout |
-| FB-Design | CSS, tokens, layout | Backend logic |
-| FB-Business | Copy, docs | Source code |
+| FB Product | Merges, deployments, backlog | Day-to-day code |
+| FB Tech | APIs, DB schemas, logic | CSS, layout |
+| FB Design | CSS, tokens, layout | Backend logic |
+| FB Business | Copy, docs | Source code |
 
 ---
 

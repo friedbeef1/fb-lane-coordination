@@ -2,6 +2,18 @@
 
 ## Unreleased - 2026-07-16
 
+- Coordination: added the repository-local seven-command session ledger with
+  atomic clone-local state, linked-worktree execution and lock gates, curated
+  recaps, validated checkpoint pushes, deterministic recall/review, Task
+  Receipt and Brief Validation closeout enforcement, six-page bootstrap parity,
+  and transcript-free privacy boundaries. Claims and quick tasks now use linked
+  worktrees by default; `--no-worktree` preserves the compatibility path. No
+  hosted capture, release, publication, deployment, merge, or plugin install
+  was performed.
+
+- Docs: rebranded active public documentation to FB; technical identifiers and
+  prior changelog entries remain unchanged.
+
 - Release: published Codex plugin build `0.2.0-beta+codex.20260716052513` with
   the verified Codex-only distribution, verification-handoff, and workspace-
   recovery guidance.

@@ -19,14 +19,6 @@ function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
 
-function sameFile(a, b) {
-  assert.strictEqual(
-    fs.readFileSync(a, 'utf8'),
-    fs.readFileSync(b, 'utf8'),
-    `${a} differs from ${b}`
-  );
-}
-
 function requireAbsent(file) {
   assert.ok(!fs.existsSync(file), `${file} must not be restored`);
 }
@@ -47,9 +39,25 @@ function checkActiveCodexSurface(file) {
 
 run('root CLI syntax', 'node', ['--check', 'tools/fb-lane.cjs']);
 run('plugin CLI syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-lane.cjs']);
+run('root session module syntax', 'node', ['--check', 'tools/fb-session.cjs']);
+run('plugin session module syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-session.cjs']);
+run('root eval module syntax', 'node', ['--check', 'tools/fb-eval.cjs']);
+run('plugin eval module syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-eval.cjs']);
+run('root session tests syntax', 'node', ['--check', 'tools/fb-session.test.cjs']);
+run('plugin session tests syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-session.test.cjs']);
+run('root eval tests syntax', 'node', ['--check', 'tools/fb-eval.test.cjs']);
+run('plugin eval tests syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-eval.test.cjs']);
+run('root beginner-experience smoke syntax', 'node', ['--check', 'tools/fb-beginner-experience.test.cjs']);
+run('plugin beginner-experience smoke syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-beginner-experience.test.cjs']);
+run('root product-positioning contract syntax', 'node', ['--check', 'tools/fb-product-positioning.test.cjs']);
+run('plugin product-positioning contract syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-product-positioning.test.cjs']);
+run('root two-speed contract syntax', 'node', ['--check', 'tools/fb-two-speed.test.cjs']);
+run('plugin two-speed contract syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-two-speed.test.cjs']);
+run('root efficiency module syntax', 'node', ['--check', 'tools/fb-efficiency.cjs']);
+run('plugin efficiency module syntax', 'node', ['--check', 'plugins/fb-lane-coordination/tools/fb-efficiency.cjs']);
+run('package synchronizer syntax', 'node', ['--check', 'tools/fb-package-sync.cjs']);
 
-console.log('\n==> root/package CLI parity');
-sameFile('tools/fb-lane.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.cjs');
+run('declared package mirrors', 'node', ['tools/fb-package-sync.cjs', '--check']);
 
 console.log('\n==> legacy runtime/configuration entry points remain absent');
 for (const file of ['.mcp.json', 'tools/run_lane.py', 'CLAUDE.md', 'templates/CLAUDE.md']) {
@@ -81,6 +89,12 @@ for (const dir of ['skills', 'plugins/fb-lane-coordination/skills']) {
 }
 
 run('regression tests', 'node', ['tools/fb-lane.test.cjs']);
+run('focused session tests', 'node', ['tools/fb-session.test.cjs']);
+run('focused eval tests', 'node', ['tools/fb-eval.test.cjs']);
+run('focused beginner-experience smoke', 'node', ['tools/fb-beginner-experience.test.cjs']);
+run('focused product-positioning contract', 'node', ['tools/fb-product-positioning.test.cjs']);
+run('focused two-speed contract', 'node', ['tools/fb-two-speed.test.cjs']);
+run('focused efficiency contract', 'node', ['tools/fb-efficiency.test.cjs']);
 
 const doctor = run('doctor', 'node', ['tools/fb-lane.cjs', 'doctor'], { capture: true });
 assert.ok(doctor.includes('FB-Lane doctor: Ready'), 'doctor did not report ready');

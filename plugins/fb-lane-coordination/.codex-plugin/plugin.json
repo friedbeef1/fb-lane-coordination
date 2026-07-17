@@ -1,9 +1,9 @@
 {
   "name": "fb-lane-coordination",
   "version": "0.2.0-beta+codex.20260716052513",
-  "description": "Codex plugin for plan-only workstreams, Product-launched BFM execution, handoffs, and integration gates.",
+  "description": "FB plugin for plan-only workstreams, Product-launched BFM execution, handoffs, and integration gates.",
   "author": {
-    "name": "FB-Lane Contributors",
+    "name": "FB Contributors",
     "url": "https://github.com/friedbeef1"
   },
   "homepage": "https://github.com/friedbeef1/fb-lane-coordination",
@@ -20,10 +20,10 @@
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
-    "displayName": "FB-Lane Coordination",
+    "displayName": "FB",
     "shortDescription": "Plan in lanes, execute through BFM",
-    "longDescription": "FB-Lane Coordination packages Codex skills and an MCP server for lane-based project work. Codex supplies native concurrency; FB-Lane supplies the shared board, plan-only workstreams, handoff docs, Product/Captain integration gate, approved stable OKR tree, BFM source-change execution gate, and BFM return loop so multiple lane instructions can run at the same time without overwriting each other or closing before board, source, docs, tests, OKRs, and git state agree.",
-    "developerName": "FB-Lane Contributors",
+    "longDescription": "FB packages Codex skills and an MCP server for lane-based project work. Codex supplies native concurrency; FB supplies the shared board, plan-only workstreams, handoff docs, Product/Captain integration gate, approved stable OKR tree, BFM source-change execution gate, and BFM return loop so multiple lane instructions can run at the same time without overwriting each other or closing before board, source, docs, tests, OKRs, and git state agree.",
+    "developerName": "FB Contributors",
     "category": "Developer Tools",
     "capabilities": [
       "Interactive",
@@ -38,7 +38,7 @@
       "Use $fb-lane to split this work across Product, Tech, Design, and Business. Workstreams should write markdown plans or handoffs. Product should launch BFM when source-changing execution is approved.",
       "Run BFM as a Goal Alignment Session return loop: read the board OKRs and handoffs, block if approval is missing or OKRs are unclear, reconcile OKR Fit/source/docs/tests, sequence the next slice, verify it, update durable state, and close only when every handoff is implemented, already done, blocked, out of scope, or explicitly deferred.",
       "What is ready to merge? Read the board, lane handoffs, current file claims, verification evidence, and remaining gates before answering.",
-      "Bootstrap this repo for Codex only, then run doctor and report whether FB-Lane is ready."
+      "Bootstrap this repo for Codex only, then run doctor and report whether FB is ready."
     ],
     "brandColor": "#0F766E"
   }

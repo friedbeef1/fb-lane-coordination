@@ -1,6 +1,6 @@
 # Paused Integrations
 
-FB-Lane currently supports, packages, documents, and release-tests Codex only.
+FB currently supports, packages, documents, and release-tests Codex only.
 Claude Code and Antigravity integrations are paused: do not present them as
 installable, supported, or release-ready.
 

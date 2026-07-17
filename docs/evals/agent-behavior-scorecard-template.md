@@ -1,4 +1,9 @@
-# FB-Lane Agent Behavior Scorecard
+# FB Agent Behavior Scorecard
+
+Compatibility entry point: historical references may keep using this path. New
+records use [the canonical eval record template](eval-record-template.md) and
+follow [docs/fb/evals.md](../fb/evals.md). This scorecard does not
+create a second authority model.
 
 Use this only when `Loop Learning` shows a repeated agent-behavior failure or Product/BFM wants a non-quick closeout check. Do not use it for routine quick tasks unless the same failure pattern repeats.
 

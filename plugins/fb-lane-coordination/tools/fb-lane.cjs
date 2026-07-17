@@ -4,6 +4,30 @@ const fs = require('fs');
 const path = require('path');
 const { execSync, execFileSync } = require('child_process');
 const readline = require('readline');
+const {
+  runSessionCommand,
+  assertSubmitReady,
+  withSubmitLifecycleTransaction,
+  collectSessionDoctorChecks,
+  sessionUsage,
+  listSessions,
+  computedState,
+  submitVerificationReuse,
+  recordAutomatedVerification,
+} = require('./fb-session.cjs');
+const { collectEvalDoctorChecks } = require('./fb-eval.cjs');
+const {
+  classifyExecutionMode,
+  renderQuickRecord,
+  parseQuickRecord,
+  findQuickRecord,
+  validateQuickRecordForSubmit,
+  classifyChangedSurface,
+  selectAutomatedChecks,
+  automatedVerificationDecision,
+} = require('./fb-efficiency.cjs');
+
+const FB_MODEL_LINE = ['FB 0.2.0-beta:', 'AI', 'Loop', 'Engineering', 'for', 'Everyday', 'People'].join(' ');
 
 function expandHome(filePath) {
   if (!filePath || typeof filePath !== 'string') {
@@ -95,6 +119,66 @@ function assertSafeLane(lane) {
     );
   }
   return lane;
+}
+
+function classifyBfmClass(task = {}, options = {}) {
+  const classified = classifyExecutionMode({
+    ...task,
+    successCriteria: task.successCriteria || 'The focused correction contract passes.',
+  }, options);
+  return classified.mode === 'Quick BFM' ? 'Quick BFM Patch' : 'Full BFM';
+}
+
+function parseWorktreePorcelain(markdown = '') {
+  return String(markdown).trim().split(/\r?\n\r?\n/).filter(Boolean).map(block => {
+    const lines = block.split(/\r?\n/);
+    const worktree = lines.find(line => line.startsWith('worktree '));
+    const branch = lines.find(line => line.startsWith('branch refs/heads/'));
+    return {
+      path: worktree ? path.resolve(worktree.slice('worktree '.length)) : '',
+      branch: branch ? branch.slice('branch refs/heads/'.length) : '',
+    };
+  }).filter(record => record.path);
+}
+
+function resolveWorktreePlan(records, branchName) {
+  if (!records.length) throw new Error('Git did not report a primary checkout for worktree placement.');
+  const primary = records[0].path;
+  const existing = records.find(record => record.branch === branchName);
+  if (existing) return { path: existing.path, reuse: true, primary };
+  const directory = branchName.replace(/[^A-Za-z0-9._-]+/g, '-');
+  return { path: path.join(primary, '.worktrees', directory), reuse: false, primary };
+}
+
+function ensureWorktreeContainerIgnored(primary) {
+  try {
+    runGit(['-C', primary, 'check-ignore', '-q', '.worktrees']);
+    return;
+  } catch (err) {
+    const exclude = runGit(['-C', primary, 'rev-parse', '--git-path', 'info/exclude']);
+    const excludePath = path.resolve(primary, exclude);
+    const current = fs.existsSync(excludePath) ? fs.readFileSync(excludePath, 'utf8') : '';
+    if (!/^\.worktrees\/$/m.test(current)) {
+      fs.mkdirSync(path.dirname(excludePath), { recursive: true });
+      fs.appendFileSync(excludePath, `${current && !current.endsWith('\n') ? '\n' : ''}.worktrees/\n`);
+    }
+  }
+}
+
+function renderQueueSummary(tasks = [], currentId = '') {
+  const current = tasks.find(task => task.id === currentId)
+    || tasks.find(task => /^in progress$/i.test(task.status));
+  const next = tasks.find(task => /^ready$/i.test(task.status) && (!current || task.id !== current.id));
+  const blocked = tasks.filter(task => /^blocked\b/i.test(task.status));
+  const blockerText = blocked.map(task => {
+    const reason = task.details && task.details.blockers ? task.details.blockers : task.scope;
+    return `${task.id} — ${reason}`;
+  });
+  return [
+    `Current: ${current ? `${current.id} — ${current.scope}` : 'None'}`,
+    `Next ready: ${next ? `${next.id} — ${next.scope}` : 'None'}`,
+    `External blocks: ${blockerText.length ? blockerText.join('; ') : 'None'}`,
+  ].join('\n');
 }
 
 // A branch name is safe to hand to git as a positional ref when it is
@@ -277,7 +361,11 @@ This card is a revisit summary only. PROJECT_BOARD.md remains the source of trut
 }
 
 function agentBehaviorScorecardTemplate() {
-  return `# FB-Lane Agent Behavior Scorecard
+  const bundled = path.join(__dirname, '..', 'docs', 'evals', 'agent-behavior-scorecard-template.md');
+  if (fs.existsSync(bundled)) return fs.readFileSync(bundled, 'utf8');
+  return `# FB Agent Behavior Scorecard
+
+> Approved primary tagline/current model line.
 
 Use this only when \`Loop Learning\` shows a repeated agent-behavior failure or Product/BFM wants a non-quick closeout check. Do not use it for routine quick tasks.
 
@@ -325,6 +413,10 @@ Product approval for heavier tooling: \`not requested\` | \`pending\` | \`approv
 - [ ] Mini-loops produce evidence against the existing goal; they do not invent new OKRs.
 - [ ] Quick tasks stay lightweight unless the same failure is repeating.
 `;
+}
+
+function evalRecordTemplate() {
+  return fs.readFileSync(path.join(__dirname, '..', 'docs', 'evals', 'eval-record-template.md'), 'utf8');
 }
 
 function sidechatParentThreadRoutingTemplate() {
@@ -438,6 +530,156 @@ function collectGoalAlignmentSessionWarnings(handoffsDir, tasks = []) {
     }
     if (handoffImpliesOkrChange(markdown) && (!task || !task.details || !boardRecordsApprovedOkrChange(task.details.raw))) {
       warnings.unapprovedOkrChange.push(entry.name);
+    }
+  }
+
+  return warnings;
+}
+
+const REVIEW_STATES = ['not reviewable', 'runnable sandbox', 'staging candidate', 'completed build'];
+const REVIEW_PACKET_FIELDS = [
+  'Outcome type',
+  'Direct links',
+  'Exact steps and expectations',
+  'Pass criteria',
+  'Known limits',
+  'Failure-report format',
+  'Next Product/BFM action'
+];
+
+function markdownSection(markdown, heading) {
+  const escapedHeading = heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = new RegExp(`^##\\s+${escapedHeading}\\s*$`, 'im').exec(markdown);
+  if (!match) return '';
+  const remaining = markdown.slice(match.index + match[0].length);
+  const nextHeading = remaining.search(/^##\s+/m);
+  return nextHeading === -1 ? remaining : remaining.slice(0, nextHeading);
+}
+
+function reviewFieldValue(section, field) {
+  const escapedField = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = new RegExp(
+    `(?:^|\\n)\\s*(?:[-*]\\s*)?(?:\\*\\*)?${escapedField}(?:\\*\\*)?\\s*:\\s*([^\\n]*)`,
+    'i'
+  ).exec(section);
+  return match ? match[1].trim().replace(/^\*\*\s*/, '') : '';
+}
+
+function isActionableReviewValue(value) {
+  const normalized = typeof value === 'string' ? value.trim() : '';
+  if (!normalized || /^<[^<>\n]+>$/.test(normalized)) return false;
+
+  const unwrapped = normalized
+    .replace(/^[`*_~\[\](){}`'".,;:!?\s]+/, '')
+    .replace(/[`*_~\[\](){}`'".,;:!?\s]+$/, '')
+    .trim();
+  return !/^(?:todo|tbd|placeholder|example)(?:\s+(?:only|text|token|value))?$/i.test(unwrapped);
+}
+
+function reviewFieldContent(section, field) {
+  const escapedField = field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = new RegExp(
+    `(?:^|\\n)\\s*(?:[-*]\\s*)?(?:\\*\\*)?${escapedField}(?:\\*\\*)?\\s*:\\s*(?:\\*\\*)?`,
+    'i'
+  ).exec(section);
+  if (!match) return '';
+
+  const remaining = section.slice(match.index + match[0].length);
+  const boundaryFields = REVIEW_PACKET_FIELDS
+    .filter(candidate => candidate !== field)
+    .map(candidate => candidate.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+  const boundary = new RegExp(
+    `(?:^|\\n)\\s*(?:[-*]\\s*)?(?:\\*\\*)?(?:${boundaryFields})(?:\\*\\*)?\\s*:\\s*(?:\\*\\*)?`,
+    'i'
+  ).exec(remaining);
+  return (boundary ? remaining.slice(0, boundary.index) : remaining).trim();
+}
+
+function reviewLinks(section) {
+  return [...section.matchAll(/\[[^\]\n]+\]\(\s*(?:<([^>\n]+)>|([^\s)]+))(?:\s+['"][^)]*['"])?\s*\)/g)]
+    .map(match => match[1] || match[2])
+    .filter(Boolean);
+}
+
+function collectReviewEvidenceWarnings(handoffsDir) {
+  const warnings = {
+    invalidStates: [],
+    missingBriefs: [],
+    incompletePackets: [],
+    blockedAccess: [],
+    missingLocalLinks: []
+  };
+  if (!fs.existsSync(handoffsDir)) return warnings;
+
+  for (const entry of fs.readdirSync(handoffsDir, { withFileTypes: true })) {
+    if (!entry.isFile() || !entry.name.endsWith('.md') || entry.name === 'index.md') continue;
+    const handoffPath = path.join(handoffsDir, entry.name);
+    const markdown = fs.readFileSync(handoffPath, 'utf8');
+    if (!/^fb_harness:\s*v2\s*$/im.test(markdown)) continue;
+
+    const stateMatch = markdown.match(/^Review state:\s*(.*?)\s*$/im);
+    const reviewState = stateMatch ? stateMatch[1] : '';
+    if (!REVIEW_STATES.includes(reviewState)) {
+      warnings.invalidStates.push(entry.name);
+      continue;
+    }
+
+    if (hasApprovedGoalAlignmentSession(markdown)) {
+      const missingBriefs = ['Project Start Brief', 'Build Brief']
+        .filter(heading => !new RegExp(`^##\\s+${heading}\\b`, 'im').test(markdown));
+      if (missingBriefs.length > 0) {
+        warnings.missingBriefs.push(`${entry.name} (${missingBriefs.join(', ')})`);
+      }
+    }
+
+    if (reviewState === 'not reviewable') continue;
+
+    const reviewSection = markdownSection(markdown, 'Test This Now');
+    if (/Blocked — no review environment yet/.test(reviewSection)) {
+      if (!isActionableReviewValue(reviewFieldValue(reviewSection, 'Next Product/BFM action'))) {
+        warnings.incompletePackets.push(`${entry.name} (Next Product/BFM action)`);
+      } else {
+        warnings.blockedAccess.push(entry.name);
+      }
+      continue;
+    }
+
+    const requiredValueFields = [
+      'Outcome type',
+      'Direct links',
+      'Pass criteria',
+      'Known limits',
+      'Failure-report format'
+    ];
+    const missing = requiredValueFields
+      .filter(field => !isActionableReviewValue(reviewFieldValue(reviewSection, field)));
+    const exactSteps = reviewFieldContent(reviewSection, 'Exact steps and expectations');
+    if (!exactSteps) {
+      missing.push('Exact steps and expectations');
+    } else {
+      const numberedSteps = [...exactSteps.matchAll(/(?:^|\n)\s*\d+\.\s+([^\n]*)/g)]
+        .map(match => match[1].trim());
+      if (numberedSteps.length === 0) {
+        missing.push('numbered exact steps');
+      } else if (numberedSteps.some(step => !isActionableReviewValue(step))) {
+        missing.push('actionable numbered exact steps');
+      }
+    }
+    const links = reviewLinks(reviewFieldValue(reviewSection, 'Direct links'));
+    if (links.length === 0) missing.push('Markdown direct link');
+    if (missing.length > 0) {
+      warnings.incompletePackets.push(`${entry.name} (${missing.join(', ')})`);
+      continue;
+    }
+
+    const missingLocalLinks = links.filter(link => {
+      if (/^[a-z][a-z0-9+.-]*:\/\//i.test(link)) return false;
+      const localPath = link.split(/[?#]/, 1)[0];
+      return !localPath || !fs.existsSync(path.resolve(path.dirname(handoffPath), localPath));
+    });
+    if (missingLocalLinks.length > 0) {
+      warnings.missingLocalLinks.push(`${entry.name} (${missingLocalLinks.join(', ')})`);
     }
   }
 
@@ -612,6 +854,21 @@ function parseDetailLines(lines) {
   const scopeMatch = detailStr.match(/\*\s+\*\*Scope\*\*:\s*(.*)/i);
   const lockedFilesMatch = detailStr.match(/\*\s+\*\*Locked\s+Files\*\*:\s*(.*)/i);
   const screensMatch = detailStr.match(/\*\s+\*\*Screens\*\*:\s*(.*)/i);
+  const objectiveMatch = detailStr.match(/\*\s+\*\*Objective\*\*:\s*(.*)/i);
+  const approvalMatch = detailStr.match(/\*\s+\*\*Approval\*\*:\s*(.*)/i);
+  const completedWorkMatch = detailStr.match(/\*\s+\*\*(?:Completed Work|Completed|Updates?)\*\*:\s*(.*)/i);
+  const latestUpdateHeading = detailStr.match(/^\*\s+\*\*Latest Update\*\*:\s*$/im);
+  const latestUpdateTail = latestUpdateHeading
+    ? detailStr.slice(latestUpdateHeading.index + latestUpdateHeading[0].length)
+    : '';
+  const latestUpdateEnd = latestUpdateTail.search(/^\*\s+\*\*/m);
+  const latestUpdateBody = latestUpdateEnd === -1 ? latestUpdateTail : latestUpdateTail.slice(0, latestUpdateEnd);
+  const latestUpdateMatch = latestUpdateBody
+    ? latestUpdateBody.match(/^\s*\*\s+(?:\*[^*\n]+\*:\s*)?(.+?)\s*$/m)
+    : null;
+  const blockersMatch = detailStr.match(/\*\s+\*\*(?:Blockers?|Pause Reason)\*\*:\s*(.*)/i);
+  const nextActionMatch = detailStr.match(/\*\s+\*\*(?:Next Owner\s*\/\s*Action|Next Action\s*\/\s*Owner|Next Action)\*\*:\s*(.*)/i);
+  const reviewLinkMatches = [...detailStr.matchAll(/^\s*\*\s+\*\*(?:Test\s*\/\s*Review Link|Test Link|Review Link|Staging URL)\*\*:\s*(.*)$/gim)];
 
   return {
     raw: detailStr,
@@ -620,8 +877,319 @@ function parseDetailLines(lines) {
     area: areaMatch ? areaMatch[1].trim() : '',
     scope: scopeMatch ? scopeMatch[1].trim() : '',
     lockedFiles: lockedFilesMatch ? lockedFilesMatch[1].trim() : '',
-    screens: screensMatch ? screensMatch[1].trim() : ''
+    screens: screensMatch ? screensMatch[1].trim() : '',
+    objective: objectiveMatch ? objectiveMatch[1].trim() : '',
+    approval: approvalMatch ? approvalMatch[1].trim() : '',
+    completedWork: concreteStatusValue(completedWorkMatch ? completedWorkMatch[1] : '')
+      || concreteStatusValue(latestUpdateMatch ? latestUpdateMatch[1] : ''),
+    blockers: blockersMatch ? blockersMatch[1].trim() : '',
+    nextAction: nextActionMatch ? nextActionMatch[1].trim() : '',
+    reviewLink: reviewLinkMatches
+      .map(match => explicitReviewLink(match[1]))
+      .find(Boolean) || ''
   };
+}
+
+function concreteStatusValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized || /^(?:\(none\)|none|nothing completed yet\.?|todo|tbd)$/i.test(normalized) || /^<[^>]+>$/.test(normalized)) return '';
+  return normalized;
+}
+
+function explicitReviewLink(value) {
+  const normalized = concreteStatusValue(value);
+  if (!normalized) return '';
+  const markdownTargets = [...normalized.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)].map(match => match[1].trim());
+  const plainTargets = normalized.match(/https?:\/\/[^\s)>]+/gi) || [];
+  const targets = [...new Set([...markdownTargets, ...plainTargets])];
+  if (!targets.length) return '';
+  const labelText = targets.reduce((text, target) => text.split(target).join(''), normalized);
+  if (/(?:^|[^a-z0-9])(?:TODO|TBD)(?:$|[^a-z0-9])/i.test(labelText)) return '';
+  if (targets.some(placeholderReviewTarget)) return '';
+  return normalized;
+}
+
+function placeholderReviewTarget(target) {
+  if (/<[^>\n]+>/.test(target)) return true;
+
+  let parsed;
+  try {
+    parsed = new URL(target, 'https://fb-lane.invalid');
+  } catch (err) {
+    return true;
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+  if (['example.com', 'example.org', 'example.net'].some(host => hostname === host || hostname.endsWith(`.${host}`))) {
+    return true;
+  }
+
+  let route = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  try {
+    route = decodeURIComponent(route);
+  } catch (err) {
+    // Keep the original route when percent encoding is malformed.
+  }
+  return /(?:^|[/?#&=])(?:TODO|TBD)(?=$|[/?#&=])/i.test(route);
+}
+
+function markdownLinks(value) {
+  return [...String(value || '').matchAll(/\[[^\]\n]+\]\(\s*(?:<([^>\n]+)>|([^\s)]+))(?:\s+['"][^)]*['"])?\s*\)/g)]
+    .map(match => ({ markdown: match[0], target: match[1] || match[2] }))
+    .filter(link => link.target);
+}
+
+function safeExistingLocalPath(rootDir, baseDir, target) {
+  if (!target || /^[a-z][a-z0-9+.-]*:/i.test(target)) return '';
+  let localTarget = target.split(/[?#]/, 1)[0];
+  try {
+    localTarget = decodeURIComponent(localTarget);
+  } catch (err) {
+    return '';
+  }
+  if (!localTarget || path.isAbsolute(localTarget) || localTarget.includes('\0')) return '';
+
+  const resolved = path.resolve(baseDir, localTarget);
+  const rootWithSep = rootDir.endsWith(path.sep) ? rootDir : `${rootDir}${path.sep}`;
+  if (resolved !== rootDir && !resolved.startsWith(rootWithSep)) return '';
+  if (!fs.existsSync(resolved) || !fs.statSync(resolved).isFile()) return '';
+  try {
+    const realRoot = fs.realpathSync(rootDir);
+    const realResolved = fs.realpathSync(resolved);
+    const realRootWithSep = realRoot.endsWith(path.sep) ? realRoot : `${realRoot}${path.sep}`;
+    return realResolved === realRoot || realResolved.startsWith(realRootWithSep) ? resolved : '';
+  } catch (err) {
+    return '';
+  }
+}
+
+function linkedHandoffReviewLink(rootDir, task) {
+  const expectedHandoff = path.join(rootDir, 'docs', 'handoffs', `${task.id}.md`);
+  const handoff = markdownLinks(task.links)
+    .map(link => safeExistingLocalPath(rootDir, rootDir, link.target))
+    .find(candidate => candidate === expectedHandoff);
+  if (!handoff) return '';
+
+  const reviewSection = markdownSection(fs.readFileSync(handoff, 'utf8'), 'Test This Now');
+  const directLinks = reviewFieldValue(reviewSection, 'Direct links');
+  for (const link of markdownLinks(directLinks)) {
+    const actionable = explicitReviewLink(link.markdown);
+    if (!actionable) continue;
+    if (/^https?:\/\//i.test(link.target)) return actionable;
+    if (safeExistingLocalPath(rootDir, path.dirname(handoff), link.target)) return actionable;
+  }
+  return '';
+}
+
+function normalizedStatus(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  const recognized = [
+    'staging qa', 'in progress', 'verification', 'approved', 'waiting', 'ready',
+    'staged', 'local', 'blocked', 'closed', 'completed', 'complete', 'done'
+  ];
+  return recognized.find(status => normalized === status || new RegExp(`^${status}\\s*(?:—|–|-|:)\\s+`).test(normalized))
+    || normalized;
+}
+
+function isCompleteStatus(value) {
+  return ['done', 'complete', 'completed', 'closed'].includes(normalizedStatus(value));
+}
+
+function visibleStageFor(context = {}) {
+  const status = normalizedStatus(context.status);
+  const phase = normalizedStatus(context.phase);
+  const mode = normalizedStatus(context.mode);
+  const state = normalizedStatus(context.state);
+  const environment = normalizedStatus(context.environment);
+  const blockers = String(context.blockers || '').trim();
+
+  const reviewLink = explicitReviewLink(context.reviewLink);
+
+  if (state === 'blocked' || status === 'blocked' || phase === 'blocked' || (context.genuineInability && blockers)) return 'Blocked';
+  if (state === 'closed' || isCompleteStatus(status) || phase === 'closed') return 'Complete';
+  if (state === 'reviewing' || mode === 'review') return reviewLink ? 'Ready for review' : 'Checking';
+  if (mode === 'planning') return 'Understanding';
+  if (mode === 'execution') return 'Building';
+  if (['staging qa', 'staged'].includes(status)) return reviewLink ? 'Ready for review' : 'Checking';
+  if (phase === 'verification' || ['verification', 'local'].includes(status) || ['local', 'sandbox', 'staging', 'staged', 'completed build', 'completed-build'].includes(environment)) return 'Checking';
+  if (phase === 'execution' || status === 'in progress') return 'Building';
+  if (['ready', 'approved', 'waiting'].includes(status) || ['approved', 'waiting'].includes(phase)) return 'Ready for your approval';
+  return 'Understanding';
+}
+
+function parseCurrentTask(markdown = '') {
+  const taskMatch = String(markdown).match(/\*\*Current Task\*\*:\s*([^\n]+)/i);
+  const statusMatch = String(markdown).match(/\*\*Status\*\*:\s*([^\n]+)/i);
+  if (!taskMatch) return null;
+  const value = taskMatch[1].replace(/`/g, '').trim();
+  const idMatch = value.match(/^([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*-\d+)\b/);
+  if (!idMatch) return null;
+  return {
+    id: idMatch[1],
+    objective: value.slice(idMatch[0].length).trim(),
+    status: statusMatch ? statusMatch[1].trim() : ''
+  };
+}
+
+function selectStatusTarget({ tasks = [], sessions = [], currentTask = null } = {}) {
+  const activeSession = sessions
+    .filter(session => session && session.state !== 'closed')
+    .sort((left, right) => String(right.updatedAt || '').localeCompare(String(left.updatedAt || '')))[0];
+  if (activeSession) {
+    return {
+      source: 'session',
+      session: activeSession,
+      currentTask: null,
+      task: tasks.find(task => task.id === activeSession.taskId) || { id: activeSession.taskId, status: '', scope: activeSession.taskId, links: '', details: null }
+    };
+  }
+
+  if (currentTask) {
+    const task = tasks.find(candidate => candidate.id === currentTask.id);
+    if (task) return { source: 'current-task', session: null, currentTask, task };
+  }
+
+  const task = tasks.find(candidate => !isCompleteStatus(candidate.status)) || tasks[0] || null;
+  return task ? { source: 'board', session: null, currentTask: null, task } : null;
+}
+
+function sessionBelongsToWorkspace(rootDir, session) {
+  if (!session || !session.worktree) return false;
+  try {
+    return fs.realpathSync(rootDir) === fs.realpathSync(session.worktree);
+  } catch (err) {
+    return false;
+  }
+}
+
+function statusInputs(rootDir, tasks) {
+  let sessions = [];
+  let sessionWarning = '';
+  try {
+    sessions = listSessions(rootDir).filter(session =>
+      !['closed', 'stale'].includes(computedState(session))
+      && sessionBelongsToWorkspace(rootDir, session)
+    );
+  } catch (err) {
+    sessions = [];
+    sessionWarning = `Session registry could not be read: ${err.message}`;
+  }
+
+  const currentTaskPath = path.join(rootDir, '.codex', 'current_task.md');
+  const currentTask = fs.existsSync(currentTaskPath)
+    ? parseCurrentTask(fs.readFileSync(currentTaskPath, 'utf8'))
+    : null;
+  const selected = selectStatusTarget({ tasks, sessions, currentTask });
+  const tasksWithReviewEvidence = tasks.map(task => {
+    if (!selected || task.id !== selected.task.id) return task;
+    if (task.details && task.details.reviewLink) return task;
+    const reviewLink = linkedHandoffReviewLink(rootDir, task);
+    return reviewLink
+      ? { ...task, details: { ...(task.details || {}), reviewLink } }
+      : task;
+  });
+  return { tasks: tasksWithReviewEvidence, sessions, currentTask, sessionWarning };
+}
+
+function workingModeFor(target, stage) {
+  if (target.session && target.session.mode) {
+    return target.session.mode.charAt(0).toUpperCase() + target.session.mode.slice(1);
+  }
+  return {
+    Understanding: 'Planning',
+    'Ready for your approval': 'Waiting for approval',
+    Building: 'Execution',
+    Checking: 'Verification',
+    'Ready for review': 'Review',
+    Complete: 'Complete',
+    Blocked: 'Paused'
+  }[stage] || 'Planning';
+}
+
+function renderBeginnerStatus(inputs = {}) {
+  const target = selectStatusTarget(inputs);
+  if (!target) {
+    return [
+      'FB status',
+      renderQueueSummary(inputs.tasks || [], ''),
+      'Current objective: No active objective found.',
+      'Working mode: Planning',
+      'Stage: Understanding',
+      'Completed work: Nothing recorded yet.',
+      'Pause reason: None — no work is active.',
+      'Your input: Describe the next objective.',
+      'Next action / owner: Product / choose the next objective.',
+      'Test / review link: Not available yet.'
+    ].join('\n');
+  }
+
+  const { task, session, currentTask } = target;
+  const details = task.details || {};
+  const objective = (currentTask && currentTask.objective) || details.objective || task.scope || task.id;
+  const reviewLink = explicitReviewLink(details.reviewLink);
+  const selectedStatus = session
+    ? ''
+    : (currentTask && normalizedStatus(task.status) === 'in progress'
+      ? (currentTask.status || task.status)
+      : task.status);
+  const stage = visibleStageFor({
+    status: selectedStatus,
+    mode: session && session.mode,
+    state: session && session.state,
+    blockers: details.blockers,
+    reviewLink
+  });
+  const blocked = stage === 'Blocked';
+  const userInput = {
+    Understanding: 'Confirm the goal or answer any open questions.',
+    'Ready for your approval': 'Approve or revise the proposed plan.',
+    Building: 'None right now.',
+    Checking: 'None right now.',
+    'Ready for review': 'Review the candidate using the link below.',
+    Complete: 'None.',
+    Blocked: 'Help resolve the pause reason above.'
+  }[stage];
+  const defaultNextAction = {
+    Understanding: 'Product / finish understanding the objective.',
+    'Ready for your approval': 'You / approve or revise the plan.',
+    Building: `${task.owner || 'Build For Me'} / continue the approved build.`,
+    Checking: `${task.owner || 'Build For Me'} / finish the focused checks.`,
+    'Ready for review': 'You / review the candidate.',
+    Complete: 'Product / choose the next objective.',
+    Blocked: `${task.owner || 'Product'} / resolve the recorded pause reason.`
+  }[stage];
+
+  const lines = [
+    'FB status',
+    renderQueueSummary(inputs.tasks || [], task.id),
+    `Current objective: ${objective}`,
+    `Working mode: ${workingModeFor(target, stage)}`,
+    `Stage: ${stage}`,
+    `Completed work: ${details.completedWork || 'Nothing completed yet.'}`,
+    `Pause reason: ${blocked ? (details.blockers || 'Work cannot continue with the current information or access.') : 'None — work is moving.'}`,
+    `Your input: ${userInput}`,
+    `Next action / owner: ${details.nextAction || defaultNextAction}`,
+    `Test / review link: ${reviewLink || 'Not available yet.'}`
+  ];
+  if (inputs.sessionWarning) lines.push(`Status warning: ${inputs.sessionWarning}`);
+  return lines.join('\n');
+}
+
+function renderTechnicalStatus(tasks, options = {}) {
+  if (options.format === 'mcp') {
+    const workspace = options.workspaceRoot ? `Workspace: ${options.workspaceRoot}\n` : '';
+    return `${workspace}Active Workstreams:\n` + tasks.map(task =>
+      `[${task.id}] Status: ${task.status} | Owner: ${task.owner} | Locks: ${task.locks || 'None'} | Scope: ${task.scope}`
+    ).join('\n');
+  }
+
+  const lines = ['📋 Active Workstreams:', '='.repeat(80)];
+  for (const task of tasks) {
+    lines.push(`[${task.id}] - ${task.status.padEnd(12)} | ${task.owner.padEnd(12)} | Area: ${task.area.padEnd(8)} | Scope: ${task.scope}`);
+    if (task.locks && task.locks !== '(None)') lines.push(`       🔒 Locks: ${task.locks}`);
+  }
+  lines.push('='.repeat(80));
+  return lines.join('\n');
 }
 
 // Safely update a task in PROJECT_BOARD.md
@@ -743,22 +1311,35 @@ function getRoleInstructions(lane) {
 }
 
 // CLI Command implementations
-function handleStatus() {
+function handleStatus(options = {}) {
   const boardPath = findBoardPath();
   if (!boardPath) {
     console.error('❌ Error: PROJECT_BOARD.md not found in this workspace.');
     process.exit(1);
   }
   const { tasks } = parseBoard(boardPath);
-  console.log('\n📋 Active Workstreams:');
-  console.log('='.repeat(80));
-  tasks.forEach(t => {
-    console.log(`[${t.id}] - ${t.status.padEnd(12)} | ${t.owner.padEnd(12)} | Area: ${t.area.padEnd(8)} | Scope: ${t.scope}`);
-    if (t.locks && t.locks !== '(None)' && t.locks !== '') {
-      console.log(`       🔒 Locks: ${t.locks}`);
-    }
-  });
-  console.log('='.repeat(80) + '\n');
+  const rootDir = path.dirname(boardPath);
+  const currentTaskPath = path.join(rootDir, '.codex', 'current_task.md');
+  const current = fs.existsSync(currentTaskPath) ? parseCurrentTask(fs.readFileSync(currentTaskPath, 'utf8')) : null;
+  const quickPath = current && current.id.startsWith('TASK-Q-') ? findQuickRecord(rootDir, current.id) : null;
+  if (quickPath && !options.details) {
+    const quick = parseQuickRecord(fs.readFileSync(quickPath, 'utf8'));
+    console.log([
+      'FB status',
+      `Current objective: ${quick.scope || quick.taskId}`,
+      'Working mode: Quick BFM',
+      `Stage: ${quick.status === 'complete' ? 'Complete' : 'Building'}`,
+      `Completed work: ${quick.status === 'complete' ? 'Quick correction closed.' : 'Quick Record created.'}`,
+      'Pause reason: None.',
+      'Your input: None required.',
+      `Next action / owner: ${quick.owner || 'Product'} / ${quick.status === 'complete' ? 'review the result' : 'run the focused verification plan'}.`,
+      `Test / review link: docs/handoffs/${quick.taskId}.md`,
+    ].join('\n'));
+    return;
+  }
+  console.log(options.details
+    ? `\n${renderTechnicalStatus(tasks)}\n`
+    : renderBeginnerStatus(statusInputs(rootDir, tasks)));
 }
 
 function handleDoctor() {
@@ -917,6 +1498,57 @@ function handleDoctor() {
       } else {
         add('ok', 'Unapproved OKR changes', 'No non-quick handoff implies an unapproved OKR change.');
       }
+
+      const reviewEvidenceWarnings = collectReviewEvidenceWarnings(path.join(rootDir, 'docs', 'handoffs'));
+      if (reviewEvidenceWarnings.invalidStates.length > 0) {
+        add(
+          'fail',
+          'V2 Review state',
+          `Review state must be one of ${REVIEW_STATES.join(', ')}: ${reviewEvidenceWarnings.invalidStates.join(', ')}`,
+          'Set the visible Review state to one exact supported value before asking for review.'
+        );
+      }
+      if (reviewEvidenceWarnings.missingBriefs.length > 0) {
+        add(
+          'fail',
+          'V2 initial handoff briefs',
+          `Approved v2 initial handoffs require Project Start Brief and Build Brief: ${reviewEvidenceWarnings.missingBriefs.join(', ')}`,
+          'Add both required sections before review evidence is requested.'
+        );
+      }
+      if (reviewEvidenceWarnings.incompletePackets.length > 0) {
+        add(
+          'fail',
+          'Review evidence',
+          `Test This Now is incomplete: ${reviewEvidenceWarnings.incompletePackets.join(', ')}`,
+          'Replace missing or placeholder-only values with concrete, actionable outcome type, Markdown direct links, numbered exact steps and expectations, pass criteria, known limits, failure-report format, or next Product/BFM action.'
+        );
+      }
+      if (reviewEvidenceWarnings.blockedAccess.length > 0) {
+        add(
+          'fail',
+          'Review evidence',
+          `Blocked — no review environment yet: ${reviewEvidenceWarnings.blockedAccess.join(', ')}`,
+          'Complete the stated Next Product/BFM action, then add the runnable review environment and direct link.'
+        );
+      }
+      if (reviewEvidenceWarnings.missingLocalLinks.length > 0) {
+        add(
+          'fail',
+          'Review evidence',
+          `Local Markdown direct link(s) do not resolve: ${reviewEvidenceWarnings.missingLocalLinks.join(', ')}`,
+          'Fix each local direct link or use a valid remote Markdown link.'
+        );
+      }
+      if (
+        reviewEvidenceWarnings.invalidStates.length === 0 &&
+        reviewEvidenceWarnings.missingBriefs.length === 0 &&
+        reviewEvidenceWarnings.incompletePackets.length === 0 &&
+        reviewEvidenceWarnings.blockedAccess.length === 0 &&
+        reviewEvidenceWarnings.missingLocalLinks.length === 0
+      ) {
+        add('ok', 'Review evidence', 'Harness-v2 reviewable handoffs have complete review evidence or are not reviewable.');
+      }
     } else {
       add('warn', 'docs/handoffs', 'Lane handoff directory is missing.', 'Create docs/handoffs/ before non-trivial lane work.');
     }
@@ -963,6 +1595,13 @@ function handleDoctor() {
     } catch (err) {
       add('warn', 'Git workspace', 'Not inside a git repository.', 'FB-Lane works best in a version-controlled repo.');
     }
+
+    for (const check of collectSessionDoctorChecks(rootDir)) {
+      add(check.level, check.label, check.detail, check.fix);
+    }
+    for (const check of collectEvalDoctorChecks(rootDir)) {
+      add(check.level, check.label, check.detail, check.fix);
+    }
   } finally {
     process.chdir(previousCwd);
   }
@@ -1002,6 +1641,12 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
     process.exit(1);
   }
 
+  try {
+    runHook('preflight', boardPath);
+  } catch (err) {
+    console.error(`❌ Project preflight failed: ${err.message}`);
+    process.exit(1);
+  }
   try {
     runHook('pre-claim', boardPath);
   } catch (err) {
@@ -1049,30 +1694,42 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
 
   // Run git checkout (in-place) or create an isolated worktree for parallel BFM execution workers.
   let worktreePath = null;
+  let worktreeReused = false;
   if (options.worktree) {
     // Worktree mode: leave the primary checkout (FB-Product) where it is so the board stays
     // authoritative here, and give this execution worker its own directory on its own branch off main.
-    const repoRoot = runGit('rev-parse --show-toplevel');
-    const repoBase = path.basename(repoRoot);
-    worktreePath = path.resolve(repoRoot, '..', `${repoBase}-${lane.toLowerCase()}-${taskId}`);
-    let baseRef = 'main';
-    try {
-      runGit('fetch origin main');
-      runGit('rev-parse --verify origin/main');
-      baseRef = 'origin/main';
-    } catch (err) {
-      console.warn('⚠️  Could not fetch origin/main; basing the worktree on local main.');
-    }
-    try {
-      console.log(`Creating worktree at ${worktreePath} on new branch ${branchName}...`);
-      runGit(['worktree', 'add', '-b', branchName, worktreePath, baseRef]);
-    } catch (err) {
-      console.log(`Branch might exist. Attaching a worktree to: ${branchName}...`);
-      try {
-        runGit(['worktree', 'add', worktreePath, branchName]);
-      } catch (err2) {
-        console.error(`❌ Error creating worktree: ${err2.message}`);
+    const records = parseWorktreePorcelain(runGit(['worktree', 'list', '--porcelain']));
+    const plan = resolveWorktreePlan(records, branchName);
+    worktreePath = plan.path;
+    worktreeReused = plan.reuse;
+    if (worktreeReused) {
+      if (runGit(['-C', worktreePath, 'status', '--porcelain'])) {
+        console.error(`❌ Error: Matching worktree ${worktreePath} is not clean; resolve its owner state before reuse.`);
         process.exit(1);
+      }
+      console.log(`Reusing matching worktree at ${worktreePath} for ${branchName}...`);
+    } else {
+      let baseRef = 'main';
+      try {
+        runGit('fetch origin main');
+        runGit('rev-parse --verify origin/main');
+        baseRef = 'origin/main';
+      } catch (err) {
+        console.warn('⚠️  Could not fetch origin/main; basing the worktree on local main.');
+      }
+      ensureWorktreeContainerIgnored(plan.primary);
+      fs.mkdirSync(path.dirname(worktreePath), { recursive: true });
+      try {
+        console.log(`Creating worktree at ${worktreePath} on new branch ${branchName}...`);
+        runGit(['worktree', 'add', '-b', branchName, worktreePath, baseRef]);
+      } catch (err) {
+        console.log(`Branch might exist. Attaching a worktree to: ${branchName}...`);
+        try {
+          runGit(['worktree', 'add', worktreePath, branchName]);
+        } catch (err2) {
+          console.error(`❌ Error creating worktree: ${err2.message}`);
+          process.exit(1);
+        }
       }
     }
   } else {
@@ -1110,8 +1767,16 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
     lockedFiles: formattedLocks
   });
 
-  // Commit board separately
-  commitBoard(`docs: claim ${taskId} and lock files`);
+  // Commit board separately. In worktree mode, carry the authoritative claim
+  // commit into the execution branch so promotion sees the same board state.
+  const boardCommitted = commitBoard(`docs: claim ${taskId} and lock files`);
+  if (worktreePath && boardCommitted && fs.realpathSync(worktreePath) !== fs.realpathSync(path.dirname(boardPath))) {
+    const boardCommit = runGit('rev-parse HEAD');
+    execFileSync('git', ['-C', worktreePath, 'cherry-pick', boardCommit], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+  }
 
   // Write local Codex context file to reduce search pain. In worktree mode it goes into the
   // lane's worktree so the session running there reads its own task context.
@@ -1123,6 +1788,7 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
   const contextContent = `# Active Task Context
 * **Current Task**: ${taskId}
 * **Lane**: FB-${lane.charAt(0).toUpperCase() + lane.slice(1).toLowerCase()}
+* **BFM Class**: ${classifyBfmClass(task)}
 * **Feature Branch**: ${branchName}
 * **Locked Files**: ${formattedLocks}
 
@@ -1138,6 +1804,7 @@ ${task.scope}
   console.log(`\n✅ Task ${taskId} successfully claimed!`);
   console.log(`   - Branch: ${branchName}`);
   console.log(`   - Locked: ${formattedLocks}`);
+  console.log(`   - BFM class: ${classifyBfmClass(task)}`);
   console.log(`   - Board updated & committed separately.`);
   if (worktreePath) {
     console.log(`   - Worktree: ${worktreePath} (board stays authoritative in this checkout)`);
@@ -1221,22 +1888,21 @@ function addTaskToBoard(boardPath, task) {
 }
 
 // Handle quick-edit task creation and branch checkout
-function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit') {
+function handleQuick(lane, lockedFiles, scopeDescription = '', options = {}) {
   const boardPath = findBoardPath();
   if (!boardPath) {
     console.error('❌ Error: PROJECT_BOARD.md not found.');
     process.exit(1);
   }
 
-  try {
-    runHook('pre-claim', boardPath);
-  } catch (err) {
-    console.error(`❌ Hook pre-claim failed: ${err.message}`);
+  if (!lane || !lockedFiles) {
+    console.error('❌ Error: Usage: node tools/fb-lane.cjs quick <lane> <locked_files> <scope_description> --approval-ref <reference>');
     process.exit(1);
   }
 
-  if (!lane || !lockedFiles) {
-    console.error('❌ Error: Usage: node tools/fb-lane.cjs quick <lane> <locked_files> [scope_description]');
+  const approvalReference = String(options.approvalReference || '').trim();
+  if (!approvalReference || /^(?:pending|unverified|none|n\/a)$/i.test(approvalReference)) {
+    console.error('❌ Error: Quick BFM requires a concrete --approval-ref <reference> before any write.');
     process.exit(1);
   }
 
@@ -1251,81 +1917,138 @@ function handleQuick(lane, lockedFiles, scopeDescription = 'Quick Edit') {
   const owner = `FB-${normLane}`;
   const area = 'Quick-Fix';
 
+  const { tasks } = parseBoard(boardPath);
+  const requestedLocks = lockedFiles.split(',').map(value => value.trim().replace(/`/g, '')).filter(Boolean);
+  const lockConflict = tasks.some(task => /^In Progress$/i.test(task.status || '')
+    && String(task.locks || '').split(',').map(value => value.trim().replace(/`/g, '')).some(active =>
+      requestedLocks.some(requested => active === requested || active.startsWith(`${requested}/`) || requested.startsWith(`${active}/`))
+    ));
+  const policy = classifyExecutionMode({
+    area,
+    owner,
+    scope: scopeDescription,
+    locks: lockedFiles,
+    successCriteria: `The focused contract for ${lockedFiles} passes.`,
+    details: { approval: `approved; Reference: ${approvalReference}` },
+  }, { lockConflict });
+  if (policy.mode !== 'Quick BFM') {
+    console.error(`❌ Error: This request cannot use quick; ${policy.reason}. Route it through Full BFM.`);
+    process.exit(1);
+  }
+
+  try {
+    runHook('preflight', boardPath);
+  } catch (err) {
+    console.error(`❌ Project preflight failed: ${err.message}`);
+    process.exit(1);
+  }
+  try {
+    runHook('pre-claim', boardPath);
+  } catch (err) {
+    console.error(`❌ Hook pre-claim failed: ${err.message}`);
+    process.exit(1);
+  }
+
   // Format branch name
   const slug = scopeDescription.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const branchName = `quick/${taskId}-${slug}`;
 
-  // Run git checkout
-  console.log('Switching to main and pulling latest changes...');
-  try {
-    runGit('checkout main');
-    runGit('pull origin main');
-  } catch (err) {
-    console.error(`❌ Error: Could not pull main branch safely: ${err.message}`);
-    console.error(`👉 Please stash, commit, or discard your uncommitted changes first.`);
-    process.exit(1);
-  }
-  try {
-    console.log(`Checking out quick branch: ${branchName}...`);
-    runGit(["checkout", "-b", assertSafeBranchName(branchName)]);
-  } catch (err) {
-    console.log(`Branch might exist. Attempting to switch to: ${branchName}...`);
+  // Worktrees are the safe default; --no-worktree keeps the legacy path.
+  let worktreePath = null;
+  if (options.worktree) {
+    const records = parseWorktreePorcelain(runGit(['worktree', 'list', '--porcelain']));
+    const plan = resolveWorktreePlan(records, branchName);
+    worktreePath = plan.path;
+    let baseRef = 'main';
+    ensureWorktreeContainerIgnored(plan.primary);
+    fs.mkdirSync(path.dirname(worktreePath), { recursive: true });
     try {
-      runGit(["checkout", assertSafeBranchName(branchName)]);
-    } catch (err2) {
-      console.error(`❌ Error switching branch: ${err2.message}`);
+      runGit('fetch origin main');
+      runGit('rev-parse --verify origin/main');
+      baseRef = 'origin/main';
+    } catch (err) {
+      console.warn('⚠️  Could not fetch origin/main; basing the quick worktree on local main.');
+    }
+    try {
+      runGit(['worktree', 'add', '-b', branchName, worktreePath, baseRef]);
+    } catch (err) {
+      try {
+        runGit(['worktree', 'add', worktreePath, branchName]);
+      } catch (err2) {
+        console.error(`❌ Error creating quick worktree: ${err2.message}`);
+        process.exit(1);
+      }
+    }
+  } else {
+    console.log('Switching to main and pulling latest changes...');
+    try {
+      runGit('checkout main');
+      runGit('pull origin main');
+    } catch (err) {
+      console.error(`❌ Error: Could not pull main branch safely: ${err.message}`);
+      console.error(`👉 Please stash, commit, or discard your uncommitted changes first.`);
       process.exit(1);
     }
-  }
-
-  // Resolve Git remote URL
-  let repoUrl = 'https://github.com/example/repo';
-  try {
-    const gitRemote = runGit('config --get remote.origin.url');
-    if (gitRemote) {
-      let cleanUrl = gitRemote.trim();
-      if (cleanUrl.endsWith('.git')) {
-        cleanUrl = cleanUrl.slice(0, -4);
+    try {
+      console.log(`Checking out quick branch: ${branchName}...`);
+      runGit(["checkout", "-b", assertSafeBranchName(branchName)]);
+    } catch (err) {
+      console.log(`Branch might exist. Attempting to switch to: ${branchName}...`);
+      try {
+        runGit(["checkout", assertSafeBranchName(branchName)]);
+      } catch (err2) {
+        console.error(`❌ Error switching branch: ${err2.message}`);
+        process.exit(1);
       }
-      if (cleanUrl.startsWith('git@')) {
-        cleanUrl = cleanUrl.replace(':', '/').replace('git@', 'https://');
-      } else if (cleanUrl.startsWith('ssh://git@')) {
-        cleanUrl = cleanUrl.replace('ssh://git@', 'https://');
-      }
-      repoUrl = cleanUrl;
     }
-  } catch (err) {}
+  }
 
   // Format locks
   const formattedLocks = lockedFiles.split(',').map(f => `\`${f.trim()}\``).join(', ');
 
-  // Add to board
-  const taskRecord = {
+  const quickRoot = worktreePath || path.dirname(boardPath);
+  const relativeRecord = path.join('docs', 'handoffs', `${taskId}.md`);
+  const quickRecordPath = path.join(quickRoot, relativeRecord);
+  fs.mkdirSync(path.dirname(quickRecordPath), { recursive: true });
+  fs.writeFileSync(quickRecordPath, renderQuickRecord({
     id: taskId,
-    status: 'In Progress',
-    owner: owner,
-    area: area,
+    approvedCorrection: scopeDescription,
     scope: scopeDescription,
+    owner,
     locks: formattedLocks,
-    lockedFiles: formattedLocks,
-    links: `[Branch](${repoUrl}/tree/${branchName})`,
-    repoUrl: repoUrl,
-    branchName: branchName
-  };
-
-  addTaskToBoard(boardPath, taskRecord);
-
-  // Commit board separately
-  commitBoard(`docs: quick-claim ${taskId} and lock files`);
+    successCriteria: `The focused contract for ${lockedFiles} passes.`,
+    verificationPlan: `Run only the focused checks for ${lockedFiles}.`,
+    branch: branchName,
+    worktree: worktreePath || quickRoot,
+    approvalReference,
+    brief: 'Current approved Quick correction.',
+    candidate: branchName,
+    feedback: scopeDescription,
+    requiredEvidence: `Focused evidence for ${lockedFiles}.`,
+  }));
+  if (worktreePath) {
+    execFileSync('git', ['-C', worktreePath, 'add', relativeRecord], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+    execFileSync('git', ['-C', worktreePath, 'commit', '-m', `docs: create ${taskId} Quick Record`], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+  } else {
+    runGit(['add', relativeRecord]);
+    runGit(['commit', '-m', `docs: create ${taskId} Quick Record`]);
+  }
 
   // Write local Codex context file
-  const codexDir = path.join(path.dirname(boardPath), '.codex');
+  const codexDir = path.join(worktreePath || path.dirname(boardPath), '.codex');
   if (!fs.existsSync(codexDir)) {
     fs.mkdirSync(codexDir);
   }
   const contextContent = `# Active Task Context
 * **Current Task**: ${taskId}
 * **Lane**: ${owner}
+* **BFM Class**: Quick BFM
 * **Feature Branch**: ${branchName}
 * **Locked Files**: ${formattedLocks}
 
@@ -1342,8 +2065,14 @@ ${scopeDescription} (Quick Edit)
   console.log(`\n✅ Quick edit task ${taskId} successfully claimed!`);
   console.log(`   - Branch: ${branchName}`);
   console.log(`   - Locked: ${formattedLocks}`);
-  console.log(`   - Board updated & committed separately.`);
-  console.log(`   - Codex Desktop context written to .codex/current_task.md`);
+  console.log(`   - BFM class: Quick BFM`);
+  console.log(`   - Quick Record: ${relativeRecord}`);
+  if (worktreePath) {
+    console.log(`   - Worktree: ${worktreePath}`);
+    console.log(`   - Codex context written inside the linked worktree.`);
+  } else {
+    console.log(`   - Codex Desktop context written to .codex/current_task.md`);
+  }
   if (copied) {
     console.log('\n🚀 STARTUP PROMPT COPIED TO CLIPBOARD!');
     console.log('   Simply open a fresh Codex thread and paste (Cmd+V) to begin.\n');
@@ -1402,7 +2131,118 @@ function commitBoard(message) {
   return false;
 }
 
-function handleSubmit(taskId, stagingUrl = '') {
+const NO_TESTS_SUBMIT_ERROR = 'Automated checks are required before Ready to ship; --no-tests cannot submit.';
+const PUSH_LIVE_PROMPT = 'Automated checks passed. Optional review links are available above.\nSay **Push Live** to deploy.';
+
+function workspaceGit(workspaceRoot, args) {
+  return execFileSync('git', args, {
+    cwd: workspaceRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function formatAutomatedSubmission(result) {
+  const checkLines = result.checks.map(check => `- Automated checks: ${check.id}: ${check.result}`);
+  const command = result.checkManifest[0]
+    ? [result.checkManifest[0].command, ...result.checkManifest[0].args].join(' ')
+    : 'selected checks';
+  const linkLines = result.optionalLinks.length
+    ? result.optionalLinks.map(link => `- ${link}`)
+    : ['- none'];
+  return [
+    'System verification: passed',
+    ...checkLines,
+    `- Evidence: candidate ${result.candidateCommit} passed ${command}`,
+    '',
+    'Optional review links:',
+    ...linkLines,
+    '',
+    result.status,
+    result.prompt,
+  ].join('\n');
+}
+
+function resolveSubmissionSafetyGate({ candidateCommit, changedPaths, session }) {
+  if (classifyChangedSurface(changedPaths) !== 'sensitive') {
+    return { result: 'not-applicable', approvalRef: '' };
+  }
+  const evidence = session && session.automatedVerification;
+  const samePaths = evidence && Array.isArray(evidence.changedPaths)
+    && [...evidence.changedPaths].sort().join('\n') === [...changedPaths].sort().join('\n');
+  if (evidence && evidence.candidateCommit === candidateCommit && samePaths
+      && evidence.safetyGate && evidence.safetyGate.result === 'passed'
+      && String(evidence.safetyGate.approvalRef || '').trim()) {
+    return { result: 'passed', approvalRef: evidence.safetyGate.approvalRef };
+  }
+  return { result: 'unresolved', approvalRef: '' };
+}
+
+function performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl = '', bypassRequested = false, transport = 'cli' }) {
+  void transport;
+  assertSafeTaskId(taskId);
+  if (bypassRequested) throw new Error(NO_TESTS_SUBMIT_ERROR);
+  const boardPath = path.join(workspaceRoot, 'PROJECT_BOARD.md');
+  if (!fs.existsSync(boardPath)) throw new Error('PROJECT_BOARD.md not found.');
+  assertSubmitReady(workspaceRoot, taskId);
+
+  const sessions = listSessions(workspaceRoot).filter(session => session.taskId === taskId && session.mode === 'execution' && session.state !== 'closed');
+  if (sessions.length !== 1) throw new Error(`Automated verification requires one active execution session for ${taskId}.`);
+  const promotion = [...(sessions[0].milestones || [])].reverse().find(milestone => milestone.reason === 'promotion' && /^[0-9a-f]{40}$/i.test(milestone.commit || ''));
+  if (!promotion) throw new Error('Blocked: the authoritative session promotion commit is unavailable.');
+  const candidateCommit = workspaceGit(workspaceRoot, ['rev-parse', 'HEAD']);
+  const changedPaths = workspaceGit(workspaceRoot, ['diff', '--name-only', `${promotion.commit}..${candidateCommit}`]).split(/\r?\n/).filter(Boolean).sort();
+  const checkManifest = selectAutomatedChecks(changedPaths, workspaceRoot);
+  const safetyGate = resolveSubmissionSafetyGate({ candidateCommit, changedPaths, session: sessions[0] });
+  if (safetyGate.result === 'unresolved') {
+    throw new Error('Blocked: Sensitive changes require a passed safety gate.');
+  }
+
+  const checks = [];
+  for (const check of checkManifest) {
+    try {
+      execFileSync(check.command, check.args, { cwd: workspaceRoot, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
+      checks.push({ id: check.id, result: 'passed' });
+    } catch (err) {
+      throw new Error(`Checking: automated check ${check.id} failed.`);
+    }
+  }
+  const optionalLinks = optionalReviewUrl ? [optionalReviewUrl] : [];
+  const decision = automatedVerificationDecision({
+    candidateCommit,
+    checkedCommit: candidateCommit,
+    changedPaths,
+    checkResults: checks,
+    safetyGate,
+    optionalLinks,
+  });
+  if (decision.status !== 'Ready to ship') throw new Error(`${decision.status}: ${decision.reason}`);
+  recordAutomatedVerification(workspaceRoot, taskId, {
+    status: 'passed',
+    baseCommit: promotion.commit,
+    candidateCommit,
+    checkedAt: new Date().toISOString(),
+    checks,
+    changedPaths,
+    checkManifest,
+    safetyGate,
+    optionalLinks,
+  });
+
+  runHook('pre-submit', boardPath);
+  withSubmitLifecycleTransaction(workspaceRoot, taskId, () => {
+    assertSubmitReady(workspaceRoot, taskId);
+    const updates = { status: 'Staging QA' };
+    if (optionalReviewUrl) updates.stagingUrl = `[Optional Review Link](${optionalReviewUrl})`;
+    updateBoardTask(boardPath, taskId, updates);
+    commitBoard(`docs: submit ${taskId} for staging qa`);
+    runGit(['push', 'origin', 'HEAD']);
+  });
+  runHook('post-submit', boardPath);
+  return { status: decision.status, candidateCommit, checks, checkManifest, optionalLinks, prompt: PUSH_LIVE_PROMPT };
+}
+
+function handleSubmit(taskId, stagingUrl = '', options = {}) {
   try {
     assertSafeTaskId(taskId);
   } catch (err) {
@@ -1416,64 +2256,39 @@ function handleSubmit(taskId, stagingUrl = '') {
     process.exit(1);
   }
 
-  const noTests = process.argv.includes('--no-tests');
-
-  if (!noTests) {
+  const workspaceRoot = path.dirname(boardPath);
+  const quickPath = taskId.startsWith('TASK-Q-') ? findQuickRecord(workspaceRoot, taskId) : null;
+  if (quickPath) {
+    const markdown = fs.readFileSync(quickPath, 'utf8');
     try {
-      runTests(boardPath);
+      validateQuickRecordForSubmit(markdown);
     } catch (err) {
       console.error(`❌ Error: ${err.message}`);
-      console.error(`👉 Use --no-tests flag if you need to bypass tests temporarily.\n`);
       process.exit(1);
     }
-  } else {
-    console.log('⚠️  Bypassing local test run (--no-tests flag detected)...');
+    try { runHook('pre-submit', boardPath); } catch (err) {
+      console.error(`❌ Hook pre-submit failed: ${err.message}`);
+      process.exit(1);
+    }
+    fs.writeFileSync(quickPath, markdown.replace(/^Status:\s*in-progress$/mi, 'Status: complete'));
+    const relative = path.relative(workspaceRoot, quickPath);
+    runGit(['add', relative]);
+    if (runGit(['diff', '--cached', '--name-only', '--', relative])) {
+      runGit(['commit', '-m', `docs: close ${taskId} Quick Record`]);
+    }
+    try { runHook('post-submit', boardPath); } catch (err) {
+      console.error(`❌ Hook post-submit failed: ${err.message}`);
+      process.exit(1);
+    }
+    console.log(`✅ Quick BFM ${taskId} closed from its single Quick Record.`);
+    return;
   }
 
   try {
-    runHook('pre-submit', boardPath);
+    const result = performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl: stagingUrl, bypassRequested: options.bypassRequested, transport: 'cli' });
+    console.log(formatAutomatedSubmission(result));
   } catch (err) {
-    console.error(`❌ Hook pre-submit failed: ${err.message}`);
-    process.exit(1);
-  }
-
-  let currentBranch;
-  try {
-    currentBranch = runGit(['rev-parse', '--abbrev-ref', 'HEAD']);
-  } catch (err) {
-    currentBranch = runGit(['branch', '--show-current']);
-  }
-  console.log(`Submitting task ${taskId} from branch ${currentBranch}...`);
-
-  // Update board
-  const updates = { status: 'Staging QA' };
-  if (stagingUrl) {
-    updates.stagingUrl = `[Staging Link](${stagingUrl})`;
-  }
-  updateBoardTask(boardPath, taskId, updates);
-
-  // Commit board separately
-  commitBoard(`docs: submit ${taskId} for staging qa`);
-
-  // Push branch
-  console.log('Pushing feature branch to origin...');
-  runGit('push origin HEAD');
-
-  console.log(`\n✅ Task ${taskId} submitted for Staging QA!`);
-  console.log(`   - Board updated and committed.`);
-  console.log(`   - Branch pushed to remote.`);
-  console.log(`\n👉 Request FB-Product to review the build and merge. Review instructions copied to clipboard!`);
-
-  const reviewPrompt = `${taskId} is ready for review on Staging.
-Staging URL: ${stagingUrl || 'Local / CI Build'}
-Please review the changes and run the merge command:
-node tools/fb-lane.cjs merge ${taskId}`;
-  copyToClipboard(reviewPrompt);
-
-  try {
-    runHook('post-submit', boardPath);
-  } catch (err) {
-    console.error(`❌ Hook post-submit failed: ${err.message}`);
+    console.error(`❌ Error: ${err.message}`);
     process.exit(1);
   }
 }
@@ -1642,11 +2457,12 @@ function handleMcpRequest(request) {
       tools: [
         {
           name: 'fb_lane_status',
-          description: 'Get the current status of the project board, active tasks, and file locks.',
+          description: 'Get the beginner project status card, with optional raw technical details.',
           inputSchema: {
             type: 'object',
             properties: {
-              workspacePath: { type: 'string', description: 'Optional workspace/repo path to search for PROJECT_BOARD.md from.' }
+              workspacePath: { type: 'string', description: 'Optional workspace/repo path to search for PROJECT_BOARD.md from.' },
+              details: { type: 'boolean', description: 'Show the raw technical workstream table.' }
             }
           }
         },
@@ -1708,68 +2524,29 @@ function handleMcpRequest(request) {
       try {
         if (name === 'fb_lane_status') {
           const { tasks } = parseBoard(boardPath);
-          message = `Workspace: ${workspaceRoot}\nActive Workstreams:\n` + tasks.map(t =>
-            `[${t.id}] Status: ${t.status} | Owner: ${t.owner} | Locks: ${t.locks || 'None'} | Scope: ${t.scope}`
-          ).join('\n');
+          message = toolArgs.details
+            ? renderTechnicalStatus(tasks, { format: 'mcp', workspaceRoot })
+            : renderBeginnerStatus(statusInputs(workspaceRoot, tasks));
         } else if (name === 'fb_lane_claim') {
           const { taskId, lane, lockedFiles } = toolArgs;
           assertSafeTaskId(taskId);
           assertSafeLane(lane);
-
-          runHook('pre-claim', boardPath);
-
-          // Run core claim logic
-          const { tasks } = parseBoard(boardPath);
-          const task = tasks.find(t => t.id === taskId);
-          if (!task) throw new Error(`Task ${taskId} not found.`);
-
-          const slug = task.scope.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-          const branchName = `${lane.toLowerCase()}/${taskId}-${slug}`;
-
-          try {
-            runGit(["checkout", "-b", assertSafeBranchName(branchName)]);
-          } catch (e) {
-            runGit(["checkout", assertSafeBranchName(branchName)]);
-          }
-
-          const formattedLocks = !lockedFiles ? '(None)' : lockedFiles.split(',').map(f => `\`${f.trim()}\``).join(', ');
-
-          updateBoardTask(boardPath, taskId, {
-            status: 'In Progress',
-            owner: `FB-${lane.charAt(0).toUpperCase() + lane.slice(1).toLowerCase()}`,
-            locks: formattedLocks,
-            lockedFiles: formattedLocks
+          const output = execFileSync(process.execPath, [__filename, 'claim', taskId, lane, lockedFiles || '(None)'], {
+            cwd: workspaceRoot,
+            env: process.env,
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'pipe'],
           });
-
-          commitBoard(`docs: claim ${taskId} and lock files`);
-
-          // Write Codex context
-          const codexDir = path.join(path.dirname(boardPath), '.codex');
-          if (!fs.existsSync(codexDir)) fs.mkdirSync(codexDir);
-          fs.writeFileSync(path.join(codexDir, 'current_task.md'), `# Context\nTask: ${taskId}\nBranch: ${branchName}`, 'utf8');
-
-          runHook('post-claim', boardPath);
-
-          message = `Successfully claimed ${taskId} on branch ${branchName}. Locks: ${formattedLocks}.`;
+          const branch = (output.match(/^\s*- Branch:\s*(.+)$/mi) || [])[1];
+          const worktreeLine = (output.match(/^\s*- Worktree:\s*(.+)$/mi) || [])[1];
+          const worktree = worktreeLine ? worktreeLine.replace(/\s+\(board stays authoritative.*$/, '').trim() : '';
+          if (!branch || !worktree) throw new Error('Linked-worktree claim completed without branch/worktree details.');
+          const formattedLocks = !lockedFiles ? '(None)' : lockedFiles.split(',').map(file => `\`${file.trim()}\``).join(', ');
+          message = `Successfully claimed ${taskId}.\nBranch: ${branch.trim()}\nWorktree: ${worktree}\nLocks: ${formattedLocks}`;
         } else if (name === 'fb_lane_submit') {
           const { taskId, stagingUrl } = toolArgs;
-          assertSafeTaskId(taskId);
-
-          runHook('pre-submit', boardPath);
-
-          // Run local tests first under MCP
-          runTests(boardPath);
-
-          const updates = { status: 'Staging QA' };
-          if (stagingUrl) updates.stagingUrl = `[Staging Link](${stagingUrl})`;
-
-          updateBoardTask(boardPath, taskId, updates);
-          commitBoard(`docs: submit ${taskId} for staging qa`);
-          runGit('push origin HEAD');
-
-          runHook('post-submit', boardPath);
-
-          message = `Successfully submitted ${taskId} for Staging QA. Branch pushed.`;
+          const result = performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl: stagingUrl, bypassRequested: false, transport: 'mcp' });
+          message = formatAutomatedSubmission(result);
         } else if (name === 'fb_lane_merge') {
           const { taskId } = toolArgs;
           assertSafeTaskId(taskId);
@@ -1839,6 +2616,66 @@ function handleMcpRequest(request) {
   // Ignore other JSON-RPC methods (like notifications)
 }
 
+const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md'];
+const FB_HARNESS_ROUTE_START = '<!-- fb-harness-route-start -->';
+const FB_HARNESS_ROUTE_END = '<!-- fb-harness-route-end -->';
+
+function fbHarnessRoute() {
+  return `${FB_HARNESS_ROUTE_START}
+## FB coordination route
+
+Read [the FB harness](docs/fb/README.md) after \`PROJECT_BOARD.md\`,
+\`docs/handoffs/index.md\`, and the linked handoff. Use the focused page that
+matches the task:
+
+- **Simple task:** This is a simple task, so I’ll handle it directly without lanes or a build brief.
+- **Coordinated planning:** FB will prepare the plan first. It is not building yet.
+- **After approval and explicit \`$bfm\`:** Build For Me (BFM) will now build and check the approved plan.
+
+For returning-project health, use \`$fb-lane status\` for the beginner card.
+For operational lock inspection, use CLI \`node tools/fb-lane.cjs status --details\`
+or MCP \`fb_lane_status({details:true})\`.
+
+- First project, plan, lanes, or approval: [start.md](docs/fb/start.md)
+- Ownership, BFM execution, and closeout: [workflow.md](docs/fb/workflow.md)
+- Test This Now and Verification Handoff: [evidence.md](docs/fb/evidence.md)
+- Sidechat-parent routing and recovery: [guardrails.md](docs/fb/guardrails.md)
+  plus [the project sidechat rule](docs/sidechat-parent-thread-routing.md)
+- Session intake, promotion, checkpoints, recall, review, and closeout:
+  [sessions.md](docs/fb/sessions.md)
+- Eval selection, authority, Quality Gaps, and revision loops:
+  [evals.md](docs/fb/evals.md)
+
+Project-specific instructions and stricter safety rules win.
+${FB_HARNESS_ROUTE_END}`;
+}
+
+function upsertFbHarnessRoute(existing, route) {
+  let searchFrom = 0;
+  while (searchFrom < existing.length) {
+    const start = existing.indexOf(FB_HARNESS_ROUTE_START, searchFrom);
+    if (start === -1) break;
+    const contentStart = start + FB_HARNESS_ROUTE_START.length;
+    const nextStart = existing.indexOf(FB_HARNESS_ROUTE_START, contentStart);
+    const end = existing.indexOf(FB_HARNESS_ROUTE_END, contentStart);
+    if (end !== -1 && (nextStart === -1 || end < nextStart)) {
+      return `${existing.slice(0, start)}${route}${existing.slice(end + FB_HARNESS_ROUTE_END.length)}`;
+    }
+    searchFrom = contentStart;
+  }
+
+  return `${existing}${existing.endsWith('\n') ? '\n' : '\n\n'}${route}\n`;
+}
+
+function installFbHarnessPack(rootDir) {
+  const bundledPackDir = path.join(__dirname, '..', 'docs', 'fb');
+  const projectPackDir = path.join(rootDir, 'docs', 'fb');
+  fs.mkdirSync(projectPackDir, { recursive: true });
+  for (const page of FB_HARNESS_PAGES) {
+    fs.copyFileSync(path.join(bundledPackDir, page), path.join(projectPackDir, page));
+  }
+}
+
 // Main execution parsing
 function handleBootstrap(args = []) {
   let options;
@@ -1849,12 +2686,12 @@ function handleBootstrap(args = []) {
     process.exit(1);
   }
 
-  console.log(`🚀 Bootstrapping FB-Lane Coordination Plugin (${options.platform})...\n`);
+  console.log(`🚀 Bootstrapping FB (${options.platform})...\n`);
   const rootDir = process.cwd();
 
   // 0. Auto-detect project metadata from package.json and git remote URL
   let projectName = path.basename(rootDir);
-  let projectDescription = 'A project using the FB-Lane coordination plugin.';
+  let projectDescription = 'A project using FB coordination.';
   const pkgPath = path.join(rootDir, 'package.json');
   if (fs.existsSync(pkgPath)) {
     try {
@@ -1912,12 +2749,14 @@ When a sidechat prepares work for Product/BFM, use this output shape:
   if (!fs.existsSync(boardPath)) {
     const boardTemplate = `# Project Board — ${projectName}
 > ${projectDescription}
+>
+> Approved primary tagline/current model line.
 
 ## Statuses
 - \`Inbox\`: Newly requested tasks requiring triage.
 - \`Ready\`: Triaged tasks, fully scoped, ready to be claimed.
 - \`In Progress\`: Tasks currently being worked on by an owner.
-- \`Staging QA\`: Features deployed to staging, awaiting visual/functional verification.
+- \`Staging QA\`: Candidate awaiting verification. Record the actual local, sandbox, staging, or completed-build environment separately.
 - \`Done\`: Checked, verified, and merged to production by FB-Product.
 
 ---
@@ -1937,7 +2776,7 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 *   **Scope**: Create initial files, initialize repository layout.
 *   **Out of Scope**: Writing application business logic.
 *   **Goal Alignment Session**:
-    *   **Objective**: Give Product one ready-to-run FB-Lane workspace bootstrap with approved OKRs, generated coordination files, basic commands, and clear next-step guidance.
+    *   **Objective**: Give Product one ready-to-run FB workspace bootstrap with approved OKRs, generated coordination files, basic commands, and clear next-step guidance.
     *   **Key Results**:
         *   Board, rules, CLI, and handoff folder exist.
         *   \`doctor\` reports no blocking setup errors.
@@ -1962,7 +2801,7 @@ When a sidechat prepares work for Product/BFM, use this output shape:
     *   *2026-06-15*: Scoped task and marked ready for execution.
 
 ### Mode Selection Trigger Rule
-- Default to normal/simple coding unless the objective has a coordination trigger. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
+- Default to normal/simple coding unless the objective has a coordination trigger. Use FB light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
 - Keep quick tasks lightweight: read board/locks, claim or note only exact files needed, and skip extra ceremony unless another lane or Product must continue it.
 
 ### Goal Alignment Session (non-trivial tasks only)
@@ -2011,46 +2850,20 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
     console.log('ℹ️  PROJECT_BOARD.md already exists, skipping.');
   }
 
-  // 2. Create AGENTS.md if missing
+  // 2. Install the canonical harness and add only a managed route to project-owned instructions.
   const agentsPath = path.join(rootDir, 'AGENTS.md');
+
+  installFbHarnessPack(rootDir);
+  console.log('📝 Installed docs/fb/ harness pack.');
+  const harnessRoute = fbHarnessRoute();
   if (!fs.existsSync(agentsPath)) {
-    const agentsTemplate = `# Agent & Thread Coordination Rules — ${projectName}
-
-This project uses the standard **FB-Lane Four-Lane Coordination Model** to enable safe concurrent development.
-
-### 0. Mode Selection Trigger Rule
-- Default to normal/simple coding unless the objective has a coordination trigger. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
-- Keep quick tasks lightweight: read board/locks, claim or note only exact files needed, and skip extra ceremony unless another lane or Product must continue it.
-
-### 1. Lane Scopes & Boundaries
-*   **FB-Product (PM / Integration User Value)**: Owns final product decisions, task prioritization, scoping, BFM launch, staging/live deployments, and release gates. Product owns the approved Product/workstream or BFM-target OKR plus relevant stable lane OKRs in \`PROJECT_BOARD.md\`. Product is read-only on application/source code and may write coordination markdown only. Source changes happen only inside a Product-launched BFM execution run.
-*   **Completion Audit Rule**: Product reports delivered work, lane-specific verification, unresolved gates, and one loop health flag (\`healthy\`, \`watch\`, \`needs Product review\`, or \`blocked\`) as separate statuses for every lane. Do not call any workstream "done" or "executed" unless required evidence exists; otherwise mark the missing gate as pending or blocked.
-*   **FB-Tech (Backend / Logic)**: Owns database schemas, APIs, serverless functions, database security, configuration scripts, and unit/integration test suites. *Does not make styling, layout geometry, or UI changes.*
-*   **FB-Design (UI/UX / Styling)**: Owns CSS, theme tokens, styling classes, asset management, and visual viewports. *Does not edit database schemas, API routes, or backend logic.*
-*   **FB-Business (Copy / Positioning)**: Owns application copy, documentation, and marketing content. *Operates in a read-only capacity.*
-*   **Passive Closeout Notes**: Every lane leaves a final informational note in its thread when it stops work. The note records task ID, status, delivered work, evidence, remaining gates, and handoff path; Product/BFM closeouts also record one loop health flag. After Product/BFM executes, merges, rejects, or explicitly defers a handoff, update the detailed handoff with \`## Product/BFM Closeout\` including Status, Actioned By, Result, Evidence, Remaining, Closeout Note, and Loop Learning. Notes must avoid commands, @/$ invocations, or instructions to open, start, run, or ask another lane.
-*   **Goal Alignment Session**: For non-trivial work, Product/BFM owns the approved OKR tree in the board detail block: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant. Worker lanes report \`Product Goal\`, \`Workstream Goal\`, \`Lane OKR Fit\`, \`User Approval Needed\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\` in handoffs instead of rewriting OKRs. \`/goal\` is a Product/BFM shortcut into the same session; workstreams do not own it. Do not generate a fresh OKR for every task. Good objective: \`Objective: Let a signed-in user reach the camera preview, capture one mirrored photo, and save it locally without a full-page reload.\` Bad objective: \`Objective: finish the feature.\` Skip this extra ceremony for \`TASK-Q-*\` quick tasks.
-*   **Handoff Index**: \`PROJECT_BOARD.md\` is truth for status, sequencing, gates, ownership, and file locks. \`docs/handoffs/index.md\` is routing. Detailed handoffs are detail. Before non-quick Product/BFM sequencing, create or refresh the index if handoffs exist and the lookup is missing, stale, or too vague. Keep the index compact with \`Task / Topic\`, \`Lane\`, \`Status\`, \`Depends / Blocks / Gate\`, \`Checks / Evidence\`, and \`Detail\`; do not put full OKRs, QA checklists, plans, logs, rationale, copy variants, or implementation detail there.
-*   **Workstream Status Cards**: \`docs/workstreams/<lane>.md\` is a compact revisit summary, not a second board. Product/BFM updates the detailed handoff with \`## Product/BFM Closeout\`, then updates the relevant card after executing or explicitly deferring a lane handoff. Returning lanes read \`PROJECT_BOARD.md\`, \`docs/handoffs/index.md\`, then their lane card before opening detailed handoffs. Cards show current summary, what Product/BFM already executed, what remains pending or blocked, and evidence links only.
-*   **Awareness, Isolation, Integration**: \`PROJECT_BOARD.md\` and \`docs/handoffs/index.md\` create shared awareness like a standup; branches/worktrees isolate execution like separate desks; BFM integrates outcomes like Product/release review. Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
-*   **Sidechat-to-Main Prompt Handoff**: Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready handoff for their originating parent main thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; Product/BFM retains those execution and durable-record responsibilities. Read \`docs/sidechat-parent-thread-routing.md\`: a sidechat may hand off only to its originating parent main thread, never chooses another destination by role, project, name, recency, or Product/BFM status, and returns the paste-ready handoff to the user if the parent is unavailable. A non-parent main treats it as ordinary user-provided context. A sidechat prompt is not source of truth until Product/BFM records it in \`PROJECT_BOARD.md\`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no command, dashboard, \`doctor\` expansion, source behavior, or required ceremony is needed for quick clarification. Sidechat output format: Decision summary, Scope, Out of scope, Recommended owner/lane, Files/docs likely affected, Acceptance criteria, Gates/risks, Exact instruction for Product/BFM.
-*   **BFM OKR Gate**: BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree. If work conflicts with approved OKRs, BFM proposes aligned approaches, scope, or sequence and recommends one; it does not dynamically create or edit OKRs during execution.
-*   **BFM Return Loop**: When Product/BFM processes all lane handoffs, every handoff must be marked \`implemented\`, \`already done\`, \`blocked\`, \`out of scope\`, or \`explicitly deferred\`. Return to board, handoffs, source/docs/tests, lane status, and git status before closeout. Name whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If checks touched external services, also name test mode, created records/resources, cleanup evidence, or the pending cleanup gate. Add one loop health flag: \`healthy\`, \`watch\`, \`needs Product review\`, or \`blocked\`; do not numeric-score the loop.
-*   **Verification Handoff**: Before asking the user to test, add \`## Verification Handoff\` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted. Record the Next Product/BFM recovery action and complete safe recovery before involving the user. A missing or stalled check remains pending or blocked; ask the user only for a real approval or external manual, device, or account gate.
-*   **Workspace Recovery**: When Git, file reads, worktrees, or test runners repeatedly stall or return implausible data, run a bounded workspace-health preflight before further claims. Check available disk capacity against a documented project threshold; unless a stricter policy is documented, use a 15 GiB free-capacity threshold. Also check File Provider or synchronized-storage ancestry where relevant, stable double-read hashes for representative files, and bounded Git status/diff probes with a 15-second timeout per probe. On a second consecutive failure in the same checkout, stop using it and enter clean-clone recovery. Preserve commits and explicitly owned artifacts through normal Git operations; never copy damaged .git, index, or worktree metadata, and never treat manual object plumbing or an unbounded temporary runner as passing evidence.
-*   **Proactive Loop Hardening**: When repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework appears, Product/BFM proposes one small guardrail with observed pattern, cost, benefit, affected files/rules, and approval needed before changing the process. Skip one-off or low-impact issues.
-
-### 2. The Board Loop & Resource Locking
-1. **Plan**: Product scopes the item; workstreams produce markdown plans or handoffs instead of editing source. For non-trivial work Product reads existing approved OKRs first, proposes only missing Product/workstream or lane OKRs needed for clarity, asks the user to approve them, and starts execution only after marking \`Approval: approved\`. Do not generate a fresh OKR for every task. \`TASK-Q-*\` quick tasks can skip this extra ceremony.
-2. **Execute**: Product launches BFM. BFM execution workers confirm board/status/locks plus the relevant handoff index, claim task/files on the board, and work in named isolated branches or worktrees (\`bfm/[feature]\`, \`tech/[feature]\`, or \`design/[feature]\`).
-3. **Audit**: When complete, the BFM execution worker pushes the branch, moves the board item to \`Staging QA\` using \`node tools/fb-lane.cjs submit\`, records delivered work, lane-specific verification, unresolved gates, task, branch/worktree, lane, locked files, branch/worktree state, plus a \`## Goal Alignment Session\` handoff section with \`Product Goal\`, \`Workstream Goal\`, \`Lane OKR Fit\`, \`User Approval Needed\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\`, and leaves a passive closeout note.
-4. **Merge**: \`FB-Product\` runs verification/release gates, reconciles lane \`Workstream Goal\`, \`Lane OKR Fit\`, \`User Approval Needed\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\` before merge, verifies required evidence for every lane, merges the branch to main using \`node tools/fb-lane.cjs merge\`, and releases locks.
-5. **Revisit Summary**: Product/BFM updates the detailed handoff with \`## Product/BFM Closeout\`, then refreshes the relevant \`docs/workstreams/<lane>.md\` card after execution or explicit deferral so returning lane threads can see what already happened without rereading every detailed handoff.
-`;
-    fs.writeFileSync(agentsPath, agentsTemplate, 'utf8');
-    console.log('📝 Created AGENTS.md');
+    fs.writeFileSync(agentsPath, `# Agent & Thread Coordination Rules — ${projectName}\n\n${harnessRoute}\n`, 'utf8');
+    console.log('📝 Created AGENTS.md route.');
   } else {
-    console.log('ℹ️  AGENTS.md already exists, skipping.');
+    const existingAgents = fs.readFileSync(agentsPath, 'utf8');
+    const updatedAgents = upsertFbHarnessRoute(existingAgents, harnessRoute);
+    if (updatedAgents !== existingAgents) fs.writeFileSync(agentsPath, updatedAgents, 'utf8');
+    console.log('🔄 Updated managed FB route in AGENTS.md.');
   }
 
   // 3b. Create docs/handoffs/ directory for handoff files
@@ -2099,7 +2912,7 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
   const evalsDir = path.join(rootDir, 'docs', 'evals');
   if (!fs.existsSync(evalsDir)) {
     fs.mkdirSync(evalsDir, { recursive: true });
-    console.log('📁 Created docs/evals/ (optional agent-behavior scorecards)');
+    console.log('📁 Created docs/evals/ (curated eval records and compatibility scorecards)');
   } else {
     console.log('ℹ️  docs/evals/ already exists, skipping.');
   }
@@ -2108,126 +2921,39 @@ This project uses the standard **FB-Lane Four-Lane Coordination Model** to enabl
     fs.writeFileSync(scorecardPath, agentBehaviorScorecardTemplate(), 'utf8');
     console.log('📝 Created docs/evals/agent-behavior-scorecard-template.md');
   }
-
-  // 4. Inject FB-Lane section into .codex/rules.md (non-destructive)
-  if (options.includeCodex) {
-    const codexDir = path.join(rootDir, '.codex');
-    if (!fs.existsSync(codexDir)) {
-      fs.mkdirSync(codexDir);
-    }
-    const codexRulesPath = path.join(codexDir, 'rules.md');
-    const CODEX_FB_START = '<!-- fb-lane-start -->';
-    const CODEX_FB_END = '<!-- fb-lane-end -->';
-    const codexFbBlock = `${CODEX_FB_START}
-## FB-Lane Coordination
-
-This project uses the FB-Lane Four-Lane Coordination Model.
-
-### Mode selection
-Default to normal/simple coding unless the objective has a coordination trigger. Use FB-Lane light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
-
-### On every session start
-1. Read \`PROJECT_BOARD.md\` — check active tasks and file locks.
-2. Read \`.codex/current_task.md\` if it exists — it contains your task ID, branch, and locked files. Follow it exactly.
-3. Confirm your active branch matches the task. If not, stop and notify the user.
-4. Never modify files that are locked by another active task.
-5. For handoff discovery, read \`docs/handoffs/index.md\` first and open only the relevant detailed handoff files. If non-quick handoffs exist and the index is missing, stale, or too vague, Product/BFM should create or refresh the compact lookup before sequencing.
-6. For lane revisit status, read \`docs/workstreams/<lane>.md\` after the board and handoff index. Treat it as a summary only, not truth.
-7. Before source execution, confirm board/status/locks and the relevant handoff index.
-
-### Lane boundaries
-- **FB-Tech**: backend, APIs, schemas, tests only. Never touch CSS or layout.
-- **FB-Design**: CSS, tokens, layout only. Never touch backend logic or schemas.
-- **FB-Business**: read-only on source code. Write to markdown docs only.
-- **FB-Product**: direction, sequencing, BFM launch, integration, merges, and deployments. Product is read-only on application/source code and may write coordination markdown only.
-- **All workstreams**: plan-only by default. They may ask questions, investigate, and write markdown plans/handoffs. Source changes happen only inside a Product-launched BFM execution run.
-- **Workstream status cards**: Product/BFM updates the detailed handoff with \`## Product/BFM Closeout\`, then refreshes \`docs/workstreams/<lane>.md\` after executing or explicitly deferring a lane handoff. Returning lanes use it to report already-executed work, pending or blocked work, and evidence links without reopening every detailed handoff.
-
-### Awareness, isolation, integration
-- \`PROJECT_BOARD.md\` and \`docs/handoffs/index.md\` create shared awareness like a standup.
-- \`docs/workstreams/<lane>.md\` adds a compact revisit summary; it must not duplicate the board, OKRs, QA logs, plans, or implementation detail.
-- Branches/worktrees isolate execution like separate desks.
-- BFM integrates outcomes like Product/release review.
-- Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.
-
-${sidechatGuideMarkdown}
-
-### Goal Alignment Session
-- For non-trivial work, FB-Product/BFM owns the approved OKR tree in \`PROJECT_BOARD.md\`: a Product/workstream or BFM-target OKR plus stable lane OKRs where relevant.
-- BFM blocks before execution when approval is missing, OKRs are unclear, handoffs imply an unapproved OKR change, or handoffs conflict with the approved OKR tree.
-- If work conflicts with approved OKRs, BFM proposes alternative approaches, scope, or sequence that align to the existing OKR tree and recommends one; it does not dynamically create or edit OKRs during execution.
-- Lane handoffs include \`## Goal Alignment Session\`, \`Product Goal\`, \`Workstream Goal\`, \`Lane OKR Fit\`, \`User Approval Needed\`, \`Mini-loop Evidence\`, and \`Evidence Against Product OKR\`.
-- Reuse or clarify approved OKRs; do not generate one per task. Skip this ceremony for \`TASK-Q-*\` quick tasks.
-
-### BFM return loop
-- When processing all lane handoffs, Product/BFM must mark every handoff \`implemented\`, \`already done\`, \`blocked\`, \`out of scope\`, or \`explicitly deferred\`.
-- Return to \`PROJECT_BOARD.md\` after reading handoffs, to each handoff after coding, to source/docs/board after tests, to lane status after board/doc updates, and to \`git status\` after commit/push.
-- During isolated work, name the task, branch/worktree, lane, and locked files.
-- Close only when board, source, docs, and tests agree, or every disagreement is explicitly recorded. Report whether the branch/worktree is clean, merged, stale, blocked, or intentionally dirty. If intentionally dirty, record exact files, owner, reason, next gate, and session-boundary action on PROJECT_BOARD.md; at the next session boundary, Product/BFM must continue that task, commit it, revert it, archive it into a handoff, or mark it blocked/deferred before starting new source work. If checks touched external services, also report test mode, created records/resources, cleanup evidence, or the pending cleanup gate.
-- Add one loop health flag at closeout: \`healthy\`, \`watch\`, \`needs Product review\`, or \`blocked\`. Do not numeric-score the loop.
-- Add \`Loop Learning\` at closeout: feedback captured, repeated pattern (\`no|yes\`), tooling needed (\`none|propose guardrail|propose automation|propose eval\`), and Product approval needed (\`no|yes\`).
-
-### Verification Handoff
-- Before asking the user to test, add \`## Verification Handoff\` to the task handoff with the candidate branch or commit, a Test plan: link, exact commands, environment, results, runnable evidence links, manual pass criteria, and any recovery attempted.
-- Record the Next Product/BFM recovery action and complete safe recovery before involving the user. A missing or stalled check remains pending or blocked; ask the user only for a real approval or external manual, device, or account gate.
-- Workspace recovery: when Git, file reads, worktrees, or test runners repeatedly stall or return implausible data, run a bounded workspace-health preflight before further claims. Check available disk capacity against a documented project threshold; unless a stricter policy is documented, use a 15 GiB free-capacity threshold. Also check File Provider or synchronized-storage ancestry where relevant, stable double-read hashes for representative files, and bounded Git status/diff probes with a 15-second timeout per probe. On a second consecutive failure in the same checkout, stop using it and enter clean-clone recovery. Preserve commits and explicitly owned artifacts through normal Git operations; never copy damaged .git, index, or worktree metadata, and never treat manual object plumbing or an unbounded temporary runner as passing evidence.
-
-### Proactive loop hardening
-- Product/BFM should proactively propose one small guardrail when it sees repeated workflow failure, coordination friction, stale state, missing evidence, or preventable rework.
-- Proposal format: observed pattern, recommended guardrail, cost, benefit, files/rules affected, and approval needed.
-- Use \`Loop Learning\` as the escalation trigger: \`none\`, \`propose guardrail\`, \`propose automation\`, or \`propose eval\`.
-- When \`Loop Learning\` chooses \`propose eval\`, use \`docs/evals/agent-behavior-scorecard-template.md\` as a small Markdown scorecard. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger \`doctor\` rules unless Product/BFM separately proposes that heavier option with pros/cons and the user explicitly approves it.
-- Approval autonomy is phased. Start in Shadow Approval: ask the user, but record \`Would self-approve: yes/no\` and the reason. Product/BFM may recommend Phase 2 after one day or three matching decisions with no material miss, and Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate; the user approves phase changes. Workstreams may mark \`safe to auto-accept\`, but Product/BFM owns actual self-approval. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state.
-- Once the user approves a safe Product/BFM task or problem, Product/BFM keeps going through routine diagnosis, implementation, verification, board/handoff updates, commit, staging, and cleanup until solved or explicitly blocked. When the user says BFM, Product/BFM flags blockers, recommends how to address them, executes the recommended safe unblock path inside the approved scope, and keeps looping until every task is done, explicitly deferred, out of scope, or blocked by a real stop point. Report after closeout, not before every routine step. Stop for live deploy, secrets/credentials, payments, auth/privacy, destructive data or provider-state changes, new scope or OKR changes, unclear goals, active lock conflicts, failed evidence needing risk acceptance, physical-device/manual external actions, or an explicit pause.
-- Do not silently mutate the process. Skip one-off or low-impact issues.
-
-### CLI commands (run from project root)
-- \`node tools/fb-lane.cjs status\` — view all tasks and locks
-- \`node tools/fb-lane.cjs claim <id> <lane>\` — BFM execution worker claims task, checkout branch, lock files
-- \`node tools/fb-lane.cjs submit <id>\` — run tests, push branch, mark Staging QA
-- \`node tools/fb-lane.cjs merge <id>\` — merge to main, release locks (FB-Product only)
-
-### Rules
-- Never commit directly to \`main\`.
-- Commit \`PROJECT_BOARD.md\` updates in a separate commit from code changes.
-- Max 5 debug retries before marking task \`Blocked\` and notifying the user.
-- If tests, builds, browser checks, \`git add\`, or \`.git/*.lock\` files stall Product, record \`pending-gate\` or \`blocked\` and return execution to BFM sequencing.
-${CODEX_FB_END}`;
-
-    if (!fs.existsSync(codexRulesPath)) {
-      fs.writeFileSync(codexRulesPath, codexFbBlock + '\n', 'utf8');
-      console.log('📝 Created .codex/rules.md with FB-Lane section.');
-    } else {
-      const existingCodex = fs.readFileSync(codexRulesPath, 'utf8');
-      if (existingCodex.includes(CODEX_FB_START)) {
-        // Update in-place — idempotent
-        const updatedCodex = existingCodex.replace(
-          new RegExp(`${CODEX_FB_START}[\\s\\S]*?${CODEX_FB_END}`),
-          codexFbBlock
-        );
-        fs.writeFileSync(codexRulesPath, updatedCodex, 'utf8');
-        console.log('🔄 Updated existing FB-Lane section in .codex/rules.md.');
-      } else {
-        // Append — never overwrite user's existing rules
-        const appendedCodex = existingCodex.trimEnd() + '\n\n---\n\n' + codexFbBlock + '\n';
-        fs.writeFileSync(codexRulesPath, appendedCodex, 'utf8');
-        console.log('✅ Appended FB-Lane section to your existing .codex/rules.md.');
-      }
-    }
-  } else {
-    console.log('ℹ️  Skipping Codex rules for this platform.');
+  const evalRecordPath = path.join(evalsDir, 'eval-record-template.md');
+  if (!fs.existsSync(evalRecordPath)) {
+    fs.writeFileSync(evalRecordPath, evalRecordTemplate(), 'utf8');
+    console.log('📝 Created docs/evals/eval-record-template.md');
   }
 
-  console.log('\n🎉 FB-Lane Plugin bootstrapped successfully!');
+  // 4. Add or refresh only the managed FB route in Codex rules.
+  if (options.includeCodex) {
+    const codexDir = path.join(rootDir, '.codex');
+    fs.mkdirSync(codexDir, { recursive: true });
+    const codexRulesPath = path.join(codexDir, 'rules.md');
+    if (!fs.existsSync(codexRulesPath)) {
+      fs.writeFileSync(codexRulesPath, `# Codex project rules\n\n${harnessRoute}\n`, 'utf8');
+      console.log('📝 Created .codex/rules.md route.');
+    } else {
+      const existingCodex = fs.readFileSync(codexRulesPath, 'utf8');
+      const updatedCodex = upsertFbHarnessRoute(existingCodex, harnessRoute);
+      if (updatedCodex !== existingCodex) fs.writeFileSync(codexRulesPath, updatedCodex, 'utf8');
+      console.log('🔄 Updated managed FB route in .codex/rules.md.');
+    }
+  }
+
+  console.log('\n🎉 FB bootstrapped successfully!');
   console.log('======================================================================');
-  console.log('🚀 QUICK START GUIDE: HOW TO USE FB-LANE RIGHT AWAY');
+  console.log('🚀 QUICK START GUIDE: HOW TO USE FB RIGHT AWAY');
   console.log('======================================================================');
-  console.log('1. Open this workspace in Codex.');
-  console.log('2. Start with: $fb-lane status');
-  console.log('3. Describe the work normally. Workstreams plan in markdown; Product launches BFM for source-changing execution.');
-  console.log('4. Run health checks any time with: node tools/fb-lane.cjs doctor');
+  console.log('1. Describe your new project normally.');
+  console.log('2. Simple task: This is a simple task, so I’ll handle it directly without lanes or a build brief.');
+  console.log('3. Coordinated planning: FB will prepare the plan first. It is not building yet. Lanes investigate and plan different parts.');
+  console.log('4. Product combines findings into one build brief. You approve the brief. Only after explicit $bfm, BFM builds and checks it. After approval, use explicit $bfm to start Build For Me execution.');
+  console.log('5. Use $fb-lane status for returning project health: current objective, visible stage, and next action.');
   console.log('======================================================================');
-  console.log('👉 Codex: Start a new thread and use `$fb-lane status` or select the FB-Lane plugin prompt.');
+  console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');
 }
 
@@ -2235,43 +2961,56 @@ function main() {
   const args = process.argv.slice(2);
   const command = args[0] ? args[0].toLowerCase() : '';
 
-  if (command === 'mcp') {
+  if (command === 'session') {
+    try {
+      runSessionCommand(args.slice(1));
+    } catch (err) {
+      console.error(`❌ Error: ${err.message}`);
+      process.exit(1);
+    }
+  } else if (command === 'mcp') {
     runMcpServer();
   } else if (command === 'status') {
-    handleStatus();
+    handleStatus({ details: args.includes('--details') });
   } else if (command === 'doctor') {
     handleDoctor();
   } else if (command === 'bootstrap') {
     handleBootstrap(args.slice(1));
   } else if (command === 'claim') {
     const rest = args.slice(1);
-    const useWorktree = rest.some(a => a === '--worktree' || a === '-w');
-    const positional = rest.filter(a => a !== '--worktree' && a !== '-w');
+    const noWorktree = rest.includes('--no-worktree');
+    const positional = rest.filter(a => a !== '--worktree' && a !== '-w' && a !== '--no-worktree');
     const taskId = positional[0];
     const lane = positional[1];
     const locks = positional[2];
     if (!taskId || !lane) {
-      console.error('❌ Error: Usage: node tools/fb-lane.cjs claim <task-id> <lane> [locked_files] [--worktree]');
+      console.error('❌ Error: Usage: node tools/fb-lane.cjs claim <task-id> <lane> [locked_files] [--no-worktree]');
       process.exit(1);
     }
-    handleClaim(taskId, lane, locks, { worktree: useWorktree });
+    handleClaim(taskId, lane, locks, { worktree: !noWorktree });
   } else if (command === 'submit') {
     const taskId = args[1];
-    let stagingUrl = args[2] === '--no-tests' ? '' : args[2];
+    const bypassRequested = args.includes('--no-tests');
+    const stagingUrl = args.slice(2).find(arg => arg !== '--no-tests') || '';
     if (!taskId) {
       console.error('❌ Error: Usage: node tools/fb-lane.cjs submit <task-id> [staging_url] [--no-tests]');
       process.exit(1);
     }
-    handleSubmit(taskId, stagingUrl);
+    handleSubmit(taskId, stagingUrl, { bypassRequested });
   } else if (command === 'quick') {
-    const lane = args[1];
-    const lockedFiles = args[2];
-    const scope = args.slice(3).join(' ') || 'Quick Edit';
+    const quickArgs = args.slice(1);
+    const noWorktree = quickArgs.includes('--no-worktree');
+    const approvalIndex = quickArgs.indexOf('--approval-ref');
+    const approvalReference = approvalIndex >= 0 && !String(quickArgs[approvalIndex + 1] || '').startsWith('--') ? quickArgs[approvalIndex + 1] : '';
+    const positional = quickArgs.filter((arg, index) => arg !== '--worktree' && arg !== '-w' && arg !== '--no-worktree' && arg !== '--approval-ref' && (approvalIndex < 0 || index !== approvalIndex + 1));
+    const lane = positional[0];
+    const lockedFiles = positional[1];
+    const scope = positional.slice(2).join(' ');
     if (!lane || !lockedFiles) {
-      console.error('❌ Error: Usage: node tools/fb-lane.cjs quick <lane> <locked_files> [scope_description]');
+      console.error('❌ Error: Usage: node tools/fb-lane.cjs quick <lane> <locked_files> <scope_description> --approval-ref <reference>');
       process.exit(1);
     }
-    handleQuick(lane, lockedFiles, scope);
+    handleQuick(lane, lockedFiles, scope, { worktree: !noWorktree, approvalReference });
   } else if (command === 'merge') {
     const taskId = args[1];
     if (!taskId) {
@@ -2284,12 +3023,13 @@ function main() {
 🤖 FB-Lane Automation Tool
 ==========================
 Usage:
+  ${sessionUsage()}
   node tools/fb-lane.cjs bootstrap [--platform codex]   - Bootstrap project board, rules, tools, and folders
   node tools/fb-lane.cjs doctor                         - Check FB-Lane setup health without writing files
-  node tools/fb-lane.cjs status                         - Print active tasks & locks
-  node tools/fb-lane.cjs claim <id> <lane> [locks] [-w] - Claim task, checkout branch (or --worktree for parallel BFM execution workers), copy prompt
-  node tools/fb-lane.cjs claim ... --worktree           - Claim into an isolated git worktree for true parallel branches
-  node tools/fb-lane.cjs quick <lane> <locks> [desc]    - Create & claim a fast-track quick task
+  node tools/fb-lane.cjs status [--details]             - Print the beginner status card or raw technical table
+  node tools/fb-lane.cjs claim <id> <lane> [locks]      - Claim task in a linked worktree by default
+  node tools/fb-lane.cjs claim ... --no-worktree        - Use the legacy single-checkout compatibility path
+  node tools/fb-lane.cjs quick <lane> <locks> <desc> --approval-ref <reference> - Create an approved quick task in a linked worktree
   node tools/fb-lane.cjs submit <id> [url] [--no-tests] - Run tests, submit task, update board, push branch
   node tools/fb-lane.cjs merge <id>                     - Merge branch to main, release locks, delete branch
   node tools/fb-lane.cjs mcp                            - Run local Model Context Protocol (MCP) server
@@ -2309,6 +3049,17 @@ module.exports = {
   assertSafeTaskId,
   assertSafeLane,
   assertSafeBranchName,
+  visibleStageFor,
+  performAutomatedSubmission,
+  formatAutomatedSubmission,
+  resolveSubmissionSafetyGate,
+  selectStatusTarget,
+  renderBeginnerStatus,
+  renderTechnicalStatus,
+  classifyBfmClass,
+  parseWorktreePorcelain,
+  resolveWorktreePlan,
+  renderQueueSummary,
   TASK_ID_PATTERN,
   LANE_PATTERN,
 };

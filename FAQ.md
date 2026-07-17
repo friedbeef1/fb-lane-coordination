@@ -1,346 +1,42 @@
-# FB-Lane FAQ
+# FB FAQ
 
-## Is this just project management?
+## How is FB different from vanilla Codex or Kurrent Capacitor?
 
-No. Project management tracks work. Loop Engineering makes agent work return to
-the approved goal, evidence, board state, and repo truth before Product calls it
-complete.
+Codex executes software work. Capacitor is a session-intelligence platform. FB
+is a product-delivery harness that includes curated session intelligence.
+Capacitor and FB overlap in recall, evidence, and evaluation; FB connects those
+records to the approved product brief, execution authority, quality, closeout,
+and exactly what the user should test. See [Why FB](docs/why-fb.md) for the
+honest comparison, diagrams, evidence-backed pain points, and examples.
 
-The board matters because agents need durable state. It is not the product. The
-product is the loop: approved Product/workstream OKRs, stable lane OKRs,
-mini-loop evidence return, BFM reconciliation, and clean closeout.
+## Do I need FB for every task?
 
-## Does Codex already do this?
+No. Use normal work for simple one-thread questions or isolated edits. Use FB
+when durable coordination, lanes, handoffs, locks, or Product/BFM decisions are
+part of the objective. See [the mode guide](docs/fb/README.md).
 
-Codex already provides a lot of the execution machinery:
+## What happens before a build starts?
 
-- Codex has plugins, skills, subagents, MCP, and worktrees.
+Product gives the Project Start Brief, selects only useful lanes, records a
+build brief, and asks for approval. Build For Me (BFM) executes only after
+approval and explicit `$bfm`.
+The complete user-facing contract is in [start.md](docs/fb/start.md).
 
-FB-Lane does not replace those primitives. It adds the coordination contract:
-approved goal, owner, evidence, merge/defer decision, and BFM source-change gate.
+## Where do I find the current task?
 
-Think of it as awareness, isolation, integration: the board and handoff index are
-the shared standup, branches/worktrees are separate desks for execution, and BFM
-is Product/release review.
+`PROJECT_BOARD.md` is truth, `docs/handoffs/index.md` routes to detail, and
+workstream cards are summaries. [workflow.md](docs/fb/workflow.md) explains the
+read order and ownership.
 
-## When should I skip FB-Lane?
+## How do I test an outcome?
 
-Skip it when none of the listed coordination triggers apply. Default to
-normal/simple coding for:
+Ask for the Test This Now packet: direct links, exact steps, pass criteria,
+known limits, and a failure-report format. [evidence.md](docs/fb/evidence.md)
+defines that packet and the Verification Handoff.
 
-- one-thread fixes
-- read-only questions
-- code explanations
-- tiny quick edits
-- isolated edits
-- throwaway experiments
-- independent work where native worktrees are enough
+## Can a sidechat execute work or choose another main thread?
 
-Use FB-Lane light when the objective mentions handoffs, board items, lanes, BFM,
-Product, Design, Business, coordination files, board-locked files, multiple
-threads/agents/workstreams, or durable context. Keep quick tasks lightweight:
-read the board/locks and avoid extra handoff or OKR ceremony unless another lane
-or Product must continue it.
-
-Escalate to Product/BFM when the work requires deciding what to build, sequence,
-defer, approve, merge, release, stage, or launch; crosses
-pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets,
-deploy/staging/live gates; touches camera/capture/save/export or another core
-product flow; or needs multiple lane outputs reconciled before source changes.
-
-## What is Loop Engineering?
-
-Loop Engineering is the practice of keeping five things aligned:
-
-1. the approved goal
-2. the work that BFM executes from approved plans
-3. the evidence they return
-4. the board state Product uses to sequence
-5. the repo truth in source, docs, tests, and git
-
-Read the full model in [docs/loop-engineering.md](docs/loop-engineering.md).
-
-## Does FB-Lane have its own OKR?
-
-Yes. The framework OKR is the north star: help Product Leads run multi-agent
-work without losing alignment between goals, evidence, board state, and repo
-truth.
-
-The numbers are directional. If a context-saving target is missed but the work
-is still safe, Product/BFM flags `watch`. If the miss can affect sequencing,
-scope, or closeout safety, Product/BFM flags `needs Product review` or
-`blocked`.
-
-## Is FB-Lane CI/CD?
-
-No. FB-Lane is a coordination loop. It has CI readiness evidence for Product/BFM
-closeout, and CI can be required before merge. Staging, live deploy, plugin
-release, and publish decisions remain manual Product decisions.
-
-## What are evals here?
-
-Evals are checks for agent behavior. They ask whether Product/BFM ran the loop
-properly: approved goal, plan-only lanes, accounted handoffs, matching evidence,
-and honest blockers.
-
-Do not start with an eval framework. Use a short Markdown scorecard when the
-same agent mistake repeats. The reusable shape is in
-`docs/evals/agent-behavior-scorecard-template.md`: non-Product execution gate,
-BFM closeout accounting, evidence honesty, and goal/scope fit.
-
-## Are workstream threads read-only?
-
-Yes. Product, Tech, Design, and Business workstream threads are planning lanes
-by default. They can ask questions, inspect context, critique, and write
-markdown plans or handoffs. They do not edit source code, branch, commit,
-submit, merge, deploy, or change provider state from ordinary workstream chat.
-
-Product can edit coordination markdown such as the board, plans, handoffs, OKRs,
-Definition of Done, sequencing notes, and closeout notes. Source changes happen
-only after Product launches BFM.
-
-If you say `PLEASE IMPLEMENT THIS PLAN` in a non-Product/BFM lane, the lane
-should confirm whether to hand it to Product/BFM or treat that lane as an
-explicit one-off execution exception.
-
-## How does code change if lanes are read-only?
-
-Product launches **BFM (Build Flow Manager)**. BFM reads the approved markdown
-plans, checks whether the batch should be split into smaller stories, sequences
-the work, claims files, dispatches implementation workers, runs verification,
-and returns evidence before closeout.
-
-Before source execution, the worker reads board/status/locks plus the relevant
-handoff index. During isolated work, it names the task, branch/worktree, lane,
-and locked files. At closeout, it reports whether the branch/worktree is clean,
-merged, stale, blocked, or intentionally dirty.
-If checks touched a real provider, database, payment system, email system, or
-analytics workspace, the same closeout names test mode, created records or
-resources, cleanup evidence, or the pending cleanup gate.
-
-## What does Product approve?
-
-For non-quick BFM runs, Product and the user discuss the Product/workstream OKR
-first. After explicit user approval, Product records the Goal Alignment Session
-on `PROJECT_BOARD.md`:
-
-- `Objective`
-- `Key Results`
-- `Definition of Done`
-- `Gate / Review Point`
-- `Approval`
-- `Justification`
-
-Stable lane OKRs are the standing Tech, Design, Business, and Product quality
-anchors that lanes use while planning or proving their slice. Mini-loop evidence is the
-proof each lane returns from its smallest real check, review, or smoke.
-
-Once approved, BFM should change the approach, scope, or sequence to fit the
-Product/workstream OKR. It should not silently rewrite the approved OKR or
-dynamically create a new one during execution. OKRs are added or changed only
-after discussion and explicit user approval.
-
-Do not generate a fresh OKR for every task. Reuse or clarify the approved
-Product/workstream or BFM-target OKR, and let tasks report fit, caveats, and
-evidence.
-
-## What does `doctor` check?
-
-`doctor` is read-only:
-
-```bash
-node tools/fb-lane.cjs doctor
-```
-
-It checks whether the repo's loop state looks healthy: board files, rules,
-handoff folder, handoff index, active locks, git state, non-quick handoff
-`Workstream Goal`, `Lane OKR Fit`, `User Approval Needed`, `Mini-loop Evidence`, `Evidence Against Product OKR`, approved
-Goal Alignment Session OKRs, and handoffs that imply unapproved OKR changes.
-
-In the current public beta it warns. It does not change `submit` behavior and
-does not hard-block quick `TASK-Q-*` work.
-
-It should not become a giant rule engine. Use `doctor` for obvious missing or
-stale structure; use Product/BFM judgment for loop health.
-
-## Does FB-Lane improve itself automatically?
-
-Not silently. Product/BFM should proactively propose a small guardrail when the
-same workflow failure, stale state, missing evidence, or preventable rework
-repeats. The proposal names the pattern, benefit, cost, affected files/rules,
-and approval needed. It should skip one-off or low-impact issues.
-
-Closeout carries the trigger:
-
-```md
-Loop Learning:
-- Feedback captured: <none | issue found>
-- Repeated pattern?: no | yes
-- Tooling needed?: none | propose guardrail | propose automation | propose eval
-- Product approval needed?: no | yes
-```
-
-That is how the system knows when heavier tooling is worth discussing without
-building it by default.
-
-## Should I use `/goal`?
-
-Use `/goal` when you want to pull the existing Goal Alignment Session forward
-before execution. It should show, create, clarify, or ask approval for the
-current Product/BFM goal. It is not a second goal system, and workstream chats
-should not own it. Workstreams put `Workstream Goal` and `User Approval Needed`
-in their handoff for Product/BFM and the user to approve.
-
-## Can the loops self-approve?
-
-Eventually, for low-risk continuation work. Start with **Shadow Approval**:
-Product/BFM asks the user and records `Would self-approve: yes/no` with the
-reason. After the user approves a safe task or problem, Product/BFM should keep
-going through routine diagnosis, implementation, verification, board/handoff
-updates, commit, staging, and cleanup until solved or explicitly blocked. It
-reports after closeout. It still stops for live deploy, secrets/credentials,
-payments, auth/privacy, destructive data or provider-state changes, new scope or
-OKR changes, unclear goals, lock conflicts, failed evidence needing risk
-acceptance, or an explicit pause.
-It may recommend Phase 2 after one day or three matching decisions with
-no material miss. It may recommend Phase 3 after five safe self-approvals with
-no rollback, stale dirty state, or hidden gate.
-
-Phase changes are recommended by Product/BFM and approved by the user. Workstream
-loops can mark work `safe to auto-accept`, but Product/BFM owns actual
-self-approval. Never self-approve new scope, new OKRs, live deploys, secrets,
-payments, auth/privacy, destructive data, provider-state changes, unclear goals,
-failed evidence, lock conflicts, or unresolved dirty state.
-
-## How should sidechats hand off to the main thread?
-
-Sidechats are discussion and planning spaces by default. Use them to ask questions, compare options, review tradeoffs, produce recommendations, and generate a paste-ready handoff for their originating parent main thread. They do not own board updates, handoff files, source changes, commits, validation, or closeout; Product/BFM retains those execution and durable-record responsibilities.
-
-Parent-thread routing is mandatory: follow [the canonical sidechat parent-thread rule](docs/sidechat-parent-thread-routing.md). Do not infer another destination from role, project, name, recency, or Product/BFM status. If the parent is unavailable, return the handoff to the user; a non-parent main treats it as ordinary user-provided context.
-
-A sidechat prompt is not source of truth until Product/BFM records it in `PROJECT_BOARD.md`, the relevant handoff, or durable docs. Keep tiny questions lightweight: no new command, dashboard, `doctor` expansion, source behavior, or required ceremony is needed for a quick clarification.
-
-When a sidechat prepares work for Product/BFM, use this output shape:
-
-- Decision summary:
-- Scope:
-- Out of scope:
-- Recommended owner/lane:
-- Files/docs likely affected:
-- Acceptance criteria:
-- Gates/risks:
-- Exact instruction for Product/BFM:
-
-
-## Why is there a handoff index?
-
-To avoid token waste. `PROJECT_BOARD.md` stays the source of truth. The index is
-a compact routing layer so agents can find the one or two relevant handoffs
-without reading every historical closeout.
-
-The index is routing, not detail. Use compact columns: `Task / Topic`, `Lane`,
-`Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`. Keep
-full OKRs, QA checklists, plans, logs, rationale, copy variants, and
-implementation detail in the detailed handoff files.
-
-If the index starts duplicating the board, it is wrong. The board is truth; the
-index is lookup.
-
-Worktrees do not replace this lookup. No lane should disappear into a private
-worktree, build a huge unannounced diff, edit source without board/lock
-awareness, or close without BFM reconciliation when multiple outputs exist.
-
-## What are workstream status cards?
-
-They are small lane revisit summaries at `docs/workstreams/<lane>.md`.
-
-Product/BFM updates the detailed handoff with `## Product/BFM Closeout`, then
-updates the relevant card after executing or explicitly deferring a lane handoff.
-When someone returns to Tech, Design, Business, or Product, the lane reads the
-board, the handoff index, then its card to see what Product/BFM already did,
-what is still pending or blocked, and where the evidence lives.
-
-They are not a second board. Do not put full OKRs, QA logs, plans, rationale,
-copy variants, or implementation detail there.
-
-## Are the lanes mandatory?
-
-No. The lanes are roles inside the loop:
-
-- Product/BFM owns goals, sequencing, and closeout.
-- Tech owns technical plans, logic risks, data/integration recommendations, reliability, and test strategy.
-- Design owns UI plans, layout critique, visual QA plans, and asset guidance.
-- Business owns positioning, onboarding copy, pricing, and marketing text plans.
-
-If one thread can safely do the work, use one thread. If ownership is split,
-lanes keep the split visible.
-
-## Do frontend changes need generated images?
-
-Not always, but visible frontend/UI plans default to a pre-build visual preview.
-The plan should name `Visual Preview Decision`: `browser screenshot/mockup`,
-`imagegen asset/style option`, or `skip with reason`.
-
-Use the actual browser or a mockup for concrete layout, responsive, component,
-or flow decisions. Use imagegen for brand direction, logos, hero or
-illustration assets, camera/lens concepts, or visual style options where
-generated bitmap exploration helps. Skip only for non-visual work, tiny copy,
-spacing, or single-control fixes.
-
-## Is Definition of Done the same as TDD?
-
-No. Definition of Done says what must be true before closeout. TDD is one way to
-build and prove behavior when a feature or bugfix has a clear testable contract.
-
-Use TDD for state-changing logic and regressions. Use other evidence for docs,
-visual QA, copy, sequencing, or Product approval.
-
-## Where do I install it?
-
-Start with the [Codex platform guide](platforms/codex/README.md).
-
-Fallback bootstrap paths are in [docs/setup.md](docs/setup.md).
-
-## How do I upgrade the Codex plugin?
-
-After the repo changes are merged, reinstall from the configured marketplace:
-
-```bash
-codex plugin marketplace upgrade fb-lane
-codex plugin add fb-lane-coordination@fb-lane
-codex plugin list | rg "fb-lane-coordination"
-```
-
-Start a new Codex thread after reinstalling so the refreshed plugin context is
-loaded.
-
-## What version is this?
-
-The current GitHub documentation line is **FB-Lane 0.2.0-beta: Loop Engineering
-public beta**.
-
-Current plugin build: Codex `0.2.0-beta+codex.20260716052513`. Use
-`codex plugin list | rg "fb-lane-coordination"` to see the installed build.
-
-See [docs/versioning.md](docs/versioning.md) for the v1-to-latest before/after.
-
-## What happened to Claude Code and Antigravity support?
-
-Those integrations are paused and are not supported, installed, released, or
-tested. Contributors may revive an integration by following the
-[paused-integration checklist](docs/paused-integrations.md).
-
-## Why is it called FB-Lane?
-
-Because **Flow Builder** sounded better than “the thing that stops projects
-from getting stuck.”
-
-Some alternate expansions survived the naming process:
-
-- Friction Breaker
-- Force Build
-- Full Build
-- Fried Beef
-
-The official name is Flow Builder. The unofficial names are available for team
-folklore.
+No. Sidechats are planning spaces and route only to their originating parent.
+[guardrails.md](docs/fb/guardrails.md) contains the safety and recovery rules.
+[sessions.md](docs/fb/sessions.md) contains the optional durable-session lifecycle,
+clone-local privacy boundary, checkpoint push behavior, recall, and closeout gate.

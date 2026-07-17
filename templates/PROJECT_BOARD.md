@@ -4,8 +4,8 @@
 - `Inbox`: Newly requested tasks requiring triage.
 - `Ready`: Triaged tasks, fully scoped, ready to be claimed.
 - `In Progress`: Tasks currently being worked on by an owner.
-- `Staging QA`: Features deployed to staging, awaiting visual/functional verification.
-- `Done`: Checked, verified, and merged to production by FB-Product.
+- `Staging QA`: Candidate awaiting verification. Record the actual local, sandbox, staging, or completed-build environment separately.
+- `Done`: Checked, verified, and merged to production by FB Product.
 
 ---
 
@@ -13,18 +13,18 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-001 | Ready | FB-Product | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \| [PR #1](https://github.com/example/repo/pull/1) |
+| TASK-001 | Ready | FB Product | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \| [PR #1](https://github.com/example/repo/pull/1) |
 
 ---
 
 ### TASK-001 - Project Setup & Bootstrap
 *   **Status**: Ready
-*   **Owner / Thread**: FB-Product
+*   **Owner / Thread**: FB Product
 *   **Area**: Setup
 *   **Scope**: Create initial files, initialize repository layout.
 *   **Out of Scope**: Writing application business logic.
 *   **Goal Alignment Session**:
-    *   **Objective**: Bootstrap FB-Lane safely so future non-trivial tasks have a stable Product/workstream OKR, relevant lane OKRs, clear locks, and durable handoffs.
+    *   **Objective**: Bootstrap FB safely so future non-trivial tasks have a stable Product/workstream OKR, relevant lane OKRs, clear locks, and durable handoffs.
     *   **Key Results**:
         *   Board, rules, CLI, and handoff folder exist.
         *   `doctor` reports no blocking setup errors.
@@ -112,7 +112,7 @@ At closeout, Product/BFM records one flag: `healthy`, `watch`, `needs Product re
 ### Loop Learning
 At closeout, Product/BFM also records whether feedback was captured, whether the pattern repeated, whether tooling is needed (`none`, `propose guardrail`, `propose automation`, or `propose eval`), and whether Product approval is needed. Heavier tooling starts from this field; it is not added automatically.
 
-If `Loop Learning` chooses `propose eval`, create a small Markdown scorecard under `docs/evals/` with sections for non-Product execution gate, BFM closeout accounting, evidence honesty, and goal/scope fit. Do not add eval runners, dashboards, numeric scoring, CI eval jobs, or bigger `doctor` rules unless Product/BFM proposes that heavier option with pros/cons and the user explicitly approves it.
+If `Loop Learning` chooses `propose eval`, copy `docs/evals/eval-record-template.md` and follow `docs/fb/evals.md`. Every new record starts shadow; Product/BFM records authority decisions, and promotion to blocking or mechanical needs explicit Product approval evidence. Do not add eval runners, semantic judges, dashboards, numeric scoring, CI eval jobs, hosted capture, external integrations, or automatic promotion.
 
 ### Approval Autonomy
 Start in Phase 1 Shadow Approval: Product/BFM still asks the user, but records `Would self-approve: yes/no` and the reason. Product/BFM may recommend Phase 2 after one day or three matching decisions with no material miss, and Phase 3 after five safe self-approvals with no rollback, stale dirty state, or hidden gate; the user approves phase changes. Workstreams may mark work `safe to auto-accept`, but Product/BFM owns actual self-approval. Never self-approve new scope, new OKRs, live deploys, secrets, payments, auth/privacy, destructive data, provider-state changes, unclear goals, failed evidence, lock conflicts, or unresolved dirty state.

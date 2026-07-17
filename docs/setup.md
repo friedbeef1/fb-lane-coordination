@@ -2,9 +2,9 @@
 
 This page is tactical. For the operating model behind these commands, read
 [Loop Engineering](loop-engineering.md). For version naming and the v1-to-latest
-before/after, read [FB-Lane Versions](versioning.md).
+before/after, read [FB Versions](versioning.md).
 
-FB-Lane currently supports Codex only. Start with the
+FB currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
 setup paths when you are not installing through the plugin flow.
 
@@ -13,9 +13,9 @@ setup paths when you are not installing through the plugin flow.
 If you already have an AI agent open in your target project workspace, paste this:
 
 ```text
-I want to bootstrap the FB-Lane Coordination Plugin in this workspace.
-Read the template files and CLI utility from the fb-lane-coordination repository.
-Copy tools/fb-lane.cjs to my project's root tools/ directory.
+I want to bootstrap the FB coordination plugin in this workspace.
+Read the template files and CLI utilities from the fb-lane-coordination repository.
+Use the documented archive fallback so the three runtime modules, all seven docs/fb pages, and both docs/evals template assets arrive together.
 Run node tools/fb-lane.cjs bootstrap to set up my project board, lane rules, Codex rules, and handoff routing.
 Do not overwrite existing project rules; merge with them conservatively.
 ```
@@ -28,8 +28,14 @@ The agent should create or update the local coordination files, including
 From your target project root:
 
 ```bash
-mkdir -p tools
-curl -o tools/fb-lane.cjs https://raw.githubusercontent.com/friedbeef1/fb-lane-coordination/main/tools/fb-lane.cjs
+FB_LANE_ARCHIVE_URL="${FB_LANE_ARCHIVE_URL:-https://github.com/friedbeef1/fb-lane-coordination/archive/refs/heads/main.tar.gz}"
+fb_lane_tmp="$(mktemp -d)"
+trap 'rm -rf "$fb_lane_tmp"' EXIT
+curl -fsSL "$FB_LANE_ARCHIVE_URL" | tar -xz -C "$fb_lane_tmp" --strip-components=1
+mkdir -p tools docs/fb docs/evals
+cp "$fb_lane_tmp"/tools/fb-{lane,session,eval,efficiency}.cjs tools/
+cp "$fb_lane_tmp"/docs/fb/{README,start,workflow,evidence,guardrails,sessions,evals}.md docs/fb/
+cp "$fb_lane_tmp"/docs/evals/{eval-record-template,agent-behavior-scorecard-template}.md docs/evals/
 node tools/fb-lane.cjs bootstrap
 ```
 
@@ -39,12 +45,13 @@ What bootstrap creates:
 - lane boundary rules in `AGENTS.md`
 - local Codex rules in `.codex/rules.md`
 - handoff routing index in `docs/handoffs/index.md`
+- the seven-page harness, including `docs/fb/sessions.md` and `docs/fb/evals.md`
 - Codex-ready lane guidance
 
 ## Upgrade Existing Codex Plugin Install
 
 When the plugin source has been updated and merged, reinstall the plugin from the
-configured FB-Lane marketplace:
+configured FB marketplace:
 
 ```bash
 codex plugin marketplace upgrade fb-lane
@@ -79,18 +86,50 @@ node tools/fb-lane.cjs submit TASK-001
 node tools/fb-lane.cjs merge TASK-001
 ```
 
-For concurrent BFM execution workers, prefer worktrees:
+Claims and quick tasks now use linked worktrees by default. Use the compatibility
+flag only when a repository explicitly requires a single checkout:
 
 ```bash
-node tools/fb-lane.cjs claim TASK-001 Tech "src/api.ts" --worktree
+node tools/fb-lane.cjs claim TASK-001 Tech "src/api.ts" --no-worktree
 ```
+
+FB reuses an exact matching linked worktree. Otherwise it resolves the primary
+checkout from Git and creates the worker under `<primary>/.worktrees/`, never
+under the linked worktree that happened to launch the command.
+
+Projects may add an optional runtime-agnostic preflight to `.fb-lane.json`:
+
+```json
+{
+  "hooks": {
+    "preflight": "./scripts/workspace-health.sh"
+  }
+}
+```
+
+The command runs before claim or quick-task mutation. Its failure stops with
+the project command visible. FB does not supply a global Node version or assume
+a package manager.
 
 For a tiny BFM execution slice:
 
 ```bash
-node tools/fb-lane.cjs quick Tech "src/utils.ts" "Fix db indexing"
+node tools/fb-lane.cjs quick Tech "src/utils.ts" "Fix db indexing" --approval-ref "USER-APPROVAL-001"
 ```
 
 Quick tasks skip the OKR approval gate; they do not bypass the BFM source-change
 boundary. Do not create per-task OKRs or loop health scoring for `TASK-Q-*`
-work.
+work. The existing public `quick` command is not itself the internal **Quick BFM
+Patch** classification; an approved existing task receives that class only when
+the bounded low-risk rules in [workflow.md](fb/workflow.md) pass.
+
+## Session Data And Removal
+
+Repository-local sessions keep transcript-free JSON under the Git common
+directory and curated recaps in `docs/sessions/`. Upgrades preserve all
+project-owned instruction text outside the managed FB route markers and refresh
+the bundled seven-page harness. Before removing the plugin, close or preserve any
+active session evidence. Plugin removal does not delete project-owned boards,
+handoffs, recaps, or instructions. If no session command is running, optional
+clone-local cleanup may remove `fb-sessions` and a confirmed dead
+`fb-sessions.lock` from the Git common directory.
