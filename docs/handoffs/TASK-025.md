@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-025
 lane: fb-product
-status: in-progress
+status: staging-qa
 okr_fit: aligned
 ---
 
@@ -41,9 +41,9 @@ Recovery: Product/BFM owns broken-link, wording, parity, and validator repair be
 
 ## Product/BFM Closeout
 
-Status: In Progress.
+Status: Staging QA — local Product review complete.
 Actioned By: FB-Product / BFM.
-Result: Pending implementation and verification.
-Evidence: Baseline beginner 10/10, recovery contract, validator, and doctor Ready passed before edits.
-Remaining: Implement, verify, and review locally. Release and all external-action gates remain closed.
+Result: FB now has one canonical, packaged-mirrored comparison that presents Codex, Kurrent Capacitor, and FB as overlapping systems with different primary emphases. It includes two Mermaid diagrams, three concrete examples, and six pain-point rows linked to existing feedback/eval records.
+Evidence: Candidate `3af1f17` plus board repair `53b387e`; the focused contract first failed because `docs/why-fb.md` was absent, then passed in root and package. CLI 70/70, session 31/31, eval 18/18, beginner 10/10, full validator, doctor Ready, mirror parity, wording guards, and whitespace passed.
+Remaining: Product may review or merge the local branch. Release, publication, deployment, plugin install, and consumer-project changes remain separate and unauthorized.
 Loop Learning: Feedback captured: yes; Repeated pattern?: yes; Tooling needed?: focused documentation contract; Product approval needed?: no - the slice was explicitly approved.
