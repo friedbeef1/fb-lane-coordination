@@ -4,7 +4,7 @@ Last Updated: 2026-07-17
 Lane: FB-Product
 
 ## Current Summary
-TASK-024 is approved and in progress on `codex/fb-beginner-clarity`. It adds a beginner-facing mode, status, and pause layer while preserving the technical coordination engine and explicit details view. Baseline root/package CLI suites passed 45/45. The task is local implementation/review only; no eval promotion, release, publication, deployment, merge, plugin install, or consumer-project change is authorized.
+TASK-024 is Product-accepted in local Staging QA on `codex/fb-beginner-clarity` at candidate `cc13389`. It adds distinct simple/planning/Build For Me entry messages, a beginner status card with explicit technical details mode, worktree-safe session selection, canonical Test This Now link resolution, one pause-card contract, and exactly three shadow eval scenarios. Root/package CLI 70/70, session 31/31, eval 18/18, beginner 10/10, recovery, validator, doctor Ready, parity, whitespace, task reviews, and final whole-branch re-review passed with no Critical, Important, or Minor finding. No eval authority changed and no push, merge, publication, deployment, plugin install, release, or consumer-project change is authorized.
 
 TASK-022 and TASK-023 are Product-accepted and final-review-approved in local Staging QA on `codex/fb-eval-loop`. Final submit lifecycle repair `f94dce9` extends the same per-session transaction through CLI/MCP final validation, board commit, and push, with deterministic submit-versus-close/checkpoint and close-wins-first coverage. Root/package eval 18/18, root/package session 31/31, root/package CLI 45/45, recovery, selected closeout, the complete clean gate, committed-diff whitespace, and doctor Ready passed with `TASK_022_FINAL_SUBMIT_SERIALIZATION_FULL_GATE_OK`; the final 21-commit combined review found no Critical, Important, or Minor issue. No eval was promoted and no release, publication, deployment, merge, plugin install, or consumer-project change is authorized.
 
@@ -36,10 +36,11 @@ TASK-017 is done: [PR #31](https://github.com/friedbeef1/fb-lane-coordination/pu
 - Implemented and locally verified TASK-023's canonical/package Markdown eval lifecycle, compatibility template, two shadow walkthroughs, deterministic validator/doctor/session closeout integration, and seven-page bootstrap without adding a judge, runner, score, dashboard, CI job, external integration, or authority promotion.
 - Completed final integrated TASK-022/TASK-023 repair `fe733a1` with deterministic concurrency, Quality Gap close/submit, MCP linked-worktree, generated-placeholder, and selected-anchor regressions; all root/package mirrors and the clean full gate pass.
 - Completed submit lifecycle serialization repair `f94dce9`; CLI and MCP retain pre-submit hook/test revalidation and now hold the same-session lock through their final board commit and push.
+- Implemented and locally accepted TASK-024's beginner interaction, status, pause, review-link, and three-shadow-eval layer at `cc13389`; repaired all task and whole-branch findings with regression-first evidence and preserved the separate release gate.
 
 ## Still Pending / Blocked
 
-TASK-024 implementation, verification, and independent review are pending. TASK-022/TASK-023 have no remaining internal implementation or review gate. TASK-021's Product local gate and any separately authorized merge/release decision remain. TASK-020 and TASK-019 have no internal gate. No publication, release, deployment, merge, plugin install, or package/API migration is authorized.
+TASK-024 has no remaining local implementation or review gate; its version/merge/install/release decision remains separate. TASK-022/TASK-023 have no remaining internal implementation or review gate. TASK-021's Product local gate and any separately authorized merge/release decision remain. TASK-020 and TASK-019 have no internal gate. No publication, release, deployment, merge, plugin install, or package/API migration is authorized.
 
 ## Evidence Links
 - PROJECT_BOARD.md
