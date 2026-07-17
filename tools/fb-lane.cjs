@@ -1892,7 +1892,13 @@ function handleQuick(lane, lockedFiles, scopeDescription = '', options = {}) {
   }
 
   if (!lane || !lockedFiles) {
-    console.error('❌ Error: Usage: node tools/fb-lane.cjs quick <lane> <locked_files> [scope_description]');
+    console.error('❌ Error: Usage: node tools/fb-lane.cjs quick <lane> <locked_files> <scope_description> --approval-ref <reference>');
+    process.exit(1);
+  }
+
+  const approvalReference = String(options.approvalReference || '').trim();
+  if (!approvalReference || /^(?:pending|unverified|none|n\/a)$/i.test(approvalReference)) {
+    console.error('❌ Error: Quick BFM requires a concrete --approval-ref <reference> before any write.');
     process.exit(1);
   }
 
@@ -1919,7 +1925,7 @@ function handleQuick(lane, lockedFiles, scopeDescription = '', options = {}) {
     scope: scopeDescription,
     locks: lockedFiles,
     successCriteria: `The focused contract for ${lockedFiles} passes.`,
-    details: { approval: 'approved' },
+    details: { approval: `approved; Reference: ${approvalReference}` },
   }, { lockConflict });
   if (policy.mode !== 'Quick BFM') {
     console.error(`❌ Error: This request cannot use quick; ${policy.reason}. Route it through Full BFM.`);
@@ -2010,6 +2016,7 @@ function handleQuick(lane, lockedFiles, scopeDescription = '', options = {}) {
     verificationPlan: `Run only the focused checks for ${lockedFiles}.`,
     branch: branchName,
     worktree: worktreePath || quickRoot,
+    approvalReference,
     brief: 'Current approved Quick correction.',
     candidate: branchName,
     feedback: scopeDescription,
@@ -2958,15 +2965,17 @@ function main() {
   } else if (command === 'quick') {
     const quickArgs = args.slice(1);
     const noWorktree = quickArgs.includes('--no-worktree');
-    const positional = quickArgs.filter(arg => arg !== '--worktree' && arg !== '-w' && arg !== '--no-worktree');
+    const approvalIndex = quickArgs.indexOf('--approval-ref');
+    const approvalReference = approvalIndex >= 0 && !String(quickArgs[approvalIndex + 1] || '').startsWith('--') ? quickArgs[approvalIndex + 1] : '';
+    const positional = quickArgs.filter((arg, index) => arg !== '--worktree' && arg !== '-w' && arg !== '--no-worktree' && arg !== '--approval-ref' && (approvalIndex < 0 || index !== approvalIndex + 1));
     const lane = positional[0];
     const lockedFiles = positional[1];
     const scope = positional.slice(2).join(' ');
     if (!lane || !lockedFiles) {
-      console.error('❌ Error: Usage: node tools/fb-lane.cjs quick <lane> <locked_files> [scope_description]');
+      console.error('❌ Error: Usage: node tools/fb-lane.cjs quick <lane> <locked_files> <scope_description> --approval-ref <reference>');
       process.exit(1);
     }
-    handleQuick(lane, lockedFiles, scope, { worktree: !noWorktree });
+    handleQuick(lane, lockedFiles, scope, { worktree: !noWorktree, approvalReference });
   } else if (command === 'merge') {
     const taskId = args[1];
     if (!taskId) {
@@ -2985,7 +2994,7 @@ Usage:
   node tools/fb-lane.cjs status [--details]             - Print the beginner status card or raw technical table
   node tools/fb-lane.cjs claim <id> <lane> [locks]      - Claim task in a linked worktree by default
   node tools/fb-lane.cjs claim ... --no-worktree        - Use the legacy single-checkout compatibility path
-  node tools/fb-lane.cjs quick <lane> <locks> [desc]    - Create a fast-track quick task in a linked worktree
+  node tools/fb-lane.cjs quick <lane> <locks> <desc> --approval-ref <reference> - Create an approved quick task in a linked worktree
   node tools/fb-lane.cjs submit <id> [url] [--no-tests] - Run tests, submit task, update board, push branch
   node tools/fb-lane.cjs merge <id>                     - Merge branch to main, release locks, delete branch
   node tools/fb-lane.cjs mcp                            - Run local Model Context Protocol (MCP) server

@@ -29,6 +29,7 @@ const bounded = {
   locks: 'src/status.js',
   successCriteria: 'Focused status contract passes',
   details: { approval: 'approved' },
+  approvalReference: 'USER-APPROVAL-001',
 };
 
 test('mode router gives safety and ambiguity precedence', () => {
@@ -151,6 +152,10 @@ test('Quick submit lifecycle enforces evidence, progress, and declared run budge
     [markdown.replace('Cost limit: unavailable', 'Cost limit: 2').replace('Authoritative cost: unavailable', 'Authoritative cost: 2'), /cost/i],
     [markdown.replace('Agent iterations: 1', 'Agent iterations: 2').replace('Material progress: initial execution', 'Material progress: none'), /material progress/i],
     [markdown.replace('Reviewers: 1', 'Reviewers: 2'), /one reviewer/i],
+    [markdown.replace('Approval reference: USER-APPROVAL-001', 'Approval reference: pending'), /approval reference/i],
+    [markdown.replace('Reviewer decision: approved', 'Reviewer decision: pending'), /reviewer decision|approved/i],
+    [markdown.replace('Reviewer decision: approved', 'Reviewer decision: rejected'), /reviewer decision|approved/i],
+    [markdown.replace(/^Reviewer decision: approved\n/m, ''), /reviewer decision|approved/i],
     [markdown.replace('Focused evidence: Focused status contract passed', 'Focused evidence: pending'), /focused evidence/i],
   ];
   for (const [candidate, pattern] of invalid) {

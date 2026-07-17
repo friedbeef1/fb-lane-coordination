@@ -114,7 +114,7 @@ a package manager.
 For a tiny BFM execution slice:
 
 ```bash
-node tools/fb-lane.cjs quick Tech "src/utils.ts" "Fix db indexing"
+node tools/fb-lane.cjs quick Tech "src/utils.ts" "Fix db indexing" --approval-ref "USER-APPROVAL-001"
 ```
 
 Quick tasks skip the OKR approval gate; they do not bypass the BFM source-change

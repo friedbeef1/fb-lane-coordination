@@ -48,6 +48,7 @@ Owner: ${input.owner}
 Locked files: ${input.locks}
 Success criteria: ${input.successCriteria}
 Approval: approved
+Approval reference: ${input.approvalReference}
 Branch: ${input.branch || 'pending'}
 Worktree: ${input.worktree || 'current'}
 Focused verification: ${input.verificationPlan}
@@ -120,7 +121,9 @@ function numericField(markdown, name, fallback = NaN) {
 }
 
 function validateQuickRecordForSubmit(markdown, options = {}) {
+  const approvalReference = field(markdown, 'Approval reference');
   const reviewer = field(markdown, 'Reviewer');
+  const reviewerDecision = field(markdown, 'Reviewer decision');
   const focusedEvidence = field(markdown, 'Focused evidence');
   const reviewers = numericField(markdown, 'Reviewers');
   const iterations = numericField(markdown, 'Agent iterations');
@@ -132,7 +135,9 @@ function validateQuickRecordForSubmit(markdown, options = {}) {
   const startedAt = numericField(markdown, 'Started at epoch ms');
   const elapsedLimit = numericField(markdown, 'Elapsed limit minutes');
   const now = options.now ?? Date.now();
+  if (!approvalReference || /^(?:pending|unverified|none|n\/a)$/i.test(approvalReference)) throw new Error('Quick BFM submit requires a concrete approval reference.');
   if (!reviewer || /^pending$/i.test(reviewer) || reviewer.includes(',') || reviewers !== 1) throw new Error('Quick BFM submit requires exactly one reviewer.');
+  if (!/^approved$/i.test(reviewerDecision)) throw new Error('Quick BFM submit requires Reviewer decision: approved.');
   if (!focusedEvidence || /^pending$/i.test(focusedEvidence)) throw new Error('Quick BFM submit requires focused evidence.');
   if (!Number.isFinite(iterations) || iterations > 5) throw new Error('A sixth agent iteration is blocked.');
   if (!Number.isFinite(repairs) || repairs > 2) throw new Error('A third repair loop is blocked.');

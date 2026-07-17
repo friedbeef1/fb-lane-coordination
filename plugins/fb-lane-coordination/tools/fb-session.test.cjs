@@ -1487,7 +1487,7 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
   try {
     const boardBefore = fs.readFileSync(path.join(quickFixture.repo, 'PROJECT_BOARD.md'), 'utf8');
     const indexBefore = fs.readFileSync(path.join(quickFixture.repo, 'docs', 'handoffs', 'index.md'), 'utf8');
-    const quick = run(quickFixture.repo, ['quick', 'Tech', 'src/quick.js', 'Real quick worktree']);
+    const quick = run(quickFixture.repo, ['quick', 'Tech', 'src/quick.js', 'Real quick worktree', '--approval-ref', 'USER-APPROVAL-001']);
     assertOk(quick);
     const branch = /Branch:\s+(quick\/TASK-Q-\d+-real-quick-worktree)/.exec(quick.stdout)?.[1];
     const worktree = /Worktree:\s+([^\n]+)/.exec(quick.stdout)?.[1]?.trim();
@@ -1503,6 +1503,7 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
     assert.ok(fs.existsSync(record));
     assert.ok(!fs.existsSync(primaryRecord), 'default Quick Record must never be created in the primary checkout');
     assert.match(fs.readFileSync(record, 'utf8'), /mode: Quick BFM/i);
+    assert.match(fs.readFileSync(record, 'utf8'), /^Approval reference: USER-APPROVAL-001$/mi);
     assert.strictEqual(fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8'), boardBefore);
     assert.strictEqual(fs.readFileSync(path.join(worktree, 'docs', 'handoffs', 'index.md'), 'utf8'), indexBefore);
     assert.ok(!fs.existsSync(path.join(worktree, 'docs', 'sessions')));
@@ -1515,6 +1516,16 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
       .replace('Reviewer decision: pending', 'Reviewer decision: approved')
       .replace('Focused evidence: pending', 'Focused evidence: focused quick test passed')
       .replace('Reviewers: 0', 'Reviewers: 1');
+    for (const invalidDecision of [
+      ready.replace('Reviewer decision: approved', 'Reviewer decision: pending'),
+      ready.replace('Reviewer decision: approved', 'Reviewer decision: rejected'),
+      ready.replace(/^Reviewer decision: approved\n/m, ''),
+    ]) {
+      fs.writeFileSync(record, invalidDecision);
+      const blockedDecision = run(worktree, ['submit', taskId, '--no-tests']);
+      assertFailed(blockedDecision, /Reviewer decision|approved/i);
+      assert.match(fs.readFileSync(record, 'utf8'), /Status: in-progress/);
+    }
     const overBudget = ready.replace('Agent iterations: 1', 'Agent iterations: 6');
     fs.writeFileSync(record, overBudget);
     const blockedSubmit = run(worktree, ['submit', taskId, '--no-tests']);
@@ -1537,7 +1548,7 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
 
   for (const command of [
     ['claim', 'TASK-001', 'Tech', 'src/app.js', '--no-worktree'],
-    ['quick', 'Tech', 'src/quick.js', 'Compatibility path', '--no-worktree'],
+    ['quick', 'Tech', 'src/quick.js', 'Compatibility path', '--approval-ref', 'USER-APPROVAL-002', '--no-worktree'],
   ]) {
     const fixture = command[0] === 'claim'
       ? createRepo([{ id: 'TASK-001', status: 'Ready', locks: 'src/app.js' }])
@@ -1547,6 +1558,25 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
       assertOk(result);
       assert.strictEqual(git(fixture.repo, ['worktree', 'list', '--porcelain']).split(/\n(?=worktree )/).length, 1);
       assert.notStrictEqual(git(fixture.repo, ['branch', '--show-current']), 'main');
+    } finally {
+      fixture.cleanup();
+    }
+  }
+});
+
+test('public quick requires concrete approval evidence before any write', () => {
+  for (const approvalArgs of [[], ['--approval-ref'], ['--approval-ref', 'pending'], ['--approval-ref', 'unverified']]) {
+    const fixture = createRepo();
+    try {
+      const beforeHead = git(fixture.repo, ['rev-parse', 'HEAD']);
+      const beforeBoard = fs.readFileSync(path.join(fixture.repo, 'PROJECT_BOARD.md'), 'utf8');
+      const beforeHandoffs = fs.readdirSync(path.join(fixture.repo, 'docs', 'handoffs')).sort();
+      const result = run(fixture.repo, ['quick', 'Tech', 'src/quick.js', 'Correct copy', ...approvalArgs, '--no-worktree']);
+      assertFailed(result, /approval|reference/i);
+      assert.strictEqual(git(fixture.repo, ['rev-parse', 'HEAD']), beforeHead);
+      assert.strictEqual(git(fixture.repo, ['branch', '--show-current']), 'main');
+      assert.strictEqual(fs.readFileSync(path.join(fixture.repo, 'PROJECT_BOARD.md'), 'utf8'), beforeBoard);
+      assert.deepStrictEqual(fs.readdirSync(path.join(fixture.repo, 'docs', 'handoffs')).sort(), beforeHandoffs);
     } finally {
       fixture.cleanup();
     }
@@ -1574,7 +1604,7 @@ test('public quick rejects Full-BFM risks and lock conflicts before any write', 
       const beforeHead = git(fixture.repo, ['rev-parse', 'HEAD']);
       const beforeBoard = fs.readFileSync(path.join(fixture.repo, 'PROJECT_BOARD.md'), 'utf8');
       const beforeHandoffs = fs.readdirSync(path.join(fixture.repo, 'docs', 'handoffs')).sort();
-      const result = run(fixture.repo, ['quick', 'Tech', 'src/quick.js', ...scope, '--no-worktree']);
+      const result = run(fixture.repo, ['quick', 'Tech', 'src/quick.js', ...scope, '--approval-ref', 'USER-APPROVAL-003', '--no-worktree']);
       assertFailed(result, /Full BFM|cannot use quick|unclear/i);
       assert.strictEqual(git(fixture.repo, ['rev-parse', 'HEAD']), beforeHead);
       assert.strictEqual(git(fixture.repo, ['branch', '--show-current']), 'main');
@@ -1588,7 +1618,7 @@ test('public quick rejects Full-BFM risks and lock conflicts before any write', 
   const conflict = createRepo([{ id: 'TASK-001', status: 'In Progress', locks: 'src/quick.js' }]);
   try {
     const beforeHead = git(conflict.repo, ['rev-parse', 'HEAD']);
-    const result = run(conflict.repo, ['quick', 'Tech', 'src/quick.js', 'Correct copy', '--no-worktree']);
+    const result = run(conflict.repo, ['quick', 'Tech', 'src/quick.js', 'Correct copy', '--approval-ref', 'USER-APPROVAL-004', '--no-worktree']);
     assertFailed(result, /lock|Full BFM/i);
     assert.strictEqual(git(conflict.repo, ['rev-parse', 'HEAD']), beforeHead);
     assert.deepStrictEqual(fs.readdirSync(path.join(conflict.repo, 'docs', 'handoffs')).sort(), ['TASK-001.md', 'index.md']);
