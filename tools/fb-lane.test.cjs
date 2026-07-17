@@ -413,6 +413,29 @@ test('status Staging QA becomes review-ready only from explicit review evidence'
   }
 });
 
+test('status review URL classifier accepts actionable ordinary-word domains and paths', () => {
+  const fixtures = [
+    'https://todo-app.pages.dev/review',
+    'https://acme.test/templates/42',
+    'https://examplecorp.com/review',
+  ];
+
+  for (const [index, reviewUrl] of fixtures.entries()) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+    try {
+      writeStatusFixture(root, [
+        { id: `TASK-24${index}`, status: 'Staging QA', scope: 'Candidate with a legitimate review URL', reviewLink: `[Open review](${reviewUrl})` },
+      ]);
+      const result = runStatus(root);
+      assert.strictEqual(result.status, 0, result.stderr);
+      assert.match(result.stdout, /Stage: Ready for review/);
+      assert.ok(result.stdout.includes(`Test / review link: [Open review](${reviewUrl})`));
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
 test('status review evidence skips an earlier canonical placeholder and uses the first actionable field', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
   try {
@@ -436,11 +459,15 @@ test('status review evidence skips an earlier canonical placeholder and uses the
   }
 });
 
-test('status review evidence rejects example, TODO, and template URLs in every explicit field', () => {
+test('status review URL classifier rejects reserved hosts and explicit placeholder tokens', () => {
   const fixtures = [
     { stagingUrl: '[Staging Link](https://staging.example.com)' },
-    { testLink: '[TODO review](https://review.acme.test/todo)' },
-    { reviewLink: '[Template review](https://review.acme.test/template)' },
+    { stagingUrl: '[Example review](https://example.com/review)' },
+    { testLink: '[Example review](https://preview.example.org/review)' },
+    { reviewLink: '[Example review](https://example.net/review)' },
+    { testLink: '[TODO review](https://review.acme.test/ready)' },
+    { reviewLink: '[TBD review](https://review.acme.test/ready)' },
+    { reviewLink: '[Tenant review](https://<tenant>.pages.dev/review)' },
   ];
 
   for (const [index, evidence] of fixtures.entries()) {

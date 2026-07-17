@@ -831,8 +831,34 @@ function explicitReviewLink(value) {
   const plainTargets = normalized.match(/https?:\/\/[^\s)>]+/gi) || [];
   const targets = [...new Set([...markdownTargets, ...plainTargets])];
   if (!targets.length) return '';
-  if (targets.some(target => /(?:example|todo|template)/i.test(target))) return '';
+  const labelText = targets.reduce((text, target) => text.split(target).join(''), normalized);
+  if (/(?:^|[^a-z0-9])(?:TODO|TBD)(?:$|[^a-z0-9])/i.test(labelText)) return '';
+  if (targets.some(placeholderReviewTarget)) return '';
   return normalized;
+}
+
+function placeholderReviewTarget(target) {
+  if (/<[^>\n]+>/.test(target)) return true;
+
+  let parsed;
+  try {
+    parsed = new URL(target, 'https://fb-lane.invalid');
+  } catch (err) {
+    return true;
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+  if (['example.com', 'example.org', 'example.net'].some(host => hostname === host || hostname.endsWith(`.${host}`))) {
+    return true;
+  }
+
+  let route = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  try {
+    route = decodeURIComponent(route);
+  } catch (err) {
+    // Keep the original route when percent encoding is malformed.
+  }
+  return /(?:^|[/?#&=])(?:TODO|TBD)(?=$|[/?#&=])/i.test(route);
 }
 
 function normalizedStatus(value) {
