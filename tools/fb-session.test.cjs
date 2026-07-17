@@ -1432,7 +1432,7 @@ test('doctor verifies execution worktree registration/branch and the bundled MCP
   }
 });
 
-test('bootstrap preserves project-owned instructions, installs seven canonical pages, and root/package mirrors stay byte-aligned', () => {
+test('bootstrap preserves project-owned instructions and installs seven structurally complete pages', () => {
   const fixture = createRepo();
   try {
     const bootstrap = run(fixture.repo, ['bootstrap', '--platform', 'codex']);
@@ -1443,20 +1443,11 @@ test('bootstrap preserves project-owned instructions, installs seven canonical p
         fs.readFileSync(path.join(fixture.repo, 'docs', 'fb', page), 'utf8'),
         fs.readFileSync(path.join(rootDir, 'docs', 'fb', page), 'utf8')
       );
-      assert.strictEqual(
-        fs.readFileSync(path.join(rootDir, 'docs', 'fb', page), 'utf8'),
-        fs.readFileSync(path.join(rootDir, 'plugins', 'fb-lane-coordination', 'docs', 'fb', page), 'utf8')
-      );
+      assert.match(fs.readFileSync(path.join(fixture.repo, 'docs', 'fb', page), 'utf8'), /^#\s+\S/m);
     }
-    for (const file of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs', 'fb-lane.test.cjs', 'fb-session.test.cjs', 'fb-eval.test.cjs']) {
-      assert.strictEqual(
-        fs.readFileSync(path.join(rootDir, 'tools', file), 'utf8'),
-        fs.readFileSync(path.join(rootDir, 'plugins', 'fb-lane-coordination', 'tools', file), 'utf8')
-      );
-    }
-    const parity = collectSessionDoctorChecks(rootDir).find(check => check.label === 'Session harness parity');
+    const parity = collectSessionDoctorChecks(rootDir).find(check => check.label === 'Package synchronization authority');
     assert.strictEqual(parity.level, 'ok', JSON.stringify(parity));
-    assert.match(parity.detail, /seven harness pages/i);
+    assert.match(parity.detail, /fb-package-sync --check/i);
   } finally {
     fixture.cleanup();
   }
@@ -1508,7 +1499,9 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
     assert.match(git(quickFixture.repo, ['worktree', 'list', '--porcelain']), new RegExp(`worktree ${registeredQuickPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
     const taskId = /TASK-Q-\d+/.exec(branch)?.[0];
     const record = path.join(worktree, 'docs', 'handoffs', `${taskId}.md`);
+    const primaryRecord = path.join(quickFixture.repo, 'docs', 'handoffs', `${taskId}.md`);
     assert.ok(fs.existsSync(record));
+    assert.ok(!fs.existsSync(primaryRecord), 'default Quick Record must never be created in the primary checkout');
     assert.match(fs.readFileSync(record, 'utf8'), /mode: Quick BFM/i);
     assert.strictEqual(fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8'), boardBefore);
     assert.strictEqual(fs.readFileSync(path.join(worktree, 'docs', 'handoffs', 'index.md'), 'utf8'), indexBefore);
@@ -1522,11 +1515,22 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
       .replace('Reviewer decision: pending', 'Reviewer decision: approved')
       .replace('Focused evidence: pending', 'Focused evidence: focused quick test passed')
       .replace('Reviewers: 0', 'Reviewers: 1');
+    const overBudget = ready.replace('Agent iterations: 1', 'Agent iterations: 6');
+    fs.writeFileSync(record, overBudget);
+    const blockedSubmit = run(worktree, ['submit', taskId, '--no-tests']);
+    assertFailed(blockedSubmit, /sixth|iteration|budget/i);
+    assert.match(fs.readFileSync(record, 'utf8'), /Status: in-progress/);
     fs.writeFileSync(record, ready);
     const submitted = run(worktree, ['submit', taskId, '--no-tests']);
     assertOk(submitted);
     assert.match(fs.readFileSync(record, 'utf8'), /Status: complete/);
     assert.strictEqual(fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8'), boardBefore);
+    const merge = spawnSync('git', ['merge', '--no-commit', '--no-ff', branch], {
+      cwd: quickFixture.repo,
+      encoding: 'utf8',
+    });
+    assert.strictEqual(merge.status, 0, `Quick closeout must merge without add/add conflict:\n${output(merge)}`);
+    git(quickFixture.repo, ['merge', '--abort']);
   } finally {
     quickFixture.cleanup();
   }
@@ -1546,6 +1550,50 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
     } finally {
       fixture.cleanup();
     }
+  }
+});
+
+test('public quick rejects Full-BFM risks and lock conflicts before any write', () => {
+  const cases = [
+    ['feature correction'], ['coordinate lanes'], ['multi-lane correction'],
+    ['authentication correction'], ['authorization correction'], ['privacy correction'],
+    ['private data correction'], ['analytics correction'], ['payment correction'],
+    ['secret rotation'], ['destructive correction'], ['delete production data'],
+    ['provider correction'], ['provider state correction'], ['release correction'],
+    ['live-release correction'], ['deployment correction'], ['publication correction'],
+    ['publish externally'], ['launch correction'], ['OKR correction'],
+    ['production migration correction'], ['external approval correction'],
+    ['material architecture correction'], ['core flow correction'],
+    ['core product flow correction'], ['multiple owner correction'],
+    ['multiple repositories correction'], ['conflicting locks correction'],
+    ['unresolved decision correction'], [],
+  ];
+  for (const scope of cases) {
+    const fixture = createRepo();
+    try {
+      const beforeHead = git(fixture.repo, ['rev-parse', 'HEAD']);
+      const beforeBoard = fs.readFileSync(path.join(fixture.repo, 'PROJECT_BOARD.md'), 'utf8');
+      const beforeHandoffs = fs.readdirSync(path.join(fixture.repo, 'docs', 'handoffs')).sort();
+      const result = run(fixture.repo, ['quick', 'Tech', 'src/quick.js', ...scope, '--no-worktree']);
+      assertFailed(result, /Full BFM|cannot use quick|unclear/i);
+      assert.strictEqual(git(fixture.repo, ['rev-parse', 'HEAD']), beforeHead);
+      assert.strictEqual(git(fixture.repo, ['branch', '--show-current']), 'main');
+      assert.strictEqual(fs.readFileSync(path.join(fixture.repo, 'PROJECT_BOARD.md'), 'utf8'), beforeBoard);
+      assert.deepStrictEqual(fs.readdirSync(path.join(fixture.repo, 'docs', 'handoffs')).sort(), beforeHandoffs);
+    } finally {
+      fixture.cleanup();
+    }
+  }
+
+  const conflict = createRepo([{ id: 'TASK-001', status: 'In Progress', locks: 'src/quick.js' }]);
+  try {
+    const beforeHead = git(conflict.repo, ['rev-parse', 'HEAD']);
+    const result = run(conflict.repo, ['quick', 'Tech', 'src/quick.js', 'Correct copy', '--no-worktree']);
+    assertFailed(result, /lock|Full BFM/i);
+    assert.strictEqual(git(conflict.repo, ['rev-parse', 'HEAD']), beforeHead);
+    assert.deepStrictEqual(fs.readdirSync(path.join(conflict.repo, 'docs', 'handoffs')).sort(), ['TASK-001.md', 'index.md']);
+  } finally {
+    conflict.cleanup();
   }
 });
 

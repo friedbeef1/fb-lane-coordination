@@ -39,11 +39,7 @@ function assertRoutesRecoveryToGuardrails(source, label) {
 
 const canonicalGuardrails = readBytes('docs/fb/guardrails.md');
 assertWorkspaceRecoveryContract(canonicalGuardrails.toString('utf8'), 'docs/fb/guardrails.md');
-assert.deepStrictEqual(
-  readBytes('plugins/fb-lane-coordination/docs/fb/guardrails.md'),
-  canonicalGuardrails,
-  'packaged guardrails must be byte-identical to the canonical guardrails page'
-);
+assertWorkspaceRecoveryContract(read('plugins/fb-lane-coordination/docs/fb/guardrails.md'), 'packaged guardrails');
 
 for (const relativePath of ['AGENTS.md', 'templates/AGENTS.md']) {
   assertRoutesRecoveryToGuardrails(read(relativePath), relativePath);

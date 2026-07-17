@@ -31,7 +31,6 @@ const deliveredPages = [
   },
 ];
 
-assert.strictEqual(packaged, canonical, 'packaged positioning page must match the canonical page');
 assert.match(canonical, /> Codex executes software work\.\s+> Capacitor is a session-intelligence platform\.\s+> FB is a product-delivery harness that includes curated session intelligence\./);
 assert.match(canonical, /\| Vanilla Codex \| Execute software work \|/);
 assert.match(canonical, /\| Kurrent Capacitor \| Automatically capture, observe, recall, and evaluate agent sessions \|/);
@@ -42,6 +41,13 @@ assert.match(compact, /optional evidence provider to FB/i);
 assert.match(compact, /would not replace FB's approved brief, board, handoff, or closeout authority/i);
 assert.match(canonical, /Capacitor can show that three agents attempted a feature/i);
 assert.strictEqual((canonical.match(/```mermaid/g) || []).length, 2, 'comparison page must contain two rendered Mermaid diagrams');
+
+for (const page of deliveredPages) {
+  assert.match(page.content, /\| Vanilla Codex \| Execute software work \|/);
+  assert.match(page.content, /\| Kurrent Capacitor \| Automatically capture, observe, recall, and evaluate agent sessions \|/);
+  assert.match(page.content, /\| FB \| Define, authorize, coordinate, verify, and explain a product outcome \|/);
+  assert.strictEqual((page.content.match(/```mermaid/g) || []).length, 2, `${page.label} must contain two Mermaid diagrams`);
+}
 
 for (const evidence of ['TASK-020.md', 'TASK-022.md', 'TASK-024.md', 'TASK-023-walkthroughs.md', 'TASK-026.md']) {
   assert.match(canonical, new RegExp(evidence.replace('.', '\\.')), `pain-point map must cite ${evidence}`);

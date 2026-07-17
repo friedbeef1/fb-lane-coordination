@@ -58,7 +58,7 @@ function test(name, fn) {
 function canonicalPauseGuidance() {
   const canonical = read('docs/fb/guardrails.md');
   const packaged = read('plugins/fb-lane-coordination/docs/fb/guardrails.md');
-  assert.strictEqual(packaged, canonical, 'packaged guardrails must match the canonical pause contract');
+  assertCanonicalPauseShape(section(packaged, 'Canonical beginner pause card'), 'packaged pause card');
   return section(canonical, 'Canonical beginner pause card');
 }
 
@@ -131,17 +131,14 @@ test('active coordination, Product, BFM, lane, setup, and quickstart skills rout
 test('canonical eval catalog defines three complete beginner scenarios at shadow authority', () => {
   const canonical = read('docs/fb/evals.md');
   const packaged = read('plugins/fb-lane-coordination/docs/fb/evals.md');
-  assert.strictEqual(packaged, canonical, 'packaged eval guidance must match the canonical catalog');
-
-  const catalog = section(canonical, 'Beginner experience shadow scenarios');
   const expectedScenarios = ['Beginner mode selection', 'Beginner status clarity', 'Stop and recovery clarity'];
-  const actualScenarios = [...catalog.matchAll(/^###\s+(.+)$/gm)].map(match => match[1]);
-  assert.deepStrictEqual(actualScenarios, expectedScenarios, 'beginner experience catalog must contain exactly three scenarios');
-  assert.strictEqual(
-    [...catalog.matchAll(/^Authority:\s*shadow\s*$/gmi)].length,
-    3,
-    'each of the exactly three beginner experience scenarios must start shadow'
-  );
+  for (const [label, source] of [['canonical', canonical], ['packaged', packaged]]) {
+    const catalog = section(source, 'Beginner experience shadow scenarios');
+    const actualScenarios = [...catalog.matchAll(/^###\s+(.+)$/gm)].map(match => match[1]);
+    assert.deepStrictEqual(actualScenarios, expectedScenarios, `${label} beginner experience catalog must contain exactly three scenarios`);
+    assert.strictEqual([...catalog.matchAll(/^Authority:\s*shadow\s*$/gmi)].length, 3, `${label} scenarios must start shadow`);
+  }
+  const catalog = section(canonical, 'Beginner experience shadow scenarios');
   for (const name of expectedScenarios) {
     const scenario = section(catalog, name, 3);
     assert.match(scenario, /Authority:\s*shadow/i, `${name} must start shadow`);

@@ -18,6 +18,7 @@ const {
   hasMaterialProgress,
   minimalWorkerContext,
   renderEfficiencyReceipt,
+  validateQuickRecordForSubmit,
 } = require('./fb-efficiency.cjs');
 
 const bounded = {
@@ -124,4 +125,35 @@ test('worker context is minimal and receipts reject private inputs', () => {
   const receipt = renderEfficiencyReceipt({ elapsedUserWait: '5m', toolCalls: 4, focusedChecks: ['sync', 'syntax'], broadValidatorRuns: 0, repeatedChecks: 0, repairLoops: 1, reviewers: 1, approximateTokens: 'unavailable', circuitBreakerTriggered: false });
   for (const label of ['Elapsed user wait', 'Tool calls', 'Focused checks', 'Broad validator runs', 'Repeated checks', 'Repair loops', 'Reviewers', 'Approximate tokens', 'Circuit breaker triggered']) assert.match(receipt, new RegExp(label));
   assert.throws(() => renderEfficiencyReceipt({ transcript: 'secret' }), /private|transcript/i);
+});
+
+test('Quick submit lifecycle enforces evidence, progress, and declared run budgets', () => {
+  const markdown = renderQuickRecord({
+    ...bounded,
+    approvedCorrection: bounded.scope,
+    verificationPlan: 'node tools/status.test.cjs',
+    startedAt: 1_000_000,
+    elapsedLimitMinutes: 30,
+  })
+    .replace('Reviewer: pending', 'Reviewer: FB-Product')
+    .replace('Reviewer decision: pending', 'Reviewer decision: approved')
+    .replace('Focused evidence: pending', 'Focused evidence: Focused status contract passed')
+    .replace('Reviewers: 0', 'Reviewers: 1');
+
+  assert.doesNotThrow(() => validateQuickRecordForSubmit(markdown, { now: 1_001_000 }));
+  const invalid = [
+    [markdown.replace('Agent iterations: 1', 'Agent iterations: 6'), /sixth|iteration/i],
+    [markdown.replace('Repair loops: 0', 'Repair loops: 3'), /third repair/i],
+    [markdown.replace('Broad validator runs: 0', 'Broad validator runs: 2'), /repeated broad/i],
+    [markdown.replace('No-progress cycles: 0', 'No-progress cycles: 1'), /no material progress|no-progress/i],
+    [markdown.replace('Started at epoch ms: 1000000', 'Started at epoch ms: 0'), /elapsed/i],
+    [markdown.replace('Token limit: unavailable', 'Token limit: 100').replace('Authoritative tokens: unavailable', 'Authoritative tokens: 100'), /token/i],
+    [markdown.replace('Cost limit: unavailable', 'Cost limit: 2').replace('Authoritative cost: unavailable', 'Authoritative cost: 2'), /cost/i],
+    [markdown.replace('Agent iterations: 1', 'Agent iterations: 2').replace('Material progress: initial execution', 'Material progress: none'), /material progress/i],
+    [markdown.replace('Reviewers: 1', 'Reviewers: 2'), /one reviewer/i],
+    [markdown.replace('Focused evidence: Focused status contract passed', 'Focused evidence: pending'), /focused evidence/i],
+  ];
+  for (const [candidate, pattern] of invalid) {
+    assert.throws(() => validateQuickRecordForSubmit(candidate, { now: 2_000_000 }), pattern);
+  }
 });

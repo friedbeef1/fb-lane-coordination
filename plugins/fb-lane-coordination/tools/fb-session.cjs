@@ -1046,22 +1046,6 @@ Compare this candidate against the approved Build Brief, Task Receipt, Brief Val
   return { packet, copied: clipboard(packet) === true };
 }
 
-function validateHarnessParity(repoRoot) {
-  const pluginRoot = path.join(repoRoot, 'plugins', 'fb-lane-coordination');
-  const mismatches = [];
-  for (const page of HARNESS_PAGES) {
-    const canonical = path.join(repoRoot, 'docs', 'fb', page);
-    const packaged = path.join(pluginRoot, 'docs', 'fb', page);
-    if (!fs.existsSync(canonical) || !fs.existsSync(packaged) || fs.readFileSync(canonical, 'utf8') !== fs.readFileSync(packaged, 'utf8')) mismatches.push(`docs/fb/${page}`);
-  }
-  for (const file of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs', 'fb-lane.test.cjs', 'fb-session.test.cjs', 'fb-eval.test.cjs']) {
-    const canonical = path.join(repoRoot, 'tools', file);
-    const packaged = path.join(pluginRoot, 'tools', file);
-    if (!fs.existsSync(canonical) || !fs.existsSync(packaged) || fs.readFileSync(canonical, 'utf8') !== fs.readFileSync(packaged, 'utf8')) mismatches.push(`tools/${file}`);
-  }
-  return mismatches;
-}
-
 function validatePluginServerResolution(pluginRoot) {
   try {
     const manifestPath = path.join(pluginRoot, '.codex-plugin', 'plugin.json');
@@ -1142,12 +1126,13 @@ function collectSessionDoctorChecks(repoRoot) {
   add(conflicts.length ? 'fail' : 'ok', 'Session locks', conflicts.length ? `Unresolved overlaps: ${conflicts.join(', ')}` : 'No active session locks overlap.', 'Product/BFM must serialize, split, or close one execution claim.');
   const pluginRoot = path.join(repoRoot, 'plugins', 'fb-lane-coordination');
   if (fs.existsSync(pluginRoot)) {
-    const mismatches = validateHarnessParity(repoRoot);
-    add(mismatches.length ? 'fail' : 'ok', 'Session harness parity', mismatches.length ? `Root/package mismatch: ${mismatches.join(', ')}` : 'Root/package session/eval modules, tests, and seven harness pages match.', 'Restore the canonical/package mirrors before closeout.');
+    const syncTool = path.join(repoRoot, 'tools', 'fb-package-sync.cjs');
+    const manifest = path.join(repoRoot, 'tools', 'fb-package-manifest.json');
+    add(fs.existsSync(syncTool) && fs.existsSync(manifest) ? 'ok' : 'fail', 'Package synchronization authority', fs.existsSync(syncTool) && fs.existsSync(manifest) ? 'Root/package byte drift is delegated to fb-package-sync --check.' : 'Package synchronizer or manifest is missing.', 'Restore the root-only package synchronizer and manifest.');
     const pluginServer = validatePluginServerResolution(pluginRoot);
     add(pluginServer.ok ? 'ok' : 'fail', 'Plugin session server resolution', pluginServer.detail, 'Restore the bundled plugin manifest, .mcp.json route, tools/fb-lane.cjs, and fb-session.cjs resolution chain.');
   } else {
-    add('ok', 'Session harness parity', 'Consumer repository detected; installed package-source parity is not applicable here.');
+    add('ok', 'Package synchronization authority', 'Consumer repository detected; package-source drift checking is not applicable here.');
     add('ok', 'Plugin session server resolution', `The active CLI resolved ${path.basename(__filename)}.`);
   }
   return checks;

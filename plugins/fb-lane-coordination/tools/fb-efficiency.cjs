@@ -53,6 +53,20 @@ Worktree: ${input.worktree || 'current'}
 Focused verification: ${input.verificationPlan}
 Elapsed limit minutes: ${input.elapsedLimitMinutes || 30}
 
+## Run Budget
+
+Started at epoch ms: ${input.startedAt ?? Date.now()}
+Agent iterations: 1
+Repair loops: 0
+Broad validator runs: 0
+Repeated checks: 0
+No-progress cycles: 0
+Material progress: initial execution
+Token limit: ${input.tokenLimit ?? 'unavailable'}
+Authoritative tokens: ${input.authoritativeTokens ?? 'unavailable'}
+Cost limit: ${input.costLimit ?? 'unavailable'}
+Authoritative cost: ${input.authoritativeCost ?? 'unavailable'}
+
 ## Minimal Worker Context
 
 Current brief: ${context.brief || 'unavailable'}
@@ -98,6 +112,42 @@ function closeQuickRecord(markdown, closeout = {}) {
     .replace(/^Focused evidence:\s*pending$/m, `Focused evidence: ${closeout.focusedEvidence}`);
   updated = updated.replace(/## Efficiency Receipt[\s\S]*$/, renderEfficiencyReceipt(closeout.metrics || {}));
   return updated.endsWith('\n') ? updated : `${updated}\n`;
+}
+
+function numericField(markdown, name, fallback = NaN) {
+  const value = field(markdown, name);
+  return /^\d+(?:\.\d+)?$/.test(value) ? Number(value) : fallback;
+}
+
+function validateQuickRecordForSubmit(markdown, options = {}) {
+  const reviewer = field(markdown, 'Reviewer');
+  const focusedEvidence = field(markdown, 'Focused evidence');
+  const reviewers = numericField(markdown, 'Reviewers');
+  const iterations = numericField(markdown, 'Agent iterations');
+  const repairs = numericField(markdown, 'Repair loops');
+  const broadRuns = numericField(markdown, 'Broad validator runs');
+  const repeatedChecks = numericField(markdown, 'Repeated checks', 0);
+  const noProgress = numericField(markdown, 'No-progress cycles');
+  const progress = field(markdown, 'Material progress');
+  const startedAt = numericField(markdown, 'Started at epoch ms');
+  const elapsedLimit = numericField(markdown, 'Elapsed limit minutes');
+  const now = options.now ?? Date.now();
+  if (!reviewer || /^pending$/i.test(reviewer) || reviewer.includes(',') || reviewers !== 1) throw new Error('Quick BFM submit requires exactly one reviewer.');
+  if (!focusedEvidence || /^pending$/i.test(focusedEvidence)) throw new Error('Quick BFM submit requires focused evidence.');
+  if (!Number.isFinite(iterations) || iterations > 5) throw new Error('A sixth agent iteration is blocked.');
+  if (!Number.isFinite(repairs) || repairs > 2) throw new Error('A third repair loop is blocked.');
+  if (!Number.isFinite(broadRuns) || broadRuns > 1) throw new Error('A repeated broad gate is blocked.');
+  if (!Number.isFinite(noProgress) || noProgress > 0) throw new Error('A no-progress cycle with no material progress is blocked.');
+  if (!Number.isFinite(startedAt) || !Number.isFinite(elapsedLimit) || now - startedAt >= elapsedLimit * 60_000) throw new Error('The declared elapsed-time budget is exhausted.');
+  if ((iterations > 1 || repairs > 0 || repeatedChecks > 0) && (!progress || /^(?:none|no|pending|initial execution)$/i.test(progress))) throw new Error('Repeated Quick work requires a material progress delta.');
+  const tokenLimit = numericField(markdown, 'Token limit');
+  const tokens = numericField(markdown, 'Authoritative tokens');
+  if (Number.isFinite(tokenLimit) && Number.isFinite(tokens) && tokens >= tokenLimit) throw new Error('The authoritative token budget is exhausted.');
+  const costLimit = numericField(markdown, 'Cost limit');
+  const cost = numericField(markdown, 'Authoritative cost');
+  if (Number.isFinite(costLimit) && Number.isFinite(cost) && cost >= costLimit) throw new Error('The authoritative cost budget is exhausted.');
+  if (/^yes$/i.test(field(markdown, 'Circuit breaker triggered'))) throw new Error('The Quick circuit breaker is already triggered.');
+  return { reviewer, focusedEvidence, iterations, repairs, broadRuns };
 }
 
 function classifyChangedSurface(paths = []) {
@@ -167,4 +217,4 @@ Circuit breaker triggered: ${metrics.circuitBreakerTriggered ? 'yes' : 'no'}
 `;
 }
 
-module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, classifyChangedSurface, verificationBudget, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, renderEfficiencyReceipt };
+module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, verificationBudget, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, renderEfficiencyReceipt };

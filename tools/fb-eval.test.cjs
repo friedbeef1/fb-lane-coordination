@@ -449,23 +449,23 @@ Evidence required for the next candidate: Fresh original-scenario output and Pro
 
 test('canonical catalog, categories, compatibility entry point, and root/package/template parity are complete', () => {
   const canonical = fs.readFileSync(path.join(repoRoot, 'docs', 'fb', 'evals.md'), 'utf8');
-  for (const scenario of ['first-project clarity', 'plan-versus-build boundary', 'decisions versus assumptions', 'distinct lane contribution', 'parent-thread-only sidechat routing', 'Test This Now completeness', 'honest progress and blocked states', 'verification and recovery ownership']) assert.match(canonical, new RegExp(scenario, 'i'));
-  for (const category of ['usefulness', 'workflow completeness', 'usability and clarity', 'visual polish', 'reliability', 'output relevance and specificity', 'trust and safety', 'fit against approved product promise']) assert.match(canonical, new RegExp(category, 'i'));
-  assert.match(canonical, /do not run all catalog evals/i);
-  assert.match(canonical, /no new eval becomes blocking during TASK-023/i);
-  assert.strictEqual(canonical, fs.readFileSync(path.join(repoRoot, 'plugins', 'fb-lane-coordination', 'docs', 'fb', 'evals.md'), 'utf8'));
-  const evalTemplate = fs.readFileSync(path.join(repoRoot, 'docs', 'evals', 'eval-record-template.md'), 'utf8');
-  assert.strictEqual(evalTemplate, fs.readFileSync(path.join(repoRoot, 'templates', 'docs', 'evals', 'eval-record-template.md'), 'utf8'));
-  assert.strictEqual(evalTemplate, fs.readFileSync(path.join(repoRoot, 'plugins', 'fb-lane-coordination', 'docs', 'evals', 'eval-record-template.md'), 'utf8'));
+  const packagedCatalog = fs.readFileSync(path.join(repoRoot, 'plugins', 'fb-lane-coordination', 'docs', 'fb', 'evals.md'), 'utf8');
+  for (const source of [canonical, packagedCatalog]) {
+    for (const scenario of ['first-project clarity', 'plan-versus-build boundary', 'decisions versus assumptions', 'distinct lane contribution', 'parent-thread-only sidechat routing', 'Test This Now completeness', 'honest progress and blocked states', 'verification and recovery ownership']) assert.match(source, new RegExp(scenario, 'i'));
+    for (const category of ['usefulness', 'workflow completeness', 'usability and clarity', 'visual polish', 'reliability', 'output relevance and specificity', 'trust and safety', 'fit against approved product promise']) assert.match(source, new RegExp(category, 'i'));
+    assert.match(source, /do not run all catalog evals/i);
+    assert.match(source, /no new eval becomes blocking during TASK-023/i);
+  }
+  for (const templatePath of ['docs/evals/eval-record-template.md', 'templates/docs/evals/eval-record-template.md', 'plugins/fb-lane-coordination/docs/evals/eval-record-template.md']) {
+    const template = fs.readFileSync(path.join(repoRoot, templatePath), 'utf8');
+    for (const field of ['Eval ID', 'Authority', 'Latest result', 'Evidence required']) assert.match(template, new RegExp(field, 'i'), `${templatePath} must retain ${field}`);
+  }
   const compatibility = fs.readFileSync(path.join(repoRoot, 'docs', 'evals', 'agent-behavior-scorecard-template.md'), 'utf8');
   assert.match(compatibility, /eval-record-template\.md/);
   assert.match(compatibility, /docs\/fb\/evals\.md/);
-  for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md']) {
-    assert.strictEqual(fs.readFileSync(path.join(repoRoot, 'docs', 'fb', page), 'utf8'), fs.readFileSync(path.join(repoRoot, 'plugins', 'fb-lane-coordination', 'docs', 'fb', page), 'utf8'));
-  }
   const validatorSource = fs.readFileSync(path.join(repoRoot, 'tools', 'fb-lane.validate.cjs'), 'utf8');
-  assert.match(validatorSource, /seven-page parity/i);
-  assert.doesNotMatch(validatorSource, /six-page parity/i);
+  assert.match(validatorSource, /fb-package-sync\.cjs/);
+  assert.doesNotMatch(validatorSource, /sameFile\s*\(/);
 });
 
 test('bootstrap installs seven pages and both templates while preserving project-owned eval records and instructions', () => {
@@ -500,14 +500,14 @@ test('documented fallback command sequence acquires every bootstrap runtime and 
     fs.mkdirSync(path.join(archiveRoot, 'tools'), { recursive: true });
     fs.mkdirSync(path.join(archiveRoot, 'docs', 'fb'), { recursive: true });
     fs.mkdirSync(path.join(archiveRoot, 'docs', 'evals'), { recursive: true });
-    for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs']) fs.copyFileSync(path.join(repoRoot, 'tools', tool), path.join(archiveRoot, 'tools', tool));
+    for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs', 'fb-efficiency.cjs']) fs.copyFileSync(path.join(repoRoot, 'tools', tool), path.join(archiveRoot, 'tools', tool));
     for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md']) fs.copyFileSync(path.join(repoRoot, 'docs', 'fb', page), path.join(archiveRoot, 'docs', 'fb', page));
     for (const asset of ['eval-record-template.md', 'agent-behavior-scorecard-template.md']) fs.copyFileSync(path.join(repoRoot, 'docs', 'evals', asset), path.join(archiveRoot, 'docs', 'evals', asset));
     const archive = path.join(archiveParent, 'source.tar.gz');
     execFileSync('tar', ['-czf', archive, '-C', archiveParent, 'fb-lane-coordination-main']);
     const output = execFileSync('bash', ['-eu', '-o', 'pipefail', '-c', commands], { cwd: root, env: { ...process.env, FB_LANE_ARCHIVE_URL: `file://${archive}` }, encoding: 'utf8' });
     assert.match(output, /FB bootstrapped successfully/i);
-    for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs']) assert.strictEqual(fs.readFileSync(path.join(root, 'tools', tool), 'utf8'), fs.readFileSync(path.join(repoRoot, 'tools', tool), 'utf8'), tool);
+    for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs', 'fb-efficiency.cjs']) assert.strictEqual(fs.readFileSync(path.join(root, 'tools', tool), 'utf8'), fs.readFileSync(path.join(repoRoot, 'tools', tool), 'utf8'), tool);
     for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md']) assert.strictEqual(fs.readFileSync(path.join(root, 'docs', 'fb', page), 'utf8'), fs.readFileSync(path.join(repoRoot, 'docs', 'fb', page), 'utf8'), page);
     for (const asset of ['eval-record-template.md', 'agent-behavior-scorecard-template.md']) assert.strictEqual(fs.readFileSync(path.join(root, 'docs', 'evals', asset), 'utf8'), fs.readFileSync(path.join(repoRoot, 'docs', 'evals', asset), 'utf8'), asset);
   } finally {

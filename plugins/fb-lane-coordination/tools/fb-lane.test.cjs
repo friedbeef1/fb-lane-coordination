@@ -704,7 +704,7 @@ test('status reports malformed session registry but treats an absent registry as
   }
 });
 
-test('status docs and generated board definitions preserve candidate semantics and parity', () => {
+test('status docs and generated board definitions preserve candidate semantics', () => {
   const adjacentRoot = path.resolve(__dirname, '..');
   const root = fs.existsSync(path.join(adjacentRoot, 'PROJECT_BOARD.md'))
     ? adjacentRoot
@@ -718,16 +718,10 @@ test('status docs and generated board definitions preserve candidate semantics a
   }
   const cliSource = fs.readFileSync(path.join(root, 'tools', 'fb-lane.cjs'), 'utf8').replace(/\\`/g, '`');
   assert.ok(cliSource.includes(expectedDefinition), 'generated board text must use candidate-only Staging QA semantics');
-  assert.strictEqual(
-    fs.readFileSync(path.join(root, 'docs', 'fb', 'workflow.md'), 'utf8'),
-    fs.readFileSync(path.join(root, 'plugins', 'fb-lane-coordination', 'docs', 'fb', 'workflow.md'), 'utf8'),
-    'workflow docs must retain root/package byte parity'
-  );
-  assert.strictEqual(
-    fs.readFileSync(path.join(root, 'docs', 'fb', 'evidence.md'), 'utf8'),
-    fs.readFileSync(path.join(root, 'plugins', 'fb-lane-coordination', 'docs', 'fb', 'evidence.md'), 'utf8'),
-    'evidence docs must retain root/package byte parity'
-  );
+  for (const prefix of ['', 'plugins/fb-lane-coordination/']) {
+    assert.match(fs.readFileSync(path.join(root, prefix, 'docs', 'fb', 'workflow.md'), 'utf8'), /Staging QA[\s\S]*candidate/i);
+    assert.match(fs.readFileSync(path.join(root, prefix, 'docs', 'fb', 'evidence.md'), 'utf8'), /completed[ -]build/i);
+  }
 });
 
 test('status details preserves the raw technical table', () => {
@@ -1174,7 +1168,7 @@ test('publishes one beginner interaction contract across root, package, skills, 
   const canonicalStart = fs.readFileSync(path.join(repoRoot, 'docs/fb/start.md'), 'utf8');
   const packagedStart = fs.readFileSync(path.join(repoRoot, 'plugins/fb-lane-coordination/docs/fb/start.md'), 'utf8');
   assertExactFirstProjectContract('docs/fb/start.md', canonicalStart);
-  assert.strictEqual(packagedStart, canonicalStart, 'packaged start.md must match the canonical beginner contract');
+  assertExactFirstProjectContract('plugins/fb-lane-coordination/docs/fb/start.md', packagedStart);
 
   const activeEntryPoints = [
     'docs/fb/README.md',
