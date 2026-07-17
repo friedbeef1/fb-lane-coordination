@@ -142,6 +142,7 @@ function createRepo(tasks = [{ id: 'TASK-001', locks: 'src/app.js' }]) {
   fs.writeFileSync(path.join(repo, 'AGENTS.md'), '# Project-owned instructions\n\nKeep this sentence.\n');
   fs.writeFileSync(path.join(repo, '.gitignore'), '.fb-test-worktrees/\n');
   fs.writeFileSync(path.join(repo, 'src', 'app.js'), 'module.exports = 1;\n');
+  fs.writeFileSync(path.join(repo, 'package.json'), JSON.stringify({ scripts: { test: 'node --test' } }));
   fs.writeFileSync(path.join(repo, 'tools', 'fb-lane.cjs'), '// fixture route\n');
   const board = `# Project Board
 
@@ -868,6 +869,51 @@ test('automated verification evidence is explicit, validated, candidate-bound, a
     assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', { ...evidence, status: 'failed' }), /passed|evidence/i);
     assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', { ...evidence, candidateCommit: 'stale' }), /commit|evidence/i);
     assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', { ...evidence, checks: [{ id: 'project-test', result: 'failed' }] }), /passed|check/i);
+    assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', { ...evidence, checks: [{ id: 'made-up-check', result: 'passed' }] }), /selected|manifest|check/i);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('automated verification persistence enforces sensitive safety and reuse fails closed on ancestry or git status errors', () => {
+  const fixture = createRepo([{ id: 'TASK-001', locks: 'auth/config.js' }]);
+  try {
+    fs.mkdirSync(path.join(fixture.repo, 'auth'));
+    fs.writeFileSync(path.join(fixture.repo, 'auth', 'config.js'), 'module.exports = true;\n');
+    git(fixture.repo, ['add', 'auth/config.js']);
+    git(fixture.repo, ['commit', '-qm', 'feat: sensitive auth fixture']);
+    const worktree = addWorktree(fixture, 'session/sensitive-evidence');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'sensitive-evidence'));
+    const candidateCommit = git(worktree, ['rev-parse', 'HEAD']);
+    const evidence = {
+      status: 'passed', candidateCommit, checkedAt: '2026-07-17T00:00:00.000Z',
+      checks: [{ id: 'project-test', result: 'passed' }],
+      safetyGate: { result: 'not-applicable', approvalRef: '' }, optionalLinks: [],
+    };
+    assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', evidence), /safety|sensitive/i);
+    evidence.safetyGate = { result: 'passed', approvalRef: 'APPROVAL-001' };
+    recordAutomatedVerification(worktree, 'TASK-001', evidence);
+    assert.strictEqual(submitVerificationReuse(worktree, 'TASK-001').reuse, true);
+
+    const unrelated = git(worktree, ['commit-tree', git(worktree, ['rev-parse', 'HEAD^{tree}']), '-m', 'unrelated candidate']);
+    const registryPath = path.join(commonDir(worktree), 'fb-sessions', 'sensitive-evidence.json');
+    const record = readSession(worktree, 'sensitive-evidence');
+    record.automatedVerification.candidateCommit = unrelated;
+    fs.writeFileSync(registryPath, `${JSON.stringify(record, null, 2)}\n`);
+    assert.strictEqual(submitVerificationReuse(worktree, 'TASK-001').reuse, false, 'unrelated candidate history must not reuse');
+
+    record.automatedVerification.candidateCommit = candidateCommit;
+    fs.writeFileSync(registryPath, `${JSON.stringify(record, null, 2)}\n`);
+    const indexPath = path.resolve(worktree, git(worktree, ['rev-parse', '--git-path', 'index']));
+    const savedIndex = `${indexPath}.saved`;
+    fs.renameSync(indexPath, savedIndex);
+    fs.mkdirSync(indexPath);
+    try {
+      assert.strictEqual(submitVerificationReuse(worktree, 'TASK-001').reuse, false, 'git diff/status errors must fail closed');
+    } finally {
+      fs.rmSync(indexPath, { recursive: true, force: true });
+      fs.renameSync(savedIndex, indexPath);
+    }
   } finally {
     fixture.cleanup();
   }

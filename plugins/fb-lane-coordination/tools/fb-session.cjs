@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
 const { assertSelectedEvalCloseout, validateSelectedEvalIntegration } = require('./fb-eval.cjs');
+const { automatedVerificationDecision, selectAutomatedChecks } = require('./fb-efficiency.cjs');
 
 const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const LANES = new Set(['product', 'tech', 'design', 'business', 'bfm', 'coordination']);
@@ -595,9 +596,16 @@ function submitVerificationReuse(cwd, taskId) {
   if (git(cwd, ['rev-parse', '--verify', candidate], { allowFailure: true }).status !== 0) {
     return { reuse: false, reason: 'automated verification candidate is unavailable' };
   }
-  const committed = git(cwd, ['diff', '--name-only', `${candidate}..HEAD`], { allowFailure: true }).stdout.split(/\r?\n/);
-  const working = git(cwd, ['diff', '--name-only', 'HEAD'], { allowFailure: true }).stdout.split(/\r?\n/);
-  const untracked = git(cwd, ['ls-files', '--others', '--exclude-standard'], { allowFailure: true }).stdout.split(/\r?\n/);
+  if (git(cwd, ['merge-base', '--is-ancestor', candidate, 'HEAD'], { allowFailure: true }).status !== 0) {
+    return { reuse: false, reason: 'automated verification candidate is not an ancestor of HEAD' };
+  }
+  const commands = [
+    ['diff', '--name-only', `${candidate}..HEAD`],
+    ['diff', '--name-only', 'HEAD'],
+    ['ls-files', '--others', '--exclude-standard'],
+  ].map(args => git(cwd, args, { allowFailure: true }));
+  if (commands.some(result => result.status !== 0)) return { reuse: false, reason: 'git changed-path inspection failed' };
+  const [committed, working, untracked] = commands.map(result => result.stdout.split(/\r?\n/));
   return verificationReuseDecision([...committed, ...working, ...untracked], record.automatedVerification);
 }
 
@@ -612,6 +620,25 @@ function recordAutomatedVerification(cwd, taskId, evidence) {
     }
     if (git(cwd, ['rev-parse', 'HEAD']).stdout !== evidence.candidateCommit) {
       throw new Error('Automated verification evidence must match the current candidate commit.');
+    }
+    const changedResult = git(cwd, ['diff-tree', '--root', '--no-commit-id', '--name-only', '-r', evidence.candidateCommit], { allowFailure: true });
+    if (changedResult.status !== 0) throw new Error('Automated verification could not inspect the candidate changed paths.');
+    const changedPaths = changedResult.stdout.split(/\r?\n/).filter(Boolean);
+    const selectedIds = selectAutomatedChecks(changedPaths, gitRoot(cwd)).map(check => check.id).sort();
+    const evidenceIds = evidence.checks.map(check => check.id).sort();
+    if (selectedIds.join('\n') !== evidenceIds.join('\n')) {
+      throw new Error('Automated verification evidence must exactly match the policy-selected check manifest.');
+    }
+    const decision = automatedVerificationDecision({
+      candidateCommit: evidence.candidateCommit,
+      checkedCommit: evidence.candidateCommit,
+      changedPaths,
+      checkResults: evidence.checks,
+      safetyGate: evidence.safetyGate,
+      optionalLinks: evidence.optionalLinks,
+    });
+    if (decision.status !== 'Ready to ship' || !decision.reusable) {
+      throw new Error(`Automated verification evidence is not ready: ${decision.reason}`);
     }
     current.automatedVerification = JSON.parse(JSON.stringify(evidence));
     return current;
