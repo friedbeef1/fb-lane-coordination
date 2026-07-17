@@ -79,7 +79,7 @@ feedback or a checked reproduction in this repository.
 | A feature could work technically but still be generic or not useful enough. | [TASK-023 creator-commerce walkthrough](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/evals/TASK-023-walkthroughs.md) | Keep the result in Checking, record a Quality Gap, and revise against the approved quality target. | Honest product-quality status and a specific next review candidate. |
 | Repeated runtime/worktree rediscovery slowed resumed work. | [TASK-026 two-speed evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-026.md) | **project-preflight** plus **matching-worktree-reuse**. | An optional project-owned preflight runs before mutation, and an exact existing worker is resumed instead of rediscovered or duplicated. |
 | Nested worktree placement made the execution path harder to trust. | [TASK-026 two-speed evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-026.md) | **primary-checkout-placement**. | A new worker is placed under the primary checkout's `.worktrees/` directory, never beneath another linked worktree. |
-| Unnecessary broad reruns after documentation-only closeout repeated already-proven work. | [TASK-026 two-speed evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-026.md) | **proportional-verification** with verification-checkpoint-reuse. | Coordination-only changes can reuse a successful broad checkpoint; source or runtime changes run the broad gate again. |
+| Unnecessary broad reruns after documentation-only closeout repeated already-proven work. | [TASK-026 two-speed evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-026.md) | **proportional-verification** with verification-checkpoint-reuse. | Coordination-only changes can reuse a successful broad checkpoint; source, runtime, configuration, or test changes run the broad gate again. |
 | Obscured queue state made it difficult to see what was active, ready, or externally blocked. | [TASK-026 two-speed evidence](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/handoffs/TASK-026.md) | **compact-queue-status**. | One compact view names Current, Next ready, and External blocks, including explicit empty states. |
 
 ## What the delivery loop adds
@@ -97,7 +97,7 @@ flowchart LR
     P --> H{"Only coordination files changed after a proven checkpoint?"}
     H -- "Yes" --> R["Verification checkpoint reuse"]
     H -- "No prior checkpoint" --> V["Proportional verification"]
-    H -- "Source or runtime changed" --> S
+    H -- "Source, runtime, configuration, or test change" --> S
     S --> F
     F --> E["Codex execution"]
     E --> V
@@ -144,5 +144,6 @@ bounded, unlocked correction internally as a **Quick BFM Patch**, reuse the
 matching worktree, and run the project's optional preflight before mutation.
 If only coordination Markdown changed after a successful broad checkpoint, it
 can reuse that checkpoint and verify the patch proportionally. If the scope is
-uncertain, a lock conflicts, or source/runtime files change, **Safe fallback**
-returns the work to **Full BFM** and fresh broad verification.
+uncertain, a lock conflicts, or a source, runtime, configuration, or test
+change appears, **Safe fallback** returns the work to **Full BFM** and fresh
+broad verification.
