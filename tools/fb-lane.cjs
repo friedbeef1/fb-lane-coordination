@@ -2676,9 +2676,10 @@ matches the task:
 
 Start in whichever workstream matches the question whenever planning or
 evidence is useful. Product/User is only for user and product questions, not
-universal intake. Relevant workstreams create ready handoffs. After they are
-ready, the user says \`$bfm\`; Product reconciles all six and BFM executes the
-approved scope.
+universal intake. Relevant workstreams create handoffs for ready scope, and
+approval attaches to that scope before \`$bfm\`. After the user says \`$bfm\`,
+Product reconciles all six and records the consolidated Project Start Brief and
+Build Brief without a routine second approval; BFM then executes approved scope.
 
 For returning-project health, use \`$fb-lane status\` for the beginner card.
 For operational lock inspection, use CLI \`node tools/fb-lane.cjs status --details\`
@@ -2848,9 +2849,11 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 *   **Latest Update**:
     *   *2026-06-15*: Scoped task and marked ready for execution.
 
-### Mode Selection Trigger Rule
-- Default to normal/simple coding unless the objective has a coordination trigger. Use FB light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
-- Keep quick tasks lightweight: read board/locks, claim or note only exact files needed, and skip extra ceremony unless another lane or Product must continue it.
+### Workstream-first route
+- Start in whichever workstream matches the question whenever planning or evidence is useful. Product/User is selected only for user needs, outcomes, requirements, feedback, acceptance criteria, or product priorities; it is not universal intake.
+- Relevant workstreams investigate and create handoffs for ready scope. Approval attaches to that ready scope before \`$bfm\`.
+- After the user says \`$bfm\`, Product scans all six, reconciles duplicates, conflicts, dependencies, and priorities, then records the consolidated Project Start Brief and Build Brief without a routine second approval.
+- Pause only for a changed decision, disputed priority, sensitive boundary, conflict, or unclear scope. BFM executes and verifies approved scope, stops at Ready to ship, and reserves release for Push Live.
 
 ### Goal Alignment Session (non-trivial tasks only)
 - Product/BFM owns the approved OKR tree in \`PROJECT_BOARD.md\`: a Product/workstream or BFM-target OKR with \`Objective\`, \`Key Results\`, \`Definition of Done\`, \`Gate / Review Point\`, \`Approval: pending|approved\`, and \`Justification\`, plus stable lane OKRs where relevant.

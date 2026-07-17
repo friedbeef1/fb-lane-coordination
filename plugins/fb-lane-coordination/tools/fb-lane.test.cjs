@@ -67,7 +67,7 @@ assert.deepStrictEqual(
 function assertPublicRouteContract(label, source) {
   const renderedSource = source.replace(/\\`/g, '`');
   assert.match(renderedSource, /start in whichever workstream matches the question/i, `${label} must expose workstream-first intake`);
-  assert.match(renderedSource, /ready handoffs?[\s\S]*\$bfm[\s\S]*Product reconcile/i, `${label} must expose the handoff-to-reconciliation boundary`);
+  assert.match(renderedSource, /(?:ready handoffs?|handoffs for ready scope)[\s\S]*\$bfm[\s\S]*Product reconcile/i, `${label} must expose the handoff-to-reconciliation boundary`);
   assert.doesNotMatch(renderedSource, /\*\*(?:Simple task|Coordinated planning|Approved Build For Me)/i, `${label} must not expose mode choices`);
 }
 
@@ -929,6 +929,8 @@ function assertCodexBootstrap(args) {
       assert.match(source, /fb_lane_status\(\{details:true\}\)/, `${label} must request MCP details for lock inspection`);
       assert.match(source, /returning-project health[\s\S]*\$fb-lane status/i, `${label} must keep default status for returning health`);
     }
+    assert.doesNotMatch(board + agents, /Mode Selection Trigger Rule|normal\/simple|FB light/i, 'generated coordination guidance must not expose internal mode routing');
+    assert.match(agents, /ready scope[\s\S]*approval attaches[\s\S]*before `\$bfm`[\s\S]*Project Start Brief[\s\S]*Build Brief/i, 'generated AGENTS must attach approval to ready scope before post-$bfm reconciliation briefs');
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
     assert.match(output, /starts in whichever workstream matches the question/, 'bootstrap quick start must explain workstream-first intake');
     assert.match(output, /Relevant workstreams investigate and create ready handoffs/, 'bootstrap quick start must explain relevant workstream output');

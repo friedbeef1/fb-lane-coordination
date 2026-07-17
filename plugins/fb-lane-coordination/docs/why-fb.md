@@ -24,7 +24,7 @@ ordinary Codex use, not defects in Codex itself.
 | Codex issue | Codex problem solved by FB |
 |---|---|
 | Important decisions remain scattered across chats | FB turns actionable decisions and evidence into repository-local handoff MD files. |
-| Codex may start building before the goal and boundaries are clear | FB separates planning from implementation and requires an approved brief before `$bfm`. |
+| Codex may start building before the goal and boundaries are clear | FB requires relevant workstream handoffs and approved ready scope before `$bfm`; Product records the consolidated Project Start Brief and Build Brief during reconciliation after invocation. |
 | User evidence, decisions, and AI assumptions can become mixed together | Product/User records each category separately before implementation. |
 | Outputs from several Codex tasks must be combined manually | `$bfm` scans ready handoffs across all six workstreams, reconciles conflicts, and sequences the work. |
 | Failed checks can return responsibility to the user | FB runs automated checks and owns bounded diagnosis and repair. |
@@ -186,11 +186,13 @@ six-workstream disposition.
 
 ### Creator-commerce project
 
-A user says, “Build a place where creators sell digital templates.” Vanilla
-Codex can start implementing. Capacitor can retain detailed visibility into
-the resulting sessions. FB first separates the user's decisions from defaults,
-defines the product promise and useful lanes, waits for approval, then connects
-the build and evaluation evidence to a direct review plan.
+A user says, “Build a place where creators sell digital templates.” Matching
+Business, Design, Tech, Discovery, Bugs, or Product/User workstreams investigate
+the useful questions and create handoffs for approved ready scope. The user
+says `$bfm`; Product scans all six, reconciles dependencies and priorities, and
+records the consolidated Project Start Brief plus Build Brief before BFM
+executes and verifies the scope. Routine reconciliation does not add a second
+approval wait.
 
 ### Three failed agent attempts
 

@@ -38,7 +38,7 @@ const deliveredPages = [
 
 const codexProblemRows = [
   '| Important decisions remain scattered across chats | FB turns actionable decisions and evidence into repository-local handoff MD files. |',
-  '| Codex may start building before the goal and boundaries are clear | FB separates planning from implementation and requires an approved brief before `$bfm`. |',
+  '| Codex may start building before the goal and boundaries are clear | FB requires relevant workstream handoffs and approved ready scope before `$bfm`; Product records the consolidated Project Start Brief and Build Brief during reconciliation after invocation. |',
   '| User evidence, decisions, and AI assumptions can become mixed together | Product/User records each category separately before implementation. |',
   '| Outputs from several Codex tasks must be combined manually | `$bfm` scans ready handoffs across all six workstreams, reconciles conflicts, and sequences the work. |',
   '| Failed checks can return responsibility to the user | FB runs automated checks and owns bounded diagnosis and repair. |',

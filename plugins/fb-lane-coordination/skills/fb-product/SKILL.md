@@ -33,12 +33,15 @@ For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must
 judge it.
 
-Keep ordinary worker lanes plan-only. Product records the approved build brief
-before BFM starts source-changing work, and closes only with aligned board,
+Keep ordinary worker lanes plan-only. Pre-`$bfm` approval attaches to ready
+scope and handoffs. After invocation, Product records the consolidated Project
+Start Brief and Build Brief before BFM starts source-changing work, without a
+routine second approval; pause only for a changed decision, disputed priority,
+sensitive boundary, conflict, or unclear scope. Product closes only with aligned board,
 repository, evidence, and Git state. Product authors the semantic Brief
 Validation comparison; the CLI enforces complete actionable structure only.
-In the same update that creates a non-quick board task after approval, Product
-must copy the approved Project/Build Brief goal into that task's complete board
+In the same update that creates a non-quick board task after reconciliation, Product
+must copy the reconciled Project/Build Brief goal into that task's complete board
 Goal Alignment Session. Do not wait for `doctor` to discover a missing OKR. If
 there is no approved goal, block the task instead of inventing one.
 Product privately routes execution by risk, enforcing the

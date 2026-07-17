@@ -46,3 +46,34 @@ missing workstream-first behavior.
 None. Internal Quick/Full/Normal routing terminology remains in explicitly
 internal workflow, session, guardrail, and historical/evidence surfaces; it is
 no longer presented as a public starting menu.
+
+## Independent-review repair
+
+Repaired all five review findings in one bounded pass:
+
+- The README/Why FB problem map now attaches pre-`$bfm` approval to relevant
+  workstream handoffs and ready scope, with both consolidated briefs created
+  during Product reconciliation after invocation.
+- Bootstrap-generated AGENTS and Project Board guidance now expose only the
+  workstream-first route; focused bootstrap tests reject the retired public mode
+  trigger language and assert the approval/reconciliation timing.
+- Product and BFM skills no longer require consolidated briefs to preexist
+  `$bfm` or request a routine second approval. Deterministic ready-scope,
+  lock, board alignment, and pre-source-change gates remain.
+- The creator-commerce example is workstream-led through handoffs, `$bfm`,
+  reconciliation, and execution; the Codex platform page uses the same route.
+
+Repair verification output:
+
+- Root CLI: `70 checks passed`; packaged CLI: `70 checks passed`.
+- Root beginner: `10/10`; packaged beginner: `10/10`.
+- Root/package six-workstream runtime: `passed` / `passed`.
+- Root/package six-skill behavior: `passed` / `passed`.
+- Product positioning: `FB product-positioning contract passed.`
+- Package sync tests: `10` passed, `0` failed; mirror check:
+  `Checked 27 package mirrors.`
+- Affected JavaScript syntax checks and `git diff --check`: passed with no
+  output.
+
+Repair concerns: none. No full validator, push, merge, release, deployment, or
+broader cleanup was performed.

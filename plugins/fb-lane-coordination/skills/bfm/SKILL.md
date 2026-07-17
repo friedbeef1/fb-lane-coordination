@@ -42,10 +42,12 @@ For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must
 judge it.
 
-Stop before claim/edit/deploy/closeout when approval or locks are unclear.
-At intake, reject a non-quick handoff whose board target lacks the approved Goal
-Alignment Session copied from its Project/Build Brief; Product repairs the
-board record before execution. Never invent an OKR merely to clear the gate.
+Stop before claim/edit/deploy/closeout when ready-scope approval or locks are
+unclear. Pre-`$bfm` approval attaches to the ready scope and handoffs. After
+`$bfm`, Product records the consolidated Project Start Brief and Build Brief;
+do not require those briefs to preexist invocation or request routine second
+approval. Before source changes, require the board target's Goal Alignment
+Session to match the reconciled briefs. Never invent an OKR merely to clear the gate.
 Execute only ready, unlocked work in the approved scope; close only after the
 board, source, docs, evidence, and Git state agree or exceptions are explicit.
 Apply private agent routing and the
