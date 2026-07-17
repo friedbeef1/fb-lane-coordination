@@ -3,12 +3,12 @@
 Last Updated: 2026-07-17
 Lane: FB-Product
 
-## TASK-030 — FB 0.3.0-beta release candidate
+## TASK-030 — FB 0.3.0-beta release
 
-- Status: Ready to ship
-- Outcome: Rebuilt local candidate `0.3.0-beta+codex.20260717150502` with six-workstream metadata, prompts, package mirrors, and focused release-contract proof.
-- Verification: RED/GREEN metadata; plugin validation; 27-mirror parity; root/package focused contracts; one complete release validator; isolated installed-package/MCP smoke; test-contract repair `db1f527`; independent re-review approved with no remaining findings.
-- Release gate: **Push Live** is required before merge, public marketplace upgrade/reinstall, publication, deployment, or release.
+- Status: Done
+- Outcome: [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44) merged as `7e122ae`; the GitHub marketplace upgraded and Codex installed/enabled `0.3.0-beta+codex.20260717150502`.
+- Verification: focused and full release gates, GitHub readiness, isolated install, independent review, live marketplace upgrade, and installed-cache six-skill/MCP/diagram proof passed.
+- Release gate: complete. Start a new Codex task to load the refreshed plugin.
 
 ## TASK-029 — Six-workstream loop
 
