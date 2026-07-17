@@ -69,11 +69,22 @@ assert.match(renderQueueSummary([], ''), /^Current: None$/m);
 assert.match(renderQueueSummary([], ''), /^Next ready: None$/m);
 assert.match(renderQueueSummary([], ''), /^External blocks: None$/m);
 
+const passedAutomatedEvidence = {
+  status: 'passed',
+  baseCommit: '0123456789abcdef0123456789abcdef01234567',
+  candidateCommit: 'fedcba9876543210fedcba9876543210fedcba98',
+  checkedAt: '2026-07-17T00:00:00.000Z',
+  checks: [{ id: 'structure', result: 'passed' }],
+  changedPaths: ['docs/fb/workflow.md'],
+  checkManifest: [{ id: 'structure', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] }],
+  safetyGate: { result: 'not-applicable', approvalRef: '' },
+  optionalLinks: [],
+};
 assert.deepStrictEqual(
-  verificationReuseDecision(['docs/handoffs/TASK-100.md', 'PROJECT_BOARD.md'], true),
-  { reuse: true, reason: 'coordination-only changes after a verification checkpoint' }
+  verificationReuseDecision(['docs/handoffs/TASK-100.md', 'PROJECT_BOARD.md'], passedAutomatedEvidence),
+  { reuse: true, reason: 'coordination-only changes after passed automated verification' }
 );
-assert.strictEqual(verificationReuseDecision(['src/app.js'], true).reuse, false);
+assert.strictEqual(verificationReuseDecision(['src/app.js'], passedAutomatedEvidence).reuse, false);
 assert.strictEqual(verificationReuseDecision(['docs/README.md'], false).reuse, false);
 
 const readHarness = page => fs.readFileSync(path.join(surfaceRoot, 'docs', 'fb', page), 'utf8');
