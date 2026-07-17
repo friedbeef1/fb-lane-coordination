@@ -41,7 +41,7 @@ and 7 connects to the approval-boundary feedback in TASK-020. The
 [TASK-023 walkthroughs](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/evals/TASK-023-walkthroughs.md)
 show how failed checks and product-quality gaps remain owned inside the loop.
 
-## Honest comparison
+## Comparison
 
 For the longer human-team mapping, see [Agile Teams](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/fb-for-agile-teams.md).
 

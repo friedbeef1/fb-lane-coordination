@@ -113,17 +113,17 @@ for (const evidence of ['TASK-020.md', 'TASK-022.md', 'TASK-024.md', 'TASK-023-w
 assert.match(rootReadme, /Problems FB solves[\s\S]*\[Why FB evidence\]\(docs\/why-fb\.md#pain-points-fb-is-designed-to-address\)/, 'README problem tables must route to Why FB evidence');
 assert.match(rootReadme, /One big loop, six mini-loops[\s\S]*\[Agile Teams\]\(docs\/fb-for-agile-teams\.md\)[\s\S]*\[Full FB Loop Diagram\]\(docs\/fb\/full-loop\.md\)/, 'README loop must route to Agile Teams and Full Loop');
 assert.match(agileTeams, /The short version[\s\S]*\[Full Loop\]\(fb\/full-loop\.md\)/, 'Agile diagram must route to Full Loop');
-assert.match(agileTeams, /FB and familiar agile-team work[\s\S]*\[Why FB comparison\]\(why-fb\.md#honest-comparison\)/, 'Agile mapping must route to Why FB comparison');
+assert.match(agileTeams, /FB and familiar agile-team work[\s\S]*\[Why FB comparison\]\(why-fb\.md#comparison\)/, 'Agile mapping must route to Why FB comparison');
 assert.match(agileTeams, /What happens in a real example[\s\S]*\[Why FB examples\]\(why-fb\.md#concrete-examples\)/, 'Agile example must route to Why FB examples');
 assert.match(agileTeams, /How `\$bfm` relates to Scrum and Kanban[\s\S]*\[workflow\]\(fb\/workflow\.md\)/, 'Agile $bfm section must route to workflow');
 assert.match(agileTeams, /What FB deliberately does not do[\s\S]*\[guardrails\]\(fb\/guardrails\.md\)/, 'Agile boundaries must route to guardrails');
-assert.match(canonical, /Honest comparison[\s\S]*\[Agile Teams\]\(https:\/\/github\.com\/friedbeef1\/fb-lane-coordination\/blob\/main\/docs\/fb-for-agile-teams\.md\)/, 'Why FB comparison must route to Agile Teams');
+assert.match(canonical, /^## Comparison$[\s\S]*\[Agile Teams\]\(https:\/\/github\.com\/friedbeef1\/fb-lane-coordination\/blob\/main\/docs\/fb-for-agile-teams\.md\)/m, 'Why FB comparison must use the concise title and route to Agile Teams');
 assert.match(fullLoop, /\[workflow\]\(workflow\.md\)/, 'Full Loop must route to workflow');
 assert.strictEqual((agileTeams.match(/```mermaid/g) || []).length, 1, 'Agile Teams must contain exactly one Mermaid diagram');
 
 for (const [label, source, hrefs] of [
   ['README', 'README.md', ['README.md', 'docs/fb-for-agile-teams.md', 'docs/why-fb.md', 'docs/fb/full-loop.md', 'docs/why-fb.md#pain-points-fb-is-designed-to-address']],
-  ['Agile Teams', 'docs/fb-for-agile-teams.md', ['../README.md', 'fb-for-agile-teams.md', 'why-fb.md', 'fb/full-loop.md', 'why-fb.md#honest-comparison', 'why-fb.md#concrete-examples', 'fb/workflow.md', 'fb/guardrails.md']],
+  ['Agile Teams', 'docs/fb-for-agile-teams.md', ['../README.md', 'fb-for-agile-teams.md', 'why-fb.md', 'fb/full-loop.md', 'why-fb.md#comparison', 'why-fb.md#concrete-examples', 'fb/workflow.md', 'fb/guardrails.md']],
   ['Why FB', 'docs/why-fb.md', ['../README.md', 'why-fb.md', 'fb/full-loop.md']],
   ['Full Loop', 'docs/fb/full-loop.md', ['../../README.md', '../why-fb.md', 'full-loop.md', 'workflow.md']],
   ['packaged Why FB', 'plugins/fb-lane-coordination/docs/why-fb.md', ['../README.md', 'why-fb.md', 'fb/full-loop.md']],

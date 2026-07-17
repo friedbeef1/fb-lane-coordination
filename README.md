@@ -127,7 +127,7 @@ codex plugin add fb-lane-coordination@fb-lane
 5. FB runs automated checks and owns bounded repair. Review optional links only when useful.
 6. When FB reports **Ready to ship**, say **Push Live** to authorize merge and deployment.
 
-## Honest comparison
+## Comparison
 
 | System | Good because | Gap | How FB addresses the gap |
 |---|---|---|---|
