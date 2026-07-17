@@ -61,3 +61,29 @@ Repair commit message: `fix: bind automated evidence to candidate checks`
 - Sensitive candidates require a passed safety gate with an approval reference.
 - Reuse requires the evidence candidate to exist and be an ancestor of `HEAD`; candidate-to-HEAD, working-tree, and untracked-path inspections all fail closed on Git errors.
 - Scope remains the Task 1 canonical session source/test, their generated mirrors, and this evidence report. No adapters, docs distribution, broad validator, deploy, release, merge, or push were performed.
+
+## Candidate-range repair
+
+Repair commit message: `fix: verify the complete candidate range`
+
+### RED
+
+- `node tools/fb-session.test.cjs` exited 1 in the new multi-commit and merge-sensitive fixture because the previous candidate-only derivation threw `Automated verification evidence must exactly match the policy-selected check manifest` for the valid full-range evidence.
+- The first narrowed GREEN attempt exposed a fixture issue: the allegedly different manifest still selected the same `project-test`. The fixture was corrected to supply a different executable argument array (`npm run made-up`), after which the mismatch regression exercised the intended boundary.
+
+### GREEN
+
+- `node tools/fb-efficiency.test.cjs`: PASS, 11/11.
+- `node tools/fb-session.test.cjs`: PASS, 37/37.
+- `node plugins/fb-lane-coordination/tools/fb-efficiency.test.cjs`: PASS, 11/11.
+- `node plugins/fb-lane-coordination/tools/fb-session.test.cjs`: PASS, 37/37.
+- Declared package mirror write/check: PASS, 22/22.
+- Syntax for all four canonical Task 1 source/test files and four mirrors: PASS, 8/8.
+- `git diff --check`: PASS.
+
+### Range self-review
+
+- Evidence now persists full `baseCommit` and `candidateCommit` SHAs, exact sorted `changedPaths`, and the executable `checkManifest`.
+- Persistence requires the base to exist and be an ancestor of the candidate, derives paths using a successful `git diff --name-only baseCommit..candidateCommit`, and rejects missing/unrelated bases, incomplete multi-commit or merge paths, and any supplied manifest mismatch.
+- Manifest selection and safety classification are bound to the exact full range before the policy decision may be stored.
+- Reuse rechecks base-to-candidate ancestry, the full range paths, and the selected manifest before checking later candidate-to-HEAD coordination-only changes.

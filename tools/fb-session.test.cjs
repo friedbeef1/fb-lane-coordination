@@ -22,6 +22,7 @@ const {
   runSessionCommand,
   submitVerificationReuse,
 } = require(path.join(__dirname, 'fb-session.cjs'));
+const { selectAutomatedChecks } = require(path.join(__dirname, 'fb-efficiency.cjs'));
 const cleanEnv = {
   ...process.env,
   CODEX_THREAD_ID: '',
@@ -847,12 +848,21 @@ test('automated verification evidence is explicit, validated, candidate-bound, a
     fs.writeFileSync(registryPath, `${JSON.stringify(generic, null, 2)}\n`);
     assert.strictEqual(submitVerificationReuse(worktree, 'TASK-001').reuse, false, 'generic verification milestones must not count');
 
+    const baseCommit = git(worktree, ['rev-parse', 'HEAD']);
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 2;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: automated candidate']);
     const candidateCommit = git(worktree, ['rev-parse', 'HEAD']);
+    const changedPaths = ['src/app.js'];
+    const checkManifest = selectAutomatedChecks(changedPaths, worktree);
     const evidence = {
       status: 'passed',
+      baseCommit,
       candidateCommit,
       checkedAt: '2026-07-17T00:00:00.000Z',
       checks: [{ id: 'project-test', result: 'passed' }],
+      changedPaths,
+      checkManifest,
       safetyGate: { result: 'not-applicable', approvalRef: '' },
       optionalLinks: [],
     };
@@ -885,9 +895,12 @@ test('automated verification persistence enforces sensitive safety and reuse fai
     const worktree = addWorktree(fixture, 'session/sensitive-evidence');
     assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'sensitive-evidence'));
     const candidateCommit = git(worktree, ['rev-parse', 'HEAD']);
+    const baseCommit = git(worktree, ['rev-parse', `${candidateCommit}^`]);
+    const changedPaths = ['auth/config.js'];
     const evidence = {
-      status: 'passed', candidateCommit, checkedAt: '2026-07-17T00:00:00.000Z',
+      status: 'passed', baseCommit, candidateCommit, checkedAt: '2026-07-17T00:00:00.000Z',
       checks: [{ id: 'project-test', result: 'passed' }],
+      changedPaths, checkManifest: selectAutomatedChecks(changedPaths, worktree),
       safetyGate: { result: 'not-applicable', approvalRef: '' }, optionalLinks: [],
     };
     assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', evidence), /safety|sensitive/i);
@@ -914,6 +927,43 @@ test('automated verification persistence enforces sensitive safety and reuse fai
       fs.rmSync(indexPath, { recursive: true, force: true });
       fs.renameSync(savedIndex, indexPath);
     }
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('automated evidence derives the complete multi-commit and merge-sensitive candidate range', () => {
+  const fixture = createRepo([{ id: 'TASK-001', locks: 'src/app.js, auth/merge.js' }]);
+  try {
+    const worktree = addWorktree(fixture, 'session/range-evidence');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'range-evidence'));
+    const baseCommit = git(worktree, ['rev-parse', 'HEAD']);
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 2;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: first range commit']);
+    git(worktree, ['checkout', '-qb', 'range-sensitive', baseCommit]);
+    fs.mkdirSync(path.join(worktree, 'auth'));
+    fs.writeFileSync(path.join(worktree, 'auth', 'merge.js'), 'module.exports = true;\n');
+    git(worktree, ['add', 'auth/merge.js']);
+    git(worktree, ['commit', '-qm', 'feat: sensitive merge side']);
+    git(worktree, ['checkout', 'session/range-evidence']);
+    git(worktree, ['merge', '--no-ff', '-m', 'merge sensitive range', 'range-sensitive']);
+    const candidateCommit = git(worktree, ['rev-parse', 'HEAD']);
+    const changedPaths = ['auth/merge.js', 'src/app.js'];
+    const evidence = {
+      status: 'passed', baseCommit, candidateCommit, checkedAt: '2026-07-17T00:00:00.000Z',
+      changedPaths, checkManifest: selectAutomatedChecks(changedPaths, worktree),
+      checks: [{ id: 'project-test', result: 'passed' }],
+      safetyGate: { result: 'passed', approvalRef: 'APPROVAL-MERGE-001' }, optionalLinks: [],
+    };
+    assert.doesNotThrow(() => recordAutomatedVerification(worktree, 'TASK-001', evidence));
+    assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', { ...evidence, baseCommit: '' }), /base/i);
+    const unrelated = git(worktree, ['commit-tree', git(worktree, ['rev-parse', 'HEAD^{tree}']), '-m', 'unrelated base']);
+    assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', { ...evidence, baseCommit: unrelated }), /ancestor|base/i);
+    assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', { ...evidence, changedPaths: ['src/app.js'] }), /changed path|range/i);
+    assert.throws(() => recordAutomatedVerification(worktree, 'TASK-001', {
+      ...evidence, checkManifest: [{ id: 'project-test', command: 'npm', args: ['run', 'made-up'] }],
+    }), /manifest/i);
   } finally {
     fixture.cleanup();
   }

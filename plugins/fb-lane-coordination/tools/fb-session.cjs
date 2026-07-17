@@ -284,6 +284,9 @@ function validateAutomatedVerification(evidence) {
   if (!/^[0-9a-f]{40}$/i.test(String(evidence.candidateCommit || ''))) {
     throw new Error('Automated verification evidence requires a full candidate commit.');
   }
+  if (!/^[0-9a-f]{40}$/i.test(String(evidence.baseCommit || ''))) {
+    throw new Error('Automated verification evidence requires a full base commit.');
+  }
   if (!Number.isFinite(Date.parse(String(evidence.checkedAt || '')))) {
     throw new Error('Automated verification evidence requires a valid checkedAt timestamp.');
   }
@@ -300,6 +303,13 @@ function validateAutomatedVerification(evidence) {
   }
   if (!Array.isArray(evidence.optionalLinks) || evidence.optionalLinks.some(link => typeof link !== 'string')) {
     throw new Error('Automated verification optional links must be an array of strings.');
+  }
+  if (!Array.isArray(evidence.changedPaths) || evidence.changedPaths.some(file => typeof file !== 'string' || !file)) {
+    throw new Error('Automated verification evidence requires candidate-range changed paths.');
+  }
+  if (!Array.isArray(evidence.checkManifest) || evidence.checkManifest.length === 0
+    || evidence.checkManifest.some(check => !check || typeof check.id !== 'string' || typeof check.command !== 'string' || !Array.isArray(check.args))) {
+    throw new Error('Automated verification evidence requires the selected executable check manifest.');
   }
   return evidence;
 }
@@ -593,11 +603,30 @@ function submitVerificationReuse(cwd, taskId) {
   const record = listSessions(cwd).find(item => item.taskId === taskId && item.mode === 'execution' && item.state !== 'closed');
   if (!record || !record.automatedVerification) return verificationReuseDecision([], null);
   const candidate = record.automatedVerification.candidateCommit;
+  const base = record.automatedVerification.baseCommit;
   if (git(cwd, ['rev-parse', '--verify', candidate], { allowFailure: true }).status !== 0) {
     return { reuse: false, reason: 'automated verification candidate is unavailable' };
   }
   if (git(cwd, ['merge-base', '--is-ancestor', candidate, 'HEAD'], { allowFailure: true }).status !== 0) {
     return { reuse: false, reason: 'automated verification candidate is not an ancestor of HEAD' };
+  }
+  if (git(cwd, ['merge-base', '--is-ancestor', base, candidate], { allowFailure: true }).status !== 0) {
+    return { reuse: false, reason: 'automated verification base is not an ancestor of the candidate' };
+  }
+  const candidateRange = git(cwd, ['diff', '--name-only', `${base}..${candidate}`], { allowFailure: true });
+  if (candidateRange.status !== 0) return { reuse: false, reason: 'git candidate-range inspection failed' };
+  const rangePaths = candidateRange.stdout.split(/\r?\n/).filter(Boolean).sort();
+  if (rangePaths.join('\n') !== [...record.automatedVerification.changedPaths].sort().join('\n')) {
+    return { reuse: false, reason: 'automated verification changed paths do not match the candidate range' };
+  }
+  let selectedManifest;
+  try {
+    selectedManifest = selectAutomatedChecks(rangePaths, gitRoot(cwd));
+  } catch (err) {
+    return { reuse: false, reason: 'automated verification check selection failed' };
+  }
+  if (JSON.stringify(selectedManifest) !== JSON.stringify(record.automatedVerification.checkManifest)) {
+    return { reuse: false, reason: 'automated verification manifest does not match the candidate range' };
   }
   const commands = [
     ['diff', '--name-only', `${candidate}..HEAD`],
@@ -621,10 +650,23 @@ function recordAutomatedVerification(cwd, taskId, evidence) {
     if (git(cwd, ['rev-parse', 'HEAD']).stdout !== evidence.candidateCommit) {
       throw new Error('Automated verification evidence must match the current candidate commit.');
     }
-    const changedResult = git(cwd, ['diff-tree', '--root', '--no-commit-id', '--name-only', '-r', evidence.candidateCommit], { allowFailure: true });
-    if (changedResult.status !== 0) throw new Error('Automated verification could not inspect the candidate changed paths.');
-    const changedPaths = changedResult.stdout.split(/\r?\n/).filter(Boolean);
-    const selectedIds = selectAutomatedChecks(changedPaths, gitRoot(cwd)).map(check => check.id).sort();
+    if (git(cwd, ['rev-parse', '--verify', evidence.baseCommit], { allowFailure: true }).status !== 0) {
+      throw new Error('Automated verification base commit is unavailable.');
+    }
+    if (git(cwd, ['merge-base', '--is-ancestor', evidence.baseCommit, evidence.candidateCommit], { allowFailure: true }).status !== 0) {
+      throw new Error('Automated verification base commit must be an ancestor of the candidate commit.');
+    }
+    const changedResult = git(cwd, ['diff', '--name-only', `${evidence.baseCommit}..${evidence.candidateCommit}`], { allowFailure: true });
+    if (changedResult.status !== 0) throw new Error('Automated verification could not inspect the full candidate range.');
+    const changedPaths = changedResult.stdout.split(/\r?\n/).filter(Boolean).sort();
+    if (changedPaths.join('\n') !== [...evidence.changedPaths].sort().join('\n')) {
+      throw new Error('Automated verification changed paths must exactly match the full candidate range.');
+    }
+    const selectedManifest = selectAutomatedChecks(changedPaths, gitRoot(cwd));
+    if (JSON.stringify(selectedManifest) !== JSON.stringify(evidence.checkManifest)) {
+      throw new Error('Automated verification evidence must exactly match the policy-selected check manifest for the candidate range.');
+    }
+    const selectedIds = selectedManifest.map(check => check.id).sort();
     const evidenceIds = evidence.checks.map(check => check.id).sort();
     if (selectedIds.join('\n') !== evidenceIds.join('\n')) {
       throw new Error('Automated verification evidence must exactly match the policy-selected check manifest.');
