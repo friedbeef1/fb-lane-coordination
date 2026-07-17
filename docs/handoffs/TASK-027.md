@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-027
 lane: fb-product
-status: implemented
+status: staging-qa
 okr_fit: aligned
 ---
 
@@ -30,7 +30,7 @@ Evidence Against Product OKR: None identified.
 
 ## Verification Handoff
 
-Candidate: local branch `codex/fb-beginner-clarity` at `081dd6c`, after verified TASK-026.
+Candidate: local branch `codex/fb-beginner-clarity`, based on TASK-027 candidate `081dd6c` after verified TASK-026, with final-review repairs pending one focused local commit.
 
 Test plan: focused positioning red/green, canonical/package byte parity, evidence-link and Mermaid checks, CLI/session/eval/beginner/two-speed suites, validator, doctor, and whitespace.
 
@@ -40,9 +40,11 @@ Recovery: Product/BFM owns wording, evidence, parity, test, and diagram repair b
 
 ## Product/BFM Closeout
 
-Status: Staging QA (local Product review only).
+Status: Staging QA candidate; Product re-review pending.
 Actioned By: FB-Product / BFM.
-Result: The canonical and packaged Why FB story now preserve the honest Codex/Capacitor comparison while adding four TASK-026 pain mappings, five implemented responses, a connected Quick/Full/reuse/safe-fallback loop, and a corrective-patch example. Review repairs made verification reuse explicitly match the current coordination-only path allowlist and made local-only TASK-026 evidence honest and enforceable.
-Evidence: Candidate `081dd6c`; focused positioning RED was observed before GREEN; root/package positioning passed; canonical/package page and test mirrors are byte-identical; five local evidence targets exist; exact OpenAI Codex and Kurrent Capacitor Markdown destinations and exactly two Mermaid blocks passed; root/package CLI 70/70, session 32/32, eval 18/18, beginner 10/10, and two-speed contracts passed; full validator passed; standalone doctor reported Ready; whitespace and clean-status checks passed; independent task and whole-slice reviews finished with no Critical, Important, or Minor finding after repairs.
-Remaining: Local Staging QA only. Reconciliation, fetch, push, PR, merge, publication, release, deployment, install, runtime changes, and package-identifier changes remain separate and unauthorized; none occurred.
+Result: Final review reopened the gate after finding a stale current-task pointer, a packaged-distribution TASK-026 evidence-link failure, and overstated review approval. The link-resolution regression failed first in both distribution contexts, then passed after adding byte-identical evidence mirrors and the identical relative destination `evidence/TASK-026-two-speed.md` to both Why FB pages.
+Evidence: Root/package positioning first failed on the missing mirrored evidence link, then passed. Root/package CLI 70/70, session 32/32, eval 18/18, beginner 10/10, positioning, and two-speed suites passed. Canonical/package Why FB pages, positioning tests, and TASK-026 evidence artifacts are byte-identical; both delivered pages resolve `evidence/TASK-026-two-speed.md` from their own filesystem context. Syntax, whitespace, the full clean-tree validator, and standalone doctor passed. No final whole-slice approval is claimed.
+Remaining: Obtain Product re-review. Reconciliation, fetch, push, PR, merge, publication, release, deployment, install, runtime changes, and package-identifier changes remain separate and unauthorized; none occurred.
+Health: needs Product review
+Branch/worktree state: clean local branch
 Loop Learning: Feedback captured: yes; Repeated pattern?: yes; Tooling needed?: focused documentation contract; Product approval needed?: no - explicitly approved.

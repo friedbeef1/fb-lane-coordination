@@ -18,6 +18,19 @@ const canonical = read('docs/why-fb.md');
 const packaged = read('plugins/fb-lane-coordination/docs/why-fb.md');
 const compact = canonical.replace(/\s+/g, ' ');
 
+const deliveredPages = [
+  {
+    label: 'canonical positioning page',
+    content: canonical,
+    absolutePath: path.join(repoRoot, 'docs/why-fb.md'),
+  },
+  {
+    label: 'packaged positioning page',
+    content: packaged,
+    absolutePath: path.join(repoRoot, 'plugins/fb-lane-coordination/docs/why-fb.md'),
+  },
+];
+
 assert.strictEqual(packaged, canonical, 'packaged positioning page must match the canonical page');
 assert.match(canonical, /> Codex executes software work\.\s+> Capacitor is a session-intelligence platform\.\s+> FB is a product-delivery harness that includes curated session intelligence\./);
 assert.match(canonical, /\| Vanilla Codex \| Execute software work \|/);
@@ -32,6 +45,18 @@ assert.strictEqual((canonical.match(/```mermaid/g) || []).length, 2, 'comparison
 
 for (const evidence of ['TASK-020.md', 'TASK-022.md', 'TASK-024.md', 'TASK-023-walkthroughs.md', 'TASK-026.md']) {
   assert.match(canonical, new RegExp(evidence.replace('.', '\\.')), `pain-point map must cite ${evidence}`);
+}
+
+for (const page of deliveredPages) {
+  const evidenceLink = page.content.match(/\[TASK-026 two-speed evidence\]\(([^)]+)\)/);
+  assert.ok(evidenceLink, `${page.label} must link to the mirrored TASK-026 evidence artifact`);
+  assert.strictEqual(
+    evidenceLink[1],
+    'evidence/TASK-026-two-speed.md',
+    `${page.label} must use the distribution-safe evidence destination`,
+  );
+  const evidenceTarget = path.resolve(path.dirname(page.absolutePath), evidenceLink[1]);
+  assert.ok(fs.existsSync(evidenceTarget), `${page.label} evidence target must resolve in its own filesystem context`);
 }
 
 assert.match(canonical, /(?<!!)\[[^\]]+\]\(https:\/\/openai\.com\/codex\/\)/, 'comparison page must use the official OpenAI Codex Markdown destination');
@@ -94,7 +119,10 @@ for (const mapping of [
 assert.strictEqual(matchedTask026Rows.size, 4, 'each TASK-026 pain point must map to a distinct row');
 
 for (const row of task026Rows) {
-  assert.match(row.evidence, /^Local candidate evidence: `docs\/handoffs\/TASK-026\.md`$/);
+  assert.match(
+    row.evidence,
+    /^Canonical source: `docs\/handoffs\/TASK-026\.md`; \[TASK-026 two-speed evidence\]\(evidence\/TASK-026-two-speed\.md\)$/,
+  );
   assert.doesNotMatch(row.evidence, /github\.com\/friedbeef1\/fb-lane-coordination\/blob\/main/i);
   assert.ok(row.userVisibleEffect.length > 0, 'each TASK-026 row must describe a user-visible effect');
 }
