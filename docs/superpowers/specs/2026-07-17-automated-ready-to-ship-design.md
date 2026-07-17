@@ -11,8 +11,10 @@ approval.
 For an ordinary release candidate:
 
 1. FB runs the selected automated checks itself.
-2. A failed required check keeps the candidate in `Checking` and FB owns
-   recovery within the declared loop budget.
+2. A failed required check keeps the candidate in `Checking`. FB diagnoses the
+   failure and makes bounded repairs within the approved brief. FB stops and
+   asks the user only when recovery requires a scope change, product decision,
+   unavailable access, or safety approval.
 3. When required checks pass, FB shows direct links as optional evidence rather
    than asking James to perform routine QA.
 4. FB reports `Ready to ship` and displays exactly:
