@@ -13,6 +13,7 @@ const {
   listSessions,
   computedState,
   submitVerificationReuse,
+  recordAutomatedVerification,
 } = require('./fb-session.cjs');
 const { collectEvalDoctorChecks } = require('./fb-eval.cjs');
 const {
@@ -21,6 +22,9 @@ const {
   parseQuickRecord,
   findQuickRecord,
   validateQuickRecordForSubmit,
+  classifyChangedSurface,
+  selectAutomatedChecks,
+  automatedVerificationDecision,
 } = require('./fb-efficiency.cjs');
 
 const FB_MODEL_LINE = ['FB 0.2.0-beta:', 'AI', 'Loop', 'Engineering', 'for', 'Everyday', 'People'].join(' ');
@@ -2127,7 +2131,118 @@ function commitBoard(message) {
   return false;
 }
 
-function handleSubmit(taskId, stagingUrl = '') {
+const NO_TESTS_SUBMIT_ERROR = 'Automated checks are required before Ready to ship; --no-tests cannot submit.';
+const PUSH_LIVE_PROMPT = 'Automated checks passed. Optional review links are available above.\nSay **Push Live** to deploy.';
+
+function workspaceGit(workspaceRoot, args) {
+  return execFileSync('git', args, {
+    cwd: workspaceRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function formatAutomatedSubmission(result) {
+  const checkLines = result.checks.map(check => `- Automated checks: ${check.id}: ${check.result}`);
+  const command = result.checkManifest[0]
+    ? [result.checkManifest[0].command, ...result.checkManifest[0].args].join(' ')
+    : 'selected checks';
+  const linkLines = result.optionalLinks.length
+    ? result.optionalLinks.map(link => `- ${link}`)
+    : ['- none'];
+  return [
+    'System verification: passed',
+    ...checkLines,
+    `- Evidence: candidate ${result.candidateCommit} passed ${command}`,
+    '',
+    'Optional review links:',
+    ...linkLines,
+    '',
+    result.status,
+    result.prompt,
+  ].join('\n');
+}
+
+function resolveSubmissionSafetyGate({ candidateCommit, changedPaths, session }) {
+  if (classifyChangedSurface(changedPaths) !== 'sensitive') {
+    return { result: 'not-applicable', approvalRef: '' };
+  }
+  const evidence = session && session.automatedVerification;
+  const samePaths = evidence && Array.isArray(evidence.changedPaths)
+    && [...evidence.changedPaths].sort().join('\n') === [...changedPaths].sort().join('\n');
+  if (evidence && evidence.candidateCommit === candidateCommit && samePaths
+      && evidence.safetyGate && evidence.safetyGate.result === 'passed'
+      && String(evidence.safetyGate.approvalRef || '').trim()) {
+    return { result: 'passed', approvalRef: evidence.safetyGate.approvalRef };
+  }
+  return { result: 'unresolved', approvalRef: '' };
+}
+
+function performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl = '', bypassRequested = false, transport = 'cli' }) {
+  void transport;
+  assertSafeTaskId(taskId);
+  if (bypassRequested) throw new Error(NO_TESTS_SUBMIT_ERROR);
+  const boardPath = path.join(workspaceRoot, 'PROJECT_BOARD.md');
+  if (!fs.existsSync(boardPath)) throw new Error('PROJECT_BOARD.md not found.');
+  assertSubmitReady(workspaceRoot, taskId);
+
+  const sessions = listSessions(workspaceRoot).filter(session => session.taskId === taskId && session.mode === 'execution' && session.state !== 'closed');
+  if (sessions.length !== 1) throw new Error(`Automated verification requires one active execution session for ${taskId}.`);
+  const promotion = [...(sessions[0].milestones || [])].reverse().find(milestone => milestone.reason === 'promotion' && /^[0-9a-f]{40}$/i.test(milestone.commit || ''));
+  if (!promotion) throw new Error('Blocked: the authoritative session promotion commit is unavailable.');
+  const candidateCommit = workspaceGit(workspaceRoot, ['rev-parse', 'HEAD']);
+  const changedPaths = workspaceGit(workspaceRoot, ['diff', '--name-only', `${promotion.commit}..${candidateCommit}`]).split(/\r?\n/).filter(Boolean).sort();
+  const checkManifest = selectAutomatedChecks(changedPaths, workspaceRoot);
+  const safetyGate = resolveSubmissionSafetyGate({ candidateCommit, changedPaths, session: sessions[0] });
+  if (safetyGate.result === 'unresolved') {
+    throw new Error('Blocked: Sensitive changes require a passed safety gate.');
+  }
+
+  const checks = [];
+  for (const check of checkManifest) {
+    try {
+      execFileSync(check.command, check.args, { cwd: workspaceRoot, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
+      checks.push({ id: check.id, result: 'passed' });
+    } catch (err) {
+      throw new Error(`Checking: automated check ${check.id} failed.`);
+    }
+  }
+  const optionalLinks = optionalReviewUrl ? [optionalReviewUrl] : [];
+  const decision = automatedVerificationDecision({
+    candidateCommit,
+    checkedCommit: candidateCommit,
+    changedPaths,
+    checkResults: checks,
+    safetyGate,
+    optionalLinks,
+  });
+  if (decision.status !== 'Ready to ship') throw new Error(`${decision.status}: ${decision.reason}`);
+  recordAutomatedVerification(workspaceRoot, taskId, {
+    status: 'passed',
+    baseCommit: promotion.commit,
+    candidateCommit,
+    checkedAt: new Date().toISOString(),
+    checks,
+    changedPaths,
+    checkManifest,
+    safetyGate,
+    optionalLinks,
+  });
+
+  runHook('pre-submit', boardPath);
+  withSubmitLifecycleTransaction(workspaceRoot, taskId, () => {
+    assertSubmitReady(workspaceRoot, taskId);
+    const updates = { status: 'Staging QA' };
+    if (optionalReviewUrl) updates.stagingUrl = `[Optional Review Link](${optionalReviewUrl})`;
+    updateBoardTask(boardPath, taskId, updates);
+    commitBoard(`docs: submit ${taskId} for staging qa`);
+    runGit(['push', 'origin', 'HEAD']);
+  });
+  runHook('post-submit', boardPath);
+  return { status: decision.status, candidateCommit, checks, checkManifest, optionalLinks, prompt: PUSH_LIVE_PROMPT };
+}
+
+function handleSubmit(taskId, stagingUrl = '', options = {}) {
   try {
     assertSafeTaskId(taskId);
   } catch (err) {
@@ -2170,73 +2285,10 @@ function handleSubmit(taskId, stagingUrl = '') {
   }
 
   try {
-    assertSubmitReady(workspaceRoot, taskId);
+    const result = performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl: stagingUrl, bypassRequested: options.bypassRequested, transport: 'cli' });
+    console.log(formatAutomatedSubmission(result));
   } catch (err) {
     console.error(`❌ Error: ${err.message}`);
-    process.exit(1);
-  }
-
-  const noTests = process.argv.includes('--no-tests');
-
-  const verificationReuse = submitVerificationReuse(path.dirname(boardPath), taskId);
-  if (!noTests && verificationReuse.reuse) {
-    console.log(`ℹ️  Reusing the proven broad verification gate: ${verificationReuse.reason}.`);
-  } else if (!noTests) {
-    try {
-      runTests(boardPath);
-    } catch (err) {
-      console.error(`❌ Error: ${err.message}`);
-      console.error(`👉 Use --no-tests flag if you need to bypass tests temporarily.\n`);
-      process.exit(1);
-    }
-  } else {
-    console.log('⚠️  Bypassing local test run (--no-tests flag detected)...');
-  }
-
-  try {
-    runHook('pre-submit', boardPath);
-  } catch (err) {
-    console.error(`❌ Hook pre-submit failed: ${err.message}`);
-    process.exit(1);
-  }
-
-  let currentBranch;
-  try {
-    currentBranch = runGit(['rev-parse', '--abbrev-ref', 'HEAD']);
-  } catch (err) {
-    currentBranch = runGit(['branch', '--show-current']);
-  }
-  console.log(`Submitting task ${taskId} from branch ${currentBranch}...`);
-
-  try {
-    withSubmitLifecycleTransaction(path.dirname(boardPath), taskId, () => {
-      const updates = { status: 'Staging QA' };
-      if (stagingUrl) updates.stagingUrl = `[Staging Link](${stagingUrl})`;
-      updateBoardTask(boardPath, taskId, updates);
-      commitBoard(`docs: submit ${taskId} for staging qa`);
-      console.log('Pushing feature branch to origin...');
-      runGit('push origin HEAD');
-    });
-  } catch (err) {
-    console.error(`❌ Error: ${err.message}`);
-    process.exit(1);
-  }
-
-  console.log(`\n✅ Task ${taskId} submitted for Staging QA!`);
-  console.log(`   - Board updated and committed.`);
-  console.log(`   - Branch pushed to remote.`);
-  console.log(`\n👉 Request FB-Product to review the build and merge. Review instructions copied to clipboard!`);
-
-  const reviewPrompt = `${taskId} is ready for review on Staging.
-Staging URL: ${stagingUrl || 'Local / CI Build'}
-Please review the changes and run the merge command:
-node tools/fb-lane.cjs merge ${taskId}`;
-  copyToClipboard(reviewPrompt);
-
-  try {
-    runHook('post-submit', boardPath);
-  } catch (err) {
-    console.error(`❌ Hook post-submit failed: ${err.message}`);
     process.exit(1);
   }
 }
@@ -2493,26 +2545,8 @@ function handleMcpRequest(request) {
           message = `Successfully claimed ${taskId}.\nBranch: ${branch.trim()}\nWorktree: ${worktree}\nLocks: ${formattedLocks}`;
         } else if (name === 'fb_lane_submit') {
           const { taskId, stagingUrl } = toolArgs;
-          assertSafeTaskId(taskId);
-
-          assertSubmitReady(workspaceRoot, taskId);
-
-          runHook('pre-submit', boardPath);
-
-          // Run local tests first under MCP
-          runTests(boardPath);
-
-          withSubmitLifecycleTransaction(workspaceRoot, taskId, () => {
-            const updates = { status: 'Staging QA' };
-            if (stagingUrl) updates.stagingUrl = `[Staging Link](${stagingUrl})`;
-            updateBoardTask(boardPath, taskId, updates);
-            commitBoard(`docs: submit ${taskId} for staging qa`);
-            runGit('push origin HEAD');
-          });
-
-          runHook('post-submit', boardPath);
-
-          message = `Successfully submitted ${taskId} for Staging QA. Branch pushed.`;
+          const result = performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl: stagingUrl, bypassRequested: false, transport: 'mcp' });
+          message = formatAutomatedSubmission(result);
         } else if (name === 'fb_lane_merge') {
           const { taskId } = toolArgs;
           assertSafeTaskId(taskId);
@@ -2956,12 +2990,13 @@ function main() {
     handleClaim(taskId, lane, locks, { worktree: !noWorktree });
   } else if (command === 'submit') {
     const taskId = args[1];
-    let stagingUrl = args[2] === '--no-tests' ? '' : args[2];
+    const bypassRequested = args.includes('--no-tests');
+    const stagingUrl = args.slice(2).find(arg => arg !== '--no-tests') || '';
     if (!taskId) {
       console.error('❌ Error: Usage: node tools/fb-lane.cjs submit <task-id> [staging_url] [--no-tests]');
       process.exit(1);
     }
-    handleSubmit(taskId, stagingUrl);
+    handleSubmit(taskId, stagingUrl, { bypassRequested });
   } else if (command === 'quick') {
     const quickArgs = args.slice(1);
     const noWorktree = quickArgs.includes('--no-worktree');
@@ -3015,6 +3050,9 @@ module.exports = {
   assertSafeLane,
   assertSafeBranchName,
   visibleStageFor,
+  performAutomatedSubmission,
+  formatAutomatedSubmission,
+  resolveSubmissionSafetyGate,
   selectStatusTarget,
   renderBeginnerStatus,
   renderTechnicalStatus,

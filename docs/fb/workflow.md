@@ -101,6 +101,25 @@ candidate/diff, specific feedback, and required evidence—never accumulated
 conversation history, transcripts, unrelated reports, or private reasoning.
 Stop immediately when the explicit success predicates pass.
 
+The ordinary delivery finish is intentionally simple:
+
+1. FB runs the selected automated checks and owns bounded recovery when a
+   required check fails.
+2. FB shows any review URLs as **Optional review links**; routine QA is not
+   transferred to the user.
+3. When the candidate-bound checks and required safety gates pass, FB reports
+   **Ready to ship**.
+4. FB says: `Automated checks passed. Optional review links are available
+   above.` followed by `Say **Push Live** to deploy.`
+5. FB does not merge, deploy, publish, or otherwise consume live approval until
+   the user explicitly says **Push Live**.
+
+A failed required check remains `Checking` while FB makes only scoped changes
+supported by the failure evidence and within the declared repair budget. FB
+may fix the implementation, test fixture, configuration, or documented build
+brief when that is the classified cause; it must not silently change the
+approved product outcome or weaken a valid check to obtain a pass.
+
 Reuse an exact matching linked worktree. If none exists, resolve the primary
 checkout from `git worktree list --porcelain` and create the worker under
 `<primary>/.worktrees/`; never create `.worktrees` beneath a linked worktree.

@@ -106,6 +106,14 @@ Limit Exceeded`, attach current logs, and notify the user rather than loop.
 
 ## Efficiency stop predicates
 
+### Visible-progress SOP
+
+During active work, give the user a concrete progress update at least every 60
+seconds. If two minutes pass without a completed checkpoint, name the exact
+failing check, blocker, or current gate. Stop or narrow any work that produces
+no material change in source, evidence, test state, blocker recovery, or an
+approved decision. Never leave the user watching unexplained work.
+
 FB uses three explicit verification levels: a focused check for the changed
 surface, an immediate safety gate for sensitive work, and a release checkpoint.
 The full validator is eligible only when a Product-owned handoff explicitly

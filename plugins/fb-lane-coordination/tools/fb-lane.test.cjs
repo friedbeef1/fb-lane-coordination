@@ -21,6 +21,8 @@ const {
   assertSafeLane,
   assertSafeBranchName,
   visibleStageFor,
+  performAutomatedSubmission,
+  resolveSubmissionSafetyGate,
 } = require('./fb-lane.cjs');
 
 let passed = 0;
@@ -46,6 +48,21 @@ const projectStartBriefFields = [
   'Success looks like',
   'Next action'
 ];
+
+assert.strictEqual(typeof performAutomatedSubmission, 'function', 'CLI and MCP must share one automated submission pipeline');
+assert.deepStrictEqual(
+  resolveSubmissionSafetyGate({
+    candidateCommit: '0123456789abcdef0123456789abcdef01234567',
+    changedPaths: ['auth/config.js'],
+    session: { automatedVerification: {
+      candidateCommit: '0123456789abcdef0123456789abcdef01234567',
+      changedPaths: ['auth/config.js'],
+      safetyGate: { result: 'passed', approvalRef: 'APPROVAL-001' },
+    } },
+  }),
+  { result: 'passed', approvalRef: 'APPROVAL-001' },
+  'sensitive submission must consume existing candidate-bound safety approval evidence'
+);
 
 function assertConditionalModeContract(label, source) {
   const renderedSource = source.replace(/\\`/g, '`');

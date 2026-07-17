@@ -809,7 +809,7 @@ test('submit and completed close require active execution, reciprocal evidence, 
   const missing = createRepo();
   try {
     git(missing.repo, ['checkout', '-qb', 'session/no-session']);
-    assertFailed(run(missing.repo, ['submit', 'TASK-001', '--no-tests']), /active execution session|session/i);
+    assertFailed(run(missing.repo, ['submit', 'TASK-001', '--no-tests']), /Automated checks are required before Ready to ship/);
   } finally {
     missing.cleanup();
   }
@@ -825,8 +825,11 @@ test('submit and completed close require active execution, reciprocal evidence, 
     const sourceCommit = git(worktree, ['rev-parse', '--short', 'HEAD']);
     appendEvidence(worktree, 'close-complete', 'TASK-001', sourceCommit);
     assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'close-complete']));
-    const submit = run(worktree, ['submit', 'TASK-001', '--no-tests']);
+    const submit = run(worktree, ['submit', 'TASK-001']);
     assertOk(submit);
+    assert.match(output(submit), /System verification: passed/);
+    assert.match(output(submit), /Ready to ship\nAutomated checks passed\. Optional review links are available above\.\nSay \*\*Push Live\*\* to deploy\./);
+    assert.doesNotMatch(output(submit), /merge|deploy(?:ed|ing)|release(?:d|ing)/i);
     const close = run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'close-complete']);
     assertOk(close);
     assert.strictEqual(readSession(worktree, 'close-complete').state, 'closed');
@@ -1013,7 +1016,7 @@ test('completed close and submit require a complete private-safe Quality Gap for
     addSelectedProductEvalEvidence(worktree, 'product-gap-close', 'TASK-001');
     assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'product-gap-close']));
     assertFailed(run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'product-gap-close']), /Checking.*Quality Gap|Quality Gap/i);
-    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /Checking.*Quality Gap|Quality Gap/i);
+    assertFailed(run(worktree, ['submit', 'TASK-001']), /Checking.*Quality Gap|Quality Gap/i);
     const evalPath = path.join(worktree, 'docs', 'evals', 'product-close.md');
     fs.writeFileSync(evalPath, productQualityGapRecord(`Progress: Checking — product quality target missed
 
@@ -1042,7 +1045,7 @@ Bad example: Improve engagement.
 Responsible layer: Product
 Next scoped revision: Ground each action in the supplied context.
 Evidence required for the next candidate: Fresh original-scenario comparison.`));
-    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /private|privacy|reasoning/i);
+    assertFailed(run(worktree, ['submit', 'TASK-001']), /private|privacy|reasoning/i);
     fs.writeFileSync(evalPath, productQualityGapRecord(`Progress: Checking — product quality target missed
 
 ## Quality Gap
@@ -1056,7 +1059,7 @@ Bad example: Improve engagement.
 Responsible layer: Product
 Next scoped revision: Ground each action in the supplied context.
 Evidence required for the next candidate: Fresh original-scenario comparison.`));
-    assertOk(run(worktree, ['submit', 'TASK-001', '--no-tests']));
+    assertOk(run(worktree, ['submit', 'TASK-001']));
     assertOk(run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'product-gap-close']));
   } finally {
     fixture.cleanup();
@@ -1118,7 +1121,7 @@ Approved scope-change references: None
     markdown = replaceSection(markdown, 'Verification Handoff', 'Placeholder evidence.');
     markdown = replaceSection(markdown, 'Test This Now', 'Placeholder evidence.');
     fs.writeFileSync(handoffPath, markdown);
-    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /Task Receipt|Brief Validation|Verification Handoff|Test This Now|actionable|placeholder/i);
+    assertFailed(run(worktree, ['submit', 'TASK-001']), /Task Receipt|Brief Validation|Verification Handoff|Test This Now|actionable|placeholder/i);
   } finally {
     placeholders.cleanup();
   }
@@ -1194,27 +1197,27 @@ test('submit revalidates current board approval, locks, handoff, branch, and reg
     const boardPath = path.join(worktree, 'PROJECT_BOARD.md');
     const originalBoard = fs.readFileSync(boardPath, 'utf8');
     fs.writeFileSync(boardPath, originalBoard.replace('| TASK-001 | In Progress |', '| TASK-001 | Staging QA |'));
-    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /In Progress|authoritative board|approval/i);
+    assertFailed(run(worktree, ['submit', 'TASK-001']), /In Progress|authoritative board|approval/i);
     fs.writeFileSync(boardPath, originalBoard.replace('**Approval**: approved', '**Approval**: pending'));
-    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /approved|approval/i);
+    assertFailed(run(worktree, ['submit', 'TASK-001']), /approved|approval/i);
     fs.writeFileSync(boardPath, originalBoard.replace('| src/app.js |', '| src/other.js |'));
-    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /lock|authoritative/i);
+    assertFailed(run(worktree, ['submit', 'TASK-001']), /lock|authoritative/i);
     fs.writeFileSync(boardPath, originalBoard);
 
     const handoffPath = path.join(worktree, 'docs', 'handoffs', 'TASK-001.md');
     const parkedHandoff = `${handoffPath}.parked`;
     fs.renameSync(handoffPath, parkedHandoff);
-    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /handoff/i);
+    assertFailed(run(worktree, ['submit', 'TASK-001']), /handoff/i);
     fs.renameSync(parkedHandoff, handoffPath);
 
     const sessionFilePath = sessionPath(worktree, 'submit-authority');
     const originalRecord = readSession(worktree, 'submit-authority');
     fs.writeFileSync(sessionFilePath, `${JSON.stringify({ ...originalRecord, worktree: fixture.repo }, null, 2)}\n`);
-    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /linked worktree|recorded worktree|registered/i);
+    assertFailed(run(worktree, ['submit', 'TASK-001']), /linked worktree|recorded worktree|registered/i);
     fs.writeFileSync(sessionFilePath, `${JSON.stringify(originalRecord, null, 2)}\n`);
 
     git(worktree, ['checkout', '-qb', 'session/submit-wrong-branch']);
-    assertFailed(run(worktree, ['submit', 'TASK-001', '--no-tests']), /session branch|recorded branch|branch/i);
+    assertFailed(run(worktree, ['submit', 'TASK-001']), /session branch|recorded branch|branch/i);
   } finally {
     fixture.cleanup();
   }
@@ -1239,7 +1242,7 @@ test('CLI and MCP submit revalidate authority after pre-submit work before any s
       const remoteHead = git(fixture.remote, ['rev-parse', `refs/heads/session/submit-toctou-${route}`]);
       let message = '';
       if (route === 'cli') {
-        const result = run(worktree, ['submit', 'TASK-001', '--no-tests']);
+        const result = run(worktree, ['submit', 'TASK-001']);
         assertFailed(result, /In Progress|authoritative board|approval/i);
         message = output(result);
       } else {
@@ -1278,7 +1281,7 @@ test('CLI submit holds the session lifecycle boundary through board commit and p
     assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'submit-close-serialized']));
 
     const gate = path.join(fixture.parent, 'submit-close-gate');
-    const submitPromise = spawnRun(worktree, ['submit', 'TASK-001', '--no-tests'], { FB_SESSION_TEST_LIFECYCLE_GATE: gate });
+    const submitPromise = spawnRun(worktree, ['submit', 'TASK-001'], { FB_SESSION_TEST_LIFECYCLE_GATE: gate });
     await waitForPath(path.join(gate, 'started'));
     let closeSettled = false;
     const closePromise = spawnRun(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'submit-close-serialized'])
@@ -1327,6 +1330,10 @@ test('MCP submit commits and pushes before a competing blocking checkpoint proce
     const submitted = await submitPromise;
     assert.strictEqual(submitted.status, 0, `${submitted.stdout}\n${submitted.stderr}`);
     assert.ok(submitted.response?.result && !submitted.response.error, JSON.stringify(submitted.response));
+    const message = submitted.response.result.content[0].text;
+    assert.match(message, /System verification: passed/);
+    assert.match(message, /Ready to ship\nAutomated checks passed\. Optional review links are available above\.\nSay \*\*Push Live\*\* to deploy\./);
+    assert.doesNotMatch(message, /merge|deploy(?:ed|ing)|release(?:d|ing)/i);
     assertOk(await checkpointPromise);
     const log = git(worktree, ['log', '--format=%H%x09%s', '-5']);
     const submitCommit = log.split('\n').find(line => line.endsWith('docs: submit TASK-001 for staging qa'))?.split('\t')[0];
@@ -1362,7 +1369,7 @@ test('a close that wins the lifecycle lock makes CLI and MCP submit fail before 
       await waitForPath(path.join(gate, 'started'));
       let submitSettled = false;
       const submitPromise = (route === 'cli'
-        ? spawnRun(worktree, ['submit', 'TASK-001', '--no-tests'])
+        ? spawnRun(worktree, ['submit', 'TASK-001'])
         : mcpCall(worktree, 'fb_lane_submit', { taskId: 'TASK-001', workspacePath: worktree }))
         .then(result => { submitSettled = true; return result; });
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -1669,17 +1676,17 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
       ready.replace(/^Reviewer decision: approved\n/m, ''),
     ]) {
       fs.writeFileSync(record, invalidDecision);
-      const blockedDecision = run(worktree, ['submit', taskId, '--no-tests']);
+      const blockedDecision = run(worktree, ['submit', taskId]);
       assertFailed(blockedDecision, /Reviewer decision|approved/i);
       assert.match(fs.readFileSync(record, 'utf8'), /Status: in-progress/);
     }
     const overBudget = ready.replace('Agent iterations: 1', 'Agent iterations: 6');
     fs.writeFileSync(record, overBudget);
-    const blockedSubmit = run(worktree, ['submit', taskId, '--no-tests']);
+    const blockedSubmit = run(worktree, ['submit', taskId]);
     assertFailed(blockedSubmit, /sixth|iteration|budget/i);
     assert.match(fs.readFileSync(record, 'utf8'), /Status: in-progress/);
     fs.writeFileSync(record, ready);
-    const submitted = run(worktree, ['submit', taskId, '--no-tests']);
+    const submitted = run(worktree, ['submit', taskId]);
     assertOk(submitted);
     assert.match(fs.readFileSync(record, 'utf8'), /Status: complete/);
     assert.strictEqual(fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8'), boardBefore);

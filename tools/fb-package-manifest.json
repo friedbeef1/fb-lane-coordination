@@ -10,6 +10,7 @@
   "tools/fb-two-speed.test.cjs",
   "tools/fb-efficiency.cjs",
   "tools/fb-efficiency.test.cjs",
+  "tools/fb-ready-to-ship.test.cjs",
   "docs/why-fb.md",
   "docs/evidence/TASK-026-two-speed.md",
   "docs/fb/README.md",
