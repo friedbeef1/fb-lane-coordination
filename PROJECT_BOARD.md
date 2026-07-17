@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-026 | In Progress | FB-Product / BFM + FB-Tech execution | BFM Efficiency | Add internal Quick/Full BFM classification, matching worktree reuse and primary placement, compact queue visibility, proportional verification, and optional project preflight | Mirrored CLI/session modules and tests, canonical/package workflow/session/guardrail/BFM guidance, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-026.md); [plan](docs/superpowers/plans/2026-07-17-bfm-two-speed-efficiency.md); local-only implementation gate |
 | TASK-025 | Staging QA | FB-Product / BFM + FB-Business and FB-Design guidance | Product Positioning | Explain FB beside vanilla Codex and Kurrent Capacitor with honest overlap, evidence-backed pain points, rendered diagrams, and concrete examples | Canonical/package comparison page, public/harness README routers, FAQ, focused test/validator, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-025.md); candidate `3af1f17`; focused root/package positioning contract, CLI 70/70, session 31/31, eval 18/18, beginner 10/10, validator, doctor Ready, parity, and whitespace passed; local-only gate |
 | TASK-024 | Staging QA | FB-Product / BFM + FB-Tech execution | Beginner Experience | Add a beginner-facing mode, status, pause, and next-action layer while preserving the existing technical coordination engine | Canonical/package harness, public docs, root/package skills, mirrored CLI/MCP and tests, bootstrap examples/templates, shadow evals, `PROJECT_BOARD.md`, handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-024.md); candidate `cc13389`; root/package CLI 70/70, session 31/31, eval 18/18, beginner 10/10; recovery, validator, doctor Ready, parity, whitespace, task reviews, and final whole-branch re-review passed; local-only release gate remains closed |
 | TASK-022 | Staging QA | FB-Product / BFM + FB-Tech execution | FB Session Harness | Add repository-local session intake, promotion, status, checkpoint, recall, review, and closeout with shared clone-local coordination state and curated committed evidence | Mirrored session/CLI modules and tests, session/harness docs, bootstrap and doctor integration, Product/BFM skills, `PROJECT_BOARD.md`, handoff index, TASK-022 handoff, Product workstream card | [Handoff](docs/handoffs/TASK-022.md); final submit repair `f94dce9`; CLI/MCP final validation, board commit, and push share the session lifecycle lock; session 31/31, full gate, and final combined review passed with no findings |
@@ -45,6 +46,28 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-026 - BFM Two-Speed Efficiency
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Product / BFM + FB-Tech execution
+*   **Area**: BFM Efficiency
+*   **Scope**: Amend existing session-ledger, claim/worktree, status, submit, and guidance seams with the approved two-speed efficiency contract.
+*   **Out of Scope**: New commands/statuses, global Node pin, dashboard, runner, provider/deploy behavior, MirrorCam source, release, publication, install, deployment, or merge.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make long Product/BFM runs faster to resume and harder to mis-route without weakening safety or evidence.
+    *   **Key Results**: Matching worktrees are reused; nested worktrees are prevented; ambiguous work classifies Full; queue fields are explicit; docs-only closeout reuses proven runtime evidence; project preflight failure is actionable.
+    *   **Definition of Done**: All six supplied acceptance checks, root/package parity, full validator, doctor Ready, and whitespace pass.
+    *   **Gate / Review Point**: Local Product review only; release, publication, deployment, merge, plugin install, and consumer-project changes remain separate.
+    *   **Approval**: approved
+    *   **Justification**: James supplied the MirrorCam-approved handoff and asked upstream FB to act on it.
+*   **Affected Screens / Locks**: Mirrored CLI/session modules and tests, canonical/package workflow/session/guardrail/BFM guidance, board/handoff/index/current-task/Product card.
+*   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-17-bfm-two-speed-efficiency.md); [Handoff](docs/handoffs/TASK-026.md); branch `codex/fb-beginner-clarity`.
+*   **QA Checklist**:
+    *   [ ] Quick/Full, worktree, queue, proportional-verification, and preflight acceptance checks pass.
+    *   [ ] Root/package sources, tests, and guidance remain aligned.
+    *   [ ] Full validator, doctor Ready, and whitespace pass.
 
 ---
 
