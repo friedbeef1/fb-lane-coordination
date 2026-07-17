@@ -5,7 +5,7 @@
 - `Inbox`: Newly requested tasks requiring triage.
 - `Ready`: Triaged tasks, fully scoped, ready to be claimed.
 - `In Progress`: Tasks currently being worked on by an owner.
-- `Staging QA`: Features deployed to staging, awaiting visual/functional verification.
+- `Staging QA`: Candidate awaiting verification. Record the actual local, sandbox, staging, or completed-build environment separately.
 - `Done`: Checked, verified, and merged to production by FB Product.
 
 ---

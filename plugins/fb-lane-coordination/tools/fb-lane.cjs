@@ -785,9 +785,18 @@ function parseDetailLines(lines) {
   const objectiveMatch = detailStr.match(/\*\s+\*\*Objective\*\*:\s*(.*)/i);
   const approvalMatch = detailStr.match(/\*\s+\*\*Approval\*\*:\s*(.*)/i);
   const completedWorkMatch = detailStr.match(/\*\s+\*\*(?:Completed Work|Completed|Updates?)\*\*:\s*(.*)/i);
+  const latestUpdateHeading = detailStr.match(/^\*\s+\*\*Latest Update\*\*:\s*$/im);
+  const latestUpdateTail = latestUpdateHeading
+    ? detailStr.slice(latestUpdateHeading.index + latestUpdateHeading[0].length)
+    : '';
+  const latestUpdateEnd = latestUpdateTail.search(/^\*\s+\*\*/m);
+  const latestUpdateBody = latestUpdateEnd === -1 ? latestUpdateTail : latestUpdateTail.slice(0, latestUpdateEnd);
+  const latestUpdateMatch = latestUpdateBody
+    ? latestUpdateBody.match(/^\s*\*\s+(?:\*[^*\n]+\*:\s*)?(.+?)\s*$/m)
+    : null;
   const blockersMatch = detailStr.match(/\*\s+\*\*(?:Blockers?|Pause Reason)\*\*:\s*(.*)/i);
   const nextActionMatch = detailStr.match(/\*\s+\*\*(?:Next Owner\s*\/\s*Action|Next Action\s*\/\s*Owner|Next Action)\*\*:\s*(.*)/i);
-  const reviewLinkMatch = detailStr.match(/\*\s+\*\*(?:Test\s*\/\s*Review Link|Review Link|Staging URL)\*\*:\s*(.*)/i);
+  const reviewLinkMatch = detailStr.match(/\*\s+\*\*(?:Test\s*\/\s*Review Link|Test Link|Review Link|Staging URL)\*\*:\s*(.*)/i);
 
   return {
     raw: detailStr,
@@ -799,11 +808,26 @@ function parseDetailLines(lines) {
     screens: screensMatch ? screensMatch[1].trim() : '',
     objective: objectiveMatch ? objectiveMatch[1].trim() : '',
     approval: approvalMatch ? approvalMatch[1].trim() : '',
-    completedWork: completedWorkMatch ? completedWorkMatch[1].trim() : '',
+    completedWork: concreteStatusValue(completedWorkMatch ? completedWorkMatch[1] : '')
+      || concreteStatusValue(latestUpdateMatch ? latestUpdateMatch[1] : ''),
     blockers: blockersMatch ? blockersMatch[1].trim() : '',
     nextAction: nextActionMatch ? nextActionMatch[1].trim() : '',
-    reviewLink: reviewLinkMatch ? reviewLinkMatch[1].trim() : ''
+    reviewLink: explicitReviewLink(reviewLinkMatch ? reviewLinkMatch[1] : '')
   };
+}
+
+function concreteStatusValue(value) {
+  const normalized = String(value || '').trim();
+  if (!normalized || /^(?:\(none\)|none|nothing completed yet\.?|todo|tbd)$/i.test(normalized) || /^<[^>]+>$/.test(normalized)) return '';
+  return normalized;
+}
+
+function explicitReviewLink(value) {
+  const normalized = concreteStatusValue(value);
+  if (!normalized) return '';
+  return /\[[^\]]+\]\([^)]+\)/.test(normalized) || /https?:\/\/\S+/i.test(normalized)
+    ? normalized
+    : '';
 }
 
 function normalizedStatus(value) {
@@ -822,11 +846,16 @@ function visibleStageFor(context = {}) {
   const environment = normalizedStatus(context.environment);
   const blockers = String(context.blockers || '').trim();
 
-  if (status === 'blocked' || phase === 'blocked' || (context.genuineInability && blockers)) return 'Blocked';
+  const reviewLink = explicitReviewLink(context.reviewLink);
+
+  if (state === 'blocked' || status === 'blocked' || phase === 'blocked' || (context.genuineInability && blockers)) return 'Blocked';
   if (state === 'closed' || isCompleteStatus(status) || phase === 'closed') return 'Complete';
-  if (['staging qa', 'staged'].includes(status) && context.reviewLink) return 'Ready for review';
-  if (mode === 'review' || phase === 'verification' || ['verification', 'local', 'staged'].includes(status) || ['local', 'sandbox', 'staging', 'staged', 'completed build', 'completed-build'].includes(environment)) return 'Checking';
-  if (mode === 'execution' || phase === 'execution' || status === 'in progress') return 'Building';
+  if (state === 'reviewing' || mode === 'review') return reviewLink ? 'Ready for review' : 'Checking';
+  if (mode === 'planning') return 'Understanding';
+  if (mode === 'execution') return 'Building';
+  if (['staging qa', 'staged'].includes(status)) return reviewLink ? 'Ready for review' : 'Checking';
+  if (phase === 'verification' || ['verification', 'local'].includes(status) || ['local', 'sandbox', 'staging', 'staged', 'completed build', 'completed-build'].includes(environment)) return 'Checking';
+  if (phase === 'execution' || status === 'in progress') return 'Building';
   if (['ready', 'approved', 'waiting'].includes(status) || ['approved', 'waiting'].includes(phase)) return 'Ready for your approval';
   return 'Understanding';
 }
@@ -869,17 +898,19 @@ function selectStatusTarget({ tasks = [], sessions = [], currentTask = null } = 
 
 function statusInputs(rootDir, tasks) {
   let sessions = [];
+  let sessionWarning = '';
   try {
     sessions = listSessions(rootDir).filter(session => computedState(session) !== 'closed');
   } catch (err) {
     sessions = [];
+    sessionWarning = `Session registry could not be read: ${err.message}`;
   }
 
   const currentTaskPath = path.join(rootDir, '.codex', 'current_task.md');
   const currentTask = fs.existsSync(currentTaskPath)
     ? parseCurrentTask(fs.readFileSync(currentTaskPath, 'utf8'))
     : null;
-  return { tasks, sessions, currentTask };
+  return { tasks, sessions, currentTask, sessionWarning };
 }
 
 function workingModeFor(target, stage) {
@@ -916,9 +947,14 @@ function renderBeginnerStatus(inputs = {}) {
   const { task, session, currentTask } = target;
   const details = task.details || {};
   const objective = (currentTask && currentTask.objective) || details.objective || task.scope || task.id;
-  const reviewLink = details.reviewLink || (task.links && task.links !== '(None)' ? task.links : '');
+  const reviewLink = explicitReviewLink(details.reviewLink);
+  const selectedStatus = session
+    ? ''
+    : (currentTask && normalizedStatus(task.status) === 'in progress'
+      ? (currentTask.status || task.status)
+      : task.status);
   const stage = visibleStageFor({
-    status: task.status || (currentTask && currentTask.status),
+    status: selectedStatus,
     mode: session && session.mode,
     state: session && session.state,
     blockers: details.blockers,
@@ -944,7 +980,7 @@ function renderBeginnerStatus(inputs = {}) {
     Blocked: `${task.owner || 'Product'} / resolve the recorded pause reason.`
   }[stage];
 
-  return [
+  const lines = [
     'FB status',
     `Current objective: ${objective}`,
     `Working mode: ${workingModeFor(target, stage)}`,
@@ -954,7 +990,9 @@ function renderBeginnerStatus(inputs = {}) {
     `Your input: ${userInput}`,
     `Next action / owner: ${details.nextAction || defaultNextAction}`,
     `Test / review link: ${reviewLink || 'Not available yet.'}`
-  ].join('\n');
+  ];
+  if (inputs.sessionWarning) lines.push(`Status warning: ${inputs.sessionWarning}`);
+  return lines.join('\n');
 }
 
 function renderTechnicalStatus(tasks, options = {}) {

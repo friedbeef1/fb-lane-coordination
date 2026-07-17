@@ -173,30 +173,51 @@ function writeStatusFixture(root, tasks, options = {}) {
   const rows = tasks.map(task =>
     `| ${task.id} | ${task.status} | ${task.owner || 'FB-Tech'} | ${task.area || 'CLI'} | ${task.scope} | ${task.locks || '(None)'} | ${task.links || '(None)'} |`
   ).join('\n');
-  const details = tasks.map(task => `
+  const details = tasks.map(task => {
+    const explicitEvidence = [
+      Object.prototype.hasOwnProperty.call(task, 'stagingUrl') ? `    *   **Staging URL**: ${task.stagingUrl}` : '',
+      Object.prototype.hasOwnProperty.call(task, 'testLink') ? `    *   **Test Link**: ${task.testLink}` : '',
+      Object.prototype.hasOwnProperty.call(task, 'reviewLink') ? `    *   **Test / Review Link**: ${task.reviewLink}` : '',
+    ].filter(Boolean).join('\n');
+    return `
 ### ${task.id} - ${task.scope}
 *   **Status**: ${task.status}
 *   **Owner / Thread**: ${task.owner || 'FB-Tech'}
 *   **Area**: ${task.area || 'CLI'}
 *   **Scope**: ${task.scope}
+*   **Out of Scope**: Unrelated fixture behavior.
 *   **Goal Alignment Session**:
     *   **Objective**: ${task.objective || task.scope}
     *   **Approval**: ${task.approval || 'pending'}
     *   **Gate / Review Point**: Product review.
-*   **Completed Work**: ${task.completedWork || 'Nothing completed yet.'}
 *   **Blockers**: ${task.blockers || 'None'}
 *   **Next Owner / Action**: ${task.nextAction || 'Product / choose the next approved action.'}
-*   **Test / Review Link**: ${task.reviewLink || task.links || '(None)'}
 *   **Affected Screens / Locks**:
+    *   **Screens**: Status fixture.
     *   **Locked Files**: ${task.locks || '(None)'}
-`).join('\n');
+*   **Links & Deliverables**:
+${explicitEvidence || '    *   **Staging URL**: (None)'}
+*   **QA Checklist**:
+    *   [ ] Status behavior is verified.
+*   **Latest Update**:
+    *   *2026-07-17*: ${task.latestUpdate || '(None)'}
+`;
+  }).join('\n');
   fs.writeFileSync(path.join(root, 'PROJECT_BOARD.md'), `# Project Board
+
+## Statuses
+- \`Inbox\`: Newly requested tasks requiring triage.
+- \`Ready\`: Triaged tasks, fully scoped, ready to be claimed.
+- \`In Progress\`: Tasks currently being worked on by an owner.
+- \`Staging QA\`: Candidate awaiting verification. Record the actual local, sandbox, staging, or completed-build environment separately.
+- \`Done\`: Checked, verified, and merged to production by FB Product.
 
 ## Active Workstreams
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
 ${rows}
+---
 ${details}`);
 
   if (options.currentTask) {
@@ -254,7 +275,7 @@ test('status default uses active session before current task and board priority'
     writeStatusFixture(root, [
       { id: 'TASK-101', status: 'Ready', scope: 'First board priority', locks: '`secret-first.js`' },
       { id: 'TASK-102', status: 'Staging QA', scope: 'Current-task candidate' },
-      { id: 'TASK-103', status: 'In Progress', scope: 'Session-selected objective', completedWork: 'Status fixtures written.', nextAction: 'FB-Tech / implement the shared renderer.', reviewLink: '[Focused test](review/status.html)' },
+      { id: 'TASK-103', status: 'In Progress', scope: 'Session-selected objective', latestUpdate: 'Status fixtures written.', nextAction: 'FB-Tech / implement the shared renderer.', reviewLink: '[Focused test](review/status.html)' },
     ], {
       currentTask: { id: 'TASK-102', objective: 'Current task should lose to session' },
       session: { sessionId: 'status-active', taskId: 'TASK-103', mode: 'execution' },
@@ -275,6 +296,36 @@ test('status default uses active session before current task and board priority'
   }
 });
 
+test('status blocked session overrides stale board In Progress', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  try {
+    writeStatusFixture(root, [
+      { id: 'TASK-111', status: 'In Progress', scope: 'Blocked session objective', blockers: 'Provider access is unavailable.' },
+    ], { session: { sessionId: 'status-blocked', taskId: 'TASK-111', mode: 'execution', state: 'blocked' } });
+    const result = runStatus(root);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Stage: Blocked/);
+    assert.match(result.stdout, /Pause reason: Provider access is unavailable\./);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status planning session overrides stale board In Progress', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  try {
+    writeStatusFixture(root, [
+      { id: 'TASK-112', status: 'In Progress', scope: 'Planning session objective' },
+    ], { session: { sessionId: 'status-planning', taskId: 'TASK-112', mode: 'planning', state: 'active' } });
+    const result = runStatus(root);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Working mode: Planning/);
+    assert.match(result.stdout, /Stage: Understanding/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('status current-task fallback wins before highest-priority incomplete board item', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
   try {
@@ -287,6 +338,52 @@ test('status current-task fallback wins before highest-priority incomplete board
     assert.match(result.stdout, /Current objective: Current task review objective/);
     assert.match(result.stdout, /Stage: Ready for review/);
     assert.doesNotMatch(result.stdout, /Higher board item|Staging QA/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status current-task state overrides stale board In Progress', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  try {
+    writeStatusFixture(root, [
+      { id: 'TASK-211', status: 'In Progress', scope: 'Stale board build state' },
+    ], { currentTask: { id: 'TASK-211', objective: 'Current planning state', status: 'Ready' } });
+    const result = runStatus(root);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Current objective: Current planning state/);
+    assert.match(result.stdout, /Stage: Ready for your approval/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status Staging QA ignores general deliverable links and placeholder review evidence', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  try {
+    writeStatusFixture(root, [
+      { id: 'TASK-212', status: 'Staging QA', scope: 'Candidate without review access', links: '[Handoff](docs/handoffs/TASK-212.md); [Plan](docs/plan.md)', reviewLink: '(None)' },
+    ]);
+    const result = runStatus(root);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Stage: Checking/);
+    assert.match(result.stdout, /Test \/ review link: Not available yet\./);
+    assert.doesNotMatch(result.stdout, /Handoff|docs\/plan/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('status Staging QA becomes review-ready only from explicit review evidence', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  try {
+    writeStatusFixture(root, [
+      { id: 'TASK-213', status: 'Staging QA', scope: 'Candidate with explicit staging access', links: '[Handoff](docs/handoffs/TASK-213.md)', stagingUrl: '[Open staging](https://review.example.test/task-213)' },
+    ]);
+    const result = runStatus(root);
+    assert.strictEqual(result.status, 0, result.stderr);
+    assert.match(result.stdout, /Stage: Ready for review/);
+    assert.match(result.stdout, /Test \/ review link: \[Open staging\]\(https:\/\/review\.example\.test\/task-213\)/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -325,8 +422,63 @@ test('status stage mapping keeps technical states behind beginner labels', () =>
   assert.strictEqual(visibleStageFor({ environment: 'local' }), 'Checking');
   assert.strictEqual(visibleStageFor({ status: 'Staged', reviewLink: 'https://review.example.test' }), 'Ready for review');
   assert.strictEqual(visibleStageFor({ status: 'Staging QA', reviewLink: 'https://review.example.test' }), 'Ready for review');
+  assert.strictEqual(visibleStageFor({ status: 'Staging QA', reviewLink: '(None)' }), 'Checking');
+  assert.strictEqual(visibleStageFor({ status: 'Staging QA' }), 'Checking');
+  assert.strictEqual(visibleStageFor({ status: 'In Progress', mode: 'planning', state: 'active' }), 'Understanding');
+  assert.strictEqual(visibleStageFor({ status: 'In Progress', mode: 'review', state: 'reviewing' }), 'Checking');
+  assert.strictEqual(visibleStageFor({ status: 'In Progress', mode: 'review', state: 'reviewing', reviewLink: 'https://review.example.test' }), 'Ready for review');
+  assert.strictEqual(visibleStageFor({ status: 'In Progress', mode: 'execution', state: 'blocked' }), 'Blocked');
   assert.strictEqual(visibleStageFor({ state: 'closed' }), 'Complete');
   assert.strictEqual(visibleStageFor({ status: 'Blocked', blockers: 'Provider credentials unavailable.' }), 'Blocked');
+});
+
+test('status reports malformed session registry but treats an absent registry as normal', () => {
+  const cleanRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  const brokenRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-status-'));
+  try {
+    writeStatusFixture(cleanRoot, [{ id: 'TASK-411', status: 'Ready', scope: 'Ordinary status objective' }]);
+    const clean = runStatus(cleanRoot);
+    assert.strictEqual(clean.status, 0, clean.stderr);
+    assert.doesNotMatch(clean.stdout, /Status warning|registry/i);
+
+    writeStatusFixture(brokenRoot, [{ id: 'TASK-412', status: 'Ready', scope: 'Status warning objective' }]);
+    const sessionsDir = path.join(brokenRoot, '.git', 'fb-sessions');
+    fs.mkdirSync(sessionsDir, { recursive: true });
+    fs.writeFileSync(path.join(sessionsDir, 'broken.json'), '{not valid json\n');
+    const broken = runStatus(brokenRoot);
+    assert.strictEqual(broken.status, 0, broken.stderr);
+    assert.match(broken.stdout, /Status warning: Session registry could not be read:/);
+    assert.match(broken.stdout, /registry JSON is invalid/);
+  } finally {
+    fs.rmSync(cleanRoot, { recursive: true, force: true });
+    fs.rmSync(brokenRoot, { recursive: true, force: true });
+  }
+});
+
+test('status docs and generated board definitions preserve candidate semantics and parity', () => {
+  const adjacentRoot = path.resolve(__dirname, '..');
+  const root = fs.existsSync(path.join(adjacentRoot, 'PROJECT_BOARD.md'))
+    ? adjacentRoot
+    : path.resolve(__dirname, '..', '..', '..');
+  const expectedDefinition = '- `Staging QA`: Candidate awaiting verification. Record the actual local, sandbox, staging, or completed-build environment separately.';
+  for (const relative of ['PROJECT_BOARD.md', 'templates/PROJECT_BOARD.md', 'examples/my-app/PROJECT_BOARD.md']) {
+    const source = fs.readFileSync(path.join(root, relative), 'utf8');
+    const topStatuses = source.match(/## Statuses\n([\s\S]*?)(?=\n---)/);
+    assert.ok(topStatuses, `${relative} must retain the top Statuses section`);
+    assert.ok(topStatuses[1].includes(expectedDefinition), `${relative} must use candidate-only Staging QA semantics`);
+  }
+  const cliSource = fs.readFileSync(path.join(root, 'tools', 'fb-lane.cjs'), 'utf8').replace(/\\`/g, '`');
+  assert.ok(cliSource.includes(expectedDefinition), 'generated board text must use candidate-only Staging QA semantics');
+  assert.strictEqual(
+    fs.readFileSync(path.join(root, 'docs', 'fb', 'workflow.md'), 'utf8'),
+    fs.readFileSync(path.join(root, 'plugins', 'fb-lane-coordination', 'docs', 'fb', 'workflow.md'), 'utf8'),
+    'workflow docs must retain root/package byte parity'
+  );
+  assert.strictEqual(
+    fs.readFileSync(path.join(root, 'docs', 'fb', 'evidence.md'), 'utf8'),
+    fs.readFileSync(path.join(root, 'plugins', 'fb-lane-coordination', 'docs', 'fb', 'evidence.md'), 'utf8'),
+    'evidence docs must retain root/package byte parity'
+  );
 });
 
 test('status details preserves the raw technical table', () => {
