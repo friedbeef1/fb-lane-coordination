@@ -129,7 +129,7 @@ not require comprehensive transcript capture or hosted telemetry. See
 ## Learn more
 
 - [FAQ](FAQ.md)
-- [FB for Agile Teams](docs/fb-for-agile-teams.md)
+- [FB for Agile Teams — the long version](docs/fb-for-agile-teams.md)
 - [How the harness works](docs/fb/README.md)
 - [Start and approval](docs/fb/start.md)
 - [Workflow and `$bfm`](docs/fb/workflow.md)

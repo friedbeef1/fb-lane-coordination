@@ -1,5 +1,7 @@
 # FB for Agile Teams
 
+For the short version, see [FB's six-workstream overview](../README.md#one-big-loop-six-mini-loops).
+
 FB is a Codex plugin that gives AI-assisted product delivery familiar agile
 shapes: refinement, discovery, defect triage, prioritisation, implementation,
 automated checking, review, release, and learning.
