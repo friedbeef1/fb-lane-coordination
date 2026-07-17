@@ -1,5 +1,7 @@
 # FB for Agile Teams
 
+[Overview](../README.md) · [Agile Teams](fb-for-agile-teams.md) · [Why FB](why-fb.md) · [Full Loop](fb/full-loop.md)
+
 For the short version, see [FB's six-workstream overview](../README.md#one-big-loop-six-mini-loops).
 
 FB is a Codex plugin that gives AI-assisted product delivery familiar agile
@@ -17,6 +19,8 @@ In a human agile team, people discuss work, refine it, decide what is ready,
 prioritise it, build it, check it, review it, release it, and learn from the
 result. FB creates the same continuous delivery loop with six focused
 workstreams and Codex.
+
+Open the [Full Loop](fb/full-loop.md) for the complete operating view.
 
 ```mermaid
 flowchart TB
@@ -47,6 +51,9 @@ flowchart TB
 
 ## FB and familiar agile-team work
 
+See the [Why FB comparison](why-fb.md#honest-comparison) for how this delivery
+layer differs from ordinary Codex, worktrees, Capacitor, and BMAD.
+
 | In FB | Closest human-team equivalent | What it produces |
 |---|---|---|
 | Product/User conversation | Product discovery and Product Backlog Refinement (often called backlog grooming) with a Product Owner | User need, decisions, assumptions, acceptance criteria, and priorities |
@@ -65,6 +72,9 @@ flowchart TB
 | Results and feedback | Review, retrospective, and backlog feedback | New questions, discoveries, improvements, and bugs for the next loop |
 
 ## What happens in a real example
+
+The [Why FB examples](why-fb.md#concrete-examples) show more delivery and
+recovery situations.
 
 Imagine a user says: **“Our onboarding feels confusing.”**
 
@@ -101,7 +111,12 @@ For a Kanban-oriented team, it is closest to replenishment and pulling ready
 work into delivery. In both cases, the user still owns material product
 decisions and final release approval.
 
+The detailed execution contract is in the [workflow](fb/workflow.md).
+
 ## What FB deliberately does not do
+
+The [guardrails](fb/guardrails.md) define the approval, Git, recovery, and
+release boundaries behind these limits.
 
 - It does not require all six workstreams for every change.
 - It does not turn every conversation into implementation work.

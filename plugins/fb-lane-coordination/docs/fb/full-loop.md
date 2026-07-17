@@ -1,8 +1,12 @@
 # Full FB Loop Diagram
 
+[Overview](../../README.md) · [Agile Teams](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/fb-for-agile-teams.md) · [Why FB](../why-fb.md) · [Full Loop](full-loop.md)
+
 This is the complete operating view of FB. The root README keeps a simpler
 picture; this page shows how evidence becomes approved work, how BFM chooses an
 execution path, and how delivery results restart the six workstream loops.
+The [workflow](workflow.md) defines the detailed execution and return-loop
+contract.
 
 ```mermaid
 flowchart TB
