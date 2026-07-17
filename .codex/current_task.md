@@ -2,7 +2,7 @@
 
 * **Current Task**: TASK-030 FB 0.3.0-beta Release Candidate
 * **Lane**: FB-Product / BFM
-* **Status**: Staging QA — focused candidate checks passed; later release checkpoint pending
+* **Status**: Staging QA — `0.3.0-beta+codex.20260717150502` focused candidate checks passed; later release checkpoint pending
 * **BFM Class**: Full BFM
 * **Branch**: `codex/fb-loop-diagram`
 * **Worktree**: `/Users/jamesyeang/.codex/worktrees/fb-lane-objective-checkpoints`
