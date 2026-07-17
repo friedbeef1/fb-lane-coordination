@@ -54,6 +54,13 @@
 *   **Area**: Product Positioning
 *   **Scope**: Publish an honest Codex/Capacitor/FB comparison, rendered diagrams, evidence-backed pain-point mapping, and concrete examples with root/package parity.
 *   **Out of Scope**: Runtime behavior, external integrations, telemetry, transcript capture, hosted storage, autonomous evaluation, release, publication, deployment, merge, or consumer-repository changes.
+*   **Goal Alignment Session**:
+    *   **Objective**: Help everyday users understand when vanilla Codex, Kurrent Capacitor, and FB are useful without hiding their overlap.
+    *   **Key Results**: The canonical comparison states the approved three-system emphasis; every pain point links to existing user-feedback or eval evidence; root/package mirrors and focused tests pass.
+    *   **Definition of Done**: Two rendered Mermaid diagrams, three concrete examples, concise entry-point links, focused contract, validator, doctor Ready, parity, wording, and whitespace checks pass.
+    *   **Gate / Review Point**: Local Product review only; release, publication, deployment, merge, plugin install, and consumer-project changes remain separate and unauthorized.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly supplied the positioning, honest-comparison rules, concrete example, and real-pain-point requirement.
 *   **Affected Screens / Locks**: Canonical/package comparison page, root/package public and harness README routers, FAQ, focused test/validator, board/handoff/index/current-task/Product card.
 *   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-17-fb-product-positioning.md); [Handoff](docs/handoffs/TASK-025.md); branch `codex/fb-beginner-clarity`.
 *   **QA Checklist**:
