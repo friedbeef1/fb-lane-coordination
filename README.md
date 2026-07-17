@@ -6,8 +6,9 @@ FB is an optional coordination harness for Codex projects. It keeps a
 multi-agent objective tied to the approved goal, board, evidence, and repository
 truth while leaving simple work simple.
 
-For coordinated work, FB plans first and waits for approval. Build For Me
-(BFM) is the separate execution mode that builds and checks the approved plan.
+For coordinated work, FB plans first and waits. Build For Me (BFM) is the
+separate execution mode that builds and checks the plan only after approval and
+explicit `$bfm`.
 
 ## Start here
 

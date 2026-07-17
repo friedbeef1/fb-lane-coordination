@@ -5,8 +5,9 @@ description: Use when Product/Captain must sequence, execute, reconcile, or clos
 
 # BFM
 
-Build For Me (BFM) executes an approved Product build brief; it is not the
-default for simple coding. Read [the FB harness](../../docs/fb/README.md), then
+Build For Me (BFM) executes a Product build brief only after approval and
+explicit `$bfm`; it is not the default for simple coding. Read [the FB
+harness](../../docs/fb/README.md), then
 board truth, the handoff index, task-linked handoffs, and applicable workstream
 cards.
 

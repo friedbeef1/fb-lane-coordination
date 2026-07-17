@@ -10,7 +10,7 @@ part of the objective. See [the mode guide](docs/fb/README.md).
 
 Product gives the Project Start Brief, selects only useful lanes, records a
 build brief, and asks for approval. Build For Me (BFM) executes only after
-explicit `$bfm`.
+approval and explicit `$bfm`.
 The complete user-facing contract is in [start.md](docs/fb/start.md).
 
 ## Where do I find the current task?

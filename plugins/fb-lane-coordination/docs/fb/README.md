@@ -21,7 +21,8 @@ instructions take precedence when they are stricter.
 
 - **Normal work:** one-thread questions, explanations, tiny fixes, and isolated edits.
 - **FB light:** handoffs, board items, lanes, locks, multiple threads, or durable context.
-- **Product/Build For Me (BFM):** deciding scope or sequence; approval, merge, staging, release, or launch; sensitive surfaces (payments, auth, privacy, analytics, secrets); core product flows; or reconciling several lane outputs before source changes.
+- **Product planning:** deciding scope or sequence; handling sensitive surfaces (payments, auth, privacy, analytics, secrets); core product flows; or reconciling several lane outputs before source changes.
+- **Build For Me (BFM):** source execution, checks, merge, staging, release, or launch only after approval and explicit `$bfm`.
 
 ## Read by task
 

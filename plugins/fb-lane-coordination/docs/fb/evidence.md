@@ -1,7 +1,8 @@
 # Evidence and review
 
 Use the seven-field Project Start Brief and Build For Me (BFM) boundary from
-[start.md](start.md) before preparing execution or review evidence.
+[start.md](start.md). Execution begins only after approval and explicit `$bfm`;
+then prepare the execution and review evidence here.
 
 ## Test This Now
 

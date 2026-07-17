@@ -2108,9 +2108,9 @@ Read [the FB harness](docs/fb/README.md) after \`PROJECT_BOARD.md\`,
 \`docs/handoffs/index.md\`, and the linked handoff. Use the focused page that
 matches the task:
 
-This is a simple task, so I’ll handle it directly without lanes or a build brief.
-FB will prepare the plan first. It is not building yet.
-Build For Me (BFM) will now build and check the approved plan.
+- **Simple task:** This is a simple task, so I’ll handle it directly without lanes or a build brief.
+- **Coordinated planning:** FB will prepare the plan first. It is not building yet.
+- **After approval and explicit \`$bfm\`:** Build For Me (BFM) will now build and check the approved plan.
 
 - First project, plan, lanes, or approval: [start.md](docs/fb/start.md)
 - Ownership, BFM execution, and closeout: [workflow.md](docs/fb/workflow.md)
@@ -2423,10 +2423,10 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('======================================================================');
   console.log('🚀 QUICK START GUIDE: HOW TO USE FB RIGHT AWAY');
   console.log('======================================================================');
-  console.log('1. Describe your new project normally. This is a simple task, so I’ll handle it directly without lanes or a build brief.');
-  console.log('2. FB will prepare the plan first. It is not building yet. Lanes investigate and plan different parts.');
-  console.log('3. Product combines findings into one build brief. You approve the brief. Only after explicit $bfm, BFM builds and checks it.');
-  console.log('4. Build For Me (BFM) will now build and check the approved plan.');
+  console.log('1. Describe your new project normally.');
+  console.log('2. Simple task: This is a simple task, so I’ll handle it directly without lanes or a build brief.');
+  console.log('3. Coordinated planning: FB will prepare the plan first. It is not building yet. Lanes investigate and plan different parts.');
+  console.log('4. Product combines findings into one build brief. You approve the brief. Only after explicit $bfm, BFM builds and checks it. After approval, use explicit $bfm to start Build For Me execution.');
   console.log('5. Use $fb-lane status for returning project health: active work, locks, and next coordination context.');
   console.log('======================================================================');
   console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');

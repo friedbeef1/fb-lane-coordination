@@ -4,7 +4,8 @@ This project uses the standard **FB coordination model** to enable safe concurre
 
 Use the beginner mode and approval contract in [docs/fb/start.md](docs/fb/start.md).
 For simple work, stay direct. For coordinated work, FB plans first and waits
-for approval. Build For Me (BFM) then builds and checks the approved plan.
+for approval. Build For Me (BFM) builds and checks the plan only after approval
+and explicit `$bfm`.
 
 ### 1. Lane Scopes & Boundaries
 *   **FB Product (PM / User Value Optimizer)**: Owns final product decisions, task prioritization, scoping, file merges, staging/live deployments, and release gates.

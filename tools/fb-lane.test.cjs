@@ -46,6 +46,18 @@ const projectStartBriefFields = [
   'Next action'
 ];
 
+function assertConditionalModeContract(label, source) {
+  const renderedSource = source.replace(/\\`/g, '`');
+  const conditionalMessages = [
+    `- **Simple task:** ${exactSimpleTaskMessage}`,
+    `- **Coordinated planning:** ${exactPlanningMessage}`,
+    `- **After approval and explicit \`$bfm\`:** ${exactBuildMessage}`
+  ];
+  for (const message of conditionalMessages) {
+    assert.ok(renderedSource.includes(message), `${label} must place each mode message behind its condition`);
+  }
+}
+
 function assertExactFirstProjectContract(label, source) {
   for (const message of [exactSimpleTaskMessage, exactPlanningMessage, exactBuildMessage]) {
     assert.ok(source.includes(message), `${label} must include the exact beginner mode message: ${message}`);
@@ -65,6 +77,7 @@ function assertExactFirstProjectContract(label, source) {
   for (const term of ['Lane', 'Handoff', 'Build For Me (BFM)', 'Gate', 'Quality Gap']) {
     assert.ok(source.includes(`**${term}:**`), `${label} must define ${term} inline`);
   }
+  assert.match(source, /\*\*Build For Me \(BFM\):\*\*[^\n]*after approval and explicit `\$bfm`/i, `${label} must put both execution gates in the BFM definition`);
   for (const mode of ['Simple task', 'Coordinated planning', 'Approved Build For Me']) {
     assert.match(source, new RegExp(`^### ${mode}$`, 'm'), `${label} must include the ${mode} example`);
   }
@@ -301,14 +314,14 @@ function assertCodexBootstrap(args) {
       const handoffRead = source.indexOf('the linked handoff');
       assert.ok(boardRead >= 0 && boardRead < indexRead && indexRead < handoffRead, `${label} must state the board → index → linked handoff read order`);
       assert.doesNotMatch(source, /## Project Start Brief|## Test This Now|### Verification Handoff/, `${label} must remain a thin route layer`);
-      for (const message of [exactSimpleTaskMessage, exactPlanningMessage, exactBuildMessage]) {
-        assert.ok(source.includes(message), `${label} must carry the concise beginner mode contract`);
-      }
+      assertConditionalModeContract(label, source);
     }
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
     assert.match(output, /Lanes investigate and plan different parts/, 'bootstrap quick start must say that lanes plan');
     assert.match(output, /Product combines findings into one build brief/, 'bootstrap quick start must say that Product prepares the build brief');
     assert.match(output, /You approve the brief\. Only after explicit \$bfm, BFM builds and checks it\./, 'bootstrap quick start must put user approval before the explicit $bfm build boundary');
+    assert.ok(!output.includes(exactBuildMessage), 'bootstrap completion must not announce that Build For Me execution is starting');
+    assert.match(output, /After approval, use explicit \$bfm to start Build For Me execution\./, 'bootstrap quick start must describe the conditional execution action');
     assert.match(output, /returning project health/, 'bootstrap quick start must reserve status for returning-project health');
     assert.match(codexRules, /docs\/fb\/guardrails\.md/, 'Codex rules must route sidechat authority through the harness');
     assert.ok(!fs.existsSync(path.join(root, '.mcp.json')), 'expected bootstrap not to create project MCP config');
@@ -575,15 +588,15 @@ test('publishes one beginner interaction contract across root, package, skills, 
     assert.doesNotMatch(source, /Build Flow Manager/i, `${relativePath} must not use the retired beginner-facing expansion`);
     assert.match(source, /(?:docs\/fb\/|\.\.\/\.\.\/docs\/fb\/)?start\.md/, `${relativePath} must route beginner guidance to start.md`);
     assert.match(source, /Build\s+For\s+Me\s+\(BFM\)/, `${relativePath} must define BFM for beginners`);
+    assert.match(source, /after\s+(?:Product\s+)?approval\s+and\s+explicit\s+`\$bfm`/i, `${relativePath} must require approval plus explicit $bfm for execution`);
   }
+  assert.doesNotMatch(fs.readFileSync(path.join(repoRoot, 'docs/fb/README.md'), 'utf8'), /Product\/Build For Me/i, 'docs/fb/README.md must not combine Product planning with Build For Me execution');
 
   for (const relativePath of ['tools/fb-lane.cjs', 'plugins/fb-lane-coordination/tools/fb-lane.cjs']) {
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
     assert.doesNotMatch(source, /\bfirstProjectContract\b/, `${relativePath} must not retain the stale inline first-project contract`);
     assert.doesNotMatch(source, /Build Flow Manager/i, `${relativePath} must use Build For Me terminology`);
-    for (const message of [exactSimpleTaskMessage, exactPlanningMessage, exactBuildMessage]) {
-      assert.ok(source.includes(message), `${relativePath} must generate the concise beginner mode contract`);
-    }
+    assertConditionalModeContract(relativePath, source);
   }
 });
 

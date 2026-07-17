@@ -29,7 +29,7 @@ Build For Me (BFM) will now build and check the approved plan.
 
 - **Lane:** a focused planning view, such as Product, Tech, Design, or Business.
 - **Handoff:** the durable note that passes decisions, scope, and evidence to the next owner.
-- **Build For Me (BFM):** the execution mode that builds an explicitly approved plan.
+- **Build For Me (BFM):** the execution mode used only after approval and explicit `$bfm`.
 - **Gate:** a required approval, review, or check before work moves forward.
 - **Quality Gap:** the recorded difference between the approved target and the result that was checked.
 

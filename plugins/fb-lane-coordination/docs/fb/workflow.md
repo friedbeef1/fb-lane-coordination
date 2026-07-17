@@ -1,7 +1,8 @@
 # Coordinate and execute
 
 The beginner-facing mode and approval contract lives in [start.md](start.md).
-Build For Me (BFM) is the execution mode for an explicitly approved plan.
+Build For Me (BFM) is the execution mode only after approval and explicit
+`$bfm`.
 
 ## Ownership and durable records
 

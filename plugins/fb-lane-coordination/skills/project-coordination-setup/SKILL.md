@@ -13,7 +13,8 @@ bootstrap preserves project-owned text and replaces only a complete block from
 unmatched markers and all text outside that exact boundary remain untouched.
 
 The installed [start.md](../../docs/fb/start.md) defines Build For Me (BFM) as
-the post-approval execution mode and remains the first-project source.
+the execution mode used only after approval and explicit `$bfm`, and remains
+the first-project source.
 
 - [First-project contract and approval boundary](../../docs/fb/start.md)
 - [Board/index/handoff/workstream roles and execution](../../docs/fb/workflow.md)
