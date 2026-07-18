@@ -1659,6 +1659,7 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
     assert.match(fs.readFileSync(record, 'utf8'), /mode: Quick BFM/i);
     assert.match(fs.readFileSync(record, 'utf8'), /^Review required: yes$/mi);
     assert.match(fs.readFileSync(record, 'utf8'), /^Approval reference: USER-APPROVAL-001$/mi);
+    fs.writeFileSync(path.join(worktree, 'src', 'quick.js'), 'module.exports = "runtime quick fixture";\n');
     assert.strictEqual(fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8'), boardBefore);
     assert.strictEqual(fs.readFileSync(path.join(worktree, 'docs', 'handoffs', 'index.md'), 'utf8'), indexBefore);
     assert.ok(!fs.existsSync(path.join(worktree, 'docs', 'sessions')));

@@ -127,13 +127,17 @@ requests a release checkpoint. Integration, staging, owner transfer, review,
 or the existence of a handoff file do not request one. Preserve every sensitive
 trigger and its immediate safety/approval gate.
 
-Quick documentation/coordination stops after 5 minutes, two total iterations,
-or one consolidated repair. Quick runtime/test stops after 15 minutes, three
-total iterations, or one consolidated repair. It uses no implementation
-subagent; runtime/test adds one reviewer and documentation/coordination adds
-none. Full BFM retains its existing budgets. All modes stop on success, a
-repeated broad validator, one no-progress cycle, or an exceeded declared
-elapsed-time budget. A release checkpoint permits one initial full
+The time limits apply per planned slice, not to the whole product outcome.
+Quick BFM is one slice: documentation/coordination normally targets 5 minutes,
+two total iterations, or one consolidated repair; runtime/test normally targets
+15 minutes, three iterations, or one consolidated repair. Runtime/test adds one
+reviewer and documentation/coordination adds none. Full BFM may run for hours by
+coordinating multiple slices. It may use agents or subagents concurrently only
+for independent, non-overlapping locks; dependencies, shared files, sensitive
+work, and unresolved decisions remain sequential. All slices stop on success, a
+repeated broad validator, one no-progress cycle, or an exceeded declared slice
+budget. Replan or resplit unfinished work without invalidating completed slices.
+A release checkpoint permits one initial full
 pass and, only after that pass fails and a consolidated material repair batch,
 one final pass. A third repair, no progress, an unjustified repeated broad gate,
 or a final failure blocks for Product direction. Authoritative token and cost
@@ -166,6 +170,10 @@ Report progress only when source, evidence, test state, blocker recovery, or an
 approved decision materially changes. A second Quick repair, one no-progress
 cycle, one repeated broad gate, or the surface-specific time/iteration limit
 triggers Full-BFM reconsideration rather than more automatic work.
+For multi-slice Full BFM, focused checks prove each slice, integration checks
+prove meaningful combinations, and broad validation waits for the release
+checkpoint. Parallel execution is an optimization derived from the dependency
+graph, never a reason to invent slices or accept overlapping locks.
 
 ## Loop Learning and small escalation
 

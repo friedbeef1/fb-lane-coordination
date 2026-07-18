@@ -77,9 +77,19 @@ material decision lacks a preview.
    Discovery, Bugs. Each is linked to ready/blocked output or recorded as **None
    relevant**. Include only valid `ready` handoffs; exclude implemented, done,
    and deferred work; stop to reconcile duplicates or contradictions.
-5. Run a Story Split Pass. Split mixed risks, locks, gates, review surfaces, blocked work, and ready work; otherwise say `No split needed`.
-6. Classify work as `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`. Recheck status immediately before a claim.
-7. Select only relevant eval IDs from [evals.md](evals.md), record their authority, and separate mechanical evidence from Product/user judgment.
+5. Run a Story Split Pass before execution, like backlog grooming and sprint
+   planning. Build the smallest useful dependency graph and split predictable
+   work into independently finishable slices, normally 15 minutes or less
+   (documentation-only slices may target 5). Each slice records its outcome,
+   expected surfaces and locks, dependencies, completion criteria, smallest
+   focused check, and safety triggers. Avoid slices that add ceremony without
+   isolating dependency, risk, ownership, or verification.
+6. Mark independent, non-overlapping slices parallel-ready for agents or
+   subagents. Keep dependent slices, shared-file edits, and unresolved decisions
+   sequential. Split mixed risks, gates, review surfaces, blocked work, and
+   ready work; otherwise say `No split needed`.
+7. Classify work as `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`. Recheck status immediately before a claim.
+8. Select only relevant eval IDs from [evals.md](evals.md), record their authority, and separate mechanical evidence from Product/user judgment.
 
 ## Internal execution routing
 
@@ -90,16 +100,19 @@ Safety gates run first. Quick BFM owns exactly one committed
 row, workstream card, session recap, separate Task Receipt, or separate
 Verification Handoff. Needing any of those reclassifies the task Full BFM.
 
-Documentation and coordination Quick work permits 5 minutes, two total agent
-iterations, one consolidated repair, and zero reviewers after focused checks
-pass. Runtime and test Quick work permits 15 minutes, three total agent
-iterations, one consolidated repair, and exactly one reviewer. Quick work uses
-the current owning agent with no implementation subagent. Full BFM defaults to five
-iterations, two repairs, two reviewers, one final broad validator, no
-no-progress cycle, and 120 minutes. A Quick timeout, second repair, exhausted
-iteration budget, repeated broad gate, or one cycle without a material source,
-evidence, test-state, blocker-recovery, or approved-direction delta reclassifies
-the work Full BFM. Authoritative
+The time budget applies per execution slice, not to the complete outcome. Quick
+BFM is one bounded slice: documentation/coordination normally targets 5
+minutes, two total agent iterations, one consolidated repair, and zero reviewers
+after focused checks pass; runtime/test normally targets 15 minutes with three total agent
+iterations, one consolidated repair, and exactly one reviewer. Quick work stays
+with the current owner and uses no implementation subagent. Full BFM may run
+for hours by coordinating many such slices. It runs independent, non-overlapping
+slices concurrently through agents or subagents and sequences dependencies,
+shared-file edits, and unresolved decisions. A slice timeout, second repair,
+exhausted iteration budget, repeated broad gate, or one cycle without a material
+source, evidence, test-state, blocker-recovery, or approved-direction delta
+stops that slice for resplitting or Full-BFM routing; it does not discard
+completed slices or stop an otherwise healthy multi-slice outcome. Authoritative
 provider token/cost ceilings apply only when supplied; otherwise record
 `unavailable` and never estimate them from a transcript.
 
@@ -117,6 +130,13 @@ equivalent evidence are not progress. Workers receive only the current brief,
 candidate/diff, specific feedback, and required evidence—never accumulated
 conversation history, transcripts, unrelated reports, or private reasoning.
 Stop immediately when the explicit success predicates pass.
+
+Run only the smallest focused proof after each slice. At an integration or
+release checkpoint, run only the proof appropriate to that boundary: an
+integration check when dependent slices are meaningfully combined, and broad
+validation only for an explicit release checkpoint. If implementation exposes unexpected
+complexity, preserve completed slices, resplit only the remaining work, refresh
+the dependency graph, and continue within the declared locks and safety gates.
 
 The ordinary delivery finish is intentionally simple:
 

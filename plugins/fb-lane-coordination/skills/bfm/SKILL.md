@@ -60,10 +60,19 @@ structural contract. Documentation and coordination Quick work closes with zero
 reviewers after focused checks pass; runtime and test Quick work requires
 exactly one reviewer. Review only the complete candidate with one focused
 verification pass; stop immediately when it passes.
-Quick work stays in the current owning agent with no implementation subagent.
-Documentation/coordination has 5 minutes and two total iterations;
-runtime/test has 15 minutes and three. Both permit one consolidated repair.
+Quick BFM is one bounded slice. Documentation/coordination normally targets 5
+minutes and two total iterations; runtime/test normally targets 15 minutes and
+three. Both permit one consolidated repair. Full BFM may run for hours by
+coordinating many slices. Before implementation, create the smallest useful
+dependency graph with outcome, surfaces/locks, dependencies, completion
+criteria, focused check, and safety triggers per slice. Run independent,
+non-overlapping slices through agents or subagents in parallel; keep dependent,
+shared-file, sensitive, and unresolved-decision work sequential.
 Review the complete canonical candidate before generating package mirrors.
+Use focused proof per slice, an integration check only when slices are
+meaningfully combined, and broad validation only at a release checkpoint. If a
+slice reveals unexpected complexity, keep completed slices and resplit only the
+remaining work.
 For durable work, promote the approved session in its linked worktree and keep
 the Task Receipt, Brief Validation, reciprocal links, verification checkpoint,
 Verification Handoff, and Test This Now aligned before submit or completed close.

@@ -112,6 +112,10 @@ When actionable ready handoffs exist, the user says `$bfm`. Product then scans
 all six, reconciles and prioritizes, creates the Project Start Brief plus Build
 Brief, and BFM executes already-approved scope; see [the start
 contract](docs/fb/start.md).
+For substantial work, FB plans a dependency graph up front and breaks the
+outcome into small verifiable slices. Independent slices can run through agents
+in parallel; dependent or overlapping work stays sequential. The overall job
+may run for hours without repeatedly running broad tests between slices.
 
 ## Install
 

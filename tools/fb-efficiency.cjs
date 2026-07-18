@@ -10,21 +10,27 @@ const QUICK = /\b(?:fix|patch|correct|repair|typo|copy|documentation|docs-only|r
 
 function classifyExecutionMode(task = {}, options = {}) {
   const details = task.details || {};
+  const declaredSlices = Array.isArray(task.executionSlices) ? task.executionSlices : (Array.isArray(task.slices) ? task.slices : null);
+  const executionPlan = declaredSlices ? planExecutionSlices(declaredSlices) : null;
+  const result = (mode, reason) => executionPlan ? { mode, reason, executionPlan } : { mode, reason };
+  if (executionPlan && (executionPlan.slices.length > 1 || executionPlan.slices.some(slice => slice.mode === 'Full BFM'))) {
+    return result('Full BFM', 'Full BFM coordinates multiple execution slices or any slice requiring safety gates');
+  }
   const text = [task.area, task.owner, task.scope, task.locks].filter(Boolean).join(' ');
   const approved = /^approved\b/i.test(String(details.approval || task.approval || ''));
   const owners = String(task.owner || '').split(/\s*(?:\+|,|\band\b)\s*/i).filter(Boolean);
   const ambiguous = options.ambiguous || !String(task.scope || '').trim();
   if (options.lockConflict || ambiguous || owners.length > 1 || SENSITIVE.test(text)) {
-    return { mode: 'Full BFM', reason: 'material risk, ambiguity, multiple ownership, or lock conflict requires Full BFM' };
+    return result('Full BFM', 'material risk, ambiguity, multiple ownership, or lock conflict requires Full BFM');
   }
   const bounded = /quick[- ]?fix/i.test(String(task.area || '')) || QUICK.test(String(task.scope || ''));
   if (approved && bounded && task.owner && task.locks && task.successCriteria) {
-    return { mode: 'Quick BFM', reason: 'approved bounded correction with one owner and explicit evidence' };
+    return result('Quick BFM', 'approved bounded correction with one owner and explicit evidence');
   }
   if (options.requiresRecord || options.productApprovalRequired || approved) {
-    return { mode: 'Full BFM', reason: 'durable coordination is required but the Quick contract is incomplete' };
+    return result('Full BFM', 'durable coordination is required but the Quick contract is incomplete');
   }
-  return { mode: 'Normal Codex', reason: 'clear isolated low-risk work needs no durable FB record' };
+  return result('Normal Codex', 'clear isolated low-risk work needs no durable FB record');
 }
 
 function field(markdown, name) {
@@ -60,11 +66,12 @@ Worktree: ${input.worktree || 'current'}
 Focused verification: ${input.verificationPlan}
 Quick policy version: 2
 Review required: ${reviewRequired ? 'yes' : 'no'}
-Elapsed limit minutes: ${policy.elapsedLimitMinutes}
+Execution slice: 1 of 1
+Slice elapsed limit minutes: ${policy.elapsedLimitMinutes}
 
 ## Run Budget
 
-Started at epoch ms: ${input.startedAt ?? Date.now()}
+Slice started at epoch ms: ${input.startedAt ?? Date.now()}
 Agent iterations: 1
 Repair loops: 0
 Broad validator runs: 0
@@ -166,8 +173,8 @@ function validateQuickRecordForSubmit(markdown, options = {}) {
   const repeatedChecks = numericField(markdown, 'Repeated checks', 0);
   const noProgress = numericField(markdown, 'No-progress cycles');
   const progress = field(markdown, 'Material progress');
-  const startedAt = numericField(markdown, 'Started at epoch ms');
-  const elapsedLimit = numericField(markdown, 'Elapsed limit minutes');
+  const startedAt = numericField(markdown, 'Slice started at epoch ms', numericField(markdown, 'Started at epoch ms'));
+  const elapsedLimit = numericField(markdown, 'Slice elapsed limit minutes', numericField(markdown, 'Elapsed limit minutes'));
   const now = options.now ?? Date.now();
   if (!approvalReference || /^(?:pending|unverified|none|n\/a)$/i.test(approvalReference)) throw new Error('Quick BFM submit requires a concrete approval reference.');
   if (reviewRequired && (!reviewer || /^pending$/i.test(reviewer) || reviewer.includes(',') || reviewers !== 1)) throw new Error('Quick BFM submit requires exactly one reviewer.');
@@ -210,12 +217,87 @@ function classifyChangedSurface(paths = []) {
 function quickPolicyForPaths(paths = []) {
   const surface = classifyChangedSurface(paths);
   if (surface === 'sensitive') {
-    return { surface, mode: 'Full BFM', elapsedLimitMinutes: null, maxIterations: null, maxRepairs: null, reviewers: null };
+    return { surface, mode: 'Full BFM', elapsedLimitMinutes: null, maxIterations: null, maxRepairs: null, reviewers: null, budgetScope: 'execution-slice' };
   }
   if (surface === 'coordination' || surface === 'documentation') {
-    return { surface, mode: 'Quick BFM', elapsedLimitMinutes: 5, maxIterations: 2, maxRepairs: 1, reviewers: 0 };
+    return { surface, mode: 'Quick BFM', elapsedLimitMinutes: 5, maxIterations: 2, maxRepairs: 1, reviewers: 0, budgetScope: 'execution-slice' };
   }
-  return { surface, mode: 'Quick BFM', elapsedLimitMinutes: 15, maxIterations: 3, maxRepairs: 1, reviewers: 1 };
+  return { surface, mode: 'Quick BFM', elapsedLimitMinutes: 15, maxIterations: 3, maxRepairs: 1, reviewers: 1, budgetScope: 'execution-slice' };
+}
+
+function planExecutionSlices(candidates = []) {
+  if (!Array.isArray(candidates) || candidates.length === 0) throw new Error('Execution planning requires at least one slice.');
+  const ids = new Set();
+  const slices = candidates.map((candidate, index) => {
+    const id = String(candidate.id || '').trim();
+    if (!id || ids.has(id)) throw new Error('Execution slice IDs must be present and unique.');
+    ids.add(id);
+    const declaredPaths = Array.isArray(candidate.paths)
+      ? candidate.paths
+      : String(candidate.locks || '').split(',');
+    const paths = [...new Set(declaredPaths.map(String).map(value => value.trim()).filter(Boolean))];
+    if (paths.length === 0) throw new Error(`Execution slice ${id} requires nonempty paths or locks.`);
+    const outcome = String(candidate.outcome || '').trim();
+    if (!outcome) throw new Error(`Execution slice ${id} requires an outcome.`);
+    const completionCriteria = String(candidate.completionCriteria || '').trim();
+    if (!completionCriteria) throw new Error(`Execution slice ${id} requires completion criteria.`);
+    if (!Array.isArray(candidate.safetyTriggers)) throw new Error(`Execution slice ${id} requires a safety triggers array.`);
+    const safetyTriggers = candidate.safetyTriggers.map(String).map(value => value.trim()).filter(Boolean);
+    const focusedCheck = String(candidate.focusedCheck || '').trim();
+    if (!focusedCheck) throw new Error(`Execution slice ${id} requires a focused check.`);
+    const dependsOn = [...new Set((candidate.dependsOn || []).map(String).filter(Boolean))];
+    const policy = quickPolicyForPaths(paths);
+    const mode = safetyTriggers.length > 0 ? 'Full BFM' : policy.mode;
+    return {
+      id,
+      order: index,
+      outcome,
+      paths,
+      dependsOn,
+      completionCriteria,
+      safetyTriggers,
+      focusedCheck,
+      mode,
+      elapsedLimitMinutes: mode === 'Full BFM' ? null : policy.elapsedLimitMinutes,
+    };
+  });
+  const byId = new Map(slices.map(slice => [slice.id, slice]));
+  for (const slice of slices) {
+    for (const dependency of slice.dependsOn) {
+      if (!byId.has(dependency)) throw new Error(`Execution slice ${slice.id} has unknown dependency ${dependency}.`);
+      if (dependency === slice.id) throw new Error(`Execution slice ${slice.id} cannot depend on itself.`);
+    }
+  }
+  const reaches = (fromId, targetId, seen = new Set()) => {
+    if (fromId === targetId) return true;
+    if (seen.has(fromId)) return false;
+    seen.add(fromId);
+    return byId.get(fromId).dependsOn.some(dependency => reaches(dependency, targetId, seen));
+  };
+  for (let left = 0; left < slices.length; left += 1) {
+    for (let right = left + 1; right < slices.length; right += 1) {
+      const first = slices[left];
+      const second = slices[right];
+      if (!first.paths.some(file => second.paths.includes(file))) continue;
+      if (reaches(first.id, second.id) || reaches(second.id, first.id)) continue;
+      second.dependsOn.push(first.id);
+    }
+  }
+  const remaining = new Set(slices.map(slice => slice.id));
+  const completed = new Set();
+  const waves = [];
+  while (remaining.size) {
+    const ready = slices.filter(slice => remaining.has(slice.id) && slice.dependsOn.every(id => completed.has(id)));
+    if (ready.length === 0) throw new Error('Execution slice dependency graph contains a cycle.');
+    const sensitive = ready.find(slice => slice.mode === 'Full BFM');
+    const wave = sensitive ? [sensitive] : ready;
+    waves.push(wave);
+    for (const slice of wave) {
+      remaining.delete(slice.id);
+      completed.add(slice.id);
+    }
+  }
+  return { slices, waves };
 }
 
 function verificationBudget(paths, checkpoint = {}) {
@@ -357,7 +439,8 @@ function evaluateRunBudget(state = {}, event = {}) {
   const fail = reason => ({ blocked: true, reason, materialProgressRequired: true, state: next });
   if (event.materialProgress === false) return fail('Stopped after one cycle with no material progress.');
   const elapsedLimitMinutes = policy?.elapsedLimitMinutes ?? next.elapsedLimitMinutes ?? 30;
-  if ((event.now ?? Date.now()) - (next.startedAt ?? Date.now()) >= elapsedLimitMinutes * 60_000) return fail('Quick elapsed-time budget is exhausted; route the work through Full BFM.');
+  const sliceStartedAt = next.sliceStartedAt ?? next.startedAt ?? Date.now();
+  if ((event.now ?? Date.now()) - sliceStartedAt >= elapsedLimitMinutes * 60_000) return fail('Quick execution-slice elapsed-time budget is exhausted; reslice remaining work or route it through Full BFM.');
   if (next.tokenLimit != null && event.authoritativeTokens != null && event.authoritativeTokens >= next.tokenLimit) return fail('Authoritative token budget is exhausted.');
   if (next.costLimit != null && event.authoritativeCost != null && event.authoritativeCost >= next.costLimit) return fail('Authoritative cost budget is exhausted.');
   if (event.type === 'repair' && next.repairLoops >= (policy?.maxRepairs ?? 2)) return fail('Quick repair budget is exhausted; route the work through Full BFM.');
@@ -394,4 +477,4 @@ Circuit breaker triggered: ${metrics.circuitBreakerTriggered ? 'yes' : 'no'}
 `;
 }
 
-module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, quickPolicyForPaths, verificationBudget, selectAutomatedChecks, runAutomatedCheck, runQuickSubmissionChecks, automatedVerificationDecision, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, renderEfficiencyReceipt };
+module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, quickPolicyForPaths, planExecutionSlices, verificationBudget, selectAutomatedChecks, runAutomatedCheck, runQuickSubmissionChecks, automatedVerificationDecision, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, renderEfficiencyReceipt };

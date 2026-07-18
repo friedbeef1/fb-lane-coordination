@@ -104,6 +104,7 @@ assert.match(workflow, /Quick BFM/);
 assert.match(workflow, /ambiguity/i);
 assert.match(workflow, /<primary>\/\.worktrees\//);
 for (const contract of ['5 minutes', '15 minutes', 'two total agent\\s+iterations', 'three total agent\\s+iterations', 'one consolidated repair', 'zero reviewers', 'exactly one reviewer', 'hooks\\.focusedTest', '10 minutes', 'no implementation subagent', 'current brief', 'candidate\/diff', 'specific feedback', 'required evidence']) assert.match(workflow, new RegExp(contract, 'i'));
+for (const contract of ['per execution slice', 'dependency graph', 'independent[\\s\\S]{0,100}slices[\\s\\S]{0,100}parallel', 'dependent[\\s\\S]{0,80}sequential', 'shared-file[\\s\\S]{0,80}sequential', 'res(?:plit|lice)', 'integration or\\s+release checkpoint']) assert.match(workflow, new RegExp(contract, 'i'));
 assert.match(workflow, /at most one full validator/);
 
 const sessions = readHarness('sessions.md');

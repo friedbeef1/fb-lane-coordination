@@ -30,8 +30,13 @@ keeps its immediate safety/approval gate.
 Quick documentation and coordination work needs no independent reviewer after
 its focused checks pass. Quick runtime and test work requires exactly one;
 sensitive or ambiguous work remains Full BFM. Keep this routing private.
-Quick work uses the current owning agent, one consolidated repair at most, and
-the surface-specific 5- or 15-minute budget in the canonical workflow.
+Quick BFM is one bounded slice with one consolidated repair at most and the
+surface-specific 5- or 15-minute target in the canonical workflow. Full BFM may
+run for hours by planning many slices up front. Build their dependency graph,
+run independent non-overlapping slices through agents or subagents in parallel,
+and keep dependencies, shared files, and unresolved decisions sequential.
+Focused checks prove slices; integration checks prove meaningful combinations;
+broad validation waits for a release checkpoint.
 
 - [Workstream-first start and `$bfm` reconciliation](../../docs/fb/start.md)
 - [Source hierarchy, locks, BFM, and closeout](../../docs/fb/workflow.md)

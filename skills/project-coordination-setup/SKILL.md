@@ -51,3 +51,9 @@ exactly one, and records without the field retain the legacy one-reviewer rule.
 Projects may configure `hooks.focusedTest` and a
 `timeouts.focusedTestMinutes` value of at most 10 in `.fb-lane.json`; otherwise
 runtime Quick work uses bounded `npm test`.
+The 5- or 15-minute target applies to one execution slice, not the complete
+outcome. During `$bfm`, split predictable work up front into the smallest useful
+dependency graph. Full BFM may coordinate many slices for hours and use parallel
+agents or subagents for independent, non-overlapping locks. Keep dependent,
+shared-file, sensitive, and unresolved-decision work sequential; verify each
+slice narrowly and reserve broad validation for the release checkpoint.

@@ -145,9 +145,13 @@ use `Review required: yes` and require exactly one approved reviewer. A legacy
 Quick Record without `Review required` keeps the previous exactly-one-reviewer
 rule.
 
-Documentation/coordination Quick Records use a 5-minute, two-iteration,
-one-repair budget. Runtime/test Quick Records use a 15-minute, three-iteration,
-one-repair budget. Timeout or exhaustion reclassifies the work Full BFM.
+Each Quick Record represents one planned execution slice, not the total task.
+Documentation/coordination slices normally target 5 minutes with two iterations
+and one repair. Runtime/test slices normally target 15 minutes with three
+iterations and one repair. Full BFM may coordinate many slices over hours;
+timeout or exhaustion resplits or reroutes the unfinished slice while preserving
+completed checkpoints. Independent, non-overlapping slices may run through
+parallel agents or subagents; dependent or shared-file slices remain sequential.
 
 For all modes, use a focused check by default. Sensitive work stops at its
 immediate safety/approval gate. A Product-owned handoff must explicitly request

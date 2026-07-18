@@ -24,6 +24,7 @@ const {
   quickPolicyForPaths,
   runAutomatedCheck,
   runQuickSubmissionChecks,
+  planExecutionSlices,
 } = require('./fb-efficiency.cjs');
 
 const bounded = {
@@ -74,7 +75,7 @@ test('runtime Quick Records require one reviewer and legacy records keep that ru
   assert.strictEqual(parseQuickRecord(markdown).reviewRequired, true);
   assert.match(markdown, /Review required: yes/);
   assert.match(markdown, /Quick policy version: 2/);
-  assert.match(markdown, /Elapsed limit minutes: 15/);
+  assert.match(markdown, /Slice elapsed limit minutes: 15/);
   assert.match(markdown, /Current brief: \.superpowers\/sdd\/task-1-brief\.md/);
   assert.doesNotMatch(markdown, /transcript|conversation history/i);
 
@@ -100,8 +101,9 @@ test('runtime Quick Records require one reviewer and legacy records keep that ru
   assert.doesNotThrow(() => validateQuickRecordForSubmit(legacy));
   const priorThirtyMinuteRecord = closed
     .replace(/^Quick policy version: 2\n/m, '')
-    .replace('Elapsed limit minutes: 15', 'Elapsed limit minutes: 30')
-    .replace(/^Started at epoch ms: \d+$/m, 'Started at epoch ms: 1000000');
+    .replace(/^Execution slice: 1 of 1\n/m, '')
+    .replace('Slice elapsed limit minutes: 15', 'Elapsed limit minutes: 30')
+    .replace(/^Slice started at epoch ms: \d+$/m, 'Started at epoch ms: 1000000');
   assert.doesNotThrow(() => validateQuickRecordForSubmit(priorThirtyMinuteRecord, {
     now: 2_000_000,
     changedPaths: ['src/status.js'],
@@ -119,7 +121,7 @@ test('documentation and coordination Quick Records close with zero reviewers', (
     });
     assert.strictEqual(parseQuickRecord(markdown).reviewRequired, false);
     assert.match(markdown, /Review required: no/);
-    assert.match(markdown, /Elapsed limit minutes: 5/);
+    assert.match(markdown, /Slice elapsed limit minutes: 5/);
     const closed = closeQuickRecord(markdown, {
       result: 'Focused checks passed.',
       focusedEvidence: 'focused contract passed',
@@ -135,18 +137,101 @@ test('documentation and coordination Quick Records close with zero reviewers', (
 test('Quick policy is centralized, bounded by surface, and conservative', () => {
   assert.deepStrictEqual(quickPolicyForPaths(['docs/fb/workflow.md']), {
     surface: 'documentation', mode: 'Quick BFM', elapsedLimitMinutes: 5,
-    maxIterations: 2, maxRepairs: 1, reviewers: 0,
+    maxIterations: 2, maxRepairs: 1, reviewers: 0, budgetScope: 'execution-slice',
   });
   for (const changedPaths of [['src/app.js'], ['tools/fb-lane.test.cjs'], ['docs/fb/workflow.md', 'app.js'], ['unknown.bin']]) {
     assert.deepStrictEqual(quickPolicyForPaths(changedPaths), {
       surface: classifyChangedSurface(changedPaths), mode: 'Quick BFM', elapsedLimitMinutes: 15,
-      maxIterations: 3, maxRepairs: 1, reviewers: 1,
+      maxIterations: 3, maxRepairs: 1, reviewers: 1, budgetScope: 'execution-slice',
     });
   }
   assert.deepStrictEqual(quickPolicyForPaths(['auth/config.js']), {
     surface: 'sensitive', mode: 'Full BFM', elapsedLimitMinutes: null,
-    maxIterations: null, maxRepairs: null, reviewers: null,
+    maxIterations: null, maxRepairs: null, reviewers: null, budgetScope: 'execution-slice',
   });
+});
+
+test('BFM plans bounded execution slices up front and parallelizes only independent work', () => {
+  const plan = planExecutionSlices([
+    { id: 'api', outcome: 'API ready', paths: ['src/api.js'], completionCriteria: 'API contract passes', safetyTriggers: [], focusedCheck: 'node test/api.cjs' },
+    { id: 'copy', outcome: 'Copy ready', paths: ['docs/copy.md'], completionCriteria: 'Copy contract passes', safetyTriggers: [], focusedCheck: 'node test/copy.cjs' },
+    { id: 'ui', outcome: 'UI ready', paths: ['src/ui.js'], dependsOn: ['api'], completionCriteria: 'UI contract passes', safetyTriggers: [], focusedCheck: 'node test/ui.cjs' },
+    { id: 'api-tests', outcome: 'Regression proof ready', paths: ['src/api.js'], completionCriteria: 'API regression passes', safetyTriggers: [], focusedCheck: 'node test/api.cjs' },
+  ]);
+  assert.deepStrictEqual(plan.waves.map(wave => wave.map(slice => slice.id)), [
+    ['api', 'copy'],
+    ['ui', 'api-tests'],
+  ]);
+  assert.strictEqual(plan.slices[0].elapsedLimitMinutes, 15);
+  assert.strictEqual(plan.slices[1].elapsedLimitMinutes, 5);
+  assert.deepStrictEqual(plan.slices[3].dependsOn, ['api']);
+  assert.strictEqual(plan.slices[0].outcome, 'API ready');
+  assert.strictEqual(plan.slices[0].completionCriteria, 'API contract passes');
+  assert.deepStrictEqual(plan.slices[0].safetyTriggers, []);
+  assert.throws(() => planExecutionSlices([
+    { id: 'a', outcome: 'A', paths: ['src/a.js'], dependsOn: ['missing'], completionCriteria: 'done', safetyTriggers: [], focusedCheck: 'test' },
+  ]), /unknown dependency/i);
+  assert.throws(() => planExecutionSlices([
+    { id: 'a', outcome: 'A', paths: ['src/a.js'], completionCriteria: 'done', safetyTriggers: [], focusedCheck: 'test' },
+    { id: 'a', outcome: 'B', paths: ['src/b.js'], completionCriteria: 'done', safetyTriggers: [], focusedCheck: 'test' },
+  ]), /unique/i);
+});
+
+test('slice planning validates contracts, respects explicit direction, and isolates safety work', () => {
+  const complete = { id: 'a', outcome: 'A', paths: ['src/a.js'], completionCriteria: 'done', safetyTriggers: [], focusedCheck: 'test' };
+  for (const candidate of [
+    { ...complete, paths: [] },
+    { ...complete, focusedCheck: '' },
+    { ...complete, outcome: '' },
+    { ...complete, completionCriteria: '' },
+    { ...complete, safetyTriggers: undefined },
+  ]) assert.throws(() => planExecutionSlices([candidate]), /paths|focused check|outcome|completion criteria|safety triggers/i);
+
+  const direction = planExecutionSlices([
+    { ...complete, id: 'after', outcome: 'After', dependsOn: ['before'], paths: ['src/shared.js'] },
+    { ...complete, id: 'before', outcome: 'Before', paths: ['src/shared.js'] },
+  ]);
+  assert.deepStrictEqual(direction.waves.map(wave => wave.map(slice => slice.id)), [['before'], ['after']]);
+
+  const isolated = planExecutionSlices([
+    { ...complete, id: 'safe', outcome: 'Safe', paths: ['src/safe.js'] },
+    { ...complete, id: 'auth', outcome: 'Auth', paths: ['auth/config.js'], safetyTriggers: ['authentication'] },
+    { ...complete, id: 'docs', outcome: 'Docs', paths: ['docs/readme.md'] },
+  ]);
+  assert.ok(isolated.waves.some(wave => wave.length === 1 && wave[0].id === 'auth'));
+  assert.ok(isolated.waves.every(wave => wave.length === 1 || wave.every(slice => slice.mode !== 'Full BFM')));
+  assert.strictEqual(isolated.slices.find(slice => slice.id === 'auth').elapsedLimitMinutes, null);
+  assert.throws(() => planExecutionSlices([
+    { ...complete, id: 'a', outcome: 'A', dependsOn: ['b'] },
+    { ...complete, id: 'b', outcome: 'B', paths: ['src/b.js'], dependsOn: ['a'] },
+  ]), /cycle/i);
+  assert.throws(() => planExecutionSlices([{ ...complete, dependsOn: ['a'] }]), /itself/i);
+});
+
+test('mode routing consumes execution plans and keeps Quick to one slice', () => {
+  const slice = { id: 'one', outcome: 'Correct status', paths: ['src/status.js'], completionCriteria: 'Focused proof passes', safetyTriggers: [], focusedCheck: 'node test/status.cjs' };
+  const quick = classifyExecutionMode({ ...bounded, executionSlices: [slice] });
+  assert.strictEqual(quick.mode, 'Quick BFM');
+  assert.strictEqual(quick.executionPlan.slices.length, 1);
+  const many = classifyExecutionMode({ ...bounded, slices: [slice, { ...slice, id: 'two', outcome: 'Correct docs', paths: ['docs/status.md'] }] });
+  assert.strictEqual(many.mode, 'Full BFM');
+  assert.strictEqual(many.executionPlan.slices.length, 2);
+  const sensitive = classifyExecutionMode({ ...bounded, executionSlices: [{ ...slice, paths: ['auth/config.js'], safetyTriggers: ['authentication'] }] });
+  assert.strictEqual(sensitive.mode, 'Full BFM');
+  assert.strictEqual(sensitive.executionPlan.slices[0].mode, 'Full BFM');
+});
+
+test('Quick Records budget one slice while Full BFM may coordinate many slices', () => {
+  const markdown = renderQuickRecord({
+    ...bounded,
+    approvedCorrection: bounded.scope,
+    verificationPlan: 'focused contract',
+    startedAt: 1_000_000,
+  });
+  assert.match(markdown, /Execution slice: 1 of 1/);
+  assert.match(markdown, /Slice started at epoch ms: 1000000/);
+  assert.match(markdown, /Slice elapsed limit minutes: 15/);
+  assert.doesNotMatch(markdown, /^Elapsed limit minutes:/m);
 });
 
 test('Quick submit revalidates review policy from the actual candidate paths', () => {
@@ -406,14 +491,14 @@ test('Quick submit lifecycle enforces evidence, progress, and declared run budge
     .replace('Focused evidence: pending', 'Focused evidence: Focused status contract passed')
     .replace('Reviewers: 0', 'Reviewers: 1');
 
-  assert.match(markdown, /Elapsed limit minutes: 15/);
+  assert.match(markdown, /Slice elapsed limit minutes: 15/);
   assert.doesNotThrow(() => validateQuickRecordForSubmit(markdown, { now: 1_001_000, changedPaths: ['src/status.js'] }));
   const invalid = [
     [markdown.replace('Agent iterations: 1', 'Agent iterations: 4'), /iteration|Full BFM/i],
     [markdown.replace('Repair loops: 0', 'Repair loops: 2'), /repair|Full BFM/i],
     [markdown.replace('Broad validator runs: 0', 'Broad validator runs: 2'), /repeated broad/i],
     [markdown.replace('No-progress cycles: 0', 'No-progress cycles: 1'), /no material progress|no-progress/i],
-    [markdown.replace('Started at epoch ms: 1000000', 'Started at epoch ms: 0'), /elapsed/i],
+    [markdown.replace('Slice started at epoch ms: 1000000', 'Slice started at epoch ms: 0'), /elapsed/i],
     [markdown.replace('Token limit: unavailable', 'Token limit: 100').replace('Authoritative tokens: unavailable', 'Authoritative tokens: 100'), /token/i],
     [markdown.replace('Cost limit: unavailable', 'Cost limit: 2').replace('Authoritative cost: unavailable', 'Authoritative cost: 2'), /cost/i],
     [markdown.replace('Agent iterations: 1', 'Agent iterations: 2').replace('Material progress: initial execution', 'Material progress: none'), /material progress/i],
