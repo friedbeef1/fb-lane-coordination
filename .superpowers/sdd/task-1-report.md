@@ -1,105 +1,74 @@
-# Task 1 report: workstream-first public contract
+# Task 1 report: low-friction FB fast path
 
-## Scope confirmation
+Status: DONE
 
-Implemented only the focused public onboarding/first-project contract from
-`task-1-brief.md`. The user-facing flow is singular and workstream-first;
-internal risk and execution routing remains available to agents. Technical IDs,
-six workstreams, session/eval schemas, handoff headings, board ownership,
-release boundary, version, MCP interfaces, and historical records were not
-changed. No full validator, push, merge, release, or deployment was run.
+Implementation commit: `042c1e0` (`feat: enforce low-friction FB fast path`)
 
 ## Files
 
-- Canonical entry and workflow guidance: `AGENTS.md`, `README.md`,
-  `docs/fb/{README,start,workflow,full-loop}.md`, `docs/why-fb.md`,
-  `platforms/codex/README.md`, and `examples/my-app/AGENTS.md`.
-- Active skills: root coordination, quickstart, and setup skills plus packaged
-  Product, BFM, lane, coordination, and setup guidance.
-- Bootstrap/runtime guidance: `tools/fb-lane.cjs`.
-- Focused contracts: beginner experience, root/package CLI, and product
-  positioning tests.
-- Declared package mirrors were regenerated mechanically with
-  `node tools/fb-package-sync.cjs --write`.
+- Canonical policy/runtime/tests: `tools/fb-efficiency.cjs`,
+  `tools/fb-efficiency.test.cjs`, `tools/fb-session.test.cjs`, and
+  `tools/fb-two-speed.test.cjs`.
+- Canonical guidance: `docs/fb/workflow.md`, `docs/fb/guardrails.md`,
+  `docs/fb/sessions.md`, `skills/fb-lane-coordination/SKILL.md`, and
+  `skills/project-coordination-setup/SKILL.md`.
+- Packaged BFM guidance: `plugins/fb-lane-coordination/skills/bfm/SKILL.md`.
+- Declared generated mirrors under `plugins/fb-lane-coordination/` for the
+  changed canonical docs, skills, runtime, and tests. They were regenerated
+  mechanically with `node tools/fb-package-sync.cjs --write`.
 
 ## RED evidence
 
-After changing the focused beginner contract test first, running
-`node tools/fb-beginner-experience.test.cjs` failed on the old
-`## Choose the mode` / `Simple task` / `Coordinated planning` /
-`Approved Build For Me` public contract. Result: 1 failed of 10, for the expected
-missing workstream-first behavior.
+- `node tools/fb-efficiency.test.cjs` failed with 8 passing and 4 failing
+  contracts. The expected failures were missing `Review required` behavior,
+  documentation/coordination zero-review closeout, the duplicated doctor
+  manifest, and rejection of the new combined check ID.
+- `node tools/fb-two-speed.test.cjs` failed on the stale one-reviewer-only
+  workflow contract because zero-review and exactly-one-review guidance was
+  absent.
 
 ## GREEN evidence
 
-- Root/package CLI: 70/70 each.
-- Root/package beginner experience: 10/10 each.
-- Root/package six-workstream runtime contracts: passed.
-- Root/package six-skill behavior contracts: passed.
-- Product positioning contract: passed.
-- Package sync tests: 10/10; mirror check: 27/27.
-- Syntax checks for affected runtime/tests: passed.
-- `git diff --check`: passed.
+- `node tools/fb-efficiency.test.cjs`: PASS, 12/12.
+- `node plugins/fb-lane-coordination/tools/fb-efficiency.test.cjs`: PASS,
+  12/12.
+- `node tools/fb-two-speed.test.cjs`: PASS.
+- `node plugins/fb-lane-coordination/tools/fb-two-speed.test.cjs`: PASS.
+- `node tools/fb-session.test.cjs`: PASS, 37/37 focused session/CLI checks.
+- `node plugins/fb-lane-coordination/tools/fb-session.test.cjs`: PASS, 37/37.
+- `node tools/fb-lane.test.cjs`: PASS, 70/70 CLI checks.
+- `node plugins/fb-lane-coordination/tools/fb-lane.test.cjs`: PASS, 70/70.
+- `node tools/fb-package-sync.cjs --check`: PASS, 27/27 declared mirrors.
+- `node --check` for the eight changed root/package JavaScript files: PASS.
+- `git diff --check`: PASS.
+
+No local full validator, release, merge, push, hosted metric service, new
+dependency, or new subsystem was run or added.
+
+## Interface and compatibility details
+
+- Documentation and coordination automated verification now selects one
+  `structure-and-links` doctor check plus `whitespace`, so the doctor command is
+  invoked once. `automatedVerificationDecision` accepts that combined ID and
+  also accepts legacy stored evidence only when both separate `structure` and
+  `links` checks plus `whitespace` passed.
+- New Quick Records persist `Review required: yes|no`, derived from the existing
+  changed-surface classification. `parseQuickRecord` exposes the derived boolean
+  as `reviewRequired`.
+- Documentation and coordination Quick Records record `Review required: no`,
+  `Reviewer: not required`, `Reviewer decision: not required`, and
+  `Reviewers: 0`. Runtime and test Quick Records record `Review required: yes`
+  and retain exactly-one-approved-reviewer validation.
+- A Quick Record without `Review required` defaults to the previous one-reviewer
+  rule. Existing session evidence containing separate `structure` and `links`
+  remains valid; no persistence schema was narrowed.
+- Sensitive classification still takes precedence and routes to Full BFM.
+  Candidate binding, privacy filtering, minimal worker context, stop-on-success,
+  two-repair/no-progress/repeated-gate limits, safety gates, release checkpoints,
+  and explicit Push Live authorization remain unchanged.
 
 ## Concerns
 
-None. Internal Quick/Full/Normal routing terminology remains in explicitly
-internal workflow, session, guardrail, and historical/evidence surfaces; it is
-no longer presented as a public starting menu.
-
-## Independent-review repair
-
-Repaired all five review findings in one bounded pass:
-
-- The README/Why FB problem map now attaches pre-`$bfm` approval to relevant
-  workstream handoffs and ready scope, with both consolidated briefs created
-  during Product reconciliation after invocation.
-- Bootstrap-generated AGENTS and Project Board guidance now expose only the
-  workstream-first route; focused bootstrap tests reject the retired public mode
-  trigger language and assert the approval/reconciliation timing.
-- Product and BFM skills no longer require consolidated briefs to preexist
-  `$bfm` or request a routine second approval. Deterministic ready-scope,
-  lock, board alignment, and pre-source-change gates remain.
-- The creator-commerce example is workstream-led through handoffs, `$bfm`,
-  reconciliation, and execution; the Codex platform page uses the same route.
-
-Repair verification output:
-
-- Root CLI: `70 checks passed`; packaged CLI: `70 checks passed`.
-- Root beginner: `10/10`; packaged beginner: `10/10`.
-- Root/package six-workstream runtime: `passed` / `passed`.
-- Root/package six-skill behavior: `passed` / `passed`.
-- Product positioning: `FB product-positioning contract passed.`
-- Package sync tests: `10` passed, `0` failed; mirror check:
-  `Checked 27 package mirrors.`
-- Affected JavaScript syntax checks and `git diff --check`: passed with no
-  output.
-
-Repair concerns: none. No full validator, push, merge, release, deployment, or
-broader cleanup was performed.
-
-## Final bounded repair loop 2 of 2
-
-- `workflow.md` now states that, after `$bfm`, Product records the consolidated
-  Build Brief and carries forward or records pre-`$bfm` ready-scope approval.
-  There is no routine second approval; only the five decision/safety/scope
-  exceptions pause execution.
-- `EVAL-HARNESS-MODE-001` retains shadow authority and the complete scenario
-  schema while testing one visible workstream-first route, conditional
-  Product/User selection, ready handoffs before `$bfm`, post-invocation Product
-  reconciliation and both briefs, and no visible mode rationale.
-
-Focused RED: the beginner catalog test failed on the stale `Beginner mode
-selection` scenario name/content before the docs changed.
-
-Focused GREEN and exact output:
-
-- Root/package beginner experience: `FB beginner-experience smoke passed
-  (10/10).` each.
-- Root/package eval: `TASK-023 eval tests passed (18/18).` each.
-- Root/package CLI: `70 checks passed.` each.
-- Package mirror check: `Checked 27 package mirrors.`
-- Affected test syntax checks and `git diff --check`: passed with no output.
-
-No full validator, broader cleanup, push, merge, release, or deployment was
-performed. Concerns: none.
+None. The implementation commit contains all runtime, contract, guidance, and
+generated-mirror changes; this report is recorded separately so it can name the
+exact implementation commit.
