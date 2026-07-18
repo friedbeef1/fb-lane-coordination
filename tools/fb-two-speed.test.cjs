@@ -74,9 +74,9 @@ const passedAutomatedEvidence = {
   baseCommit: '0123456789abcdef0123456789abcdef01234567',
   candidateCommit: 'fedcba9876543210fedcba9876543210fedcba98',
   checkedAt: '2026-07-17T00:00:00.000Z',
-  checks: [{ id: 'structure', result: 'passed' }],
+  checks: [{ id: 'structure-and-links', result: 'passed' }],
   changedPaths: ['docs/fb/workflow.md'],
-  checkManifest: [{ id: 'structure', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] }],
+  checkManifest: [{ id: 'structure-and-links', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] }],
   safetyGate: { result: 'not-applicable', approvalRef: '' },
   optionalLinks: [],
 };
@@ -103,7 +103,7 @@ assert.match(workflow, /Sensitive[\s\S]*Full-BFM safety\/release gates/);
 assert.match(workflow, /Quick BFM/);
 assert.match(workflow, /ambiguity/i);
 assert.match(workflow, /<primary>\/\.worktrees\//);
-for (const contract of ['five total agent iterations', 'two repair loops', 'one reviewer', 'no-progress cycle', 'current brief', 'candidate\/diff', 'specific feedback', 'required evidence']) assert.match(workflow, new RegExp(contract, 'i'));
+for (const contract of ['five total agent iterations', 'two repair loops', 'zero reviewers', 'exactly one reviewer', 'no-progress cycle', 'current brief', 'candidate\/diff', 'specific feedback', 'required evidence']) assert.match(workflow, new RegExp(contract, 'i'));
 assert.match(workflow, /at most one full validator/);
 
 const sessions = readHarness('sessions.md');

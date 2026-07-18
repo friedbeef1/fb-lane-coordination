@@ -133,10 +133,17 @@ capture needs a separate explicit approval and privacy review.
 
 Quick BFM uses one `TASK-Q-*` Quick Record instead of the Full-BFM session
 recap and reciprocal evidence set. It contains approval, scope, owner, locks,
-focused verification, minimal worker context, one reviewer decision, one
-closeout, and an Efficiency Receipt. Status reads that record without requiring
-a board row. Submit closes that same file and must not invoke runtime suites or
-a full validator for coordination-only closeout.
+focused verification, minimal worker context, its review requirement and
+decision, one closeout, and an Efficiency Receipt. Status reads that record
+without requiring a board row. Submit closes that same file and must not invoke
+runtime suites or a full validator for coordination-only closeout.
+
+Each new Quick Record says whether review is required. Documentation and
+coordination records use `Review required: no`, `Reviewer: not required`,
+`Reviewer decision: not required`, and `Reviewers: 0`; runtime and test records
+use `Review required: yes` and require exactly one approved reviewer. A legacy
+Quick Record without `Review required` keeps the previous exactly-one-reviewer
+rule.
 
 For all modes, use a focused check by default. Sensitive work stops at its
 immediate safety/approval gate. A Product-owned handoff must explicitly request

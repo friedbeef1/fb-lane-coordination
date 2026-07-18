@@ -90,9 +90,11 @@ Safety gates run first. Quick BFM owns exactly one committed
 row, workstream card, session recap, separate Task Receipt, or separate
 Verification Handoff. Needing any of those reclassifies the task Full BFM.
 
-Quick BFM permits five total agent iterations, two repair loops, one reviewer,
-no repeated broad validator, no no-progress cycle, and 30 elapsed minutes
-unless its approved record declares another limit. Full BFM defaults to five
+Quick BFM permits five total agent iterations, two repair loops, no repeated
+broad validator, no no-progress cycle, and 30 elapsed minutes unless its
+approved record declares another limit. Documentation and coordination Quick
+work uses zero reviewers after focused checks pass; runtime and test Quick work
+requires exactly one reviewer. Full BFM defaults to five
 iterations, two repairs, two reviewers, one final broad validator, no
 no-progress cycle, and 120 minutes. A sixth iteration, third repair, repeated
 broad gate, or one cycle without a material source, evidence, test-state,
@@ -132,9 +134,9 @@ checkout from `git worktree list --porcelain` and create the worker under
 Status keeps the queue compact with `Current`, `Next ready`, and `External
 blocks`, including `None` when a bucket is empty.
 
-Verification is proportional: coordination-only closeout runs structure,
-link, and whitespace checks; documentation runs its factual, structural, link,
-and render contract; test-only work runs the affected suite. Runtime,
+Verification is proportional: coordination-only closeout runs one combined
+structure-and-link check plus whitespace; documentation runs its factual,
+structural, link, and render contract; test-only work runs the affected suite. Runtime,
 validator, generated runtime, or execution configuration runs focused tests
 plus at most one full validator after the final runtime checkpoint. Sensitive
 work uses Full-BFM safety/release gates. A later runtime change invalidates the

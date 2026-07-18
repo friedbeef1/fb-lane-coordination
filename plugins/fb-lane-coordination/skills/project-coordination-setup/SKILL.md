@@ -45,3 +45,6 @@ Efficiency Receipt are the durable boundary.
 The harness distinguishes focused checks, immediate safety gates, and release
 checkpoints. A full validator needs an explicit Product-owned release-checkpoint
 request; a Markdown handoff artifact or review transfer alone is not one.
+Its generated Quick Records state whether review is required: documentation and
+coordination use zero reviewers after focused checks pass, runtime and test use
+exactly one, and records without the field retain the legacy one-reviewer rule.

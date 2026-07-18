@@ -32,6 +32,10 @@ function field(markdown, name) {
 
 function renderQuickRecord(input = {}) {
   const context = minimalWorkerContext({ brief: input.brief, candidate: input.candidate, feedback: input.feedback, requiredEvidence: input.requiredEvidence });
+  const changedPaths = Array.isArray(input.changedPaths)
+    ? input.changedPaths.map(String)
+    : String(input.locks || '').split(',').map(file => file.replace(/`/g, '').trim()).filter(Boolean);
+  const reviewRequired = !['coordination', 'documentation'].includes(classifyChangedSurface(changedPaths));
   return `---
 type: fb-quick-record
 task: ${input.id}
@@ -52,6 +56,7 @@ Approval reference: ${input.approvalReference}
 Branch: ${input.branch || 'pending'}
 Worktree: ${input.worktree || 'current'}
 Focused verification: ${input.verificationPlan}
+Review required: ${reviewRequired ? 'yes' : 'no'}
 Elapsed limit minutes: ${input.elapsedLimitMinutes || 30}
 
 ## Run Budget
@@ -78,8 +83,8 @@ Required evidence: ${context.requiredEvidence || input.verificationPlan}
 ## Closeout
 
 Result: pending
-Reviewer: pending
-Reviewer decision: pending
+Reviewer: ${reviewRequired ? 'pending' : 'not required'}
+Reviewer decision: ${reviewRequired ? 'pending' : 'not required'}
 Focused evidence: pending
 
 ${renderEfficiencyReceipt({})}
@@ -91,6 +96,7 @@ function parseQuickRecord(markdown) {
     taskId: field(markdown, 'task'), mode: field(markdown, 'mode'), status: field(markdown, 'status'),
     scope: field(markdown, 'Scope'), owner: field(markdown, 'Owner'), locks: field(markdown, 'Locked files'),
     verificationPlan: field(markdown, 'Focused verification'), reviewer: field(markdown, 'Reviewer'),
+    reviewRequired: quickRecordRequiresReview(markdown),
   };
 }
 
@@ -102,16 +108,20 @@ function findQuickRecord(repoRoot, taskId) {
 }
 
 function closeQuickRecord(markdown, closeout = {}) {
+  const reviewRequired = quickRecordRequiresReview(markdown);
   const reviewers = Array.isArray(closeout.reviewer) ? closeout.reviewer : [closeout.reviewer].filter(Boolean);
-  if (reviewers.length !== 1) throw new Error('Quick BFM requires exactly one reviewer.');
+  if (reviewRequired && reviewers.length !== 1) throw new Error('Quick BFM runtime and test work requires exactly one reviewer.');
+  if (!reviewRequired && reviewers.some(reviewer => !/^not required$/i.test(String(reviewer)))) throw new Error('Quick BFM documentation and coordination work requires zero reviewers.');
   if (!closeout.focusedEvidence) throw new Error('Quick BFM requires focused evidence.');
+  const reviewer = reviewRequired ? reviewers[0] : 'not required';
+  const reviewerDecision = reviewRequired ? (closeout.reviewerDecision || 'approved') : 'not required';
   let updated = String(markdown)
     .replace(/^status:\s*in-progress$/mi, 'Status: complete')
     .replace(/^Result:\s*pending$/m, `Result: ${closeout.result || 'completed'}`)
-    .replace(/^Reviewer:\s*pending$/m, `Reviewer: ${reviewers[0]}`)
-    .replace(/^Reviewer decision:\s*pending$/m, `Reviewer decision: ${closeout.reviewerDecision || 'approved'}`)
+    .replace(/^Reviewer:\s*(?:pending|not required)$/m, `Reviewer: ${reviewer}`)
+    .replace(/^Reviewer decision:\s*(?:pending|not required)$/m, `Reviewer decision: ${reviewerDecision}`)
     .replace(/^Focused evidence:\s*pending$/m, `Focused evidence: ${closeout.focusedEvidence}`);
-  updated = updated.replace(/## Efficiency Receipt[\s\S]*$/, renderEfficiencyReceipt(closeout.metrics || {}));
+  updated = updated.replace(/## Efficiency Receipt[\s\S]*$/, renderEfficiencyReceipt({ ...(closeout.metrics || {}), reviewers: reviewRequired ? 1 : 0 }));
   return updated.endsWith('\n') ? updated : `${updated}\n`;
 }
 
@@ -120,12 +130,21 @@ function numericField(markdown, name, fallback = NaN) {
   return /^\d+(?:\.\d+)?$/.test(value) ? Number(value) : fallback;
 }
 
+function quickRecordRequiresReview(markdown) {
+  const value = field(markdown, 'Review required');
+  if (!value) return true;
+  if (/^yes$/i.test(value)) return true;
+  if (/^no$/i.test(value)) return false;
+  throw new Error('Quick BFM Review required must be yes or no.');
+}
+
 function validateQuickRecordForSubmit(markdown, options = {}) {
   const approvalReference = field(markdown, 'Approval reference');
   const reviewer = field(markdown, 'Reviewer');
   const reviewerDecision = field(markdown, 'Reviewer decision');
   const focusedEvidence = field(markdown, 'Focused evidence');
   const reviewers = numericField(markdown, 'Reviewers');
+  const reviewRequired = quickRecordRequiresReview(markdown);
   const iterations = numericField(markdown, 'Agent iterations');
   const repairs = numericField(markdown, 'Repair loops');
   const broadRuns = numericField(markdown, 'Broad validator runs');
@@ -136,8 +155,9 @@ function validateQuickRecordForSubmit(markdown, options = {}) {
   const elapsedLimit = numericField(markdown, 'Elapsed limit minutes');
   const now = options.now ?? Date.now();
   if (!approvalReference || /^(?:pending|unverified|none|n\/a)$/i.test(approvalReference)) throw new Error('Quick BFM submit requires a concrete approval reference.');
-  if (!reviewer || /^pending$/i.test(reviewer) || reviewer.includes(',') || reviewers !== 1) throw new Error('Quick BFM submit requires exactly one reviewer.');
-  if (!/^approved$/i.test(reviewerDecision)) throw new Error('Quick BFM submit requires Reviewer decision: approved.');
+  if (reviewRequired && (!reviewer || /^pending$/i.test(reviewer) || reviewer.includes(',') || reviewers !== 1)) throw new Error('Quick BFM submit requires exactly one reviewer.');
+  if (reviewRequired && !/^approved$/i.test(reviewerDecision)) throw new Error('Quick BFM submit requires Reviewer decision: approved.');
+  if (!reviewRequired && (!/^not required$/i.test(reviewer) || !/^not required$/i.test(reviewerDecision) || reviewers !== 0)) throw new Error('Quick BFM documentation and coordination submit requires review fields to be not required and zero reviewers.');
   if (!focusedEvidence || /^pending$/i.test(focusedEvidence)) throw new Error('Quick BFM submit requires focused evidence.');
   if (!Number.isFinite(iterations) || iterations > 5) throw new Error('A sixth agent iteration is blocked.');
   if (!Number.isFinite(repairs) || repairs > 2) throw new Error('A third repair loop is blocked.');
@@ -171,7 +191,7 @@ function verificationBudget(paths, checkpoint = {}) {
   if (surface === 'sensitive') return { level: 'immediate safety gate', focused: [], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'Sensitive work requires Full BFM safety and approval gates.' };
   if (surface === 'documentation') return { level: 'focused check', focused: ['documentation-contract'], runFullValidator: false, reuseCheckpoint: false, blockedReason: null };
   if (surface === 'test') return { level: 'focused check', focused: ['directly-affected-test'], runFullValidator: false, reuseCheckpoint: false, blockedReason: null };
-  if (surface === 'coordination') return { level: 'focused check', focused: ['structure', 'links', 'whitespace'], runFullValidator: false, reuseCheckpoint: checkpoint.broadValidatorPassed === true, blockedReason: null };
+  if (surface === 'coordination') return { level: 'focused check', focused: ['structure-and-links', 'whitespace'], runFullValidator: false, reuseCheckpoint: checkpoint.broadValidatorPassed === true, blockedReason: null };
   const release = checkpoint.releaseCheckpoint;
   if (checkpoint.releaseCheckpointRequested === true && !release) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'A release checkpoint requires a Product-owned handoff request.' };
   if (!release) return { level: 'focused check', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: null };
@@ -191,8 +211,7 @@ function selectAutomatedChecks(paths = [], repoRoot = process.cwd()) {
   const surface = classifyChangedSurface(paths);
   if (surface === 'coordination' || surface === 'documentation') {
     return [
-      { id: 'structure', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] },
-      { id: 'links', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] },
+      { id: 'structure-and-links', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] },
       { id: 'whitespace', command: 'git', args: ['diff', '--check'] },
     ];
   }
@@ -216,10 +235,11 @@ function automatedVerificationDecision(input = {}) {
   const candidateCommit = String(input.candidateCommit || '');
   const sameCandidate = /^[0-9a-f]{40}$/i.test(candidateCommit) && candidateCommit === String(input.checkedCommit || '');
   const surface = classifyChangedSurface(changedPaths);
-  const requiredIds = ['coordination', 'documentation'].includes(surface)
-    ? ['structure', 'links', 'whitespace']
-    : ['project-test'];
-  const checksPassed = requiredIds.every(id => checks.some(check => check.id === id && check.result === 'passed'));
+  const passed = id => checks.some(check => check.id === id && check.result === 'passed');
+  const combinedDocumentationCheck = passed('structure-and-links') || (passed('structure') && passed('links'));
+  const checksPassed = ['coordination', 'documentation'].includes(surface)
+    ? combinedDocumentationCheck && passed('whitespace')
+    : passed('project-test');
   const safetyRequired = surface === 'sensitive';
   const safetyPassed = input.safetyGate && (
     (input.safetyGate.result === 'passed' && typeof input.safetyGate.approvalRef === 'string' && input.safetyGate.approvalRef.trim())

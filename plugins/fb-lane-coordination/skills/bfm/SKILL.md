@@ -56,8 +56,10 @@ linked worktree or place a new one under the primary checkout's `.worktrees`,
 and keep `Current`, `Next ready`, and `External blocks` visible.
 For closely related low-risk skill, documentation, template, or contract edits,
 produce one bounded candidate and test their distinct behavior with one focused
-structural contract. Review only the complete candidate, with at most one
-reviewer and one focused verification pass; stop immediately when it passes.
+structural contract. Documentation and coordination Quick work closes with zero
+reviewers after focused checks pass; runtime and test Quick work requires
+exactly one reviewer. Review only the complete candidate with one focused
+verification pass; stop immediately when it passes.
 For durable work, promote the approved session in its linked worktree and keep
 the Task Receipt, Brief Validation, reciprocal links, verification checkpoint,
 Verification Handoff, and Test This Now aligned before submit or completed close.

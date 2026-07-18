@@ -145,8 +145,10 @@ For closely related, low-risk documentation, skill, template, or contract
 changes, make one bounded candidate rather than assigning sibling changes
 sequentially. Do not require each sibling to fail and pass independently when
 one focused structural contract can prove their distinct behavior. Prepare the
-complete candidate before review; Quick BFM permits at most one reviewer and
-one focused verification pass. Do not add another reviewer, narration loop,
+complete candidate before review. Quick documentation and coordination work
+uses zero reviewers after its focused checks pass; Quick runtime and test work
+requires exactly one reviewer. Quick BFM permits one focused verification pass.
+Do not add another reviewer, narration loop,
 mirror-by-mirror check, or broad validator after the success predicates pass.
 Report progress only when source, evidence, test state, blocker recovery, or an
 approved decision materially changes. Two repair loops, one no-progress cycle,

@@ -48,7 +48,7 @@ test('mode router gives safety and ambiguity precedence', () => {
     'change core architecture', 'redesign the core product flow',
   ]) assert.strictEqual(classifyExecutionMode({ ...bounded, scope }).mode, 'Full BFM', scope);
 });
-test('one Quick Record is parseable, findable, and closes in place with one reviewer', () => {
+test('runtime Quick Records require one reviewer and legacy records keep that rule', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-efficiency-'));
   const markdown = renderQuickRecord({
     ...bounded,
@@ -68,6 +68,8 @@ test('one Quick Record is parseable, findable, and closes in place with one revi
   fs.writeFileSync(recordPath, markdown);
   assert.strictEqual(findQuickRecord(root, 'TASK-Q-1001'), recordPath);
   assert.strictEqual(parseQuickRecord(markdown).mode, 'Quick BFM');
+  assert.strictEqual(parseQuickRecord(markdown).reviewRequired, true);
+  assert.match(markdown, /Review required: yes/);
   assert.match(markdown, /Current brief: \.superpowers\/sdd\/task-1-brief\.md/);
   assert.doesNotMatch(markdown, /transcript|conversation history/i);
 
@@ -80,8 +82,39 @@ test('one Quick Record is parseable, findable, and closes in place with one revi
   });
   assert.match(closed, /Status: complete/);
   assert.match(closed, /Reviewer: FB-Product/);
+  assert.match(closed, /Reviewers: 1/);
   assert.strictEqual((closed.match(/^## Closeout$/gm) || []).length, 1);
   assert.throws(() => closeQuickRecord(markdown, { reviewer: ['one', 'two'], focusedEvidence: 'pass', metrics: {} }), /one reviewer/i);
+
+  const legacy = markdown.replace(/^Review required: yes\n/m, '')
+    .replace('Reviewer: pending', 'Reviewer: FB-Product')
+    .replace('Reviewer decision: pending', 'Reviewer decision: approved')
+    .replace('Focused evidence: pending', 'Focused evidence: focused runtime contract passed')
+    .replace('Reviewers: 0', 'Reviewers: 1');
+  assert.doesNotThrow(() => validateQuickRecordForSubmit(legacy));
+});
+
+test('documentation and coordination Quick Records close with zero reviewers', () => {
+  for (const changedPaths of [['docs/fb/workflow.md'], ['PROJECT_BOARD.md']]) {
+    const markdown = renderQuickRecord({
+      ...bounded,
+      locks: changedPaths.join(', '),
+      changedPaths,
+      approvedCorrection: bounded.scope,
+      verificationPlan: 'focused contract',
+    });
+    assert.strictEqual(parseQuickRecord(markdown).reviewRequired, false);
+    assert.match(markdown, /Review required: no/);
+    const closed = closeQuickRecord(markdown, {
+      result: 'Focused checks passed.',
+      focusedEvidence: 'focused contract passed',
+      metrics: { reviewers: 1 },
+    });
+    assert.match(closed, /Reviewer: not required/);
+    assert.match(closed, /Reviewer decision: not required/);
+    assert.match(closed, /Reviewers: 0/);
+    assert.doesNotThrow(() => validateQuickRecordForSubmit(closed));
+  }
 });
 
 test('verification class and budget are proportional', () => {
@@ -163,10 +196,11 @@ test('automated checks select deterministic coordination and project runtime com
   const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-automated-checks-'));
   fs.writeFileSync(path.join(repoRoot, 'package.json'), JSON.stringify({ scripts: { test: 'node test.cjs' } }));
   assert.deepStrictEqual(selectAutomatedChecks(['docs/fb/evidence.md', 'PROJECT_BOARD.md'], repoRoot), [
-    { id: 'structure', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] },
-    { id: 'links', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] },
+    { id: 'structure-and-links', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] },
     { id: 'whitespace', command: 'git', args: ['diff', '--check'] },
   ]);
+  assert.strictEqual(selectAutomatedChecks(['docs/fb/evidence.md'], repoRoot)
+    .filter(check => check.args.includes('doctor')).length, 1);
   assert.deepStrictEqual(selectAutomatedChecks(['src/app.js'], repoRoot), [
     { id: 'project-test', command: 'npm', args: ['test'] },
   ]);
@@ -190,6 +224,16 @@ test('automated verification is candidate-bound, safety-first, and requires expl
     'Automated checks passed. Optional review links are available above.',
     'Say **Push Live** to deploy.',
   ].join('\n'));
+
+  for (const checkResults of [
+    [{ id: 'structure-and-links', result: 'passed' }, { id: 'whitespace', result: 'passed' }],
+    [{ id: 'structure', result: 'passed' }, { id: 'links', result: 'passed' }, { id: 'whitespace', result: 'passed' }],
+  ]) {
+    assert.strictEqual(automatedVerificationDecision({
+      candidateCommit: commit, checkedCommit: commit, changedPaths: ['docs/handoff.md'],
+      checkResults, safetyGate: { result: 'not-applicable', approvalRef: '' }, optionalLinks: [],
+    }).status, 'Ready to ship');
+  }
 
   assert.strictEqual(automatedVerificationDecision({
     candidateCommit: commit, checkedCommit: commit, changedPaths: ['src/app.js'],

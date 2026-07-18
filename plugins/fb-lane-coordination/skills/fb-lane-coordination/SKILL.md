@@ -27,6 +27,9 @@ verification, and stop budgets; do not reproduce or relax them here.
 Use focused checks by default. Only a Product-owned handoff that explicitly
 requests a release checkpoint makes a full validator eligible; sensitive work
 keeps its immediate safety/approval gate.
+Quick documentation and coordination work needs no independent reviewer after
+its focused checks pass. Quick runtime and test work requires exactly one;
+sensitive or ambiguous work remains Full BFM. Keep this routing private.
 
 - [Workstream-first start and `$bfm` reconciliation](../../docs/fb/start.md)
 - [Source hierarchy, locks, BFM, and closeout](../../docs/fb/workflow.md)
