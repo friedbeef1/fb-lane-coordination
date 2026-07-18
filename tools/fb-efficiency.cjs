@@ -312,7 +312,14 @@ function verificationBudget(paths, checkpoint = {}) {
   const validOwner = release.requestedBy === 'Product';
   const validHandoff = /^docs\/handoffs\/[^/]+\.md$/.test(String(release.handoffPath || ''));
   if (!validOwner || !validHandoff) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'A release checkpoint requires a Product-owned handoff request.' };
-  if (release.harnessVersion === 'v3') {
+  const repoRoot = path.resolve(checkpoint.repoRoot || process.cwd());
+  const handoffPath = path.resolve(repoRoot, release.handoffPath);
+  let handoff = '';
+  if (handoffPath.startsWith(`${repoRoot}${path.sep}`) && fs.existsSync(handoffPath)) {
+    handoff = fs.readFileSync(handoffPath, 'utf8');
+  }
+  if (!handoff) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'The authoritative release-checkpoint handoff is unavailable.' };
+  if (/^fb_harness:\s*v3\s*$/im.test(handoff)) {
     const changelog = release.changelogVerification;
     if (!changelog || changelog.result !== 'passed' || changelog.candidateCommit !== release.candidateCommit) {
       return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'A v3 release checkpoint requires passing candidate-matched changelog verification.' };

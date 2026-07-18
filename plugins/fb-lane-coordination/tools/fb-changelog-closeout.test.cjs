@@ -12,7 +12,7 @@ const { verificationBudget } = require('./fb-efficiency.cjs');
 let passed = 0;
 function check(name, fn) { fn(); passed += 1; console.log(`  ✓ ${name}`); }
 function git(cwd, args) { return execFileSync('git', args, { cwd, encoding: 'utf8' }).trim(); }
-function fixture({ expectation = 'required', receipt = 'updated — [CHANGELOG.md](../../CHANGELOG.md#fb-031-beta)', fields = true, change = true } = {}) {
+function fixture({ expectation = 'required', receipt = 'updated — [CHANGELOG.md](../../CHANGELOG.md#fb-031-beta)', fields = true, change = true, entryOverride = '' } = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-changelog-'));
   git(root, ['init']); git(root, ['config', 'user.email', 'fb@example.com']); git(root, ['config', 'user.name', 'FB Test']);
   fs.mkdirSync(path.join(root, 'docs', 'handoffs'), { recursive: true });
@@ -20,7 +20,7 @@ function fixture({ expectation = 'required', receipt = 'updated — [CHANGELOG.m
   fs.writeFileSync(path.join(root, 'docs', 'handoffs', 'TASK-031.md'), '# Task\n');
   git(root, ['add', '.']); git(root, ['commit', '-m', 'base']);
   const baseCommit = git(root, ['rev-parse', 'HEAD']);
-  const entry = fields ? '\n## FB 0.3.1-beta\n\n**What changed:** Full BFM now records a changelog decision.\n\n**Why it matters:** Users get a clear release history.\n\n**Compatibility:** Existing Quick and Normal work remain unchanged.\n\n**Installation or upgrade:** Upgrade the fb-lane marketplace plugin after release.\n' : '\n## FB 0.3.1-beta\n\nIncomplete.\n';
+  const entry = entryOverride || (fields ? '\n## FB 0.3.1-beta\n\n**What changed:** Full BFM now records a changelog decision.\n\n**Why it matters:** Users get a clear release history.\n\n**Compatibility:** Existing Quick and Normal work remain unchanged.\n\n**Installation or upgrade:** Upgrade the fb-lane marketplace plugin after release.\n' : '\n## FB 0.3.1-beta\n\nIncomplete.\n');
   if (change) fs.writeFileSync(path.join(root, 'CHANGELOG.md'), `# Changelog\n${entry}`);
   fs.writeFileSync(path.join(root, 'docs', 'handoffs', 'TASK-031.md'), `# Task\n\n## Build Brief\n\nChangelog expectation: ${expectation}\n\n## Task Receipt\n\nChangelog: ${receipt}\n`);
   git(root, ['add', '.']); git(root, ['commit', '-m', 'candidate']);
@@ -39,6 +39,20 @@ check('internal-only decision requires matching concrete reasons', () => {
   assert.throws(() => assertFullBfmChangelog(placeholder), /concrete|placeholder/i);
   const mismatch = fixture({ expectation: 'not expected — internal refactor only; no user-visible behavior changed', receipt: 'not required — test fixture cleanup only; no shipped behavior changed', change: false });
   assert.throws(() => assertFullBfmChangelog(mismatch), /reasons must agree/i);
+});
+
+check('concrete reasons and changelog fields require Unicode content', () => {
+  const punctuation = fixture({ expectation: `not expected — ${'-'.repeat(24)}`, receipt: `not required — ${'-'.repeat(24)}`, change: false });
+  assert.throws(() => assertFullBfmChangelog(punctuation), /concrete/i);
+  const punctuationFields = fixture({ entryOverride: `\n## FB 0.3.1-beta\n\n**What changed:** ${'-'.repeat(24)}\n\n**Why it matters:** ${'!'.repeat(24)}\n\n**Compatibility:** ${'.'.repeat(24)}\n\n**Installation or upgrade:** ${'_'.repeat(24)}\n` });
+  assert.throws(() => assertFullBfmChangelog(punctuationFields), /user-facing fields/i);
+});
+
+check('reason agreement is Unicode-aware and punctuation/case tolerant', () => {
+  const chinese = '仅内部重构不会改变任何用户可见行为并且不影响安装升级';
+  assert.strictEqual(assertFullBfmChangelog(fixture({ expectation: `not expected — ${chinese}。`, receipt: `not required — ${chinese}`, change: false })).decision, 'not required');
+  assert.strictEqual(assertFullBfmChangelog(fixture({ expectation: 'not expected — INTERNAL refactor; no user-visible behavior changed!', receipt: 'not required — internal refactor no user visible behavior changed', change: false })).decision, 'not required');
+  assert.throws(() => assertFullBfmChangelog(fixture({ expectation: `not expected — ${chinese}`, receipt: 'not required — 仅测试清理不会改变任何已发布行为并且不会影响现有用户', change: false })), /reasons must agree/i);
 });
 
 for (const [name, options, pattern] of [
@@ -60,9 +74,14 @@ check('release checkpoint requires passing candidate-matched changelog evidence'
 
 check('v3 release budget and runtime entry points enforce the same changelog gate', () => {
   const candidateCommit = 'a'.repeat(40);
-  const base = { requestedBy: 'Product', handoffPath: 'docs/handoffs/TASK-031.md', harnessVersion: 'v3', candidateCommit, initialPass: 'pending' };
-  assert.match(verificationBudget(['tools/fb-lane.cjs'], { finalRuntimeCheckpoint: true, releaseCheckpoint: base }).blockedReason, /changelog/i);
-  assert.strictEqual(verificationBudget(['tools/fb-lane.cjs'], { finalRuntimeCheckpoint: true, releaseCheckpoint: { ...base, changelogVerification: { result: 'passed', candidateCommit } } }).runFullValidator, true);
+  const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-release-handoff-'));
+  fs.mkdirSync(path.join(repoRoot, 'docs', 'handoffs'), { recursive: true });
+  fs.writeFileSync(path.join(repoRoot, 'docs', 'handoffs', 'TASK-031.md'), '---\nfb_harness: v3\n---\n');
+  fs.writeFileSync(path.join(repoRoot, 'docs', 'handoffs', 'TASK-LEGACY.md'), '---\nfb_harness: v2\n---\n');
+  const base = { requestedBy: 'Product', handoffPath: 'docs/handoffs/TASK-031.md', candidateCommit, initialPass: 'pending' };
+  assert.match(verificationBudget(['tools/fb-lane.cjs'], { repoRoot, finalRuntimeCheckpoint: true, releaseCheckpoint: base }).blockedReason, /changelog/i);
+  assert.strictEqual(verificationBudget(['tools/fb-lane.cjs'], { repoRoot, finalRuntimeCheckpoint: true, releaseCheckpoint: { ...base, changelogVerification: { result: 'passed', candidateCommit } } }).runFullValidator, true);
+  assert.strictEqual(verificationBudget(['tools/fb-lane.cjs'], { repoRoot, finalRuntimeCheckpoint: true, releaseCheckpoint: { ...base, handoffPath: 'docs/handoffs/TASK-LEGACY.md' } }).runFullValidator, true);
   const sessionSource = fs.readFileSync(path.join(__dirname, 'fb-session.cjs'), 'utf8');
   const laneSource = fs.readFileSync(path.join(__dirname, 'fb-lane.cjs'), 'utf8');
   assert.match(sessionSource, /assertCompletedEvidence[\s\S]*fb_harness:\\s\*v3[\s\S]*assertFullBfmChangelog/);

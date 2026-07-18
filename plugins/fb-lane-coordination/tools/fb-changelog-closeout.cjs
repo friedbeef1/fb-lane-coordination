@@ -23,7 +23,7 @@ function field(section, label) {
 
 function concrete(reason) {
   const value = String(reason || '').trim();
-  return value.length >= 20 && !PLACEHOLDER.test(value) && !/\b(?:tbd|todo|placeholder|not recorded)\b/i.test(value);
+  return value.length >= 20 && /[\p{L}\p{N}]/u.test(value) && !PLACEHOLDER.test(value) && !/\b(?:tbd|todo|placeholder|not recorded)\b/i.test(value);
 }
 
 function githubAnchor(heading) {
@@ -80,8 +80,10 @@ function assertFullBfmChangelog(input = {}) {
   const receiptReason = /^not required\s+[—-]\s+(.+)$/i.exec(receipt)?.[1];
   if (!expectedReason || !receiptReason) throw new Error('Build Brief and Task Receipt changelog decisions do not agree.');
   if (!concrete(expectedReason) || !concrete(receiptReason)) throw new Error('A not-required changelog decision requires a concrete non-placeholder reason.');
-  const normalizeReason = value => value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
-  if (normalizeReason(expectedReason) !== normalizeReason(receiptReason)) throw new Error('Build Brief and Task Receipt not-required reasons must agree exactly.');
+  const normalizeReason = value => value.normalize('NFKC').toLocaleLowerCase('und').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  const normalizedExpected = normalizeReason(expectedReason);
+  const normalizedReceipt = normalizeReason(receiptReason);
+  if (!normalizedExpected || !normalizedReceipt || normalizedExpected !== normalizedReceipt) throw new Error('Build Brief and Task Receipt not-required reasons must agree exactly.');
   return { decision: 'not required', reason: receiptReason };
 }
 

@@ -38,6 +38,13 @@ const bounded = {
   approvalReference: 'USER-APPROVAL-001',
 };
 
+function releaseHandoffFixture(version = 'v2') {
+  const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-release-budget-'));
+  fs.mkdirSync(path.join(repoRoot, 'docs', 'handoffs'), { recursive: true });
+  fs.writeFileSync(path.join(repoRoot, 'docs', 'handoffs', 'TASK-100.md'), `---\nfb_harness: ${version}\n---\n`);
+  return repoRoot;
+}
+
 test('mode router gives safety and ambiguity precedence', () => {
   assert.deepStrictEqual(classifyExecutionMode({ scope: 'Rename a local variable', owner: 'FB-Tech' }), {
     mode: 'Normal Codex', reason: 'clear isolated low-risk work needs no durable FB record',
@@ -282,6 +289,7 @@ test('verification class and budget are proportional', () => {
 
 test('runtime candidates use focused and immediate-safety gates unless Product requests a release checkpoint', () => {
   const runtime = ['tools/fb-lane.cjs'];
+  const repoRoot = releaseHandoffFixture('v2');
   assert.deepStrictEqual(verificationBudget(runtime, { finalRuntimeCheckpoint: true }), {
     level: 'focused check',
     focused: ['runtime-focused'],
@@ -290,6 +298,7 @@ test('runtime candidates use focused and immediate-safety gates unless Product r
     blockedReason: null,
   });
   assert.deepStrictEqual(verificationBudget(runtime, {
+    repoRoot,
     finalRuntimeCheckpoint: true,
     releaseCheckpoint: { requestedBy: 'Product', handoffPath: 'docs/handoffs/TASK-100.md', initialPass: 'pending' },
   }), {
@@ -312,19 +321,21 @@ test('sensitive triggers take precedence even inside coordination handoffs', () 
 
 test('release checkpoint lifecycle requires a Product-owned handoff and permits only initial then proven final passes', () => {
   const runtime = ['tools/fb-lane.cjs'];
+  const repoRoot = releaseHandoffFixture('v2');
   const request = {
     requestedBy: 'Product',
     handoffPath: 'docs/handoffs/TASK-100.md',
     initialPass: 'pending',
   };
-  const unproven = verificationBudget(runtime, { finalRuntimeCheckpoint: true, releaseCheckpointRequested: true });
+  const unproven = verificationBudget(runtime, { repoRoot, finalRuntimeCheckpoint: true, releaseCheckpointRequested: true });
   assert.strictEqual(unproven.runFullValidator, false);
   assert.match(unproven.blockedReason, /Product-owned handoff/i);
-  assert.deepStrictEqual(verificationBudget(runtime, { finalRuntimeCheckpoint: true, releaseCheckpoint: request }), {
+  assert.deepStrictEqual(verificationBudget(runtime, { repoRoot, finalRuntimeCheckpoint: true, releaseCheckpoint: request }), {
     level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: true, reuseCheckpoint: false, blockedReason: null,
   });
-  assert.match(verificationBudget(runtime, { finalRuntimeCheckpoint: true, releaseCheckpoint: { ...request, initialPass: 'passed' } }).blockedReason, /already passed/i);
+  assert.match(verificationBudget(runtime, { repoRoot, finalRuntimeCheckpoint: true, releaseCheckpoint: { ...request, initialPass: 'passed' } }).blockedReason, /already passed/i);
   assert.deepStrictEqual(verificationBudget(runtime, {
+    repoRoot,
     finalRuntimeCheckpoint: true,
     releaseCheckpoint: { ...request, initialPass: 'failed', consolidatedMaterialRepairBatch: true, finalPass: 'pending' },
   }), {
@@ -334,7 +345,7 @@ test('release checkpoint lifecycle requires a Product-owned handoff and permits 
     { ...request, initialPass: 'failed' },
     { ...request, initialPass: 'failed', consolidatedMaterialRepairBatch: true, finalPass: 'passed' },
     { ...request, initialPass: 'failed', consolidatedMaterialRepairBatch: true, finalPass: 'failed' },
-  ]) assert.match(verificationBudget(runtime, { finalRuntimeCheckpoint: true, releaseCheckpoint: checkpoint }).blockedReason, /repair batch|final pass|Product direction/i);
+  ]) assert.match(verificationBudget(runtime, { repoRoot, finalRuntimeCheckpoint: true, releaseCheckpoint: checkpoint }).blockedReason, /repair batch|final pass|Product direction/i);
 });
 
 test('automated checks select deterministic coordination and project runtime commands', () => {
