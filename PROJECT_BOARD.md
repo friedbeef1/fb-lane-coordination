@@ -54,6 +54,25 @@
 
 ---
 
+### TASK-031 - Full BFM Changelog Closeout and FB 0.3.1-beta Release
+*   **Status**: In Progress (release checkpoint at coordination correction)
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Closeout + Codex Plugin Release
+*   **Scope**: Require a candidate-bound changelog decision before v3 Full BFM can close, submit, reuse verification, or pass a release checkpoint; rebuild active plugin surfaces as `0.3.1-beta+codex.20260718021942`.
+*   **Out of Scope**: Historical retrofit, identifier migration, merge, marketplace publication, reinstall, or deployment before Push Live.
+*   **Goal Alignment Session**:
+    *   **Objective**: Keep FB release history clear to users without adding changelog noise to Quick BFM or ordinary Codex work.
+    *   **Key Results**: New v3 Full BFM handoffs record matching Build Brief and Task Receipt decisions; required entries resolve and contain four user-facing fields; not-required reasons are concrete and agree; historical v2, Quick, and Normal work remain compatible; active plugin surfaces agree on `0.3.1-beta+codex.20260718021942`.
+    *   **Definition of Done**: Focused root/package closeout, efficiency, session, metadata, fallback, parity, syntax, and whitespace checks pass; the single release checkpoint reaches a clean doctor result; PR #48 is prepared at Ready to ship without consuming Push Live.
+    *   **Gate / Review Point**: Stop at Ready to ship. Only Push Live authorizes merge, GitHub marketplace upgrade, reinstall, and public installed-plugin verification.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly approved the Full BFM changelog closeout and FB 0.3.1-beta release plan, including the separate Push Live boundary.
+*   **Affected Screens / Locks**: Closeout/session/runtime contracts, canonical/package docs and skills, fallback installation, release metadata, and TASK-031 coordination records.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-031.md); [PR #48](https://github.com/friedbeef1/fb-lane-coordination/pull/48); release build `0.3.1-beta+codex.20260718021942`.
+*   **Latest Update**: *2026-07-18*: The initial release validator exposed the manual fallback omission. Repair `1c17435` added `fb-changelog-closeout.cjs` to the documented archive fallback and its executable root/package regression. The final validator then reached doctor, which correctly found this detailed board OKR record missing. This coordination-only correction copies the already-approved goal record; no local validator pass is claimed and the full validator is not rerun in this correction.
+
+---
+
 ### TASK-030 - FB 0.3.0-beta Plugin Release
 *   **Status**: Done (released and installed)
 *   **Owner / Thread**: FB-Product / BFM
