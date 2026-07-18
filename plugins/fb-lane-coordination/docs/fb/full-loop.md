@@ -43,9 +43,9 @@ flowchart TB
     A -->|"Changed decision, conflict, sensitive boundary, or unclear scope"| X["Paused<br/>Owner and next action"]
     SP --> PA["Independent slices<br/>parallel agents"]
     SP --> SE["Dependent or overlapping slices<br/>sequential"]
-    PA --> C["BFM integrates completed slices"]
+    PA --> C["BFM implements and integrates<br/>completed slices"]
     SE --> C
-    C --> V["Focused and integration checks"]
+    C --> V["Automated checks<br/>focused per slice, integration at boundaries"]
     V -->|"Focused failure evidence"| R["Scoped repair"]
     R --> C
     V -->|"Required checks pass"| O["Optional review links<br/>Your input needed: none, unless stated"]
