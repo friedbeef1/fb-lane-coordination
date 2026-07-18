@@ -15,6 +15,7 @@ const {
   submitVerificationReuse,
   recordAutomatedVerification,
 } = require('./fb-session.cjs');
+const { assertFullBfmChangelog } = require('./fb-changelog-closeout.cjs');
 const { collectEvalDoctorChecks } = require('./fb-eval.cjs');
 const {
   classifyExecutionMode,
@@ -2239,6 +2240,11 @@ function performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl =
   if (!promotion) throw new Error('Blocked: the authoritative session promotion commit is unavailable.');
   const candidateCommit = workspaceGit(workspaceRoot, ['rev-parse', 'HEAD']);
   const changedPaths = workspaceGit(workspaceRoot, ['diff', '--name-only', `${promotion.commit}..${candidateCommit}`]).split(/\r?\n/).filter(Boolean).sort();
+  const handoffSource = sessions[0].handoff && fs.existsSync(path.join(workspaceRoot, sessions[0].handoff))
+    ? fs.readFileSync(path.join(workspaceRoot, sessions[0].handoff), 'utf8') : '';
+  const changelogVerification = /^fb_harness:\s*v3\s*$/im.test(handoffSource)
+    ? assertFullBfmChangelog({ repoRoot: workspaceRoot, handoffPath: sessions[0].handoff, baseCommit: promotion.commit, candidateCommit, executionMode: 'full' })
+    : { decision: 'historical-exempt' };
   const checkManifest = selectAutomatedChecks(changedPaths, workspaceRoot);
   const safetyGate = resolveSubmissionSafetyGate({ candidateCommit, changedPaths, session: sessions[0] });
   if (safetyGate.result === 'unresolved') {
@@ -2262,6 +2268,7 @@ function performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl =
     checkResults: checks,
     safetyGate,
     optionalLinks,
+    changelogVerification: { result: 'passed', candidateCommit, decision: changelogVerification.decision },
   });
   if (decision.status !== 'Ready to ship') throw new Error(`${decision.status}: ${decision.reason}`);
   recordAutomatedVerification(workspaceRoot, taskId, {
@@ -2274,6 +2281,9 @@ function performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl =
     checkManifest,
     safetyGate,
     optionalLinks,
+    changelogVerification: /^fb_harness:\s*v3\s*$/im.test(handoffSource)
+      ? { result: 'passed', candidateCommit, decision: changelogVerification.decision }
+      : undefined,
   });
 
   runHook('pre-submit', boardPath);

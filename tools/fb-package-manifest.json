@@ -14,6 +14,8 @@
   "tools/fb-efficiency.cjs",
   "tools/fb-efficiency.test.cjs",
   "tools/fb-ready-to-ship.test.cjs",
+  "tools/fb-changelog-closeout.cjs",
+  "tools/fb-changelog-closeout.test.cjs",
   "docs/why-fb.md",
   "docs/evidence/TASK-026-two-speed.md",
   "docs/fb/README.md",

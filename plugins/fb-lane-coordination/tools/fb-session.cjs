@@ -6,6 +6,7 @@ const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
 const { assertSelectedEvalCloseout, validateSelectedEvalIntegration } = require('./fb-eval.cjs');
 const { automatedVerificationDecision, selectAutomatedChecks } = require('./fb-efficiency.cjs');
+const { assertFullBfmChangelog } = require('./fb-changelog-closeout.cjs');
 
 const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const LANES = new Set(['product', 'tech', 'design', 'business', 'discovery', 'bugs', 'bfm', 'coordination']);
@@ -432,6 +433,7 @@ Mode: ${record.mode}. Declared execution locks: ${record.locks.length ? record.l
 ## Task Receipt
 
 Approved brief and decisions: Not recorded yet; completed closeout remains blocked.
+Changelog: Not recorded yet; Full BFM closeout remains blocked.
 Confirmed assumptions and approved scope changes: Not recorded yet; completed closeout remains blocked.
 Branch, source commits, and changed surfaces: Branch ${record.branch}; source evidence is not recorded yet.
 Checks, failures, recovery, and results: Verification evidence is not recorded yet.
@@ -639,6 +641,15 @@ function submitVerificationReuse(cwd, taskId) {
   if (JSON.stringify(selectedManifest) !== JSON.stringify(record.automatedVerification.checkManifest)) {
     return { reuse: false, reason: 'automated verification manifest does not match the candidate range' };
   }
+  const handoff = record.handoff && fs.existsSync(path.join(gitRoot(cwd), record.handoff))
+    ? fs.readFileSync(path.join(gitRoot(cwd), record.handoff), 'utf8') : '';
+  if (/^fb_harness:\s*v3\s*$/im.test(handoff)) {
+    try {
+      assertFullBfmChangelog({ releaseCheckpoint: true, changelogEvidence: record.automatedVerification.changelogVerification, candidateCommit: candidate });
+    } catch (err) {
+      return { reuse: false, reason: `changelog verification is not reusable: ${err.message}` };
+    }
+  }
   const commands = [
     ['diff', '--name-only', `${candidate}..HEAD`],
     ['diff', '--name-only', 'HEAD'],
@@ -696,6 +707,11 @@ function recordAutomatedVerification(cwd, taskId, evidence) {
     });
     if (decision.status !== 'Ready to ship' || !decision.reusable) {
       throw new Error(`Automated verification evidence is not ready: ${decision.reason}`);
+    }
+    const handoff = current.handoff && fs.existsSync(path.join(gitRoot(cwd), current.handoff))
+      ? fs.readFileSync(path.join(gitRoot(cwd), current.handoff), 'utf8') : '';
+    if (/^fb_harness:\s*v3\s*$/im.test(handoff)) {
+      assertFullBfmChangelog({ releaseCheckpoint: true, changelogEvidence: evidence.changelogVerification, candidateCommit: evidence.candidateCommit });
     }
     current.automatedVerification = JSON.parse(JSON.stringify(evidence));
     return current;
@@ -988,6 +1004,17 @@ function assertCompletedEvidence(cwd, record) {
     throw new Error('Completed reviewable work requires reciprocal recap and handoff links.');
   }
   assertSelectedEvalCloseout(gitRoot(cwd), combined);
+  if (/^fb_harness:\s*v3\s*$/im.test(handoff)) {
+    const baseCommit = authoritativeSessionBase(record);
+    const candidateCommit = git(cwd, ['rev-parse', 'HEAD']).stdout;
+    assertFullBfmChangelog({
+      repoRoot: gitRoot(cwd),
+      handoffPath: record.handoff,
+      baseCommit,
+      candidateCommit,
+      executionMode: 'full',
+    });
+  }
   return true;
 }
 

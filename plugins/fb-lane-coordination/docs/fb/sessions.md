@@ -80,6 +80,10 @@ approved brief and decisions; confirmed
 assumptions and approved scope changes; branch, source commits, and changed
 surfaces; checks, failures, recovery, and results; review state, direct links,
 limits, and external gates; repository state; and remaining owner/action.
+For a v3 Full BFM handoff it also records the changelog result defined in
+[workflow.md](workflow.md#internal-approval-record). The Build Brief expectation
+and Task Receipt decision must agree; a concrete not-required reason is copied
+unchanged.
 
 Brief Validation is `pass` or `blocked`. Product/BFM authors the semantic
 comparison. The deterministic CLI only checks complete actionable structure:
@@ -102,6 +106,10 @@ handoff, current branch, registered linked worktree, and lock conflicts after
 tests/hooks and immediately before board mutation. Completed execution close
 revalidates the same current authority before changing session state, accepting
 only the normal In Progress or already-submitted Staging QA board states.
+For v3 Full BFM sessions, completed close, submit, verification reuse, and the
+release checkpoint additionally require a passing candidate-bound changelog
+decision. Existing v2 records are historical-compatible; Quick and Normal work
+remain exempt.
 
 For selected evals, completed closeout leaves shadow failures visible,
 requires an advisory fix or handoff explanation, and rejects unresolved

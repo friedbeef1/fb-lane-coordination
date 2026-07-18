@@ -37,6 +37,9 @@ run independent non-overlapping slices through agents or subagents in parallel,
 and keep dependencies, shared files, and unresolved decisions sequential.
 Focused checks prove slices; integration checks prove meaningful combinations;
 broad validation waits for a release checkpoint.
+For Full BFM, require the canonical Build Brief and Task Receipt changelog
+decision from `workflow.md` before Ready to ship. Quick and Normal work do not
+create automatic changelog noise.
 
 - [Workstream-first start and `$bfm` reconciliation](../../docs/fb/start.md)
 - [Source hierarchy, locks, BFM, and closeout](../../docs/fb/workflow.md)

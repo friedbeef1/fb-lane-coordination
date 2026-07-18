@@ -312,6 +312,12 @@ function verificationBudget(paths, checkpoint = {}) {
   const validOwner = release.requestedBy === 'Product';
   const validHandoff = /^docs\/handoffs\/[^/]+\.md$/.test(String(release.handoffPath || ''));
   if (!validOwner || !validHandoff) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'A release checkpoint requires a Product-owned handoff request.' };
+  if (release.harnessVersion === 'v3') {
+    const changelog = release.changelogVerification;
+    if (!changelog || changelog.result !== 'passed' || changelog.candidateCommit !== release.candidateCommit) {
+      return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'A v3 release checkpoint requires passing candidate-matched changelog verification.' };
+    }
+  }
   if (release.initialPass === 'pending' && checkpoint.finalRuntimeCheckpoint === true) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: true, reuseCheckpoint: false, blockedReason: null };
   if (release.initialPass === 'passed') return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'The initial release-checkpoint pass already passed.' };
   if (release.initialPass === 'failed' && release.consolidatedMaterialRepairBatch !== true) return { level: 'release checkpoint', focused: ['runtime-focused'], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'A failed initial pass requires a consolidated material repair batch before the final pass.' };

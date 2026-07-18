@@ -76,6 +76,10 @@ remaining work.
 For durable work, promote the approved session in its linked worktree and keep
 the Task Receipt, Brief Validation, reciprocal links, verification checkpoint,
 Verification Handoff, and Test This Now aligned before submit or completed close.
+For a v3 Full BFM run, also keep the Build Brief changelog expectation, matching
+Task Receipt decision, candidate-bound entry evidence, and release-checkpoint
+verification aligned. Do not report **Ready to ship** while that gate is
+missing. Quick and Normal work remain exempt.
 Classify failures before revision, keep insufficient products at the exact
 Checking quality-gap state, and close selected evals only with fresh rerun and
 regression evidence. Never weaken a target or change authority automatically.

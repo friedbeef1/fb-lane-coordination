@@ -62,6 +62,23 @@ mechanical versus judgment evidence, and remaining user judgment. See
 [evals.md](evals.md). Product defines concrete product scenarios with Good and
 Bad examples; reusable categories alone are not a test.
 
+Every new Full BFM handoff uses `fb_harness: v3`. Its Build Brief records one
+changelog expectation before implementation:
+
+```md
+Changelog expectation: required
+```
+
+or `Changelog expectation: not expected — <concrete reason>`. At closeout the
+Task Receipt records either `Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#<entry-anchor>)`
+or the matching `Changelog: not required — <same concrete reason>`. A required
+entry has its own heading and concrete **What changed**, **Why it matters**,
+**Compatibility**, and **Installation or upgrade** fields. Product decides
+whether the result is user-visible; deterministic checks only enforce the
+record, candidate range, link, fields, and agreement. Historical v2 handoffs,
+Quick BFM, and Normal Codex are exempt. Meaningful Quick changes may be
+consolidated into the next Full BFM or release entry.
+
 For a user-visible UI plan, record `browser screenshot/mockup`, `imagegen
 asset/style option`, or `skip with reason`. Skip only for non-visual work or a
 tiny copy, spacing, or single-control change. Attach a feasible material visual
@@ -145,7 +162,7 @@ The ordinary delivery finish is intentionally simple:
 2. FB shows any review URLs as **Optional review links**; routine QA is not
    transferred to the user.
 3. When the candidate-bound checks and required safety gates pass, FB reports
-   **Ready to ship**.
+   **Ready to ship** only after the Full BFM changelog decision also passes.
 4. FB says: `Automated checks passed. Optional review links are available
    above.` followed by `Say **Push Live** to deploy.`
 5. FB does not merge, deploy, publish, or otherwise consume live approval until

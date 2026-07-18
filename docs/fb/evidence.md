@@ -6,7 +6,10 @@ then prepare the execution and review evidence here.
 
 ## Test This Now
 
-Harness-v2 review enforcement is opt-in. Add `fb_harness: v2` to the detailed
+Harness-v2 review enforcement is opt-in. New Full BFM handoffs use
+`fb_harness: v3`, which preserves the v2 review rules and adds the canonical
+[changelog closeout decision](workflow.md#internal-approval-record). Historical
+v2 handoffs remain valid. Add `fb_harness: v2` to an older detailed
 handoff and use one exact visible `Review state` value:
 
 - `not reviewable`
@@ -90,6 +93,11 @@ When evals are selected, Verification Handoff and Task Receipt include
 scenario rerun, fresh evidence, root cause, regression case, record/Git
 consistency, visible limits, and approval for changed user decisions. See
 [evals.md](evals.md).
+
+At a release checkpoint, evidence also records the passing changelog decision
+against the exact candidate commit. A missing, stale, unresolved, or
+candidate-mismatched decision cannot be reused and cannot reach **Ready to
+ship**.
 
 ## Quality and cleanup
 

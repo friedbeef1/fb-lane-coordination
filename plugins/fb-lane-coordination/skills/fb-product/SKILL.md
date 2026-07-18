@@ -53,3 +53,9 @@ Subjective product quality remains Product/user judgment, never an automated sco
 Product inference and assumptions are not user evidence: label them as
 assumptions. Actual user evidence requires observed or recorded user input;
 never fabricate or impersonate user feedback.
+
+For every Full BFM Build Brief, Product records whether the candidate requires
+a user-facing changelog entry. Before **Ready to ship**, confirm the Task
+Receipt has the matching canonical decision and that any required linked entry
+describes what changed, why it matters, compatibility, and upgrade action. See
+`workflow.md`; Quick and Normal work are exempt.
