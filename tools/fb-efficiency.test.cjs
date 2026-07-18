@@ -113,8 +113,31 @@ test('documentation and coordination Quick Records close with zero reviewers', (
     assert.match(closed, /Reviewer: not required/);
     assert.match(closed, /Reviewer decision: not required/);
     assert.match(closed, /Reviewers: 0/);
-    assert.doesNotThrow(() => validateQuickRecordForSubmit(closed));
+    assert.doesNotThrow(() => validateQuickRecordForSubmit(closed, { changedPaths }));
   }
+});
+
+test('Quick submit revalidates review policy from the actual candidate paths', () => {
+  const documentation = closeQuickRecord(renderQuickRecord({
+    ...bounded,
+    locks: 'docs/fb/workflow.md',
+    changedPaths: ['docs/fb/workflow.md'],
+    approvedCorrection: bounded.scope,
+    verificationPlan: 'focused contract',
+  }), { focusedEvidence: 'focused contract passed', metrics: {} });
+
+  assert.throws(
+    () => validateQuickRecordForSubmit(documentation, { changedPaths: ['docs/fb/workflow.md', 'app.js'] }),
+    /actual candidate.*review/i,
+  );
+  assert.throws(
+    () => validateQuickRecordForSubmit(documentation, { changedPaths: ['docs/fb/workflow.md', 'auth/config.js'] }),
+    /sensitive.*Full BFM/i,
+  );
+  assert.throws(
+    () => validateQuickRecordForSubmit(documentation.replace('Review required: no', 'Review required: yes'), { changedPaths: ['docs/fb/workflow.md'] }),
+    /one reviewer/i,
+  );
 });
 
 test('verification class and budget are proportional', () => {
@@ -123,6 +146,11 @@ test('verification class and budget are proportional', () => {
     [['docs/why-fb.md'], 'documentation'],
     [['tools/fb-lane.test.cjs'], 'test'],
     [['tools/fb-lane.cjs'], 'runtime'],
+    [['app.js'], 'runtime'],
+    [['main.py'], 'runtime'],
+    [['vite.config.js'], 'runtime'],
+    [['Dockerfile'], 'runtime'],
+    [['public/sw.js'], 'runtime'],
     [['supabase/migrations/001.sql'], 'sensitive'],
   ];
   for (const [paths, expected] of fixtures) assert.strictEqual(classifyChangedSurface(paths), expected);

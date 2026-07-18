@@ -114,6 +114,10 @@ assert.match(guardrails, /hooks\.preflight/);
 assert.match(guardrails, /no global Node version/i);
 for (const contract of ['third repair', 'repeated broad', 'sixth agent iteration', 'fb-package-sync\\.cjs[\\s\\S]{0,30}--check', 'release checkpoint', 'explicitly\\s+requests']) assert.match(guardrails, new RegExp(contract, 'i'));
 
+const cliSource = fs.readFileSync(path.join(surfaceRoot, 'tools', 'fb-lane.cjs'), 'utf8');
+assert.match(cliSource, /diff['"],\s*['"]--name-only['"],\s*`\$\{baseCommit\}\.\.HEAD`/);
+assert.match(cliSource, /validateQuickRecordForSubmit\(markdown,\s*\{\s*changedPaths\s*\}\)/);
+
 const evidence = readHarness('evidence.md');
 for (const contract of ['System verification: passed', 'Your input needed: none', 'smoke/result/evidence', 'Blocked — no review environment yet', 'Product/BFM owns review-access recovery']) assert.match(evidence, new RegExp(contract, 'i'));
 

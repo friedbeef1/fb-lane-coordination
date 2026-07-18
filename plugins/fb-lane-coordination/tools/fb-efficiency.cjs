@@ -145,6 +145,15 @@ function validateQuickRecordForSubmit(markdown, options = {}) {
   const focusedEvidence = field(markdown, 'Focused evidence');
   const reviewers = numericField(markdown, 'Reviewers');
   const reviewRequired = quickRecordRequiresReview(markdown);
+  const actualSurface = Array.isArray(options.changedPaths)
+    ? classifyChangedSurface(options.changedPaths)
+    : null;
+  if (actualSurface === 'sensitive') {
+    throw new Error('Quick BFM cannot submit sensitive candidate changes; route them through Full BFM.');
+  }
+  if (actualSurface && !['coordination', 'documentation'].includes(actualSurface) && !reviewRequired) {
+    throw new Error('The actual candidate changes require one reviewer; Review required cannot be waived in the record.');
+  }
   const iterations = numericField(markdown, 'Agent iterations');
   const repairs = numericField(markdown, 'Repair loops');
   const broadRuns = numericField(markdown, 'Broad validator runs');
@@ -180,10 +189,13 @@ function classifyChangedSurface(paths = []) {
   const coordination = /^(?:PROJECT_BOARD\.md|AGENTS\.md|CHANGELOG\.md|\.codex\/(?:rules|current_task)\.md|docs\/(?:handoffs|workstreams|sessions)\/)/;
   if (values.some(file => /(?:supabase\/migrations|secrets?|auth|payments?|release|deploy|\.github\/workflows)/i.test(file))) return 'sensitive';
   if (values.length === 0 || values.every(file => coordination.test(file))) return 'coordination';
-  if (values.some(file => /(?:^|\/)(?:tools|src|lib)\/(?!.*\.test\.)|package\.json|fb-lane\.validate/.test(file))) return 'runtime';
-  if (values.some(file => /(?:\.test\.|\/tests?\/)/.test(file))) return 'test';
-  if (values.some(file => /^docs\/|^README\.md$|^FAQ\.md$/.test(file))) return 'documentation';
-  return 'coordination';
+  const nonCoordination = values.filter(file => !coordination.test(file));
+  const isTest = file => /(?:\.test\.|\/tests?\/)/.test(file);
+  const isDocumentation = file => /(?:^|\/)README\.md$|(?:^|\/)FAQ\.md$|\.md$/i.test(file);
+  if (nonCoordination.some(file => !isTest(file) && !isDocumentation(file))) return 'runtime';
+  if (nonCoordination.some(isTest)) return 'test';
+  if (nonCoordination.every(isDocumentation)) return 'documentation';
+  return 'runtime';
 }
 
 function verificationBudget(paths, checkpoint = {}) {

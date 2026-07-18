@@ -2306,8 +2306,20 @@ function handleSubmit(taskId, stagingUrl = '', options = {}) {
   const quickPath = taskId.startsWith('TASK-Q-') ? findQuickRecord(workspaceRoot, taskId) : null;
   if (quickPath) {
     const markdown = fs.readFileSync(quickPath, 'utf8');
+    let changedPaths;
     try {
-      validateQuickRecordForSubmit(markdown);
+      const relative = path.relative(workspaceRoot, quickPath);
+      const creationCommits = workspaceGit(workspaceRoot, ['log', '--diff-filter=A', '--format=%H', '--', relative])
+        .split(/\r?\n/).filter(Boolean);
+      if (creationCommits.length === 0) throw new Error('Quick BFM submit cannot identify the Quick Record creation commit.');
+      const baseCommit = workspaceGit(workspaceRoot, ['rev-parse', `${creationCommits[creationCommits.length - 1]}^`]);
+      changedPaths = [...new Set([
+        ...workspaceGit(workspaceRoot, ['diff', '--name-only', `${baseCommit}..HEAD`]).split(/\r?\n/),
+        ...workspaceGit(workspaceRoot, ['diff', '--name-only', 'HEAD']).split(/\r?\n/),
+        ...workspaceGit(workspaceRoot, ['diff', '--cached', '--name-only']).split(/\r?\n/),
+        ...workspaceGit(workspaceRoot, ['ls-files', '--others', '--exclude-standard']).split(/\r?\n/),
+      ].filter(Boolean))].sort();
+      validateQuickRecordForSubmit(markdown, { changedPaths });
     } catch (err) {
       console.error(`❌ Error: ${err.message}`);
       process.exit(1);
