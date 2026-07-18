@@ -23,6 +23,7 @@ const {
   automatedVerificationDecision,
   quickPolicyForPaths,
   runAutomatedCheck,
+  runQuickSubmissionChecks,
 } = require('./fb-efficiency.cjs');
 
 const bounded = {
@@ -72,6 +73,7 @@ test('runtime Quick Records require one reviewer and legacy records keep that ru
   assert.strictEqual(parseQuickRecord(markdown).mode, 'Quick BFM');
   assert.strictEqual(parseQuickRecord(markdown).reviewRequired, true);
   assert.match(markdown, /Review required: yes/);
+  assert.match(markdown, /Quick policy version: 2/);
   assert.match(markdown, /Elapsed limit minutes: 15/);
   assert.match(markdown, /Current brief: \.superpowers\/sdd\/task-1-brief\.md/);
   assert.doesNotMatch(markdown, /transcript|conversation history/i);
@@ -89,12 +91,21 @@ test('runtime Quick Records require one reviewer and legacy records keep that ru
   assert.strictEqual((closed.match(/^## Closeout$/gm) || []).length, 1);
   assert.throws(() => closeQuickRecord(markdown, { reviewer: ['one', 'two'], focusedEvidence: 'pass', metrics: {} }), /one reviewer/i);
 
-  const legacy = markdown.replace(/^Review required: yes\n/m, '')
+  const legacy = markdown.replace(/^Quick policy version: 2\n/m, '')
+    .replace(/^Review required: yes\n/m, '')
     .replace('Reviewer: pending', 'Reviewer: FB-Product')
     .replace('Reviewer decision: pending', 'Reviewer decision: approved')
     .replace('Focused evidence: pending', 'Focused evidence: focused runtime contract passed')
     .replace('Reviewers: 0', 'Reviewers: 1');
   assert.doesNotThrow(() => validateQuickRecordForSubmit(legacy));
+  const priorThirtyMinuteRecord = closed
+    .replace(/^Quick policy version: 2\n/m, '')
+    .replace('Elapsed limit minutes: 15', 'Elapsed limit minutes: 30')
+    .replace(/^Started at epoch ms: \d+$/m, 'Started at epoch ms: 1000000');
+  assert.doesNotThrow(() => validateQuickRecordForSubmit(priorThirtyMinuteRecord, {
+    now: 2_000_000,
+    changedPaths: ['src/status.js'],
+  }));
 });
 
 test('documentation and coordination Quick Records close with zero reviewers', () => {
@@ -272,6 +283,28 @@ test('focused checks time out into Full BFM instead of waiting indefinitely', ()
     args: ['-e', 'setTimeout(() => {}, 500)'],
     timeoutMs: 25,
   }, process.cwd()), /timed out.*Full BFM/i);
+});
+
+test('Quick submission executes the configured focused check exactly once', () => {
+  const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-quick-check-'));
+  const marker = path.join(repoRoot, 'focused-ran');
+  const command = `"${process.execPath}" -e "require('node:fs').appendFileSync('focused-ran','x')"`;
+  fs.writeFileSync(path.join(repoRoot, '.fb-lane.json'), JSON.stringify({ hooks: { focusedTest: command } }));
+  const markdown = closeQuickRecord(renderQuickRecord({
+    ...bounded,
+    changedPaths: ['src/status.js'],
+    approvedCorrection: bounded.scope,
+    verificationPlan: 'configured focused check',
+  }), {
+    reviewer: 'FB-Product',
+    reviewerDecision: 'approved',
+    focusedEvidence: 'focused contract passed',
+    metrics: {},
+  });
+  const manifest = runQuickSubmissionChecks(markdown, ['src/status.js'], repoRoot);
+  assert.strictEqual(fs.readFileSync(marker, 'utf8'), 'x');
+  assert.strictEqual(manifest.length, 1);
+  assert.strictEqual(manifest[0].command, command);
 });
 
 test('automated verification is candidate-bound, safety-first, and requires explicit passed checks', () => {

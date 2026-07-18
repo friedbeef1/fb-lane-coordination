@@ -30,6 +30,8 @@ keeps its immediate safety/approval gate.
 Quick documentation and coordination work needs no independent reviewer after
 its focused checks pass. Quick runtime and test work requires exactly one;
 sensitive or ambiguous work remains Full BFM. Keep this routing private.
+Quick work uses the current owning agent, one consolidated repair at most, and
+the surface-specific 5- or 15-minute budget in the canonical workflow.
 
 - [Workstream-first start and `$bfm` reconciliation](../../docs/fb/start.md)
 - [Source hierarchy, locks, BFM, and closeout](../../docs/fb/workflow.md)

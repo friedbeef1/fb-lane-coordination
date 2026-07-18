@@ -58,6 +58,7 @@ Approval reference: ${input.approvalReference}
 Branch: ${input.branch || 'pending'}
 Worktree: ${input.worktree || 'current'}
 Focused verification: ${input.verificationPlan}
+Quick policy version: 2
 Review required: ${reviewRequired ? 'yes' : 'no'}
 Elapsed limit minutes: ${policy.elapsedLimitMinutes}
 
@@ -147,6 +148,8 @@ function validateQuickRecordForSubmit(markdown, options = {}) {
   const focusedEvidence = field(markdown, 'Focused evidence');
   const reviewers = numericField(markdown, 'Reviewers');
   const reviewRequired = quickRecordRequiresReview(markdown);
+  const policyVersion = field(markdown, 'Quick policy version');
+  if (policyVersion && policyVersion !== '2') throw new Error('Unsupported Quick policy version.');
   const actualSurface = Array.isArray(options.changedPaths)
     ? classifyChangedSurface(options.changedPaths)
     : null;
@@ -176,9 +179,9 @@ function validateQuickRecordForSubmit(markdown, options = {}) {
   if (!Number.isFinite(broadRuns) || broadRuns > 1) throw new Error('A repeated broad gate is blocked.');
   if (!Number.isFinite(noProgress) || noProgress > 0) throw new Error('A no-progress cycle with no material progress is blocked.');
   if (!Number.isFinite(startedAt) || !Number.isFinite(elapsedLimit) || now - startedAt >= elapsedLimit * 60_000) throw new Error('The declared elapsed-time budget is exhausted.');
-  if (policy && elapsedLimit > policy.elapsedLimitMinutes) throw new Error('The Quick elapsed-time budget exceeds its surface limit; route the work through Full BFM.');
-  if (policy && iterations > policy.maxIterations) throw new Error('The Quick iteration budget is exhausted; route the work through Full BFM.');
-  if (policy && repairs > policy.maxRepairs) throw new Error('The Quick repair budget is exhausted; route the work through Full BFM.');
+  if (policyVersion === '2' && policy && elapsedLimit > policy.elapsedLimitMinutes) throw new Error('The Quick elapsed-time budget exceeds its surface limit; route the work through Full BFM.');
+  if (policyVersion === '2' && policy && iterations > policy.maxIterations) throw new Error('The Quick iteration budget is exhausted; route the work through Full BFM.');
+  if (policyVersion === '2' && policy && repairs > policy.maxRepairs) throw new Error('The Quick repair budget is exhausted; route the work through Full BFM.');
   if ((iterations > 1 || repairs > 0 || repeatedChecks > 0) && (!progress || /^(?:none|no|pending|initial execution)$/i.test(progress))) throw new Error('Repeated Quick work requires a material progress delta.');
   const tokenLimit = numericField(markdown, 'Token limit');
   const tokens = numericField(markdown, 'Authoritative tokens');
@@ -292,6 +295,13 @@ function runAutomatedCheck(check, repoRoot = process.cwd()) {
   }
 }
 
+function runQuickSubmissionChecks(markdown, changedPaths, repoRoot = process.cwd()) {
+  validateQuickRecordForSubmit(markdown, { changedPaths });
+  const manifest = selectAutomatedChecks(changedPaths, repoRoot);
+  for (const check of manifest) runAutomatedCheck(check, repoRoot);
+  return manifest;
+}
+
 function automatedVerificationDecision(input = {}) {
   const changedPaths = Array.isArray(input.changedPaths) ? input.changedPaths.map(String) : [];
   const checks = Array.isArray(input.checkResults) ? input.checkResults.map(check => ({ id: check.id, result: check.result })) : [];
@@ -384,4 +394,4 @@ Circuit breaker triggered: ${metrics.circuitBreakerTriggered ? 'yes' : 'no'}
 `;
 }
 
-module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, quickPolicyForPaths, verificationBudget, selectAutomatedChecks, runAutomatedCheck, automatedVerificationDecision, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, renderEfficiencyReceipt };
+module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, quickPolicyForPaths, verificationBudget, selectAutomatedChecks, runAutomatedCheck, runQuickSubmissionChecks, automatedVerificationDecision, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, renderEfficiencyReceipt };

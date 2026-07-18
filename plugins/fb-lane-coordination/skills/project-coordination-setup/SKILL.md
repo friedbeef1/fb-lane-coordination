@@ -48,3 +48,6 @@ request; a Markdown handoff artifact or review transfer alone is not one.
 Its generated Quick Records state whether review is required: documentation and
 coordination use zero reviewers after focused checks pass, runtime and test use
 exactly one, and records without the field retain the legacy one-reviewer rule.
+Projects may configure `hooks.focusedTest` and a
+`timeouts.focusedTestMinutes` value of at most 10 in `.fb-lane.json`; otherwise
+runtime Quick work uses bounded `npm test`.

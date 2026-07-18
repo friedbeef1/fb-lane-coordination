@@ -21,10 +21,10 @@ const {
   renderQuickRecord,
   parseQuickRecord,
   findQuickRecord,
-  validateQuickRecordForSubmit,
   classifyChangedSurface,
   selectAutomatedChecks,
   runAutomatedCheck,
+  runQuickSubmissionChecks,
   automatedVerificationDecision,
 } = require('./fb-efficiency.cjs');
 
@@ -2320,7 +2320,7 @@ function handleSubmit(taskId, stagingUrl = '', options = {}) {
         ...workspaceGit(workspaceRoot, ['diff', '--cached', '--name-only']).split(/\r?\n/),
         ...workspaceGit(workspaceRoot, ['ls-files', '--others', '--exclude-standard']).split(/\r?\n/),
       ].filter(Boolean))].sort();
-      validateQuickRecordForSubmit(markdown, { changedPaths });
+      runQuickSubmissionChecks(markdown, changedPaths, workspaceRoot);
     } catch (err) {
       console.error(`❌ Error: ${err.message}`);
       process.exit(1);

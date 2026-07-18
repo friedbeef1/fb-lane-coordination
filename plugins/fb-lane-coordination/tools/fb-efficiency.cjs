@@ -3,6 +3,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 
 const SENSITIVE = /\b(?:feature|lanes?|multi[- ]?lane|auth(?:entication|orization)?|privacy|private|analytics|payments?|secrets?|destructive|delete production|provider(?: state)?|release|live[- ]?release|deploy(?:ment)?|publication|publish externally|launch|OKR|production migration|external approval|architecture|core (?:product )?flow|multiple (?:owners?|repositories)|conflicting locks?|unresolved decision)\b/i;
 const QUICK = /\b(?:fix|patch|correct|repair|typo|copy|documentation|docs-only|regression)\b/i;
@@ -35,7 +36,8 @@ function renderQuickRecord(input = {}) {
   const changedPaths = Array.isArray(input.changedPaths)
     ? input.changedPaths.map(String)
     : String(input.locks || '').split(',').map(file => file.replace(/`/g, '').trim()).filter(Boolean);
-  const reviewRequired = !['coordination', 'documentation'].includes(classifyChangedSurface(changedPaths));
+  const policy = quickPolicyForPaths(changedPaths);
+  const reviewRequired = policy.reviewers === 1;
   return `---
 type: fb-quick-record
 task: ${input.id}
@@ -56,8 +58,9 @@ Approval reference: ${input.approvalReference}
 Branch: ${input.branch || 'pending'}
 Worktree: ${input.worktree || 'current'}
 Focused verification: ${input.verificationPlan}
+Quick policy version: 2
 Review required: ${reviewRequired ? 'yes' : 'no'}
-Elapsed limit minutes: ${input.elapsedLimitMinutes || 30}
+Elapsed limit minutes: ${policy.elapsedLimitMinutes}
 
 ## Run Budget
 
@@ -145,9 +148,12 @@ function validateQuickRecordForSubmit(markdown, options = {}) {
   const focusedEvidence = field(markdown, 'Focused evidence');
   const reviewers = numericField(markdown, 'Reviewers');
   const reviewRequired = quickRecordRequiresReview(markdown);
+  const policyVersion = field(markdown, 'Quick policy version');
+  if (policyVersion && policyVersion !== '2') throw new Error('Unsupported Quick policy version.');
   const actualSurface = Array.isArray(options.changedPaths)
     ? classifyChangedSurface(options.changedPaths)
     : null;
+  const policy = actualSurface ? quickPolicyForPaths(options.changedPaths) : null;
   if (actualSurface === 'sensitive') {
     throw new Error('Quick BFM cannot submit sensitive candidate changes; route them through Full BFM.');
   }
@@ -173,6 +179,9 @@ function validateQuickRecordForSubmit(markdown, options = {}) {
   if (!Number.isFinite(broadRuns) || broadRuns > 1) throw new Error('A repeated broad gate is blocked.');
   if (!Number.isFinite(noProgress) || noProgress > 0) throw new Error('A no-progress cycle with no material progress is blocked.');
   if (!Number.isFinite(startedAt) || !Number.isFinite(elapsedLimit) || now - startedAt >= elapsedLimit * 60_000) throw new Error('The declared elapsed-time budget is exhausted.');
+  if (policyVersion === '2' && policy && elapsedLimit > policy.elapsedLimitMinutes) throw new Error('The Quick elapsed-time budget exceeds its surface limit; route the work through Full BFM.');
+  if (policyVersion === '2' && policy && iterations > policy.maxIterations) throw new Error('The Quick iteration budget is exhausted; route the work through Full BFM.');
+  if (policyVersion === '2' && policy && repairs > policy.maxRepairs) throw new Error('The Quick repair budget is exhausted; route the work through Full BFM.');
   if ((iterations > 1 || repairs > 0 || repeatedChecks > 0) && (!progress || /^(?:none|no|pending|initial execution)$/i.test(progress))) throw new Error('Repeated Quick work requires a material progress delta.');
   const tokenLimit = numericField(markdown, 'Token limit');
   const tokens = numericField(markdown, 'Authoritative tokens');
@@ -198,6 +207,17 @@ function classifyChangedSurface(paths = []) {
   return 'runtime';
 }
 
+function quickPolicyForPaths(paths = []) {
+  const surface = classifyChangedSurface(paths);
+  if (surface === 'sensitive') {
+    return { surface, mode: 'Full BFM', elapsedLimitMinutes: null, maxIterations: null, maxRepairs: null, reviewers: null };
+  }
+  if (surface === 'coordination' || surface === 'documentation') {
+    return { surface, mode: 'Quick BFM', elapsedLimitMinutes: 5, maxIterations: 2, maxRepairs: 1, reviewers: 0 };
+  }
+  return { surface, mode: 'Quick BFM', elapsedLimitMinutes: 15, maxIterations: 3, maxRepairs: 1, reviewers: 1 };
+}
+
 function verificationBudget(paths, checkpoint = {}) {
   const surface = classifyChangedSurface(paths);
   if (surface === 'sensitive') return { level: 'immediate safety gate', focused: [], runFullValidator: false, reuseCheckpoint: false, blockedReason: 'Sensitive work requires Full BFM safety and approval gates.' };
@@ -221,11 +241,29 @@ function verificationBudget(paths, checkpoint = {}) {
 
 function selectAutomatedChecks(paths = [], repoRoot = process.cwd()) {
   const surface = classifyChangedSurface(paths);
+  const configPath = path.join(path.resolve(repoRoot), '.fb-lane.json');
+  let config = {};
+  if (fs.existsSync(configPath)) {
+    try {
+      config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    } catch (err) {
+      throw new Error(`Failed to parse .fb-lane.json: ${err.message}`);
+    }
+  }
+  const focusedMinutes = config.timeouts?.focusedTestMinutes ?? 5;
+  if (!Number.isFinite(focusedMinutes) || focusedMinutes <= 0 || focusedMinutes > 10) {
+    throw new Error('Focused test timeout must be greater than zero and no more than 10 minutes for Quick BFM.');
+  }
+  const timeoutMs = focusedMinutes * 60_000;
   if (surface === 'coordination' || surface === 'documentation') {
     return [
-      { id: 'structure-and-links', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] },
-      { id: 'whitespace', command: 'git', args: ['diff', '--check'] },
+      { id: 'structure-and-links', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'], timeoutMs },
+      { id: 'whitespace', command: 'git', args: ['diff', '--check'], timeoutMs },
     ];
+  }
+  const focusedTest = String(config.hooks?.focusedTest || '').trim();
+  if (focusedTest) {
+    return [{ id: 'project-test', command: focusedTest, args: [], shell: true, timeoutMs }];
   }
   const packagePath = path.join(path.resolve(repoRoot), 'package.json');
   let packageJson = null;
@@ -237,7 +275,31 @@ function selectAutomatedChecks(paths = [], repoRoot = process.cwd()) {
   if (!packageJson.scripts || typeof packageJson.scripts.test !== 'string' || !packageJson.scripts.test.trim()) {
     throw new Error('Runtime changes require a project test script.');
   }
-  return [{ id: 'project-test', command: 'npm', args: ['test'] }];
+  return [{ id: 'project-test', command: 'npm', args: ['test'], timeoutMs }];
+}
+
+function runAutomatedCheck(check, repoRoot = process.cwd()) {
+  try {
+    execFileSync(check.command, check.args, {
+      cwd: repoRoot,
+      env: process.env,
+      shell: check.shell === true,
+      timeout: check.timeoutMs,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  } catch (err) {
+    if (err && (err.code === 'ETIMEDOUT' || err.killed === true || err.signal === 'SIGTERM')) {
+      throw new Error(`Focused check ${check.id} timed out; this candidate exceeds Quick BFM and requires Full BFM.`);
+    }
+    throw new Error(`Checking: automated check ${check.id} failed.`);
+  }
+}
+
+function runQuickSubmissionChecks(markdown, changedPaths, repoRoot = process.cwd()) {
+  validateQuickRecordForSubmit(markdown, { changedPaths });
+  const manifest = selectAutomatedChecks(changedPaths, repoRoot);
+  for (const check of manifest) runAutomatedCheck(check, repoRoot);
+  return manifest;
 }
 
 function automatedVerificationDecision(input = {}) {
@@ -291,14 +353,16 @@ function hasMaterialProgress(previous = {}, current = {}) {
 
 function evaluateRunBudget(state = {}, event = {}) {
   const next = { iterations: 0, repairLoops: 0, broadValidatorRuns: 0, ...state };
+  const policy = Array.isArray(next.changedPaths) ? quickPolicyForPaths(next.changedPaths) : null;
   const fail = reason => ({ blocked: true, reason, materialProgressRequired: true, state: next });
   if (event.materialProgress === false) return fail('Stopped after one cycle with no material progress.');
-  if ((event.now ?? Date.now()) - (next.startedAt ?? Date.now()) >= (next.elapsedLimitMinutes || 30) * 60_000) return fail('Declared elapsed-time budget is exhausted.');
+  const elapsedLimitMinutes = policy?.elapsedLimitMinutes ?? next.elapsedLimitMinutes ?? 30;
+  if ((event.now ?? Date.now()) - (next.startedAt ?? Date.now()) >= elapsedLimitMinutes * 60_000) return fail('Quick elapsed-time budget is exhausted; route the work through Full BFM.');
   if (next.tokenLimit != null && event.authoritativeTokens != null && event.authoritativeTokens >= next.tokenLimit) return fail('Authoritative token budget is exhausted.');
   if (next.costLimit != null && event.authoritativeCost != null && event.authoritativeCost >= next.costLimit) return fail('Authoritative cost budget is exhausted.');
-  if (event.type === 'repair' && next.repairLoops >= 2) return fail('A third repair loop is blocked.');
+  if (event.type === 'repair' && next.repairLoops >= (policy?.maxRepairs ?? 2)) return fail('Quick repair budget is exhausted; route the work through Full BFM.');
   if (event.type === 'broad-validator' && next.broadValidatorRuns >= 1) return fail('A repeated broad gate is blocked.');
-  if (['worker', 'review', 'repair', 'broad-validator'].includes(event.type) && next.iterations >= 5) return fail('A sixth agent iteration is blocked.');
+  if (['worker', 'review', 'repair', 'broad-validator'].includes(event.type) && next.iterations >= (policy?.maxIterations ?? 5)) return fail('Quick iteration budget is exhausted; route the work through Full BFM.');
   next.iterations += ['worker', 'review', 'repair'].includes(event.type) ? 1 : 0;
   next.repairLoops += event.type === 'repair' ? 1 : 0;
   next.broadValidatorRuns += event.type === 'broad-validator' ? 1 : 0;
@@ -330,4 +394,4 @@ Circuit breaker triggered: ${metrics.circuitBreakerTriggered ? 'yes' : 'no'}
 `;
 }
 
-module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, verificationBudget, selectAutomatedChecks, automatedVerificationDecision, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, renderEfficiencyReceipt };
+module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, quickPolicyForPaths, verificationBudget, selectAutomatedChecks, runAutomatedCheck, runQuickSubmissionChecks, automatedVerificationDecision, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, renderEfficiencyReceipt };

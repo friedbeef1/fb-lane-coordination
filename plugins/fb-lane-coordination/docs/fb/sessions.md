@@ -145,6 +145,10 @@ use `Review required: yes` and require exactly one approved reviewer. A legacy
 Quick Record without `Review required` keeps the previous exactly-one-reviewer
 rule.
 
+Documentation/coordination Quick Records use a 5-minute, two-iteration,
+one-repair budget. Runtime/test Quick Records use a 15-minute, three-iteration,
+one-repair budget. Timeout or exhaustion reclassifies the work Full BFM.
+
 For all modes, use a focused check by default. Sensitive work stops at its
 immediate safety/approval gate. A Product-owned handoff must explicitly request
 a release checkpoint before a full validator is eligible; a handoff Markdown

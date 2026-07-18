@@ -116,7 +116,7 @@ for (const contract of ['one consolidated repair', 'repeated broad', 'fb-package
 
 const cliSource = fs.readFileSync(path.join(surfaceRoot, 'tools', 'fb-lane.cjs'), 'utf8');
 assert.match(cliSource, /diff['"],\s*['"]--name-only['"],\s*`\$\{baseCommit\}\.\.HEAD`/);
-assert.match(cliSource, /validateQuickRecordForSubmit\(markdown,\s*\{\s*changedPaths\s*\}\)/);
+assert.match(cliSource, /runQuickSubmissionChecks\(markdown,\s*changedPaths,\s*workspaceRoot\)/);
 assert.match(cliSource, /runAutomatedCheck\(check,\s*workspaceRoot\)/);
 
 const evidence = readHarness('evidence.md');
