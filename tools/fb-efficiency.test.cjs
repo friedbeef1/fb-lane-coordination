@@ -21,6 +21,8 @@ const {
   validateQuickRecordForSubmit,
   selectAutomatedChecks,
   automatedVerificationDecision,
+  quickPolicyForPaths,
+  runAutomatedCheck,
 } = require('./fb-efficiency.cjs');
 
 const bounded = {
@@ -70,6 +72,7 @@ test('runtime Quick Records require one reviewer and legacy records keep that ru
   assert.strictEqual(parseQuickRecord(markdown).mode, 'Quick BFM');
   assert.strictEqual(parseQuickRecord(markdown).reviewRequired, true);
   assert.match(markdown, /Review required: yes/);
+  assert.match(markdown, /Elapsed limit minutes: 15/);
   assert.match(markdown, /Current brief: \.superpowers\/sdd\/task-1-brief\.md/);
   assert.doesNotMatch(markdown, /transcript|conversation history/i);
 
@@ -105,6 +108,7 @@ test('documentation and coordination Quick Records close with zero reviewers', (
     });
     assert.strictEqual(parseQuickRecord(markdown).reviewRequired, false);
     assert.match(markdown, /Review required: no/);
+    assert.match(markdown, /Elapsed limit minutes: 5/);
     const closed = closeQuickRecord(markdown, {
       result: 'Focused checks passed.',
       focusedEvidence: 'focused contract passed',
@@ -115,6 +119,23 @@ test('documentation and coordination Quick Records close with zero reviewers', (
     assert.match(closed, /Reviewers: 0/);
     assert.doesNotThrow(() => validateQuickRecordForSubmit(closed, { changedPaths }));
   }
+});
+
+test('Quick policy is centralized, bounded by surface, and conservative', () => {
+  assert.deepStrictEqual(quickPolicyForPaths(['docs/fb/workflow.md']), {
+    surface: 'documentation', mode: 'Quick BFM', elapsedLimitMinutes: 5,
+    maxIterations: 2, maxRepairs: 1, reviewers: 0,
+  });
+  for (const changedPaths of [['src/app.js'], ['tools/fb-lane.test.cjs'], ['docs/fb/workflow.md', 'app.js'], ['unknown.bin']]) {
+    assert.deepStrictEqual(quickPolicyForPaths(changedPaths), {
+      surface: classifyChangedSurface(changedPaths), mode: 'Quick BFM', elapsedLimitMinutes: 15,
+      maxIterations: 3, maxRepairs: 1, reviewers: 1,
+    });
+  }
+  assert.deepStrictEqual(quickPolicyForPaths(['auth/config.js']), {
+    surface: 'sensitive', mode: 'Full BFM', elapsedLimitMinutes: null,
+    maxIterations: null, maxRepairs: null, reviewers: null,
+  });
 });
 
 test('Quick submit revalidates review policy from the actual candidate paths', () => {
@@ -224,15 +245,33 @@ test('automated checks select deterministic coordination and project runtime com
   const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-automated-checks-'));
   fs.writeFileSync(path.join(repoRoot, 'package.json'), JSON.stringify({ scripts: { test: 'node test.cjs' } }));
   assert.deepStrictEqual(selectAutomatedChecks(['docs/fb/evidence.md', 'PROJECT_BOARD.md'], repoRoot), [
-    { id: 'structure-and-links', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] },
-    { id: 'whitespace', command: 'git', args: ['diff', '--check'] },
+    { id: 'structure-and-links', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'], timeoutMs: 300000 },
+    { id: 'whitespace', command: 'git', args: ['diff', '--check'], timeoutMs: 300000 },
   ]);
   assert.strictEqual(selectAutomatedChecks(['docs/fb/evidence.md'], repoRoot)
     .filter(check => check.args.includes('doctor')).length, 1);
   assert.deepStrictEqual(selectAutomatedChecks(['src/app.js'], repoRoot), [
-    { id: 'project-test', command: 'npm', args: ['test'] },
+    { id: 'project-test', command: 'npm', args: ['test'], timeoutMs: 300000 },
   ]);
+  fs.writeFileSync(path.join(repoRoot, '.fb-lane.json'), JSON.stringify({
+    hooks: { focusedTest: 'npm run test:focused' },
+    timeouts: { focusedTestMinutes: 8 },
+  }));
+  assert.deepStrictEqual(selectAutomatedChecks(['src/app.js'], repoRoot), [
+    { id: 'project-test', command: 'npm run test:focused', args: [], shell: true, timeoutMs: 480000 },
+  ]);
+  fs.writeFileSync(path.join(repoRoot, '.fb-lane.json'), JSON.stringify({ timeouts: { focusedTestMinutes: 11 } }));
+  assert.throws(() => selectAutomatedChecks(['src/app.js'], repoRoot), /ten|10|timeout/i);
   assert.throws(() => selectAutomatedChecks(['src/app.js'], fs.mkdtempSync(path.join(os.tmpdir(), 'fb-no-tests-'))), /runtime.*test|test.*runtime/i);
+});
+
+test('focused checks time out into Full BFM instead of waiting indefinitely', () => {
+  assert.throws(() => runAutomatedCheck({
+    id: 'project-test',
+    command: process.execPath,
+    args: ['-e', 'setTimeout(() => {}, 500)'],
+    timeoutMs: 25,
+  }, process.cwd()), /timed out.*Full BFM/i);
 });
 
 test('automated verification is candidate-bound, safety-first, and requires explicit passed checks', () => {
@@ -291,15 +330,17 @@ test('automated verification is candidate-bound, safety-first, and requires expl
 });
 
 test('run budget blocks repeated or exhausted work and requires material progress', () => {
-  const base = { iterations: 0, repairLoops: 0, broadValidatorRuns: 0, startedAt: 0, elapsedLimitMinutes: 30 };
+  const base = { iterations: 0, repairLoops: 0, broadValidatorRuns: 0, startedAt: 0, changedPaths: ['src/app.js'] };
   assert.strictEqual(evaluateRunBudget(base, { type: 'repair', now: 1, materialProgress: true }).blocked, false);
-  assert.strictEqual(evaluateRunBudget({ ...base, repairLoops: 1 }, { type: 'repair', now: 1, materialProgress: true }).blocked, false);
-  assert.match(evaluateRunBudget({ ...base, repairLoops: 2 }, { type: 'repair', now: 1, materialProgress: true }).reason, /third repair/i);
+  assert.match(evaluateRunBudget({ ...base, repairLoops: 1 }, { type: 'repair', now: 1, materialProgress: true }).reason, /repair.*Full BFM|Full BFM.*repair/i);
   assert.strictEqual(evaluateRunBudget(base, { type: 'broad-validator', now: 1, materialProgress: true }).blocked, false);
   assert.match(evaluateRunBudget({ ...base, broadValidatorRuns: 1 }, { type: 'broad-validator', now: 1, materialProgress: true }).reason, /repeated broad/i);
   assert.match(evaluateRunBudget(base, { type: 'worker', now: 1, materialProgress: false }).reason, /no material progress/i);
-  assert.match(evaluateRunBudget({ ...base, iterations: 5 }, { type: 'worker', now: 1, materialProgress: true }).reason, /sixth/i);
-  assert.match(evaluateRunBudget({ ...base, startedAt: 0 }, { type: 'worker', now: 31 * 60_000, materialProgress: true }).reason, /elapsed/i);
+  assert.match(evaluateRunBudget({ ...base, iterations: 3 }, { type: 'worker', now: 1, materialProgress: true }).reason, /iteration.*Full BFM|Full BFM.*iteration/i);
+  assert.match(evaluateRunBudget({ ...base, startedAt: 0 }, { type: 'worker', now: 15 * 60_000, materialProgress: true }).reason, /elapsed.*Full BFM|Full BFM.*elapsed/i);
+  const docs = { ...base, changedPaths: ['docs/fb/workflow.md'] };
+  assert.match(evaluateRunBudget({ ...docs, iterations: 2 }, { type: 'worker', now: 1, materialProgress: true }).reason, /iteration.*Full BFM|Full BFM.*iteration/i);
+  assert.match(evaluateRunBudget(docs, { type: 'worker', now: 5 * 60_000, materialProgress: true }).reason, /elapsed.*Full BFM|Full BFM.*elapsed/i);
   assert.match(evaluateRunBudget({ ...base, tokenLimit: 100 }, { type: 'worker', now: 1, materialProgress: true, authoritativeTokens: 100 }).reason, /token/i);
   assert.match(evaluateRunBudget({ ...base, costLimit: 2 }, { type: 'worker', now: 1, materialProgress: true, authoritativeCost: 2 }).reason, /cost/i);
   assert.strictEqual(evaluateRunBudget({ ...base, tokenLimit: 100 }, { type: 'worker', now: 1, materialProgress: true }).blocked, false);
@@ -332,10 +373,11 @@ test('Quick submit lifecycle enforces evidence, progress, and declared run budge
     .replace('Focused evidence: pending', 'Focused evidence: Focused status contract passed')
     .replace('Reviewers: 0', 'Reviewers: 1');
 
-  assert.doesNotThrow(() => validateQuickRecordForSubmit(markdown, { now: 1_001_000 }));
+  assert.match(markdown, /Elapsed limit minutes: 15/);
+  assert.doesNotThrow(() => validateQuickRecordForSubmit(markdown, { now: 1_001_000, changedPaths: ['src/status.js'] }));
   const invalid = [
-    [markdown.replace('Agent iterations: 1', 'Agent iterations: 6'), /sixth|iteration/i],
-    [markdown.replace('Repair loops: 0', 'Repair loops: 3'), /third repair/i],
+    [markdown.replace('Agent iterations: 1', 'Agent iterations: 4'), /iteration|Full BFM/i],
+    [markdown.replace('Repair loops: 0', 'Repair loops: 2'), /repair|Full BFM/i],
     [markdown.replace('Broad validator runs: 0', 'Broad validator runs: 2'), /repeated broad/i],
     [markdown.replace('No-progress cycles: 0', 'No-progress cycles: 1'), /no material progress|no-progress/i],
     [markdown.replace('Started at epoch ms: 1000000', 'Started at epoch ms: 0'), /elapsed/i],
@@ -350,6 +392,6 @@ test('Quick submit lifecycle enforces evidence, progress, and declared run budge
     [markdown.replace('Focused evidence: Focused status contract passed', 'Focused evidence: pending'), /focused evidence/i],
   ];
   for (const [candidate, pattern] of invalid) {
-    assert.throws(() => validateQuickRecordForSubmit(candidate, { now: 2_000_000 }), pattern);
+    assert.throws(() => validateQuickRecordForSubmit(candidate, { now: 1_001_000, changedPaths: ['src/status.js'] }), pattern);
   }
 });

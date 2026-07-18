@@ -90,17 +90,26 @@ Safety gates run first. Quick BFM owns exactly one committed
 row, workstream card, session recap, separate Task Receipt, or separate
 Verification Handoff. Needing any of those reclassifies the task Full BFM.
 
-Quick BFM permits five total agent iterations, two repair loops, no repeated
-broad validator, no no-progress cycle, and 30 elapsed minutes unless its
-approved record declares another limit. Documentation and coordination Quick
-work uses zero reviewers after focused checks pass; runtime and test Quick work
-requires exactly one reviewer. Full BFM defaults to five
+Documentation and coordination Quick work permits 5 minutes, two total agent
+iterations, one consolidated repair, and zero reviewers after focused checks
+pass. Runtime and test Quick work permits 15 minutes, three total agent
+iterations, one consolidated repair, and exactly one reviewer. Quick work uses
+the current owning agent with no implementation subagent. Full BFM defaults to five
 iterations, two repairs, two reviewers, one final broad validator, no
-no-progress cycle, and 120 minutes. A sixth iteration, third repair, repeated
-broad gate, or one cycle without a material source, evidence, test-state,
-blocker-recovery, or approved-direction delta stops the run. Authoritative
+no-progress cycle, and 120 minutes. A Quick timeout, second repair, exhausted
+iteration budget, repeated broad gate, or one cycle without a material source,
+evidence, test-state, blocker-recovery, or approved-direction delta reclassifies
+the work Full BFM. Authoritative
 provider token/cost ceilings apply only when supplied; otherwise record
 `unavailable` and never estimate them from a transcript.
+
+Before implementation, put the smallest adversarial contract in RED: the
+expected path, a mixed or unknown path, and the sensitive boundary. Implement
+the canonical source once and run its focused root check. Runtime/test work gets
+one focused review of that complete canonical candidate. If required, make one
+consolidated repair and rerun only the failed proof. Generate package mirrors
+once after review passes, then run parity and only package-context checks that
+exercise a different path.
 
 Before every repeated worker, repair, review, or gate, compare the candidate
 with its predecessor. Reworded reports, repeated checks, another opinion, and
@@ -141,6 +150,10 @@ validator, generated runtime, or execution configuration runs focused tests
 plus at most one full validator after the final runtime checkpoint. Sensitive
 work uses Full-BFM safety/release gates. A later runtime change invalidates the
 checkpoint; coordination-only closeout reuses it without runtime suites.
+Projects may define `hooks.focusedTest` in `.fb-lane.json`; its check defaults
+to a 5-minute timeout and `timeouts.focusedTestMinutes` may raise that to at
+most 10 minutes. Without the hook, FB safely falls back to `npm test` under
+the same bound. A timeout reclassifies the candidate Full BFM.
 
 Execute only ready, unlocked work within the same approved goal or scope. A
 different board item needs Product approval. During execution, record task,

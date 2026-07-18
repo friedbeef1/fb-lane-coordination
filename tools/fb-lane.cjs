@@ -24,6 +24,7 @@ const {
   validateQuickRecordForSubmit,
   classifyChangedSurface,
   selectAutomatedChecks,
+  runAutomatedCheck,
   automatedVerificationDecision,
 } = require('./fb-efficiency.cjs');
 
@@ -2247,10 +2248,10 @@ function performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl =
   const checks = [];
   for (const check of checkManifest) {
     try {
-      execFileSync(check.command, check.args, { cwd: workspaceRoot, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
+      runAutomatedCheck(check, workspaceRoot);
       checks.push({ id: check.id, result: 'passed' });
     } catch (err) {
-      throw new Error(`Checking: automated check ${check.id} failed.`);
+      throw err;
     }
   }
   const optionalLinks = optionalReviewUrl ? [optionalReviewUrl] : [];

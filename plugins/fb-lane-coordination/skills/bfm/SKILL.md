@@ -60,6 +60,10 @@ structural contract. Documentation and coordination Quick work closes with zero
 reviewers after focused checks pass; runtime and test Quick work requires
 exactly one reviewer. Review only the complete candidate with one focused
 verification pass; stop immediately when it passes.
+Quick work stays in the current owning agent with no implementation subagent.
+Documentation/coordination has 5 minutes and two total iterations;
+runtime/test has 15 minutes and three. Both permit one consolidated repair.
+Review the complete canonical candidate before generating package mirrors.
 For durable work, promote the approved session in its linked worktree and keep
 the Task Receipt, Brief Validation, reciprocal links, verification checkpoint,
 Verification Handoff, and Test This Now aligned before submit or completed close.
