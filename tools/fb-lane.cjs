@@ -15,15 +15,17 @@ const {
   submitVerificationReuse,
   recordAutomatedVerification,
 } = require('./fb-session.cjs');
+const { assertFullBfmChangelog } = require('./fb-changelog-closeout.cjs');
 const { collectEvalDoctorChecks } = require('./fb-eval.cjs');
 const {
   classifyExecutionMode,
   renderQuickRecord,
   parseQuickRecord,
   findQuickRecord,
-  validateQuickRecordForSubmit,
   classifyChangedSurface,
   selectAutomatedChecks,
+  runAutomatedCheck,
+  runQuickSubmissionChecks,
   automatedVerificationDecision,
 } = require('./fb-efficiency.cjs');
 
@@ -2238,6 +2240,11 @@ function performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl =
   if (!promotion) throw new Error('Blocked: the authoritative session promotion commit is unavailable.');
   const candidateCommit = workspaceGit(workspaceRoot, ['rev-parse', 'HEAD']);
   const changedPaths = workspaceGit(workspaceRoot, ['diff', '--name-only', `${promotion.commit}..${candidateCommit}`]).split(/\r?\n/).filter(Boolean).sort();
+  const handoffSource = sessions[0].handoff && fs.existsSync(path.join(workspaceRoot, sessions[0].handoff))
+    ? fs.readFileSync(path.join(workspaceRoot, sessions[0].handoff), 'utf8') : '';
+  const changelogVerification = /^fb_harness:\s*v3\s*$/im.test(handoffSource)
+    ? assertFullBfmChangelog({ repoRoot: workspaceRoot, handoffPath: sessions[0].handoff, baseCommit: promotion.commit, candidateCommit, executionMode: 'full' })
+    : { decision: 'historical-exempt' };
   const checkManifest = selectAutomatedChecks(changedPaths, workspaceRoot);
   const safetyGate = resolveSubmissionSafetyGate({ candidateCommit, changedPaths, session: sessions[0] });
   if (safetyGate.result === 'unresolved') {
@@ -2247,10 +2254,10 @@ function performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl =
   const checks = [];
   for (const check of checkManifest) {
     try {
-      execFileSync(check.command, check.args, { cwd: workspaceRoot, env: process.env, stdio: ['ignore', 'pipe', 'pipe'] });
+      runAutomatedCheck(check, workspaceRoot);
       checks.push({ id: check.id, result: 'passed' });
     } catch (err) {
-      throw new Error(`Checking: automated check ${check.id} failed.`);
+      throw err;
     }
   }
   const optionalLinks = optionalReviewUrl ? [optionalReviewUrl] : [];
@@ -2261,6 +2268,7 @@ function performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl =
     checkResults: checks,
     safetyGate,
     optionalLinks,
+    changelogVerification: { result: 'passed', candidateCommit, decision: changelogVerification.decision },
   });
   if (decision.status !== 'Ready to ship') throw new Error(`${decision.status}: ${decision.reason}`);
   recordAutomatedVerification(workspaceRoot, taskId, {
@@ -2273,6 +2281,9 @@ function performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl =
     checkManifest,
     safetyGate,
     optionalLinks,
+    changelogVerification: /^fb_harness:\s*v3\s*$/im.test(handoffSource)
+      ? { result: 'passed', candidateCommit, decision: changelogVerification.decision }
+      : undefined,
   });
 
   runHook('pre-submit', boardPath);
@@ -2306,8 +2317,20 @@ function handleSubmit(taskId, stagingUrl = '', options = {}) {
   const quickPath = taskId.startsWith('TASK-Q-') ? findQuickRecord(workspaceRoot, taskId) : null;
   if (quickPath) {
     const markdown = fs.readFileSync(quickPath, 'utf8');
+    let changedPaths;
     try {
-      validateQuickRecordForSubmit(markdown);
+      const relative = path.relative(workspaceRoot, quickPath);
+      const creationCommits = workspaceGit(workspaceRoot, ['log', '--diff-filter=A', '--format=%H', '--', relative])
+        .split(/\r?\n/).filter(Boolean);
+      if (creationCommits.length === 0) throw new Error('Quick BFM submit cannot identify the Quick Record creation commit.');
+      const baseCommit = workspaceGit(workspaceRoot, ['rev-parse', `${creationCommits[creationCommits.length - 1]}^`]);
+      changedPaths = [...new Set([
+        ...workspaceGit(workspaceRoot, ['diff', '--name-only', `${baseCommit}..HEAD`]).split(/\r?\n/),
+        ...workspaceGit(workspaceRoot, ['diff', '--name-only', 'HEAD']).split(/\r?\n/),
+        ...workspaceGit(workspaceRoot, ['diff', '--cached', '--name-only']).split(/\r?\n/),
+        ...workspaceGit(workspaceRoot, ['ls-files', '--others', '--exclude-standard']).split(/\r?\n/),
+      ].filter(Boolean))].sort();
+      runQuickSubmissionChecks(markdown, changedPaths, workspaceRoot);
     } catch (err) {
       console.error(`❌ Error: ${err.message}`);
       process.exit(1);
@@ -2674,9 +2697,12 @@ Read [the FB harness](docs/fb/README.md) after \`PROJECT_BOARD.md\`,
 \`docs/handoffs/index.md\`, and the linked handoff. Use the focused page that
 matches the task:
 
-- **Simple task:** This is a simple task, so I’ll handle it directly without lanes or a build brief.
-- **Coordinated planning:** FB will prepare the plan first. It is not building yet.
-- **After approval and explicit \`$bfm\`:** Build For Me (BFM) will now build and check the approved plan.
+Start in whichever workstream matches the question whenever planning or
+evidence is useful. Product/User is only for user and product questions, not
+universal intake. Relevant workstreams create handoffs for ready scope, and
+approval attaches to that scope before \`$bfm\`. After the user says \`$bfm\`,
+Product reconciles all six and records the consolidated Project Start Brief and
+Build Brief without a routine second approval; BFM then executes approved scope.
 
 For returning-project health, use \`$fb-lane status\` for the beginner card.
 For operational lock inspection, use CLI \`node tools/fb-lane.cjs status --details\`
@@ -2846,9 +2872,11 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 *   **Latest Update**:
     *   *2026-06-15*: Scoped task and marked ready for execution.
 
-### Mode Selection Trigger Rule
-- Default to normal/simple coding unless the objective has a coordination trigger. Use FB light for handoffs, board/lane/BFM/Product/Design/Business mentions, coordination files, board locks, multiple threads/agents/workstreams, or durable context. Escalate to Product/BFM for build/sequence/defer/approve/merge/release decisions, pricing/payments/trials/subscriptions/promo codes, auth/privacy/analytics/secrets/deploy/staging/live, camera/capture/save/export or another core product flow, or multiple lane outputs that must be reconciled before source changes.
-- Keep quick tasks lightweight: read board/locks, claim or note only exact files needed, and skip extra ceremony unless another lane or Product must continue it.
+### Workstream-first route
+- Start in whichever workstream matches the question whenever planning or evidence is useful. Product/User is selected only for user needs, outcomes, requirements, feedback, acceptance criteria, or product priorities; it is not universal intake.
+- Relevant workstreams investigate and create handoffs for ready scope. Approval attaches to that ready scope before \`$bfm\`.
+- After the user says \`$bfm\`, Product scans all six, reconciles duplicates, conflicts, dependencies, and priorities, then records the consolidated Project Start Brief and Build Brief without a routine second approval.
+- Pause only for a changed decision, disputed priority, sensitive boundary, conflict, or unclear scope. BFM executes and verifies approved scope, stops at Ready to ship, and reserves release for Push Live.
 
 ### Goal Alignment Session (non-trivial tasks only)
 - Product/BFM owns the approved OKR tree in \`PROJECT_BOARD.md\`: a Product/workstream or BFM-target OKR with \`Objective\`, \`Key Results\`, \`Definition of Done\`, \`Gate / Review Point\`, \`Approval: pending|approved\`, and \`Justification\`, plus stable lane OKRs where relevant.
@@ -2994,10 +3022,10 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('🚀 QUICK START GUIDE: HOW TO USE FB RIGHT AWAY');
   console.log('======================================================================');
   console.log('1. Describe your new project normally.');
-  console.log('2. Simple task: This is a simple task, so I’ll handle it directly without lanes or a build brief.');
-  console.log('3. Coordinated planning: FB will prepare the plan first. It is not building yet. Six workstreams investigate relevant parts; irrelevant ones record None relevant.');
-  console.log('4. Product combines findings into one build brief. You approve the brief. Only after explicit $bfm, BFM builds and checks it. After approval, use explicit $bfm to start Build For Me execution.');
-  console.log('5. Use $fb-lane status for returning project health: current objective, visible stage, and next action.');
+  console.log('2. FB starts in whichever workstream matches the question; Product/User is only for user and product questions.');
+  console.log('3. Relevant workstreams investigate and create ready handoffs.');
+  console.log('4. When actionable handoffs are ready, say $bfm. Product scans all six, reconciles and prioritizes, then BFM executes approved scope.');
+  console.log('5. BFM stops at Ready to ship. Only Push Live authorizes release.');
   console.log('======================================================================');
   console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');

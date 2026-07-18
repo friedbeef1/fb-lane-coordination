@@ -20,7 +20,9 @@ summaries. The reusable FB operating rules live in [docs/fb/](docs/fb/README.md)
 - Eval selection, authority, Quality Gaps, and revision closure:
   [evals.md](docs/fb/evals.md)
 
-Use normal work for simple single-thread tasks; use FB light for durable
-multi-thread coordination; escalate to Product/BFM for approval, sequencing,
-sensitive surfaces, release/staging decisions, core flows, or reconciled lane
-outputs. Project-specific instructions and stricter safety rules always win.
+When planning or evidence is useful, start in whichever workstream matches the
+question. Product/User is selected only for user-needs and product questions,
+not as a universal intake coordinator. Relevant workstreams create ready
+handoffs; after they are ready, `$bfm` activates Product reconciliation and
+execution of approved scope. Project-specific instructions and stricter safety
+rules always win.

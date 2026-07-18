@@ -28,7 +28,7 @@ const {
 let passed = 0;
 const testFocus = process.env.FB_LANE_TEST_FOCUS;
 const cliPath = path.join(__dirname, 'fb-lane.cjs');
-const exactProgress = 'Understanding your idea → Ready for your approval → Building → Checking → Complete';
+const exactProgress = 'Investigating → Handoffs ready → Reconciling → Building → Checking → Ready to ship';
 const exactBlocked = 'Blocked — <reason> / next action';
 const exactHowFbWorks = [
   '1. Six workstreams investigate relevant parts; irrelevant ones record None relevant.',
@@ -64,27 +64,20 @@ assert.deepStrictEqual(
   'sensitive submission must consume existing candidate-bound safety approval evidence'
 );
 
-function assertConditionalModeContract(label, source) {
+function assertPublicRouteContract(label, source) {
   const renderedSource = source.replace(/\\`/g, '`');
-  const conditionalMessages = [
-    `- **Simple task:** ${exactSimpleTaskMessage}`,
-    `- **Coordinated planning:** ${exactPlanningMessage}`,
-    `- **After approval and explicit \`$bfm\`:** ${exactBuildMessage}`
-  ];
-  for (const message of conditionalMessages) {
-    assert.ok(renderedSource.includes(message), `${label} must place each mode message behind its condition`);
-  }
+  assert.match(renderedSource, /start in whichever workstream matches the question/i, `${label} must expose workstream-first intake`);
+  assert.match(renderedSource, /(?:ready handoffs?|handoffs for ready scope)[\s\S]*\$bfm[\s\S]*Product reconcile/i, `${label} must expose the handoff-to-reconciliation boundary`);
+  assert.doesNotMatch(renderedSource, /\*\*(?:Simple task|Coordinated planning|Approved Build For Me)/i, `${label} must not expose mode choices`);
 }
 
 function assertExactFirstProjectContract(label, source) {
-  for (const message of [exactSimpleTaskMessage, exactPlanningMessage, exactBuildMessage]) {
-    assert.ok(source.includes(message), `${label} must include the exact beginner mode message: ${message}`);
-  }
+  assert.match(source, /start in whichever of the six workstreams matches the question/i);
+  assert.match(source, /Product\/User:[^\n]*(?:only|selected only)[^\n]*(?:user needs|user outcomes)/i);
   assert.ok(source.includes(`**Progress:** ${exactProgress}`), `${label} must preserve the approved progress wording`);
   assert.ok(source.includes(`**Blocked:** ${exactBlocked}`), `${label} must keep blocked work actionable`);
-  const howFbWorks = source.match(/## How FB works\n([\s\S]*?)(?=\n## |\s*$)/);
-  assert.ok(howFbWorks, `${label} must include How FB works`);
-  assert.ok(howFbWorks[1].includes(exactHowFbWorks), `${label} must preserve the four ordered six-workstream FB steps`);
+  assert.match(source, /## The single public sequence/);
+  assert.match(source, /ready handoffs[\s\S]*`\$bfm`[\s\S]*Product reconciliation[\s\S]*Project Start Brief and Build Brief[\s\S]*Ready to ship[\s\S]*Push Live/i);
 
   const brief = source.match(/## Project Start Brief\n([\s\S]*?)(?=\n## |\s*$)/);
   assert.ok(brief, `${label} must include Project Start Brief`);
@@ -95,10 +88,8 @@ function assertExactFirstProjectContract(label, source) {
   for (const term of ['Workstream', 'Handoff', 'Build For Me (BFM)', 'Gate', 'Quality Gap']) {
     assert.ok(source.includes(`**${term}:**`), `${label} must define ${term} inline`);
   }
-  assert.match(source, /\*\*Build For Me \(BFM\):\*\*[^\n]*after approval and explicit `\$bfm`/i, `${label} must put both execution gates in the BFM definition`);
-  for (const mode of ['Simple task', 'Coordinated planning', 'Approved Build For Me']) {
-    assert.match(source, new RegExp(`^### ${mode}$`, 'm'), `${label} must include the ${mode} example`);
-  }
+  assert.match(source, /\*\*Build For Me \(BFM\):\*\*[^\n]*activated by `\$bfm`/i);
+  assert.doesNotMatch(source, /^## Choose the mode|^### (?:Simple task|Coordinated planning|Approved Build For Me)/m);
   for (const clarificationField of ['Why this matters', 'Recommended default', 'What changes if you choose differently']) {
     assert.match(source, new RegExp(`\\*\\*${clarificationField}\\*\\*`), `${label} must preserve the ${clarificationField} clarification field`);
   }
@@ -933,18 +924,21 @@ function assertCodexBootstrap(args) {
       const handoffRead = source.indexOf('the linked handoff');
       assert.ok(boardRead >= 0 && boardRead < indexRead && indexRead < handoffRead, `${label} must state the board → index → linked handoff read order`);
       assert.doesNotMatch(source, /## Project Start Brief|## Test This Now|### Verification Handoff/, `${label} must remain a thin route layer`);
-      assertConditionalModeContract(label, source);
+      assertPublicRouteContract(label, source);
       assert.match(source, /node tools\/fb-lane\.cjs status --details/, `${label} must opt into technical details for lock inspection`);
       assert.match(source, /fb_lane_status\(\{details:true\}\)/, `${label} must request MCP details for lock inspection`);
       assert.match(source, /returning-project health[\s\S]*\$fb-lane status/i, `${label} must keep default status for returning health`);
     }
+    assert.doesNotMatch(board + agents, /Mode Selection Trigger Rule|normal\/simple|FB light/i, 'generated coordination guidance must not expose internal mode routing');
+    assert.match(agents, /ready scope[\s\S]*approval attaches[\s\S]*before `\$bfm`[\s\S]*Project Start Brief[\s\S]*Build Brief/i, 'generated AGENTS must attach approval to ready scope before post-$bfm reconciliation briefs');
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
-    assert.match(output, /Six workstreams investigate relevant parts; irrelevant ones record None relevant/, 'bootstrap quick start must explain relevant and inactive workstreams');
-    assert.match(output, /Product combines findings into one build brief/, 'bootstrap quick start must say that Product prepares the build brief');
-    assert.match(output, /You approve the brief\. Only after explicit \$bfm, BFM builds and checks it\./, 'bootstrap quick start must put user approval before the explicit $bfm build boundary');
+    assert.match(output, /starts in whichever workstream matches the question/, 'bootstrap quick start must explain workstream-first intake');
+    assert.match(output, /Relevant workstreams investigate and create ready handoffs/, 'bootstrap quick start must explain relevant workstream output');
+    assert.match(output, /actionable handoffs are ready, say \$bfm[\s\S]*Product scans all six, reconciles and prioritizes/, 'bootstrap quick start must put Product reconciliation after ready handoffs and $bfm');
     assert.ok(!output.includes(exactBuildMessage), 'bootstrap completion must not announce that Build For Me execution is starting');
-    assert.match(output, /After approval, use explicit \$bfm to start Build For Me execution\./, 'bootstrap quick start must describe the conditional execution action');
-    assert.match(output, /returning project health/, 'bootstrap quick start must reserve status for returning-project health');
+    assert.match(output, /BFM executes approved scope/, 'bootstrap quick start must describe authorized execution');
+    assert.match(output, /Ready to ship[\s\S]*Push Live/, 'bootstrap quick start must preserve the release boundary');
+    assert.match(output, /returning-project health/, 'bootstrap quick start must reserve status for returning-project health');
     assert.match(codexRules, /docs\/fb\/guardrails\.md/, 'Codex rules must route sidechat authority through the harness');
     assert.ok(!fs.existsSync(path.join(root, '.mcp.json')), 'expected bootstrap not to create project MCP config');
     assert.ok(!fs.existsSync(path.join(root, '.claude')), 'expected bootstrap not to create Claude Code files');
@@ -1209,8 +1203,7 @@ test('publishes one beginner interaction contract across root, package, skills, 
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
     assert.doesNotMatch(source, /Build Flow Manager/i, `${relativePath} must not use the retired beginner-facing expansion`);
     assert.match(source, /(?:docs\/fb\/|\.\.\/\.\.\/docs\/fb\/)?start\.md/, `${relativePath} must route beginner guidance to start.md`);
-    assert.match(source, /Build\s+For\s+Me\s+\(BFM\)/, `${relativePath} must define BFM for beginners`);
-    assert.match(source, /after\s+(?:Product\s+)?approval\s+and\s+explicit\s+`\$bfm`/i, `${relativePath} must require approval plus explicit $bfm for execution`);
+    assert.match(source, /\$bfm|Build\s+For\s+Me\s+\(BFM\)/, `${relativePath} must route the BFM boundary`);
   }
   assert.doesNotMatch(fs.readFileSync(path.join(repoRoot, 'docs/fb/README.md'), 'utf8'), /Product\/Build For Me/i, 'docs/fb/README.md must not combine Product planning with Build For Me execution');
 
@@ -1218,7 +1211,7 @@ test('publishes one beginner interaction contract across root, package, skills, 
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
     assert.doesNotMatch(source, /\bfirstProjectContract\b/, `${relativePath} must not retain the stale inline first-project contract`);
     assert.doesNotMatch(source, /Build Flow Manager/i, `${relativePath} must use Build For Me terminology`);
-    assertConditionalModeContract(relativePath, source);
+    assertPublicRouteContract(relativePath, source);
   }
 });
 

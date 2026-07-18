@@ -3,6 +3,13 @@
 Last Updated: 2026-07-17
 Lane: FB-Product
 
+## TASK-031 — Full BFM changelog closeout and FB 0.3.1-beta
+
+- Status: In Progress on PR #48.
+- Outcome target: v3 Full BFM closeout cannot reach Ready to ship without a candidate-matched changelog decision; Quick, Normal, and historical v2 work remain compatible.
+- Release candidate: `0.3.1-beta+codex.20260718021942`.
+- Release gate: stop at Ready to ship; only Push Live authorizes merge, marketplace upgrade, and installed-plugin verification.
+
 ## TASK-030 — FB 0.3.0-beta release
 
 - Status: Done

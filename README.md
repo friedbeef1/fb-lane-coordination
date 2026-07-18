@@ -4,8 +4,8 @@
 
 **AI Loop Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.3.0-beta**
-(`0.3.0-beta+codex.20260717150502`).
+Current Codex release candidate: **FB 0.3.1-beta**
+(`0.3.1-beta+codex.20260718021942`).
 
 **FB is a Codex plugin that connects six product workstreams in one continuous
 delivery loop. Each workstream investigates part of the problem; `$bfm` brings
@@ -21,7 +21,7 @@ Codex use, not defects in Codex itself.
 | Codex issue | Codex problem solved by FB |
 |---|---|
 | Important decisions remain scattered across chats | FB turns actionable decisions and evidence into repository-local handoff MD files. |
-| Codex may start building before the goal and boundaries are clear | FB separates planning from implementation and requires an approved brief before `$bfm`. |
+| Codex may start building before the goal and boundaries are clear | FB requires relevant workstream handoffs and approved ready scope before `$bfm`; Product records the consolidated Project Start Brief and Build Brief during reconciliation after invocation. |
 | User evidence, decisions, and AI assumptions can become mixed together | Product/User records each category separately before implementation. |
 | Outputs from several Codex tasks must be combined manually | `$bfm` scans ready handoffs across all six workstreams, reconciles conflicts, and sequences the work. |
 | Failed checks can return responsibility to the user | FB runs automated checks and owns bounded diagnosis and repair. |
@@ -102,14 +102,20 @@ flowchart TB
     N --> BG
 ```
 
-[Full FB Loop Diagram](docs/fb/full-loop.md) — handoff states,
-Product reconciliation, Quick and Full BFM, repair, review, and release.
+[Full FB Loop Diagram](docs/fb/full-loop.md) — handoff states, post-`$bfm`
+Product reconciliation, repair, review, and release.
 
-A workstream with nothing useful records **None relevant**. It does not invent
-work merely to participate.
+A workstream with nothing useful does not invent work merely to participate;
+record **None relevant** only when a six-workstream scan/report requires it.
 
-Build For Me (BFM) is the execution step. It begins only after Product approval
-and explicit `$bfm`; see [start and approval](docs/fb/start.md).
+When actionable ready handoffs exist, the user says `$bfm`. Product then scans
+all six, reconciles and prioritizes, creates the Project Start Brief plus Build
+Brief, and BFM executes already-approved scope; see [the start
+contract](docs/fb/start.md).
+For substantial work, FB plans a dependency graph up front and breaks the
+outcome into small verifiable slices. Independent slices can run through agents
+in parallel; dependent or overlapping work stays sequential. The overall job
+may run for hours without repeatedly running broad tests between slices.
 
 ## Install
 
@@ -127,20 +133,50 @@ codex plugin add fb-lane-coordination@fb-lane
 5. FB runs automated checks and owns bounded repair. Review optional links only when useful.
 6. When FB reports **Ready to ship**, say **Push Live** to authorize merge and deployment.
 
-## Honest comparison
+## Comparison
 
-| System | Good because | Gap FB addresses |
-|---|---|---|
-| Vanilla Codex | Directly executes clear software tasks. | Product decisions, evidence, priorities, verification, and release authority can remain scattered across chats. |
-| Git worktrees | Isolate branches and allow parallel implementation without mixing files. | Worktrees do not decide what should be built, reconcile recommendations, prioritize work, preserve user decisions, or verify the product outcome. |
-| Kurrent Capacitor | Automatically captures, recalls, observes, and evaluates agent sessions. | FB connects curated evidence to the approved brief, product decisions, execution authority, user-facing testing, and closeout. |
-| BMAD | Provides a broad role-based AI development methodology. | FB provides a smaller repository-local Codex loop focused on ready handoffs, implementation, automated verification, and explicit release approval. |
-| **FB** | Connects six product workstreams to Codex implementation, verification, and delivery. | — |
+| System | Good because | Gap | How FB addresses the gap |
+|---|---|---|---|
+| Vanilla Codex | Directly executes clear software tasks. | Decisions, evidence, priorities, verification, and release authority can remain scattered across chats. | FB captures durable handoffs, reconciles six workstreams, verifies the result, and preserves explicit release approval. |
+| Git worktrees | Isolate branches and support parallel implementation. | Isolation does not determine what to build, resolve competing recommendations, or verify the product outcome. | FB connects worktree execution to approved priorities, coordinated implementation, and outcome verification. |
+| Kurrent Capacitor | Automatically captures, recalls, observes, and evaluates agent sessions. | Session intelligence alone does not define the approved product outcome or own delivery authority and closeout. | FB connects curated evidence to the brief, user decisions, execution authority, testing, and closeout. |
+| BMAD | Provides a broad role-based AI development methodology. | A broad methodology can require more process than a focused repository-local Codex delivery loop. | FB provides a smaller loop around ready handoffs, Codex implementation, automated verification, and explicit release approval. |
+| FB | Connects six product workstreams to Codex implementation, verification, and delivery. | — | — |
 
 References: [OpenAI Codex](https://openai.com/codex/), [Git
 worktree](https://git-scm.com/docs/git-worktree), [Kurrent
 Capacitor](https://capacitor.kurrent.io/docs/getting-started/what-is-capacitor/),
 and [BMAD](https://github.com/bmad-code-org/BMAD-METHOD).
+
+## When something else is genuinely a better fit
+
+Most product work benefits from FB when decisions, implementation, verification, and release must remain connected. Another tool is a better fit only when one of these narrower conditions describes the primary goal.
+
+| Condition | Better fit | Why |
+|---|---|---|
+| The task is completely specified, mechanical, disposable, finishable in one session, and needs no durable decisions, coordination, follow-up, sensitive handling, or release governance. | Vanilla Codex | It executes immediately without creating records that will never be reused. |
+| A mature engineering organization already owns requirements, prioritization, CI, review, and release—and needs only native branch isolation. | Git worktrees | Worktrees provide isolation without introducing another coordination system. |
+| The primary requirement is comprehensive or forensic capture of large volumes of agent-session activity across teams. | Kurrent Capacitor | Capacitor provides richer automatic session telemetry and history than FB’s curated records. |
+| The organization explicitly wants a prescribed, role-heavy methodology with formal personas and lifecycle ceremonies. | BMAD | BMAD provides a broader formal methodology than FB’s repository-local delivery loop. |
+
+If these conditions sound unusually specific, they probably are. Ordinary evolving product work still benefits from FB connecting decisions, implementation, verification, and release.
+
+Describe the outcome and use FB normally. FB decides how much coordination, evidence, and verification the situation requires.
+
+## How FB works with your existing stack
+
+These are documented workflows, not built-in automatic adapters.
+
+| Existing tool | Keep using it for | What FB adds | Integration boundary |
+|---|---|---|---|
+| Vanilla Codex | Reading, editing, running, testing, and explaining software work | Approved product context, coordinated handoffs, verification ownership, and release boundaries | FB is a Codex plugin; Codex remains the execution engine. |
+| Git worktrees | Native branch and filesystem isolation for parallel changes | Priorities, ownership, locks, sequencing, and outcome verification | FB may use ordinary Git worktrees; it does not replace Git. |
+| Kurrent Capacitor | Automatic session capture, recall, telemetry, and cross-agent history | Curated product truth tied to decisions, scope, acceptance, and closeout | Capacitor can be an optional evidence source. Important conclusions must enter FB handoffs; no automatic integration currently exists. |
+| BMAD | Formal discovery, planning, role-based analysis, PRDs, architecture, and UX artifacts | Repository-local delivery, reconciliation, Codex execution, automated checks, and explicit release approval | Approved BMAD artifacts can enter FB as evidence or ready handoffs. FB remains the delivery authority to avoid competing systems of record. |
+
+A team can use BMAD to produce a formal PRD, Capacitor to preserve detailed session history, Git worktrees to isolate parallel implementation, and Codex to write the software. FB connects the approved parts: it turns the PRD and relevant evidence into durable handoffs, sequences work across worktrees, verifies the delivered outcome, and waits for **Push Live**.
+
+FB is fully open source, repository-local, and requires no FB-hosted service.
 
 FB also provides curated session recall and evaluation, but it deliberately does
 not require comprehensive transcript capture or hosted telemetry. See

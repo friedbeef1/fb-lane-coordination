@@ -18,21 +18,16 @@ Read the smallest relevant layer, in this order:
 `AGENTS.md` is a navigator into this pack. Project rules and task-specific
 instructions take precedence when they are stricter.
 
-## Choose the smallest execution mode
+## Start with the matching workstream
 
-Build For Me (BFM) is FB's execution path only after Product approval and
-explicit `$bfm`; Normal Codex remains the default when that coordination is
-unnecessary.
-
-- **Normal Codex:** clear, isolated, low-risk work. It creates no FB record and runs only directly relevant checks.
-- **Quick BFM:** an approved bounded correction with one owner, explicit locks and success criteria, one `TASK-Q-*` Quick Record, one reviewer, proportional focused checks, and one closeout in that same record.
-- **Full BFM:** material product, architecture, security, provider, release, multi-lane, conflicting-lock, or unclear work. It keeps the board, index, handoff, session, evidence, and closeout model.
-
-Auth, privacy, payments, secrets, destructive data, provider state, releases,
-deployments, publications, production migrations, material architecture/core
-flows, multiple owners, and ambiguity always require Full BFM. Normal Codex is
-the default when no durable coordination is needed. See
-[workflow.md](workflow.md) for execution budgets and stop predicates.
+When planning or evidence is useful, start in whichever workstream matches the
+question. Product/User is selected only for user needs, outcomes, requirements,
+feedback, acceptance criteria, or product priorities. Relevant workstreams
+create ready handoffs. After those handoffs are ready, the user says `$bfm` to
+activate Product reconciliation and execution of approved scope. FB keeps its
+risk and execution classification internal; the user never chooses a mode.
+See [start.md](start.md) for the public sequence and [workflow.md](workflow.md)
+for internal execution budgets and stop predicates.
 
 Verification has three levels: focused check, immediate safety gate, and
 release checkpoint. A full validator is eligible only when a Product-owned

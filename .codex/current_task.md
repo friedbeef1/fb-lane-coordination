@@ -1,12 +1,11 @@
 # Active Task Context
 
-* **Current Task**: TASK-030 FB 0.3.0-beta Release
+* **Current Task**: TASK-031 Full BFM changelog closeout and FB 0.3.1-beta release
 * **Lane**: FB-Product / BFM
-* **Status**: Done — PR #44 merged and `0.3.0-beta+codex.20260717150502` is installed and enabled
+* **Status**: In Progress — local release candidate `0.3.1-beta+codex.20260718021942`
 * **BFM Class**: Full BFM
-* **Released Commit**: `7e122ae` on `main`
+* **Release Vehicle**: PR #48; implementation stops at Ready to ship
 * **Worktree**: `/Users/jamesyeang/.codex/worktrees/fb-lane-objective-checkpoints`
-* **Locked Files**: None.
+* **Locked Files**: Full BFM closeout/session/runtime contracts, canonical/package docs and skills, release metadata, TASK-031 records.
 
-Implementation plan: `docs/superpowers/plans/2026-07-17-fb-0.3.0-beta-release.md`.
-Gate: complete. Start a new Codex task to load the refreshed plugin.
+Gate: complete focused and release-checkpoint verification, then stop at Ready to ship. Push Live remains separate.

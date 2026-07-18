@@ -74,9 +74,9 @@ const passedAutomatedEvidence = {
   baseCommit: '0123456789abcdef0123456789abcdef01234567',
   candidateCommit: 'fedcba9876543210fedcba9876543210fedcba98',
   checkedAt: '2026-07-17T00:00:00.000Z',
-  checks: [{ id: 'structure', result: 'passed' }],
+  checks: [{ id: 'structure-and-links', result: 'passed' }],
   changedPaths: ['docs/fb/workflow.md'],
-  checkManifest: [{ id: 'structure', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] }],
+  checkManifest: [{ id: 'structure-and-links', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'] }],
   safetyGate: { result: 'not-applicable', approvalRef: '' },
   optionalLinks: [],
 };
@@ -89,15 +89,22 @@ assert.strictEqual(verificationReuseDecision(['docs/README.md'], false).reuse, f
 
 const readHarness = page => fs.readFileSync(path.join(surfaceRoot, 'docs', 'fb', page), 'utf8');
 const overview = readHarness('README.md');
-for (const mode of ['Normal Codex', 'Quick BFM', 'Full BFM']) assert.match(overview, new RegExp(mode));
-assert.match(overview, /one `TASK-Q-\*` Quick Record/);
-assert.match(overview, /Auth,[\s\S]*ambiguity[\s\S]*Full BFM/i);
+assert.match(overview, /Start with the matching workstream/);
+assert.match(overview, /risk and execution classification internal/);
+assert.match(overview, /user never chooses a mode/);
+assert.doesNotMatch(overview, /Normal Codex|Quick BFM|Full BFM|TASK-Q-/);
 
 const workflow = readHarness('workflow.md');
+for (const mode of ['Quick BFM', 'Full BFM']) assert.match(workflow, new RegExp(mode));
+assert.match(workflow, /Agents classify clear isolated low-risk work/);
+assert.match(workflow, /exactly one committed[\s\S]*`docs\/handoffs\/TASK-Q-\*\.md` Quick Record/);
+assert.match(workflow, /ambiguous or material-risk work internally/);
+assert.match(workflow, /Sensitive[\s\S]*Full-BFM safety\/release gates/);
 assert.match(workflow, /Quick BFM/);
 assert.match(workflow, /ambiguity/i);
 assert.match(workflow, /<primary>\/\.worktrees\//);
-for (const contract of ['five total agent iterations', 'two repair loops', 'one reviewer', 'no-progress cycle', 'current brief', 'candidate\/diff', 'specific feedback', 'required evidence']) assert.match(workflow, new RegExp(contract, 'i'));
+for (const contract of ['5 minutes', '15 minutes', 'two total agent\\s+iterations', 'three total agent\\s+iterations', 'one consolidated repair', 'zero reviewers', 'exactly one reviewer', 'hooks\\.focusedTest', '10 minutes', 'no implementation subagent', 'current brief', 'candidate\/diff', 'specific feedback', 'required evidence']) assert.match(workflow, new RegExp(contract, 'i'));
+for (const contract of ['per execution slice', 'dependency graph', 'independent[\\s\\S]{0,100}slices[\\s\\S]{0,100}parallel', 'dependent[\\s\\S]{0,80}sequential', 'shared-file[\\s\\S]{0,80}sequential', 'res(?:plit|lice)', 'integration or\\s+release checkpoint']) assert.match(workflow, new RegExp(contract, 'i'));
 assert.match(workflow, /at most one full validator/);
 
 const sessions = readHarness('sessions.md');
@@ -106,7 +113,12 @@ for (const contract of ['Efficiency Receipt', 'without requiring\\s+a board row'
 const guardrails = readHarness('guardrails.md');
 assert.match(guardrails, /hooks\.preflight/);
 assert.match(guardrails, /no global Node version/i);
-for (const contract of ['third repair', 'repeated broad', 'sixth agent iteration', 'fb-package-sync\\.cjs[\\s\\S]{0,30}--check', 'release checkpoint', 'explicitly\\s+requests']) assert.match(guardrails, new RegExp(contract, 'i'));
+for (const contract of ['one consolidated repair', 'repeated broad', 'fb-package-sync\\.cjs[\\s\\S]{0,30}--check', 'after[\\s\\S]{0,80}review', 'release checkpoint', 'explicitly\\s+requests']) assert.match(guardrails, new RegExp(contract, 'i'));
+
+const cliSource = fs.readFileSync(path.join(surfaceRoot, 'tools', 'fb-lane.cjs'), 'utf8');
+assert.match(cliSource, /diff['"],\s*['"]--name-only['"],\s*`\$\{baseCommit\}\.\.HEAD`/);
+assert.match(cliSource, /runQuickSubmissionChecks\(markdown,\s*changedPaths,\s*workspaceRoot\)/);
+assert.match(cliSource, /runAutomatedCheck\(check,\s*workspaceRoot\)/);
 
 const evidence = readHarness('evidence.md');
 for (const contract of ['System verification: passed', 'Your input needed: none', 'smoke/result/evidence', 'Blocked — no review environment yet', 'Product/BFM owns review-access recovery']) assert.match(evidence, new RegExp(contract, 'i'));

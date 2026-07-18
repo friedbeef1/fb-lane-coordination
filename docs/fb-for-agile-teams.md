@@ -51,7 +51,7 @@ flowchart TB
 
 ## FB and familiar agile-team work
 
-See the [Why FB comparison](why-fb.md#honest-comparison) for how this delivery
+See the [Why FB comparison](why-fb.md#comparison) for how this delivery
 layer differs from ordinary Codex, worktrees, Capacitor, and BMAD.
 
 | In FB | Closest human-team equivalent | What it produces |

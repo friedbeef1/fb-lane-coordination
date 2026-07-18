@@ -1,6 +1,6 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.3.0-beta+codex.20260717150502",
+  "version": "0.3.1-beta+codex.20260718021942",
   "description": "FB connects six product workstreams to Product-led BFM implementation, automated verification, repair, and explicit release approval.",
   "author": {
     "name": "FB Contributors",
@@ -37,7 +37,7 @@
       "Start here: use $fb-lane, run doctor if setup looks incomplete, show current status and active locks, then ask what outcome I want to deliver.",
       "Use $fb-lane to route questions through Product/User, Business, Design, Tech, Discovery, and Bugs. Each relevant workstream should investigate its question, gather evidence, recommend a path, and create a ready handoff MD file; record None relevant instead of inventing work.",
       "Run $bfm only after Product approval. Scan all six workstreams and ready handoffs, reconcile duplicates, contradictions, dependencies, locks, and the approved goal, then prioritize and direct Codex implementation.",
-      "Own automated testing and bounded repair for the exact candidate. When the required checks pass, report Ready to ship and say exactly: Automated checks passed. Optional review links are available above. Say **Push Live** to deploy. Never merge or deploy before Push Live.",
+      "Own automated testing and bounded repair for the exact candidate. For Full BFM, verify the Build Brief and Task Receipt changelog decision before reporting Ready to ship. Then say exactly: Automated checks passed. Optional review links are available above. Say **Push Live** to deploy. Never merge or deploy before Push Live.",
       "Bootstrap this repo for Codex only, preserve the fb-lane-coordination IDs and MCP paths, add any missing six-workstream guidance, then run doctor and report whether FB is ready."
     ],
     "brandColor": "#0F766E"

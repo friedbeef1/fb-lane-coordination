@@ -38,7 +38,7 @@ const deliveredPages = [
 
 const codexProblemRows = [
   '| Important decisions remain scattered across chats | FB turns actionable decisions and evidence into repository-local handoff MD files. |',
-  '| Codex may start building before the goal and boundaries are clear | FB separates planning from implementation and requires an approved brief before `$bfm`. |',
+  '| Codex may start building before the goal and boundaries are clear | FB requires relevant workstream handoffs and approved ready scope before `$bfm`; Product records the consolidated Project Start Brief and Build Brief during reconciliation after invocation. |',
   '| User evidence, decisions, and AI assumptions can become mixed together | Product/User records each category separately before implementation. |',
   '| Outputs from several Codex tasks must be combined manually | `$bfm` scans ready handoffs across all six workstreams, reconciles conflicts, and sequences the work. |',
   '| Failed checks can return responsibility to the user | FB runs automated checks and owns bounded diagnosis and repair. |',
@@ -113,17 +113,17 @@ for (const evidence of ['TASK-020.md', 'TASK-022.md', 'TASK-024.md', 'TASK-023-w
 assert.match(rootReadme, /Problems FB solves[\s\S]*\[Why FB evidence\]\(docs\/why-fb\.md#pain-points-fb-is-designed-to-address\)/, 'README problem tables must route to Why FB evidence');
 assert.match(rootReadme, /One big loop, six mini-loops[\s\S]*\[Agile Teams\]\(docs\/fb-for-agile-teams\.md\)[\s\S]*\[Full FB Loop Diagram\]\(docs\/fb\/full-loop\.md\)/, 'README loop must route to Agile Teams and Full Loop');
 assert.match(agileTeams, /The short version[\s\S]*\[Full Loop\]\(fb\/full-loop\.md\)/, 'Agile diagram must route to Full Loop');
-assert.match(agileTeams, /FB and familiar agile-team work[\s\S]*\[Why FB comparison\]\(why-fb\.md#honest-comparison\)/, 'Agile mapping must route to Why FB comparison');
+assert.match(agileTeams, /FB and familiar agile-team work[\s\S]*\[Why FB comparison\]\(why-fb\.md#comparison\)/, 'Agile mapping must route to Why FB comparison');
 assert.match(agileTeams, /What happens in a real example[\s\S]*\[Why FB examples\]\(why-fb\.md#concrete-examples\)/, 'Agile example must route to Why FB examples');
 assert.match(agileTeams, /How `\$bfm` relates to Scrum and Kanban[\s\S]*\[workflow\]\(fb\/workflow\.md\)/, 'Agile $bfm section must route to workflow');
 assert.match(agileTeams, /What FB deliberately does not do[\s\S]*\[guardrails\]\(fb\/guardrails\.md\)/, 'Agile boundaries must route to guardrails');
-assert.match(canonical, /Honest comparison[\s\S]*\[Agile Teams\]\(https:\/\/github\.com\/friedbeef1\/fb-lane-coordination\/blob\/main\/docs\/fb-for-agile-teams\.md\)/, 'Why FB comparison must route to Agile Teams');
+assert.match(canonical, /^## Comparison$[\s\S]*\[Agile Teams\]\(https:\/\/github\.com\/friedbeef1\/fb-lane-coordination\/blob\/main\/docs\/fb-for-agile-teams\.md\)/m, 'Why FB comparison must use the concise title and route to Agile Teams');
 assert.match(fullLoop, /\[workflow\]\(workflow\.md\)/, 'Full Loop must route to workflow');
 assert.strictEqual((agileTeams.match(/```mermaid/g) || []).length, 1, 'Agile Teams must contain exactly one Mermaid diagram');
 
 for (const [label, source, hrefs] of [
   ['README', 'README.md', ['README.md', 'docs/fb-for-agile-teams.md', 'docs/why-fb.md', 'docs/fb/full-loop.md', 'docs/why-fb.md#pain-points-fb-is-designed-to-address']],
-  ['Agile Teams', 'docs/fb-for-agile-teams.md', ['../README.md', 'fb-for-agile-teams.md', 'why-fb.md', 'fb/full-loop.md', 'why-fb.md#honest-comparison', 'why-fb.md#concrete-examples', 'fb/workflow.md', 'fb/guardrails.md']],
+  ['Agile Teams', 'docs/fb-for-agile-teams.md', ['../README.md', 'fb-for-agile-teams.md', 'why-fb.md', 'fb/full-loop.md', 'why-fb.md#comparison', 'why-fb.md#concrete-examples', 'fb/workflow.md', 'fb/guardrails.md']],
   ['Why FB', 'docs/why-fb.md', ['../README.md', 'why-fb.md', 'fb/full-loop.md']],
   ['Full Loop', 'docs/fb/full-loop.md', ['../../README.md', '../why-fb.md', 'full-loop.md', 'workflow.md']],
   ['packaged Why FB', 'plugins/fb-lane-coordination/docs/why-fb.md', ['../README.md', 'why-fb.md', 'fb/full-loop.md']],
@@ -133,12 +133,61 @@ for (const [label, source, hrefs] of [
 }
 
 assert.match(canonical, /> Codex executes software work\.\s+> Capacitor is a session-intelligence platform\.\s+> FB is a product-delivery harness that includes curated session intelligence\./);
-assert.match(canonical, /\| System \| Good because \| Gap FB addresses \|/);
-assert.match(canonical, /\| Vanilla Codex \| Directly executes clear software tasks\. \|/);
-assert.match(canonical, /\| Git worktrees \| Isolate branches and allow parallel implementation without mixing files\. \|/);
-assert.match(canonical, /\| Kurrent Capacitor \| Automatically captures, recalls, observes, and evaluates agent sessions\. \|/);
-assert.match(canonical, /\| BMAD \| Provides a broad role-based AI development methodology\. \|/);
-assert.match(canonical, /\| FB \| Connects six product workstreams to Codex implementation, verification, and delivery\. \| — \|/);
+const comparisonHeader = '| System | Good because | Gap | How FB addresses the gap |';
+const oldComparisonHeader = '| System | Good because | Gap FB addresses |';
+const comparisonRows = [
+  ['Vanilla Codex', 'Directly executes clear software tasks.', 'Decisions, evidence, priorities, verification, and release authority can remain scattered across chats.', 'FB captures durable handoffs, reconciles six workstreams, verifies the result, and preserves explicit release approval.'],
+  ['Git worktrees', 'Isolate branches and support parallel implementation.', 'Isolation does not determine what to build, resolve competing recommendations, or verify the product outcome.', 'FB connects worktree execution to approved priorities, coordinated implementation, and outcome verification.'],
+  ['Kurrent Capacitor', 'Automatically captures, recalls, observes, and evaluates agent sessions.', 'Session intelligence alone does not define the approved product outcome or own delivery authority and closeout.', 'FB connects curated evidence to the brief, user decisions, execution authority, testing, and closeout.'],
+  ['BMAD', 'Provides a broad role-based AI development methodology.', 'A broad methodology can require more process than a focused repository-local Codex delivery loop.', 'FB provides a smaller loop around ready handoffs, Codex implementation, automated verification, and explicit release approval.'],
+  ['FB', 'Connects six product workstreams to Codex implementation, verification, and delivery.', '—', '—'],
+];
+
+const exceptionalFitRows = [
+  ['The task is completely specified, mechanical, disposable, finishable in one session, and needs no durable decisions, coordination, follow-up, sensitive handling, or release governance.', 'Vanilla Codex', 'It executes immediately without creating records that will never be reused.'],
+  ['A mature engineering organization already owns requirements, prioritization, CI, review, and release—and needs only native branch isolation.', 'Git worktrees', 'Worktrees provide isolation without introducing another coordination system.'],
+  ['The primary requirement is comprehensive or forensic capture of large volumes of agent-session activity across teams.', 'Kurrent Capacitor', 'Capacitor provides richer automatic session telemetry and history than FB’s curated records.'],
+  ['The organization explicitly wants a prescribed, role-heavy methodology with formal personas and lifecycle ceremonies.', 'BMAD', 'BMAD provides a broader formal methodology than FB’s repository-local delivery loop.'],
+];
+
+const stackRows = [
+  ['Vanilla Codex', 'Reading, editing, running, testing, and explaining software work', 'Approved product context, coordinated handoffs, verification ownership, and release boundaries', 'FB is a Codex plugin; Codex remains the execution engine.'],
+  ['Git worktrees', 'Native branch and filesystem isolation for parallel changes', 'Priorities, ownership, locks, sequencing, and outcome verification', 'FB may use ordinary Git worktrees; it does not replace Git.'],
+  ['Kurrent Capacitor', 'Automatic session capture, recall, telemetry, and cross-agent history', 'Curated product truth tied to decisions, scope, acceptance, and closeout', 'Capacitor can be an optional evidence source. Important conclusions must enter FB handoffs; no automatic integration currently exists.'],
+  ['BMAD', 'Formal discovery, planning, role-based analysis, PRDs, architecture, and UX artifacts', 'Repository-local delivery, reconciliation, Codex execution, automated checks, and explicit release approval', 'Approved BMAD artifacts can enter FB as evidence or ready handoffs. FB remains the delivery authority to avoid competing systems of record.'],
+];
+
+for (const [label, page] of [['README', rootReadme], ['Why FB', canonical], ['packaged Why FB', packaged]]) {
+  assert.ok(page.includes('## When something else is genuinely a better fit'), `${label} must document exceptional alternatives`);
+  assert.ok(page.includes('Most product work benefits from FB when decisions, implementation, verification, and release must remain connected. Another tool is a better fit only when one of these narrower conditions describes the primary goal.'), `${label} must introduce the narrow exceptional cases`);
+  for (const row of exceptionalFitRows) assert.ok(page.includes(`| ${row.join(' | ')} |`), `${label} must contain exceptional fit row: ${row[1]}`);
+  assert.ok(page.includes('If these conditions sound unusually specific, they probably are. Ordinary evolving product work still benefits from FB connecting decisions, implementation, verification, and release.'), `${label} must explain why the exceptions are narrow`);
+  assert.ok(page.includes('Describe the outcome and use FB normally. FB decides how much coordination, evidence, and verification the situation requires.'), `${label} must state automatic FB routing`);
+  assert.ok(page.includes('## How FB works with your existing stack'), `${label} must document stack augmentation`);
+  assert.ok(page.includes('| Existing tool | Keep using it for | What FB adds | Integration boundary |'), `${label} must contain the exact stack table headers`);
+  for (const row of stackRows) assert.ok(page.includes(`| ${row.join(' | ')} |`), `${label} must contain stack row: ${row[0]}`);
+  assert.ok(page.includes('A team can use BMAD to produce a formal PRD, Capacitor to preserve detailed session history, Git worktrees to isolate parallel implementation, and Codex to write the software. FB connects the approved parts: it turns the PRD and relevant evidence into durable handoffs, sequences work across worktrees, verifies the delivered outcome, and waits for **Push Live**.'), `${label} must contain the combined stack example`);
+  assert.ok(page.includes('FB is fully open source, repository-local, and requires no FB-hosted service.'), `${label} must contain the open-source deployment boundary`);
+  assert.match(page, /documented workflows[^\n]*not built-in automatic adapters/i, `${label} must label stack use as documented workflows rather than automatic adapters`);
+}
+
+function assertComparisonTable(label, page) {
+  assert.ok(page.includes(comparisonHeader), `${label} must contain the four ordered comparison columns`);
+  assert.ok(!page.includes(oldComparisonHeader), `${label} must reject the old three-column comparison header`);
+  for (const [system, good, gap, response] of comparisonRows) {
+    const row = `| ${system} | ${good} | ${gap} | ${response} |`;
+    assert.ok(page.includes(row), `${label} must contain exact comparison row: ${system}`);
+    if (system !== 'FB') {
+      assert.ok(gap.length > 0 && response.length > 0, `${label} ${system} must have non-empty Gap and FB-response cells`);
+      assert.notStrictEqual(gap, response, `${label} ${system} must separate the gap from the FB response`);
+    } else {
+      assert.strictEqual(gap, '—', `${label} FB Gap must be an em dash`);
+      assert.strictEqual(response, '—', `${label} FB response must be an em dash`);
+    }
+  }
+}
+
+assertComparisonTable('Why FB', canonical);
 assert.match(compact, /overlap substantially in session recall, evidence, and evaluation/i);
 assert.match(compact, /may provide richer session telemetry/i);
 assert.match(compact, /optional evidence provider to FB/i);
@@ -147,14 +196,14 @@ assert.match(canonical, /Capacitor can show that three agents attempted a featur
 assert.strictEqual((canonical.match(/```mermaid/g) || []).length, 1, 'comparison page must contain one FB-only Mermaid diagram');
 
 for (const page of deliveredPages) {
-  assert.match(page.content, /\| System \| Good because \| Gap FB addresses \|/);
+  assertComparisonTable(page.label, page.content);
   assert.match(page.content, /\| Git worktrees \|/);
   assert.match(page.content, /\| FB \|[^\n]+\| — \|/);
   assert.strictEqual((page.content.match(/```mermaid/g) || []).length, 1, `${page.label} must contain one FB-only Mermaid diagram`);
   assert.doesNotMatch(page.content, /GitHub Spec Kit|Better choice when/i);
 }
 
-assert.match(rootReadme, /\| System \| Good because \| Gap FB addresses \|/);
+assertComparisonTable('README', rootReadme);
 assert.match(rootReadme, /\| Git worktrees \|/);
 assert.match(rootReadme, /\| (?:\*\*)?FB(?:\*\*)? \|[^\n]+\| — \|/);
 assert.doesNotMatch(rootReadme, /GitHub Spec Kit|Better choice when/i);
@@ -167,12 +216,13 @@ assert.strictEqual(fullLoop, packagedFullLoop, 'full loop page must be mechanica
 
 for (const term of [
   'Product/User', 'Business', 'Design', 'Tech', 'Discovery', 'Bugs',
-  'ready', 'blocked', 'None relevant', 'Product reconciles', 'Quick BFM',
-  'Full BFM', 'Codex implements', 'Automated checks', 'Scoped repair',
+  'ready', 'blocked', 'None relevant', 'User says $bfm', 'Product reconciles',
+  'BFM implements', 'Automated checks', 'Scoped repair',
   'Optional review links', 'Ready to ship', 'Push Live', 'Results and feedback',
 ]) {
   assert.match(fullLoop, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), `full loop page must show ${term}`);
 }
+assert.doesNotMatch(fullLoop, /Quick BFM|Full BFM|Normal Codex/i, 'public full-loop diagram must not expose internal mode choices');
 
 for (const evidence of ['TASK-020.md', 'TASK-022.md', 'TASK-024.md', 'TASK-023-walkthroughs.md', 'TASK-026.md']) {
   assert.match(canonical, new RegExp(evidence.replace('.', '\\.')), `pain-point map must cite ${evidence}`);

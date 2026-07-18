@@ -33,18 +33,19 @@ flowchart TB
         NR["None relevant<br/>No work manufactured"]
     end
 
-    RH --> PR
+    RH --> BFM["User says $bfm"]
+    BFM --> PR
     BH --> PR
     NR --> PR
     PR["Product reconciles<br/>duplicates, conflicts, dependencies, and priority"]
     PR --> A{"Approved and clear?"}
-    A -->|"Bounded correction"| Q["Quick BFM"]
-    A -->|"Material, risky, or multi-workstream"| F["Full BFM"]
-    A -->|"Decision, evidence, or access missing"| X["Blocked<br/>Owner and next action"]
-
-    Q --> C["Codex implements"]
-    F --> C
-    C --> V["Automated checks"]
+    A -->|"Yes"| SP["Plan bounded slices<br/>outcome, locks, dependencies, proof"]
+    A -->|"Changed decision, conflict, sensitive boundary, or unclear scope"| X["Paused<br/>Owner and next action"]
+    SP --> PA["Independent slices<br/>parallel agents"]
+    SP --> SE["Dependent or overlapping slices<br/>sequential"]
+    PA --> C["BFM implements and integrates<br/>completed slices"]
+    SE --> C
+    C --> V["Automated checks<br/>focused per slice, integration at boundaries"]
     V -->|"Focused failure evidence"| R["Scoped repair"]
     R --> C
     V -->|"Required checks pass"| O["Optional review links<br/>Your input needed: none, unless stated"]
@@ -65,9 +66,16 @@ flowchart TB
 
 - Only valid `ready` handoffs enter execution. `blocked` work remains visible,
   while **None relevant** prevents a workstream from inventing work.
-- Product reconciles the evidence and chooses the sequence. Quick BFM handles
-  approved bounded corrections; Full BFM handles material or risky work.
-- FB runs automated checks and owns scoped repair within its loop budget.
+- After ready handoffs, `$bfm` activates Product reconciliation and execution
+  of already-approved ready scope. It plans the smallest useful dependency
+  graph up front: independent, non-overlapping slices may use parallel agents;
+  dependent, shared-file, or unresolved work remains sequential. Internal
+  routing remains private.
+- A substantial outcome may run for hours across bounded slices. FB uses focused
+  proof per slice, integration checks at meaningful combinations, and broad
+  validation only at a release checkpoint. Unexpected complexity resplits the
+  remaining work without discarding completed slices.
+- FB owns scoped repair within each slice's loop budget.
   Optional review links provide visibility without returning routine QA to the
   user.
 - **Ready to ship** means the required checks passed. Only **Push Live**

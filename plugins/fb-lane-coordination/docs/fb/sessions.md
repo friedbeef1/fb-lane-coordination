@@ -80,6 +80,10 @@ approved brief and decisions; confirmed
 assumptions and approved scope changes; branch, source commits, and changed
 surfaces; checks, failures, recovery, and results; review state, direct links,
 limits, and external gates; repository state; and remaining owner/action.
+For a v3 Full BFM handoff it also records the changelog result defined in
+[workflow.md](workflow.md#internal-approval-record). The Build Brief expectation
+and Task Receipt decision must agree; a concrete not-required reason is copied
+unchanged.
 
 Brief Validation is `pass` or `blocked`. Product/BFM authors the semantic
 comparison. The deterministic CLI only checks complete actionable structure:
@@ -102,6 +106,10 @@ handoff, current branch, registered linked worktree, and lock conflicts after
 tests/hooks and immediately before board mutation. Completed execution close
 revalidates the same current authority before changing session state, accepting
 only the normal In Progress or already-submitted Staging QA board states.
+For v3 Full BFM sessions, completed close, submit, verification reuse, and the
+release checkpoint additionally require a passing candidate-bound changelog
+decision. Existing v2 records are historical-compatible; Quick and Normal work
+remain exempt.
 
 For selected evals, completed closeout leaves shadow failures visible,
 requires an advisory fix or handoff explanation, and rejects unresolved
@@ -133,10 +141,25 @@ capture needs a separate explicit approval and privacy review.
 
 Quick BFM uses one `TASK-Q-*` Quick Record instead of the Full-BFM session
 recap and reciprocal evidence set. It contains approval, scope, owner, locks,
-focused verification, minimal worker context, one reviewer decision, one
-closeout, and an Efficiency Receipt. Status reads that record without requiring
-a board row. Submit closes that same file and must not invoke runtime suites or
-a full validator for coordination-only closeout.
+focused verification, minimal worker context, its review requirement and
+decision, one closeout, and an Efficiency Receipt. Status reads that record
+without requiring a board row. Submit closes that same file and must not invoke
+runtime suites or a full validator for coordination-only closeout.
+
+Each new Quick Record says whether review is required. Documentation and
+coordination records use `Review required: no`, `Reviewer: not required`,
+`Reviewer decision: not required`, and `Reviewers: 0`; runtime and test records
+use `Review required: yes` and require exactly one approved reviewer. A legacy
+Quick Record without `Review required` keeps the previous exactly-one-reviewer
+rule.
+
+Each Quick Record represents one planned execution slice, not the total task.
+Documentation/coordination slices normally target 5 minutes with two iterations
+and one repair. Runtime/test slices normally target 15 minutes with three
+iterations and one repair. Full BFM may coordinate many slices over hours;
+timeout or exhaustion resplits or reroutes the unfinished slice while preserving
+completed checkpoints. Independent, non-overlapping slices may run through
+parallel agents or subagents; dependent or shared-file slices remain sequential.
 
 For all modes, use a focused check by default. Sensitive work stops at its
 immediate safety/approval gate. A Product-owned handoff must explicitly request

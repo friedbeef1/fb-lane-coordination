@@ -1,55 +1,43 @@
 # Start an FB objective
 
-FB uses the smallest mode that fits the work. Simple work stays direct;
-coordinated work is planned before any source-changing execution begins.
-
-## Choose the mode
-
-### Simple task
-
-Example: change one label in one file with no shared locks or durable handoff.
-
-This is a simple task, so I’ll handle it directly without lanes or a build brief.
-
-### Coordinated planning
-
-Example: plan a creator-commerce launch that needs Product, copy, and technical
-questions reconciled before anyone changes source.
-
-FB will prepare the plan first. It is not building yet.
-
-### Approved Build For Me
-
-Example: the user has approved the reconciled plan and explicitly invoked
-`$bfm` for the bounded implementation.
-
-Build For Me (BFM) will now build and check the approved plan.
+Describe the objective or question. Whenever planning or evidence would help,
+start in whichever of the six workstreams matches the question. FB selects the
+useful path; users do not choose an execution mode at intake.
 
 ## The six workstreams
 
-- **Product/User:** the user outcome, requirements, evidence, priorities, and acceptance criteria.
+- **Product/User:** selected only for user needs, user outcomes, requirements, feedback, acceptance criteria, or product priority questions. It is not the universal coordinator at intake.
 - **Business:** market, positioning, pricing, distribution, and commercial risks.
 - **Design:** flows, interaction, accessibility, information design, and visual quality.
 - **Tech:** architecture, feasibility, security, performance, and integrations.
 - **Discovery:** unknowns, research, experiments, and decision-changing evidence.
 - **Bugs:** reproduction, severity, affected users, and regression evidence.
 
-Every relevant workstream uses the same mini-loop: **Question → Investigate →
-Gather evidence → Recommend → Create handoff MD**. If there is no useful
-contribution, record **None relevant**.
+Each relevant workstream uses the same mini-loop: **Question → Investigate →
+Gather evidence → Recommend → Create ready handoff MD**. A workstream that is
+not relevant does no manufactured work. Record **None relevant** only when a six-workstream scan or report requires a disposition for every workstream.
+
+## The single public sequence
+
+1. FB starts in whichever workstream or workstreams match the question.
+2. Each relevant workstream investigates and creates a ready handoff MD.
+3. When the actionable ready handoffs are assembled, the user says `$bfm`.
+4. `$bfm` activates Product reconciliation. Product must scan all six workstreams, reconcile duplicates, conflicts, and dependencies, prioritize the ready scope, and create the consolidated Project Start Brief and Build Brief as the durable record before source execution.
+5. `$bfm` authorizes execution of already-approved ready scope. Product pauses for the user only when reconciliation reveals a changed decision, disputed priority, sensitive boundary, conflict, or unclear scope.
+6. BFM implements and verifies the reconciled scope, then stops at **Ready to ship**. Only **Push Live** authorizes release, merge, or deployment.
 
 ## Terms in plain language
 
 - **Workstream:** a focused planning and evidence view.
 - **Handoff:** the durable note that passes decisions, scope, and evidence to the next owner.
-- **Build For Me (BFM):** the execution mode used only after approval and explicit `$bfm`.
+- **Build For Me (BFM):** the post-handoff reconciliation and execution boundary activated by `$bfm`.
 - **Gate:** a required approval, review, or check before work moves forward.
 - **Quality Gap:** the recorded difference between the approved target and the result that was checked.
 
 ## Project Start Brief
 
-For a first project or new non-trivial objective, Product presents exactly this
-visible brief before requesting lane output or clarification questions:
+During Product reconciliation after ready handoffs and `$bfm`, Product creates
+this visible seven-field brief together with the Build Brief:
 
 - **What you asked for:** <plain-language outcome>
 - **Your decisions:** <choices already made>
@@ -61,31 +49,22 @@ visible brief before requesting lane output or clarification questions:
 
 ## Clarifications
 
-Name each selected workstream, its distinct question, and the decision or risk its
-answer changes. Also write `None relevant: <workstreams and reason>`. Every
-clarification includes **Why this matters**, a **Recommended default**, and
-**What changes if you choose differently**.
-
-## How FB works
-
-1. Six workstreams investigate relevant parts; irrelevant ones record None relevant.
-2. Product combines findings into one build brief.
-3. You approve the brief.
-4. Only after explicit `$bfm`, BFM builds and checks it.
-
-After approval and explicit `$bfm`, say:
-
-Build For Me (BFM) will now build and check the approved plan.
+Each relevant workstream names its distinct question and the decision or risk
+its answer changes. Every clarification includes **Why this matters**, a
+**Recommended default**, and **What changes if you choose differently**.
+Product asks again after `$bfm` only for a changed decision, disputed priority,
+sensitive boundary, conflict, or unclear scope found during reconciliation.
 
 ## Progress and pauses
 
-- **Progress:** Understanding your idea → Ready for your approval → Building → Checking → Complete
+- **Progress:** Investigating → Handoffs ready → Reconciling → Building → Checking → Ready to ship
 - **Blocked:** Blocked — <reason> / next action
 
 ## Internal planning details
 
-The visible brief stays concise. Product records goal alignment, approval,
-locks, sequencing, and visual-preview decisions through [workflow.md](workflow.md).
+The public flow above stays singular. FB may classify and route work internally
+to enforce risk, lock, review, and verification budgets, but it does not ask the
+user to select those routes. Product records goal alignment, approval, locks,
+sequencing, and visual-preview decisions through [workflow.md](workflow.md).
 Eval selection, authority, evidence types, judgment boundaries, and Quality Gap
-closure live in [evals.md](evals.md). Ordinary lanes remain plan-only until the
-explicit Build For Me boundary is cleared.
+closure live in [evals.md](evals.md).

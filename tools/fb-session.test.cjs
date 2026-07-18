@@ -1657,7 +1657,9 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
     assert.ok(fs.existsSync(record));
     assert.ok(!fs.existsSync(primaryRecord), 'default Quick Record must never be created in the primary checkout');
     assert.match(fs.readFileSync(record, 'utf8'), /mode: Quick BFM/i);
+    assert.match(fs.readFileSync(record, 'utf8'), /^Review required: yes$/mi);
     assert.match(fs.readFileSync(record, 'utf8'), /^Approval reference: USER-APPROVAL-001$/mi);
+    fs.writeFileSync(path.join(worktree, 'src', 'quick.js'), 'module.exports = "runtime quick fixture";\n');
     assert.strictEqual(fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8'), boardBefore);
     assert.strictEqual(fs.readFileSync(path.join(worktree, 'docs', 'handoffs', 'index.md'), 'utf8'), indexBefore);
     assert.ok(!fs.existsSync(path.join(worktree, 'docs', 'sessions')));
@@ -1696,8 +1698,30 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
     });
     assert.strictEqual(merge.status, 0, `Quick closeout must merge without add/add conflict:\n${output(merge)}`);
     git(quickFixture.repo, ['merge', '--abort']);
+
   } finally {
     quickFixture.cleanup();
+  }
+
+  const docsQuickFixture = createRepo();
+  try {
+    const docsQuick = run(docsQuickFixture.repo, ['quick', 'Tech', 'docs/fb/workflow.md', 'Correct workflow wording', '--approval-ref', 'USER-APPROVAL-003']);
+    assertOk(docsQuick);
+    const docsWorktree = /Worktree:\s+([^\n]+)/.exec(docsQuick.stdout)?.[1]?.trim();
+    const docsTaskId = /TASK-Q-\d+/.exec(docsQuick.stdout)?.[0];
+    const docsRecord = path.join(docsWorktree, 'docs', 'handoffs', `${docsTaskId}.md`);
+    const docsReady = fs.readFileSync(docsRecord, 'utf8')
+      .replace('Focused evidence: pending', 'Focused evidence: documentation contract passed');
+    assert.match(docsReady, /^Review required: no$/mi);
+    assert.match(docsReady, /^Reviewer: not required$/mi);
+    assert.match(docsReady, /^Reviewer decision: not required$/mi);
+    assert.match(docsReady, /^Reviewers: 0$/mi);
+    fs.writeFileSync(docsRecord, docsReady);
+    const docsSubmitted = run(docsWorktree, ['submit', docsTaskId]);
+    assertOk(docsSubmitted);
+    assert.match(fs.readFileSync(docsRecord, 'utf8'), /Status: complete/);
+  } finally {
+    docsQuickFixture.cleanup();
   }
 
   for (const command of [

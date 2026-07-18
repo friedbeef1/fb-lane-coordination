@@ -19,9 +19,9 @@ mini-loop and records a ready or blocked `docs/handoffs/<TASK-ID>.md` for the BF
 scanner; inactive workstreams need no manufactured work. BFM stops at **Ready to
 ship**. Only **Push Live** authorizes merge or deployment.
 
-The installed [start.md](../../docs/fb/start.md) defines Build For Me (BFM) as
-the execution mode used only after approval and explicit `$bfm`, and remains
-the first-project source.
+The installed [start.md](../../docs/fb/start.md) defines the single public
+workstream-first path. After relevant workstreams create ready handoffs, `$bfm`
+activates Product reconciliation and execution of approved scope.
 
 - [First-project contract and approval boundary](../../docs/fb/start.md)
 - [Board/index/handoff/workstream roles and execution](../../docs/fb/workflow.md)
@@ -33,15 +33,27 @@ the first-project source.
 The installed `guardrails.md` is also the source for the canonical beginner pause card.
 Use it for approval waits and genuine stops.
 
-After setup, Product owns current goals and task sequencing; lanes use the
-board and index before detailed handoffs; source-changing execution starts only
-through approved BFM.
+After setup, each matching workstream owns its investigation and ready handoff.
+Product owns reconciliation and sequencing only after `$bfm`; source-changing
+execution starts through that approved BFM boundary.
 
-The installed harness also routes Normal Codex, Quick BFM, and Full BFM and
-keeps package mirrors generated from canonical root files. Do not add a second
+The installed harness retains private agent routing and keeps package mirrors
+generated from canonical root files. Do not add a second
 board/index/session record for Quick BFM; its single Quick Record and local
 Efficiency Receipt are the durable boundary.
 
 The harness distinguishes focused checks, immediate safety gates, and release
 checkpoints. A full validator needs an explicit Product-owned release-checkpoint
 request; a Markdown handoff artifact or review transfer alone is not one.
+Its generated Quick Records state whether review is required: documentation and
+coordination use zero reviewers after focused checks pass, runtime and test use
+exactly one, and records without the field retain the legacy one-reviewer rule.
+Projects may configure `hooks.focusedTest` and a
+`timeouts.focusedTestMinutes` value of at most 10 in `.fb-lane.json`; otherwise
+runtime Quick work uses bounded `npm test`.
+The 5- or 15-minute target applies to one execution slice, not the complete
+outcome. During `$bfm`, split predictable work up front into the smallest useful
+dependency graph. Full BFM may coordinate many slices for hours and use parallel
+agents or subagents for independent, non-overlapping locks. Keep dependent,
+shared-file, sensitive, and unresolved-decision work sequential; verify each
+slice narrowly and reserve broad validation for the release checkpoint.

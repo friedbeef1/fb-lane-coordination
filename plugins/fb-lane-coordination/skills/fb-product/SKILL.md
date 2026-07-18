@@ -5,17 +5,22 @@ description: Use when Product must scope, prioritize, reconcile lane handoffs, a
 
 # FB Product
 
-Product owns value, sequencing, approved goals, BFM launch, reconciliation, and
-merge/release gates. Start with [the Project Start Brief](../../docs/fb/start.md),
-then read board truth, handoff routing, linked detail, and workstream summaries.
-Build For Me (BFM) is the separate execution mode Product launches only after
-approval and explicit `$bfm`.
+Product owns value, sequencing, reconciliation, and merge/release gates after
+actionable workstream handoffs are ready and the user says `$bfm`. Product is
+not the universal coordinator at intake; Product/User is selected only for user
+needs, user outcomes, requirements, feedback, acceptance criteria, or product
+priority questions. Read [the workstream-first start contract](../../docs/fb/start.md),
+then board truth, handoff routing, linked detail, and workstream summaries.
 
 The one delivery loop has six planning/evidence workstreams in canonical order:
 Product/User (technical slug `product`), Business, Design, Tech, Discovery, and
 Bugs. Each runs its smallest real mini-loop, records evidence in
-`docs/handoffs/<TASK-ID>.md`, and marks it ready or blocked for BFM. BFM
-reconciles relevant ready handoffs and stops at **Ready to ship**. Only an
+`docs/handoffs/<TASK-ID>.md`, and marks it ready or blocked for BFM. After
+`$bfm`, Product scans all six, reconciles duplicates, conflicts, and
+dependencies, prioritizes, and creates the consolidated Project Start Brief and
+Build Brief before execution. `$bfm` authorizes already-approved ready scope;
+pause only for a changed decision, disputed priority, sensitive boundary,
+conflict, or unclear scope. BFM stops at **Ready to ship**. Only an
 explicit **Push Live** authorizes merge or deployment.
 
 - [Workflow and BFM return loop](../../docs/fb/workflow.md)
@@ -28,16 +33,18 @@ For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must
 judge it.
 
-Keep ordinary worker lanes plan-only. Product records the approved build brief
-before BFM starts source-changing work, and closes only with aligned board,
+Keep ordinary worker lanes plan-only. Pre-`$bfm` approval attaches to ready
+scope and handoffs. After invocation, Product records the consolidated Project
+Start Brief and Build Brief before BFM starts source-changing work, without a
+routine second approval; pause only for a changed decision, disputed priority,
+sensitive boundary, conflict, or unclear scope. Product closes only with aligned board,
 repository, evidence, and Git state. Product authors the semantic Brief
 Validation comparison; the CLI enforces complete actionable structure only.
-In the same update that creates a non-quick board task after approval, Product
-must copy the approved Project/Build Brief goal into that task's complete board
+In the same update that creates a non-quick board task after reconciliation, Product
+must copy the reconciled Project/Build Brief goal into that task's complete board
 Goal Alignment Session. Do not wait for `doctor` to discover a missing OKR. If
 there is no approved goal, block the task instead of inventing one.
-Product routes isolated work to Normal Codex, bounded approved corrections to
-one-record Quick BFM, and material or ambiguous work to Full BFM, enforcing the
+Product privately routes execution by risk, enforcing the
 canonical progress and resource stop predicates before any repeated iteration.
 Product selects only relevant evals, records every authority decision, and
 provides explicit approval evidence before promotion to blocking or mechanical.
@@ -46,3 +53,9 @@ Subjective product quality remains Product/user judgment, never an automated sco
 Product inference and assumptions are not user evidence: label them as
 assumptions. Actual user evidence requires observed or recorded user input;
 never fabricate or impersonate user feedback.
+
+For every Full BFM Build Brief, Product records whether the candidate requires
+a user-facing changelog entry. Before **Ready to ship**, confirm the Task
+Receipt has the matching canonical decision and that any required linked entry
+describes what changed, why it matters, compatibility, and upgrade action. See
+`workflow.md`; Quick and Normal work are exempt.

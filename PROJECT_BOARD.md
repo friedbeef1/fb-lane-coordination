@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-031 | In Progress | FB-Product / BFM | Closeout + Plugin Release | Require a Full BFM changelog decision before Ready to ship and rebuild FB as 0.3.1-beta | Closeout/session/runtime contracts, canonical/package docs and skills, release metadata and records | [Handoff](docs/handoffs/TASK-031.md); PR #48; `0.3.1-beta+codex.20260718021942`; Push Live remains separate |
 | TASK-030 | Done | FB-Product / BFM | Codex Plugin Release | Release the Codex plugin as `0.3.0-beta`, align active metadata/prompts/docs with the six-workstream loop, and prove the packaged install | None | [Handoff](docs/handoffs/TASK-030.md); [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44) merged; `0.3.0-beta+codex.20260717150502` installed and enabled; GitHub readiness and live cache proof passed |
 | TASK-029 | Staging QA | FB-Product / BFM + six workstreams | Product Model | Expand FB to Product/User, Business, Design, Tech, Discovery, and Bugs; make `$bfm` reconcile all six ready-handoff sources and align the plugin and public story | Runtime/session/CLI/MCP, bootstrap, skills, canonical/package docs/tests, TASK-029 records | [Handoff](docs/handoffs/TASK-029.md); branch `codex/fb-six-workstreams`; root/package focused contracts, 25-mirror parity, syntax, and whitespace passed; Ready to ship; no release checkpoint |
 | TASK-028 | Staging QA | FB-Product / BFM + FB-Tech execution | Harness Efficiency | Revise the local harness to focused checks, immediate safety gates, and explicit Product-owned release checkpoints; retain the three-mode router, Quick Record, budgets, and generated mirrors | Canonical/package efficiency and documentation contracts, canonical harness and skills, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-028.md); [spec](docs/superpowers/specs/2026-07-17-fb-efficiency-correction-design.md); local candidate `284e465`; no release checkpoint requested; focused local QA only |
@@ -50,6 +51,25 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-031 - Full BFM Changelog Closeout and FB 0.3.1-beta Release
+*   **Status**: In Progress (release checkpoint at coordination correction)
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Closeout + Codex Plugin Release
+*   **Scope**: Require a candidate-bound changelog decision before v3 Full BFM can close, submit, reuse verification, or pass a release checkpoint; rebuild active plugin surfaces as `0.3.1-beta+codex.20260718021942`.
+*   **Out of Scope**: Historical retrofit, identifier migration, merge, marketplace publication, reinstall, or deployment before Push Live.
+*   **Goal Alignment Session**:
+    *   **Objective**: Keep FB release history clear to users without adding changelog noise to Quick BFM or ordinary Codex work.
+    *   **Key Results**: New v3 Full BFM handoffs record matching Build Brief and Task Receipt decisions; required entries resolve and contain four user-facing fields; not-required reasons are concrete and agree; historical v2, Quick, and Normal work remain compatible; active plugin surfaces agree on `0.3.1-beta+codex.20260718021942`.
+    *   **Definition of Done**: Focused root/package closeout, efficiency, session, metadata, fallback, parity, syntax, and whitespace checks pass; the single release checkpoint reaches a clean doctor result; PR #48 is prepared at Ready to ship without consuming Push Live.
+    *   **Gate / Review Point**: Stop at Ready to ship. Only Push Live authorizes merge, GitHub marketplace upgrade, reinstall, and public installed-plugin verification.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly approved the Full BFM changelog closeout and FB 0.3.1-beta release plan, including the separate Push Live boundary.
+*   **Affected Screens / Locks**: Closeout/session/runtime contracts, canonical/package docs and skills, fallback installation, release metadata, and TASK-031 coordination records.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-031.md); [PR #48](https://github.com/friedbeef1/fb-lane-coordination/pull/48); release build `0.3.1-beta+codex.20260718021942`.
+*   **Latest Update**: *2026-07-18*: The initial release validator exposed the manual fallback omission. Repair `1c17435` added `fb-changelog-closeout.cjs` to the documented archive fallback and its executable root/package regression. The final validator then reached doctor, which correctly found this detailed board OKR record missing. This coordination-only correction copies the already-approved goal record; no local validator pass is claimed and the full validator is not rerun in this correction.
 
 ---
 

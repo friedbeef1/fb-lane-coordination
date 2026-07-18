@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.3.1-beta - 2026-07-18
+
+**What changed:** Full BFM now records whether a delivered candidate requires a
+user-facing changelog entry. New v3 closeout, submission, verification reuse,
+and release-checkpoint gates reject missing, inconsistent, stale, or incomplete
+changelog evidence. The Codex plugin release candidate is
+`0.3.1-beta+codex.20260718021942`.
+
+**Why it matters:** Users get a curated explanation of meaningful changes before
+FB says **Ready to ship**, while Quick BFM and ordinary Codex work avoid
+automatic changelog noise.
+
+**Compatibility:** Existing v2 handoffs, four-workstream historical records,
+plugin identifiers, `$bfm`, CLI paths, MCP names, and **Push Live** authority
+remain unchanged.
+
+**Installation or upgrade:** After **Push Live**, upgrade the `fb-lane`
+marketplace, install `fb-lane-coordination@fb-lane`, and start a new Codex task
+to load the refreshed plugin.
+
 ## 0.3.0-beta - 2026-07-17
 
 - Plugin: rebuilt both active manifests as
