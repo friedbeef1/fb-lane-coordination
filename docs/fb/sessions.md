@@ -1,5 +1,9 @@
 # Repository-Local Sessions
 
+Session recaps are curated pointers, not another source of task truth. Follow
+[records.md](records.md) for authoritative homes, verification fingerprints,
+compact closeout, privacy-safe logs, and local efficiency metrics.
+
 Use a session when work must survive a thread handoff, checkpoint, recovery, or
 review. The board and linked handoff remain authoritative for approval, scope,
 ownership, and locks. Session JSON is clone-local coordination state; the
@@ -176,9 +180,9 @@ review.
 
 ## Install, upgrade, and removal
 
-Bootstrap confirms the seven-page harness and adds or refreshes only the managed
+Bootstrap confirms the eight-page harness and adds or refreshes only the managed
 FB route block in project-owned instructions. Upgrades replace the bundled
-seven-page pack and managed route while preserving all text outside the markers.
+eight-page pack and managed route while preserving all text outside the markers.
 For cleanup, close or preserve active session evidence first, then remove the
 clone-local `fb-sessions` directory and dead mutation lock from the Git common
 directory if no session command is running. Plugin removal does not delete

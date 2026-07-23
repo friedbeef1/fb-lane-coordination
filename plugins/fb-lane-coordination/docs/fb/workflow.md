@@ -17,6 +17,8 @@ The public workstream-first and `$bfm` reconciliation contract lives in
 The board is truth; the handoff index is routing; detailed handoffs are detail;
 workstream cards are compact revisit summaries. Awareness comes from the board
 and index, isolation from branches/worktrees, and integration from BFM.
+The exact ownership boundaries, prospective consistency checks, risk-triggered
+review rule, and compact closeout shapes live in [records.md](records.md).
 
 Every lane leaves a passive closeout with task ID, status, delivered work,
 evidence, remaining gates, and handoff path. Product/BFM additionally records a

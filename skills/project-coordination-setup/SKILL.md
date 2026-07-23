@@ -5,7 +5,7 @@ description: Use when bootstrapping an FB-coordinated project with board, handof
 
 # Set up an FB-coordinated project
 
-The bootstrap installs the canonical seven-page [FB harness](../../docs/fb/README.md)
+The bootstrap installs the canonical eight-page [FB harness](../../docs/fb/README.md)
 pack and adds or updates a thin managed route in `AGENTS.md` and
 `.codex/rules.md`. Fresh projects receive the pack and routes. On reruns, the
 bootstrap preserves project-owned text and replaces only a complete block from
@@ -29,6 +29,7 @@ activates Product reconciliation and execution of approved scope.
 - [Safety, recovery, sidechat, and escalation policy](../../docs/fb/guardrails.md)
 - [Repository-local session lifecycle and privacy boundary](../../docs/fb/sessions.md)
 - [Markdown eval lifecycle and Quality Gaps](../../docs/fb/evals.md)
+- [Normalized records, verification reuse, and compact closeout](../../docs/fb/records.md)
 
 The installed `guardrails.md` is also the source for the canonical beginner pause card.
 Use it for approval waits and genuine stops.

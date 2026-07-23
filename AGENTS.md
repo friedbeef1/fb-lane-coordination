@@ -19,6 +19,8 @@ summaries. The reusable FB operating rules live in [docs/fb/](docs/fb/README.md)
   [sessions.md](docs/fb/sessions.md)
 - Eval selection, authority, Quality Gaps, and revision closure:
   [evals.md](docs/fb/evals.md)
+- Authoritative records, verification reuse, and compact closeout:
+  [records.md](docs/fb/records.md)
 
 When planning or evidence is useful, start in whichever workstream matches the
 question. Product/User is selected only for user-needs and product questions,

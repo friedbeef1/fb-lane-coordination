@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-047 | Staging QA | FB-Product / BFM | Harness Efficiency | Normalize durable evidence, add risk-triggered review and deterministic verification reuse, and reduce duplicated coordination context | `tools/fb-records.*`, validator/doctor integration, canonical/package harness and skills, templates, TASK-047 records | [Handoff](docs/handoffs/TASK-047.md); [Pilot](docs/experiments/TASK-047-real-task-pilot.md); [Plan](docs/superpowers/plans/2026-07-23-fb-durable-efficiency-evidence-normalization.md); [QA](docs/qa/TASK-047.md); focused local gate passed |
 | TASK-031 | In Progress | FB-Product / BFM | Closeout + Plugin Release | Require a Full BFM changelog decision before Ready to ship and rebuild FB as 0.3.1-beta | Closeout/session/runtime contracts, canonical/package docs and skills, release metadata and records | [Handoff](docs/handoffs/TASK-031.md); PR #48; `0.3.1-beta+codex.20260718021942`; Push Live remains separate |
 | TASK-030 | Done | FB-Product / BFM | Codex Plugin Release | Release the Codex plugin as `0.3.0-beta`, align active metadata/prompts/docs with the six-workstream loop, and prove the packaged install | None | [Handoff](docs/handoffs/TASK-030.md); [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44) merged; `0.3.0-beta+codex.20260717150502` installed and enabled; GitHub readiness and live cache proof passed |
 | TASK-029 | Staging QA | FB-Product / BFM + six workstreams | Product Model | Expand FB to Product/User, Business, Design, Tech, Discovery, and Bugs; make `$bfm` reconcile all six ready-handoff sources and align the plugin and public story | Runtime/session/CLI/MCP, bootstrap, skills, canonical/package docs/tests, TASK-029 records | [Handoff](docs/handoffs/TASK-029.md); branch `codex/fb-six-workstreams`; root/package focused contracts, 25-mirror parity, syntax, and whitespace passed; Ready to ship; no release checkpoint |
@@ -51,6 +52,30 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-047 - Durable Efficiency and Evidence Normalization
+
+*   **Status**: Staging QA (focused local gate passed)
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Harness Efficiency
+*   **Scope**: Add prospective normalized-record ownership, deterministic consistency and verification-reuse checks, risk-triggered review, event-driven health checks, compact closeout, privacy-safe QA artifacts, and local efficiency measurement.
+*   **Out of Scope**: Historical retrofit, semantic automatic judgment, hosted monitoring, transcript capture, external telemetry, release checkpoint, push, merge, publication, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce FB coordination overhead without weakening evidence, cross-lane risk detection, or release safety.
+    *   **Key Results**: One authoritative home per fact; stale verification invalidates deterministically; light work avoids broad review and repeated health checks; root/package guidance stays mechanically aligned.
+    *   **Definition of Done**: Focused normalized-record and bootstrap contracts, doctor integration, package parity, affected syntax, links, and whitespace pass with a compact QA artifact.
+    *   **Gate / Review Point**: Local focused verification only; no release checkpoint or external action.
+    *   **Approval**: approved
+    *   **Justification**: James approved the normalized-evidence plan and explicitly requested implementation.
+*   **Affected Screens / Locks**: `tools/fb-records.*`, `tools/fb-lane.cjs`, package manifest/mirrors, canonical harness, Product/BFM/coordination/setup/workstream skills, normalized templates, TASK-047 records.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-047.md); [Pilot](docs/experiments/TASK-047-real-task-pilot.md); [Plan](docs/superpowers/plans/2026-07-23-fb-durable-efficiency-evidence-normalization.md); [QA](docs/qa/TASK-047.md); branch `codex/fb-durable-efficiency-evidence`.
+*   **QA Checklist**:
+    *   [x] Focused normalized-record contract observed RED before implementation and now passes in root and package contexts.
+    *   [x] Existing CLI/bootstrap contract passes 70 checks.
+    *   [x] Final package parity, doctor, syntax, links, and whitespace evidence is recorded after closeout updates.
+*   **Latest Update**: *2026-07-23*: GitHub readiness exposed one stale fallback-bootstrap fixture after the local focused gate. The fixture now includes `fb-records.cjs` and the eighth harness page; the focused eval contract passes 18/18. PR #49 remains draft and no merge, release, marketplace, install, or deployment action is authorized.
 
 ---
 
