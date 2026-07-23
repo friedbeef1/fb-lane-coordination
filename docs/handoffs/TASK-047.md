@@ -66,6 +66,10 @@ Focused root/package normalized-record contracts passed 11/11 each; the
 existing CLI/bootstrap contract passed 70/70; 41 package mirrors, affected
 syntax, TASK-047 links, and whitespace passed. See [TASK-047 QA](../qa/TASK-047.md).
 
+The prospective ten-genuine-task measurement is registered in the
+[TASK-047 real-task efficiency pilot](../experiments/TASK-047-real-task-pilot.md).
+Synthetic fixtures do not count toward its sample.
+
 ## Compact Closeout
 
 Status: Local Staging QA
