@@ -1,5 +1,9 @@
 # Safety, recovery, and learning
 
+Use the risk-triggered review and event-driven health-check rules in
+[records.md](records.md). Sensitive, cross-lane, unclear-scope, and release
+triggers always override the light path.
+
 ## Hard boundaries
 
 Do not self-approve new scope or OKRs, live deploys, secrets, payments,

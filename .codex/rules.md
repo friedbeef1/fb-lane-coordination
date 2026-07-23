@@ -29,6 +29,7 @@ Use **FB light** for narrow triggered work: read the board/locks, keep the task 
 ### Awareness, isolation, integration
 - `PROJECT_BOARD.md` and `docs/handoffs/index.md` create shared awareness like a standup.
 - `docs/workstreams/<lane>.md` adds a compact revisit summary; it must not duplicate the board, OKRs, QA logs, plans, or implementation detail.
+- Follow `docs/fb/records.md`: each durable fact has one authoritative home; cards, recaps, and chat link instead of copying decisions, scope, or test output.
 - Branches/worktrees isolate execution like separate desks.
 - BFM integrates outcomes like Product/release review.
 - Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.

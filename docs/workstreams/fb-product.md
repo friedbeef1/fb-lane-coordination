@@ -3,6 +3,13 @@
 Last Updated: 2026-07-17
 Lane: FB-Product
 
+## TASK-047 — Durable efficiency and evidence normalization
+
+- Status: Local Staging QA; focused gate passed.
+- Blockers: None. The previous local checkout is offloaded and unreadable, so this isolated branch starts from current GitHub `main` without recreating unavailable benchmark history.
+- Next action: Optional Product review. No release checkpoint or external action is requested.
+- Links: [Handoff](../handoffs/TASK-047.md), [Plan](../superpowers/plans/2026-07-23-fb-durable-efficiency-evidence-normalization.md), [QA](../qa/TASK-047.md).
+
 ## TASK-031 — Full BFM changelog closeout and FB 0.3.1-beta
 
 - Status: In Progress on PR #48.

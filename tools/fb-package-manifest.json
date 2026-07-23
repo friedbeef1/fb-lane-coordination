@@ -16,6 +16,8 @@
   "tools/fb-ready-to-ship.test.cjs",
   "tools/fb-changelog-closeout.cjs",
   "tools/fb-changelog-closeout.test.cjs",
+  "tools/fb-records.cjs",
+  "tools/fb-records.test.cjs",
   "docs/why-fb.md",
   "docs/evidence/TASK-026-two-speed.md",
   "docs/fb/README.md",
@@ -26,6 +28,16 @@
   "docs/fb/sessions.md",
   "docs/fb/evals.md",
   "docs/fb/full-loop.md",
+  "docs/fb/records.md",
   "skills/fb-lane-coordination/SKILL.md",
-  "skills/project-coordination-setup/SKILL.md"
+  "skills/project-coordination-setup/SKILL.md",
+  "skills/bfm/SKILL.md",
+  "skills/fb-product/SKILL.md",
+  "skills/fb-business/SKILL.md",
+  "skills/fb-design/SKILL.md",
+  "skills/fb-tech/SKILL.md",
+  "skills/fb-discovery/SKILL.md",
+  "skills/fb-bugs/SKILL.md",
+  "templates/docs/qa/normalized-qa-template.md",
+  "templates/docs/handoffs/normalized-handoff-template.md"
 ]

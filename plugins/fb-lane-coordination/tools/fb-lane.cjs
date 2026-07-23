@@ -17,6 +17,7 @@ const {
 } = require('./fb-session.cjs');
 const { assertFullBfmChangelog } = require('./fb-changelog-closeout.cjs');
 const { collectEvalDoctorChecks } = require('./fb-eval.cjs');
+const { validateNormalizedRepository } = require('./fb-records.cjs');
 const {
   classifyExecutionMode,
   renderQuickRecord,
@@ -1650,6 +1651,19 @@ function handleDoctor() {
     for (const check of collectEvalDoctorChecks(rootDir)) {
       add(check.level, check.label, check.detail, check.fix);
     }
+    const normalizedRecordFindings = validateNormalizedRepository(rootDir);
+    if (normalizedRecordFindings.length > 0) {
+      for (const finding of normalizedRecordFindings) {
+        add(
+          'fail',
+          'Normalized records',
+          `${finding.code}: ${finding.file} — ${finding.message}`,
+          'Repair the authoritative record or replace copied detail with a direct link before closeout.'
+        );
+      }
+    } else {
+      add('ok', 'Normalized records', 'Prospective normalized records have consistent ownership and links.');
+    }
   } finally {
     process.chdir(previousCwd);
   }
@@ -2685,7 +2699,7 @@ function handleMcpRequest(request) {
   // Ignore other JSON-RPC methods (like notifications)
 }
 
-const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md'];
+const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md'];
 const FB_HARNESS_ROUTE_START = '<!-- fb-harness-route-start -->';
 const FB_HARNESS_ROUTE_END = '<!-- fb-harness-route-end -->';
 
@@ -2717,6 +2731,8 @@ or MCP \`fb_lane_status({details:true})\`.
   [sessions.md](docs/fb/sessions.md)
 - Eval selection, authority, Quality Gaps, and revision loops:
   [evals.md](docs/fb/evals.md)
+- Authoritative records, verification reuse, and compact closeout:
+  [records.md](docs/fb/records.md)
 
 Project-specific instructions and stricter safety rules win.
 ${FB_HARNESS_ROUTE_END}`;

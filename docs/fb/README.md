@@ -3,6 +3,10 @@
 FB is a Codex plugin and repository-local product-delivery harness. Six
 workstreams run small evidence loops; `$bfm` consolidates their ready handoffs,
 directs implementation and automated checking, and stops at **Ready to ship**.
+
+Durable facts follow the [normalized records and efficient evidence contract](records.md):
+one authoritative home per fact, direct links elsewhere, deterministic
+verification reuse, and compact closeout.
 Only **Push Live** authorizes merge or deployment.
 
 ## Source of truth
@@ -44,3 +48,4 @@ owner transfer, staging, or review does not request one.
 - Safety, recovery, sidechats, and loop escalation: [guardrails.md](guardrails.md)
 - Resuming durable work, checkpoints, recall, review, or closeout: [sessions.md](sessions.md)
 - Selecting harness/product evals, recording Quality Gaps, or closing revision loops: [evals.md](evals.md)
+- Normalizing durable facts, reusing verification, or closing compactly: [records.md](records.md)

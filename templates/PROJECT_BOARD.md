@@ -1,5 +1,9 @@
 # Project Board
 
+Use `docs/fb/records.md` for normalized record ownership. The board holds active
+status, owner, scope, gates, blockers, and links; decisions belong in the task
+handoff and complete verification output belongs in a linked QA artifact.
+
 ## Statuses
 - `Inbox`: Newly requested tasks requiring triage.
 - `Ready`: Triaged tasks, fully scoped, ready to be claimed.

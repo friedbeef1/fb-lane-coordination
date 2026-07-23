@@ -1,5 +1,9 @@
 # Evidence and review
 
+Store complete command output and verification fingerprints in the authoritative
+QA artifact described by [records.md](records.md). Handoffs and chat link to it
+instead of copying logs.
+
 Use the seven-field Project Start Brief and Build For Me (BFM) boundary from
 [start.md](start.md). Execution begins only after approval and explicit `$bfm`;
 then prepare the execution and review evidence here.

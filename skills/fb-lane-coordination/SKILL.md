@@ -37,6 +37,9 @@ run independent non-overlapping slices through agents or subagents in parallel,
 and keep dependencies, shared files, and unresolved decisions sequential.
 Focused checks prove slices; integration checks prove meaningful combinations;
 broad validation waits for a release checkpoint.
+Follow [records.md](../../docs/fb/records.md) for one-fact-one-home ownership,
+risk-triggered review, deterministic verification reuse, event-driven health
+checks, compact closeout, and local efficiency metrics.
 For Full BFM, require the canonical Build Brief and Task Receipt changelog
 decision from `workflow.md` before Ready to ship. Quick and Normal work do not
 create automatic changelog noise.
@@ -47,6 +50,7 @@ create automatic changelog noise.
 - [Hard stops, parent-only sidechats, recovery, and Loop Learning](../../docs/fb/guardrails.md)
 - [Durable sessions, checkpoints, recall, review, and closeout](../../docs/fb/sessions.md)
 - [Eval selection, authority, Quality Gaps, and revision closure](../../docs/fb/evals.md)
+- [Normalized records, risk review, verification reuse, and metrics](../../docs/fb/records.md)
 
 For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must
