@@ -12,6 +12,7 @@ Use this file as the first read for handoff discovery. `PROJECT_BOARD.md` remain
 
 | Task / Topic | Lane | Status | Depends / Blocks / Gate | Checks / Evidence | Detail |
 |---|---|---|---|---|---|
+| TASK-Q-20260723-READINESS - Handoff readiness false-negative guardrail | FB-Product / BFM | Staging QA | Ready to ship; no merge, release, publication, or installation | Root/package 78/78, 41 mirrors, syntax, whitespace, MirrorCam smoke, reviewer approved | [TASK-Q-20260723-READINESS.md](TASK-Q-20260723-READINESS.md) |
 | TASK-047 - Durable efficiency and evidence normalization | FB-Product / BFM | Staging QA | Focused local gate passed; no release checkpoint or external action | Root/package 11/11; CLI/bootstrap 70/70; 41 mirrors; doctor, syntax, links, whitespace passed | [TASK-047.md](TASK-047.md) |
 | TASK-031 - Full BFM changelog closeout and FB 0.3.1-beta | FB-Product / BFM | In Progress | PR #48; stop at Ready to ship; Push Live remains separate | Candidate `0.3.1-beta+codex.20260718021942`; focused changelog, session/submission/release, metadata, parity, syntax/link/whitespace, final validator | [TASK-031.md](TASK-031.md) |
 | TASK-030 - FB 0.3.0-beta release | FB-Product / BFM | Done | [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44) merged; `0.3.0-beta+codex.20260717150502` installed and enabled | GitHub readiness; marketplace upgrade; installed six-skill, MCP-route, server-syntax, and diagram proof passed | [TASK-030.md](TASK-030.md) |

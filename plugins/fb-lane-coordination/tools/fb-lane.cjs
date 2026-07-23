@@ -355,8 +355,62 @@ function handoffFrontmatter(markdown) {
   return metadata;
 }
 
-function scanWorkstreamHandoffs(rootDir) {
+function proseHandoffStatus(markdown) {
+  const statuses = [];
+  const pattern = /^\s*(?:[-*+]\s+)?(?:\*\*)?Status(?::(?:\*\*)?|\*\*:)\s*(.+?)\s*$/gim;
+  let match;
+  while ((match = pattern.exec(String(markdown)))) {
+    statuses.push(match[1].replace(/\*\*$/, '').trim().toLowerCase());
+  }
+  return statuses.at(-1) || '';
+}
+
+function isReadyLikeStatus(status) {
+  return /^ready\b/i.test(String(status).trim());
+}
+
+function linkedWorktreeRoots(rootDir) {
+  try {
+    const output = execFileSync(
+      'git',
+      ['-C', rootDir, 'worktree', 'list', '--porcelain'],
+      { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
+    );
+    return parseWorktreePorcelain(output).map(record => record.path);
+  } catch (err) {
+    if (fs.existsSync(path.join(rootDir, '.git'))) {
+      const error = new Error(
+        `Handoff authority is unavailable: Git could not enumerate linked worktrees for ${path.resolve(rootDir)}.`
+      );
+      error.code = 'HANDOFF_AUTHORITY_UNAVAILABLE';
+      error.cause = err;
+      throw error;
+    }
+    return [path.resolve(rootDir)];
+  }
+}
+
+function readyLikeHandoffs(rootDir) {
   const handoffsDir = path.join(rootDir, 'docs', 'handoffs');
+  if (!fs.existsSync(handoffsDir)) return [];
+  return fs.readdirSync(handoffsDir)
+    .filter(file => file.endsWith('.md') && file !== 'index.md')
+    .sort()
+    .filter(file => {
+      const markdown = fs.readFileSync(path.join(handoffsDir, file), 'utf8');
+      const metadata = handoffFrontmatter(markdown);
+      if (metadata && metadata.type === 'fb-lane-handoff' && Object.hasOwn(metadata, 'status')) {
+        return String(metadata.status).trim().toLowerCase() === 'ready';
+      }
+      return isReadyLikeStatus(proseHandoffStatus(markdown));
+    })
+    .map(file => path.join(rootDir, 'docs', 'handoffs', file));
+}
+
+function scanWorkstreamHandoffs(rootDir, options = {}) {
+  const roots = options.linkedWorktreeRoots || linkedWorktreeRoots(rootDir);
+  const authoritativeRoot = path.resolve(roots[0] || rootDir);
+  const handoffsDir = path.join(authoritativeRoot, 'docs', 'handoffs');
   const workstreams = Object.fromEntries(BFM_WORKSTREAMS.map(workstream => [workstream, { ready: [], blocked: [] }]));
   const selectedByTask = new Map();
   const files = fs.existsSync(handoffsDir)
@@ -383,7 +437,20 @@ function scanWorkstreamHandoffs(rootDir) {
     const result = workstreams[workstream];
     if (result.ready.length === 0 && result.blocked.length === 0) result.summary = 'None relevant';
   }
-  return { workstreams, selected: BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready) };
+  const selected = BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready);
+  if (selected.length === 0) {
+    const evidence = [...new Set(roots.flatMap(readyLikeHandoffs))].slice(0, 20);
+    if (evidence.length > 0) {
+      const error = new Error(
+        `Handoff readiness requires Product reconciliation: the authoritative typed scan selected none, `
+        + `but Ready-like handoffs exist:\n${evidence.map(file => `- ${file}`).join('\n')}`
+      );
+      error.code = 'HANDOFF_READINESS_RECONCILIATION_REQUIRED';
+      error.evidence = evidence;
+      throw error;
+    }
+  }
+  return { workstreams, selected };
 }
 
 function workstreamStatusCardTemplate(laneName) {

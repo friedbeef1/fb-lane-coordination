@@ -29,6 +29,13 @@ const scan = scanWorkstreamHandoffs(projectRoot);
 
 Use `scan.selected` in canonical order, report blocked entries, and record
 `None relevant` only when the six-workstream scan/report requires a disposition.
+If the scanner raises `HANDOFF_READINESS_RECONCILIATION_REQUIRED`, do not report
+that no Ready handoffs exist. Product must reconcile the bounded legacy or
+linked-worktree evidence into the authoritative checkout first. Off-home
+handoffs are drift evidence, not automatically executable scope.
+If the scanner raises `HANDOFF_AUTHORITY_UNAVAILABLE`, stop intake until Git can
+identify the primary checkout and linked worktrees; never treat the caller's
+current worktree as authoritative by fallback.
 Stop on duplicate or contradictory ready-handoff errors. Product reconciles
 duplicates, conflicts, and dependencies, prioritizes, and creates the Project
 Start Brief plus Build Brief before execution. Pause only for a changed

@@ -1,11 +1,15 @@
 # Active Task Context
 
-* **Current Task**: TASK-031 Full BFM changelog closeout and FB 0.3.1-beta release
-* **Lane**: FB-Product / BFM
-* **Status**: In Progress — local release candidate `0.3.1-beta+codex.20260718021942`
-* **BFM Class**: Full BFM
-* **Release Vehicle**: PR #48; implementation stops at Ready to ship
-* **Worktree**: `/Users/jamesyeang/.codex/worktrees/fb-lane-objective-checkpoints`
-* **Locked Files**: Full BFM closeout/session/runtime contracts, canonical/package docs and skills, release metadata, TASK-031 records.
+## Current
 
-Gate: complete focused and release-checkpoint verification, then stop at Ready to ship. Push Live remains separate.
+- `TASK-Q-20260723-READINESS` — Ready to ship on its isolated branch.
+- Branch: `quick/TASK-Q-20260723-handoff-readiness-false-negative`
+- Worktree: `/Users/jamesyeang/.codex/worktrees/fb-lane-readiness-guardrail`
+
+## Next ready
+
+- Review the pushed candidate for a future FB harness release.
+
+## External blocks
+
+- `TASK-031` remains active in its own worktree and release flow; this Quick task does not modify its release metadata or authorize Push Live.
