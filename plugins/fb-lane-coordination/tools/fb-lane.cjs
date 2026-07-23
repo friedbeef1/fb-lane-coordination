@@ -407,6 +407,68 @@ function readyLikeHandoffs(rootDir) {
     .map(file => path.join(rootDir, 'docs', 'handoffs', file));
 }
 
+function canonicalHandoffRelatives(rootDir) {
+  const handoffsDir = path.join(rootDir, 'docs', 'handoffs');
+  if (!fs.existsSync(handoffsDir)) return new Set();
+  return new Set(
+    fs.readdirSync(handoffsDir)
+      .filter(file => file.endsWith('.md') && file !== 'index.md')
+      .map(file => `docs/handoffs/${file}`)
+  );
+}
+
+function activeMarkdown(markdown) {
+  const withoutComments = String(markdown).replace(/<!--[\s\S]*?-->/g, '');
+  const active = [];
+  let fence = null;
+  for (const line of withoutComments.split(/\r?\n/)) {
+    if (fence) {
+      const closing = line.match(/^ {0,3}(`{3,}|~{3,})[ \t]*$/);
+      if (closing
+        && closing[1][0] === fence[0]
+        && closing[1].length >= fence.length) {
+        fence = null;
+      }
+      continue;
+    }
+    const opening = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    if (opening) {
+      fence = opening[1];
+      continue;
+    }
+    active.push(line);
+  }
+  return active.join('\n');
+}
+
+function approvedSupersededHandoffRelatives(rootDir) {
+  const handoffsDir = path.join(rootDir, 'docs', 'handoffs');
+  const superseded = new Set();
+  if (!fs.existsSync(handoffsDir)) return superseded;
+  for (const file of fs.readdirSync(handoffsDir).filter(name => name.endsWith('.md'))) {
+    const markdown = fs.readFileSync(path.join(handoffsDir, file), 'utf8');
+    const metadata = handoffFrontmatter(markdown);
+    if (!metadata
+      || metadata.type !== 'fb-lane-handoff'
+      || metadata.record_model !== 'normalized-v1'
+      || String(metadata.approval || '').trim().toLowerCase() !== 'approved') {
+      continue;
+    }
+    for (const line of activeMarkdown(markdown).match(/^Supersedes:\s*.+$/gim) || []) {
+      for (const link of line.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
+        const href = link[1].split('#')[0].trim();
+        if (!href || /^[a-z]+:/i.test(href)) continue;
+        const target = path.resolve(handoffsDir, href);
+        const relative = path.relative(handoffsDir, target);
+        if (!relative.startsWith('..') && !path.isAbsolute(relative) && relative.endsWith('.md')) {
+          superseded.add(`docs/handoffs/${relative.split(path.sep).join('/')}`);
+        }
+      }
+    }
+  }
+  return superseded;
+}
+
 function scanWorkstreamHandoffs(rootDir, options = {}) {
   const roots = options.linkedWorktreeRoots || linkedWorktreeRoots(rootDir);
   const authoritativeRoot = path.resolve(roots[0] || rootDir);
@@ -439,7 +501,15 @@ function scanWorkstreamHandoffs(rootDir, options = {}) {
   }
   const selected = BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready);
   if (selected.length === 0) {
-    const evidence = [...new Set(roots.flatMap(readyLikeHandoffs))].slice(0, 20);
+    const canonicalRelatives = canonicalHandoffRelatives(authoritativeRoot);
+    const supersededRelatives = approvedSupersededHandoffRelatives(authoritativeRoot);
+    const evidence = [...new Set(roots.flatMap((root, index) =>
+      readyLikeHandoffs(root).filter(file => {
+        const relative = path.relative(root, file).split(path.sep).join('/');
+        if (supersededRelatives.has(relative)) return false;
+        return index === 0 || !canonicalRelatives.has(relative);
+      })
+    ))].slice(0, 20);
     if (evidence.length > 0) {
       const error = new Error(
         `Handoff readiness requires Product reconciliation: the authoritative typed scan selected none, `

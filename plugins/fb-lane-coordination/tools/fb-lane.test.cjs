@@ -250,6 +250,131 @@ status: ready
   }
 });
 
+test('canonical record wins over a stale linked-worktree copy at the same relative path', () => {
+  const primary = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-primary-'));
+  const linked = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-linked-'));
+  try {
+    writeHandoff(primary, 'TASK-SAME.md', `---
+type: fb-lane-handoff
+task: TASK-SAME
+lane: fb-product
+status: done
+record_model: normalized-v1
+---
+
+# Canonical closeout
+`);
+    writeHandoff(linked, 'TASK-SAME.md', '# Stale branch copy\n\nStatus: Ready\n');
+
+    assert.deepStrictEqual(
+      scanWorkstreamHandoffs(primary, { linkedWorktreeRoots: [primary, linked] }).selected,
+      []
+    );
+  } finally {
+    fs.rmSync(primary, { recursive: true, force: true });
+    fs.rmSync(linked, { recursive: true, force: true });
+  }
+});
+
+test('approved canonical successor wins only when it explicitly supersedes the older handoff', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
+  try {
+    writeHandoff(root, '2026-01-01-old.md', '# Old decision\n\nStatus: Ready\n');
+    writeHandoff(root, '2026-01-02-new.md', `---
+type: fb-lane-handoff
+task: TASK-NEW
+lane: fb-product
+status: done
+approval: approved
+record_model: normalized-v1
+---
+
+# Approved replacement
+
+Supersedes: [old decision](2026-01-01-old.md)
+`);
+
+    assert.deepStrictEqual(
+      scanWorkstreamHandoffs(root, { linkedWorktreeRoots: [root] }).selected,
+      []
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('newer or unapproved records do not implicitly suppress an older Ready handoff', () => {
+  for (const successor of [
+    `---
+type: fb-lane-handoff
+task: TASK-NEW
+lane: fb-product
+status: done
+record_model: normalized-v1
+---
+
+# Newer file without explicit supersession
+`,
+    `---
+type: fb-lane-handoff
+task: TASK-NEW
+lane: fb-product
+status: done
+approval: proposal
+record_model: normalized-v1
+---
+
+# Unapproved replacement
+
+Supersedes: [old decision](2026-01-01-old.md)
+`,
+  ]) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
+    try {
+      writeHandoff(root, '2026-01-01-old.md', '# Old decision\n\nStatus: Ready\n');
+      writeHandoff(root, '2026-01-02-new.md', successor);
+      assert.throws(
+        () => scanWorkstreamHandoffs(root, { linkedWorktreeRoots: [root] }),
+        error => error && error.code === 'HANDOFF_READINESS_RECONCILIATION_REQUIRED'
+      );
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test('inactive Markdown examples cannot supersede an older Ready handoff', () => {
+  for (const inactiveExample of [
+    '```md\nSupersedes: [old decision](2026-01-01-old.md)\n```',
+    '<!--\nSupersedes: [old decision](2026-01-01-old.md)\n-->',
+    '```md\n``` not-a-close\nSupersedes: [old decision](2026-01-01-old.md)\n```',
+  ]) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
+    try {
+      writeHandoff(root, '2026-01-01-old.md', '# Old decision\n\nStatus: Ready\n');
+      writeHandoff(root, '2026-01-02-new.md', `---
+type: fb-lane-handoff
+task: TASK-NEW
+lane: fb-product
+status: done
+approval: approved
+record_model: normalized-v1
+---
+
+# Approved record containing documentation only
+
+${inactiveExample}
+`);
+      assert.throws(
+        () => scanWorkstreamHandoffs(root, { linkedWorktreeRoots: [root] }),
+        error => error && error.code === 'HANDOFF_READINESS_RECONCILIATION_REQUIRED'
+      );
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
 test('typed done and blocked metadata override stale prose Ready text', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
   try {

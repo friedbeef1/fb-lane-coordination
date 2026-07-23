@@ -33,6 +33,10 @@ If the scanner raises `HANDOFF_READINESS_RECONCILIATION_REQUIRED`, do not report
 that no Ready handoffs exist. Product must reconcile the bounded legacy or
 linked-worktree evidence into the authoritative checkout first. Off-home
 handoffs are drift evidence, not automatically executable scope.
+The canonical record wins over a stale off-home copy at the same relative path.
+Across different records, a newer decision wins only when its canonical
+`normalized-v1` handoff is explicitly approved and links the older record with
+`Supersedes:`; never infer replacement from a date or filename alone.
 If the scanner raises `HANDOFF_AUTHORITY_UNAVAILABLE`, stop intake until Git can
 identify the primary checkout and linked worktrees; never treat the caller's
 current worktree as authoritative by fallback.

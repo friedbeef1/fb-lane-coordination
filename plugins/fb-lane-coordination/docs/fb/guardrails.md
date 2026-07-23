@@ -128,6 +128,12 @@ merge the approved record into its authoritative home through ordinary Git,
 resolve duplicates or contradictions, then rerun intake. Historical records do
 not need metadata rewrites solely to satisfy this guardrail.
 
+The canonical checkout wins over a stale linked-worktree copy at the same
+relative handoff path. Across different paths, only a canonical
+`normalized-v1` handoff with `approval: approved` and an explicit
+`Supersedes: [previous decision](...)` link may retire older Ready-like
+evidence. A newer date or filename alone never establishes authority.
+
 Normalized `fb-lane-handoff` frontmatter remains authoritative over stale prose
 inside the same record. A typed `done`, `blocked`, or `deferred` handoff is not
 revived by an older body line that says Ready. If Git cannot enumerate

@@ -24,10 +24,17 @@ Environment: macOS, isolated linked worktree based on FB `main` commit
 - Package mirror check: passed.
 - Canonical and packaged runtime syntax: passed.
 - Git whitespace check: passed.
-- MirrorCam canonical smoke: raised
+- Isolated consumer-repository smoke: raised
   `HANDOFF_READINESS_RECONCILIATION_REQUIRED` with 10 bounded evidence paths.
 - Reviewer regressions: typed `done`/`blocked` authority and fail-closed Git
   worktree enumeration passed.
+- Supersession regressions: canonical same-path precedence passed; an approved
+  normalized successor with an explicit `Supersedes:` link retired the named
+  Ready record; newer-only and unapproved replacements remained reconciliation
+  evidence.
+- Reviewer repair: fenced-code and HTML-comment examples no longer count as
+  active supersession declarations, and fence-like lines with trailing content
+  cannot prematurely reactivate them; all false-negative regressions pass.
 - Independent runtime review: approved with no remaining actionable findings.
 
 ## Boundaries

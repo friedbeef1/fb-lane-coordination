@@ -57,6 +57,11 @@ landed. Preserve its one-authoritative-home contract.
   `Ready — Full BFM required` are treated as Ready-like evidence.
 - Off-home records are never silently selected or executed.
 - Typed terminal/blocked status overrides stale prose Ready text.
+- A canonical record overrides a stale linked-worktree copy at the same
+  relative path.
+- A canonical approved normalized successor suppresses an older Ready record
+  only through an explicit `Supersedes:` link; date/filename ordering and
+  unapproved proposals do not establish precedence.
 - Failure to enumerate Git worktrees stops with
   `HANDOFF_AUTHORITY_UNAVAILABLE`; it never promotes the caller worktree.
 - Canonical/package runtime and tests remain byte-aligned.
@@ -73,8 +78,9 @@ Status: Staging QA; Ready to ship.
 Delivered: Fail-closed empty-scan reconciliation, legacy Ready compatibility,
 typed-status authority, linked-worktree drift detection, package parity, and
 generic BFM/guardrail guidance.
-Checks: Root/package scanner suites 78/78; 41 package mirrors; canonical/package
-syntax; whitespace; real MirrorCam reconciliation smoke; one runtime review.
+Checks: Root/package scanner suites 82/82; 41 package mirrors; canonical/package
+syntax; whitespace; isolated consumer-repository reconciliation smoke; one
+runtime review.
 Evidence: [QA artifact](../qa/TASK-Q-20260723-READINESS.md).
 Remaining gates: Commit and push this isolated branch; future merge/release is
 separate and requires the normal release authorization.

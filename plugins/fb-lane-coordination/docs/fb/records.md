@@ -21,6 +21,13 @@ handoff → relevant workstream card. Open historical records through links when
 the current task depends on them. A replacement decision records
 `Supersedes: [previous decision](<path-or-url>)`.
 
+When an approved replacement explicitly records that link, the successor
+controls reconciliation and the named predecessor remains historical. Do not
+infer supersession from dates, filenames, proximity, or newer prose alone. The
+successor must be a canonical `normalized-v1` handoff with
+`approval: approved`; proposals and off-home copies cannot silently suppress an
+older Ready record.
+
 New records opt in with `record_model: normalized-v1`. Doctor checks their
 identity, approval state, board/handoff status consistency, completion links,
 supersession links, and compact-card boundaries. Historical records remain
