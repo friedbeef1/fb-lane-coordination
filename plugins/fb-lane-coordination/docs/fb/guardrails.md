@@ -114,6 +114,32 @@ an unbounded temporary runner as passing evidence. If checks hang, record a
 After five failed debug retries, label the board task `Blocked - Debug Retry
 Limit Exceeded`, attach current logs, and notify the user rather than loop.
 
+## Empty handoff scan safety
+
+An empty normalized typed-handoff scan is not by itself proof that no Ready
+handoffs exist. The scanner checks for legacy Ready-like records in the
+authoritative checkout and Ready-like records in linked worktrees only when
+typed selection is empty. If it raises
+`HANDOFF_READINESS_RECONCILIATION_REQUIRED`, Product reconciles the bounded
+evidence before intake continues.
+
+Linked-worktree evidence must never be silently selected or executed. Move or
+merge the approved record into its authoritative home through ordinary Git,
+resolve duplicates or contradictions, then rerun intake. Historical records do
+not need metadata rewrites solely to satisfy this guardrail.
+
+The canonical checkout wins over a stale linked-worktree copy at the same
+relative handoff path. Across different paths, only a canonical
+`normalized-v1` handoff with `approval: approved` and an explicit
+`Supersedes: [previous decision](...)` link may retire older Ready-like
+evidence. A newer date or filename alone never establishes authority.
+
+Normalized `fb-lane-handoff` frontmatter remains authoritative over stale prose
+inside the same record. A typed `done`, `blocked`, or `deferred` handoff is not
+revived by an older body line that says Ready. If Git cannot enumerate
+worktrees for a Git checkout, the scanner raises `HANDOFF_AUTHORITY_UNAVAILABLE`
+and stops rather than treating the caller's current worktree as authoritative.
+
 ## Efficiency stop predicates
 
 ### Visible-progress SOP

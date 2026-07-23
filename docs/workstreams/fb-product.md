@@ -3,6 +3,13 @@
 Last Updated: 2026-07-17
 Lane: FB-Product
 
+## TASK-Q-20260723-READINESS — Handoff readiness false-negative guardrail
+
+- Status: Staging QA; Ready to ship.
+- Blockers: None; isolated from the TASK-031 release worktree.
+- Next action: Product may review the pushed branch for a future FB harness release.
+- Link: [Handoff](../handoffs/TASK-Q-20260723-READINESS.md).
+
 ## TASK-047 — Durable efficiency and evidence normalization
 
 - Status: Local Staging QA; focused gate passed.

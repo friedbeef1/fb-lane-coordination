@@ -23,6 +23,7 @@ const {
   visibleStageFor,
   performAutomatedSubmission,
   resolveSubmissionSafetyGate,
+  scanWorkstreamHandoffs,
 } = require('./fb-lane.cjs');
 
 let passed = 0;
@@ -116,6 +117,308 @@ test('rejects shell metacharacters', () => {
 test('rejects non-strings', () => {
   [undefined, null, 42, {}].forEach(id =>
     assert.throws(() => assertSafeTaskId(id), /Invalid task ID/));
+});
+
+console.log('handoff readiness reconciliation');
+function writeHandoff(root, file, markdown) {
+  fs.mkdirSync(path.join(root, 'docs', 'handoffs'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'docs', 'handoffs', file), markdown);
+}
+
+test('preserves normalized typed Ready selection from the authoritative root', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
+  try {
+    writeHandoff(root, 'TASK-TYPED.md', `---
+type: fb-lane-handoff
+task: TASK-TYPED
+lane: fb-tech
+status: ready
+---
+
+# Typed handoff
+`);
+    assert.deepStrictEqual(
+      scanWorkstreamHandoffs(root, { linkedWorktreeRoots: [root] }).selected,
+      ['docs/handoffs/TASK-TYPED.md']
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('keeps a genuinely empty handoff set as None relevant', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
+  try {
+    const scan = scanWorkstreamHandoffs(root, { linkedWorktreeRoots: [root] });
+    assert.deepStrictEqual(scan.selected, []);
+    assert.strictEqual(scan.workstreams.product.summary, 'None relevant');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('stops when an empty typed scan hides a canonical legacy Ready handoff', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
+  try {
+    writeHandoff(root, 'TASK-LEGACY.md', '# Legacy handoff\n\n- **Status**: Ready\n');
+
+    assert.throws(
+      () => scanWorkstreamHandoffs(root, { linkedWorktreeRoots: [root] }),
+      error => error && error.code === 'HANDOFF_READINESS_RECONCILIATION_REQUIRED'
+        && /TASK-LEGACY\.md/.test(error.message)
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('recognizes all repository-native prose status forms and uses the last status', () => {
+  const forms = [
+    'Status: Ready',
+    '**Status:** Ready',
+    '- **Status**: Ready',
+    '- **Status:** Ready',
+  ];
+  for (const [index, statusLine] of forms.entries()) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
+    try {
+      writeHandoff(root, `TASK-FORM-${index}.md`, `# Legacy\n\n${statusLine}\n`);
+      assert.throws(
+        () => scanWorkstreamHandoffs(root, { linkedWorktreeRoots: [root] }),
+        error => error && error.code === 'HANDOFF_READINESS_RECONCILIATION_REQUIRED'
+      );
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
+  try {
+    writeHandoff(
+      root,
+      'TASK-CLOSED.md',
+      '# Legacy\n\n- **Status**: Ready\n\n## Closeout\n\n**Status:** Device QA\n'
+    );
+    assert.deepStrictEqual(
+      scanWorkstreamHandoffs(root, { linkedWorktreeRoots: [root] }).selected,
+      []
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('recognizes Ready-qualified legacy statuses used by consumer repositories', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
+  try {
+    writeHandoff(
+      root,
+      'TASK-READY-QUALIFIED.md',
+      '# Legacy\n\nStatus: Ready for BFM reconciliation and execution\n'
+    );
+    assert.throws(
+      () => scanWorkstreamHandoffs(root, { linkedWorktreeRoots: [root] }),
+      error => error && error.code === 'HANDOFF_READINESS_RECONCILIATION_REQUIRED'
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('treats a Ready handoff in a linked worktree as drift evidence, not selected scope', () => {
+  const primary = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-primary-'));
+  const linked = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-linked-'));
+  try {
+    writeHandoff(linked, 'TASK-OFF-HOME.md', `---
+type: fb-lane-handoff
+task: TASK-OFF-HOME
+lane: fb-design
+status: ready
+---
+
+# Off-home handoff
+`);
+    assert.throws(
+      () => scanWorkstreamHandoffs(primary, { linkedWorktreeRoots: [primary, linked] }),
+      error => error
+        && error.code === 'HANDOFF_READINESS_RECONCILIATION_REQUIRED'
+        && error.evidence.some(file => file.endsWith('TASK-OFF-HOME.md'))
+    );
+  } finally {
+    fs.rmSync(primary, { recursive: true, force: true });
+    fs.rmSync(linked, { recursive: true, force: true });
+  }
+});
+
+test('canonical record wins over a stale linked-worktree copy at the same relative path', () => {
+  const primary = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-primary-'));
+  const linked = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-linked-'));
+  try {
+    writeHandoff(primary, 'TASK-SAME.md', `---
+type: fb-lane-handoff
+task: TASK-SAME
+lane: fb-product
+status: done
+record_model: normalized-v1
+---
+
+# Canonical closeout
+`);
+    writeHandoff(linked, 'TASK-SAME.md', '# Stale branch copy\n\nStatus: Ready\n');
+
+    assert.deepStrictEqual(
+      scanWorkstreamHandoffs(primary, { linkedWorktreeRoots: [primary, linked] }).selected,
+      []
+    );
+  } finally {
+    fs.rmSync(primary, { recursive: true, force: true });
+    fs.rmSync(linked, { recursive: true, force: true });
+  }
+});
+
+test('approved canonical successor wins only when it explicitly supersedes the older handoff', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
+  try {
+    writeHandoff(root, '2026-01-01-old.md', '# Old decision\n\nStatus: Ready\n');
+    writeHandoff(root, '2026-01-02-new.md', `---
+type: fb-lane-handoff
+task: TASK-NEW
+lane: fb-product
+status: done
+approval: approved
+record_model: normalized-v1
+---
+
+# Approved replacement
+
+Supersedes: [old decision](2026-01-01-old.md)
+`);
+
+    assert.deepStrictEqual(
+      scanWorkstreamHandoffs(root, { linkedWorktreeRoots: [root] }).selected,
+      []
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('newer or unapproved records do not implicitly suppress an older Ready handoff', () => {
+  for (const successor of [
+    `---
+type: fb-lane-handoff
+task: TASK-NEW
+lane: fb-product
+status: done
+record_model: normalized-v1
+---
+
+# Newer file without explicit supersession
+`,
+    `---
+type: fb-lane-handoff
+task: TASK-NEW
+lane: fb-product
+status: done
+approval: proposal
+record_model: normalized-v1
+---
+
+# Unapproved replacement
+
+Supersedes: [old decision](2026-01-01-old.md)
+`,
+  ]) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
+    try {
+      writeHandoff(root, '2026-01-01-old.md', '# Old decision\n\nStatus: Ready\n');
+      writeHandoff(root, '2026-01-02-new.md', successor);
+      assert.throws(
+        () => scanWorkstreamHandoffs(root, { linkedWorktreeRoots: [root] }),
+        error => error && error.code === 'HANDOFF_READINESS_RECONCILIATION_REQUIRED'
+      );
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test('inactive Markdown examples cannot supersede an older Ready handoff', () => {
+  for (const inactiveExample of [
+    '```md\nSupersedes: [old decision](2026-01-01-old.md)\n```',
+    '<!--\nSupersedes: [old decision](2026-01-01-old.md)\n-->',
+    '```md\n``` not-a-close\nSupersedes: [old decision](2026-01-01-old.md)\n```',
+  ]) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
+    try {
+      writeHandoff(root, '2026-01-01-old.md', '# Old decision\n\nStatus: Ready\n');
+      writeHandoff(root, '2026-01-02-new.md', `---
+type: fb-lane-handoff
+task: TASK-NEW
+lane: fb-product
+status: done
+approval: approved
+record_model: normalized-v1
+---
+
+# Approved record containing documentation only
+
+${inactiveExample}
+`);
+      assert.throws(
+        () => scanWorkstreamHandoffs(root, { linkedWorktreeRoots: [root] }),
+        error => error && error.code === 'HANDOFF_READINESS_RECONCILIATION_REQUIRED'
+      );
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  }
+});
+
+test('typed done and blocked metadata override stale prose Ready text', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-'));
+  try {
+    writeHandoff(root, 'TASK-DONE.md', `---
+type: fb-lane-handoff
+task: TASK-DONE
+lane: fb-product
+status: done
+---
+
+# Completed handoff
+
+Status: Ready
+`);
+    writeHandoff(root, 'TASK-BLOCKED.md', `---
+type: fb-lane-handoff
+task: TASK-BLOCKED
+lane: fb-tech
+status: blocked
+---
+
+# Blocked handoff
+
+- **Status**: Ready
+`);
+    const scan = scanWorkstreamHandoffs(root, { linkedWorktreeRoots: [root] });
+    assert.deepStrictEqual(scan.selected, []);
+    assert.deepStrictEqual(scan.workstreams.tech.blocked, ['docs/handoffs/TASK-BLOCKED.md']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('fails closed when a Git checkout cannot enumerate authoritative worktrees', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-readiness-broken-git-'));
+  try {
+    fs.mkdirSync(path.join(root, '.git'));
+    assert.throws(
+      () => scanWorkstreamHandoffs(root),
+      error => error && error.code === 'HANDOFF_AUTHORITY_UNAVAILABLE'
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });
 
 console.log('assertSafeLane');

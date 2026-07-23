@@ -355,8 +355,124 @@ function handoffFrontmatter(markdown) {
   return metadata;
 }
 
-function scanWorkstreamHandoffs(rootDir) {
+function proseHandoffStatus(markdown) {
+  const statuses = [];
+  const pattern = /^\s*(?:[-*+]\s+)?(?:\*\*)?Status(?::(?:\*\*)?|\*\*:)\s*(.+?)\s*$/gim;
+  let match;
+  while ((match = pattern.exec(String(markdown)))) {
+    statuses.push(match[1].replace(/\*\*$/, '').trim().toLowerCase());
+  }
+  return statuses.at(-1) || '';
+}
+
+function isReadyLikeStatus(status) {
+  return /^ready\b/i.test(String(status).trim());
+}
+
+function linkedWorktreeRoots(rootDir) {
+  try {
+    const output = execFileSync(
+      'git',
+      ['-C', rootDir, 'worktree', 'list', '--porcelain'],
+      { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }
+    );
+    return parseWorktreePorcelain(output).map(record => record.path);
+  } catch (err) {
+    if (fs.existsSync(path.join(rootDir, '.git'))) {
+      const error = new Error(
+        `Handoff authority is unavailable: Git could not enumerate linked worktrees for ${path.resolve(rootDir)}.`
+      );
+      error.code = 'HANDOFF_AUTHORITY_UNAVAILABLE';
+      error.cause = err;
+      throw error;
+    }
+    return [path.resolve(rootDir)];
+  }
+}
+
+function readyLikeHandoffs(rootDir) {
   const handoffsDir = path.join(rootDir, 'docs', 'handoffs');
+  if (!fs.existsSync(handoffsDir)) return [];
+  return fs.readdirSync(handoffsDir)
+    .filter(file => file.endsWith('.md') && file !== 'index.md')
+    .sort()
+    .filter(file => {
+      const markdown = fs.readFileSync(path.join(handoffsDir, file), 'utf8');
+      const metadata = handoffFrontmatter(markdown);
+      if (metadata && metadata.type === 'fb-lane-handoff' && Object.hasOwn(metadata, 'status')) {
+        return String(metadata.status).trim().toLowerCase() === 'ready';
+      }
+      return isReadyLikeStatus(proseHandoffStatus(markdown));
+    })
+    .map(file => path.join(rootDir, 'docs', 'handoffs', file));
+}
+
+function canonicalHandoffRelatives(rootDir) {
+  const handoffsDir = path.join(rootDir, 'docs', 'handoffs');
+  if (!fs.existsSync(handoffsDir)) return new Set();
+  return new Set(
+    fs.readdirSync(handoffsDir)
+      .filter(file => file.endsWith('.md') && file !== 'index.md')
+      .map(file => `docs/handoffs/${file}`)
+  );
+}
+
+function activeMarkdown(markdown) {
+  const withoutComments = String(markdown).replace(/<!--[\s\S]*?-->/g, '');
+  const active = [];
+  let fence = null;
+  for (const line of withoutComments.split(/\r?\n/)) {
+    if (fence) {
+      const closing = line.match(/^ {0,3}(`{3,}|~{3,})[ \t]*$/);
+      if (closing
+        && closing[1][0] === fence[0]
+        && closing[1].length >= fence.length) {
+        fence = null;
+      }
+      continue;
+    }
+    const opening = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    if (opening) {
+      fence = opening[1];
+      continue;
+    }
+    active.push(line);
+  }
+  return active.join('\n');
+}
+
+function approvedSupersededHandoffRelatives(rootDir) {
+  const handoffsDir = path.join(rootDir, 'docs', 'handoffs');
+  const superseded = new Set();
+  if (!fs.existsSync(handoffsDir)) return superseded;
+  for (const file of fs.readdirSync(handoffsDir).filter(name => name.endsWith('.md'))) {
+    const markdown = fs.readFileSync(path.join(handoffsDir, file), 'utf8');
+    const metadata = handoffFrontmatter(markdown);
+    if (!metadata
+      || metadata.type !== 'fb-lane-handoff'
+      || metadata.record_model !== 'normalized-v1'
+      || String(metadata.approval || '').trim().toLowerCase() !== 'approved') {
+      continue;
+    }
+    for (const line of activeMarkdown(markdown).match(/^Supersedes:\s*.+$/gim) || []) {
+      for (const link of line.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
+        const href = link[1].split('#')[0].trim();
+        if (!href || /^[a-z]+:/i.test(href)) continue;
+        const target = path.resolve(handoffsDir, href);
+        const relative = path.relative(handoffsDir, target);
+        if (!relative.startsWith('..') && !path.isAbsolute(relative) && relative.endsWith('.md')) {
+          superseded.add(`docs/handoffs/${relative.split(path.sep).join('/')}`);
+        }
+      }
+    }
+  }
+  return superseded;
+}
+
+function scanWorkstreamHandoffs(rootDir, options = {}) {
+  const roots = options.linkedWorktreeRoots || linkedWorktreeRoots(rootDir);
+  const authoritativeRoot = path.resolve(roots[0] || rootDir);
+  const handoffsDir = path.join(authoritativeRoot, 'docs', 'handoffs');
   const workstreams = Object.fromEntries(BFM_WORKSTREAMS.map(workstream => [workstream, { ready: [], blocked: [] }]));
   const selectedByTask = new Map();
   const files = fs.existsSync(handoffsDir)
@@ -383,7 +499,28 @@ function scanWorkstreamHandoffs(rootDir) {
     const result = workstreams[workstream];
     if (result.ready.length === 0 && result.blocked.length === 0) result.summary = 'None relevant';
   }
-  return { workstreams, selected: BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready) };
+  const selected = BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready);
+  if (selected.length === 0) {
+    const canonicalRelatives = canonicalHandoffRelatives(authoritativeRoot);
+    const supersededRelatives = approvedSupersededHandoffRelatives(authoritativeRoot);
+    const evidence = [...new Set(roots.flatMap((root, index) =>
+      readyLikeHandoffs(root).filter(file => {
+        const relative = path.relative(root, file).split(path.sep).join('/');
+        if (supersededRelatives.has(relative)) return false;
+        return index === 0 || !canonicalRelatives.has(relative);
+      })
+    ))].slice(0, 20);
+    if (evidence.length > 0) {
+      const error = new Error(
+        `Handoff readiness requires Product reconciliation: the authoritative typed scan selected none, `
+        + `but Ready-like handoffs exist:\n${evidence.map(file => `- ${file}`).join('\n')}`
+      );
+      error.code = 'HANDOFF_READINESS_RECONCILIATION_REQUIRED';
+      error.evidence = evidence;
+      throw error;
+    }
+  }
+  return { workstreams, selected };
 }
 
 function workstreamStatusCardTemplate(laneName) {
