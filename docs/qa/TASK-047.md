@@ -24,12 +24,16 @@ Completed: 2026-07-23
 | Affected Node syntax | Passed |
 | TASK-047 focused links | Passed |
 | Whitespace | Passed |
+| GitHub readiness repair | Fallback fixture updated; focused eval contract passed 18/18 |
 
 The first records contract run failed because the module did not exist, proving
 the RED state. One package-context test repair removed an incorrect nested
 plugin-path assumption. An earlier broad link probe treated an intentional
 example review URL as a local repository file; the final focused probe checks
-only TASK-047 links.
+only TASK-047 links. GitHub's first readiness run then exposed one stale
+fallback-bootstrap fixture: the documented command copied the new records
+module/page, but the fake archive still contained the former seven-page set.
+The fixture now exercises all six runtime modules and eight harness pages.
 
 ## Raw output
 
@@ -43,4 +47,6 @@ This implementation enables measurement for the next 10–20 substantial tasks.
 Authoritative provider token/cost usage and task-level tool-call counts were not
 available for this recovery-affected implementation, so they are recorded as
 `unavailable`, not estimated. Observed repair loops: 1 focused package-context
-test repair. Repeated broad gates: 0. Full validator runs: 0.
+test repair plus 1 GitHub-readiness fixture repair. Repeated broad gates: 0
+locally; GitHub readiness ran once and will rerun once for the repaired commit.
+Full local validator runs: 0.

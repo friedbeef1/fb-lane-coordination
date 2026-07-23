@@ -75,7 +75,7 @@
     *   [x] Focused normalized-record contract observed RED before implementation and now passes in root and package contexts.
     *   [x] Existing CLI/bootstrap contract passes 70 checks.
     *   [x] Final package parity, doctor, syntax, links, and whitespace evidence is recorded after closeout updates.
-*   **Latest Update**: *2026-07-23*: Root/package normalized-record contracts passed 11/11 each, existing CLI/bootstrap passed 70/70, 41 mirrors agree, and affected syntax, focused links, whitespace, and doctor normalized-record checks passed. No release checkpoint or external action occurred.
+*   **Latest Update**: *2026-07-23*: GitHub readiness exposed one stale fallback-bootstrap fixture after the local focused gate. The fixture now includes `fb-records.cjs` and the eighth harness page; the focused eval contract passes 18/18. PR #49 remains draft and no merge, release, marketplace, install, or deployment action is authorized.
 
 ---
 

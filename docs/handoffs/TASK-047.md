@@ -77,6 +77,15 @@ Remaining gates: Optional Product review; no release checkpoint requested.
 Next owner: Product / BFM
 Release boundary: No push, merge, publication, marketplace update, installation, or deployment is authorized.
 
+## Failure
+
+Failure: GitHub readiness failed in the fallback-bootstrap eval fixture.
+Observed: The manual setup command requested `fb-records.cjs`, while the test's fake source archive still contained only the former runtime and seven harness pages.
+Cause: The implementation updated the real fallback command and package, but missed the test archive's exact asset list.
+Recovery attempted: Add `fb-records.cjs` and `records.md` to the existing fallback and bootstrap fixture lists, regenerate the packaged test, and rerun only the focused eval contract.
+Result: Focused eval contract passed 18/18; GitHub rerun pending after push.
+Reusable lesson: When a generated install surface gains an asset, update both the real copy list and the fake archive inventory in the same focused contract.
+
 ## Release boundary
 
 Local implementation and focused verification only. No release checkpoint, push, merge, publication, or deployment is authorized.
