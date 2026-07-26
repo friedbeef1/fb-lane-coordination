@@ -688,7 +688,7 @@ test('verification checkpoint commits and pushes only recap and linked handoff w
   }
 });
 
-test('verification checkpoint keeps control-loop evidence as a counted clone-local link and rejects copied JSONL payloads', () => {
+test('verification checkpoint keeps only canonical counted control-loop summaries and rejects copied or malformed declarations', () => {
   const fixture = createRepo();
   try {
     const worktree = addWorktree(fixture, 'session/control-loop-summary');
@@ -725,6 +725,29 @@ test('verification checkpoint keeps control-loop evidence as a counted clone-loc
     assertFailed(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'control-loop-copied']), /stage event|JSONL|copy/i);
   } finally {
     copied.cleanup();
+  }
+
+  const malformed = createRepo();
+  try {
+    const worktree = addWorktree(malformed, 'session/control-loop-malformed');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'control-loop-malformed'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 24;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: malformed summary source']);
+    const sourceCommit = git(worktree, ['rev-parse', '--short', 'HEAD']);
+    appendStageEvent(worktree, {
+      schemaVersion: 'fb-stage-event-v1', eventId: 'event-session-malformed', timestamp: '2026-07-26T00:00:00.000Z',
+      runId: 'run-session-malformed', sessionId: 'control-loop-malformed', taskId: 'TASK-001', stage: 'verification',
+      capability: 'focused-check', attempt: 1, decision: 'process', result: 'passed', artifactRef: 'src/app.js',
+      baselineRef: 'src/app.js', candidateRef: null, criteriaIds: ['criterion-session-summary'],
+      evidenceRefs: ['docs/handoffs/TASK-001.md#verification-handoff'], failureClass: null, durationMs: 4,
+      inputTokens: 'unavailable', outputTokens: 'unavailable', cost: 'unavailable', nextAction: 'Retain the summary link only.',
+    });
+    appendEvidence(worktree, 'control-loop-malformed', 'TASK-001', sourceCommit);
+    fs.appendFileSync(recapPath(worktree, 'control-loop-malformed'), '\nStage event summary: [run-session-malformed](fb-lane/events/run-session-malformed.jsonl) (1 event).\nStage event summary: [run-session-malformed](fb-lane/events/run-session-malformed.jsonl) (one event).\n');
+    assertFailed(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'control-loop-malformed']), /stage event|summary|count/i);
+  } finally {
+    malformed.cleanup();
   }
 });
 

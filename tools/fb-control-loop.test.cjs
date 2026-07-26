@@ -187,6 +187,7 @@ test('rejects secret fields and obvious credential material from stage events', 
   assert.throws(() => validateStageEvent(baseEvent({ apiToken: 'sk-this-must-never-be-recorded' })), /forbidden|privacy|secret|token/i);
   assert.throws(() => validateStageEvent(baseEvent({ nextAction: 'Use Bearer very-secret-credential-now.' })), /credential|privacy|forbidden/i);
   assert.throws(() => validateStageEvent(baseEvent({ nextAction: 'Use ghp_1234567890abcdefghijklmnopqrstuvwxyzABCDE.' })), /credential|privacy|forbidden/i);
+  assert.throws(() => validateStageEvent(baseEvent({ nextAction: 'Never persist sk-proj-0123456789abcdefghijklmnopqrstuvwxyzABCDE.' })), /credential|privacy|forbidden/i);
 });
 
 test('appends concurrent whole JSONL events atomically', async () => {
@@ -228,6 +229,34 @@ test('rejects unsafe run identifiers instead of resolving a path outside the eve
   const fixture = createRepo();
   try {
     assert.throws(() => eventLogPath(fixture.repo, '../escape'), /unsafe|invalid/i);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('rejects a symlinked event-store directory that escapes the Git common directory', () => {
+  const fixture = createRepo();
+  try {
+    const common = git(fixture.repo, ['rev-parse', '--git-common-dir']);
+    const commonPath = path.resolve(fixture.repo, common);
+    const outside = path.join(fixture.parent, 'outside-events');
+    fs.mkdirSync(outside);
+    fs.symlinkSync(outside, path.join(commonPath, 'fb-lane'));
+    assert.throws(() => eventLogPath(fixture.repo, 'run-001'), /symlink|unsafe/i);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('rejects a symlinked run log that escapes the Git common event directory', () => {
+  const fixture = createRepo();
+  try {
+    const target = eventLogPath(fixture.repo, 'run-001');
+    const outside = path.join(fixture.parent, 'outside-run.jsonl');
+    fs.writeFileSync(outside, '{}\n');
+    fs.symlinkSync(outside, target);
+    assert.throws(() => readStageEvents(fixture.repo, 'run-001'), /symlink|unsafe/i);
+    assert.throws(() => appendStageEvent(fixture.repo, baseEvent()), /symlink|unsafe/i);
   } finally {
     fixture.cleanup();
   }
@@ -317,6 +346,19 @@ test('rejects copied stage-event JSON regardless of key order or summary label',
   assert.throws(() => assertStageEventSummaryMarkdown('{"eventId":"copied","schemaVersion":"fb-stage-event-v1"}'), /JSONL|copy/i);
 });
 
+test('requires every stage-event declaration to use the one counted clone-local summary syntax', () => {
+  const fixture = createRepo();
+  try {
+    appendStageEvent(fixture.repo, baseEvent({ eventId: 'event-summary', runId: 'run-summary' }));
+    const valid = 'Stage event summary: [run-summary](fb-lane/events/run-summary.jsonl) (1 event).';
+    assert.doesNotThrow(() => assertStageEventSummaryMarkdown(valid, fixture.repo));
+    assert.throws(() => assertStageEventSummaryMarkdown(`${valid}\nStage event summary: [run-summary](fb-lane/events/run-summary.jsonl) (one event).`, fixture.repo), /summary|counted|exact/i);
+    assert.throws(() => assertStageEventSummaryMarkdown('[run-summary](fb-lane/events/run-summary.jsonl) (1 event).', fixture.repo), /summary|label/i);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
 test('bundled MCP validates and records flat events and evaluates deterministic routing', async () => {
   const fixture = createRepo();
   try {
@@ -326,6 +368,10 @@ test('bundled MCP validates and records flat events and evaluates deterministic 
     assert.ok(names.includes('fb_control_event_validate'));
     assert.ok(names.includes('fb_control_event_record'));
     assert.ok(names.includes('fb_control_route'));
+    const eventValidator = list.result.tools.find(tool => tool.name === 'fb_control_event_validate');
+    assert.strictEqual(eventValidator.inputSchema.additionalProperties, false);
+    assert.strictEqual(eventValidator.inputSchema.properties.result.oneOf !== undefined, true);
+    assert.strictEqual(eventValidator.outputSchema.additionalProperties, false);
 
     const event = baseEvent({ eventId: 'event-mcp' });
     const validated = await mcpRequest({
@@ -333,6 +379,25 @@ test('bundled MCP validates and records flat events and evaluates deterministic 
       params: { name: 'fb_control_event_validate', arguments: { ...event, workspacePath: fixture.repo } },
     }, fixture.repo);
     assert.deepStrictEqual(JSON.parse(validated.result.content[0].text), event);
+    assert.deepStrictEqual(validated.result.structuredContent, event);
+
+    const nested = await mcpRequest({
+      jsonrpc: '2.0', id: 21, method: 'tools/call',
+      params: { name: 'fb_control_event_validate', arguments: { ...event, result: { state: 'passed' }, workspacePath: fixture.repo } },
+    }, fixture.repo);
+    assert.match(nested.error.message, /flat|nested/i);
+
+    const arbitrary = await mcpRequest({
+      jsonrpc: '2.0', id: 211, method: 'tools/call',
+      params: { name: 'fb_control_event_validate', arguments: { ...event, unexpected: 'not-a-stage-event-field', workspacePath: fixture.repo } },
+    }, fixture.repo);
+    assert.match(arbitrary.error.message, /additional property/i);
+
+    const credential = await mcpRequest({
+      jsonrpc: '2.0', id: 22, method: 'tools/call',
+      params: { name: 'fb_control_event_record', arguments: { ...event, eventId: 'event-mcp-secret', nextAction: 'Use sk-proj-0123456789abcdefghijklmnopqrstuvwxyzABCDE.', workspacePath: fixture.repo } },
+    }, fixture.repo);
+    assert.match(credential.error.message, /credential|privacy|forbidden/i);
 
     const routed = await mcpRequest({
       jsonrpc: '2.0', id: 3, method: 'tools/call',
@@ -345,6 +410,7 @@ test('bundled MCP validates and records flat events and evaluates deterministic 
       params: { name: 'fb_control_event_record', arguments: { ...event, workspacePath: fixture.repo } },
     }, fixture.repo);
     assert.deepStrictEqual(JSON.parse(recorded.result.content[0].text), event);
+    assert.deepStrictEqual(recorded.result.structuredContent, event);
     assert.strictEqual(readStageEvents(fixture.repo, 'run-001').length, 1);
   } finally {
     fixture.cleanup();

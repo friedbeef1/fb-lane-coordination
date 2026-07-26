@@ -19,7 +19,7 @@ const REQUIRED_EVENT_FIELDS = [
 const USAGE_FIELDS = new Set(['durationMs', 'inputTokens', 'outputTokens', 'cost']);
 const GATE_IDS = new Set(['focused', 'comparison', 'safety', 'integration', 'release']);
 const FORBIDDEN_KEY = /(?:secret|token|password|credential|api[_-]?key|environment[_-]?value|env[_-]?value|transcript|raw[_-]?prompt|complete[_-]?output|private[_-]?reasoning|chain[_-]?of[_-]?thought)/i;
-const CREDENTIAL_MATERIAL = /(?:\b(?:sk|rk|pk)_[A-Za-z0-9_-]{8,}\b|\bgh[pousr]_[A-Za-z0-9]{20,}\b|\bAKIA[0-9A-Z]{16}\b|-----BEGIN(?: [A-Z]+)? PRIVATE KEY-----|\bBearer\s+[A-Za-z0-9._~+/-]{12,}\b|\b(?:api[_-]?key|token|password|secret)\s*[:=]\s*[^\s,;]{8,})/i;
+const CREDENTIAL_MATERIAL = /(?:\b(?:sk|rk|pk|xox[baprs])[-_][A-Za-z0-9_-]{8,}\b|\bgh[pousr]_[A-Za-z0-9]{20,}\b|\bAIza[0-9A-Za-z_-]{20,}\b|\bAKIA[0-9A-Z]{16}\b|-----BEGIN(?: [A-Z]+)? PRIVATE KEY-----|\bBearer\s+[A-Za-z0-9._~+/-]{12,}\b|\b(?:api[_-]?key|token|password|secret)\s*[:=]\s*[^\s,;]{8,})/i;
 
 function assertSafeIdentifier(value, label) {
   if (typeof value !== 'string' || !EVENT_ID_PATTERN.test(value) || value === '.' || value === '..') {
@@ -35,15 +35,34 @@ function gitCommonDir(cwd = process.cwd()) {
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   if (result.status !== 0) throw new Error((result.stderr || 'A Git common directory is required for control-loop events.').trim());
-  return path.resolve(cwd, result.stdout.trim());
+  return fs.realpathSync(path.resolve(cwd, result.stdout.trim()));
+}
+
+function assertNotSymlink(candidate, label) {
+  if (fs.existsSync(candidate) && fs.lstatSync(candidate).isSymbolicLink()) throw new Error(`Unsafe symlinked ${label}.`);
+}
+
+function ensureEventDirectory(common) {
+  const laneDirectory = path.join(common, 'fb-lane');
+  const eventDirectory = path.join(laneDirectory, 'events');
+  assertNotSymlink(laneDirectory, 'control-loop store directory');
+  if (!fs.existsSync(laneDirectory)) fs.mkdirSync(laneDirectory, { mode: 0o700 });
+  assertNotSymlink(laneDirectory, 'control-loop store directory');
+  assertNotSymlink(eventDirectory, 'control-loop event directory');
+  if (!fs.existsSync(eventDirectory)) fs.mkdirSync(eventDirectory, { mode: 0o700 });
+  assertNotSymlink(eventDirectory, 'control-loop event directory');
+  const realDirectory = fs.realpathSync(eventDirectory);
+  if (realDirectory !== path.join(common, 'fb-lane', 'events')) throw new Error('Unsafe control-loop event directory outside the Git common directory.');
+  return realDirectory;
 }
 
 function eventLogPath(cwd = process.cwd(), runId) {
   const safeRunId = assertSafeIdentifier(runId, 'run ID');
   const common = gitCommonDir(cwd);
-  const eventDirectory = path.join(common, 'fb-lane', 'events');
+  const eventDirectory = ensureEventDirectory(common);
   const filePath = path.resolve(eventDirectory, `${safeRunId}.jsonl`);
   if (path.dirname(filePath) !== eventDirectory) throw new Error('Unsafe event log path.');
+  assertNotSymlink(filePath, 'control-loop run log');
   return filePath;
 }
 
@@ -244,8 +263,8 @@ function aggregateGates(input = {}) {
 
 function stageEventSummary(cwd = process.cwd()) {
   const common = gitCommonDir(cwd);
-  const eventDirectory = path.join(common, 'fb-lane', 'events');
-  const files = fs.existsSync(eventDirectory) ? fs.readdirSync(eventDirectory).filter(name => name.endsWith('.jsonl')) : [];
+  const eventDirectory = ensureEventDirectory(common);
+  const files = fs.readdirSync(eventDirectory).filter(name => name.endsWith('.jsonl'));
   let eventCount = 0;
   for (const file of files) eventCount += readStageEvents(cwd, path.basename(file, '.jsonl')).length;
   return { directory: eventDirectory, runCount: files.length, eventCount };
@@ -255,10 +274,16 @@ function assertStageEventSummaryMarkdown(markdown, cwd = process.cwd()) {
   if (/"schemaVersion"\s*:\s*"fb-stage-event-v1"/i.test(markdown)) {
     throw new Error('Stage event summaries must link to clone-local JSONL and counts only; copied event JSONL payloads are forbidden.');
   }
-  if (!/Stage event summary\s*:/i.test(markdown)) return;
-  const summaries = [...markdown.matchAll(/Stage event summary\s*:\s*\[([A-Za-z0-9][A-Za-z0-9._-]{0,127})\]\([^)]*fb-lane\/events\/\1\.jsonl\)\s*\((\d+) events?\)\./gi)];
-  if (!summaries.length) throw new Error('Stage event summary requires a clone-local fb-lane/events/<runId>.jsonl link and exact event count.');
-  for (const match of summaries) {
+  const lines = String(markdown).split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  const linkPattern = /fb-lane\/events\/[A-Za-z0-9][A-Za-z0-9._-]{0,127}\.jsonl/i;
+  const summaryPattern = /^Stage event summary: \[([A-Za-z0-9][A-Za-z0-9._-]{0,127})\]\(fb-lane\/events\/\1\.jsonl\) \((\d+) events?\)\.$/;
+  const summaryLines = lines.filter(line => /^Stage event summary\s*:/i.test(line));
+  const eventLinkLines = lines.filter(line => linkPattern.test(line));
+  if (!summaryLines.length && !eventLinkLines.length) return;
+  if (eventLinkLines.length !== summaryLines.length) throw new Error('Stage event log links require the canonical Stage event summary label.');
+  for (const line of summaryLines) {
+    const match = line.match(summaryPattern);
+    if (!match) throw new Error('Stage event summary requires exactly: Stage event summary: [<runId>](fb-lane/events/<runId>.jsonl) (<count> events).');
     const runId = match[1];
     const expectedCount = Number(match[2]);
     if (readStageEvents(cwd, runId).length !== expectedCount) throw new Error(`Stage event summary count for ${runId} does not match its clone-local event log.`);
