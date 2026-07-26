@@ -1,7 +1,7 @@
 # FB Graduated Project Graph Design
 
-Date: 2026-07-26  
-Owner: Product / BFM  
+Date: 2026-07-26
+Owner: Product / BFM
 Status: Design approved in conversation; implementation awaits written-spec review
 
 ## Purpose
