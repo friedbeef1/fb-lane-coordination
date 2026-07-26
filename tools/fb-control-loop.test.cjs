@@ -64,15 +64,22 @@ function addWorktree(fixture) {
   return worktree;
 }
 
-function createFullExecutionSession(cwd, sessionId = 'full-session') {
+function createFullExecutionSession(cwd, sessionId = 'full-session', options = {}) {
   const common = path.resolve(cwd, git(cwd, ['rev-parse', '--git-common-dir']));
   const sessionDirectory = path.join(common, 'fb-sessions');
+  const taskId = options.taskId || 'TASK-050';
+  const handoffPath = path.join(cwd, 'docs', 'handoffs', `${taskId}.md`);
+  fs.mkdirSync(path.dirname(handoffPath), { recursive: true });
+  fs.writeFileSync(path.join(cwd, 'PROJECT_BOARD.md'), `| ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |\n|---|---|---|---|---|---|---|\n| ${taskId} | In Progress | ${options.owner || 'FB-Product / BFM + FB-Tech'} | Control | ${options.scope || 'Coordinate the Full repair'} | tools/fb-control-loop.cjs | [Handoff](docs/handoffs/${taskId}.md) |\n\n### ${taskId} - Full repair\n\nApproval: approved\n`);
+  fs.writeFileSync(handoffPath, `# ${taskId}\n\nProduct decision version: ${options.decisionVersion || 'decision-v1'}\n`);
   fs.mkdirSync(sessionDirectory, { recursive: true });
   fs.writeFileSync(path.join(sessionDirectory, `${sessionId}.json`), `${JSON.stringify({
     sessionId,
     state: 'active',
     mode: 'execution',
-    lane: 'bfm',
+    lane: options.lane || 'bfm',
+    taskId,
+    handoff: `docs/handoffs/${taskId}.md`,
     locks: ['tools/fb-control-loop.cjs'],
     milestones: [],
   }, null, 2)}\n`);
@@ -715,7 +722,6 @@ test('issues one durable Full repair budget per run or candidate and exposes it 
       sessionId,
       runId: 'full-run-001',
       candidateId: 'candidate-001',
-      decisionVersion: 'decision-v1',
     });
     assert.deepStrictEqual(issued, { sessionId, runId: 'full-run-001', candidateId: 'candidate-001' });
     const record = readFullRepairBudget(linked, issued);
@@ -726,20 +732,35 @@ test('issues one durable Full repair budget per run or candidate and exposes it 
       sessionId,
       runId: 'full-run-001',
       candidateId: 'candidate-002',
-      decisionVersion: 'decision-v1',
     }), /run|issued|budget/i);
     assert.throws(() => issueFullRepairBudget(fixture.repo, {
       sessionId,
       runId: 'full-run-002',
       candidateId: 'candidate-001',
-      decisionVersion: 'decision-v1',
     }), /candidate|issued|budget/i);
   } finally {
     fixture.cleanup();
   }
 });
 
-test('rejects Full repair deadline extension and stops when the Product decision version changes', () => {
+test('rejects Full budget issuance from a non-BFM session or an authoritative Quick route', () => {
+  const nonBfm = createRepo();
+  try {
+    const sessionId = createFullExecutionSession(nonBfm.repo, 'tech-session', { lane: 'tech' });
+    assert.throws(() => issueFullRepairBudget(nonBfm.repo, { sessionId, runId: 'full-run-tech', candidateId: 'candidate-tech' }), /Full BFM|bfm|authority/i);
+  } finally {
+    nonBfm.cleanup();
+  }
+  const quick = createRepo();
+  try {
+    const sessionId = createFullExecutionSession(quick.repo, 'quick-session', { owner: 'FB-BFM', scope: 'Correct copy' });
+    assert.throws(() => issueFullRepairBudget(quick.repo, { sessionId, runId: 'full-run-quick', candidateId: 'candidate-quick' }), /Full BFM|route|authority/i);
+  } finally {
+    quick.cleanup();
+  }
+});
+
+test('rejects Full repair deadline extension and stops when authoritative Product decision changes despite a stale caller value', () => {
   const fixture = createRepo();
   try {
     const sessionId = createFullExecutionSession(fixture.repo);
@@ -747,18 +768,18 @@ test('rejects Full repair deadline extension and stops when the Product decision
       sessionId,
       runId: 'full-run-003',
       candidateId: 'candidate-003',
-      decisionVersion: 'decision-v1',
     });
     const budget = readFullRepairBudget(fixture.repo, budgetRef);
     assert.throws(() => advanceFullRepairBudget(fixture.repo, {
       budgetRef,
       materialProgress: true,
-      event: { decisionVersion: 'decision-v1', deadlineAt: budget.deadlineAt + 1 },
+      event: { deadlineAt: budget.deadlineAt + 1 },
     }), /deadline|unknown|authority/i);
+    fs.writeFileSync(path.join(fixture.repo, 'docs', 'handoffs', 'TASK-050.md'), '# TASK-050\n\nProduct decision version: decision-v2\n');
     const stopped = advanceFullRepairBudget(fixture.repo, {
       budgetRef,
       materialProgress: true,
-      event: { decisionVersion: 'decision-v2' },
+      event: {},
     });
     assert.strictEqual(stopped.status, 'stopped');
     assert.match(stopped.productBoundary, /decision|Product/i);
@@ -772,27 +793,27 @@ test('stops a Full budget on no progress, closure, deadline, or a third repair w
   const fixture = createRepo();
   try {
     const sessionId = createFullExecutionSession(fixture.repo);
-    const noProgress = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-004', candidateId: 'candidate-004', decisionVersion: 'decision-v1' });
-    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: noProgress, materialProgress: false, event: { decisionVersion: 'decision-v1' } }).status, 'stopped');
+    const noProgress = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-004', candidateId: 'candidate-004' });
+    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: noProgress, materialProgress: false, event: {} }).status, 'stopped');
 
-    const closed = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-005', candidateId: 'candidate-005', decisionVersion: 'decision-v1' });
+    const closed = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-005', candidateId: 'candidate-005' });
     closeFullRepairBudget(fixture.repo, closed, 'session closed');
-    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: closed, materialProgress: true, event: { decisionVersion: 'decision-v1' } }).status, 'stopped');
+    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: closed, materialProgress: true, event: {} }).status, 'stopped');
 
-    const expired = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-006', candidateId: 'candidate-006', decisionVersion: 'decision-v1' });
+    const expired = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-006', candidateId: 'candidate-006' });
     const deadline = readFullRepairBudget(fixture.repo, expired).deadlineAt;
     const originalNow = Date.now;
     Date.now = () => deadline;
     try {
-      assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: expired, materialProgress: true, event: { decisionVersion: 'decision-v1' } }).status, 'stopped');
+      assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: expired, materialProgress: true, event: {} }).status, 'stopped');
     } finally {
       Date.now = originalNow;
     }
 
-    const repairs = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-007', candidateId: 'candidate-007', decisionVersion: 'decision-v1' });
-    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: repairs, materialProgress: true, event: { decisionVersion: 'decision-v1' } }).status, 'progressed');
-    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: repairs, materialProgress: true, event: { decisionVersion: 'decision-v1' } }).status, 'progressed');
-    const third = advanceFullRepairBudget(fixture.repo, { budgetRef: repairs, materialProgress: true, event: { decisionVersion: 'decision-v1' } });
+    const repairs = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-007', candidateId: 'candidate-007' });
+    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: repairs, materialProgress: true, event: {} }).status, 'progressed');
+    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: repairs, materialProgress: true, event: {} }).status, 'progressed');
+    const third = advanceFullRepairBudget(fixture.repo, { budgetRef: repairs, materialProgress: true, event: {} });
     assert.strictEqual(third.status, 'stopped');
     assert.match(third.productBoundary, /third|repair|Product/i);
     assert.strictEqual(readFullRepairBudget(fixture.repo, repairs).repairCount, 2);
@@ -805,10 +826,10 @@ test('serializes concurrent Full repair advancement through the shared session a
   const fixture = createRepo();
   try {
     const sessionId = createFullExecutionSession(fixture.repo);
-    const budgetRef = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-008', candidateId: 'candidate-008', decisionVersion: 'decision-v1' });
+    const budgetRef = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-008', candidateId: 'candidate-008' });
     const runAdvance = () => new Promise((resolve, reject) => {
       const script = `const { advanceFullRepairBudget } = require(process.argv[1]);\ntry { console.log(JSON.stringify(advanceFullRepairBudget(process.cwd(), JSON.parse(process.argv[2])))); } catch (error) { console.error(error.stack || error.message); process.exitCode = 1; }`;
-      const child = spawn(process.execPath, ['-e', script, path.join(__dirname, 'fb-control-loop.cjs'), JSON.stringify({ budgetRef, materialProgress: true, event: { decisionVersion: 'decision-v1' } })], { cwd: fixture.repo });
+      const child = spawn(process.execPath, ['-e', script, path.join(__dirname, 'fb-control-loop.cjs'), JSON.stringify({ budgetRef, materialProgress: true, event: {} })], { cwd: fixture.repo });
       let stdout = '';
       let stderr = '';
       child.stdout.on('data', chunk => { stdout += chunk; });
@@ -820,6 +841,33 @@ test('serializes concurrent Full repair advancement through the shared session a
     assert.deepStrictEqual(results.map(result => result.status).sort(), ['progressed', 'progressed']);
     assert.strictEqual(readFullRepairBudget(fixture.repo, budgetRef).repairCount, 2);
   } finally {
+    fixture.cleanup();
+  }
+});
+
+test('fsyncs no-follow temporary Full budget files and their common-store directory on create and mutation', () => {
+  const fixture = createRepo();
+  const originalOpen = fs.openSync;
+  const originalFsync = fs.fsyncSync;
+  const openFlags = [];
+  let fsyncs = 0;
+  try {
+    const sessionId = createFullExecutionSession(fixture.repo);
+    fs.openSync = (target, flags, mode) => {
+      openFlags.push(flags);
+      return originalOpen(target, flags, mode);
+    };
+    fs.fsyncSync = descriptor => {
+      fsyncs += 1;
+      return originalFsync(descriptor);
+    };
+    const budgetRef = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-durable', candidateId: 'candidate-durable' });
+    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef, materialProgress: true, event: {} }).status, 'progressed');
+    assert.ok(openFlags.some(flags => typeof flags === 'number' && (flags & fs.constants.O_NOFOLLOW) !== 0));
+    assert.ok(fsyncs >= 4, `expected file and directory fsyncs, received ${fsyncs}`);
+  } finally {
+    fs.openSync = originalOpen;
+    fs.fsyncSync = originalFsync;
     fixture.cleanup();
   }
 });

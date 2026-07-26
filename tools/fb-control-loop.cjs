@@ -193,7 +193,7 @@ function readFullRepairBudgetRecord(cwd, ref) {
 function writeExclusiveJson(filePath, value) {
   const directory = path.dirname(filePath);
   const temporary = path.join(directory, `.${path.basename(filePath)}.${process.pid}.${crypto.randomBytes(8).toString('hex')}.tmp`);
-  const descriptor = fs.openSync(temporary, 'wx', 0o600);
+  const descriptor = fs.openSync(temporary, fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_EXCL | fs.constants.O_NOFOLLOW, 0o600);
   try {
     fs.writeFileSync(descriptor, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
     fs.fsyncSync(descriptor);
@@ -202,16 +202,37 @@ function writeExclusiveJson(filePath, value) {
   }
   try {
     fs.linkSync(temporary, filePath);
+    fsyncDirectory(directory);
   } finally {
     fs.rmSync(temporary, { force: true });
+  }
+}
+
+function fsyncDirectory(directory) {
+  const descriptor = fs.openSync(directory, fs.constants.O_RDONLY | fs.constants.O_DIRECTORY);
+  try {
+    fs.fsyncSync(descriptor);
+  } finally {
+    fs.closeSync(descriptor);
   }
 }
 
 function replaceFullRepairBudgetRecord(filePath, value) {
   assertNotSymlink(filePath, 'Full repair-budget record');
   const temporary = path.join(path.dirname(filePath), `.${path.basename(filePath)}.${process.pid}.${crypto.randomBytes(8).toString('hex')}.tmp`);
-  fs.writeFileSync(temporary, `${JSON.stringify(value, null, 2)}\n`, { flag: 'wx', mode: 0o600 });
-  fs.renameSync(temporary, filePath);
+  const descriptor = fs.openSync(temporary, fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_EXCL | fs.constants.O_NOFOLLOW, 0o600);
+  try {
+    fs.writeFileSync(descriptor, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+    fs.fsyncSync(descriptor);
+  } finally {
+    fs.closeSync(descriptor);
+  }
+  try {
+    fs.renameSync(temporary, filePath);
+    fsyncDirectory(path.dirname(filePath));
+  } finally {
+    fs.rmSync(temporary, { force: true });
+  }
 }
 
 function fullRepairBudgetRecords(cwd) {
@@ -227,23 +248,24 @@ function fullRepairBudgetRecords(cwd) {
     });
 }
 
-function assertActiveFullExecutionSession(cwd, sessionId) {
-  const { readSession } = require('./fb-session.cjs');
-  const session = readSession(cwd, sessionId);
-  if (session.state !== 'active' || session.mode !== 'execution') throw new Error('Full repair-budget issuance requires one active execution session.');
-  return session;
+function withFullRepairSessionLock(cwd, sessionId, fn) {
+  const { withSessionMutationLock } = require('./fb-session.cjs');
+  return withSessionMutationLock(cwd, sessionId, fn);
+}
+
+function authoritativeFullBfmAuthority(cwd, sessionId) {
+  return require('./fb-session.cjs').readFullBfmAuthority(cwd, sessionId);
 }
 
 function issueFullRepairBudget(cwd = process.cwd(), input = {}) {
-  assertOnlyKeys(input, ['sessionId', 'runId', 'candidateId', 'decisionVersion'], 'Full repair-budget issuance');
+  assertOnlyKeys(input, ['sessionId', 'runId', 'candidateId'], 'Full repair-budget issuance');
   const ref = {
     sessionId: assertSafeIdentifier(input.sessionId, 'Full repair budget session ID'),
     runId: assertSafeIdentifier(input.runId, 'Full repair budget run ID'),
     candidateId: assertSafeIdentifier(input.candidateId, 'Full repair budget candidate ID'),
   };
-  const decisionVersion = assertSafeIdentifier(input.decisionVersion, 'Full repair budget decision version');
-  return withFullRepairBudgetLock(cwd, () => {
-    assertActiveFullExecutionSession(cwd, ref.sessionId);
+  return withFullRepairSessionLock(cwd, ref.sessionId, () => withFullRepairBudgetLock(cwd, () => {
+    const authority = authoritativeFullBfmAuthority(cwd, ref.sessionId);
     const { filePath } = fullRepairBudgetPaths(cwd, ref.runId);
     if (fs.existsSync(filePath)) throw new Error(`Full repair budget for run ${ref.runId} is already issued and cannot be reset.`);
     if (fullRepairBudgetRecords(cwd).some(record => record.candidateId === ref.candidateId)) throw new Error(`Full repair budget for candidate ${ref.candidateId} is already issued and cannot be reset.`);
@@ -251,7 +273,7 @@ function issueFullRepairBudget(cwd = process.cwd(), input = {}) {
     const record = {
       schemaVersion: FULL_REPAIR_BUDGET_SCHEMA_VERSION,
       ...ref,
-      decisionVersion,
+      decisionVersion: authority.decisionVersion,
       issuedAt,
       deadlineAt: issuedAt + FULL_REPAIR_BUDGET_DURATION_MS,
       repairCount: 0,
@@ -261,7 +283,7 @@ function issueFullRepairBudget(cwd = process.cwd(), input = {}) {
     };
     writeExclusiveJson(filePath, record);
     return ref;
-  });
+  }));
 }
 
 function readFullRepairBudget(cwd = process.cwd(), budgetRef) {
@@ -279,19 +301,24 @@ function advanceFullRepairBudget(cwd = process.cwd(), input = {}) {
   assertOnlyKeys(input, ['budgetRef', 'materialProgress', 'event'], 'Full repair-budget advancement');
   const ref = assertFullRepairBudgetRef(input.budgetRef);
   if (typeof input.materialProgress !== 'boolean') throw new Error('Full repair-budget advancement requires an evaluated material-progress result.');
-  assertOnlyKeys(input.event, ['decisionVersion'], 'Full repair-budget advancement event');
-  const decisionVersion = assertSafeIdentifier(input.event.decisionVersion, 'Full repair budget decision version');
-  return withFullRepairBudgetLock(cwd, () => {
+  assertOnlyKeys(input.event, [], 'Full repair-budget advancement event');
+  return withFullRepairSessionLock(cwd, ref.sessionId, () => withFullRepairBudgetLock(cwd, () => {
     const { paths, record } = readFullRepairBudgetRecord(cwd, ref);
     if (record.state !== 'active') return { status: 'stopped', budgetRef: ref, productBoundary: `Product boundary: Full repair budget is already ${record.state}; ${record.stoppedReason}` };
-    if (decisionVersion !== record.decisionVersion) return stopFullRepairBudget(paths.filePath, record, 'Product or user decision version changed; issue a new approved execution session.');
+    let authority;
+    try {
+      authority = authoritativeFullBfmAuthority(cwd, ref.sessionId);
+    } catch (error) {
+      return stopFullRepairBudget(paths.filePath, record, `Full BFM session authority is no longer active; ${error.message}`);
+    }
+    if (authority.decisionVersion !== record.decisionVersion) return stopFullRepairBudget(paths.filePath, record, 'Product or user decision version changed; issue a new approved execution session.');
     if (Date.now() >= record.deadlineAt) return stopFullRepairBudget(paths.filePath, record, 'Full repair deadline is exhausted; choose the next approved execution slice.');
     if (!input.materialProgress) return stopFullRepairBudget(paths.filePath, record, 'Stopped after one cycle with no material progress; Product direction is required.');
     if (record.repairCount >= record.maxRepairs) return stopFullRepairBudget(paths.filePath, record, 'A third Full repair is blocked; Product direction is required.');
     const updated = { ...record, repairCount: record.repairCount + 1 };
     replaceFullRepairBudgetRecord(paths.filePath, updated);
     return { status: 'progressed', budgetRef: ref };
-  });
+  }));
 }
 
 function closeFullRepairBudget(cwd = process.cwd(), budgetRef, reason = 'Full execution session closed.') {
@@ -302,6 +329,18 @@ function closeFullRepairBudget(cwd = process.cwd(), budgetRef, reason = 'Full ex
     if (record.state === 'active') replaceFullRepairBudgetRecord(paths.filePath, { ...record, state: 'closed', stoppedReason: reason.trim() });
     return readFullRepairBudget(cwd, ref);
   });
+}
+
+function closeFullRepairBudgetsForSession(cwd = process.cwd(), sessionId, reason = 'Full execution session closed.') {
+  const safeSessionId = assertSafeIdentifier(sessionId, 'Full repair budget session ID');
+  if (typeof reason !== 'string' || !reason.trim() || CREDENTIAL_MATERIAL.test(reason)) throw new Error('Full repair-budget close requires a privacy-safe reason.');
+  return withFullRepairBudgetLock(cwd, () => fullRepairBudgetRecords(cwd)
+    .filter(record => record.sessionId === safeSessionId && record.state === 'active')
+    .map(record => {
+      const { filePath } = fullRepairBudgetPaths(cwd, record.runId);
+      replaceFullRepairBudgetRecord(filePath, { ...record, state: 'closed', stoppedReason: reason.trim() });
+      return record.runId;
+    }));
 }
 
 function stringArray(value, label) {
@@ -1011,6 +1050,7 @@ module.exports = {
   readFullRepairBudget,
   advanceFullRepairBudget,
   closeFullRepairBudget,
+  closeFullRepairBudgetsForSession,
   validatePromotion,
   stageEventSummary,
   assertStageEventSummaryMarkdown,

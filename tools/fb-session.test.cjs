@@ -23,7 +23,7 @@ const {
   submitVerificationReuse,
 } = require(path.join(__dirname, 'fb-session.cjs'));
 const { selectAutomatedChecks } = require(path.join(__dirname, 'fb-efficiency.cjs'));
-const { appendStageEvent } = require(path.join(__dirname, 'fb-control-loop.cjs'));
+const { appendStageEvent, issueFullRepairBudget, readFullRepairBudget, advanceFullRepairBudget } = require(path.join(__dirname, 'fb-control-loop.cjs'));
 const cleanEnv = {
   ...process.env,
   CODEX_THREAD_ID: '',
@@ -609,6 +609,23 @@ test('checkpoint and close serialize so a completed checkpoint cannot reopen a c
     assert.strictEqual(record.state, 'closed');
     assert.strictEqual(record.outcome, 'blocked');
     assert.strictEqual(record.pendingCheckpoint, undefined);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('session close atomically closes linked Full repair budgets and rejects stale advancement', () => {
+  const fixture = createRepo([{ id: 'TASK-001', owner: 'Bfm', scope: 'Coordinate multiple owners', locks: 'src/app.js' }]);
+  try {
+    const worktree = addWorktree(fixture, 'session/full-budget-close');
+    assertOk(promote(worktree, 'TASK-001', 'bfm', 'execution', 'full-budget-close'));
+    const handoffPath = path.join(worktree, 'docs', 'handoffs', 'TASK-001.md');
+    fs.appendFileSync(handoffPath, '\nProduct decision version: decision-v1\n');
+    const budgetRef = issueFullRepairBudget(worktree, { sessionId: 'full-budget-close', runId: 'full-budget-close-run', candidateId: 'full-budget-close-candidate' });
+    appendEvidence(worktree, 'full-budget-close', 'TASK-001', git(worktree, ['rev-parse', 'HEAD']), 'blocked');
+    assertOk(run(worktree, ['session', 'close', '--outcome', 'blocked', '--session-id', 'full-budget-close']));
+    assert.strictEqual(readFullRepairBudget(worktree, budgetRef).state, 'closed');
+    assert.strictEqual(advanceFullRepairBudget(worktree, { budgetRef, materialProgress: true, event: {} }).status, 'stopped');
   } finally {
     fixture.cleanup();
   }
