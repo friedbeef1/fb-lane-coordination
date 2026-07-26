@@ -10,6 +10,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { execFileSync, spawn } = require('child_process');
+const { createFullRepairBudget } = require('./fb-efficiency.cjs');
 const {
   routeArtifact,
   validateStageEvent,
@@ -565,20 +566,45 @@ test('rejects a benchmark substituted away from the candidate-store frozen manif
   }
 });
 
-test('recovers an incomplete candidate directory and rejects a symlinked candidate target', () => {
+test('rejects incomplete and symlinked candidate targets without deleting existing data', () => {
   const fixture = createRepo();
   try {
     const common = path.resolve(fixture.repo, git(fixture.repo, ['rev-parse', '--git-common-dir']));
     const candidates = path.join(common, 'fb-lane', 'candidates');
     fs.mkdirSync(path.join(candidates, 'candidate-001'), { recursive: true });
     fs.writeFileSync(path.join(candidates, 'candidate-001', 'partial.json'), '{}\n');
-    const recovered = writeCandidateStore(fixture.repo, candidateStoreInput());
-    assert.strictEqual(readCandidateStore(fixture.repo, recovered.candidateId).candidateHash, serializedHash(proposedConfig()));
+    assert.throws(() => writeCandidateStore(fixture.repo, candidateStoreInput()), /exist|isolated/i);
+    assert.strictEqual(fs.readFileSync(path.join(candidates, 'candidate-001', 'partial.json'), 'utf8'), '{}\n');
     const outside = path.join(fixture.parent, 'outside-candidate');
     fs.mkdirSync(outside);
     fs.symlinkSync(outside, path.join(candidates, 'candidate-symlink'));
     assert.throws(() => writeCandidateStore(fixture.repo, candidateStoreInput({ candidateId: 'candidate-symlink' })), /symlink|unsafe/i);
   } finally {
+    fixture.cleanup();
+  }
+});
+
+test('does not replace an existing candidate target when publication loses a deterministic race', () => {
+  const fixture = createRepo();
+  const originalRename = fs.renameSync;
+  try {
+    const common = path.resolve(fixture.repo, git(fixture.repo, ['rev-parse', '--git-common-dir']));
+    const candidates = path.join(common, 'fb-lane', 'candidates');
+    const target = path.join(candidates, 'candidate-race');
+    let raced = false;
+    fs.renameSync = (from, to) => {
+      if (!raced && path.basename(to) === 'candidate-race' && path.basename(from).startsWith('.candidate-race.stage-')) {
+        raced = true;
+        fs.mkdirSync(target, { recursive: true });
+        fs.writeFileSync(path.join(target, 'unrelated.txt'), 'keep\n');
+      }
+      return originalRename(from, to);
+    };
+    assert.throws(() => writeCandidateStore(fixture.repo, candidateStoreInput({ candidateId: 'candidate-race' })), /exist|publish|race/i);
+    assert.strictEqual(fs.readFileSync(path.join(target, 'unrelated.txt'), 'utf8'), 'keep\n');
+    assert.deepStrictEqual(fs.readdirSync(candidates).filter(name => name.includes('.stage-')), []);
+  } finally {
+    fs.renameSync = originalRename;
     fixture.cleanup();
   }
 });
@@ -629,6 +655,19 @@ test('preserves unfavorable candidate results and selects the baseline on a must
   }
 });
 
+test('rejects credential-bearing benchmark observations before returning comparison evidence', () => {
+  const fixture = createRepo();
+  try {
+    const record = writeCandidateStore(fixture.repo, candidateStoreInput());
+    const baseline = benchmarkRun(record, 'baseline');
+    const candidate = benchmarkRun(record, 'candidate');
+    candidate.results[0].observed = ['sk-proj-0123456789abcdefghijklmnopqrstuvwxyzABCDE'];
+    assert.throws(() => compareFrozenBenchmark(fixture.repo, { candidateId: record.candidateId, baseline, candidate }), /credential|forbidden|privacy/i);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
 test('requires a repeated candidate to materially change configuration or evidence', () => {
   const previous = { candidateId: 'candidate-001', candidateHash: sha256('candidate'), evidenceRefs: ['evidence/one'] };
   const repeated = { candidateId: 'candidate-002', candidateHash: sha256('candidate'), evidenceRefs: ['evidence/one'] };
@@ -646,9 +685,13 @@ test('uses declared Quick and Full repair policies instead of caller-supplied at
   });
   assert.strictEqual(result.status, 'stopped');
   assert.match(result.productBoundary, /repair|budget/i);
-  assert.strictEqual(assessCandidateProgress({ candidate, repair: { mode: 'Full BFM', state: { repairLoops: 1 }, event: { type: 'repair', now: 1 } } }).status, 'progressed');
-  assert.strictEqual(assessCandidateProgress({ candidate, repair: { mode: 'Full BFM', state: { repairLoops: 2 }, event: { type: 'repair', now: 1 } } }).status, 'stopped');
-  assert.strictEqual(assessCandidateProgress({ candidate, repair: { mode: 'Full BFM', state: { repairLoops: 0, deadlineAt: 10 }, event: { type: 'repair', now: 10 } } }).status, 'stopped');
+  const firstFull = assessCandidateProgress({ candidate, repair: { mode: 'Full BFM', fullBudget: createFullRepairBudget({ deadlineAt: 10 }), event: { now: 1 } } });
+  const secondFull = assessCandidateProgress({ candidate, repair: { mode: 'Full BFM', fullBudget: firstFull.fullBudget, event: { now: 2 } } });
+  assert.strictEqual(firstFull.status, 'progressed');
+  assert.strictEqual(secondFull.status, 'progressed');
+  assert.strictEqual(assessCandidateProgress({ candidate, repair: { mode: 'Full BFM', fullBudget: secondFull.fullBudget, event: { now: 3 } } }).status, 'stopped');
+  assert.strictEqual(assessCandidateProgress({ candidate, repair: { mode: 'Full BFM', fullBudget: createFullRepairBudget({ deadlineAt: 10 }), event: { now: 10 } } }).status, 'stopped');
+  assert.strictEqual(assessCandidateProgress({ candidate, repair: { mode: 'Full BFM', fullBudget: createFullRepairBudget({ deadlineAt: 10 }), event: { now: 1, userDecisionChanged: true } } }).status, 'stopped');
   assert.throws(() => assessCandidateProgress({ candidate, repair: { mode: 'Quick BFM', maxAttempts: 100, changedPaths: ['tools/fb-control-loop.cjs'], state: {}, event: { type: 'repair', now: 1 } } }), /unknown|policy|repair/i);
 });
 

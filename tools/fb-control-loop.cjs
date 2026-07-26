@@ -9,7 +9,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { isDeepStrictEqual } = require('util');
 const { spawnSync } = require('child_process');
-const { quickPolicyForPaths, evaluateRunBudget } = require('./fb-efficiency.cjs');
+const { quickPolicyForPaths, evaluateRunBudget, consumeFullRepairBudget } = require('./fb-efficiency.cjs');
 
 const SCHEMA_VERSION = 'fb-stage-event-v1';
 const EVENT_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
@@ -456,10 +456,26 @@ function writeCandidateFile(directory, name, content) {
   assertSafeCandidateDirectory(directory);
   const target = safeCandidateFile(directory, name);
   const temporary = safeCandidateFile(directory, `.${name}.${process.pid}.${crypto.randomUUID()}.tmp`);
-  fs.writeFileSync(temporary, content, { mode: 0o600, flag: 'wx' });
+  const noFollow = fs.constants.O_NOFOLLOW || 0;
+  const descriptor = fs.openSync(temporary, fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_EXCL | noFollow, 0o600);
+  try {
+    fs.writeFileSync(descriptor, content, 'utf8');
+    fs.fsyncSync(descriptor);
+  } finally {
+    fs.closeSync(descriptor);
+  }
   assertSafeCandidateDirectory(directory);
   assertNotSymlink(target, `candidate file ${name}`);
   fs.renameSync(temporary, target);
+}
+
+function fsyncCandidateDirectory(directory) {
+  const descriptor = fs.openSync(directory, fs.constants.O_RDONLY);
+  try {
+    fs.fsyncSync(descriptor);
+  } finally {
+    fs.closeSync(descriptor);
+  }
 }
 
 function readCandidateFile(directory, name) {
@@ -475,15 +491,6 @@ function parseCandidateJson(directory, name) {
   } catch (error) {
     throw new Error(`Candidate record has invalid ${name}: ${error.message}`);
   }
-}
-
-function recoverIncompleteCandidate(target) {
-  if (!fs.existsSync(target)) return false;
-  assertSafeCandidateDirectory(target);
-  const committed = path.join(target, 'record.commit');
-  if (fs.existsSync(committed)) throw new Error(`Candidate ${path.basename(target)} already exists and must remain isolated.`);
-  fs.rmSync(target, { recursive: true, force: true });
-  return true;
 }
 
 function validateCandidateResult(item, index) {
@@ -537,30 +544,41 @@ function writeCandidateStore(cwd = process.cwd(), input = {}) {
   const lockPath = path.join(root, `.${candidateId}.lock`);
   assertNotSymlink(lockPath, 'candidate store lock');
   let lock;
-  let recoveredIncompleteStore = false;
+  let stagingDirectory;
   try {
     lock = fs.openSync(lockPath, 'wx', 0o600);
     if (fs.realpathSync(root) !== root) throw new Error('Unsafe candidate store directory outside the Git common directory.');
-    recoveredIncompleteStore = recoverIncompleteCandidate(directory);
-    fs.mkdirSync(directory, { mode: 0o700 });
-    assertSafeCandidateDirectory(directory);
-    writeCandidateFile(directory, 'baseline-config.json', baselineContent);
-    writeCandidateFile(directory, 'proposed-config.json', proposedContent);
-    writeCandidateFile(directory, 'fixture-manifest.json', fixtureContent);
-    writeCandidateFile(directory, 'candidate.json', recordContent);
+    if (fs.existsSync(directory)) {
+      assertNotSymlink(directory, 'candidate directory');
+      throw new Error(`Candidate ${candidateId} already exists and must remain isolated.`);
+    }
+    stagingDirectory = fs.mkdtempSync(path.join(root, `.${candidateId}.stage-`));
+    fs.chmodSync(stagingDirectory, 0o700);
+    assertSafeCandidateDirectory(stagingDirectory, 'candidate staging directory');
+    writeCandidateFile(stagingDirectory, 'baseline-config.json', baselineContent);
+    writeCandidateFile(stagingDirectory, 'proposed-config.json', proposedContent);
+    writeCandidateFile(stagingDirectory, 'fixture-manifest.json', fixtureContent);
+    writeCandidateFile(stagingDirectory, 'candidate.json', recordContent);
     const commit = `${JSON.stringify({ recordHash: hashBytes(recordContent), baselineHash, candidateHash, fixtureManifestHash: record.fixtureManifestHash }, null, 2)}\n`;
-    writeCandidateFile(directory, 'record.commit', commit);
+    writeCandidateFile(stagingDirectory, 'record.commit', commit);
+    readCandidateStoreDirectory(stagingDirectory, candidateId);
+    fsyncCandidateDirectory(stagingDirectory);
+    if (fs.realpathSync(root) !== root || fs.existsSync(directory)) throw new Error(`Candidate ${candidateId} already exists or publication parent changed.`);
+    fs.renameSync(stagingDirectory, directory);
+    stagingDirectory = null;
+    fsyncCandidateDirectory(root);
   } finally {
+    if (stagingDirectory && fs.existsSync(stagingDirectory)) {
+      assertSafeCandidateDirectory(stagingDirectory, 'candidate staging directory');
+      fs.rmSync(stagingDirectory, { recursive: true, force: true });
+    }
     if (lock !== undefined) fs.closeSync(lock);
     if (fs.existsSync(lockPath) && !fs.lstatSync(lockPath).isSymbolicLink()) fs.unlinkSync(lockPath);
   }
-  return { directory, ...record, fixtureManifest, recoveredIncompleteStore };
+  return { directory, ...record, fixtureManifest };
 }
 
-function readCandidateStore(cwd = process.cwd(), candidateId) {
-  const safeId = assertSafeIdentifier(candidateId, 'candidate ID');
-  const root = candidateStoreRoot(gitCommonDir(cwd));
-  const directory = safeCandidatePath(root, safeId);
+function readCandidateStoreDirectory(directory, safeId) {
   assertSafeCandidateDirectory(directory);
   const baselineContent = readCandidateFile(directory, 'baseline-config.json');
   const proposedContent = readCandidateFile(directory, 'proposed-config.json');
@@ -574,6 +592,12 @@ function readCandidateStore(cwd = process.cwd(), candidateId) {
   if (commit.recordHash !== hashBytes(recordContent) || commit.baselineHash !== record.baselineHash || commit.candidateHash !== record.candidateHash || commit.fixtureManifestHash !== record.fixtureManifestHash) throw new Error('Candidate record commit marker does not match its complete stored record.');
   const fixtureManifest = validateGoldenFixtureManifest(JSON.parse(fixtureContent));
   return { directory, ...record, fixtureManifest };
+}
+
+function readCandidateStore(cwd = process.cwd(), candidateId) {
+  const safeId = assertSafeIdentifier(candidateId, 'candidate ID');
+  const root = candidateStoreRoot(gitCommonDir(cwd));
+  return readCandidateStoreDirectory(safeCandidatePath(root, safeId), safeId);
 }
 
 function validateBenchmarkRun(run, candidateRecord, label, role) {
@@ -602,7 +626,7 @@ function validateBenchmarkRun(run, candidateRecord, label, role) {
     assertPlainObject(result.criteria, `${label} benchmark result criteria`);
     const criteriaIds = Object.keys(result.criteria);
     if (criteriaIds.length !== fixture.criteriaIds.length || criteriaIds.some(id => !fixture.criteriaIds.includes(id)) || Object.values(result.criteria).some(value => !['pass', 'fail'].includes(value))) throw new Error(`${label} benchmark result criteria must exactly match the frozen case contract.`);
-    byId.set(result.caseId, { caseId: result.caseId, criteria: { ...result.criteria }, observed: uniqueStringArray(result.observed, `${label} benchmark result observed`, true), evidenceRefs: uniqueStringArray(result.evidenceRefs, `${label} benchmark result evidenceRefs`).map(value => assertEvidenceRef(value, `${label} benchmark result evidenceRef`)) });
+    byId.set(result.caseId, { caseId: result.caseId, criteria: { ...result.criteria }, observed: uniqueStringArray(result.observed, `${label} benchmark result observed`, true).map(value => assertPrivacySafeValue(value, `${label} benchmark result observed`)), evidenceRefs: uniqueStringArray(result.evidenceRefs, `${label} benchmark result evidenceRefs`).map(value => assertEvidenceRef(value, `${label} benchmark result evidenceRef`)) });
   }
   if (byId.size !== manifest.cases.length) throw new Error(`${label} benchmark run is missing frozen cases or selectively reran the fixture set.`);
   return { runId: run.runId, candidateId: run.candidateId, profileId: run.profileId, configHash: run.configHash, fixtureManifestHash: run.fixtureManifestHash, settings: { ...run.settings }, modelRef: run.modelRef, limits: { ...run.limits }, graderContract: run.graderContract, results: manifest.cases.map(item => byId.get(item.id)) };
@@ -646,26 +670,23 @@ function assessCandidateProgress(input = {}) {
   const candidate = validateCandidate(input.candidate, 'Candidate');
   const previousCandidate = input.previousCandidate === undefined ? null : validateCandidate(input.previousCandidate, 'Previous candidate');
   assertPrivacySafeValue(input.repair, 'Repair state');
-  assertOnlyKeys(input.repair, ['mode', 'changedPaths', 'state', 'event'], 'Repair state');
+  assertOnlyKeys(input.repair, ['mode', 'changedPaths', 'state', 'fullBudget', 'event'], 'Repair state');
   const repair = input.repair;
-  assertPlainObject(repair.state, 'Repair state state');
   assertPlainObject(repair.event, 'Repair state event');
   if (!['Quick BFM', 'Full BFM'].includes(repair.mode)) throw new Error('Repair state must declare the trusted Quick BFM or Full BFM policy mode.');
   let productBoundary = '';
   const materialProgress = !(previousCandidate && previousCandidate.candidateHash === candidate.candidateHash && isDeepStrictEqual(previousCandidate.evidenceRefs, candidate.evidenceRefs));
-  if (!materialProgress) productBoundary = 'Product boundary: repeated candidate has no material configuration or evidence change.';
+  if (repair.mode === 'Full BFM') {
+    if (repair.changedPaths !== undefined || repair.state !== undefined || repair.fullBudget === undefined) throw new Error('Full repair requires a trusted Full BFM budget token and no caller-controlled state.');
+    const budget = consumeFullRepairBudget(repair.fullBudget, { ...repair.event, materialProgress });
+    if (budget.blocked) productBoundary = `Product boundary: ${budget.reason}`;
+    else return { status: 'progressed', candidateId: candidate.candidateId, fullBudget: budget.nextBudget };
+  } else if (!materialProgress) productBoundary = 'Product boundary: repeated candidate has no material configuration or evidence change.';
   else if (repair.mode === 'Quick BFM') {
+    assertPlainObject(repair.state, 'Repair state state');
     if (!Array.isArray(repair.changedPaths) || !repair.changedPaths.length || quickPolicyForPaths(repair.changedPaths).mode !== 'Quick BFM') throw new Error('Quick repair requires paths governed by the existing Quick BFM policy.');
     const budget = evaluateRunBudget({ ...repair.state, changedPaths: repair.changedPaths }, { ...repair.event, type: 'repair', materialProgress });
     if (budget.blocked) productBoundary = `Product boundary: ${budget.reason}`;
-  } else {
-    if (repair.changedPaths !== undefined) throw new Error('Full repair policy does not accept caller-controlled Quick-path policy values.');
-    if (!Number.isInteger(repair.state.repairLoops) || repair.state.repairLoops < 0) throw new Error('Full repair requires authoritative repair-loop state.');
-    if (repair.state.deadlineAt !== undefined && (!Number.isFinite(repair.state.deadlineAt) || !Number.isFinite(repair.event.now))) throw new Error('Full repair deadline state requires authoritative numeric deadlineAt and now values.');
-    const timedOut = repair.state.deadlineAt !== undefined && repair.event.now >= repair.state.deadlineAt;
-    if (timedOut || repair.state.repairLoops >= 2) productBoundary = timedOut
-      ? 'Product boundary: Full repair deadline is exhausted; choose the next execution slice.'
-      : 'Product boundary: the trusted Full BFM repair budget is exhausted.';
   }
   return productBoundary ? { status: 'stopped', candidateId: candidate.candidateId, productBoundary } : { status: 'progressed', candidateId: candidate.candidateId };
 }
