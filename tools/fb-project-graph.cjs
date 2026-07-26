@@ -336,8 +336,55 @@ function resolveProjectContext(root, query) {
   return { route: 'normalized-record-fallback', results: queryProjectGraph(fallbackGraph, query), findings };
 }
 
-function evaluateGraduation() {
-  return { currentLevel: 1, recommendedLevel: 1, action: 'remain-level-1', reasons: [], requiresApproval: false, allowedCorpus: [] };
+function evaluateGraduation(input = {}) {
+  const currentLevel = Number.isInteger(input.currentLevel) ? input.currentLevel : 1;
+  if (input.projectClass === 'disposable') {
+    return {
+      currentLevel,
+      recommendedLevel: 0,
+      action: 'remain-level-0',
+      reasons: ['Disposable or isolated work does not require a project graph.'],
+      requiresApproval: false,
+      allowedCorpus: [],
+    };
+  }
+  const acceptedTypes = new Set([
+    'repeated-governing-decision-search',
+    'missed-cross-workstream-dependency',
+    'unstructured-authoritative-relationship',
+    'unresolved-record-contradiction',
+    'repeated-broad-orientation-read',
+  ]);
+  const actionable = (input.frictionSignals || []).filter(signal => {
+    if (!acceptedTypes.has(signal.type)) return false;
+    if (typeof signal.query !== 'string' || signal.query.trim().length < 12) return false;
+    if (typeof signal.source !== 'string' || !signal.source || path.isAbsolute(signal.source)
+      || signal.source === '..' || signal.source.startsWith('../')) return false;
+    const materialSingle = signal.material === true
+      && ['missed-cross-workstream-dependency', 'unresolved-record-contradiction'].includes(signal.type);
+    return Number(signal.occurrences) >= 2 || materialSingle;
+  });
+  if (currentLevel <= 1 && actionable.length) {
+    const risks = new Set((input.risks || []).map(value => String(value).toLowerCase()));
+    const sensitive = ['privacy', 'authentication', 'auth', 'payments', 'secrets', 'security', 'cross-project'];
+    const requiresApproval = input.crossProject === true || sensitive.some(risk => risks.has(risk));
+    return {
+      currentLevel,
+      recommendedLevel: 2,
+      action: 'recommend-scoped-level-2',
+      reasons: actionable.map(signal => `${signal.type}: ${signal.query}`),
+      requiresApproval,
+      allowedCorpus: [...new Set(input.allowedCorpus || [])].sort(),
+    };
+  }
+  return {
+    currentLevel,
+    recommendedLevel: currentLevel,
+    action: `remain-level-${currentLevel}`,
+    reasons: ['No source-cited retrieval friction justifies deeper mapping.'],
+    requiresApproval: false,
+    allowedCorpus: [],
+  };
 }
 
 module.exports = {

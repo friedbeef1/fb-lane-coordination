@@ -17,6 +17,7 @@ const {
   refreshProjectGraph,
   queryProjectGraph,
   resolveProjectContext,
+  evaluateGraduation,
 } = require(graphModule);
 
 function write(root, relative, contents) {
@@ -164,4 +165,64 @@ test('missing, stale, or corrupt graph falls back to normalized FB records', () 
   context = resolveProjectContext(root, 'What verifies TASK-100?');
   assert.strictEqual(context.route, 'normalized-record-fallback');
   assert.ok(context.findings.includes('Project graph is unreadable; used normalized FB records.'));
+});
+
+test('graduation is driven by retrieval friction rather than age or record volume', () => {
+  assert.strictEqual(evaluateGraduation({
+    projectClass: 'disposable',
+    currentLevel: 0,
+    frictionSignals: [],
+  }).action, 'remain-level-0');
+
+  assert.strictEqual(evaluateGraduation({
+    projectClass: 'long-lived',
+    currentLevel: 1,
+    projectAgeDays: 90,
+    handoffCount: 40,
+    frictionSignals: [],
+  }).action, 'remain-level-1');
+
+  const decision = evaluateGraduation({
+    projectClass: 'long-lived',
+    currentLevel: 1,
+    frictionSignals: [{
+      type: 'repeated-governing-decision-search',
+      query: 'Which approved decision governs camera orientation?',
+      occurrences: 2,
+      source: 'docs/experiments/TASK-048-friction.json',
+    }],
+    allowedCorpus: ['docs/handoffs', 'docs/design'],
+  });
+  assert.strictEqual(decision.recommendedLevel, 2);
+  assert.strictEqual(decision.action, 'recommend-scoped-level-2');
+  assert.strictEqual(decision.requiresApproval, false);
+});
+
+test('graduation rejects weak evidence and gates sensitive or cross-project scope', () => {
+  assert.strictEqual(evaluateGraduation({
+    projectClass: 'long-lived',
+    currentLevel: 1,
+    frictionSignals: [{
+      type: 'repeated-governing-decision-search',
+      query: '',
+      occurrences: 10,
+      source: 'docs/experiments/TASK-048-friction.json',
+    }],
+  }).action, 'remain-level-1');
+
+  const sensitive = evaluateGraduation({
+    projectClass: 'long-lived',
+    currentLevel: 1,
+    frictionSignals: [{
+      type: 'missed-cross-workstream-dependency',
+      query: 'Which payment decision blocks release?',
+      occurrences: 1,
+      material: true,
+      source: 'docs/experiments/TASK-048-friction.json',
+    }],
+    allowedCorpus: ['docs/payments'],
+    risks: ['payments'],
+  });
+  assert.strictEqual(sensitive.action, 'recommend-scoped-level-2');
+  assert.strictEqual(sensitive.requiresApproval, true);
 });
