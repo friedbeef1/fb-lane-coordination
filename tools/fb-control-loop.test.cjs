@@ -10,7 +10,6 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { execFileSync, spawn } = require('child_process');
-const { createFullRepairBudget } = require('./fb-efficiency.cjs');
 const {
   routeArtifact,
   validateStageEvent,
@@ -27,6 +26,10 @@ const {
   readCandidateStore,
   compareFrozenBenchmark,
   assessCandidateProgress,
+  issueFullRepairBudget,
+  readFullRepairBudget,
+  advanceFullRepairBudget,
+  closeFullRepairBudget,
   validatePromotion,
 } = require('./fb-control-loop.cjs');
 
@@ -59,6 +62,21 @@ function addWorktree(fixture) {
   const worktree = path.join(fixture.parent, 'linked');
   git(fixture.repo, ['worktree', 'add', '-q', '-b', 'control-loop/linked', worktree, 'main']);
   return worktree;
+}
+
+function createFullExecutionSession(cwd, sessionId = 'full-session') {
+  const common = path.resolve(cwd, git(cwd, ['rev-parse', '--git-common-dir']));
+  const sessionDirectory = path.join(common, 'fb-sessions');
+  fs.mkdirSync(sessionDirectory, { recursive: true });
+  fs.writeFileSync(path.join(sessionDirectory, `${sessionId}.json`), `${JSON.stringify({
+    sessionId,
+    state: 'active',
+    mode: 'execution',
+    lane: 'bfm',
+    locks: ['tools/fb-control-loop.cjs'],
+    milestones: [],
+  }, null, 2)}\n`);
+  return sessionId;
 }
 
 function mcpRequest(request, cwd) {
@@ -677,7 +695,7 @@ test('requires a repeated candidate to materially change configuration or eviden
   assert.strictEqual(assessCandidateProgress({ previousCandidate: previous, candidate: progressed, repair }).status, 'progressed');
 });
 
-test('uses declared Quick and Full repair policies instead of caller-supplied attempt limits', () => {
+test('uses declared Quick repair policies instead of caller-supplied attempt limits', () => {
   const candidate = { candidateId: 'candidate-001', candidateHash: sha256('candidate'), evidenceRefs: ['evidence/one'] };
   const result = assessCandidateProgress({
     candidate,
@@ -685,14 +703,125 @@ test('uses declared Quick and Full repair policies instead of caller-supplied at
   });
   assert.strictEqual(result.status, 'stopped');
   assert.match(result.productBoundary, /repair|budget/i);
-  const firstFull = assessCandidateProgress({ candidate, repair: { mode: 'Full BFM', fullBudget: createFullRepairBudget({ deadlineAt: 10 }), event: { now: 1 } } });
-  const secondFull = assessCandidateProgress({ candidate, repair: { mode: 'Full BFM', fullBudget: firstFull.fullBudget, event: { now: 2 } } });
-  assert.strictEqual(firstFull.status, 'progressed');
-  assert.strictEqual(secondFull.status, 'progressed');
-  assert.strictEqual(assessCandidateProgress({ candidate, repair: { mode: 'Full BFM', fullBudget: secondFull.fullBudget, event: { now: 3 } } }).status, 'stopped');
-  assert.strictEqual(assessCandidateProgress({ candidate, repair: { mode: 'Full BFM', fullBudget: createFullRepairBudget({ deadlineAt: 10 }), event: { now: 10 } } }).status, 'stopped');
-  assert.strictEqual(assessCandidateProgress({ candidate, repair: { mode: 'Full BFM', fullBudget: createFullRepairBudget({ deadlineAt: 10 }), event: { now: 1, userDecisionChanged: true } } }).status, 'stopped');
   assert.throws(() => assessCandidateProgress({ candidate, repair: { mode: 'Quick BFM', maxAttempts: 100, changedPaths: ['tools/fb-control-loop.cjs'], state: {}, event: { type: 'repair', now: 1 } } }), /unknown|policy|repair/i);
+});
+
+test('issues one durable Full repair budget per run or candidate and exposes it across worktrees', () => {
+  const fixture = createRepo();
+  try {
+    const sessionId = createFullExecutionSession(fixture.repo);
+    const linked = addWorktree(fixture);
+    const issued = issueFullRepairBudget(fixture.repo, {
+      sessionId,
+      runId: 'full-run-001',
+      candidateId: 'candidate-001',
+      decisionVersion: 'decision-v1',
+    });
+    assert.deepStrictEqual(issued, { sessionId, runId: 'full-run-001', candidateId: 'candidate-001' });
+    const record = readFullRepairBudget(linked, issued);
+    assert.strictEqual(record.deadlineAt > 0, true);
+    assert.strictEqual(record.maxRepairs, 2);
+    assert.strictEqual(record.repairCount, 0);
+    assert.throws(() => issueFullRepairBudget(fixture.repo, {
+      sessionId,
+      runId: 'full-run-001',
+      candidateId: 'candidate-002',
+      decisionVersion: 'decision-v1',
+    }), /run|issued|budget/i);
+    assert.throws(() => issueFullRepairBudget(fixture.repo, {
+      sessionId,
+      runId: 'full-run-002',
+      candidateId: 'candidate-001',
+      decisionVersion: 'decision-v1',
+    }), /candidate|issued|budget/i);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('rejects Full repair deadline extension and stops when the Product decision version changes', () => {
+  const fixture = createRepo();
+  try {
+    const sessionId = createFullExecutionSession(fixture.repo);
+    const budgetRef = issueFullRepairBudget(fixture.repo, {
+      sessionId,
+      runId: 'full-run-003',
+      candidateId: 'candidate-003',
+      decisionVersion: 'decision-v1',
+    });
+    const budget = readFullRepairBudget(fixture.repo, budgetRef);
+    assert.throws(() => advanceFullRepairBudget(fixture.repo, {
+      budgetRef,
+      materialProgress: true,
+      event: { decisionVersion: 'decision-v1', deadlineAt: budget.deadlineAt + 1 },
+    }), /deadline|unknown|authority/i);
+    const stopped = advanceFullRepairBudget(fixture.repo, {
+      budgetRef,
+      materialProgress: true,
+      event: { decisionVersion: 'decision-v2' },
+    });
+    assert.strictEqual(stopped.status, 'stopped');
+    assert.match(stopped.productBoundary, /decision|Product/i);
+    assert.strictEqual(readFullRepairBudget(fixture.repo, budgetRef).state, 'stopped');
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('stops a Full budget on no progress, closure, deadline, or a third repair without consumer reset', () => {
+  const fixture = createRepo();
+  try {
+    const sessionId = createFullExecutionSession(fixture.repo);
+    const noProgress = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-004', candidateId: 'candidate-004', decisionVersion: 'decision-v1' });
+    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: noProgress, materialProgress: false, event: { decisionVersion: 'decision-v1' } }).status, 'stopped');
+
+    const closed = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-005', candidateId: 'candidate-005', decisionVersion: 'decision-v1' });
+    closeFullRepairBudget(fixture.repo, closed, 'session closed');
+    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: closed, materialProgress: true, event: { decisionVersion: 'decision-v1' } }).status, 'stopped');
+
+    const expired = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-006', candidateId: 'candidate-006', decisionVersion: 'decision-v1' });
+    const deadline = readFullRepairBudget(fixture.repo, expired).deadlineAt;
+    const originalNow = Date.now;
+    Date.now = () => deadline;
+    try {
+      assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: expired, materialProgress: true, event: { decisionVersion: 'decision-v1' } }).status, 'stopped');
+    } finally {
+      Date.now = originalNow;
+    }
+
+    const repairs = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-007', candidateId: 'candidate-007', decisionVersion: 'decision-v1' });
+    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: repairs, materialProgress: true, event: { decisionVersion: 'decision-v1' } }).status, 'progressed');
+    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef: repairs, materialProgress: true, event: { decisionVersion: 'decision-v1' } }).status, 'progressed');
+    const third = advanceFullRepairBudget(fixture.repo, { budgetRef: repairs, materialProgress: true, event: { decisionVersion: 'decision-v1' } });
+    assert.strictEqual(third.status, 'stopped');
+    assert.match(third.productBoundary, /third|repair|Product/i);
+    assert.strictEqual(readFullRepairBudget(fixture.repo, repairs).repairCount, 2);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('serializes concurrent Full repair advancement through the shared session authority', async () => {
+  const fixture = createRepo();
+  try {
+    const sessionId = createFullExecutionSession(fixture.repo);
+    const budgetRef = issueFullRepairBudget(fixture.repo, { sessionId, runId: 'full-run-008', candidateId: 'candidate-008', decisionVersion: 'decision-v1' });
+    const runAdvance = () => new Promise((resolve, reject) => {
+      const script = `const { advanceFullRepairBudget } = require(process.argv[1]);\ntry { console.log(JSON.stringify(advanceFullRepairBudget(process.cwd(), JSON.parse(process.argv[2])))); } catch (error) { console.error(error.stack || error.message); process.exitCode = 1; }`;
+      const child = spawn(process.execPath, ['-e', script, path.join(__dirname, 'fb-control-loop.cjs'), JSON.stringify({ budgetRef, materialProgress: true, event: { decisionVersion: 'decision-v1' } })], { cwd: fixture.repo });
+      let stdout = '';
+      let stderr = '';
+      child.stdout.on('data', chunk => { stdout += chunk; });
+      child.stderr.on('data', chunk => { stderr += chunk; });
+      child.on('error', reject);
+      child.on('exit', code => code === 0 ? resolve(JSON.parse(stdout)) : reject(new Error(stderr)));
+    });
+    const results = await Promise.all([runAdvance(), runAdvance()]);
+    assert.deepStrictEqual(results.map(result => result.status).sort(), ['progressed', 'progressed']);
+    assert.strictEqual(readFullRepairBudget(fixture.repo, budgetRef).repairCount, 2);
+  } finally {
+    fixture.cleanup();
+  }
 });
 
 test('rejects promotion unless Product approves the exact candidate and benchmark evidence', () => {

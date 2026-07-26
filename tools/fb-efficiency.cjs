@@ -465,34 +465,6 @@ function evaluateRunBudget(state = {}, event = {}) {
   return { blocked: false, reason: null, materialProgressRequired: true, state: next };
 }
 
-const fullRepairBudgets = new WeakMap();
-
-function createFullRepairBudget(input = {}) {
-  if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).some(key => key !== 'deadlineAt') || !Number.isFinite(input.deadlineAt)) {
-    throw new Error('Full repair budget requires one authoritative deadlineAt value.');
-  }
-  const token = Object.freeze({ policy: 'fb-full-repair-budget-v1' });
-  fullRepairBudgets.set(token, { deadlineAt: input.deadlineAt, repairs: 0, consumed: false });
-  return token;
-}
-
-function consumeFullRepairBudget(token, event = {}) {
-  const state = fullRepairBudgets.get(token);
-  if (!state || state.consumed) throw new Error('Full repair budget token is invalid or already consumed.');
-  if (!event || typeof event !== 'object' || Array.isArray(event) || Object.keys(event).some(key => !['now', 'materialProgress', 'userDecisionChanged'].includes(key)) || !Number.isFinite(event.now)) {
-    throw new Error('Full repair budget requires authoritative now and optional material-progress or user-decision state.');
-  }
-  state.consumed = true;
-  const fail = reason => ({ blocked: true, reason, nextBudget: null });
-  if (event.userDecisionChanged === true) return fail('User decision changed; Product direction is required.');
-  if (event.now >= state.deadlineAt) return fail('Full repair deadline is exhausted; choose the next execution slice.');
-  if (event.materialProgress === false) return fail('Stopped after one cycle with no material progress.');
-  if (state.repairs >= 2) return fail('Full BFM repair budget is exhausted.');
-  const nextBudget = createFullRepairBudget({ deadlineAt: state.deadlineAt });
-  fullRepairBudgets.get(nextBudget).repairs = state.repairs + 1;
-  return { blocked: false, reason: null, nextBudget };
-}
-
 function minimalWorkerContext(input = {}) {
   const forbidden = Object.keys(input).find(key => /transcript|history|private.*reason/i.test(key));
   if (forbidden) throw new Error('Worker context must exclude transcripts, conversation history, and private reasoning.');
@@ -518,4 +490,4 @@ Circuit breaker triggered: ${metrics.circuitBreakerTriggered ? 'yes' : 'no'}
 `;
 }
 
-module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, quickPolicyForPaths, planExecutionSlices, verificationBudget, selectAutomatedChecks, runAutomatedCheck, runQuickSubmissionChecks, automatedVerificationDecision, evaluateRunBudget, createFullRepairBudget, consumeFullRepairBudget, hasMaterialProgress, minimalWorkerContext, renderEfficiencyReceipt };
+module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, quickPolicyForPaths, planExecutionSlices, verificationBudget, selectAutomatedChecks, runAutomatedCheck, runQuickSubmissionChecks, automatedVerificationDecision, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, renderEfficiencyReceipt };
