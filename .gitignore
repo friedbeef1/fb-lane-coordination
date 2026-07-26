@@ -38,3 +38,4 @@ platforms/claude-code/how-to-interact-demo/renders/*.mp4
 platforms/claude-code/how-to-interact-demo/renders/*contact*
 platforms/antigravity/how-to-interact-demo/renders/*.mp4
 platforms/antigravity/how-to-interact-demo/renders/*contact*
+.fb/graph/
