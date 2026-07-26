@@ -12,6 +12,8 @@ Use this file as the first read for handoff discovery. `PROJECT_BOARD.md` remain
 
 | Task / Topic | Lane | Status | Depends / Blocks / Gate | Checks / Evidence | Detail |
 |---|---|---|---|---|---|
+| TASK-049 - Graph-directed plugin navigation and FB 0.4.0-beta | FB-Product / BFM | Checking | Candidate `0.4.0-beta+codex.20260726101229`; changelog wording approval and release checkpoint pending | Root/package MCP, project-specific IDs, MÉJA consumer smoke, metadata, parity, validator, and install smoke | [TASK-049.md](TASK-049.md) |
+| TASK-048 - FB graduated project graph | FB-Product / BFM | Staging QA | Controlled graph-first routing benefit demonstrated; plugin integration remains separate | 6/6 correctness with lower uncached input, orientation content, and wall time | [TASK-048.md](TASK-048.md) |
 | TASK-047 - Durable efficiency and evidence normalization | FB-Product / BFM | Staging QA | Focused local gate passed; no release checkpoint or external action | Root/package 11/11; CLI/bootstrap 70/70; 41 mirrors; doctor, syntax, links, whitespace passed | [TASK-047.md](TASK-047.md) |
 | TASK-031 - Full BFM changelog closeout and FB 0.3.1-beta | FB-Product / BFM | In Progress | PR #48; stop at Ready to ship; Push Live remains separate | Candidate `0.3.1-beta+codex.20260718021942`; focused changelog, session/submission/release, metadata, parity, syntax/link/whitespace, final validator | [TASK-031.md](TASK-031.md) |
 | TASK-030 - FB 0.3.0-beta release | FB-Product / BFM | Done | [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44) merged; `0.3.0-beta+codex.20260717150502` installed and enabled | GitHub readiness; marketplace upgrade; installed six-skill, MCP-route, server-syntax, and diagram proof passed | [TASK-030.md](TASK-030.md) |

@@ -15,6 +15,7 @@ const HEALTH_EVENTS = new Set([
   'integration', 'dependency-change', 'configuration-change', 'recovery',
   'merge', 'staging', 'release', 'closeout', 'workspace-anomaly',
 ]);
+const SAFE_TASK_ID = /^[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)$/;
 
 function frontmatter(markdown) {
   const match = String(markdown).match(/^---\s*\n([\s\S]*?)\n---(?:\s*\n|$)/);
@@ -41,10 +42,12 @@ function markdownFiles(directory) {
 function boardRows(markdown) {
   const rows = new Map();
   for (const line of String(markdown).split(/\r?\n/)) {
-    if (!/^\|\s*TASK-[^|]+\|/.test(line)) continue;
+    if (!line.trimStart().startsWith('|')) continue;
     const cells = line.split('|').slice(1, -1).map(cell => cell.trim());
     if (cells.length < 2) continue;
-    rows.set(cells[0], { task: cells[0], status: cells[1], cells, line });
+    const task = String(cells[0] || '').toUpperCase();
+    if (!SAFE_TASK_ID.test(task)) continue;
+    rows.set(task, { task, status: cells[1], cells, line });
   }
   return rows;
 }
@@ -85,7 +88,7 @@ function validateNormalizedRepository(root) {
   for (const handoff of handoffs) {
     const relative = path.relative(root, handoff.file);
     const task = handoff.meta.task;
-    if (!/^TASK-[A-Za-z0-9-]+$/.test(task || '')) {
+    if (!SAFE_TASK_ID.test(String(task || '').toUpperCase())) {
       findings.push({ code: 'handoff-task-id', file: relative, message: 'Normalized handoff requires a safe task ID.' });
     }
     if (/^##\s+(Approved Decision|User Decision|Decision)\b/im.test(handoff.markdown)
@@ -197,7 +200,7 @@ function validateCloseout(kind, record = {}) {
 
 function validateEfficiencyMetrics(record = {}) {
   const findings = [];
-  if (!/^TASK-[A-Za-z0-9-]+$/.test(record.taskId || '')) findings.push('A safe taskId is required.');
+  if (!SAFE_TASK_ID.test(String(record.taskId || '').toUpperCase())) findings.push('A safe taskId is required.');
   for (const field of ['coordinationTokenShare', 'totalTokens']) {
     const value = record[field];
     if (value !== 'unavailable' && !(typeof value === 'number' && Number.isFinite(value) && value >= 0)) {

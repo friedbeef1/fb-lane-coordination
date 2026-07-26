@@ -14,6 +14,11 @@ Use [records.md](../../docs/fb/records.md): defect scope and acceptance remain
 in the handoff, complete reproduction output remains in the QA artifact, and
 the Bugs card links to them without copying the evidence.
 
+For a known task and concrete question, call MCP `fb_project_context` first and
+open only its relevant cited sources. The graph routes to authoritative
+records; it is not a source of truth. Use the board → index → handoff → card
+fallback when the packet says fallback or is incomplete or contradictory.
+
 ## Mini-loop
 
 1. Read `AGENTS.md`, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, the linked

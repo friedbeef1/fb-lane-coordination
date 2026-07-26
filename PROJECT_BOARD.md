@@ -13,6 +13,8 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-049 | Staging QA | FB-Product / BFM | Plugin Navigation | Integrate graph-directed targeted reading into the bundled Codex plugin, support repository-specific task IDs, and release `0.4.0-beta+codex.20260726101229` | `tools/fb-project-graph*`, MCP surface, release metadata, canonical/package graph guidance and skills | [Handoff](docs/handoffs/TASK-049.md); [QA](docs/qa/TASK-049.md); release checkpoint passed; Ready to ship; Push Live approved |
+| TASK-048 | Staging QA | FB-Product / BFM | Project Navigation | Evaluate graduated graph navigation and a minimal graph-first route without changing product-truth authority | `tools/fb-project-graph*`, `.fb/graph/`, TASK-048 experiment/QA/coordination records | [Handoff](docs/handoffs/TASK-048.md); [Results](docs/experiments/TASK-048-graduated-project-graph-pilot.md); [QA](docs/qa/TASK-048.md) |
 | TASK-047 | Staging QA | FB-Product / BFM | Harness Efficiency | Normalize durable evidence, add risk-triggered review and deterministic verification reuse, and reduce duplicated coordination context | `tools/fb-records.*`, validator/doctor integration, canonical/package harness and skills, templates, TASK-047 records | [Handoff](docs/handoffs/TASK-047.md); [Pilot](docs/experiments/TASK-047-real-task-pilot.md); [Plan](docs/superpowers/plans/2026-07-23-fb-durable-efficiency-evidence-normalization.md); [QA](docs/qa/TASK-047.md); focused local gate passed |
 | TASK-031 | In Progress | FB-Product / BFM | Closeout + Plugin Release | Require a Full BFM changelog decision before Ready to ship and rebuild FB as 0.3.1-beta | Closeout/session/runtime contracts, canonical/package docs and skills, release metadata and records | [Handoff](docs/handoffs/TASK-031.md); PR #48; `0.3.1-beta+codex.20260718021942`; Push Live remains separate |
 | TASK-030 | Done | FB-Product / BFM | Codex Plugin Release | Release the Codex plugin as `0.3.0-beta`, align active metadata/prompts/docs with the six-workstream loop, and prove the packaged install | None | [Handoff](docs/handoffs/TASK-030.md); [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44) merged; `0.3.0-beta+codex.20260717150502` installed and enabled; GitHub readiness and live cache proof passed |
@@ -52,6 +54,49 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-049 - Graph-Directed Plugin Navigation
+
+*   **Status**: Staging QA
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Plugin Navigation
+*   **Scope**: Add one read-only MCP context tool that refreshes the derived Level 1 graph, returns a capped task-specific packet, directs agents to authoritative sources, and falls back safely when graph context is unhealthy or insufficient.
+*   **Out of Scope**: Replacing normalized records, semantic graph extraction, hosted storage, automatic transcript capture, plugin publication, release, merge, deployment, or consumer-project installation.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make FB faster to orient in existing projects while preserving approved repository truth and safe fallback.
+    *   **Key Results**: Known tasks return no more than three relevant authoritative files; repository-specific IDs such as `MEJA-*` work; derived graph artifacts stay ignored; unknown or insufficient context falls back safely; root/package and real consumer evidence pass.
+    *   **Definition of Done**: `0.4.0-beta+codex.20260726101229` passes the release checkpoint, publishes through the existing marketplace, installs cleanly, and resolves the bundled MCP server.
+    *   **Gate / Review Point**: Changelog wording approval, final release checkpoint, and explicit Push Live.
+    *   **Approval**: approved
+    *   **Justification**: James approved the graph-directed plugin integration, refreshed changelog wording, and Push Live in the originating conversation.
+*   **Definition of Done**: Root/package behavior agrees; unknown, stale, unsafe, and insufficient graph context cannot create inferred authority; active skills and harness guidance use graph-first targeted reading with explicit fallback.
+*   **Affected Screens / Locks**: `tools/fb-project-graph*`, `tools/fb-lane.cjs`, `docs/fb/graph.md`, active skills, package manifest and generated mirrors.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-049.md); [TASK-048 evidence](docs/experiments/TASK-048-graduated-project-graph-pilot.md).
+*   **Latest Update**: *2026-07-26*: Root graph contracts 19/19, packaged context 5/5, CLI 70/70, eval/bootstrap 18/18, metadata, 44-mirror parity, synchronizer 10/10, syntax, whitespace, and Codex plugin validation passed. Changelog and QA closeout recorded. Local candidate is Ready to ship; release remains separate.
+
+---
+
+### TASK-048 - FB Graduated Project Graph
+
+*   **Status**: Staging QA (controlled graph-first benefit demonstrated)
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Project Navigation
+*   **Scope**: Design a graduated project graph derived from normalized FB records, with deterministic Level 1 navigation, evidence-gated semantic expansion, safe fallback, privacy boundaries, measurement, and future plugin integration.
+*   **Out of Scope**: Implementation before written-spec review, hosted services, graph databases, automatic commit hooks, transcript capture, cross-project export, release, publication, merge, deployment, or consumer-repository mutation.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce repeated context reconstruction while preserving FB's existing Loop Engineering authority and normalized evidence model.
+    *   **Key Results**: The graph remains derived; new projects start cheaply; deeper mapping requires demonstrated retrieval friction; graph failure never blocks normal FB; pilot cost and navigation benefit are measured.
+*   **Definition of Done**: Visible new/growing/fallback examples and a pre-registered navigation comparison produce an evidence-backed stop, revise, or plugin-integration recommendation.
+*   **Gate / Review Point**: Focused local pilot review only.
+*   **Approval**: approved
+    *   **Justification**: James explicitly chose the graduated graph approach after distinguishing FB's loops from the graph that maps them.
+*   **Affected Screens / Locks**: `tools/fb-project-graph*`, `.fb/graph/`, `docs/experiments/TASK-048-graduated-project-graph-pilot.md`, `docs/qa/TASK-048.md`, TASK-048 coordination records.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-048.md); [Design](docs/superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md); [Plan](docs/superpowers/plans/2026-07-26-fb-graduated-project-graph-pilot.md); branch `codex/fb-graduated-project-graph`.
+*   **Latest Update**: *2026-07-26*: The deterministic comparison reduced ongoing navigation bytes 66.9% and repeated reads 73.7% without correctness loss. Six real concurrent Codex tasks remained 6/6 correct, but the corrected graph arm used 2.5% more gross input tokens and 12.3% more wall time. Result: promising but inconclusive. The one-repair circuit breaker is reached; plugin integration requires a separate Product decision.
+*   **Latest Decision**: *2026-07-26*: James approved one final, separately preregistered graph-first experiment. Both arms will run from equal isolated snapshots; the graph packet replaces broad orientation and is capped to question-specific cited sources.
+*   **Final Result**: *2026-07-26*: Both six-worker arms were 6/6 correct. Minimal graph-first routing reduced uncached input tokens 33.9%, tool-output orientation characters 54.6%, and concurrent wall time 27.3%. All graph workers used targeted cited sources; none used the broad board/index route. Controlled benefit demonstrated; plugin integration remains a separate Product decision.
 
 ---
 

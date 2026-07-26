@@ -27,23 +27,23 @@ function write(root, relative, contents) {
   fs.writeFileSync(target, contents);
 }
 
-function fixture() {
+function fixture(taskId = 'TASK-100') {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-records-'));
   write(root, 'PROJECT_BOARD.md', `# Board
 
 | ID | Status | Owner | Area | Scope | Locks | Links |
 |---|---|---|---|---|---|---|
-| TASK-100 | Done | Product / BFM | Harness | Compact scope | tools/fb-records.cjs | [Handoff](docs/handoffs/TASK-100.md); [Evidence](docs/qa/TASK-100.md) |
+| ${taskId} | Done | Product / BFM | Harness | Compact scope | tools/fb-records.cjs | [Handoff](docs/handoffs/${taskId}.md); [Evidence](docs/qa/${taskId}.md) |
 `);
-  write(root, 'docs/handoffs/TASK-100.md', `---
+  write(root, `docs/handoffs/${taskId}.md`, `---
 type: fb-lane-handoff
-task: TASK-100
+task: ${taskId}
 status: done
 approval: approved
 record_model: normalized-v1
 ---
 
-# TASK-100
+# ${taskId}
 
 ## Approved Decision
 
@@ -51,27 +51,31 @@ Use normalized evidence.
 
 ## Verification
 
-[QA evidence](../qa/TASK-100.md)
+[QA evidence](../qa/${taskId}.md)
 `);
-  write(root, 'docs/qa/TASK-100.md', '# QA\n\nCommand: `node --test`\n');
+  write(root, `docs/qa/${taskId}.md`, '# QA\n\nCommand: `node --test`\n');
   write(root, 'docs/workstreams/fb-product.md', `---
 record_model: normalized-v1
 ---
 
 # Product card
 
-## TASK-100
+## ${taskId}
 
 - Status: Done
 - Blockers: None
 - Next action: None
-- Links: [Handoff](../handoffs/TASK-100.md)
+- Links: [Handoff](../handoffs/${taskId}.md)
 `);
   return root;
 }
 
 test('prospective normalized records pass with one linked authoritative home', () => {
   assert.deepStrictEqual(validateNormalizedRepository(fixture()), []);
+});
+
+test('prospective normalized records accept safe repository-specific task prefixes', () => {
+  assert.deepStrictEqual(validateNormalizedRepository(fixture('MEJA-111')), []);
 });
 
 test('repository contract flags missing evidence, status conflict, copied card detail, and unlinked supersession', () => {
@@ -262,6 +266,6 @@ test('canonical guidance and every installed operating skill route to the record
   const cli = fs.readFileSync(path.join(repo, 'tools/fb-lane.cjs'), 'utf8');
   assert.match(cli, /FB_HARNESS_PAGES[^\n]*records\.md/);
   if (!packageContext) {
-    assert.match(fs.readFileSync(path.join(repo, 'docs/setup.md'), 'utf8'), /eight-page harness/);
+    assert.match(fs.readFileSync(path.join(repo, 'docs/setup.md'), 'utf8'), /nine-page harness/);
   }
 });

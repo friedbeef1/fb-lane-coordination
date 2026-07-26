@@ -8,8 +8,8 @@ FB currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
 setup paths when you are not installing through the plugin flow.
 
-The current local release candidate is **FB 0.3.1-beta** build
-`0.3.1-beta+codex.20260718021942`. Installation remains part of the later
+The current local release candidate is **FB 0.4.0-beta** build
+`0.4.0-beta+codex.20260726101229`. Installation remains part of the later
 release checkpoint, not this candidate-build step.
 
 ## AI-Powered Bootstrap
@@ -37,8 +37,8 @@ fb_lane_tmp="$(mktemp -d)"
 trap 'rm -rf "$fb_lane_tmp"' EXIT
 curl -fsSL "$FB_LANE_ARCHIVE_URL" | tar -xz -C "$fb_lane_tmp" --strip-components=1
 mkdir -p tools docs/fb docs/evals
-cp "$fb_lane_tmp"/tools/fb-{lane,session,eval,efficiency,changelog-closeout,records}.cjs tools/
-cp "$fb_lane_tmp"/docs/fb/{README,start,workflow,evidence,guardrails,sessions,evals,records}.md docs/fb/
+cp "$fb_lane_tmp"/tools/fb-{lane,session,eval,efficiency,changelog-closeout,records,project-graph}.cjs tools/
+cp "$fb_lane_tmp"/docs/fb/{README,start,workflow,evidence,guardrails,sessions,evals,records,graph}.md docs/fb/
 cp "$fb_lane_tmp"/docs/evals/{eval-record-template,agent-behavior-scorecard-template}.md docs/evals/
 node tools/fb-lane.cjs bootstrap
 ```
@@ -49,7 +49,7 @@ What bootstrap creates:
 - lane boundary rules in `AGENTS.md`
 - local Codex rules in `.codex/rules.md`
 - handoff routing index in `docs/handoffs/index.md`
-- the eight-page harness, including `docs/fb/sessions.md`, `docs/fb/evals.md`, and `docs/fb/records.md`
+- the nine-page harness, including `docs/fb/sessions.md`, `docs/fb/evals.md`, `docs/fb/records.md`, and `docs/fb/graph.md`
 - Codex-ready lane guidance
 
 ## Upgrade Existing Codex Plugin Install
@@ -132,7 +132,7 @@ the bounded low-risk rules in [workflow.md](fb/workflow.md) pass.
 Repository-local sessions keep transcript-free JSON under the Git common
 directory and curated recaps in `docs/sessions/`. Upgrades preserve all
 project-owned instruction text outside the managed FB route markers and refresh
-the bundled eight-page harness. Before removing the plugin, close or preserve any
+the bundled nine-page harness. Before removing the plugin, close or preserve any
 active session evidence. Plugin removal does not delete project-owned boards,
 handoffs, recaps, or instructions. If no session command is running, optional
 clone-local cleanup may remove `fb-sessions` and a confirmed dead

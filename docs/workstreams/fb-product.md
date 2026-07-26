@@ -1,7 +1,14 @@
 # FB-Product Workstream Status
 
-Last Updated: 2026-07-17
+Last Updated: 2026-07-26
 Lane: FB-Product
+
+## TASK-048 — FB graduated project graph
+
+- Status: Ready; focused pilot plan complete.
+- Blockers: Execution approach selection only.
+- Next action: Execute the [pilot plan](../superpowers/plans/2026-07-26-fb-graduated-project-graph-pilot.md), including its six-concurrent-workstream comparison.
+- Links: [Handoff](../handoffs/TASK-048.md), [design](../superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md), [normalized records](../fb/records.md).
 
 ## TASK-047 — Durable efficiency and evidence normalization
 
@@ -9,6 +16,16 @@ Lane: FB-Product
 - Blockers: None. The previous local checkout is offloaded and unreadable, so this isolated branch starts from current GitHub `main` without recreating unavailable benchmark history.
 - Next action: Optional Product review. No release checkpoint or external action is requested.
 - Links: [Handoff](../handoffs/TASK-047.md), [Plan](../superpowers/plans/2026-07-23-fb-durable-efficiency-evidence-normalization.md), [QA](../qa/TASK-047.md).
+
+## TASK-049 — Graph-directed context and FB 0.4.0-beta
+
+- Status: Checking.
+- Outcome target: route known project tasks to compact authoritative context,
+  preserve safe fallback, support repository-specific IDs such as `MEJA-*`,
+  and publish the verified Codex plugin.
+- Release candidate: `0.4.0-beta+codex.20260726101229`.
+- Release gate: full checkpoint plus explicit approval of refreshed changelog
+  wording; **Push Live** is approved for the green candidate.
 
 ## TASK-031 — Full BFM changelog closeout and FB 0.3.1-beta
 

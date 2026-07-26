@@ -18,6 +18,7 @@ const {
 const { assertFullBfmChangelog } = require('./fb-changelog-closeout.cjs');
 const { collectEvalDoctorChecks } = require('./fb-eval.cjs');
 const { validateNormalizedRepository } = require('./fb-records.cjs');
+const { projectContextPacket } = require('./fb-project-graph.cjs');
 const {
   classifyExecutionMode,
   renderQuickRecord,
@@ -2550,6 +2551,19 @@ function handleMcpRequest(request) {
           }
         },
         {
+          name: 'fb_project_context',
+          description: 'Return a compact, source-cited context packet for one task question. Uses the project graph for targeted reading and falls back to the authoritative board/index route when needed.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              taskId: { type: 'string', description: 'The current task ID, e.g. TASK-048' },
+              question: { type: 'string', description: 'The concrete project-context question to answer.' },
+              workspacePath: { type: 'string', description: 'Optional workspace/repo path to search for PROJECT_BOARD.md from.' }
+            },
+            required: ['taskId', 'question']
+          }
+        },
+        {
           name: 'fb_lane_claim',
           description: 'Claim a task from the board, checkout a feature branch, lock files, and commit the board update.',
           inputSchema: {
@@ -2610,6 +2624,16 @@ function handleMcpRequest(request) {
           message = toolArgs.details
             ? renderTechnicalStatus(tasks, { format: 'mcp', workspaceRoot })
             : renderBeginnerStatus(statusInputs(workspaceRoot, tasks));
+        } else if (name === 'fb_project_context') {
+          const { taskId, question } = toolArgs;
+          assertSafeTaskId(taskId);
+          if (typeof question !== 'string' || question.trim().length < 8 || question.length > 500) {
+            throw new Error('A concrete context question between 8 and 500 characters is required.');
+          }
+          message = JSON.stringify(projectContextPacket(workspaceRoot, {
+            taskId,
+            question: question.trim(),
+          }), null, 2);
         } else if (name === 'fb_lane_claim') {
           const { taskId, lane, lockedFiles } = toolArgs;
           assertSafeTaskId(taskId);
@@ -2699,7 +2723,7 @@ function handleMcpRequest(request) {
   // Ignore other JSON-RPC methods (like notifications)
 }
 
-const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md'];
+const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md'];
 const FB_HARNESS_ROUTE_START = '<!-- fb-harness-route-start -->';
 const FB_HARNESS_ROUTE_END = '<!-- fb-harness-route-end -->';
 
@@ -2733,6 +2757,8 @@ or MCP \`fb_lane_status({details:true})\`.
   [evals.md](docs/fb/evals.md)
 - Authoritative records, verification reuse, and compact closeout:
   [records.md](docs/fb/records.md)
+- Graph-directed targeted reading and safe fallback:
+  [graph.md](docs/fb/graph.md)
 
 Project-specific instructions and stricter safety rules win.
 ${FB_HARNESS_ROUTE_END}`;
@@ -2762,6 +2788,16 @@ function installFbHarnessPack(rootDir) {
   for (const page of FB_HARNESS_PAGES) {
     fs.copyFileSync(path.join(bundledPackDir, page), path.join(projectPackDir, page));
   }
+}
+
+function ensureGraphIgnore(rootDir) {
+  const ignorePath = path.join(rootDir, '.gitignore');
+  const rule = '.fb/graph/';
+  const existing = fs.existsSync(ignorePath) ? fs.readFileSync(ignorePath, 'utf8') : '';
+  if (existing.split(/\r?\n/).some(line => line.trim() === rule)) return false;
+  const separator = existing && !existing.endsWith('\n') ? '\n' : '';
+  fs.writeFileSync(ignorePath, `${existing}${separator}${rule}\n`, 'utf8');
+  return true;
 }
 
 // Main execution parsing
@@ -2945,6 +2981,7 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
 
   installFbHarnessPack(rootDir);
   console.log('📝 Installed docs/fb/ harness pack.');
+  if (ensureGraphIgnore(rootDir)) console.log('📝 Ignored derived .fb/graph/ artifacts.');
   const harnessRoute = fbHarnessRoute();
   if (!fs.existsSync(agentsPath)) {
     fs.writeFileSync(agentsPath, `# Agent & Thread Coordination Rules — ${projectName}\n\n${harnessRoute}\n`, 'utf8');

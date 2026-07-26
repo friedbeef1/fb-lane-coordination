@@ -21,6 +21,13 @@ handoff → relevant workstream card. Open historical records through links when
 the current task depends on them. A replacement decision records
 `Supersedes: [previous decision](<path-or-url>)`.
 
+When MCP `fb_project_context` is available and the current task and question
+are known, use its capped graph-directed packet before the broad route. Open
+only the packet's relevant cited sources. The graph is derived navigation;
+these authoritative records remain source of truth. If the packet is missing,
+stale, unhealthy, incomplete, or contradictory, fall back to the board → index
+→ handoff → card route and report that fallback.
+
 New records opt in with `record_model: normalized-v1`. Doctor checks their
 identity, approval state, board/handoff status consistency, completion links,
 supersession links, and compact-card boundaries. Historical records remain

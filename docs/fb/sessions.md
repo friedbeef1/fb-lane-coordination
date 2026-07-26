@@ -88,6 +88,15 @@ For a v3 Full BFM handoff it also records the changelog result defined in
 [workflow.md](workflow.md#internal-approval-record). The Build Brief expectation
 and Task Receipt decision must agree; a concrete not-required reason is copied
 unchanged.
+For a major user-visible release, the Task Receipt additionally records
+`Changelog approval: approved — <user/reference/date>`. Product asks for that
+approval after drafting the entry and before **Ready to ship**. **Push Live**
+does not retroactively approve changelog wording.
+If approval is unanswered, the session checkpoint preserves
+`Changelog approval: pending — <entry link and date>` in the linked handoff.
+Every later documentation-review session must recall and surface that pending
+gate until the user approves, rejects, or explicitly defers it; closing or
+replacing a session never silently clears it.
 
 Brief Validation is `pass` or `blocked`. Product/BFM authors the semantic
 comparison. The deterministic CLI only checks complete actionable structure:
@@ -180,9 +189,9 @@ review.
 
 ## Install, upgrade, and removal
 
-Bootstrap confirms the eight-page harness and adds or refreshes only the managed
+Bootstrap confirms the nine-page harness and adds or refreshes only the managed
 FB route block in project-owned instructions. Upgrades replace the bundled
-eight-page pack and managed route while preserving all text outside the markers.
+nine-page pack and managed route while preserving all text outside the markers.
 For cleanup, close or preserve active session evidence first, then remove the
 clone-local `fb-sessions` directory and dead mutation lock from the Git common
 directory if no session command is running. Plugin removal does not delete

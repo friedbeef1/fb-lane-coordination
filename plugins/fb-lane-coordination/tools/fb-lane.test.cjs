@@ -941,6 +941,7 @@ function assertCodexBootstrap(args) {
     assert.match(output, /returning-project health/, 'bootstrap quick start must reserve status for returning-project health');
     assert.match(codexRules, /docs\/fb\/guardrails\.md/, 'Codex rules must route sidechat authority through the harness');
     assert.ok(!fs.existsSync(path.join(root, '.mcp.json')), 'expected bootstrap not to create project MCP config');
+    assert.match(fs.readFileSync(path.join(root, '.gitignore'), 'utf8'), /^\.fb\/graph\/$/m, 'expected bootstrap to ignore derived graph artifacts');
     assert.ok(!fs.existsSync(path.join(root, '.claude')), 'expected bootstrap not to create Claude Code files');
     assert.ok(!fs.existsSync(path.join(root, 'agents')), 'expected bootstrap not to create Antigravity files');
     assert.doesNotMatch(output, /Antigravity|Claude Code|MCP/i);
@@ -1128,7 +1129,7 @@ test('documents the completed bootstrap and v2 review-authoring contract across 
   ];
   for (const relativePath of setupSkills) {
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
-    assert.match(source, /bootstrap (?:installs|copies) the canonical eight-page (?:FB harness|\[FB harness\]\([^)]*\))\s*pack/i, `${relativePath} must describe the completed pack install`);
+    assert.match(source, /bootstrap (?:installs|copies) the canonical nine-page (?:FB harness|\[FB harness\]\([^)]*\))\s*pack/i, `${relativePath} must describe the completed pack install`);
     assert.match(source, /thin managed route/i, `${relativePath} must describe thin managed routes`);
     assert.match(source, /preserv(?:e|es|ing) project-owned text/i, `${relativePath} must preserve project-owned text`);
     assert.match(source, /fb-harness-route-start.*fb-harness-route-end/is, `${relativePath} must name the managed replacement boundary`);

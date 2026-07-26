@@ -17,6 +17,12 @@ verification in a QA artifact, reuse checks only with a matching fingerprint,
 and use the compact BFM closeout shape. Select light or broader lane review from
 risk and overlap; the user does not choose the internal path.
 
+For each known task question, call MCP `fb_project_context` before broad
+orientation and open only its relevant cited sources. The graph routes to
+authoritative records; it is not a source of truth. Use the board → index →
+handoff → card fallback when the packet says fallback or is incomplete,
+ambiguous, or contradictory.
+
 The one loop has six planning/evidence workstreams: Product/User (technical slug
 `product`), Business, Design, Tech, Discovery, and Bugs. Each workstream runs a
 mini-loop and records ready or blocked evidence in `docs/handoffs/<TASK-ID>.md`.
@@ -44,6 +50,7 @@ merge or deployment.
 - [Session promotion, checkpoints, recall, review, and closeout](../../docs/fb/sessions.md)
 - [Selected evals, authority, Quality Gaps, and revision closure](../../docs/fb/evals.md)
 - [Normalized records, verification reuse, and efficiency metrics](../../docs/fb/records.md)
+- [Graph-directed context and fallback](../../docs/fb/graph.md)
 
 For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must
@@ -87,6 +94,15 @@ For a v3 Full BFM run, also keep the Build Brief changelog expectation, matching
 Task Receipt decision, candidate-bound entry evidence, and release-checkpoint
 verification aligned. Do not report **Ready to ship** while that gate is
 missing. Quick and Normal work remain exempt.
+For a major user-visible release, Product must show the drafted entry to the
+user and record explicit changelog approval before **Ready to ship**. Keep the
+candidate at `Checking — changelog approval needed` until then; build approval
+and **Push Live** do not substitute for this wording approval.
+An unanswered request becomes a durable `Changelog approval: pending` gate.
+Every later documentation or plugin-guidance review must surface it again with
+the entry link until the user approves, rejects, or explicitly defers it.
+Unrelated documentation may continue, but never silently clear the affected
+release gate.
 Classify failures before revision, keep insufficient products at the exact
 Checking quality-gap state, and close selected evals only with fresh rerun and
 regression evidence. Never weaken a target or change authority automatically.

@@ -40,9 +40,22 @@ broad validation waits for a release checkpoint.
 Follow [records.md](../../docs/fb/records.md) for one-fact-one-home ownership,
 risk-triggered review, deterministic verification reuse, event-driven health
 checks, compact closeout, and local efficiency metrics.
+For a known task and concrete question, call MCP `fb_project_context` before
+broad orientation and open only the returned relevant cited sources. The graph
+routes to authoritative records; it is not a source of truth. If the tool
+returns fallback, or its packet is incomplete or contradictory, use the
+board → index → handoff → workstream-card route.
 For Full BFM, require the canonical Build Brief and Task Receipt changelog
 decision from `workflow.md` before Ready to ship. Quick and Normal work do not
 create automatic changelog noise.
+For a major user-visible release, Product drafts the entry and asks the user to
+approve its wording before **Ready to ship**. Record the explicit changelog
+approval in the Task Receipt; do not infer it from build approval or **Push
+Live**.
+Persist an unanswered request as `Changelog approval: pending` in the linked
+handoff and board gate. Every later documentation or plugin-guidance review
+must surface it again until the user approves, rejects, or explicitly defers
+it; never infer approval or silently clear the gate.
 
 - [Workstream-first start and `$bfm` reconciliation](../../docs/fb/start.md)
 - [Source hierarchy, locks, BFM, and closeout](../../docs/fb/workflow.md)
