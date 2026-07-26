@@ -58,6 +58,17 @@ FB `0.5.0-beta+codex.20260726130257` on
   288 process-all QA calls, common arm-independent draws, four distinct
   workflows, 23/23 safe eligible step-downs, zero missed required levels,
   executable grader binding, exact recomputation, and package parity.
+- Fast-decay policy experiment: 14/14 dedicated contracts passed. One
+  authoritative four-arm run preserved the reviewed Task 5 first-three-arm
+  evidence exactly and added 288 Fast-decay FB v2 records. The candidate
+  retained 231/288 product-ready outcomes, 57 unresolved failures, zero missed
+  required levels, and 100% immediate safety response while reducing modeled
+  tokens from 347,590 to 343,900. It reduced excess-control cases from 108 to
+  85 (21.3%), missing the frozen requirement of at least 25% (81 or fewer).
+  The adoption gate therefore failed; the result is preserved as rejected
+  evidence and operating guidance was not changed. See the
+  [fast-decay report](../benchmarks/control-loop/fast-decay.md) and
+  [machine evidence](../benchmarks/control-loop/fast-decay-results.json).
 - Changelog wording: approved by James in the originating conversation on
   2026-07-26.
 - Independent whole-branch review: specification and quality passed with zero

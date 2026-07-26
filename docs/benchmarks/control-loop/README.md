@@ -9,6 +9,12 @@ the separate [three-arm graduated benchmark](graduated.md) for mixed,
 long-running scenarios where FB adds and removes controls from observable
 evidence.
 
+A subsequent [four-arm fast-decay experiment](fast-decay.md) preserved all
+reviewed graduated results and tested a faster evidence-decay policy. The
+candidate retained readiness and safety while lowering modeled tokens, but it
+reduced excess-control cases from 108 to 85—21.3%, short of its frozen 25%
+adoption threshold. The policy was rejected and did not change FB guidance.
+
 | Outcome | Process-all baseline | FB control loop | FB minus baseline |
 |---|---:|---:|---:|
 | Product-ready rate | 25.0% | 50.0% | 25.0% |
