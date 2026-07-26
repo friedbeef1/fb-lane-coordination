@@ -73,3 +73,7 @@ a user-facing changelog entry. Before **Ready to ship**, confirm the Task
 Receipt has the matching canonical decision and that any required linked entry
 describes what changed, why it matters, compatibility, and upgrade action. See
 `workflow.md`; Quick and Normal work are exempt.
+For a major user-visible release, draft the entry, show it to the user, and ask
+for explicit changelog approval before **Ready to ship**. Record that approval
+in the Task Receipt. Do not treat build approval or **Push Live** as approval of
+the changelog wording.

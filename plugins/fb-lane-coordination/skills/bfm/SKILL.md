@@ -94,6 +94,10 @@ For a v3 Full BFM run, also keep the Build Brief changelog expectation, matching
 Task Receipt decision, candidate-bound entry evidence, and release-checkpoint
 verification aligned. Do not report **Ready to ship** while that gate is
 missing. Quick and Normal work remain exempt.
+For a major user-visible release, Product must show the drafted entry to the
+user and record explicit changelog approval before **Ready to ship**. Keep the
+candidate at `Checking — changelog approval needed` until then; build approval
+and **Push Live** do not substitute for this wording approval.
 Classify failures before revision, keep insufficient products at the exact
 Checking quality-gap state, and close selected evals only with fresh rerun and
 regression evidence. Never weaken a target or change authority automatically.

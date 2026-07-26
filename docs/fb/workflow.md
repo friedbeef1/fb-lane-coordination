@@ -81,6 +81,15 @@ record, candidate range, link, fields, and agreement. Historical v2 handoffs,
 Quick BFM, and Normal Codex are exempt. Meaningful Quick changes may be
 consolidated into the next Full BFM or release entry.
 
+For a **major user-visible release**, Product drafts the changelog entry and
+asks the user to approve it before **Ready to ship**. Do not assume that build
+approval or **Push Live** also approves the changelog wording. Record
+`Changelog approval: approved — <user/reference/date>` in the Task Receipt.
+Until that approval exists, status remains
+`Checking — changelog approval needed`. Minor entries consolidated into a later
+major release do not require a separate interruption; internal-only work keeps
+the concrete not-required path above.
+
 For a user-visible UI plan, record `browser screenshot/mockup`, `imagegen
 asset/style option`, or `skip with reason`. Skip only for non-visual work or a
 tiny copy, spacing, or single-control change. Attach a feasible material visual

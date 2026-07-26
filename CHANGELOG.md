@@ -21,6 +21,9 @@ normal board → index → handoff → card route.
 an approved plugin release, upgrade the `fb-lane` marketplace plugin and start
 a new Codex task to load the refreshed MCP tool and skills.
 
+**Changelog approval:** Approved by James in the originating conversation on
+2026-07-26.
+
 ## 0.3.1-beta - 2026-07-18
 
 **What changed:** Full BFM now records whether a delivered candidate requires a

@@ -88,6 +88,10 @@ For a v3 Full BFM handoff it also records the changelog result defined in
 [workflow.md](workflow.md#internal-approval-record). The Build Brief expectation
 and Task Receipt decision must agree; a concrete not-required reason is copied
 unchanged.
+For a major user-visible release, the Task Receipt additionally records
+`Changelog approval: approved — <user/reference/date>`. Product asks for that
+approval after drafting the entry and before **Ready to ship**. **Push Live**
+does not retroactively approve changelog wording.
 
 Brief Validation is `pass` or `blocked`. Product/BFM authors the semantic
 comparison. The deterministic CLI only checks complete actionable structure:

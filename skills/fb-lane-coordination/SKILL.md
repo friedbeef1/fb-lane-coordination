@@ -48,6 +48,10 @@ board → index → handoff → workstream-card route.
 For Full BFM, require the canonical Build Brief and Task Receipt changelog
 decision from `workflow.md` before Ready to ship. Quick and Normal work do not
 create automatic changelog noise.
+For a major user-visible release, Product drafts the entry and asks the user to
+approve its wording before **Ready to ship**. Record the explicit changelog
+approval in the Task Receipt; do not infer it from build approval or **Push
+Live**.
 
 - [Workstream-first start and `$bfm` reconciliation](../../docs/fb/start.md)
 - [Source hierarchy, locks, BFM, and closeout](../../docs/fb/workflow.md)

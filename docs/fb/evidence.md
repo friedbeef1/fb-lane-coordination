@@ -103,6 +103,11 @@ against the exact candidate commit. A missing, stale, unresolved, or
 candidate-mismatched decision cannot be reused and cannot reach **Ready to
 ship**.
 
+For a major user-visible release, the candidate-bound evidence also links the
+user's explicit changelog approval. Missing approval keeps the candidate at
+`Checking — changelog approval needed`; release approval does not substitute
+for approval of the changelog wording.
+
 ## Quality and cleanup
 
 Evidence names the exact split: delivered work, checks that passed, and any

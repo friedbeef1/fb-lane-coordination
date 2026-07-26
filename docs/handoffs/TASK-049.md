@@ -54,6 +54,7 @@ consumer-project installation.
 ## Task Receipt
 
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#unreleased--graph-directed-context)
+- Changelog approval: approved — James, originating conversation, 2026-07-26
 - Delivered: bundled MCP context tool, graph runtime, nine-page harness route,
   active workstream guidance, generated package mirrors, and fallback install
   guidance.

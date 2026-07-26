@@ -88,4 +88,27 @@ check('v3 release budget and runtime entry points enforce the same changelog gat
   assert.match(laneSource, /performAutomatedSubmission[\s\S]*assertFullBfmChangelog[\s\S]*changelogVerification/);
 });
 
+check('major-release guidance requires explicit user approval of drafted changelog wording', () => {
+  const containingRoot = path.resolve(__dirname, '..');
+  const packageContext = path.basename(containingRoot) === 'fb-lane-coordination'
+    && path.basename(path.dirname(containingRoot)) === 'plugins';
+  const repoRoot = packageContext ? path.resolve(containingRoot, '..', '..') : containingRoot;
+  const surfaceRoot = packageContext ? containingRoot : repoRoot;
+  for (const relative of [
+    'docs/fb/workflow.md',
+    'docs/fb/evidence.md',
+    'docs/fb/sessions.md',
+    'skills/fb-product/SKILL.md',
+    'skills/bfm/SKILL.md',
+    'skills/fb-lane-coordination/SKILL.md',
+  ]) {
+    const source = fs.readFileSync(path.join(surfaceRoot, relative), 'utf8');
+    assert.match(source, /major user-visible release/i);
+    assert.match(source, /changelog\s+approval/i);
+    assert.match(source, /before \*\*Ready to ship\*\*|cannot reach \*\*Ready to\s*ship\*\*|Checking — changelog approval needed/i);
+  }
+  const handoff = fs.readFileSync(path.join(repoRoot, 'docs/handoffs/TASK-049.md'), 'utf8');
+  assert.match(handoff, /Changelog approval:\s*approved — James, originating conversation, 2026-07-26/i);
+});
+
 console.log(`\n✅ ${passed} focused changelog-closeout checks passed.`);
