@@ -83,7 +83,36 @@ All commands exited successfully. The focused control-loop suite passed
 
 ## Concerns / handoff
 
-The authority is intentionally runtime-only: no public command or automatic
-session-close wiring was added. A lifecycle caller that closes a Full run must
-call the internal durable close operation; a closed record always blocks later
-advancement. Task 2B remains entirely separate and untouched.
+The authority remains runtime-only with no public command. Session lifecycle
+closure now closes linked Full budgets under the existing session lock. Task 2B
+remains entirely separate and untouched.
+
+---
+
+## Consolidated review repair
+
+Repair commit: `7df4ee8 fix: bind Full budget to session authority`
+
+### RED
+
+The revised focused control-loop test removed caller-supplied decision versions
+and required an active BFM execution session, an authoritative Full route, and
+a Product decision version from the linked handoff. The first RED run failed at
+issuance with `Invalid or unsafe Full repair budget decision version undefined`.
+
+### GREEN
+
+- Issuance and advancement now take the existing session mutation lock before
+  the durable budget lock. They re-read the active `bfm` execution session,
+  current approved board task, Full BFM route, and `Product decision version`
+  from the linked handoff.
+- A changed handoff decision, closed/non-BFM session, or Quick route stops or
+  rejects the budget regardless of stale caller values.
+- `closeSession` closes every active linked Full budget while it owns the same
+  lifecycle lock; the focused session test proves stale advancement is then
+  rejected.
+- Budget temporary files use no-follow exclusive opens; create and replace
+  fsync the file and common-store directory after atomic link/rename publish.
+
+Final focused proof passed: control-loop `45/45`, session suite (including the
+atomic close case), efficiency `20/20`, relevant syntax checks, and whitespace.
