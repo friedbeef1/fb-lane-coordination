@@ -12,6 +12,7 @@ assert.ok(fs.existsSync(pilotModule), 'fb-project-graph-pilot.cjs must implement
 
 const {
   createScenario,
+  createMinimalPacket,
   runPilot,
   verifyStoredResults,
 } = require(pilotModule);
@@ -64,4 +65,23 @@ test('stored pilot results recompute and canonical consumer input hashes remain 
   const resultPath = path.join(root, '.fb', 'graph', 'pilot-results.json');
   assert.ok(fs.existsSync(resultPath));
   assert.deepStrictEqual(verifyStoredResults(resultPath), { valid: true, hash: results.resultHash });
+});
+
+test('minimal graph-first packet replaces broad orientation with capped cited context', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-graph-minimal-'));
+  const scenario = createScenario(root, 'six-workstream');
+  const graph = require('./fb-project-graph.cjs').buildProjectGraph(scenario.root, {
+    generatedAt: '2026-07-26T00:00:00.000Z',
+  });
+  for (const item of scenario.workstreams) {
+    const packet = createMinimalPacket(graph, item);
+    assert.strictEqual(packet.task, item.task);
+    assert.ok(packet.citations.length > 0);
+    assert.ok(packet.citations.length <= 3);
+    assert.ok(!packet.readableSources.includes('PROJECT_BOARD.md'));
+    assert.ok(!packet.readableSources.includes('docs/handoffs/index.md'));
+    assert.ok(packet.readableSources.every(source => source === item.handoff
+      || source === item.dependencySource
+      || item.expectedSources.includes(source)));
+  }
 });

@@ -59,15 +59,19 @@ publication, release, merge, deployment, or consumer-project mutation.
 
 ## Current State
 
-The focused prototype and comparison are implemented. Deterministic navigation
-reduced ongoing bytes by 66.9% and repeated reads by 73.7%, with break-even near
-the second comparable orientation cycle. In six real concurrent Codex tasks,
-the graph arm remained 6/6 correct but used 2.5% more gross input tokens and
-12.3% more wall time. The result is **promising but inconclusive**.
+The focused prototype and comparisons are implemented. The first additive
+real-agent trial was inconclusive because graph context duplicated broad
+orientation. James approved a final replacement experiment using equal isolated
+snapshots and minimal question-specific packets.
+
+In that final six-concurrent-worker comparison, both arms remained 6/6 correct.
+Graph-first routing used 33.9% fewer uncached input tokens, 54.6% fewer
+tool-output orientation characters, and 27.3% less wall time. The controlled
+orientation hypothesis is **demonstrated**.
 
 The prototype remains repository-local and ignored under `.fb/graph/`. No
 plugin, package, consumer repository, release, or deployment change was made.
-The one-repair circuit breaker is reached.
+The graph remains a router to authoritative records, not a source of truth.
 
 ## Implementation Plan
 
@@ -77,6 +81,7 @@ The one-repair circuit breaker is reached.
 
 - [Experiment and results](../experiments/TASK-048-graduated-project-graph-pilot.md)
 - [Focused QA](../qa/TASK-048.md)
-- Outcome: Staging QA for Product review; not approved for plugin integration.
-- Next owner: Product decides whether the demonstrated navigation reduction
-  justifies a separate, tightly scoped graph-response experiment.
+- Outcome: Staging QA; controlled graph-first efficiency hypothesis
+  demonstrated; not approved for plugin integration.
+- Next owner: Product decides whether to authorize a separate plugin slice for
+  graph-directed targeted reading with broad-route fallback.

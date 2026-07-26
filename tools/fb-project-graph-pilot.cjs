@@ -172,6 +172,41 @@ function dependencyResolved(graph, task, dependencySource) {
   return seen.has(target);
 }
 
+function createMinimalPacket(graph, item) {
+  const results = queryProjectGraph(graph, item.query, { currentTask: item.task });
+  const preferred = [
+    item.handoff,
+    ...item.expectedSources,
+    item.dependencySource,
+  ];
+  const resultSources = new Set(results.map(result => result.source));
+  const citations = [...new Set([
+    ...preferred.filter(source => resultSources.has(source)),
+    ...results.map(result => result.source),
+  ])].filter(Boolean).slice(0, 3);
+  const readableSources = citations.filter(source =>
+    source !== 'PROJECT_BOARD.md'
+    && source !== 'docs/handoffs/index.md'
+    && (source === item.handoff
+      || source === item.dependencySource
+      || item.expectedSources.includes(source)));
+  return {
+    task: item.task,
+    workstream: item.workstream,
+    question: item.query,
+    facts: results.slice(0, 6).map(result => ({
+      type: result.type,
+      label: result.label,
+      status: result.status,
+      source: result.source,
+      relationshipPath: result.relationshipPath,
+    })),
+    citations,
+    readableSources,
+    fallback: 'If the packet is insufficient, open only readableSources and state which source was needed.',
+  };
+}
+
 async function runArm(scenario, mode, graph) {
   let active = 0;
   let maxConcurrent = 0;
@@ -373,6 +408,7 @@ if (require.main === module) {
 
 module.exports = {
   createScenario,
+  createMinimalPacket,
   runPilot,
   verifyStoredResults,
 };

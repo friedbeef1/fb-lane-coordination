@@ -212,3 +212,53 @@ pilot's confound. This experiment asks whether a minimal graph packet can
 One consolidated implementation repair is allowed before the comparative run.
 After the run, any failure or no-progress result ends efficiency
 productization and returns the evidence to Product.
+
+### Final results
+
+The one-shot comparison completed successfully. Six read-only
+`gpt-5.6-sol` workers ran concurrently in each arm from equal isolated
+snapshots. User configuration and project rules were disabled for both arms so
+the measure isolates repository orientation rather than installed-plugin
+loading.
+
+| Measure | Normalized route | Minimal graph-first route | Difference |
+|---|---:|---:|---:|
+| Correct answers | 6/6 | 6/6 | no change |
+| Missed authority or dependency facts | 0 | 0 | no change |
+| Concurrent wall time | 28.17 s | 20.49 s | -27.3% |
+| Gross input tokens | 836,333 | 490,130 | -41.4% |
+| Uncached input tokens | 224,493 | 148,370 | -33.9% |
+| Output tokens | 3,953 | 2,771 | -29.9% |
+| Reasoning tokens | 826 | 689 | -16.6% |
+| Tool-output orientation characters | 153,984 | 69,886 | -54.6% |
+| Source-read commands | 11 | 17 | +54.5% |
+
+All graph-first workers opened at least one of the packet's cited authoritative
+sources. None opened `PROJECT_BOARD.md`, `docs/handoffs/index.md`, `AGENTS.md`,
+or an unrelated source. Therefore the graph did not replace authoritative
+records; it replaced broad orientation with smaller targeted reads. The higher
+command count reflects more precise reads and did not translate into higher
+tokens or wall time.
+
+The graph-first arm satisfied every preregistered predicate:
+
+- both arms remained 6/6 correct;
+- project-orientation content fell more than 20%;
+- uncached provider input fell more than 20%;
+- wall time decreased rather than increasing;
+- no worker used the broad normalized-record fallback.
+
+### Final conclusion
+
+**Demonstrated under the controlled six-workstream orientation scenario.**
+
+A minimal graph-first router can reduce repository-orientation context and
+elapsed time when it replaces broad board/index reading and sends each worker
+to a small, source-cited evidence set. The useful product behavior is
+**graph-directed targeted reading**, not graph-stored product truth.
+
+This is one controlled task and is not a universal percentage claim. The run
+disabled user configuration and project rules equally in both arms, did not
+measure implementation work, and used one repository state. Permanent plugin
+integration still requires a separately approved slice that preserves safe
+fallback and measures ordinary installed-plugin behavior.
