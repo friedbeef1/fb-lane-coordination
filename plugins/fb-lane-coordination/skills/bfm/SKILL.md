@@ -5,6 +5,12 @@ description: Use when Product/Captain must sequence, execute, reconcile, or clos
 
 # BFM
 
+If the Build Brief opts into the [generic control loop](../../docs/fb/control-loop.md),
+coordinate its capabilities inside the existing slice and repair budgets.
+Preserve the baseline, require evidence for pairwise criteria and selected
+gates, and stop isolated configuration candidates at exact Product approval.
+Never self-promote configuration or consume **Push Live**.
+
 After actionable workstream handoffs are ready, `$bfm` activates Product
 reconciliation and authorizes execution of already-approved ready scope. Read
 [the FB harness](../../docs/fb/README.md), then

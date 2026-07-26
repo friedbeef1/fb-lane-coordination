@@ -3,6 +3,18 @@
 Last Updated: 2026-07-26
 Lane: FB-Product
 
+## TASK-050 — Generic agent control loop and FB 0.5.0-beta
+
+- Status: Checking.
+- Outcome target: add rules-first routing, flat clone-local events, pairwise
+  comparison, layered gates, bounded diagnosis, and evidence-bound isolated
+  configuration evolution without autonomous production changes.
+- Release candidate: `0.5.0-beta+codex.20260726130257`.
+- Release gate: changelog wording approval, whole-branch review, one complete
+  release checkpoint, then **Push Live**.
+- Links: [Handoff](../handoffs/TASK-050.md), [control loop](../fb/control-loop.md),
+  [QA](../qa/TASK-050.md).
+
 ## TASK-048 — FB graduated project graph
 
 - Status: Ready; focused pilot plan complete.

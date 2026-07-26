@@ -266,6 +266,6 @@ test('canonical guidance and every installed operating skill route to the record
   const cli = fs.readFileSync(path.join(repo, 'tools/fb-lane.cjs'), 'utf8');
   assert.match(cli, /FB_HARNESS_PAGES[^\n]*records\.md/);
   if (!packageContext) {
-    assert.match(fs.readFileSync(path.join(repo, 'docs/setup.md'), 'utf8'), /nine-page harness/);
+    assert.match(fs.readFileSync(path.join(repo, 'docs/setup.md'), 'utf8'), /ten-page harness/);
   }
 });

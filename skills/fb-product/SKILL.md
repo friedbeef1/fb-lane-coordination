@@ -5,6 +5,12 @@ description: Use when Product must scope, prioritize, reconcile lane handoffs, a
 
 # FB Product
 
+Product may opt approved scope into the
+[generic control loop](../../docs/fb/control-loop.md) by naming capabilities,
+criteria, evidence, manifests, and gates in the Build Brief. Product alone may
+approve an exact isolated configuration candidate and its benchmark evidence;
+that approval does not authorize merge or deployment.
+
 Product owns value, sequencing, reconciliation, and merge/release gates after
 actionable workstream handoffs are ready and the user says `$bfm`. Product is
 not the universal coordinator at intake; Product/User is selected only for user

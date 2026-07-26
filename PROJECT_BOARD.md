@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-050 | In Progress | FB-Product / BFM + FB-Tech | Agent Control Loop | Add generic rules-first routing, clone-local stage events, baseline comparison, layered gates, and isolated golden-fixture configuration evolution for FB 0.5 | New control-loop runtime/tests, session/eval integration, canonical/package harness and skills, TASK-050 records; no publication or live deployment | Plan and handoff in progress; release remains behind Ready to ship and Push Live |
+| TASK-050 | In Progress | FB-Product / BFM + FB-Tech | Agent Control Loop | Add generic rules-first routing, clone-local stage events, baseline comparison, layered gates, and isolated golden-fixture configuration evolution for FB 0.5 | New control-loop runtime/tests, session/eval integration, canonical/package harness and skills, TASK-050 records; no publication or live deployment | Candidate `0.5.0-beta+codex.20260726130257`; plan and handoff in progress; release remains behind Ready to ship and Push Live |
 | TASK-049 | Done | FB-Product / BFM | Plugin Navigation | Integrate graph-directed targeted reading into the bundled Codex plugin, support repository-specific task IDs, and release `0.4.0-beta+codex.20260726101229` | `tools/fb-project-graph*`, MCP surface, release metadata, canonical/package graph guidance and skills | [Handoff](docs/handoffs/TASK-049.md); [QA](docs/qa/TASK-049.md); [PR #51](https://github.com/friedbeef1/fb-lane-coordination/pull/51); installed and enabled |
 | TASK-048 | Staging QA | FB-Product / BFM | Project Navigation | Evaluate graduated graph navigation and a minimal graph-first route without changing product-truth authority | `tools/fb-project-graph*`, `.fb/graph/`, TASK-048 experiment/QA/coordination records | [Handoff](docs/handoffs/TASK-048.md); [Results](docs/experiments/TASK-048-graduated-project-graph-pilot.md); [QA](docs/qa/TASK-048.md) |
 | TASK-047 | Staging QA | FB-Product / BFM | Harness Efficiency | Normalize durable evidence, add risk-triggered review and deterministic verification reuse, and reduce duplicated coordination context | `tools/fb-records.*`, validator/doctor integration, canonical/package harness and skills, templates, TASK-047 records | [Handoff](docs/handoffs/TASK-047.md); [Pilot](docs/experiments/TASK-047-real-task-pilot.md); [Plan](docs/superpowers/plans/2026-07-23-fb-durable-efficiency-evidence-normalization.md); [QA](docs/qa/TASK-047.md); focused local gate passed |
@@ -73,7 +73,14 @@
     *   **Gate / Review Point**: Task 1 review before Task 2; Task 2 review before documentation/release preparation; final release checkpoint and explicit Push Live.
     *   **Approval**: approved — James approved the proposed generic integrated control-loop plan in the originating conversation.
     *   **Justification**: The design adopts useful modular routing, pairwise QA, structured evidence, layered gates, and benchmarked learning while rejecting autonomous production changes and transcript capture.
-*   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-26-fb-generic-agent-control-loop.md); handoff and QA pending.
+*   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-26-fb-generic-agent-control-loop.md);
+    [handoff](docs/handoffs/TASK-050.md); [focused QA](docs/qa/TASK-050.md).
+*   **Latest Update**: *2026-07-26*: Runtime/MCP 49/49, session 20 focused
+    checks, eval 18/18, efficiency 20/20, CLI/bootstrap 70/70, six-workstream
+    and six-skill compatibility, root/package documentation and metadata,
+    changelog 13/13, Ready-to-ship 5/5, 48-mirror parity, syntax, targeted
+    links, and whitespace passed. Whole-branch review, changelog wording
+    approval, and the one complete release checkpoint remain pending.
 
 ### TASK-049 - Graph-Directed Plugin Navigation
 

@@ -1,7 +1,7 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.4.0-beta+codex.20260726101229",
-  "description": "FB connects six product workstreams to Product-led BFM implementation, automated verification, repair, and explicit release approval.",
+  "version": "0.5.0-beta+codex.20260726130257",
+  "description": "FB connects six product workstreams to a rules-first control loop, Product-led BFM delivery, automated verification, and explicit release approval.",
   "author": {
     "name": "FB Contributors",
     "url": "https://github.com/friedbeef1"

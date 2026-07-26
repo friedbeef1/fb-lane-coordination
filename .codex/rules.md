@@ -31,6 +31,9 @@ Use **FB light** for narrow triggered work: read the board/locks, keep the task 
 - `docs/workstreams/<lane>.md` adds a compact revisit summary; it must not duplicate the board, OKRs, QA logs, plans, or implementation detail.
 - Follow `docs/fb/records.md`: each durable fact has one authoritative home; cards, recaps, and chat link instead of copying decisions, scope, or test output.
 - For a known task and concrete question, call MCP `fb_project_context` before broad orientation. Open only its relevant cited authoritative records. The graph is not a source of truth; use the normal board → index → handoff → card fallback when the packet is insufficient or contradictory. See `docs/fb/graph.md`.
+- When a Build Brief opts into generic routing, pairwise QA, layered gates, or
+  diagnosed configuration evolution, follow `docs/fb/control-loop.md`.
+  Its stages are capabilities rather than new workstreams or mandatory agents.
 - Branches/worktrees isolate execution like separate desks.
 - BFM integrates outcomes like Product/release review.
 - Worktrees do not replace coordination: no private-worktree disappearance, no huge unannounced diff, no source edits without board/lock awareness, and no closeout without BFM reconciliation when multiple outputs exist.

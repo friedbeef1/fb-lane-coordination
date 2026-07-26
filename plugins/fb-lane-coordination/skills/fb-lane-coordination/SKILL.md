@@ -5,6 +5,11 @@ description: Coordinates board-aware FB tasks, handoffs, staging submissions, an
 
 # FB task coordination
 
+When an approved Build Brief opts into the generic control loop, follow
+[control-loop.md](../../docs/fb/control-loop.md). Understand, route, produce,
+compare, QA, and diagnose are capabilities—not new workstreams or mandatory
+agents. Rules decide clear cases first; safety and Product authority still win.
+
 Read [the FB harness](../../docs/fb/README.md) before acting, then read the
 board, index, linked handoff, and relevant workstream card. The harness owns
 the durable policy:

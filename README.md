@@ -4,8 +4,8 @@
 
 **AI Loop Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.4.0-beta**
-(`0.4.0-beta+codex.20260726101229`).
+Current Codex release candidate: **FB 0.5.0-beta**
+(`0.5.0-beta+codex.20260726130257`).
 
 **FB is a Codex plugin that connects six product workstreams in one continuous
 delivery loop. Each workstream investigates part of the problem; `$bfm` brings
@@ -14,6 +14,12 @@ implementation, runs automated checks, and prepares the result for release.**
 
 FB means **Focus Bridge**: it bridges discussion, evidence, implementation, and
 delivery.
+
+FB 0.5 adds an optional repository-local
+[generic agent control loop](docs/fb/control-loop.md): deterministic routing,
+baseline comparison, layered QA gates, and bounded diagnosed configuration
+evolution. These are capabilities inside the same six-workstream delivery
+model, not additional mandatory agents.
 
 These are product-delivery and coordination gaps that can arise around ordinary
 Codex use, not defects in Codex itself.

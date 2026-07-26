@@ -2,8 +2,8 @@
 
 This package is the supported Codex distribution for FB. It supplies the
 `fb-lane` coordination capability, BFM/Product/lane skills, and the reusable
-FB harness. This candidate is **FB 0.4.0-beta** build
-`0.4.0-beta+codex.20260726101229`.
+FB harness. This candidate is **FB 0.5.0-beta** build
+`0.5.0-beta+codex.20260726130257`.
 
 ## Install and start
 
@@ -28,6 +28,7 @@ all six, prioritizes, implements, tests, and stops at **Ready to ship**. Only
 - [Test This Now and Verification Handoff](docs/fb/evidence.md)
 - [Safety, sidechats, recovery, and Loop Learning](docs/fb/guardrails.md)
 - [Repository-local sessions and evidence-aware closeout](docs/fb/sessions.md)
+- [Generic agent control loop](docs/fb/control-loop.md)
 - [Markdown eval selection, authority, and Quality Gaps](docs/fb/evals.md)
 
 Keep `fb-lane`, plugin IDs, MCP names, commands, and configured technical paths

@@ -8,6 +8,11 @@ Use the seven-field Project Start Brief and Build For Me (BFM) boundary from
 [start.md](start.md). Execution begins only after approval and explicit `$bfm`;
 then prepare the execution and review evidence here.
 
+For an opted-in [generic control loop](control-loop.md), keep pairwise
+criterion results and distinct focused/comparison/safety/integration/release
+gate references in the QA artifact. Link to clone-local stage-event summaries
+and counts; do not copy JSONL or raw agent material into committed Markdown.
+
 ## Test This Now
 
 Harness-v2 review enforcement is opt-in. New Full BFM handoffs use

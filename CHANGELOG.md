@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.5.0-beta — 2026-07-26
+
+**What changed:** FB adds an optional repository-local agent control loop:
+rules-first process/skip routing, flat clone-local stage events, pairwise
+candidate-versus-baseline comparison, distinct quality and safety gates,
+bounded failure diagnosis, and isolated configuration candidates benchmarked
+against frozen golden fixtures.
+
+**Why it matters:** Projects can avoid unnecessary transformations, diagnose
+which stage failed, protect good baseline output from degradation, and improve
+prompts or configuration with repeatable evidence. The capabilities fit inside
+the existing six workstreams and Product/BFM loop rather than adding mandatory
+agents or a second authority system.
+
+**Compatibility:** Existing six-workstream projects, handoffs, commands,
+technical identifiers, repair budgets, and release boundaries remain valid.
+The control loop is opt-in through the approved Build Brief. It does not capture
+transcripts, require hosted telemetry, promote configuration autonomously, or
+change **Push Live** authority.
+
+**Installation or upgrade:** After release, upgrade the `fb-lane` marketplace,
+install `fb-lane-coordination@fb-lane`, and start a new Codex task to load
+`0.5.0-beta+codex.20260726130257`, the refreshed skills, harness, and bundled
+MCP server.
+
+**Changelog approval:** Pending James's approval of this wording before
+**Ready to ship**.
+
 ## 0.4.0-beta — 2026-07-26
 
 **What changed:** FB's Codex plugin now provides read-only MCP

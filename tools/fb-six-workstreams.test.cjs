@@ -110,7 +110,7 @@ try {
 
   const guardrails = read('docs/fb/guardrails.md');
   assert.match(guardrails, /Low-ceremony execution rule/);
-  assert.match(guardrails, /one bounded candidate[\s\S]*complete candidate before review[\s\S]*at most one reviewer[\s\S]*one focused verification pass/i);
+  assert.match(guardrails, /one bounded candidate[\s\S]*complete candidate before review[\s\S]*(?:at most|exactly) one reviewer[\s\S]*one focused verification pass/i);
   assert.match(guardrails, /Report progress only when source, evidence, test state, blocker recovery, or an[\s\S]*approved decision materially changes/i);
 } finally {
   fs.rmSync(root, { recursive: true, force: true });

@@ -2,6 +2,10 @@
 
 The public workstream-first and `$bfm` reconciliation contract lives in
 [start.md](start.md). Internal execution classification is not a user choice.
+When the approved Build Brief opts into transformation routing, pairwise
+comparison, layered gates, or diagnosed configuration evolution, follow the
+[generic control-loop contract](control-loop.md). Its stages are capabilities,
+not additional workstreams or mandatory agents.
 
 ## Ownership and durable records
 
@@ -63,6 +67,12 @@ Build Brief repeats the quality bar, selected eval IDs and authority,
 mechanical versus judgment evidence, and remaining user judgment. See
 [evals.md](evals.md). Product defines concrete product scenarios with Good and
 Bad examples; reusable categories alone are not a test.
+
+The Build Brief may opt into `controlLoop` capabilities and name the applicable
+criteria, profile manifest, golden-fixture manifest, gates, and evidence. Clear
+routes remain deterministic; ambiguity requires assigned judgment. Exact
+Product approval is required before an isolated configuration candidate can
+change canonical configuration.
 
 Every new Full BFM handoff uses `fb_harness: v3`. Its Build Brief records one
 changelog expectation before implementation:

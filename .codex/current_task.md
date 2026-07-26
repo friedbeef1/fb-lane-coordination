@@ -1,11 +1,12 @@
 # Active Task Context
 
-* **Current Task**: TASK-049 Graph-directed plugin navigation and FB 0.4.0-beta release
+* **Current Task**: TASK-050 Generic agent control loop and FB 0.5.0-beta release
 * **Lane**: FB-Product / BFM
-* **Status**: Complete — `0.4.0-beta+codex.20260726101229` installed and enabled
+* **Status**: Checking — focused Task 3 verification in progress
+* **Release Build**: `0.5.0-beta+codex.20260726130257`
 * **BFM Class**: Full BFM
-* **Release Vehicle**: TASK-049 branch; release after passing checkpoint and approved changelog wording
-* **Worktree**: `/Users/jamesyeang/Documents/fb-lane/recovered-worktree`
-* **Locked Files**: Graph runtime/contracts, canonical/package mirrors, release metadata, TASK-049 records.
+* **Release Vehicle**: `codex/fb-agent-control-loop`; stop at Ready to ship before Push Live
+* **Worktree**: `/private/tmp/fb-agent-control-loop`
+* **Locked Files**: Control-loop runtime/contracts, canonical/package mirrors, release metadata, TASK-050 records.
 
-Closeout: PR #51 merged, marketplace upgraded, and installed plugin verified.
+Release checkpoint, push, merge, publication, installation, and deployment remain pending.

@@ -56,3 +56,5 @@ owner transfer, staging, or review does not request one.
 - Selecting harness/product evals, recording Quality Gaps, or closing revision loops: [evals.md](evals.md)
 - Normalizing durable facts, reusing verification, or closing compactly: [records.md](records.md)
 - Reducing broad orientation through source-cited targeted reading: [graph.md](graph.md)
+- Adding rules-first routing, pairwise QA, layered gates, or diagnosed
+  configuration evolution: [control-loop.md](control-loop.md)

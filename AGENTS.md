@@ -23,6 +23,8 @@ summaries. The reusable FB operating rules live in [docs/fb/](docs/fb/README.md)
   [records.md](docs/fb/records.md)
 - Graph-directed targeted reading and safe fallback:
   [graph.md](docs/fb/graph.md)
+- Rules-first routing, pairwise QA, layered gates, and bounded configuration
+  evolution: [control-loop.md](docs/fb/control-loop.md)
 
 For a known task and concrete question, call MCP `fb_project_context` before
 broad orientation. Open only its relevant cited authoritative records. The

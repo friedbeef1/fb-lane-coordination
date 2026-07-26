@@ -5,7 +5,12 @@ description: Use when bootstrapping an FB-coordinated project with board, handof
 
 # Set up an FB-coordinated project
 
-The bootstrap installs the canonical nine-page [FB harness](../../docs/fb/README.md)
+Bootstrap includes `docs/fb/control-loop.md`. Projects opt in through the Build
+Brief and may configure repository-relative `controlLoop.profileManifest` and
+`controlLoop.goldenManifest` paths in `.fb-lane.json`. Do not enable hosted
+logging, transcript capture, or autonomous configuration promotion.
+
+The bootstrap installs the canonical ten-page [FB harness](../../docs/fb/README.md)
 pack and adds or updates a thin managed route in `AGENTS.md` and
 `.codex/rules.md`. Fresh projects receive the pack and routes. On reruns, the
 bootstrap preserves project-owned text and replaces only a complete block from

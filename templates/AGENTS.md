@@ -21,6 +21,10 @@ summaries. The reusable FB operating rules live in [docs/fb/](docs/fb/README.md)
   [evals.md](docs/fb/evals.md)
 - Authoritative records, verification reuse, and compact closeout:
   [records.md](docs/fb/records.md)
+- Graph-directed targeted reading and safe fallback:
+  [graph.md](docs/fb/graph.md)
+- Rules-first routing, pairwise QA, layered gates, and bounded configuration
+  evolution: [control-loop.md](docs/fb/control-loop.md)
 
 Use normal work for simple single-thread tasks; use FB light for durable
 multi-thread coordination; escalate to Product/BFM for approval, sequencing,

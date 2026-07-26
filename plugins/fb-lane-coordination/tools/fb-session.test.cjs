@@ -23,6 +23,7 @@ const {
   submitVerificationReuse,
 } = require(path.join(__dirname, 'fb-session.cjs'));
 const { selectAutomatedChecks } = require(path.join(__dirname, 'fb-efficiency.cjs'));
+const { appendStageEvent, issueFullRepairBudget, readFullRepairBudget, advanceFullRepairBudget } = require(path.join(__dirname, 'fb-control-loop.cjs'));
 const cleanEnv = {
   ...process.env,
   CODEX_THREAD_ID: '',
@@ -613,6 +614,23 @@ test('checkpoint and close serialize so a completed checkpoint cannot reopen a c
   }
 });
 
+test('session close atomically closes linked Full repair budgets and rejects stale advancement', () => {
+  const fixture = createRepo([{ id: 'TASK-001', owner: 'Bfm', scope: 'Coordinate multiple owners', locks: 'src/app.js' }]);
+  try {
+    const worktree = addWorktree(fixture, 'session/full-budget-close');
+    assertOk(promote(worktree, 'TASK-001', 'bfm', 'execution', 'full-budget-close'));
+    const handoffPath = path.join(worktree, 'docs', 'handoffs', 'TASK-001.md');
+    fs.appendFileSync(handoffPath, '\nProduct decision version: decision-v1\n');
+    const budgetRef = issueFullRepairBudget(worktree, { sessionId: 'full-budget-close', runId: 'full-budget-close-run', candidateId: 'full-budget-close-candidate' });
+    appendEvidence(worktree, 'full-budget-close', 'TASK-001', git(worktree, ['rev-parse', 'HEAD']), 'blocked');
+    assertOk(run(worktree, ['session', 'close', '--outcome', 'blocked', '--session-id', 'full-budget-close']));
+    assert.strictEqual(readFullRepairBudget(worktree, budgetRef).state, 'closed');
+    assert.strictEqual(advanceFullRepairBudget(worktree, { budgetRef, materialProgress: true, event: {} }).status, 'stopped');
+  } finally {
+    fixture.cleanup();
+  }
+});
+
 test('MCP claim uses the CLI linked-worktree path and supports direct execution promotion there', async () => {
   const fixture = createRepo([{ id: 'TASK-024', status: 'Ready', locks: 'src/app.js' }]);
   try {
@@ -684,6 +702,69 @@ test('verification checkpoint commits and pushes only recap and linked handoff w
     assert.strictEqual(remoteHead, git(worktree, ['rev-parse', 'HEAD']));
   } finally {
     fixture.cleanup();
+  }
+});
+
+test('verification checkpoint keeps only canonical counted control-loop summaries and rejects copied or malformed declarations', () => {
+  const fixture = createRepo();
+  try {
+    const worktree = addWorktree(fixture, 'session/control-loop-summary');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'control-loop-summary'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 22;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: control loop source evidence']);
+    const sourceCommit = git(worktree, ['rev-parse', '--short', 'HEAD']);
+    appendStageEvent(worktree, {
+      schemaVersion: 'fb-stage-event-v1', eventId: 'event-session-summary', timestamp: '2026-07-26T00:00:00.000Z',
+      runId: 'run-session-summary', sessionId: 'control-loop-summary', taskId: 'TASK-001', stage: 'verification',
+      capability: 'focused-check', attempt: 1, decision: 'process', result: 'passed', artifactRef: 'src/app.js',
+      baselineRef: 'src/app.js', candidateRef: null, criteriaIds: ['criterion-session-summary'],
+      evidenceRefs: ['docs/handoffs/TASK-001.md#verification-handoff'], failureClass: null, durationMs: 4,
+      inputTokens: 'unavailable', outputTokens: 'unavailable', cost: 'unavailable', nextAction: 'Retain the summary link only.',
+    });
+    appendEvidence(worktree, 'control-loop-summary', 'TASK-001', sourceCommit);
+    fs.appendFileSync(recapPath(worktree, 'control-loop-summary'), '\nStage event summary: [run-session-summary](fb-lane/events/run-session-summary.jsonl) (1 event).\n');
+    assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'control-loop-summary']));
+  } finally {
+    fixture.cleanup();
+  }
+
+  const copied = createRepo();
+  try {
+    const worktree = addWorktree(copied, 'session/control-loop-copied');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'control-loop-copied'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 23;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: copied event source']);
+    const sourceCommit = git(worktree, ['rev-parse', '--short', 'HEAD']);
+    appendEvidence(worktree, 'control-loop-copied', 'TASK-001', sourceCommit);
+    fs.appendFileSync(recapPath(worktree, 'control-loop-copied'), '\nStage event summary: [run-session-copied](fb-lane/events/run-session-copied.jsonl) (1 event).\n{"schemaVersion":"fb-stage-event-v1","eventId":"copied-event"}\n');
+    assertFailed(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'control-loop-copied']), /stage event|JSONL|copy/i);
+  } finally {
+    copied.cleanup();
+  }
+
+  const malformed = createRepo();
+  try {
+    const worktree = addWorktree(malformed, 'session/control-loop-malformed');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'control-loop-malformed'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 24;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: malformed summary source']);
+    const sourceCommit = git(worktree, ['rev-parse', '--short', 'HEAD']);
+    appendStageEvent(worktree, {
+      schemaVersion: 'fb-stage-event-v1', eventId: 'event-session-malformed', timestamp: '2026-07-26T00:00:00.000Z',
+      runId: 'run-session-malformed', sessionId: 'control-loop-malformed', taskId: 'TASK-001', stage: 'verification',
+      capability: 'focused-check', attempt: 1, decision: 'process', result: 'passed', artifactRef: 'src/app.js',
+      baselineRef: 'src/app.js', candidateRef: null, criteriaIds: ['criterion-session-summary'],
+      evidenceRefs: ['docs/handoffs/TASK-001.md#verification-handoff'], failureClass: null, durationMs: 4,
+      inputTokens: 'unavailable', outputTokens: 'unavailable', cost: 'unavailable', nextAction: 'Retain the summary link only.',
+    });
+    appendEvidence(worktree, 'control-loop-malformed', 'TASK-001', sourceCommit);
+    fs.appendFileSync(recapPath(worktree, 'control-loop-malformed'), '\nStage event summary: [run-session-malformed](fb-lane/events/run-session-malformed.jsonl) (1 event).\nStage event summary: [run-session-malformed](fb-lane/events/run-session-malformed.jsonl) (one event).\n');
+    assertFailed(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'control-loop-malformed']), /stage event|summary|count/i);
+  } finally {
+    malformed.cleanup();
   }
 });
 

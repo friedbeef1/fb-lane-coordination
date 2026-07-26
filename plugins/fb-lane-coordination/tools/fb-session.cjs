@@ -5,8 +5,9 @@ const fs = require('fs');
 const path = require('path');
 const { execFileSync, spawnSync } = require('child_process');
 const { assertSelectedEvalCloseout, validateSelectedEvalIntegration } = require('./fb-eval.cjs');
-const { automatedVerificationDecision, selectAutomatedChecks } = require('./fb-efficiency.cjs');
+const { automatedVerificationDecision, selectAutomatedChecks, classifyExecutionMode } = require('./fb-efficiency.cjs');
 const { assertFullBfmChangelog } = require('./fb-changelog-closeout.cjs');
+const { assertStageEventSummaryMarkdown } = require('./fb-control-loop.cjs');
 
 const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const LANES = new Set(['product', 'tech', 'design', 'business', 'discovery', 'bugs', 'bfm', 'coordination']);
@@ -396,6 +397,27 @@ function readBoardTask(repoRoot, taskId) {
   };
 }
 
+function readFullBfmAuthority(cwd, sessionId) {
+  const record = readSession(cwd, sessionId);
+  if (record.state !== 'active' || record.mode !== 'execution' || record.lane !== 'bfm') {
+    throw new Error('Full repair budgets require an active BFM execution session.');
+  }
+  const repoRoot = gitRoot(cwd);
+  const task = readBoardTask(repoRoot, record.taskId);
+  if (!task || task.status !== 'In Progress' || !task.approved || task.handoff !== record.handoff) {
+    throw new Error('Full repair budgets require the current approved In Progress task and linked handoff.');
+  }
+  if (classifyExecutionMode({ ...task, approval: task.approved ? 'approved' : '', successCriteria: 'authoritative session route' }, { requiresRecord: true }).mode !== 'Full BFM') {
+    throw new Error('Full repair budgets require an authoritative Full BFM route.');
+  }
+  const handoffPath = path.join(repoRoot, record.handoff);
+  if (!fs.existsSync(handoffPath)) throw new Error('Full repair budgets require the authoritative linked handoff.');
+  const handoff = fs.readFileSync(handoffPath, 'utf8');
+  const match = handoff.match(/^Product decision version:\s*([A-Za-z0-9][A-Za-z0-9._-]{0,127})\s*$/mi);
+  if (!match) throw new Error('Full repair budgets require a durable Product decision version in the linked handoff.');
+  return { sessionId: record.sessionId, taskId: record.taskId, decisionVersion: match[1] };
+}
+
 function recapMarkdown(record, task) {
   const handoffLink = record.handoff ? `../handoffs/${path.basename(record.handoff)}` : '';
   const scope = task && task.scope ? task.scope : `Coordinate ${record.taskId} within the selected ${record.mode} mode.`;
@@ -771,7 +793,7 @@ function assertStructuredFailures(markdown) {
   }
 }
 
-function assertCheckpointEvidence(reason, recap, handoff, record) {
+function assertCheckpointEvidence(reason, recap, handoff, record, cwd) {
   const combined = `${recap}\n${handoff}`;
   assertCuratedPrivacy(combined);
   assertStructuredFailures(combined);
@@ -788,6 +810,7 @@ function assertCheckpointEvidence(reason, recap, handoff, record) {
       throw new Error('Blocked checkpoint requires a concrete Blocker and actionable Next action.');
     }
   } else if (reason === 'verification') {
+    assertStageEventSummaryMarkdown(combined, cwd);
     const hasCommit = /\b[0-9a-f]{7,40}\b/i.test(combined);
     const checks = fieldValue(combined, 'Commands and results') || fieldValue(combined, 'Checks, failures, recovery, and results');
     const limits = fieldValue(combined, 'Known limits');
@@ -902,7 +925,7 @@ function checkpointSessionLocked(cwd, sessionId, reason, env) {
   }
   const recap = fs.readFileSync(recapPath, 'utf8');
   const handoff = fs.readFileSync(handoffPath, 'utf8');
-  assertCheckpointEvidence(reason, recap, handoff, record);
+  assertCheckpointEvidence(reason, recap, handoff, record, cwd);
   const baseCommit = git(cwd, ['rev-parse', 'HEAD']).stdout;
   mutateSession(cwd, sessionId, current => {
     current.pendingCheckpoint = {
@@ -1068,6 +1091,7 @@ function closeSessionLocked(cwd, sessionId, outcome, env) {
       if (!actionable(fieldValue(closeout, label))) throw new Error(`${outcome} close requires a concrete ${label}.`);
     }
   }
+  require('./fb-control-loop.cjs').closeFullRepairBudgetsForSession(cwd, sessionId, `Session closed with outcome ${outcome}.`);
   return mutateSession(cwd, sessionId, current => {
     const at = new Date().toISOString();
     current.state = 'closed';
@@ -1369,6 +1393,8 @@ module.exports = {
   readSession,
   listSessions,
   withRegistryLock,
+  withSessionMutationLock,
+  readFullBfmAuthority,
   computedState,
   verificationReuseDecision,
   recordAutomatedVerification,

@@ -8,9 +8,25 @@ FB currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
 setup paths when you are not installing through the plugin flow.
 
-The current local release candidate is **FB 0.4.0-beta** build
-`0.4.0-beta+codex.20260726101229`. Installation remains part of the later
+The current local release candidate is **FB 0.5.0-beta** build
+`0.5.0-beta+codex.20260726130257`. Installation remains part of the later
 release checkpoint, not this candidate-build step.
+
+Projects that need the optional generic agent control loop declare it in the
+approved Build Brief. They may also provide repository-relative manifest paths:
+
+```json
+{
+  "controlLoop": {
+    "enabled": true,
+    "profileManifest": "config/fb/control-loop-profiles.json",
+    "goldenManifest": "config/fb/control-loop-golden.json"
+  }
+}
+```
+
+Omitting this block preserves the normal six-workstream workflow. FB selects
+internal execution treatment; users do not choose Normal, Quick, or Full BFM.
 
 ## AI-Powered Bootstrap
 
@@ -19,7 +35,7 @@ If you already have an AI agent open in your target project workspace, paste thi
 ```text
 I want to bootstrap the FB coordination plugin in this workspace.
 Read the template files and CLI utilities from the fb-lane-coordination repository.
-Use the documented archive fallback so the five runtime modules, all seven docs/fb pages, and both docs/evals template assets arrive together.
+Use the documented archive fallback so the runtime modules, all ten docs/fb pages, and both docs/evals template assets arrive together.
 Run node tools/fb-lane.cjs bootstrap to set up my project board, lane rules, Codex rules, and handoff routing.
 Do not overwrite existing project rules; merge with them conservatively.
 ```
@@ -37,8 +53,8 @@ fb_lane_tmp="$(mktemp -d)"
 trap 'rm -rf "$fb_lane_tmp"' EXIT
 curl -fsSL "$FB_LANE_ARCHIVE_URL" | tar -xz -C "$fb_lane_tmp" --strip-components=1
 mkdir -p tools docs/fb docs/evals
-cp "$fb_lane_tmp"/tools/fb-{lane,session,eval,efficiency,changelog-closeout,records,project-graph}.cjs tools/
-cp "$fb_lane_tmp"/docs/fb/{README,start,workflow,evidence,guardrails,sessions,evals,records,graph}.md docs/fb/
+cp "$fb_lane_tmp"/tools/fb-{lane,session,eval,efficiency,changelog-closeout,records,project-graph,control-loop}.cjs tools/
+cp "$fb_lane_tmp"/docs/fb/{README,start,workflow,evidence,guardrails,sessions,evals,records,graph,control-loop}.md docs/fb/
 cp "$fb_lane_tmp"/docs/evals/{eval-record-template,agent-behavior-scorecard-template}.md docs/evals/
 node tools/fb-lane.cjs bootstrap
 ```
@@ -49,7 +65,7 @@ What bootstrap creates:
 - lane boundary rules in `AGENTS.md`
 - local Codex rules in `.codex/rules.md`
 - handoff routing index in `docs/handoffs/index.md`
-- the nine-page harness, including `docs/fb/sessions.md`, `docs/fb/evals.md`, `docs/fb/records.md`, and `docs/fb/graph.md`
+- the ten-page harness, including `docs/fb/sessions.md`, `docs/fb/evals.md`, `docs/fb/records.md`, `docs/fb/graph.md`, and `docs/fb/control-loop.md`
 - Codex-ready lane guidance
 
 ## Upgrade Existing Codex Plugin Install
@@ -132,7 +148,7 @@ the bounded low-risk rules in [workflow.md](fb/workflow.md) pass.
 Repository-local sessions keep transcript-free JSON under the Git common
 directory and curated recaps in `docs/sessions/`. Upgrades preserve all
 project-owned instruction text outside the managed FB route markers and refresh
-the bundled nine-page harness. Before removing the plugin, close or preserve any
+the bundled ten-page harness. Before removing the plugin, close or preserve any
 active session evidence. Plugin removal does not delete project-owned boards,
 handoffs, recaps, or instructions. If no session command is running, optional
 clone-local cleanup may remove `fb-sessions` and a confirmed dead

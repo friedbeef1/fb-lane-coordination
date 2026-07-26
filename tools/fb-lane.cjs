@@ -2823,7 +2823,7 @@ function handleMcpRequest(request) {
   // Ignore other JSON-RPC methods (like notifications)
 }
 
-const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md'];
+const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md', 'control-loop.md'];
 const FB_HARNESS_ROUTE_START = '<!-- fb-harness-route-start -->';
 const FB_HARNESS_ROUTE_END = '<!-- fb-harness-route-end -->';
 
@@ -2859,6 +2859,8 @@ or MCP \`fb_lane_status({details:true})\`.
   [records.md](docs/fb/records.md)
 - Graph-directed targeted reading and safe fallback:
   [graph.md](docs/fb/graph.md)
+- Rules-first routing, pairwise QA, layered gates, and bounded configuration
+  evolution: [control-loop.md](docs/fb/control-loop.md)
 
 Project-specific instructions and stricter safety rules win.
 ${FB_HARNESS_ROUTE_END}`;

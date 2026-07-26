@@ -1,5 +1,10 @@
 # Repository-Local Sessions
 
+Opted-in [control-loop](control-loop.md) stage events are clone-local
+operational evidence. Verification checkpoints record links and counts only;
+session recaps never copy JSONL, transcripts, raw prompts, complete outputs,
+private reasoning, secrets, or environment values.
+
 Session recaps are curated pointers, not another source of task truth. Follow
 [records.md](records.md) for authoritative homes, verification fingerprints,
 compact closeout, privacy-safe logs, and local efficiency metrics.
@@ -189,9 +194,9 @@ review.
 
 ## Install, upgrade, and removal
 
-Bootstrap confirms the nine-page harness and adds or refreshes only the managed
+Bootstrap confirms the ten-page harness and adds or refreshes only the managed
 FB route block in project-owned instructions. Upgrades replace the bundled
-nine-page pack and managed route while preserving all text outside the markers.
+ten-page pack and managed route while preserving all text outside the markers.
 For cleanup, close or preserve active session evidence first, then remove the
 clone-local `fb-sessions` directory and dead mutation lock from the Git common
 directory if no session command is running. Plugin removal does not delete

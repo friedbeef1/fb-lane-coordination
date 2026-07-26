@@ -1,5 +1,9 @@
 # Safety, recovery, and learning
 
+The [generic control loop](control-loop.md) inherits every safety, approval,
+repair, time, and release boundary here. Routing cannot bypass a safety trigger;
+diagnosis cannot create extra repair loops; a candidate cannot promote itself.
+
 Use the risk-triggered review and event-driven health-check rules in
 [records.md](records.md). Sensitive, cross-lane, unclear-scope, and release
 triggers always override the light path.

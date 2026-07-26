@@ -17,6 +17,13 @@ const {
 } = require('./fb-session.cjs');
 const { assertFullBfmChangelog } = require('./fb-changelog-closeout.cjs');
 const { collectEvalDoctorChecks } = require('./fb-eval.cjs');
+const {
+  REQUIRED_EVENT_FIELDS,
+  routeArtifact,
+  validateStageEvent,
+  appendStageEvent,
+  collectControlLoopDoctorChecks,
+} = require('./fb-control-loop.cjs');
 const { validateNormalizedRepository } = require('./fb-records.cjs');
 const { projectContextPacket } = require('./fb-project-graph.cjs');
 const {
@@ -32,6 +39,50 @@ const {
 } = require('./fb-efficiency.cjs');
 
 const FB_MODEL_LINE = ['FB 0.2.0-beta:', 'AI', 'Loop', 'Engineering', 'for', 'Everyday', 'People'].join(' ');
+const CONTROL_EVENT_VALUE_SCHEMA = {
+  oneOf: [
+    { type: 'string' },
+    { type: 'number' },
+    { type: 'boolean' },
+    { type: 'null' },
+    { type: 'array', items: { type: 'string' } },
+  ],
+};
+const CONTROL_EVENT_PROPERTIES = Object.fromEntries(REQUIRED_EVENT_FIELDS.map(field => [field, CONTROL_EVENT_VALUE_SCHEMA]));
+Object.assign(CONTROL_EVENT_PROPERTIES, {
+  schemaVersion: { const: 'fb-stage-event-v1' },
+  eventId: { type: 'string', pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$' },
+  runId: { type: 'string', pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$' },
+  timestamp: { type: 'string', format: 'date-time' },
+  attempt: { type: 'integer', minimum: 0 },
+  criteriaIds: { type: 'array', items: { type: 'string', minLength: 1 } },
+  evidenceRefs: { type: 'array', items: { type: 'string', minLength: 1 } },
+  durationMs: { oneOf: [{ type: 'number', minimum: 0 }, { const: 'unavailable' }] },
+  inputTokens: { oneOf: [{ type: 'number', minimum: 0 }, { const: 'unavailable' }] },
+  outputTokens: { oneOf: [{ type: 'number', minimum: 0 }, { const: 'unavailable' }] },
+  cost: { oneOf: [{ type: 'number', minimum: 0 }, { const: 'unavailable' }] },
+});
+const CONTROL_EVENT_OUTPUT_SCHEMA = {
+  type: 'object',
+  description: 'Validated flat fb-stage-event-v1 record.',
+  properties: CONTROL_EVENT_PROPERTIES,
+  required: REQUIRED_EVENT_FIELDS,
+  additionalProperties: false,
+};
+const CONTROL_EVENT_MCP_SCHEMA = {
+  type: 'object',
+  description: 'Flat fb-stage-event-v1 record. Nested objects, transcripts, raw prompts, complete outputs, private reasoning, and secrets are rejected.',
+  properties: { ...CONTROL_EVENT_PROPERTIES, workspacePath: { type: 'string' } },
+  required: REQUIRED_EVENT_FIELDS,
+  additionalProperties: false,
+};
+
+function validateMcpStageEvent(event) {
+  for (const key of Object.keys(event)) {
+    if (!REQUIRED_EVENT_FIELDS.includes(key)) throw new Error(`MCP control event does not allow additional property ${key}.`);
+  }
+  return validateStageEvent(event);
+}
 
 function expandHome(filePath) {
   if (!filePath || typeof filePath !== 'string') {
@@ -1652,6 +1703,9 @@ function handleDoctor() {
     for (const check of collectEvalDoctorChecks(rootDir)) {
       add(check.level, check.label, check.detail, check.fix);
     }
+    for (const check of collectControlLoopDoctorChecks(rootDir)) {
+      add(check.level, check.label, check.detail, check.fix);
+    }
     const normalizedRecordFindings = validateNormalizedRepository(rootDir);
     if (normalizedRecordFindings.length > 0) {
       for (const finding of normalizedRecordFindings) {
@@ -2564,6 +2618,38 @@ function handleMcpRequest(request) {
           }
         },
         {
+          name: 'fb_control_event_validate',
+          description: 'Validate one privacy-safe, flat stage event without recording it. This does not evaluate product semantics or authorize a release.',
+          inputSchema: CONTROL_EVENT_MCP_SCHEMA,
+          outputSchema: CONTROL_EVENT_OUTPUT_SCHEMA
+        },
+        {
+          name: 'fb_control_event_record',
+          description: 'Validate and append one privacy-safe, flat stage event to the repository clone-local JSONL registry. It does not copy event JSONL into Markdown or authorize a release.',
+          inputSchema: CONTROL_EVENT_MCP_SCHEMA,
+          outputSchema: CONTROL_EVENT_OUTPUT_SCHEMA
+        },
+        {
+          name: 'fb_control_route',
+          description: 'Evaluate deterministic control-loop route rules. Safety and ambiguity return judgment_required; this tool never invokes an LLM or transformation.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              artifactRef: { type: 'string' },
+              description: { type: 'string' },
+              metadataRef: { type: 'string' },
+              criteriaIds: { type: 'array', items: { type: 'string' } },
+              costRisk: { type: 'string' },
+              degradationRisk: { type: 'string' },
+              safetyTriggers: { type: 'array', items: { type: 'string' } },
+              routeRules: { type: 'array' },
+              workspacePath: { type: 'string' }
+            },
+            required: ['artifactRef'],
+            additionalProperties: false
+          }
+        },
+        {
           name: 'fb_lane_claim',
           description: 'Claim a task from the board, checkout a feature branch, lock files, and commit the board update.',
           inputSchema: {
@@ -2610,6 +2696,7 @@ function handleMcpRequest(request) {
     const { name, arguments: toolArgs = {} } = params;
     try {
       let message = '';
+      let structuredContent;
       const boardPath = findBoardPath(resolveWorkspaceStart(toolArgs));
       if (!boardPath) {
         throw new Error('PROJECT_BOARD.md not found.');
@@ -2619,7 +2706,18 @@ function handleMcpRequest(request) {
       process.chdir(workspaceRoot);
 
       try {
-        if (name === 'fb_lane_status') {
+        if (name === 'fb_control_event_validate') {
+          const { workspacePath, ...event } = toolArgs;
+          structuredContent = validateMcpStageEvent(event);
+          message = JSON.stringify(structuredContent);
+        } else if (name === 'fb_control_event_record') {
+          const { workspacePath, ...event } = toolArgs;
+          structuredContent = appendStageEvent(workspaceRoot, validateMcpStageEvent(event));
+          message = JSON.stringify(structuredContent);
+        } else if (name === 'fb_control_route') {
+          const { workspacePath, ...input } = toolArgs;
+          message = JSON.stringify(routeArtifact(input));
+        } else if (name === 'fb_lane_status') {
           const { tasks } = parseBoard(boardPath);
           message = toolArgs.details
             ? renderTechnicalStatus(tasks, { format: 'mcp', workspaceRoot })
@@ -2704,14 +2802,16 @@ function handleMcpRequest(request) {
         process.chdir(previousCwd);
       }
 
-      return sendMcpResponse(id, {
+      const response = {
         content: [
           {
             type: 'text',
             text: message
           }
         ]
-      });
+      };
+      if (structuredContent) response.structuredContent = structuredContent;
+      return sendMcpResponse(id, response);
     } catch (err) {
       return sendMcpResponse(id, null, {
         code: -32603,
@@ -2723,7 +2823,7 @@ function handleMcpRequest(request) {
   // Ignore other JSON-RPC methods (like notifications)
 }
 
-const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md'];
+const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md', 'control-loop.md'];
 const FB_HARNESS_ROUTE_START = '<!-- fb-harness-route-start -->';
 const FB_HARNESS_ROUTE_END = '<!-- fb-harness-route-end -->';
 
@@ -2759,6 +2859,8 @@ or MCP \`fb_lane_status({details:true})\`.
   [records.md](docs/fb/records.md)
 - Graph-directed targeted reading and safe fallback:
   [graph.md](docs/fb/graph.md)
+- Rules-first routing, pairwise QA, layered gates, and bounded configuration
+  evolution: [control-loop.md](docs/fb/control-loop.md)
 
 Project-specific instructions and stricter safety rules win.
 ${FB_HARNESS_ROUTE_END}`;

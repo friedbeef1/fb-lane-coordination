@@ -1,5 +1,9 @@
 # Markdown Eval Lifecycle
 
+The optional [generic control loop](control-loop.md) may use selected eval
+evidence during diagnosis and frozen golden-fixture comparison. It does not
+semantically score work, promote eval authority, or replace Product approval.
+
 FB evals are curated Markdown evidence, not an autonomous judge. Product/BFM
 selects only scenarios relevant to the approved brief. Do not run all catalog evals.
 Mechanical checks remain deterministic. Product judgment remains explicit and visible.
