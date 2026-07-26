@@ -34,7 +34,19 @@ publication, release, merge, deployment, or consumer-project mutation.
 - New long-term projects begin with lightweight deterministic links.
 - Deeper mapping should expand automatically only when safe and useful.
 - The graph is a map of the loops, not another operating loop or source of
-  authority.
+authority.
+
+## Goal Alignment Session
+
+Product Goal: Reduce repeated context reconstruction without weakening FB's
+repository-local authority model.
+Workstream Goal: Determine whether a graduated graph can route agents to
+smaller authoritative context packets with preserved answer quality.
+Lane OKR Fit: aligned
+User Approval Needed: no
+Mini-loop Evidence: The controlled comparison kept 6/6 answers correct while
+reducing uncached input tokens, orientation content, and concurrent wall time.
+Evidence Against Product OKR: None identified.
 
 ## Assumptions
 

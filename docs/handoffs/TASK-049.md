@@ -15,6 +15,19 @@ okr_fit: aligned
 Integrate the demonstrated TASK-048 behavior as a read-only Codex-plugin route:
 use a minimal graph packet to select authoritative evidence, not to replace it.
 
+## Goal Alignment Session
+
+Product Goal: Make FB faster to orient in existing projects while preserving
+approved repository truth and safe fallback.
+Workstream Goal: Ship graph-directed plugin context that works with real
+repository task IDs and does not dirty consumer worktrees.
+Lane OKR Fit: aligned
+User Approval Needed: no
+Mini-loop Evidence: Root/package contracts passed and the real MÉJA smoke routed
+`MEJA-111` to its exact handoff and QA evidence while keeping `.fb/graph/`
+ignored.
+Evidence Against Product OKR: None identified.
+
 ## Scope
 
 - Add MCP `fb_project_context(taskId, question, workspacePath?)`.
