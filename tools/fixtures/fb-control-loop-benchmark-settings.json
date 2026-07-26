@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "fb-control-loop-benchmark-settings-v1",
+  "experimentId": "fb-control-loop-050-20260726",
+  "seeds": [11, 29, 47],
+  "costModel": {
+    "process": { "workUnits": 10, "tokenUnits": 1000, "minutes": 2 },
+    "comparison": { "workUnits": 2, "tokenUnits": 180, "minutes": 0.2 },
+    "qa": { "workUnits": 2, "tokenUnits": 150, "minutes": 0.15 },
+    "safety": { "workUnits": 1, "tokenUnits": 100, "minutes": 0.1 },
+    "diagnosis": { "workUnits": 3, "tokenUnits": 220, "minutes": 0.25 },
+    "repair": { "workUnits": 8, "tokenUnits": 800, "minutes": 1.5 },
+    "humanDecision": { "workUnits": 0, "tokenUnits": 0, "minutes": 1 }
+  },
+  "sensitivity": {
+    "sampleSize": 40,
+    "goodShares": [0.25, 0.5, 0.75],
+    "transformationReliabilities": [0.6, 0.8, 0.95],
+    "routerAccuracy": 0.88,
+    "repairSuccessRate": 0.6
+  }
+}

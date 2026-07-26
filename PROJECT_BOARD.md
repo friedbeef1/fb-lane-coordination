@@ -74,13 +74,17 @@
     *   **Approval**: approved — James approved the proposed generic integrated control-loop plan in the originating conversation.
     *   **Justification**: The design adopts useful modular routing, pairwise QA, structured evidence, layered gates, and benchmarked learning while rejecting autonomous production changes and transcript capture.
 *   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-26-fb-generic-agent-control-loop.md);
-    [handoff](docs/handoffs/TASK-050.md); [focused QA](docs/qa/TASK-050.md).
+    [handoff](docs/handoffs/TASK-050.md); [focused QA](docs/qa/TASK-050.md);
+    [quantified experiment](docs/benchmarks/control-loop/README.md).
 *   **Latest Update**: *2026-07-26*: Runtime/MCP 49/49, session 20 focused
     checks, eval 18/18, efficiency 20/20, CLI/bootstrap 70/70, six-workstream
     and six-skill compatibility, root/package documentation and metadata,
     changelog 13/13, Ready-to-ship 5/5, 48-mirror parity, syntax, targeted
-    links, and whitespace passed. Whole-branch review, changelog wording
-    approval, and the one complete release checkpoint remain pending.
+    links, and whitespace passed. Changelog wording is approved. The controlled
+    eight-case simulator measured 2/8 ready outcomes for process-all and 4/8
+    for FB, with higher gross modeled work but lower modeled work per accepted
+    outcome. Whole-branch review and the one complete release checkpoint remain
+    pending.
 
 ### TASK-049 - Graph-Directed Plugin Navigation
 

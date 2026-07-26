@@ -25,8 +25,8 @@ install `fb-lane-coordination@fb-lane`, and start a new Codex task to load
 `0.5.0-beta+codex.20260726130257`, the refreshed skills, harness, and bundled
 MCP server.
 
-**Changelog approval:** Pending James's approval of this wording before
-**Ready to ship**.
+**Changelog approval:** Approved by James in the originating conversation on
+2026-07-26.
 
 ## 0.4.0-beta — 2026-07-26
 

@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "fb-control-loop-benchmark-truth-v1",
+  "cases": [
+    {
+      "id": "good-preserve",
+      "category": "already-good",
+      "visible": { "route": "skip", "safetyTrigger": false },
+      "hidden": { "expectedDisposition": "skip", "failureClass": null },
+      "baseline": { "quality": true, "safety": true },
+      "transformation": { "quality": false, "safety": true },
+      "repair": null,
+      "fbExpectedToLose": false
+    },
+    {
+      "id": "clear-improvement",
+      "category": "needs-processing",
+      "visible": { "route": "process", "safetyTrigger": false },
+      "hidden": { "expectedDisposition": "process", "failureClass": null },
+      "baseline": { "quality": false, "safety": true },
+      "transformation": { "quality": true, "safety": true },
+      "repair": null,
+      "fbExpectedToLose": false
+    },
+    {
+      "id": "degradation-trap",
+      "category": "degraded-by-processing",
+      "visible": { "route": "process", "safetyTrigger": false },
+      "hidden": { "expectedDisposition": "skip", "failureClass": "Build" },
+      "baseline": { "quality": true, "safety": true },
+      "transformation": { "quality": false, "safety": true },
+      "repair": null,
+      "fbExpectedToLose": false
+    },
+    {
+      "id": "repairable-output",
+      "category": "repairable",
+      "visible": { "route": "process", "safetyTrigger": false },
+      "hidden": { "expectedDisposition": "process", "failureClass": "Build" },
+      "baseline": { "quality": false, "safety": true },
+      "transformation": { "quality": false, "safety": true },
+      "repair": { "quality": true, "safety": true },
+      "fbExpectedToLose": false
+    },
+    {
+      "id": "unresolved-output",
+      "category": "unresolved",
+      "visible": { "route": "process", "safetyTrigger": false },
+      "hidden": { "expectedDisposition": "process", "failureClass": "Brief" },
+      "baseline": { "quality": false, "safety": true },
+      "transformation": { "quality": false, "safety": true },
+      "repair": { "quality": false, "safety": true },
+      "fbExpectedToLose": false
+    },
+    {
+      "id": "ambiguous-wrong-skip",
+      "category": "ambiguous-route",
+      "visible": { "route": "judgment_required", "judgmentDecision": "skip", "safetyTrigger": false },
+      "hidden": { "expectedDisposition": "process", "failureClass": null },
+      "baseline": { "quality": false, "safety": true },
+      "transformation": { "quality": true, "safety": true },
+      "repair": null,
+      "fbExpectedToLose": true
+    },
+    {
+      "id": "safety-block",
+      "category": "safety-triggered",
+      "visible": { "route": "process", "safetyTrigger": true },
+      "hidden": { "expectedDisposition": "process", "failureClass": "Environment" },
+      "baseline": { "quality": false, "safety": true },
+      "transformation": { "quality": true, "safety": false },
+      "repair": null,
+      "fbExpectedToLose": false
+    },
+    {
+      "id": "misleading-quality",
+      "category": "misleading-candidate",
+      "visible": { "route": "process", "safetyTrigger": false },
+      "hidden": { "expectedDisposition": "process", "failureClass": "Eval" },
+      "baseline": { "quality": false, "safety": true },
+      "transformation": { "quality": true, "safety": false },
+      "repair": { "quality": true, "safety": false },
+      "fbExpectedToLose": false
+    }
+  ]
+}

@@ -10,10 +10,12 @@ Lane: FB-Product
   comparison, layered gates, bounded diagnosis, and evidence-bound isolated
   configuration evolution without autonomous production changes.
 - Release candidate: `0.5.0-beta+codex.20260726130257`.
-- Release gate: changelog wording approval, whole-branch review, one complete
-  release checkpoint, then **Push Live**.
+- Release gate: changelog wording approved by James on 2026-07-26;
+  whole-branch review and one complete release checkpoint remain before
+  **Push Live**.
 - Links: [Handoff](../handoffs/TASK-050.md), [control loop](../fb/control-loop.md),
-  [QA](../qa/TASK-050.md).
+  [QA](../qa/TASK-050.md), and
+  [quantified experiment](../benchmarks/control-loop/README.md).
 
 ## TASK-048 — FB graduated project graph
 

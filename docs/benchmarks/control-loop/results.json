@@ -1,0 +1,1809 @@
+{
+  "schemaVersion": "fb-control-loop-benchmark-result-v1",
+  "experimentId": "fb-control-loop-050-20260726",
+  "evidenceType": {
+    "counts": "directly observed deterministic simulator counts",
+    "tokenAndTime": "modeled estimates from the fixed cost model, not observed Codex usage",
+    "realWorld": "unmeasured"
+  },
+  "inputs": {
+    "caseIds": [
+      "good-preserve",
+      "clear-improvement",
+      "degradation-trap",
+      "repairable-output",
+      "unresolved-output",
+      "ambiguous-wrong-skip",
+      "safety-block",
+      "misleading-quality"
+    ],
+    "armOrder": [
+      "baseline",
+      "fb-control-loop"
+    ],
+    "seeds": [
+      11,
+      29,
+      47
+    ],
+    "sensitivity": {
+      "sampleSize": 40,
+      "goodShares": [
+        0.25,
+        0.5,
+        0.75
+      ],
+      "transformationReliabilities": [
+        0.6,
+        0.8,
+        0.95
+      ],
+      "routerAccuracy": 0.88,
+      "repairSuccessRate": 0.6
+    }
+  },
+  "costModel": {
+    "process": {
+      "workUnits": 10,
+      "tokenUnits": 1000,
+      "minutes": 2
+    },
+    "comparison": {
+      "workUnits": 2,
+      "tokenUnits": 180,
+      "minutes": 0.2
+    },
+    "qa": {
+      "workUnits": 2,
+      "tokenUnits": 150,
+      "minutes": 0.15
+    },
+    "safety": {
+      "workUnits": 1,
+      "tokenUnits": 100,
+      "minutes": 0.1
+    },
+    "diagnosis": {
+      "workUnits": 3,
+      "tokenUnits": 220,
+      "minutes": 0.25
+    },
+    "repair": {
+      "workUnits": 8,
+      "tokenUnits": 800,
+      "minutes": 1.5
+    },
+    "humanDecision": {
+      "workUnits": 0,
+      "tokenUnits": 0,
+      "minutes": 1
+    }
+  },
+  "hashes": {
+    "truth": "c10eb150023097fa69f75739f54ab3ad125b89b3bacd8ee5f0f99b8236ed12c0",
+    "settings": "f2124705af7317941dd6084f24585f8d478999fd6ff9b714a4c5e2125dee8e64",
+    "costModel": "012901a8e8311474bcaed165b9382f4dab38c9ea6281820588c31849acabe10e",
+    "grader": "2dd82cbe9b371dc82f350e3a09ef81859b5c7378e50441a6d6cfc9952916fada",
+    "seeds": "8c3598742bd3db5b46521974773964aca87fb75c16a00efa90781758078b03fd"
+  },
+  "rawRecords": [
+    {
+      "caseId": "good-preserve",
+      "category": "already-good",
+      "arm": "baseline",
+      "disposition": "process",
+      "dispositionCorrect": false,
+      "accepted": false,
+      "baselineDegraded": true,
+      "unnecessaryProcessing": true,
+      "diagnosedFailure": null,
+      "diagnosisCorrect": null,
+      "unresolvedFailure": true,
+      "calls": {
+        "process": 1,
+        "comparison": 0,
+        "qa": 1,
+        "safety": 0,
+        "diagnosis": 0,
+        "repair": 0,
+        "humanDecision": 0
+      },
+      "workUnits": 12,
+      "modeledTokenUnits": 1150,
+      "modeledMinutes": 2.15,
+      "result": "rejected by final QA"
+    },
+    {
+      "caseId": "good-preserve",
+      "category": "already-good",
+      "arm": "fb-control-loop",
+      "disposition": "skip",
+      "dispositionCorrect": true,
+      "accepted": true,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": false,
+      "diagnosedFailure": null,
+      "diagnosisCorrect": null,
+      "unresolvedFailure": false,
+      "calls": {
+        "process": 0,
+        "comparison": 0,
+        "qa": 0,
+        "safety": 0,
+        "diagnosis": 0,
+        "repair": 0,
+        "humanDecision": 0
+      },
+      "workUnits": 0,
+      "modeledTokenUnits": 0,
+      "modeledMinutes": 0,
+      "result": "preserved baseline"
+    },
+    {
+      "caseId": "clear-improvement",
+      "category": "needs-processing",
+      "arm": "baseline",
+      "disposition": "process",
+      "dispositionCorrect": true,
+      "accepted": true,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": false,
+      "diagnosedFailure": null,
+      "diagnosisCorrect": null,
+      "unresolvedFailure": false,
+      "calls": {
+        "process": 1,
+        "comparison": 0,
+        "qa": 1,
+        "safety": 0,
+        "diagnosis": 0,
+        "repair": 0,
+        "humanDecision": 0
+      },
+      "workUnits": 12,
+      "modeledTokenUnits": 1150,
+      "modeledMinutes": 2.15,
+      "result": "accepted transformed candidate"
+    },
+    {
+      "caseId": "clear-improvement",
+      "category": "needs-processing",
+      "arm": "fb-control-loop",
+      "disposition": "process",
+      "dispositionCorrect": true,
+      "accepted": true,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": false,
+      "diagnosedFailure": null,
+      "diagnosisCorrect": null,
+      "unresolvedFailure": false,
+      "calls": {
+        "process": 1,
+        "comparison": 1,
+        "qa": 1,
+        "safety": 1,
+        "diagnosis": 0,
+        "repair": 0,
+        "humanDecision": 0
+      },
+      "workUnits": 15,
+      "modeledTokenUnits": 1430,
+      "modeledMinutes": 2.45,
+      "result": "accepted transformed candidate"
+    },
+    {
+      "caseId": "degradation-trap",
+      "category": "degraded-by-processing",
+      "arm": "baseline",
+      "disposition": "process",
+      "dispositionCorrect": false,
+      "accepted": false,
+      "baselineDegraded": true,
+      "unnecessaryProcessing": true,
+      "diagnosedFailure": null,
+      "diagnosisCorrect": null,
+      "unresolvedFailure": true,
+      "calls": {
+        "process": 1,
+        "comparison": 0,
+        "qa": 1,
+        "safety": 0,
+        "diagnosis": 0,
+        "repair": 0,
+        "humanDecision": 0
+      },
+      "workUnits": 12,
+      "modeledTokenUnits": 1150,
+      "modeledMinutes": 2.15,
+      "result": "rejected by final QA"
+    },
+    {
+      "caseId": "degradation-trap",
+      "category": "degraded-by-processing",
+      "arm": "fb-control-loop",
+      "disposition": "process",
+      "dispositionCorrect": false,
+      "accepted": true,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": true,
+      "diagnosedFailure": null,
+      "diagnosisCorrect": null,
+      "unresolvedFailure": false,
+      "calls": {
+        "process": 1,
+        "comparison": 1,
+        "qa": 1,
+        "safety": 1,
+        "diagnosis": 0,
+        "repair": 0,
+        "humanDecision": 0
+      },
+      "workUnits": 15,
+      "modeledTokenUnits": 1430,
+      "modeledMinutes": 2.45,
+      "result": "comparison preserved better baseline"
+    },
+    {
+      "caseId": "repairable-output",
+      "category": "repairable",
+      "arm": "baseline",
+      "disposition": "process",
+      "dispositionCorrect": true,
+      "accepted": false,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": false,
+      "diagnosedFailure": null,
+      "diagnosisCorrect": null,
+      "unresolvedFailure": true,
+      "calls": {
+        "process": 1,
+        "comparison": 0,
+        "qa": 1,
+        "safety": 0,
+        "diagnosis": 0,
+        "repair": 0,
+        "humanDecision": 0
+      },
+      "workUnits": 12,
+      "modeledTokenUnits": 1150,
+      "modeledMinutes": 2.15,
+      "result": "rejected by final QA"
+    },
+    {
+      "caseId": "repairable-output",
+      "category": "repairable",
+      "arm": "fb-control-loop",
+      "disposition": "process",
+      "dispositionCorrect": true,
+      "accepted": true,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": false,
+      "diagnosedFailure": "Build",
+      "diagnosisCorrect": true,
+      "unresolvedFailure": false,
+      "calls": {
+        "process": 1,
+        "comparison": 1,
+        "qa": 1,
+        "safety": 1,
+        "diagnosis": 1,
+        "repair": 1,
+        "humanDecision": 0
+      },
+      "workUnits": 26,
+      "modeledTokenUnits": 2450,
+      "modeledMinutes": 4.2,
+      "result": "accepted bounded repair"
+    },
+    {
+      "caseId": "unresolved-output",
+      "category": "unresolved",
+      "arm": "baseline",
+      "disposition": "process",
+      "dispositionCorrect": true,
+      "accepted": false,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": false,
+      "diagnosedFailure": null,
+      "diagnosisCorrect": null,
+      "unresolvedFailure": true,
+      "calls": {
+        "process": 1,
+        "comparison": 0,
+        "qa": 1,
+        "safety": 0,
+        "diagnosis": 0,
+        "repair": 0,
+        "humanDecision": 0
+      },
+      "workUnits": 12,
+      "modeledTokenUnits": 1150,
+      "modeledMinutes": 2.15,
+      "result": "rejected by final QA"
+    },
+    {
+      "caseId": "unresolved-output",
+      "category": "unresolved",
+      "arm": "fb-control-loop",
+      "disposition": "process",
+      "dispositionCorrect": true,
+      "accepted": false,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": false,
+      "diagnosedFailure": "Brief",
+      "diagnosisCorrect": true,
+      "unresolvedFailure": true,
+      "calls": {
+        "process": 1,
+        "comparison": 1,
+        "qa": 1,
+        "safety": 1,
+        "diagnosis": 1,
+        "repair": 1,
+        "humanDecision": 0
+      },
+      "workUnits": 26,
+      "modeledTokenUnits": 2450,
+      "modeledMinutes": 4.2,
+      "result": "bounded repair unresolved"
+    },
+    {
+      "caseId": "ambiguous-wrong-skip",
+      "category": "ambiguous-route",
+      "arm": "baseline",
+      "disposition": "process",
+      "dispositionCorrect": true,
+      "accepted": true,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": false,
+      "diagnosedFailure": null,
+      "diagnosisCorrect": null,
+      "unresolvedFailure": false,
+      "calls": {
+        "process": 1,
+        "comparison": 0,
+        "qa": 1,
+        "safety": 0,
+        "diagnosis": 0,
+        "repair": 0,
+        "humanDecision": 0
+      },
+      "workUnits": 12,
+      "modeledTokenUnits": 1150,
+      "modeledMinutes": 2.15,
+      "result": "accepted transformed candidate"
+    },
+    {
+      "caseId": "ambiguous-wrong-skip",
+      "category": "ambiguous-route",
+      "arm": "fb-control-loop",
+      "disposition": "skip",
+      "dispositionCorrect": false,
+      "accepted": false,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": false,
+      "diagnosedFailure": null,
+      "diagnosisCorrect": null,
+      "unresolvedFailure": true,
+      "calls": {
+        "process": 0,
+        "comparison": 0,
+        "qa": 0,
+        "safety": 0,
+        "diagnosis": 0,
+        "repair": 0,
+        "humanDecision": 1
+      },
+      "workUnits": 0,
+      "modeledTokenUnits": 0,
+      "modeledMinutes": 1,
+      "result": "preserved baseline"
+    },
+    {
+      "caseId": "safety-block",
+      "category": "safety-triggered",
+      "arm": "baseline",
+      "disposition": "process",
+      "dispositionCorrect": true,
+      "accepted": false,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": false,
+      "diagnosedFailure": null,
+      "diagnosisCorrect": null,
+      "unresolvedFailure": true,
+      "calls": {
+        "process": 1,
+        "comparison": 0,
+        "qa": 1,
+        "safety": 0,
+        "diagnosis": 0,
+        "repair": 0,
+        "humanDecision": 0
+      },
+      "workUnits": 12,
+      "modeledTokenUnits": 1150,
+      "modeledMinutes": 2.15,
+      "result": "rejected by final QA"
+    },
+    {
+      "caseId": "safety-block",
+      "category": "safety-triggered",
+      "arm": "fb-control-loop",
+      "disposition": "process",
+      "dispositionCorrect": true,
+      "accepted": false,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": false,
+      "diagnosedFailure": "Environment",
+      "diagnosisCorrect": true,
+      "unresolvedFailure": true,
+      "calls": {
+        "process": 1,
+        "comparison": 1,
+        "qa": 1,
+        "safety": 1,
+        "diagnosis": 1,
+        "repair": 0,
+        "humanDecision": 0
+      },
+      "workUnits": 18,
+      "modeledTokenUnits": 1650,
+      "modeledMinutes": 2.7,
+      "result": "diagnosed failed candidate"
+    },
+    {
+      "caseId": "misleading-quality",
+      "category": "misleading-candidate",
+      "arm": "baseline",
+      "disposition": "process",
+      "dispositionCorrect": true,
+      "accepted": false,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": false,
+      "diagnosedFailure": null,
+      "diagnosisCorrect": null,
+      "unresolvedFailure": true,
+      "calls": {
+        "process": 1,
+        "comparison": 0,
+        "qa": 1,
+        "safety": 0,
+        "diagnosis": 0,
+        "repair": 0,
+        "humanDecision": 0
+      },
+      "workUnits": 12,
+      "modeledTokenUnits": 1150,
+      "modeledMinutes": 2.15,
+      "result": "rejected by final QA"
+    },
+    {
+      "caseId": "misleading-quality",
+      "category": "misleading-candidate",
+      "arm": "fb-control-loop",
+      "disposition": "process",
+      "dispositionCorrect": true,
+      "accepted": false,
+      "baselineDegraded": false,
+      "unnecessaryProcessing": false,
+      "diagnosedFailure": "Eval",
+      "diagnosisCorrect": true,
+      "unresolvedFailure": true,
+      "calls": {
+        "process": 1,
+        "comparison": 1,
+        "qa": 1,
+        "safety": 1,
+        "diagnosis": 1,
+        "repair": 1,
+        "humanDecision": 0
+      },
+      "workUnits": 26,
+      "modeledTokenUnits": 2450,
+      "modeledMinutes": 4.2,
+      "result": "bounded repair unresolved"
+    }
+  ],
+  "summary": {
+    "arms": {
+      "baseline": {
+        "caseCount": 8,
+        "acceptedCount": 2,
+        "acceptedRate": 0.25,
+        "unnecessaryProcessingCount": 2,
+        "unnecessaryProcessingRate": 0.25,
+        "baselineDegradationCount": 2,
+        "correctDispositionCount": 6,
+        "correctDispositionRate": 0.75,
+        "diagnosedFailureCount": 0,
+        "diagnosedFailureAccuracy": null,
+        "repairAttempts": 0,
+        "unresolvedFailures": 6,
+        "humanDecisionEvents": 0,
+        "calls": {
+          "process": 8,
+          "comparison": 0,
+          "qa": 8,
+          "safety": 0,
+          "diagnosis": 0,
+          "repair": 0,
+          "humanDecision": 0
+        },
+        "workUnits": 96,
+        "modeledTokenUnits": 9200,
+        "modeledMinutes": 17.2,
+        "workUnitsPerAccepted": 48,
+        "modeledTokenUnitsPerAccepted": 4600
+      },
+      "fbControlLoop": {
+        "caseCount": 8,
+        "acceptedCount": 4,
+        "acceptedRate": 0.5,
+        "unnecessaryProcessingCount": 1,
+        "unnecessaryProcessingRate": 0.125,
+        "baselineDegradationCount": 0,
+        "correctDispositionCount": 6,
+        "correctDispositionRate": 0.75,
+        "diagnosedFailureCount": 4,
+        "diagnosedFailureAccuracy": 1,
+        "repairAttempts": 3,
+        "unresolvedFailures": 4,
+        "humanDecisionEvents": 1,
+        "calls": {
+          "process": 6,
+          "comparison": 6,
+          "qa": 6,
+          "safety": 6,
+          "diagnosis": 4,
+          "repair": 3,
+          "humanDecision": 1
+        },
+        "workUnits": 126,
+        "modeledTokenUnits": 11860,
+        "modeledMinutes": 21.2,
+        "workUnitsPerAccepted": 31.5,
+        "modeledTokenUnitsPerAccepted": 2965
+      }
+    },
+    "signedDifferenceFbMinusBaseline": {
+      "acceptedRate": 0.25,
+      "unnecessaryProcessingRate": -0.125,
+      "baselineDegradationCount": -2,
+      "correctDispositionRate": 0,
+      "repairAttempts": 3,
+      "unresolvedFailures": -2,
+      "humanDecisionEvents": 1,
+      "workUnits": 30,
+      "modeledTokenUnits": 2660,
+      "modeledMinutes": 4,
+      "workUnitsPerAccepted": -16.5,
+      "modeledTokenUnitsPerAccepted": -1635
+    },
+    "byCategory": {
+      "already-good": {
+        "baseline": {
+          "caseCount": 1,
+          "acceptedCount": 0,
+          "acceptedRate": 0,
+          "unnecessaryProcessingCount": 1,
+          "unnecessaryProcessingRate": 1,
+          "baselineDegradationCount": 1,
+          "correctDispositionCount": 0,
+          "correctDispositionRate": 0,
+          "diagnosedFailureCount": 0,
+          "diagnosedFailureAccuracy": null,
+          "repairAttempts": 0,
+          "unresolvedFailures": 1,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 0,
+            "qa": 1,
+            "safety": 0,
+            "diagnosis": 0,
+            "repair": 0,
+            "humanDecision": 0
+          },
+          "workUnits": 12,
+          "modeledTokenUnits": 1150,
+          "modeledMinutes": 2.15,
+          "workUnitsPerAccepted": null,
+          "modeledTokenUnitsPerAccepted": null
+        },
+        "fbControlLoop": {
+          "caseCount": 1,
+          "acceptedCount": 1,
+          "acceptedRate": 1,
+          "unnecessaryProcessingCount": 0,
+          "unnecessaryProcessingRate": 0,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 1,
+          "correctDispositionRate": 1,
+          "diagnosedFailureCount": 0,
+          "diagnosedFailureAccuracy": null,
+          "repairAttempts": 0,
+          "unresolvedFailures": 0,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 0,
+            "comparison": 0,
+            "qa": 0,
+            "safety": 0,
+            "diagnosis": 0,
+            "repair": 0,
+            "humanDecision": 0
+          },
+          "workUnits": 0,
+          "modeledTokenUnits": 0,
+          "modeledMinutes": 0,
+          "workUnitsPerAccepted": 0,
+          "modeledTokenUnitsPerAccepted": 0
+        }
+      },
+      "ambiguous-route": {
+        "baseline": {
+          "caseCount": 1,
+          "acceptedCount": 1,
+          "acceptedRate": 1,
+          "unnecessaryProcessingCount": 0,
+          "unnecessaryProcessingRate": 0,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 1,
+          "correctDispositionRate": 1,
+          "diagnosedFailureCount": 0,
+          "diagnosedFailureAccuracy": null,
+          "repairAttempts": 0,
+          "unresolvedFailures": 0,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 0,
+            "qa": 1,
+            "safety": 0,
+            "diagnosis": 0,
+            "repair": 0,
+            "humanDecision": 0
+          },
+          "workUnits": 12,
+          "modeledTokenUnits": 1150,
+          "modeledMinutes": 2.15,
+          "workUnitsPerAccepted": 12,
+          "modeledTokenUnitsPerAccepted": 1150
+        },
+        "fbControlLoop": {
+          "caseCount": 1,
+          "acceptedCount": 0,
+          "acceptedRate": 0,
+          "unnecessaryProcessingCount": 0,
+          "unnecessaryProcessingRate": 0,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 0,
+          "correctDispositionRate": 0,
+          "diagnosedFailureCount": 0,
+          "diagnosedFailureAccuracy": null,
+          "repairAttempts": 0,
+          "unresolvedFailures": 1,
+          "humanDecisionEvents": 1,
+          "calls": {
+            "process": 0,
+            "comparison": 0,
+            "qa": 0,
+            "safety": 0,
+            "diagnosis": 0,
+            "repair": 0,
+            "humanDecision": 1
+          },
+          "workUnits": 0,
+          "modeledTokenUnits": 0,
+          "modeledMinutes": 1,
+          "workUnitsPerAccepted": null,
+          "modeledTokenUnitsPerAccepted": null
+        }
+      },
+      "degraded-by-processing": {
+        "baseline": {
+          "caseCount": 1,
+          "acceptedCount": 0,
+          "acceptedRate": 0,
+          "unnecessaryProcessingCount": 1,
+          "unnecessaryProcessingRate": 1,
+          "baselineDegradationCount": 1,
+          "correctDispositionCount": 0,
+          "correctDispositionRate": 0,
+          "diagnosedFailureCount": 0,
+          "diagnosedFailureAccuracy": null,
+          "repairAttempts": 0,
+          "unresolvedFailures": 1,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 0,
+            "qa": 1,
+            "safety": 0,
+            "diagnosis": 0,
+            "repair": 0,
+            "humanDecision": 0
+          },
+          "workUnits": 12,
+          "modeledTokenUnits": 1150,
+          "modeledMinutes": 2.15,
+          "workUnitsPerAccepted": null,
+          "modeledTokenUnitsPerAccepted": null
+        },
+        "fbControlLoop": {
+          "caseCount": 1,
+          "acceptedCount": 1,
+          "acceptedRate": 1,
+          "unnecessaryProcessingCount": 1,
+          "unnecessaryProcessingRate": 1,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 0,
+          "correctDispositionRate": 0,
+          "diagnosedFailureCount": 0,
+          "diagnosedFailureAccuracy": null,
+          "repairAttempts": 0,
+          "unresolvedFailures": 0,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 1,
+            "qa": 1,
+            "safety": 1,
+            "diagnosis": 0,
+            "repair": 0,
+            "humanDecision": 0
+          },
+          "workUnits": 15,
+          "modeledTokenUnits": 1430,
+          "modeledMinutes": 2.45,
+          "workUnitsPerAccepted": 15,
+          "modeledTokenUnitsPerAccepted": 1430
+        }
+      },
+      "misleading-candidate": {
+        "baseline": {
+          "caseCount": 1,
+          "acceptedCount": 0,
+          "acceptedRate": 0,
+          "unnecessaryProcessingCount": 0,
+          "unnecessaryProcessingRate": 0,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 1,
+          "correctDispositionRate": 1,
+          "diagnosedFailureCount": 0,
+          "diagnosedFailureAccuracy": null,
+          "repairAttempts": 0,
+          "unresolvedFailures": 1,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 0,
+            "qa": 1,
+            "safety": 0,
+            "diagnosis": 0,
+            "repair": 0,
+            "humanDecision": 0
+          },
+          "workUnits": 12,
+          "modeledTokenUnits": 1150,
+          "modeledMinutes": 2.15,
+          "workUnitsPerAccepted": null,
+          "modeledTokenUnitsPerAccepted": null
+        },
+        "fbControlLoop": {
+          "caseCount": 1,
+          "acceptedCount": 0,
+          "acceptedRate": 0,
+          "unnecessaryProcessingCount": 0,
+          "unnecessaryProcessingRate": 0,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 1,
+          "correctDispositionRate": 1,
+          "diagnosedFailureCount": 1,
+          "diagnosedFailureAccuracy": 1,
+          "repairAttempts": 1,
+          "unresolvedFailures": 1,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 1,
+            "qa": 1,
+            "safety": 1,
+            "diagnosis": 1,
+            "repair": 1,
+            "humanDecision": 0
+          },
+          "workUnits": 26,
+          "modeledTokenUnits": 2450,
+          "modeledMinutes": 4.2,
+          "workUnitsPerAccepted": null,
+          "modeledTokenUnitsPerAccepted": null
+        }
+      },
+      "needs-processing": {
+        "baseline": {
+          "caseCount": 1,
+          "acceptedCount": 1,
+          "acceptedRate": 1,
+          "unnecessaryProcessingCount": 0,
+          "unnecessaryProcessingRate": 0,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 1,
+          "correctDispositionRate": 1,
+          "diagnosedFailureCount": 0,
+          "diagnosedFailureAccuracy": null,
+          "repairAttempts": 0,
+          "unresolvedFailures": 0,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 0,
+            "qa": 1,
+            "safety": 0,
+            "diagnosis": 0,
+            "repair": 0,
+            "humanDecision": 0
+          },
+          "workUnits": 12,
+          "modeledTokenUnits": 1150,
+          "modeledMinutes": 2.15,
+          "workUnitsPerAccepted": 12,
+          "modeledTokenUnitsPerAccepted": 1150
+        },
+        "fbControlLoop": {
+          "caseCount": 1,
+          "acceptedCount": 1,
+          "acceptedRate": 1,
+          "unnecessaryProcessingCount": 0,
+          "unnecessaryProcessingRate": 0,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 1,
+          "correctDispositionRate": 1,
+          "diagnosedFailureCount": 0,
+          "diagnosedFailureAccuracy": null,
+          "repairAttempts": 0,
+          "unresolvedFailures": 0,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 1,
+            "qa": 1,
+            "safety": 1,
+            "diagnosis": 0,
+            "repair": 0,
+            "humanDecision": 0
+          },
+          "workUnits": 15,
+          "modeledTokenUnits": 1430,
+          "modeledMinutes": 2.45,
+          "workUnitsPerAccepted": 15,
+          "modeledTokenUnitsPerAccepted": 1430
+        }
+      },
+      "repairable": {
+        "baseline": {
+          "caseCount": 1,
+          "acceptedCount": 0,
+          "acceptedRate": 0,
+          "unnecessaryProcessingCount": 0,
+          "unnecessaryProcessingRate": 0,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 1,
+          "correctDispositionRate": 1,
+          "diagnosedFailureCount": 0,
+          "diagnosedFailureAccuracy": null,
+          "repairAttempts": 0,
+          "unresolvedFailures": 1,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 0,
+            "qa": 1,
+            "safety": 0,
+            "diagnosis": 0,
+            "repair": 0,
+            "humanDecision": 0
+          },
+          "workUnits": 12,
+          "modeledTokenUnits": 1150,
+          "modeledMinutes": 2.15,
+          "workUnitsPerAccepted": null,
+          "modeledTokenUnitsPerAccepted": null
+        },
+        "fbControlLoop": {
+          "caseCount": 1,
+          "acceptedCount": 1,
+          "acceptedRate": 1,
+          "unnecessaryProcessingCount": 0,
+          "unnecessaryProcessingRate": 0,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 1,
+          "correctDispositionRate": 1,
+          "diagnosedFailureCount": 1,
+          "diagnosedFailureAccuracy": 1,
+          "repairAttempts": 1,
+          "unresolvedFailures": 0,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 1,
+            "qa": 1,
+            "safety": 1,
+            "diagnosis": 1,
+            "repair": 1,
+            "humanDecision": 0
+          },
+          "workUnits": 26,
+          "modeledTokenUnits": 2450,
+          "modeledMinutes": 4.2,
+          "workUnitsPerAccepted": 26,
+          "modeledTokenUnitsPerAccepted": 2450
+        }
+      },
+      "safety-triggered": {
+        "baseline": {
+          "caseCount": 1,
+          "acceptedCount": 0,
+          "acceptedRate": 0,
+          "unnecessaryProcessingCount": 0,
+          "unnecessaryProcessingRate": 0,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 1,
+          "correctDispositionRate": 1,
+          "diagnosedFailureCount": 0,
+          "diagnosedFailureAccuracy": null,
+          "repairAttempts": 0,
+          "unresolvedFailures": 1,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 0,
+            "qa": 1,
+            "safety": 0,
+            "diagnosis": 0,
+            "repair": 0,
+            "humanDecision": 0
+          },
+          "workUnits": 12,
+          "modeledTokenUnits": 1150,
+          "modeledMinutes": 2.15,
+          "workUnitsPerAccepted": null,
+          "modeledTokenUnitsPerAccepted": null
+        },
+        "fbControlLoop": {
+          "caseCount": 1,
+          "acceptedCount": 0,
+          "acceptedRate": 0,
+          "unnecessaryProcessingCount": 0,
+          "unnecessaryProcessingRate": 0,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 1,
+          "correctDispositionRate": 1,
+          "diagnosedFailureCount": 1,
+          "diagnosedFailureAccuracy": 1,
+          "repairAttempts": 0,
+          "unresolvedFailures": 1,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 1,
+            "qa": 1,
+            "safety": 1,
+            "diagnosis": 1,
+            "repair": 0,
+            "humanDecision": 0
+          },
+          "workUnits": 18,
+          "modeledTokenUnits": 1650,
+          "modeledMinutes": 2.7,
+          "workUnitsPerAccepted": null,
+          "modeledTokenUnitsPerAccepted": null
+        }
+      },
+      "unresolved": {
+        "baseline": {
+          "caseCount": 1,
+          "acceptedCount": 0,
+          "acceptedRate": 0,
+          "unnecessaryProcessingCount": 0,
+          "unnecessaryProcessingRate": 0,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 1,
+          "correctDispositionRate": 1,
+          "diagnosedFailureCount": 0,
+          "diagnosedFailureAccuracy": null,
+          "repairAttempts": 0,
+          "unresolvedFailures": 1,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 0,
+            "qa": 1,
+            "safety": 0,
+            "diagnosis": 0,
+            "repair": 0,
+            "humanDecision": 0
+          },
+          "workUnits": 12,
+          "modeledTokenUnits": 1150,
+          "modeledMinutes": 2.15,
+          "workUnitsPerAccepted": null,
+          "modeledTokenUnitsPerAccepted": null
+        },
+        "fbControlLoop": {
+          "caseCount": 1,
+          "acceptedCount": 0,
+          "acceptedRate": 0,
+          "unnecessaryProcessingCount": 0,
+          "unnecessaryProcessingRate": 0,
+          "baselineDegradationCount": 0,
+          "correctDispositionCount": 1,
+          "correctDispositionRate": 1,
+          "diagnosedFailureCount": 1,
+          "diagnosedFailureAccuracy": 1,
+          "repairAttempts": 1,
+          "unresolvedFailures": 1,
+          "humanDecisionEvents": 0,
+          "calls": {
+            "process": 1,
+            "comparison": 1,
+            "qa": 1,
+            "safety": 1,
+            "diagnosis": 1,
+            "repair": 1,
+            "humanDecision": 0
+          },
+          "workUnits": 26,
+          "modeledTokenUnits": 2450,
+          "modeledMinutes": 4.2,
+          "workUnitsPerAccepted": null,
+          "modeledTokenUnitsPerAccepted": null
+        }
+      }
+    }
+  },
+  "sensitivity": {
+    "raw": [
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.6,
+        "seed": 11,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.625,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.6,
+        "seed": 11,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.75,
+        "processedCount": 31,
+        "repairAttempts": 11
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.6,
+        "seed": 29,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.65,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.6,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.8,
+        "processedCount": 27,
+        "repairAttempts": 12
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.6,
+        "seed": 47,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.675,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.6,
+        "seed": 47,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.7,
+        "processedCount": 25,
+        "repairAttempts": 9
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.8,
+        "seed": 11,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.8,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.8,
+        "seed": 11,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.8,
+        "processedCount": 27,
+        "repairAttempts": 5
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.8,
+        "seed": 29,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.8,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.8,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.9,
+        "processedCount": 28,
+        "repairAttempts": 4
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.8,
+        "seed": 47,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.775,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.8,
+        "seed": 47,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.825,
+        "processedCount": 29,
+        "repairAttempts": 5
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.95,
+        "seed": 11,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.975,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.95,
+        "seed": 11,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.975,
+        "processedCount": 28,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.95,
+        "seed": 29,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.95,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.875,
+        "processedCount": 27,
+        "repairAttempts": 2
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.95,
+        "seed": 47,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.975,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.95,
+        "seed": 47,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.875,
+        "processedCount": 28,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.6,
+        "seed": 11,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.475,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.6,
+        "seed": 11,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.85,
+        "processedCount": 20,
+        "repairAttempts": 10
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.6,
+        "seed": 29,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.625,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.6,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.85,
+        "processedCount": 25,
+        "repairAttempts": 6
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.6,
+        "seed": 47,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.5,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.6,
+        "seed": 47,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.85,
+        "processedCount": 16,
+        "repairAttempts": 8
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.8,
+        "seed": 11,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.7,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.8,
+        "seed": 11,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.9,
+        "processedCount": 17,
+        "repairAttempts": 6
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.8,
+        "seed": 29,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.8,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.8,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.9,
+        "processedCount": 17,
+        "repairAttempts": 4
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.8,
+        "seed": 47,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.8,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.8,
+        "seed": 47,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.9,
+        "processedCount": 22,
+        "repairAttempts": 5
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.95,
+        "seed": 11,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.9,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.95,
+        "seed": 11,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 20,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.95,
+        "seed": 29,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.975,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.95,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.925,
+        "processedCount": 21,
+        "repairAttempts": 1
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.95,
+        "seed": 47,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.975,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.95,
+        "seed": 47,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.975,
+        "processedCount": 26,
+        "repairAttempts": 1
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.6,
+        "seed": 11,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.575,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.6,
+        "seed": 11,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.925,
+        "processedCount": 15,
+        "repairAttempts": 8
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.6,
+        "seed": 29,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.675,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.6,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.925,
+        "processedCount": 19,
+        "repairAttempts": 4
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.6,
+        "seed": 47,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.65,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.6,
+        "seed": 47,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 12,
+        "repairAttempts": 2
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "seed": 11,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.85,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "seed": 11,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 11,
+        "repairAttempts": 2
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "seed": 29,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.775,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 11,
+        "repairAttempts": 2
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "seed": 47,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.775,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "seed": 47,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 1,
+        "processedCount": 12,
+        "repairAttempts": 2
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.95,
+        "seed": 11,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.925,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.95,
+        "seed": 11,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.975,
+        "processedCount": 10,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.95,
+        "seed": 29,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.975,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.95,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 8,
+        "repairAttempts": 1
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.95,
+        "seed": 47,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.9,
+        "processedCount": 40,
+        "repairAttempts": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.95,
+        "seed": 47,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.975,
+        "processedCount": 20,
+        "repairAttempts": 0
+      }
+    ],
+    "summary": [
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.6,
+        "arm": "baseline",
+        "medianAcceptedRate": 0.65,
+        "rangeAcceptedRate": [
+          0.625,
+          0.675
+        ],
+        "medianProcessedCount": 40
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.6,
+        "arm": "fb-control-loop",
+        "medianAcceptedRate": 0.75,
+        "rangeAcceptedRate": [
+          0.7,
+          0.8
+        ],
+        "medianProcessedCount": 27
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.8,
+        "arm": "baseline",
+        "medianAcceptedRate": 0.8,
+        "rangeAcceptedRate": [
+          0.775,
+          0.8
+        ],
+        "medianProcessedCount": 40
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.8,
+        "arm": "fb-control-loop",
+        "medianAcceptedRate": 0.825,
+        "rangeAcceptedRate": [
+          0.8,
+          0.9
+        ],
+        "medianProcessedCount": 28
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.95,
+        "arm": "baseline",
+        "medianAcceptedRate": 0.975,
+        "rangeAcceptedRate": [
+          0.95,
+          0.975
+        ],
+        "medianProcessedCount": 40
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.95,
+        "arm": "fb-control-loop",
+        "medianAcceptedRate": 0.875,
+        "rangeAcceptedRate": [
+          0.875,
+          0.975
+        ],
+        "medianProcessedCount": 28
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.6,
+        "arm": "baseline",
+        "medianAcceptedRate": 0.5,
+        "rangeAcceptedRate": [
+          0.475,
+          0.625
+        ],
+        "medianProcessedCount": 40
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.6,
+        "arm": "fb-control-loop",
+        "medianAcceptedRate": 0.85,
+        "rangeAcceptedRate": [
+          0.85,
+          0.85
+        ],
+        "medianProcessedCount": 20
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.8,
+        "arm": "baseline",
+        "medianAcceptedRate": 0.8,
+        "rangeAcceptedRate": [
+          0.7,
+          0.8
+        ],
+        "medianProcessedCount": 40
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.8,
+        "arm": "fb-control-loop",
+        "medianAcceptedRate": 0.9,
+        "rangeAcceptedRate": [
+          0.9,
+          0.9
+        ],
+        "medianProcessedCount": 17
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.95,
+        "arm": "baseline",
+        "medianAcceptedRate": 0.975,
+        "rangeAcceptedRate": [
+          0.9,
+          0.975
+        ],
+        "medianProcessedCount": 40
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.95,
+        "arm": "fb-control-loop",
+        "medianAcceptedRate": 0.95,
+        "rangeAcceptedRate": [
+          0.925,
+          0.975
+        ],
+        "medianProcessedCount": 21
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.6,
+        "arm": "baseline",
+        "medianAcceptedRate": 0.65,
+        "rangeAcceptedRate": [
+          0.575,
+          0.675
+        ],
+        "medianProcessedCount": 40
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.6,
+        "arm": "fb-control-loop",
+        "medianAcceptedRate": 0.925,
+        "rangeAcceptedRate": [
+          0.925,
+          0.95
+        ],
+        "medianProcessedCount": 15
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "arm": "baseline",
+        "medianAcceptedRate": 0.775,
+        "rangeAcceptedRate": [
+          0.775,
+          0.85
+        ],
+        "medianProcessedCount": 40
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "arm": "fb-control-loop",
+        "medianAcceptedRate": 0.95,
+        "rangeAcceptedRate": [
+          0.95,
+          1
+        ],
+        "medianProcessedCount": 11
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.95,
+        "arm": "baseline",
+        "medianAcceptedRate": 0.925,
+        "rangeAcceptedRate": [
+          0.9,
+          0.975
+        ],
+        "medianProcessedCount": 40
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.95,
+        "arm": "fb-control-loop",
+        "medianAcceptedRate": 0.975,
+        "rangeAcceptedRate": [
+          0.95,
+          0.975
+        ],
+        "medianProcessedCount": 10
+      }
+    ]
+  }
+}

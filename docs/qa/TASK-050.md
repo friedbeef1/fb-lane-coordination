@@ -28,6 +28,14 @@ FB `0.5.0-beta+codex.20260726130257` on
 - Ready-to-ship boundary: 5/5 passed.
 - Package synchronization: 48 declared mirrors aligned.
 - Affected Node syntax, TASK-050/control-loop links, and whitespace: passed.
+- Controlled before/after simulator: 9/9 focused contracts passed. The frozen
+  eight-case run produced 2/8 product-ready outcomes for process-all and 4/8
+  for FB, while preserving one valid case where the baseline won. Gross modeled
+  work increased; modeled work per accepted outcome fell. These are simulator
+  results, not observed Codex usage. See the
+  [full result and methodology](../benchmarks/control-loop/README.md).
+- Changelog wording: approved by James in the originating conversation on
+  2026-07-26.
 - Independent whole-branch review: pending.
 - Complete release validator: intentionally pending the one explicit release
   checkpoint.
@@ -40,5 +48,5 @@ publication, installation, or deployment.
 
 ## Remaining gate
 
-Changelog wording approval, whole-branch review, and one complete release
-checkpoint remain before **Ready to ship**. **Push Live** remains separate.
+Whole-branch review and one complete release checkpoint remain before
+**Ready to ship**. **Push Live** remains separate.

@@ -95,6 +95,35 @@ candidate and benchmark evidence. The loop never promotes itself, changes eval
 authority, edits canonical configuration, merges, publishes, or deploys.
 Only **Push Live** authorizes the final release action.
 
+## Quantified control-loop experiment
+
+An eight-case deterministic simulation compared a process-everything baseline
+with the FB control loop. It deliberately included good inputs, improvements,
+degradation, repairable and unresolved failure, ambiguous routing, a safety
+case, and a misleading candidate. One ambiguous case favoured the baseline.
+
+| Outcome | Process-all baseline | FB control loop | Difference |
+|---|---:|---:|---:|
+| Product-ready outcomes | 2/8 (25%) | 4/8 (50%) | +2; +25 percentage points |
+| Unnecessary processing | 2/8 (25%) | 1/8 (12.5%) | -1; 50% fewer |
+| Good baselines degraded | 2 | 0 | -2; 100% fewer |
+| Unresolved failures | 6 | 4 | -2; 33% fewer |
+| Deterministic work units | 96 | 126 | +30; 31% more |
+| Modeled token units | 9,200 | 11,860 | +2,660; 29% more |
+| Modeled elapsed minutes | 17.2 | 21.2 | +4.0; 23% more |
+| Work units per accepted outcome | 48.0 | 31.5 | -16.5; 34% fewer |
+| Modeled token units per accepted outcome | 4,600 | 2,965 | -1,635; 36% fewer |
+
+The experiment shows the intended tradeoff, not a universal performance claim:
+the loop spent more modeled work overall but produced more accepted outcomes
+and used fewer modeled units per accepted outcome. Token and time figures are
+**modeled, not observed Codex usage**. The experiment does not establish actual
+Codex-token, wall-clock, or population-wide savings. In sensitivity runs, the
+process-all baseline beat FB at both 25% and 50% already-good inputs when
+transformation reliability reached 95%; routing mistakes outweighed the loop's
+benefit in those settings. See the
+[full methodology, raw outcomes, assumptions, sensitivity results, and hashes](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/benchmarks/control-loop/README.md).
+
 ## Deliberate limits
 
 FB does not add a hosted logger, hosted dashboard, semantic scoring platform,

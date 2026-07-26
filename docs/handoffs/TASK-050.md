@@ -45,17 +45,18 @@ review_state: not reviewable
 ## Task Receipt
 
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#050-beta--2026-07-26)
-- Changelog approval: pending — [0.5.0-beta entry](../../CHANGELOG.md#050-beta--2026-07-26), 2026-07-26
+- Changelog approval: approved — James, originating conversation, 2026-07-26
 - Changed surfaces: control-loop runtime/contracts, session/MCP/doctor
   integration, canonical harness and skills, generated plugin package, active
   version metadata, and TASK-050 records.
 - Verification: [TASK-050 QA](../qa/TASK-050.md)
+- Quantified evidence: [controlled before/after experiment](../benchmarks/control-loop/README.md)
 - Review state: not reviewable
-- External gates: changelog wording approval, whole-branch review, one complete
-  release checkpoint, review-branch push, and later explicit **Push Live**.
+- External gates: whole-branch review, one complete release checkpoint,
+  review-branch push, and later explicit **Push Live**.
 - Repository state: local candidate branch; no publication or deployment.
 - Remaining owner/action: Product/BFM completes focused verification and review,
-  asks for changelog wording approval, then runs the single release checkpoint.
+  completes whole-branch review, then runs the single release checkpoint.
 
 ## Release boundary
 
