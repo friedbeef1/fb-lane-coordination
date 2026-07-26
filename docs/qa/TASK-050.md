@@ -31,8 +31,10 @@ FB `0.5.0-beta+codex.20260726130257` on
 - Controlled before/after simulator: 9/9 focused contracts passed. The frozen
   eight-case run produced 2/8 product-ready outcomes for process-all and 4/8
   for FB, while preserving one valid case where the baseline won. Gross modeled
-  work increased; modeled work per accepted outcome fell. These are simulator
-  results, not observed Codex usage. See the
+  work increased; modeled work per accepted outcome fell. Diagnosis was correct
+  for 2/4 diagnosed failures, and one human-decision event was modeled. The
+  sensitivity model includes fallible comparison and gate behavior. These are
+  simulator results, not observed Codex usage. See the
   [full result and methodology](../benchmarks/control-loop/README.md).
 - Changelog wording: approved by James in the originating conversation on
   2026-07-26.

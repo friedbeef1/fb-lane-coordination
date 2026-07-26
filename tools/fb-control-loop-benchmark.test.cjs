@@ -40,6 +40,20 @@ test('both arms consume the same frozen truth and produce deterministic raw reco
   }
 });
 
+test('FB execution receives a public projection without hidden grader truth', () => {
+  const truth = loadJson(truthPath);
+  const settings = loadJson(settingsPath);
+  const item = truth.cases.find(row => row.category === 'repairable');
+  const publicCase = benchmark.projectPublicCase(item);
+  assert.equal(publicCase.hidden, undefined);
+  assert.doesNotMatch(JSON.stringify(publicCase), /expectedDisposition|failureClass/);
+  const first = benchmark.fbArm(publicCase, settings.costModel);
+  const changedTruth = structuredClone(item);
+  changedTruth.hidden.failureClass = 'Environment';
+  const second = benchmark.fbArm(benchmark.projectPublicCase(changedTruth), settings.costModel);
+  assert.deepEqual(first, second, 'hidden truth must not affect FB execution');
+});
+
 test('baseline is process-all plus one final QA while FB routes and uses distinct gates', () => {
   const result = benchmark.runExperiment({ truthPath, settingsPath });
   const baseline = result.rawRecords.filter(row => row.arm === 'baseline');
@@ -50,6 +64,25 @@ test('baseline is process-all plus one final QA while FB routes and uses distinc
   assert.ok(fb.some(row => row.calls.comparison === 1));
   assert.ok(fb.some(row => row.calls.safety === 1));
   assert.ok(fb.some(row => row.calls.diagnosis === 1 && row.calls.repair === 1));
+});
+
+test('diagnosis is derived from visible observations and can be wrong', () => {
+  const result = benchmark.runExperiment({ truthPath, settingsPath });
+  const diagnosed = result.rawRecords.filter(row => row.arm === 'fb-control-loop' && row.diagnosedFailure);
+  assert.ok(diagnosed.length > 0);
+  assert.ok(diagnosed.some(row => row.diagnosisCorrect === false), 'plausible misdiagnosis must remain visible');
+  assert.ok(result.summary.arms.fbControlLoop.diagnosedFailureAccuracy < 1);
+});
+
+test('artifact metrics distinguish rejected worse attempts from delivered ready outputs', () => {
+  const result = benchmark.runExperiment({ truthPath, settingsPath });
+  const baseline = result.summary.arms.baseline;
+  const fb = result.summary.arms.fbControlLoop;
+  assert.equal('baselineDegradationCount' in baseline, false);
+  assert.ok(baseline.worseCandidateAttempts > 0);
+  assert.ok(fb.worseCandidateAttempts > 0);
+  assert.ok(fb.alreadyGoodInputsRetainedReady > baseline.alreadyGoodInputsRetainedReady);
+  assert.ok(result.rawRecords.filter(row => row.result === 'rejected by final QA').every(row => row.deliveredArtifact === 'none'));
 });
 
 test('aggregates recompute from raw records and detect selective or altered results', () => {
@@ -106,6 +139,10 @@ test('sensitivity is pre-registered, complete, and retains every seed outcome', 
     settings.sensitivity.goodShares.length * settings.sensitivity.transformationReliabilities.length * 2);
   assert.ok(result.sensitivity.summary.every(row => Number.isFinite(row.medianAcceptedRate)));
   assert.ok(result.sensitivity.summary.every(row => row.rangeAcceptedRate.length === 2));
+  assert.ok(settings.sensitivity.comparisonAccuracy < 1);
+  assert.ok(settings.sensitivity.gateAccuracy < 1);
+  assert.ok(result.sensitivity.raw.some(row => row.arm === 'fb-control-loop' && row.comparisonErrors > 0));
+  assert.ok(result.sensitivity.raw.some(row => row.arm === 'fb-control-loop' && row.gateErrors > 0));
 });
 
 test('writer emits validated machine results and a transparent readable report', () => {
@@ -125,6 +162,12 @@ test('writer emits validated machine results and a transparent readable report',
     assert.match(report, /25% already-good.*95% reliability[\s\S]*50% already-good.*95% reliability/i);
     assert.match(report, /SHA-256/);
     assert.match(report, /\[machine-readable result\]\(results\.json\)/);
+    assert.match(report, /Diagnosis accuracy/);
+    assert.match(report, /Human-decision events/);
+    assert.match(report, /one modeled attention minute/i);
+    assert.match(report, /zero agent token and work units/i);
+    assert.match(report, /comparison accuracy/i);
+    assert.match(report, /gate accuracy/i);
     assert.doesNotThrow(() => benchmark.validateBundle(loadJson(written.resultPath)));
   } finally {
     fs.rmSync(output, { recursive: true, force: true });

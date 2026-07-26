@@ -106,7 +106,10 @@ case, and a misleading candidate. One ambiguous case favoured the baseline.
 |---|---:|---:|---:|
 | Product-ready outcomes | 2/8 (25%) | 4/8 (50%) | +2; +25 percentage points |
 | Unnecessary processing | 2/8 (25%) | 1/8 (12.5%) | -1; 50% fewer |
-| Good baselines degraded | 2 | 0 | -2; 100% fewer |
+| Worse candidate attempts | 2 | 1 | -1; 50% fewer |
+| Already-good inputs retained as ready | 0/2 | 2/2 | +2 |
+| Diagnosis accuracy | n/a | 2/4 (50%) | n/a |
+| Human-decision events | 0 | 1 | +1 |
 | Unresolved failures | 6 | 4 | -2; 33% fewer |
 | Deterministic work units | 96 | 126 | +30; 31% more |
 | Modeled token units | 9,200 | 11,860 | +2,660; 29% more |
@@ -120,8 +123,11 @@ and used fewer modeled units per accepted outcome. Token and time figures are
 **modeled, not observed Codex usage**. The experiment does not establish actual
 Codex-token, wall-clock, or population-wide savings. In sensitivity runs, the
 process-all baseline beat FB at both 25% and 50% already-good inputs when
-transformation reliability reached 95%; routing mistakes outweighed the loop's
-benefit in those settings. See the
+transformation reliability reached 95%; the 75%/95% setting tied. The
+sensitivity model uses fallible 90% comparison accuracy and 94% gate accuracy,
+so routing, comparison, and gate mistakes can outweigh the loop's benefit.
+One human judgment contributes one modeled attention minute but zero agent
+tokens or work units. See the
 [full methodology, raw outcomes, assumptions, sensitivity results, and hashes](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/benchmarks/control-loop/README.md).
 
 ## Deliberate limits

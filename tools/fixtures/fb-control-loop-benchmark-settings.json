@@ -16,6 +16,8 @@
     "goodShares": [0.25, 0.5, 0.75],
     "transformationReliabilities": [0.6, 0.8, 0.95],
     "routerAccuracy": 0.88,
+    "comparisonAccuracy": 0.9,
+    "gateAccuracy": 0.94,
     "repairSuccessRate": 0.6
   }
 }

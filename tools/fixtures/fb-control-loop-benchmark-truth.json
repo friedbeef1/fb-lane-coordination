@@ -4,7 +4,7 @@
     {
       "id": "good-preserve",
       "category": "already-good",
-      "visible": { "route": "skip", "safetyTrigger": false },
+      "visible": { "route": "skip", "safetyTrigger": false, "observedFailureSignal": null },
       "hidden": { "expectedDisposition": "skip", "failureClass": null },
       "baseline": { "quality": true, "safety": true },
       "transformation": { "quality": false, "safety": true },
@@ -14,7 +14,7 @@
     {
       "id": "clear-improvement",
       "category": "needs-processing",
-      "visible": { "route": "process", "safetyTrigger": false },
+      "visible": { "route": "process", "safetyTrigger": false, "observedFailureSignal": null },
       "hidden": { "expectedDisposition": "process", "failureClass": null },
       "baseline": { "quality": false, "safety": true },
       "transformation": { "quality": true, "safety": true },
@@ -24,7 +24,7 @@
     {
       "id": "degradation-trap",
       "category": "degraded-by-processing",
-      "visible": { "route": "process", "safetyTrigger": false },
+      "visible": { "route": "process", "safetyTrigger": false, "observedFailureSignal": "output_defect" },
       "hidden": { "expectedDisposition": "skip", "failureClass": "Build" },
       "baseline": { "quality": true, "safety": true },
       "transformation": { "quality": false, "safety": true },
@@ -34,7 +34,7 @@
     {
       "id": "repairable-output",
       "category": "repairable",
-      "visible": { "route": "process", "safetyTrigger": false },
+      "visible": { "route": "process", "safetyTrigger": false, "observedFailureSignal": "output_defect" },
       "hidden": { "expectedDisposition": "process", "failureClass": "Build" },
       "baseline": { "quality": false, "safety": true },
       "transformation": { "quality": false, "safety": true },
@@ -44,7 +44,7 @@
     {
       "id": "unresolved-output",
       "category": "unresolved",
-      "visible": { "route": "process", "safetyTrigger": false },
+      "visible": { "route": "process", "safetyTrigger": false, "observedFailureSignal": "output_defect" },
       "hidden": { "expectedDisposition": "process", "failureClass": "Brief" },
       "baseline": { "quality": false, "safety": true },
       "transformation": { "quality": false, "safety": true },
@@ -54,7 +54,7 @@
     {
       "id": "ambiguous-wrong-skip",
       "category": "ambiguous-route",
-      "visible": { "route": "judgment_required", "judgmentDecision": "skip", "safetyTrigger": false },
+      "visible": { "route": "judgment_required", "judgmentDecision": "skip", "safetyTrigger": false, "observedFailureSignal": null },
       "hidden": { "expectedDisposition": "process", "failureClass": null },
       "baseline": { "quality": false, "safety": true },
       "transformation": { "quality": true, "safety": true },
@@ -64,7 +64,7 @@
     {
       "id": "safety-block",
       "category": "safety-triggered",
-      "visible": { "route": "process", "safetyTrigger": true },
+      "visible": { "route": "process", "safetyTrigger": true, "observedFailureSignal": "access_missing" },
       "hidden": { "expectedDisposition": "process", "failureClass": "Environment" },
       "baseline": { "quality": false, "safety": true },
       "transformation": { "quality": true, "safety": false },
@@ -74,7 +74,7 @@
     {
       "id": "misleading-quality",
       "category": "misleading-candidate",
-      "visible": { "route": "process", "safetyTrigger": false },
+      "visible": { "route": "process", "safetyTrigger": false, "observedFailureSignal": "output_defect" },
       "hidden": { "expectedDisposition": "process", "failureClass": "Eval" },
       "baseline": { "quality": false, "safety": true },
       "transformation": { "quality": true, "safety": false },

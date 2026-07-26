@@ -39,6 +39,8 @@
         0.95
       ],
       "routerAccuracy": 0.88,
+      "comparisonAccuracy": 0.9,
+      "gateAccuracy": 0.94,
       "repairSuccessRate": 0.6
     }
   },
@@ -80,8 +82,8 @@
     }
   },
   "hashes": {
-    "truth": "c10eb150023097fa69f75739f54ab3ad125b89b3bacd8ee5f0f99b8236ed12c0",
-    "settings": "f2124705af7317941dd6084f24585f8d478999fd6ff9b714a4c5e2125dee8e64",
+    "truth": "71a6e1243e41193200fe5aa2fdf8e005f0016119d0dae02f62689d7aaee6a410",
+    "settings": "4cf5370a58a716d1b4bdf5eaeb2c5cb1d6568a3ac2bcb84dc830ebde470b3f81",
     "costModel": "012901a8e8311474bcaed165b9382f4dab38c9ea6281820588c31849acabe10e",
     "grader": "2dd82cbe9b371dc82f350e3a09ef81859b5c7378e50441a6d6cfc9952916fada",
     "seeds": "8c3598742bd3db5b46521974773964aca87fb75c16a00efa90781758078b03fd"
@@ -92,12 +94,12 @@
       "category": "already-good",
       "arm": "baseline",
       "disposition": "process",
-      "dispositionCorrect": false,
       "accepted": false,
-      "baselineDegraded": true,
-      "unnecessaryProcessing": true,
+      "deliveredArtifact": "none",
+      "worseCandidateAttempt": true,
+      "alreadyGoodInput": true,
+      "alreadyGoodRetainedReady": false,
       "diagnosedFailure": null,
-      "diagnosisCorrect": null,
       "unresolvedFailure": true,
       "calls": {
         "process": 1,
@@ -111,19 +113,22 @@
       "workUnits": 12,
       "modeledTokenUnits": 1150,
       "modeledMinutes": 2.15,
-      "result": "rejected by final QA"
+      "result": "rejected by final QA",
+      "dispositionCorrect": false,
+      "unnecessaryProcessing": true,
+      "diagnosisCorrect": null
     },
     {
       "caseId": "good-preserve",
       "category": "already-good",
       "arm": "fb-control-loop",
       "disposition": "skip",
-      "dispositionCorrect": true,
       "accepted": true,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": false,
+      "deliveredArtifact": "baseline",
+      "worseCandidateAttempt": false,
+      "alreadyGoodInput": true,
+      "alreadyGoodRetainedReady": true,
       "diagnosedFailure": null,
-      "diagnosisCorrect": null,
       "unresolvedFailure": false,
       "calls": {
         "process": 0,
@@ -137,19 +142,22 @@
       "workUnits": 0,
       "modeledTokenUnits": 0,
       "modeledMinutes": 0,
-      "result": "preserved baseline"
+      "result": "preserved baseline",
+      "dispositionCorrect": true,
+      "unnecessaryProcessing": false,
+      "diagnosisCorrect": null
     },
     {
       "caseId": "clear-improvement",
       "category": "needs-processing",
       "arm": "baseline",
       "disposition": "process",
-      "dispositionCorrect": true,
       "accepted": true,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": false,
+      "deliveredArtifact": "transformed-candidate",
+      "worseCandidateAttempt": false,
+      "alreadyGoodInput": false,
+      "alreadyGoodRetainedReady": false,
       "diagnosedFailure": null,
-      "diagnosisCorrect": null,
       "unresolvedFailure": false,
       "calls": {
         "process": 1,
@@ -163,19 +171,22 @@
       "workUnits": 12,
       "modeledTokenUnits": 1150,
       "modeledMinutes": 2.15,
-      "result": "accepted transformed candidate"
+      "result": "accepted transformed candidate",
+      "dispositionCorrect": true,
+      "unnecessaryProcessing": false,
+      "diagnosisCorrect": null
     },
     {
       "caseId": "clear-improvement",
       "category": "needs-processing",
       "arm": "fb-control-loop",
       "disposition": "process",
-      "dispositionCorrect": true,
       "accepted": true,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": false,
+      "deliveredArtifact": "transformed-candidate",
+      "worseCandidateAttempt": false,
+      "alreadyGoodInput": false,
+      "alreadyGoodRetainedReady": false,
       "diagnosedFailure": null,
-      "diagnosisCorrect": null,
       "unresolvedFailure": false,
       "calls": {
         "process": 1,
@@ -189,19 +200,22 @@
       "workUnits": 15,
       "modeledTokenUnits": 1430,
       "modeledMinutes": 2.45,
-      "result": "accepted transformed candidate"
+      "result": "accepted transformed candidate",
+      "dispositionCorrect": true,
+      "unnecessaryProcessing": false,
+      "diagnosisCorrect": null
     },
     {
       "caseId": "degradation-trap",
       "category": "degraded-by-processing",
       "arm": "baseline",
       "disposition": "process",
-      "dispositionCorrect": false,
       "accepted": false,
-      "baselineDegraded": true,
-      "unnecessaryProcessing": true,
+      "deliveredArtifact": "none",
+      "worseCandidateAttempt": true,
+      "alreadyGoodInput": true,
+      "alreadyGoodRetainedReady": false,
       "diagnosedFailure": null,
-      "diagnosisCorrect": null,
       "unresolvedFailure": true,
       "calls": {
         "process": 1,
@@ -215,19 +229,22 @@
       "workUnits": 12,
       "modeledTokenUnits": 1150,
       "modeledMinutes": 2.15,
-      "result": "rejected by final QA"
+      "result": "rejected by final QA",
+      "dispositionCorrect": false,
+      "unnecessaryProcessing": true,
+      "diagnosisCorrect": null
     },
     {
       "caseId": "degradation-trap",
       "category": "degraded-by-processing",
       "arm": "fb-control-loop",
       "disposition": "process",
-      "dispositionCorrect": false,
       "accepted": true,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": true,
+      "deliveredArtifact": "baseline",
+      "worseCandidateAttempt": true,
+      "alreadyGoodInput": true,
+      "alreadyGoodRetainedReady": true,
       "diagnosedFailure": null,
-      "diagnosisCorrect": null,
       "unresolvedFailure": false,
       "calls": {
         "process": 1,
@@ -241,19 +258,22 @@
       "workUnits": 15,
       "modeledTokenUnits": 1430,
       "modeledMinutes": 2.45,
-      "result": "comparison preserved better baseline"
+      "result": "comparison preserved better baseline",
+      "dispositionCorrect": false,
+      "unnecessaryProcessing": true,
+      "diagnosisCorrect": null
     },
     {
       "caseId": "repairable-output",
       "category": "repairable",
       "arm": "baseline",
       "disposition": "process",
-      "dispositionCorrect": true,
       "accepted": false,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": false,
+      "deliveredArtifact": "none",
+      "worseCandidateAttempt": false,
+      "alreadyGoodInput": false,
+      "alreadyGoodRetainedReady": false,
       "diagnosedFailure": null,
-      "diagnosisCorrect": null,
       "unresolvedFailure": true,
       "calls": {
         "process": 1,
@@ -267,19 +287,22 @@
       "workUnits": 12,
       "modeledTokenUnits": 1150,
       "modeledMinutes": 2.15,
-      "result": "rejected by final QA"
+      "result": "rejected by final QA",
+      "dispositionCorrect": true,
+      "unnecessaryProcessing": false,
+      "diagnosisCorrect": null
     },
     {
       "caseId": "repairable-output",
       "category": "repairable",
       "arm": "fb-control-loop",
       "disposition": "process",
-      "dispositionCorrect": true,
       "accepted": true,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": false,
+      "deliveredArtifact": "repair-candidate",
+      "worseCandidateAttempt": false,
+      "alreadyGoodInput": false,
+      "alreadyGoodRetainedReady": false,
       "diagnosedFailure": "Build",
-      "diagnosisCorrect": true,
       "unresolvedFailure": false,
       "calls": {
         "process": 1,
@@ -293,19 +316,22 @@
       "workUnits": 26,
       "modeledTokenUnits": 2450,
       "modeledMinutes": 4.2,
-      "result": "accepted bounded repair"
+      "result": "accepted bounded repair",
+      "dispositionCorrect": true,
+      "unnecessaryProcessing": false,
+      "diagnosisCorrect": true
     },
     {
       "caseId": "unresolved-output",
       "category": "unresolved",
       "arm": "baseline",
       "disposition": "process",
-      "dispositionCorrect": true,
       "accepted": false,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": false,
+      "deliveredArtifact": "none",
+      "worseCandidateAttempt": false,
+      "alreadyGoodInput": false,
+      "alreadyGoodRetainedReady": false,
       "diagnosedFailure": null,
-      "diagnosisCorrect": null,
       "unresolvedFailure": true,
       "calls": {
         "process": 1,
@@ -319,19 +345,22 @@
       "workUnits": 12,
       "modeledTokenUnits": 1150,
       "modeledMinutes": 2.15,
-      "result": "rejected by final QA"
+      "result": "rejected by final QA",
+      "dispositionCorrect": true,
+      "unnecessaryProcessing": false,
+      "diagnosisCorrect": null
     },
     {
       "caseId": "unresolved-output",
       "category": "unresolved",
       "arm": "fb-control-loop",
       "disposition": "process",
-      "dispositionCorrect": true,
       "accepted": false,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": false,
-      "diagnosedFailure": "Brief",
-      "diagnosisCorrect": true,
+      "deliveredArtifact": "none",
+      "worseCandidateAttempt": false,
+      "alreadyGoodInput": false,
+      "alreadyGoodRetainedReady": false,
+      "diagnosedFailure": "Build",
       "unresolvedFailure": true,
       "calls": {
         "process": 1,
@@ -345,19 +374,22 @@
       "workUnits": 26,
       "modeledTokenUnits": 2450,
       "modeledMinutes": 4.2,
-      "result": "bounded repair unresolved"
+      "result": "bounded repair unresolved",
+      "dispositionCorrect": true,
+      "unnecessaryProcessing": false,
+      "diagnosisCorrect": false
     },
     {
       "caseId": "ambiguous-wrong-skip",
       "category": "ambiguous-route",
       "arm": "baseline",
       "disposition": "process",
-      "dispositionCorrect": true,
       "accepted": true,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": false,
+      "deliveredArtifact": "transformed-candidate",
+      "worseCandidateAttempt": false,
+      "alreadyGoodInput": false,
+      "alreadyGoodRetainedReady": false,
       "diagnosedFailure": null,
-      "diagnosisCorrect": null,
       "unresolvedFailure": false,
       "calls": {
         "process": 1,
@@ -371,19 +403,22 @@
       "workUnits": 12,
       "modeledTokenUnits": 1150,
       "modeledMinutes": 2.15,
-      "result": "accepted transformed candidate"
+      "result": "accepted transformed candidate",
+      "dispositionCorrect": true,
+      "unnecessaryProcessing": false,
+      "diagnosisCorrect": null
     },
     {
       "caseId": "ambiguous-wrong-skip",
       "category": "ambiguous-route",
       "arm": "fb-control-loop",
       "disposition": "skip",
-      "dispositionCorrect": false,
       "accepted": false,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": false,
+      "deliveredArtifact": "none",
+      "worseCandidateAttempt": false,
+      "alreadyGoodInput": false,
+      "alreadyGoodRetainedReady": false,
       "diagnosedFailure": null,
-      "diagnosisCorrect": null,
       "unresolvedFailure": true,
       "calls": {
         "process": 0,
@@ -397,19 +432,22 @@
       "workUnits": 0,
       "modeledTokenUnits": 0,
       "modeledMinutes": 1,
-      "result": "preserved baseline"
+      "result": "preserved baseline",
+      "dispositionCorrect": false,
+      "unnecessaryProcessing": false,
+      "diagnosisCorrect": null
     },
     {
       "caseId": "safety-block",
       "category": "safety-triggered",
       "arm": "baseline",
       "disposition": "process",
-      "dispositionCorrect": true,
       "accepted": false,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": false,
+      "deliveredArtifact": "none",
+      "worseCandidateAttempt": false,
+      "alreadyGoodInput": false,
+      "alreadyGoodRetainedReady": false,
       "diagnosedFailure": null,
-      "diagnosisCorrect": null,
       "unresolvedFailure": true,
       "calls": {
         "process": 1,
@@ -423,19 +461,22 @@
       "workUnits": 12,
       "modeledTokenUnits": 1150,
       "modeledMinutes": 2.15,
-      "result": "rejected by final QA"
+      "result": "rejected by final QA",
+      "dispositionCorrect": true,
+      "unnecessaryProcessing": false,
+      "diagnosisCorrect": null
     },
     {
       "caseId": "safety-block",
       "category": "safety-triggered",
       "arm": "fb-control-loop",
       "disposition": "process",
-      "dispositionCorrect": true,
       "accepted": false,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": false,
+      "deliveredArtifact": "none",
+      "worseCandidateAttempt": false,
+      "alreadyGoodInput": false,
+      "alreadyGoodRetainedReady": false,
       "diagnosedFailure": "Environment",
-      "diagnosisCorrect": true,
       "unresolvedFailure": true,
       "calls": {
         "process": 1,
@@ -449,19 +490,22 @@
       "workUnits": 18,
       "modeledTokenUnits": 1650,
       "modeledMinutes": 2.7,
-      "result": "diagnosed failed candidate"
+      "result": "diagnosed failed candidate",
+      "dispositionCorrect": true,
+      "unnecessaryProcessing": false,
+      "diagnosisCorrect": true
     },
     {
       "caseId": "misleading-quality",
       "category": "misleading-candidate",
       "arm": "baseline",
       "disposition": "process",
-      "dispositionCorrect": true,
       "accepted": false,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": false,
+      "deliveredArtifact": "none",
+      "worseCandidateAttempt": false,
+      "alreadyGoodInput": false,
+      "alreadyGoodRetainedReady": false,
       "diagnosedFailure": null,
-      "diagnosisCorrect": null,
       "unresolvedFailure": true,
       "calls": {
         "process": 1,
@@ -475,19 +519,22 @@
       "workUnits": 12,
       "modeledTokenUnits": 1150,
       "modeledMinutes": 2.15,
-      "result": "rejected by final QA"
+      "result": "rejected by final QA",
+      "dispositionCorrect": true,
+      "unnecessaryProcessing": false,
+      "diagnosisCorrect": null
     },
     {
       "caseId": "misleading-quality",
       "category": "misleading-candidate",
       "arm": "fb-control-loop",
       "disposition": "process",
-      "dispositionCorrect": true,
       "accepted": false,
-      "baselineDegraded": false,
-      "unnecessaryProcessing": false,
-      "diagnosedFailure": "Eval",
-      "diagnosisCorrect": true,
+      "deliveredArtifact": "none",
+      "worseCandidateAttempt": false,
+      "alreadyGoodInput": false,
+      "alreadyGoodRetainedReady": false,
+      "diagnosedFailure": "Build",
       "unresolvedFailure": true,
       "calls": {
         "process": 1,
@@ -501,7 +548,10 @@
       "workUnits": 26,
       "modeledTokenUnits": 2450,
       "modeledMinutes": 4.2,
-      "result": "bounded repair unresolved"
+      "result": "bounded repair unresolved",
+      "dispositionCorrect": true,
+      "unnecessaryProcessing": false,
+      "diagnosisCorrect": false
     }
   ],
   "summary": {
@@ -512,7 +562,9 @@
         "acceptedRate": 0.25,
         "unnecessaryProcessingCount": 2,
         "unnecessaryProcessingRate": 0.25,
-        "baselineDegradationCount": 2,
+        "worseCandidateAttempts": 2,
+        "alreadyGoodInputCount": 2,
+        "alreadyGoodInputsRetainedReady": 0,
         "correctDispositionCount": 6,
         "correctDispositionRate": 0.75,
         "diagnosedFailureCount": 0,
@@ -541,11 +593,13 @@
         "acceptedRate": 0.5,
         "unnecessaryProcessingCount": 1,
         "unnecessaryProcessingRate": 0.125,
-        "baselineDegradationCount": 0,
+        "worseCandidateAttempts": 1,
+        "alreadyGoodInputCount": 2,
+        "alreadyGoodInputsRetainedReady": 2,
         "correctDispositionCount": 6,
         "correctDispositionRate": 0.75,
         "diagnosedFailureCount": 4,
-        "diagnosedFailureAccuracy": 1,
+        "diagnosedFailureAccuracy": 0.5,
         "repairAttempts": 3,
         "unresolvedFailures": 4,
         "humanDecisionEvents": 1,
@@ -568,7 +622,8 @@
     "signedDifferenceFbMinusBaseline": {
       "acceptedRate": 0.25,
       "unnecessaryProcessingRate": -0.125,
-      "baselineDegradationCount": -2,
+      "worseCandidateAttempts": -1,
+      "alreadyGoodInputsRetainedReady": 2,
       "correctDispositionRate": 0,
       "repairAttempts": 3,
       "unresolvedFailures": -2,
@@ -587,7 +642,9 @@
           "acceptedRate": 0,
           "unnecessaryProcessingCount": 1,
           "unnecessaryProcessingRate": 1,
-          "baselineDegradationCount": 1,
+          "worseCandidateAttempts": 1,
+          "alreadyGoodInputCount": 1,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 0,
           "correctDispositionRate": 0,
           "diagnosedFailureCount": 0,
@@ -616,7 +673,9 @@
           "acceptedRate": 1,
           "unnecessaryProcessingCount": 0,
           "unnecessaryProcessingRate": 0,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 0,
+          "alreadyGoodInputCount": 1,
+          "alreadyGoodInputsRetainedReady": 1,
           "correctDispositionCount": 1,
           "correctDispositionRate": 1,
           "diagnosedFailureCount": 0,
@@ -647,7 +706,9 @@
           "acceptedRate": 1,
           "unnecessaryProcessingCount": 0,
           "unnecessaryProcessingRate": 0,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 0,
+          "alreadyGoodInputCount": 0,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 1,
           "correctDispositionRate": 1,
           "diagnosedFailureCount": 0,
@@ -676,7 +737,9 @@
           "acceptedRate": 0,
           "unnecessaryProcessingCount": 0,
           "unnecessaryProcessingRate": 0,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 0,
+          "alreadyGoodInputCount": 0,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 0,
           "correctDispositionRate": 0,
           "diagnosedFailureCount": 0,
@@ -707,7 +770,9 @@
           "acceptedRate": 0,
           "unnecessaryProcessingCount": 1,
           "unnecessaryProcessingRate": 1,
-          "baselineDegradationCount": 1,
+          "worseCandidateAttempts": 1,
+          "alreadyGoodInputCount": 1,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 0,
           "correctDispositionRate": 0,
           "diagnosedFailureCount": 0,
@@ -736,7 +801,9 @@
           "acceptedRate": 1,
           "unnecessaryProcessingCount": 1,
           "unnecessaryProcessingRate": 1,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 1,
+          "alreadyGoodInputCount": 1,
+          "alreadyGoodInputsRetainedReady": 1,
           "correctDispositionCount": 0,
           "correctDispositionRate": 0,
           "diagnosedFailureCount": 0,
@@ -767,7 +834,9 @@
           "acceptedRate": 0,
           "unnecessaryProcessingCount": 0,
           "unnecessaryProcessingRate": 0,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 0,
+          "alreadyGoodInputCount": 0,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 1,
           "correctDispositionRate": 1,
           "diagnosedFailureCount": 0,
@@ -796,11 +865,13 @@
           "acceptedRate": 0,
           "unnecessaryProcessingCount": 0,
           "unnecessaryProcessingRate": 0,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 0,
+          "alreadyGoodInputCount": 0,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 1,
           "correctDispositionRate": 1,
           "diagnosedFailureCount": 1,
-          "diagnosedFailureAccuracy": 1,
+          "diagnosedFailureAccuracy": 0,
           "repairAttempts": 1,
           "unresolvedFailures": 1,
           "humanDecisionEvents": 0,
@@ -827,7 +898,9 @@
           "acceptedRate": 1,
           "unnecessaryProcessingCount": 0,
           "unnecessaryProcessingRate": 0,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 0,
+          "alreadyGoodInputCount": 0,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 1,
           "correctDispositionRate": 1,
           "diagnosedFailureCount": 0,
@@ -856,7 +929,9 @@
           "acceptedRate": 1,
           "unnecessaryProcessingCount": 0,
           "unnecessaryProcessingRate": 0,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 0,
+          "alreadyGoodInputCount": 0,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 1,
           "correctDispositionRate": 1,
           "diagnosedFailureCount": 0,
@@ -887,7 +962,9 @@
           "acceptedRate": 0,
           "unnecessaryProcessingCount": 0,
           "unnecessaryProcessingRate": 0,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 0,
+          "alreadyGoodInputCount": 0,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 1,
           "correctDispositionRate": 1,
           "diagnosedFailureCount": 0,
@@ -916,7 +993,9 @@
           "acceptedRate": 1,
           "unnecessaryProcessingCount": 0,
           "unnecessaryProcessingRate": 0,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 0,
+          "alreadyGoodInputCount": 0,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 1,
           "correctDispositionRate": 1,
           "diagnosedFailureCount": 1,
@@ -947,7 +1026,9 @@
           "acceptedRate": 0,
           "unnecessaryProcessingCount": 0,
           "unnecessaryProcessingRate": 0,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 0,
+          "alreadyGoodInputCount": 0,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 1,
           "correctDispositionRate": 1,
           "diagnosedFailureCount": 0,
@@ -976,7 +1057,9 @@
           "acceptedRate": 0,
           "unnecessaryProcessingCount": 0,
           "unnecessaryProcessingRate": 0,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 0,
+          "alreadyGoodInputCount": 0,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 1,
           "correctDispositionRate": 1,
           "diagnosedFailureCount": 1,
@@ -1007,7 +1090,9 @@
           "acceptedRate": 0,
           "unnecessaryProcessingCount": 0,
           "unnecessaryProcessingRate": 0,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 0,
+          "alreadyGoodInputCount": 0,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 1,
           "correctDispositionRate": 1,
           "diagnosedFailureCount": 0,
@@ -1036,11 +1121,13 @@
           "acceptedRate": 0,
           "unnecessaryProcessingCount": 0,
           "unnecessaryProcessingRate": 0,
-          "baselineDegradationCount": 0,
+          "worseCandidateAttempts": 0,
+          "alreadyGoodInputCount": 0,
+          "alreadyGoodInputsRetainedReady": 0,
           "correctDispositionCount": 1,
           "correctDispositionRate": 1,
           "diagnosedFailureCount": 1,
-          "diagnosedFailureAccuracy": 1,
+          "diagnosedFailureAccuracy": 0,
           "repairAttempts": 1,
           "unresolvedFailures": 1,
           "humanDecisionEvents": 0,
@@ -1070,9 +1157,11 @@
         "seed": 11,
         "arm": "baseline",
         "sampleSize": 40,
-        "acceptedRate": 0.625,
+        "acceptedRate": 0.575,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.25,
@@ -1080,9 +1169,11 @@
         "seed": 11,
         "arm": "fb-control-loop",
         "sampleSize": 40,
-        "acceptedRate": 0.75,
-        "processedCount": 31,
-        "repairAttempts": 11
+        "acceptedRate": 0.775,
+        "processedCount": 25,
+        "repairAttempts": 10,
+        "comparisonErrors": 0,
+        "gateErrors": 3
       },
       {
         "goodShare": 0.25,
@@ -1090,9 +1181,11 @@
         "seed": 29,
         "arm": "baseline",
         "sampleSize": 40,
-        "acceptedRate": 0.65,
+        "acceptedRate": 0.425,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.25,
@@ -1100,9 +1193,11 @@
         "seed": 29,
         "arm": "fb-control-loop",
         "sampleSize": 40,
-        "acceptedRate": 0.8,
-        "processedCount": 27,
-        "repairAttempts": 12
+        "acceptedRate": 0.775,
+        "processedCount": 31,
+        "repairAttempts": 16,
+        "comparisonErrors": 0,
+        "gateErrors": 1
       },
       {
         "goodShare": 0.25,
@@ -1110,9 +1205,11 @@
         "seed": 47,
         "arm": "baseline",
         "sampleSize": 40,
-        "acceptedRate": 0.675,
+        "acceptedRate": 0.575,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.25,
@@ -1121,48 +1218,58 @@
         "arm": "fb-control-loop",
         "sampleSize": 40,
         "acceptedRate": 0.7,
-        "processedCount": 25,
-        "repairAttempts": 9
-      },
-      {
-        "goodShare": 0.25,
-        "transformationReliability": 0.8,
-        "seed": 11,
-        "arm": "baseline",
-        "sampleSize": 40,
-        "acceptedRate": 0.8,
-        "processedCount": 40,
-        "repairAttempts": 0
-      },
-      {
-        "goodShare": 0.25,
-        "transformationReliability": 0.8,
-        "seed": 11,
-        "arm": "fb-control-loop",
-        "sampleSize": 40,
-        "acceptedRate": 0.8,
-        "processedCount": 27,
-        "repairAttempts": 5
-      },
-      {
-        "goodShare": 0.25,
-        "transformationReliability": 0.8,
-        "seed": 29,
-        "arm": "baseline",
-        "sampleSize": 40,
-        "acceptedRate": 0.8,
-        "processedCount": 40,
-        "repairAttempts": 0
-      },
-      {
-        "goodShare": 0.25,
-        "transformationReliability": 0.8,
-        "seed": 29,
-        "arm": "fb-control-loop",
-        "sampleSize": 40,
-        "acceptedRate": 0.9,
         "processedCount": 28,
-        "repairAttempts": 4
+        "repairAttempts": 12,
+        "comparisonErrors": 0,
+        "gateErrors": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.8,
+        "seed": 11,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.75,
+        "processedCount": 40,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.8,
+        "seed": 11,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.775,
+        "processedCount": 26,
+        "repairAttempts": 5,
+        "comparisonErrors": 0,
+        "gateErrors": 2
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.8,
+        "seed": 29,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.775,
+        "processedCount": 40,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.8,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.85,
+        "processedCount": 30,
+        "repairAttempts": 6,
+        "comparisonErrors": 0,
+        "gateErrors": 1
       },
       {
         "goodShare": 0.25,
@@ -1172,7 +1279,9 @@
         "sampleSize": 40,
         "acceptedRate": 0.775,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.25,
@@ -1182,7 +1291,9 @@
         "sampleSize": 40,
         "acceptedRate": 0.825,
         "processedCount": 29,
-        "repairAttempts": 5
+        "repairAttempts": 4,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.25,
@@ -1192,37 +1303,45 @@
         "sampleSize": 40,
         "acceptedRate": 0.975,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.25,
         "transformationReliability": 0.95,
         "seed": 11,
-        "arm": "fb-control-loop",
-        "sampleSize": 40,
-        "acceptedRate": 0.975,
-        "processedCount": 28,
-        "repairAttempts": 0
-      },
-      {
-        "goodShare": 0.25,
-        "transformationReliability": 0.95,
-        "seed": 29,
-        "arm": "baseline",
-        "sampleSize": 40,
-        "acceptedRate": 0.95,
-        "processedCount": 40,
-        "repairAttempts": 0
-      },
-      {
-        "goodShare": 0.25,
-        "transformationReliability": 0.95,
-        "seed": 29,
         "arm": "fb-control-loop",
         "sampleSize": 40,
         "acceptedRate": 0.875,
-        "processedCount": 27,
-        "repairAttempts": 2
+        "processedCount": 31,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 1
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.95,
+        "seed": 29,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.975,
+        "processedCount": 40,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
+      },
+      {
+        "goodShare": 0.25,
+        "transformationReliability": 0.95,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.9,
+        "processedCount": 30,
+        "repairAttempts": 1,
+        "comparisonErrors": 0,
+        "gateErrors": 1
       },
       {
         "goodShare": 0.25,
@@ -1232,7 +1351,9 @@
         "sampleSize": 40,
         "acceptedRate": 0.975,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.25,
@@ -1240,9 +1361,11 @@
         "seed": 47,
         "arm": "fb-control-loop",
         "sampleSize": 40,
-        "acceptedRate": 0.875,
-        "processedCount": 28,
-        "repairAttempts": 0
+        "acceptedRate": 0.8,
+        "processedCount": 30,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 4
       },
       {
         "goodShare": 0.5,
@@ -1250,9 +1373,11 @@
         "seed": 11,
         "arm": "baseline",
         "sampleSize": 40,
-        "acceptedRate": 0.475,
+        "acceptedRate": 0.5,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.5,
@@ -1260,9 +1385,11 @@
         "seed": 11,
         "arm": "fb-control-loop",
         "sampleSize": 40,
-        "acceptedRate": 0.85,
-        "processedCount": 20,
-        "repairAttempts": 10
+        "acceptedRate": 0.75,
+        "processedCount": 23,
+        "repairAttempts": 11,
+        "comparisonErrors": 0,
+        "gateErrors": 3
       },
       {
         "goodShare": 0.5,
@@ -1270,9 +1397,11 @@
         "seed": 29,
         "arm": "baseline",
         "sampleSize": 40,
-        "acceptedRate": 0.625,
+        "acceptedRate": 0.5,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.5,
@@ -1280,9 +1409,11 @@
         "seed": 29,
         "arm": "fb-control-loop",
         "sampleSize": 40,
-        "acceptedRate": 0.85,
-        "processedCount": 25,
-        "repairAttempts": 6
+        "acceptedRate": 0.725,
+        "processedCount": 22,
+        "repairAttempts": 9,
+        "comparisonErrors": 0,
+        "gateErrors": 3
       },
       {
         "goodShare": 0.5,
@@ -1292,7 +1423,9 @@
         "sampleSize": 40,
         "acceptedRate": 0.5,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.5,
@@ -1301,8 +1434,10 @@
         "arm": "fb-control-loop",
         "sampleSize": 40,
         "acceptedRate": 0.85,
-        "processedCount": 16,
-        "repairAttempts": 8
+        "processedCount": 15,
+        "repairAttempts": 7,
+        "comparisonErrors": 0,
+        "gateErrors": 2
       },
       {
         "goodShare": 0.5,
@@ -1312,7 +1447,9 @@
         "sampleSize": 40,
         "acceptedRate": 0.7,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.5,
@@ -1320,9 +1457,11 @@
         "seed": 11,
         "arm": "fb-control-loop",
         "sampleSize": 40,
-        "acceptedRate": 0.9,
-        "processedCount": 17,
-        "repairAttempts": 6
+        "acceptedRate": 0.825,
+        "processedCount": 21,
+        "repairAttempts": 5,
+        "comparisonErrors": 0,
+        "gateErrors": 2
       },
       {
         "goodShare": 0.5,
@@ -1332,77 +1471,93 @@
         "sampleSize": 40,
         "acceptedRate": 0.8,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.5,
         "transformationReliability": 0.8,
         "seed": 29,
-        "arm": "fb-control-loop",
-        "sampleSize": 40,
-        "acceptedRate": 0.9,
-        "processedCount": 17,
-        "repairAttempts": 4
-      },
-      {
-        "goodShare": 0.5,
-        "transformationReliability": 0.8,
-        "seed": 47,
-        "arm": "baseline",
-        "sampleSize": 40,
-        "acceptedRate": 0.8,
-        "processedCount": 40,
-        "repairAttempts": 0
-      },
-      {
-        "goodShare": 0.5,
-        "transformationReliability": 0.8,
-        "seed": 47,
-        "arm": "fb-control-loop",
-        "sampleSize": 40,
-        "acceptedRate": 0.9,
-        "processedCount": 22,
-        "repairAttempts": 5
-      },
-      {
-        "goodShare": 0.5,
-        "transformationReliability": 0.95,
-        "seed": 11,
-        "arm": "baseline",
-        "sampleSize": 40,
-        "acceptedRate": 0.9,
-        "processedCount": 40,
-        "repairAttempts": 0
-      },
-      {
-        "goodShare": 0.5,
-        "transformationReliability": 0.95,
-        "seed": 11,
         "arm": "fb-control-loop",
         "sampleSize": 40,
         "acceptedRate": 0.95,
         "processedCount": 20,
-        "repairAttempts": 0
+        "repairAttempts": 3,
+        "comparisonErrors": 0,
+        "gateErrors": 1
       },
       {
         "goodShare": 0.5,
-        "transformationReliability": 0.95,
-        "seed": 29,
+        "transformationReliability": 0.8,
+        "seed": 47,
         "arm": "baseline",
         "sampleSize": 40,
-        "acceptedRate": 0.975,
+        "acceptedRate": 0.7,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.8,
+        "seed": 47,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.85,
+        "processedCount": 22,
+        "repairAttempts": 5,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.5,
         "transformationReliability": 0.95,
-        "seed": 29,
+        "seed": 11,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 40,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.95,
+        "seed": 11,
         "arm": "fb-control-loop",
         "sampleSize": 40,
         "acceptedRate": 0.925,
-        "processedCount": 21,
-        "repairAttempts": 1
+        "processedCount": 20,
+        "repairAttempts": 1,
+        "comparisonErrors": 0,
+        "gateErrors": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.95,
+        "seed": 29,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 40,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
+      },
+      {
+        "goodShare": 0.5,
+        "transformationReliability": 0.95,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.825,
+        "processedCount": 18,
+        "repairAttempts": 1,
+        "comparisonErrors": 0,
+        "gateErrors": 1
       },
       {
         "goodShare": 0.5,
@@ -1412,7 +1567,9 @@
         "sampleSize": 40,
         "acceptedRate": 0.975,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.5,
@@ -1420,9 +1577,11 @@
         "seed": 47,
         "arm": "fb-control-loop",
         "sampleSize": 40,
-        "acceptedRate": 0.975,
-        "processedCount": 26,
-        "repairAttempts": 1
+        "acceptedRate": 0.95,
+        "processedCount": 25,
+        "repairAttempts": 1,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.75,
@@ -1430,9 +1589,11 @@
         "seed": 11,
         "arm": "baseline",
         "sampleSize": 40,
-        "acceptedRate": 0.575,
+        "acceptedRate": 0.725,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.75,
@@ -1440,39 +1601,47 @@
         "seed": 11,
         "arm": "fb-control-loop",
         "sampleSize": 40,
-        "acceptedRate": 0.925,
-        "processedCount": 15,
-        "repairAttempts": 8
+        "acceptedRate": 0.85,
+        "processedCount": 16,
+        "repairAttempts": 4,
+        "comparisonErrors": 1,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.75,
         "transformationReliability": 0.6,
         "seed": 29,
-        "arm": "baseline",
-        "sampleSize": 40,
-        "acceptedRate": 0.675,
-        "processedCount": 40,
-        "repairAttempts": 0
-      },
-      {
-        "goodShare": 0.75,
-        "transformationReliability": 0.6,
-        "seed": 29,
-        "arm": "fb-control-loop",
-        "sampleSize": 40,
-        "acceptedRate": 0.925,
-        "processedCount": 19,
-        "repairAttempts": 4
-      },
-      {
-        "goodShare": 0.75,
-        "transformationReliability": 0.6,
-        "seed": 47,
         "arm": "baseline",
         "sampleSize": 40,
         "acceptedRate": 0.65,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.6,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 10,
+        "repairAttempts": 1,
+        "comparisonErrors": 0,
+        "gateErrors": 1
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.6,
+        "seed": 47,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.55,
+        "processedCount": 40,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.75,
@@ -1480,89 +1649,107 @@
         "seed": 47,
         "arm": "fb-control-loop",
         "sampleSize": 40,
-        "acceptedRate": 0.95,
-        "processedCount": 12,
-        "repairAttempts": 2
-      },
-      {
-        "goodShare": 0.75,
-        "transformationReliability": 0.8,
-        "seed": 11,
-        "arm": "baseline",
-        "sampleSize": 40,
-        "acceptedRate": 0.85,
-        "processedCount": 40,
-        "repairAttempts": 0
-      },
-      {
-        "goodShare": 0.75,
-        "transformationReliability": 0.8,
-        "seed": 11,
-        "arm": "fb-control-loop",
-        "sampleSize": 40,
-        "acceptedRate": 0.95,
-        "processedCount": 11,
-        "repairAttempts": 2
-      },
-      {
-        "goodShare": 0.75,
-        "transformationReliability": 0.8,
-        "seed": 29,
-        "arm": "baseline",
-        "sampleSize": 40,
-        "acceptedRate": 0.775,
-        "processedCount": 40,
-        "repairAttempts": 0
-      },
-      {
-        "goodShare": 0.75,
-        "transformationReliability": 0.8,
-        "seed": 29,
-        "arm": "fb-control-loop",
-        "sampleSize": 40,
-        "acceptedRate": 0.95,
-        "processedCount": 11,
-        "repairAttempts": 2
-      },
-      {
-        "goodShare": 0.75,
-        "transformationReliability": 0.8,
-        "seed": 47,
-        "arm": "baseline",
-        "sampleSize": 40,
-        "acceptedRate": 0.775,
-        "processedCount": 40,
-        "repairAttempts": 0
-      },
-      {
-        "goodShare": 0.75,
-        "transformationReliability": 0.8,
-        "seed": 47,
-        "arm": "fb-control-loop",
-        "sampleSize": 40,
-        "acceptedRate": 1,
-        "processedCount": 12,
-        "repairAttempts": 2
-      },
-      {
-        "goodShare": 0.75,
-        "transformationReliability": 0.95,
-        "seed": 11,
-        "arm": "baseline",
-        "sampleSize": 40,
-        "acceptedRate": 0.925,
-        "processedCount": 40,
-        "repairAttempts": 0
-      },
-      {
-        "goodShare": 0.75,
-        "transformationReliability": 0.95,
-        "seed": 11,
-        "arm": "fb-control-loop",
-        "sampleSize": 40,
-        "acceptedRate": 0.975,
+        "acceptedRate": 0.875,
         "processedCount": 10,
-        "repairAttempts": 0
+        "repairAttempts": 3,
+        "comparisonErrors": 0,
+        "gateErrors": 1
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "seed": 11,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.775,
+        "processedCount": 40,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "seed": 11,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 16,
+        "repairAttempts": 2,
+        "comparisonErrors": 0,
+        "gateErrors": 1
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "seed": 29,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.825,
+        "processedCount": 40,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "seed": 29,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 11,
+        "repairAttempts": 3,
+        "comparisonErrors": 0,
+        "gateErrors": 1
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "seed": 47,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.825,
+        "processedCount": 40,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.8,
+        "seed": 47,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 15,
+        "repairAttempts": 2,
+        "comparisonErrors": 0,
+        "gateErrors": 1
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.95,
+        "seed": 11,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 40,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.95,
+        "seed": 11,
+        "arm": "fb-control-loop",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
+        "processedCount": 9,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 1
       },
       {
         "goodShare": 0.75,
@@ -1572,27 +1759,33 @@
         "sampleSize": 40,
         "acceptedRate": 0.975,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.75,
         "transformationReliability": 0.95,
         "seed": 29,
         "arm": "fb-control-loop",
-        "sampleSize": 40,
-        "acceptedRate": 0.95,
-        "processedCount": 8,
-        "repairAttempts": 1
-      },
-      {
-        "goodShare": 0.75,
-        "transformationReliability": 0.95,
-        "seed": 47,
-        "arm": "baseline",
         "sampleSize": 40,
         "acceptedRate": 0.9,
+        "processedCount": 10,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 1
+      },
+      {
+        "goodShare": 0.75,
+        "transformationReliability": 0.95,
+        "seed": 47,
+        "arm": "baseline",
+        "sampleSize": 40,
+        "acceptedRate": 0.95,
         "processedCount": 40,
-        "repairAttempts": 0
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 0
       },
       {
         "goodShare": 0.75,
@@ -1600,9 +1793,11 @@
         "seed": 47,
         "arm": "fb-control-loop",
         "sampleSize": 40,
-        "acceptedRate": 0.975,
-        "processedCount": 20,
-        "repairAttempts": 0
+        "acceptedRate": 0.95,
+        "processedCount": 16,
+        "repairAttempts": 0,
+        "comparisonErrors": 0,
+        "gateErrors": 2
       }
     ],
     "summary": [
@@ -1610,10 +1805,10 @@
         "goodShare": 0.25,
         "transformationReliability": 0.6,
         "arm": "baseline",
-        "medianAcceptedRate": 0.65,
+        "medianAcceptedRate": 0.575,
         "rangeAcceptedRate": [
-          0.625,
-          0.675
+          0.425,
+          0.575
         ],
         "medianProcessedCount": 40
       },
@@ -1621,21 +1816,21 @@
         "goodShare": 0.25,
         "transformationReliability": 0.6,
         "arm": "fb-control-loop",
-        "medianAcceptedRate": 0.75,
+        "medianAcceptedRate": 0.775,
         "rangeAcceptedRate": [
           0.7,
-          0.8
+          0.775
         ],
-        "medianProcessedCount": 27
+        "medianProcessedCount": 28
       },
       {
         "goodShare": 0.25,
         "transformationReliability": 0.8,
         "arm": "baseline",
-        "medianAcceptedRate": 0.8,
+        "medianAcceptedRate": 0.775,
         "rangeAcceptedRate": [
-          0.775,
-          0.8
+          0.75,
+          0.775
         ],
         "medianProcessedCount": 40
       },
@@ -1645,10 +1840,10 @@
         "arm": "fb-control-loop",
         "medianAcceptedRate": 0.825,
         "rangeAcceptedRate": [
-          0.8,
-          0.9
+          0.775,
+          0.85
         ],
-        "medianProcessedCount": 28
+        "medianProcessedCount": 29
       },
       {
         "goodShare": 0.25,
@@ -1656,7 +1851,7 @@
         "arm": "baseline",
         "medianAcceptedRate": 0.975,
         "rangeAcceptedRate": [
-          0.95,
+          0.975,
           0.975
         ],
         "medianProcessedCount": 40
@@ -1667,10 +1862,10 @@
         "arm": "fb-control-loop",
         "medianAcceptedRate": 0.875,
         "rangeAcceptedRate": [
-          0.875,
-          0.975
+          0.8,
+          0.9
         ],
-        "medianProcessedCount": 28
+        "medianProcessedCount": 30
       },
       {
         "goodShare": 0.5,
@@ -1678,8 +1873,8 @@
         "arm": "baseline",
         "medianAcceptedRate": 0.5,
         "rangeAcceptedRate": [
-          0.475,
-          0.625
+          0.5,
+          0.5
         ],
         "medianProcessedCount": 40
       },
@@ -1687,18 +1882,18 @@
         "goodShare": 0.5,
         "transformationReliability": 0.6,
         "arm": "fb-control-loop",
-        "medianAcceptedRate": 0.85,
+        "medianAcceptedRate": 0.75,
         "rangeAcceptedRate": [
-          0.85,
+          0.725,
           0.85
         ],
-        "medianProcessedCount": 20
+        "medianProcessedCount": 22
       },
       {
         "goodShare": 0.5,
         "transformationReliability": 0.8,
         "arm": "baseline",
-        "medianAcceptedRate": 0.8,
+        "medianAcceptedRate": 0.7,
         "rangeAcceptedRate": [
           0.7,
           0.8
@@ -1709,20 +1904,20 @@
         "goodShare": 0.5,
         "transformationReliability": 0.8,
         "arm": "fb-control-loop",
-        "medianAcceptedRate": 0.9,
+        "medianAcceptedRate": 0.85,
         "rangeAcceptedRate": [
-          0.9,
-          0.9
+          0.825,
+          0.95
         ],
-        "medianProcessedCount": 17
+        "medianProcessedCount": 21
       },
       {
         "goodShare": 0.5,
         "transformationReliability": 0.95,
         "arm": "baseline",
-        "medianAcceptedRate": 0.975,
+        "medianAcceptedRate": 0.95,
         "rangeAcceptedRate": [
-          0.9,
+          0.95,
           0.975
         ],
         "medianProcessedCount": 40
@@ -1731,12 +1926,12 @@
         "goodShare": 0.5,
         "transformationReliability": 0.95,
         "arm": "fb-control-loop",
-        "medianAcceptedRate": 0.95,
+        "medianAcceptedRate": 0.925,
         "rangeAcceptedRate": [
-          0.925,
-          0.975
+          0.825,
+          0.95
         ],
-        "medianProcessedCount": 21
+        "medianProcessedCount": 20
       },
       {
         "goodShare": 0.75,
@@ -1744,8 +1939,8 @@
         "arm": "baseline",
         "medianAcceptedRate": 0.65,
         "rangeAcceptedRate": [
-          0.575,
-          0.675
+          0.55,
+          0.725
         ],
         "medianProcessedCount": 40
       },
@@ -1753,21 +1948,21 @@
         "goodShare": 0.75,
         "transformationReliability": 0.6,
         "arm": "fb-control-loop",
-        "medianAcceptedRate": 0.925,
+        "medianAcceptedRate": 0.875,
         "rangeAcceptedRate": [
-          0.925,
+          0.85,
           0.95
         ],
-        "medianProcessedCount": 15
+        "medianProcessedCount": 10
       },
       {
         "goodShare": 0.75,
         "transformationReliability": 0.8,
         "arm": "baseline",
-        "medianAcceptedRate": 0.775,
+        "medianAcceptedRate": 0.825,
         "rangeAcceptedRate": [
           0.775,
-          0.85
+          0.825
         ],
         "medianProcessedCount": 40
       },
@@ -1778,17 +1973,17 @@
         "medianAcceptedRate": 0.95,
         "rangeAcceptedRate": [
           0.95,
-          1
+          0.95
         ],
-        "medianProcessedCount": 11
+        "medianProcessedCount": 15
       },
       {
         "goodShare": 0.75,
         "transformationReliability": 0.95,
         "arm": "baseline",
-        "medianAcceptedRate": 0.925,
+        "medianAcceptedRate": 0.95,
         "rangeAcceptedRate": [
-          0.9,
+          0.95,
           0.975
         ],
         "medianProcessedCount": 40
@@ -1797,10 +1992,10 @@
         "goodShare": 0.75,
         "transformationReliability": 0.95,
         "arm": "fb-control-loop",
-        "medianAcceptedRate": 0.975,
+        "medianAcceptedRate": 0.95,
         "rangeAcceptedRate": [
-          0.95,
-          0.975
+          0.9,
+          0.95
         ],
         "medianProcessedCount": 10
       }

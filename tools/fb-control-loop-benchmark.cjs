@@ -50,6 +50,17 @@ function cost(calls, costModel) {
   return totals;
 }
 
+function projectPublicCase(item) {
+  return {
+    id: item.id,
+    category: item.category,
+    visible: structuredClone(item.visible),
+    baseline: structuredClone(item.baseline),
+    transformation: structuredClone(item.transformation),
+    repair: item.repair ? structuredClone(item.repair) : null,
+  };
+}
+
 function baselineArm(item, costModel) {
   const calls = emptyCalls();
   calls.process = 1;
@@ -61,17 +72,25 @@ function baselineArm(item, costModel) {
     category: item.category,
     arm: 'baseline',
     disposition: 'process',
-    dispositionCorrect: item.hidden.expectedDisposition === 'process',
     accepted,
-    baselineDegraded: item.baseline.quality && !selected.quality,
-    unnecessaryProcessing: item.hidden.expectedDisposition === 'skip',
+    deliveredArtifact: accepted ? 'transformed-candidate' : 'none',
+    worseCandidateAttempt: item.baseline.quality && item.baseline.safety && (!selected.quality || !selected.safety),
+    alreadyGoodInput: item.baseline.quality && item.baseline.safety,
+    alreadyGoodRetainedReady: item.baseline.quality && item.baseline.safety && accepted,
     diagnosedFailure: null,
-    diagnosisCorrect: null,
     unresolvedFailure: !accepted,
     calls,
     ...cost(calls, costModel),
     result: accepted ? 'accepted transformed candidate' : 'rejected by final QA',
   };
+}
+
+function diagnoseVisibleFailure(signal) {
+  if (signal === 'access_missing') return 'Environment';
+  if (signal === 'criteria_missing') return 'Brief';
+  if (signal === 'evaluator_conflict') return 'Eval';
+  if (signal === 'output_defect') return 'Build';
+  return null;
 }
 
 function fbArm(item, costModel) {
@@ -82,24 +101,30 @@ function fbArm(item, costModel) {
     disposition = item.visible.judgmentDecision;
   }
   let selected = item.baseline;
+  let deliveredArtifact = 'baseline';
   let result = 'preserved baseline';
   let diagnosedFailure = null;
+  let worseCandidateAttempt = false;
   if (disposition === 'process') {
     calls.process = 1;
     calls.comparison = 1;
     calls.qa = 1;
     calls.safety = 1;
     selected = item.transformation;
+    deliveredArtifact = 'transformed-candidate';
+    worseCandidateAttempt = item.baseline.quality && item.baseline.safety && (!selected.quality || !selected.safety);
     if (item.baseline.quality && item.baseline.safety && (!selected.quality || !selected.safety)) {
       selected = item.baseline;
+      deliveredArtifact = 'baseline';
       result = 'comparison preserved better baseline';
     } else if (!selected.quality || !selected.safety) {
       calls.diagnosis = 1;
-      diagnosedFailure = item.hidden.failureClass;
+      diagnosedFailure = diagnoseVisibleFailure(item.visible.observedFailureSignal);
       result = 'diagnosed failed candidate';
       if (item.repair) {
         calls.repair = 1;
         selected = item.repair;
+        deliveredArtifact = 'repair-candidate';
         result = selected.quality && selected.safety ? 'accepted bounded repair' : 'bounded repair unresolved';
       }
     } else {
@@ -107,21 +132,33 @@ function fbArm(item, costModel) {
     }
   }
   const accepted = selected.quality && selected.safety;
+  if (!accepted) deliveredArtifact = 'none';
   return {
     caseId: item.id,
     category: item.category,
     arm: 'fb-control-loop',
     disposition,
-    dispositionCorrect: disposition === item.hidden.expectedDisposition,
     accepted,
-    baselineDegraded: item.baseline.quality && !selected.quality,
-    unnecessaryProcessing: disposition === 'process' && item.hidden.expectedDisposition === 'skip',
+    deliveredArtifact,
+    worseCandidateAttempt,
+    alreadyGoodInput: item.baseline.quality && item.baseline.safety,
+    alreadyGoodRetainedReady: item.baseline.quality && item.baseline.safety && accepted,
     diagnosedFailure,
-    diagnosisCorrect: diagnosedFailure === null ? null : diagnosedFailure === item.hidden.failureClass,
     unresolvedFailure: !accepted,
     calls,
     ...cost(calls, costModel),
     result,
+  };
+}
+
+function gradeRecord(record, truthItem) {
+  return {
+    ...record,
+    dispositionCorrect: record.disposition === truthItem.hidden.expectedDisposition,
+    unnecessaryProcessing: record.disposition === 'process' && truthItem.hidden.expectedDisposition === 'skip',
+    diagnosisCorrect: record.diagnosedFailure === null
+      ? null
+      : record.diagnosedFailure === truthItem.hidden.failureClass,
   };
 }
 
@@ -137,7 +174,9 @@ function armSummary(records, costModel) {
     acceptedRate: acceptedCount / count,
     unnecessaryProcessingCount: records.filter(row => row.unnecessaryProcessing).length,
     unnecessaryProcessingRate: records.filter(row => row.unnecessaryProcessing).length / count,
-    baselineDegradationCount: records.filter(row => row.baselineDegraded).length,
+    worseCandidateAttempts: records.filter(row => row.worseCandidateAttempt).length,
+    alreadyGoodInputCount: records.filter(row => row.alreadyGoodInput).length,
+    alreadyGoodInputsRetainedReady: records.filter(row => row.alreadyGoodRetainedReady).length,
     correctDispositionCount: records.filter(row => row.dispositionCorrect).length,
     correctDispositionRate: records.filter(row => row.dispositionCorrect).length / count,
     diagnosedFailureCount: diagnosed.length,
@@ -155,7 +194,7 @@ function armSummary(records, costModel) {
 }
 
 function signedDifference(baseline, fb) {
-  const fields = ['acceptedRate', 'unnecessaryProcessingRate', 'baselineDegradationCount', 'correctDispositionRate',
+  const fields = ['acceptedRate', 'unnecessaryProcessingRate', 'worseCandidateAttempts', 'alreadyGoodInputsRetainedReady', 'correctDispositionRate',
     'repairAttempts', 'unresolvedFailures', 'humanDecisionEvents', 'workUnits', 'modeledTokenUnits', 'modeledMinutes',
     'workUnitsPerAccepted', 'modeledTokenUnitsPerAccepted'];
   return Object.fromEntries(fields.map(field => [field, fb[field] === null || baseline[field] === null ? null : fb[field] - baseline[field]]));
@@ -184,7 +223,10 @@ function prng(seed) {
 
 function sensitivityRun(settings) {
   const raw = [];
-  const { sampleSize, goodShares, transformationReliabilities, routerAccuracy, repairSuccessRate } = settings.sensitivity;
+  const {
+    sampleSize, goodShares, transformationReliabilities, routerAccuracy,
+    comparisonAccuracy, gateAccuracy, repairSuccessRate,
+  } = settings.sensitivity;
   for (const goodShare of goodShares) {
     for (const transformationReliability of transformationReliabilities) {
       for (const seed of settings.seeds) {
@@ -193,12 +235,16 @@ function sensitivityRun(settings) {
           good: random() < goodShare,
           transformSuccess: random() < transformationReliability,
           routerCorrect: random() < routerAccuracy,
+          comparisonCorrect: random() < comparisonAccuracy,
+          gateCorrect: random() < gateAccuracy,
           repairSuccess: random() < repairSuccessRate,
         }));
         for (const arm of ['baseline', 'fb-control-loop']) {
           let accepted = 0;
           let processed = 0;
           let repairs = 0;
+          let comparisonErrors = 0;
+          let gateErrors = 0;
           for (const sample of shared) {
             if (arm === 'baseline') {
               processed += 1;
@@ -208,15 +254,26 @@ function sensitivityRun(settings) {
               const process = sample.routerCorrect ? shouldProcess : !shouldProcess;
               processed += Number(process);
               if (!process) accepted += Number(sample.good);
-              else if (sample.good) accepted += 1;
-              else if (sample.transformSuccess) accepted += 1;
-              else {
+              else if (sample.good && !sample.transformSuccess) {
+                comparisonErrors += Number(!sample.comparisonCorrect);
+                gateErrors += Number(!sample.gateCorrect);
+                accepted += Number(sample.comparisonCorrect);
+              } else if (sample.transformSuccess) {
+                gateErrors += Number(!sample.gateCorrect);
+                accepted += Number(sample.gateCorrect);
+              } else if (sample.gateCorrect) {
                 repairs += 1;
                 accepted += Number(sample.repairSuccess);
+              } else {
+                gateErrors += 1;
               }
             }
           }
-          raw.push({ goodShare, transformationReliability, seed, arm, sampleSize, acceptedRate: accepted / sampleSize, processedCount: processed, repairAttempts: repairs });
+          raw.push({
+            goodShare, transformationReliability, seed, arm, sampleSize,
+            acceptedRate: accepted / sampleSize, processedCount: processed,
+            repairAttempts: repairs, comparisonErrors, gateErrors,
+          });
         }
       }
     }
@@ -255,7 +312,13 @@ function assertFinite(value) {
 function runExperiment(options = {}) {
   const truth = readJson(options.truthPath || DEFAULT_TRUTH);
   const settings = readJson(options.settingsPath || DEFAULT_SETTINGS);
-  const rawRecords = truth.cases.flatMap(item => [baselineArm(item, settings.costModel), fbArm(item, settings.costModel)]);
+  const rawRecords = truth.cases.flatMap(item => {
+    const publicCase = projectPublicCase(item);
+    return [
+      gradeRecord(baselineArm(publicCase, settings.costModel), item),
+      gradeRecord(fbArm(publicCase, settings.costModel), item),
+    ];
+  });
   const inputs = {
     caseIds: truth.cases.map(item => item.id),
     armOrder: ['baseline', 'fb-control-loop'],
@@ -314,10 +377,13 @@ function validateBundle(bundle, sources = {}) {
   for (const item of truth.cases) for (const arm of ['baseline', 'fb-control-loop']) {
     if (!keys.has(`${item.id}:${arm}`)) throw new Error(`Missing benchmark record ${item.id}:${arm}.`);
   }
-  const expectedRaw = truth.cases.flatMap(item => [
-    baselineArm(item, settings.costModel),
-    fbArm(item, settings.costModel),
-  ]);
+  const expectedRaw = truth.cases.flatMap(item => {
+    const publicCase = projectPublicCase(item);
+    return [
+      gradeRecord(baselineArm(publicCase, settings.costModel), item),
+      gradeRecord(fbArm(publicCase, settings.costModel), item),
+    ];
+  });
   if (canonical(bundle.rawRecords) !== canonical(expectedRaw)) throw new Error('Raw outcomes do not match the frozen arm execution.');
   const computed = recompute(bundle.rawRecords, bundle.costModel);
   if (canonical(computed) !== canonical(bundle.summary)) throw new Error('Benchmark summary does not match recomputed raw results.');
@@ -338,7 +404,7 @@ function reportMarkdown(bundle) {
   const callRows = CALL_NAMES.map(name =>
     `| ${name} | ${baseline.calls[name]} | ${fb.calls[name]} | ${fb.calls[name] - baseline.calls[name]} |`).join('\n');
   const caseRows = bundle.rawRecords.map(row =>
-    `| ${row.caseId} | ${row.arm} | ${row.disposition} | ${row.accepted ? 'yes' : 'no'} | ${row.unnecessaryProcessing ? 'yes' : 'no'} | ${row.baselineDegraded ? 'yes' : 'no'} | ${row.result} |`).join('\n');
+    `| ${row.caseId} | ${row.arm} | ${row.disposition} | ${row.accepted ? 'yes' : 'no'} | ${row.unnecessaryProcessing ? 'yes' : 'no'} | ${row.worseCandidateAttempt ? 'yes' : 'no'} | ${row.deliveredArtifact} | ${row.diagnosedFailure || 'none'} | ${row.result} |`).join('\n');
   const costRows = CALL_NAMES.map(name => {
     const value = bundle.costModel[name];
     return `| ${name} | ${value.workUnits} | ${value.tokenUnits} | ${value.minutes} |`;
@@ -346,6 +412,17 @@ function reportMarkdown(bundle) {
   const sensitivityRows = bundle.sensitivity.summary.map(row =>
     `| ${percent(row.goodShare)} | ${percent(row.transformationReliability)} | ${row.arm} | ${percent(row.medianAcceptedRate)} | ${percent(row.rangeAcceptedRate[0])}–${percent(row.rangeAcceptedRate[1])} | ${row.medianProcessedCount} |`).join('\n');
   const hashRows = Object.entries(bundle.hashes).map(([name, value]) => `| ${name} | \`${value}\` |`).join('\n');
+  const sensitivityWins = bundle.sensitivity.summary
+    .filter(row => row.arm === 'baseline')
+    .map(row => ({
+      baseline: row,
+      fb: bundle.sensitivity.summary.find(candidate =>
+        candidate.arm === 'fb-control-loop'
+        && candidate.goodShare === row.goodShare
+        && candidate.transformationReliability === row.transformationReliability),
+    }))
+    .filter(pair => pair.baseline.medianAcceptedRate > pair.fb.medianAcceptedRate)
+    .map(pair => `${Math.round(pair.baseline.goodShare * 100)}% already-good and ${Math.round(pair.baseline.transformationReliability * 100)}% reliability (${percent(pair.baseline.medianAcceptedRate)} baseline versus ${percent(pair.fb.medianAcceptedRate)} FB)`);
   return `# FB control-loop benchmark\n\n` +
     `Experiment: \`${bundle.experimentId}\`\n\n` +
     `This is a deterministic simulation. Counts are directly observed deterministic counts from the frozen cases. ` +
@@ -353,8 +430,11 @@ function reportMarkdown(bundle) {
     `| Outcome | Process-all baseline | FB control loop | FB minus baseline |\n|---|---:|---:|---:|\n` +
     `| Product-ready rate | ${percent(baseline.acceptedRate)} | ${percent(fb.acceptedRate)} | ${percent(delta.acceptedRate)} |\n` +
     `| Unnecessary processing rate | ${percent(baseline.unnecessaryProcessingRate)} | ${percent(fb.unnecessaryProcessingRate)} | ${percent(delta.unnecessaryProcessingRate)} |\n` +
-    `| Good baselines degraded | ${baseline.baselineDegradationCount} | ${fb.baselineDegradationCount} | ${delta.baselineDegradationCount} |\n` +
+    `| Worse candidate attempts | ${baseline.worseCandidateAttempts} | ${fb.worseCandidateAttempts} | ${delta.worseCandidateAttempts} |\n` +
+    `| Already-good inputs retained as ready | ${baseline.alreadyGoodInputsRetainedReady}/${baseline.alreadyGoodInputCount} | ${fb.alreadyGoodInputsRetainedReady}/${fb.alreadyGoodInputCount} | ${delta.alreadyGoodInputsRetainedReady} |\n` +
     `| Correct disposition rate | ${percent(baseline.correctDispositionRate)} | ${percent(fb.correctDispositionRate)} | ${percent(delta.correctDispositionRate)} |\n` +
+    `| Diagnosis accuracy | n/a | ${fb.diagnosedFailureCount ? `${fb.diagnosedFailureCount * fb.diagnosedFailureAccuracy}/${fb.diagnosedFailureCount} (${percent(fb.diagnosedFailureAccuracy)})` : 'n/a'} | n/a |\n` +
+    `| Human-decision events | ${baseline.humanDecisionEvents} | ${fb.humanDecisionEvents} | ${delta.humanDecisionEvents} |\n` +
     `| Unresolved failures | ${baseline.unresolvedFailures} | ${fb.unresolvedFailures} | ${delta.unresolvedFailures} |\n` +
     `| Deterministic work units | ${baseline.workUnits} | ${fb.workUnits} | ${delta.workUnits} |\n` +
     `| Modeled token units | ${baseline.modeledTokenUnits} | ${fb.modeledTokenUnits} | ${delta.modeledTokenUnits} |\n` +
@@ -363,20 +443,22 @@ function reportMarkdown(bundle) {
     `| Modeled token units per accepted outcome | ${baseline.modeledTokenUnitsPerAccepted.toFixed(0)} | ${fb.modeledTokenUnitsPerAccepted.toFixed(0)} | ${delta.modeledTokenUnitsPerAccepted.toFixed(0)} |\n\n` +
     `The frozen set includes an unfavorable FB case: ambiguous routing makes the wrong skip decision while the process-all baseline succeeds. No valid outcome was discarded.\n\n` +
     `## Directly observed call counts\n\n| Call type | Process-all baseline | FB control loop | FB minus baseline |\n|---|---:|---:|---:|\n${callRows}\n\n` +
-    `## Raw case outcomes\n\n| Case | Arm | Disposition | Accepted | Unnecessary processing | Degraded baseline | Result |\n|---|---|---|---:|---:|---:|---|\n${caseRows}\n\n` +
+    `## Raw case outcomes\n\n| Case | Arm | Disposition | Accepted | Unnecessary processing | Worse attempt | Delivered artifact | Diagnosis | Result |\n|---|---|---|---:|---:|---:|---|---|---|\n${caseRows}\n\n` +
     `## Fixed cost assumptions\n\nThese units are declared assumptions, not provider measurements.\n\n| Operation | Work units | Modeled token units | Modeled minutes |\n|---|---:|---:|---:|\n${costRows}\n\n` +
+    `A human judgment is calibrated as one modeled attention minute and intentionally has zero agent token and work units because it is human attention, not agent compute.\n\n` +
     `## Method\n\nBoth arms receive the same eight frozen inputs and transformation outcomes. The baseline processes every item once and runs one final QA check. ` +
     `FB routes first, compares candidate and baseline, applies separate quality and safety gates, diagnoses failure, and permits one bounded repair where declared. ` +
-    `Hidden expected dispositions and failure classes are used only by the grader, not the router. SHA-256 hashes bind fixtures, settings, cost assumptions, seeds, and grader rules. ` +
+    `The FB arm receives only a public projection containing visible observations and declared outcomes. Hidden expected dispositions and failure classes are used only by the grader, never by routing or diagnosis. SHA-256 hashes bind fixtures, settings, cost assumptions, seeds, and grader rules. ` +
     `Aggregates are recomputed from the raw per-case records.\n\n` +
     `## Pre-registered sensitivity results\n\nPre-registered seeds \`${bundle.inputs.seeds.join(', ')}\` vary already-good share (25%, 50%, 75%) and transformation reliability (60%, 80%, 95%). ` +
+    `The disclosed FB assumptions are ${percent(bundle.inputs.sensitivity.comparisonAccuracy)} comparison accuracy and ${percent(bundle.inputs.sensitivity.gateAccuracy)} gate accuracy; seeded comparison and gate errors affect outcomes. ` +
     `The machine result preserves every seed and reports median and range; none is selectively rerun.\n\n` +
     `| Already-good share | Transformation reliability | Arm | Median ready rate | Range | Median processed |\n|---:|---:|---|---:|---:|---:|\n${sensitivityRows}\n\n` +
-    `The sensitivity results also preserve settings where the baseline wins: at 25% already-good inputs and 95% reliability its median ready rate is 97.5% versus FB's 87.5%; ` +
-    `at 50% already-good inputs and 95% reliability it is 97.5% versus FB's 95.0%. When transformation is already extremely reliable, extra routing can lose more through a wrong decision than the loop recovers.\n\n` +
+    `The sensitivity results preserve every setting where the baseline wins: ${sensitivityWins.join('; ')}. When transformation is already extremely reliable, routing, comparison, or gate errors can outweigh the loop's benefit.\n\n` +
     `## Evidence hashes\n\n| Frozen input | SHA-256 |\n|---|---|\n${hashRows}\n\n` +
     `## Limitations\n\nThis experiment does not establish actual Codex token savings, wall-clock savings, human-attention savings, production behavior, or population-wide percentages. ` +
-    `The token and time figures depend entirely on the disclosed fixed cost model. The compact fixture set demonstrates mechanism-level tradeoffs, not general market performance.\n`;
+    `The token and time figures depend entirely on the disclosed fixed cost model. Sensitivity outcomes depend on the disclosed router, comparison, gate, and repair-success assumptions; they are not measured production accuracies. ` +
+    `The compact fixture set demonstrates mechanism-level tradeoffs, not general market performance.\n`;
 }
 
 function runAndWrite(options = {}) {
@@ -410,4 +492,7 @@ function main() {
 }
 
 if (require.main === module) main();
-module.exports = { runExperiment, recompute, validateBundle, runAndWrite, reportMarkdown };
+module.exports = {
+  runExperiment, recompute, validateBundle, runAndWrite, reportMarkdown,
+  projectPublicCase, fbArm,
+};
