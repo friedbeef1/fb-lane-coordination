@@ -600,36 +600,112 @@ test('rejects incomplete and symlinked candidate targets without deleting existi
     fs.writeFileSync(path.join(candidates, 'candidate-001', 'partial.json'), '{}\n');
     assert.throws(() => writeCandidateStore(fixture.repo, candidateStoreInput()), /exist|isolated/i);
     assert.strictEqual(fs.readFileSync(path.join(candidates, 'candidate-001', 'partial.json'), 'utf8'), '{}\n');
+    fs.mkdirSync(path.join(candidates, 'candidate-empty'));
+    assert.throws(() => writeCandidateStore(fixture.repo, candidateStoreInput({ candidateId: 'candidate-empty' })), /exist|isolated/i);
+    assert.deepStrictEqual(fs.readdirSync(path.join(candidates, 'candidate-empty')), []);
+    fs.writeFileSync(path.join(candidates, 'candidate-file'), 'preserve file\n');
+    assert.throws(() => writeCandidateStore(fixture.repo, candidateStoreInput({ candidateId: 'candidate-file' })), /exist|isolated/i);
+    assert.strictEqual(fs.readFileSync(path.join(candidates, 'candidate-file'), 'utf8'), 'preserve file\n');
     const outside = path.join(fixture.parent, 'outside-candidate');
     fs.mkdirSync(outside);
+    fs.writeFileSync(path.join(outside, 'preserve.txt'), 'outside\n');
     fs.symlinkSync(outside, path.join(candidates, 'candidate-symlink'));
     assert.throws(() => writeCandidateStore(fixture.repo, candidateStoreInput({ candidateId: 'candidate-symlink' })), /symlink|unsafe/i);
+    assert.strictEqual(fs.readFileSync(path.join(outside, 'preserve.txt'), 'utf8'), 'outside\n');
   } finally {
     fixture.cleanup();
   }
 });
 
-test('does not replace an existing candidate target when publication loses a deterministic race', () => {
+test('claims the final candidate directory before writing and readers reject the partial record', () => {
   const fixture = createRepo();
-  const originalRename = fs.renameSync;
+  const originalWriteFile = fs.writeFileSync;
   try {
     const common = path.resolve(fixture.repo, git(fixture.repo, ['rev-parse', '--git-common-dir']));
     const candidates = path.join(common, 'fb-lane', 'candidates');
-    const target = path.join(candidates, 'candidate-race');
-    let raced = false;
-    fs.renameSync = (from, to) => {
-      if (!raced && path.basename(to) === 'candidate-race' && path.basename(from).startsWith('.candidate-race.stage-')) {
-        raced = true;
-        fs.mkdirSync(target, { recursive: true });
-        fs.writeFileSync(path.join(target, 'unrelated.txt'), 'keep\n');
+    const target = path.join(candidates, 'candidate-partial');
+    let observedClaimedDirectory = false;
+    let observedReaderRejection = false;
+    fs.writeFileSync = (file, ...args) => {
+      if (!observedClaimedDirectory && typeof file === 'number') {
+        observedClaimedDirectory = fs.existsSync(target) && fs.lstatSync(target).isDirectory();
+        try {
+          readCandidateStore(fixture.repo, 'candidate-partial');
+        } catch (error) {
+          observedReaderRejection = /incomplete|missing|commit/i.test(error.message);
+        }
       }
-      return originalRename(from, to);
+      return originalWriteFile(file, ...args);
     };
-    assert.throws(() => writeCandidateStore(fixture.repo, candidateStoreInput({ candidateId: 'candidate-race' })), /exist|publish|race/i);
-    assert.strictEqual(fs.readFileSync(path.join(target, 'unrelated.txt'), 'utf8'), 'keep\n');
+    const record = writeCandidateStore(fixture.repo, candidateStoreInput({ candidateId: 'candidate-partial' }));
+    assert.strictEqual(observedClaimedDirectory, true);
+    assert.strictEqual(observedReaderRejection, true);
+    assert.strictEqual(readCandidateStore(fixture.repo, record.candidateId).candidateHash, record.candidateHash);
+  } finally {
+    fs.writeFileSync = originalWriteFile;
+    fixture.cleanup();
+  }
+});
+
+test('cleans only its claimed partial candidate when publication fails', () => {
+  const fixture = createRepo();
+  const originalWriteFile = fs.writeFileSync;
+  try {
+    const common = path.resolve(fixture.repo, git(fixture.repo, ['rev-parse', '--git-common-dir']));
+    const candidates = path.join(common, 'fb-lane', 'candidates');
+    fs.mkdirSync(candidates, { recursive: true });
+    const unrelated = path.join(candidates, 'unrelated-candidate');
+    fs.mkdirSync(unrelated);
+    fs.writeFileSync(path.join(unrelated, 'preserve.txt'), 'keep\n');
+    let writes = 0;
+    fs.writeFileSync = (file, ...args) => {
+      if (typeof file === 'number' && ++writes === 2) throw new Error('simulated candidate write failure');
+      return originalWriteFile(file, ...args);
+    };
+    assert.throws(() => writeCandidateStore(fixture.repo, candidateStoreInput({ candidateId: 'candidate-failed' })), /simulated candidate write failure/);
+    assert.strictEqual(fs.existsSync(path.join(candidates, 'candidate-failed')), false);
+    assert.strictEqual(fs.readFileSync(path.join(unrelated, 'preserve.txt'), 'utf8'), 'keep\n');
+  } finally {
+    fs.writeFileSync = originalWriteFile;
+    fixture.cleanup();
+  }
+});
+
+test('allows exactly one complete winner among concurrent same-candidate publishers', async () => {
+  const fixture = createRepo();
+  try {
+    const modulePath = path.join(__dirname, 'fb-control-loop.cjs');
+    const input = candidateStoreInput({ candidateId: 'candidate-concurrent' });
+    const script = `const { writeCandidateStore } = require(process.argv[1]);
+try {
+  const record = writeCandidateStore(process.cwd(), JSON.parse(process.argv[2]));
+  console.log(JSON.stringify({ status: 'won', candidateHash: record.candidateHash }));
+} catch (error) {
+  console.log(JSON.stringify({ status: 'lost', message: error.message }));
+}`;
+    const outcomes = await Promise.all(Array.from({ length: 8 }, () => new Promise((resolve, reject) => {
+      const child = spawn(process.execPath, ['-e', script, modulePath, JSON.stringify(input)], {
+        cwd: fixture.repo,
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+      let stdout = '';
+      let stderr = '';
+      child.stdout.on('data', chunk => { stdout += chunk; });
+      child.stderr.on('data', chunk => { stderr += chunk; });
+      child.on('error', reject);
+      child.on('close', code => {
+        if (code !== 0) return reject(new Error(stderr || `publisher exited ${code}`));
+        resolve(JSON.parse(stdout.trim()));
+      });
+    })));
+    assert.strictEqual(outcomes.filter(item => item.status === 'won').length, 1);
+    assert.strictEqual(outcomes.filter(item => item.status === 'lost').length, 7);
+    const record = readCandidateStore(fixture.repo, 'candidate-concurrent');
+    assert.strictEqual(record.candidateHash, serializedHash(proposedConfig()));
+    const common = path.resolve(fixture.repo, git(fixture.repo, ['rev-parse', '--git-common-dir']));
+    const candidates = path.join(common, 'fb-lane', 'candidates');
     assert.deepStrictEqual(fs.readdirSync(candidates).filter(name => name.includes('.stage-')), []);
   } finally {
-    fs.renameSync = originalRename;
     fixture.cleanup();
   }
 });

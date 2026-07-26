@@ -700,8 +700,15 @@ function candidateStoreRoot(common) {
   const candidateDirectory = path.join(laneDirectory, 'candidates');
   for (const [directory, label] of [[laneDirectory, 'control-loop store directory'], [candidateDirectory, 'candidate store directory']]) {
     assertNotSymlink(directory, label);
-    if (!fs.existsSync(directory)) fs.mkdirSync(directory, { mode: 0o700 });
+    if (!fs.existsSync(directory)) {
+      try {
+        fs.mkdirSync(directory, { mode: 0o700 });
+      } catch (error) {
+        if (!error || error.code !== 'EEXIST') throw error;
+      }
+    }
     assertNotSymlink(directory, label);
+    if (!fs.lstatSync(directory).isDirectory()) throw new Error(`Unsafe ${label}.`);
   }
   if (fs.realpathSync(candidateDirectory) !== candidateDirectory) throw new Error('Unsafe candidate store directory outside the Git common directory.');
   return candidateDirectory;
@@ -726,21 +733,36 @@ function safeCandidateFile(directory, name) {
   return file;
 }
 
-function writeCandidateFile(directory, name, content) {
+function candidateDirectoryIdentity(directory) {
   assertSafeCandidateDirectory(directory);
+  const stat = fs.lstatSync(directory);
+  return { dev: stat.dev, ino: stat.ino };
+}
+
+function assertCandidateDirectoryIdentity(directory, expected) {
+  assertSafeCandidateDirectory(directory);
+  const actual = fs.lstatSync(directory);
+  if (actual.dev !== expected.dev || actual.ino !== expected.ino) throw new Error('Claimed candidate directory changed during publication.');
+}
+
+function writeCandidateFile(directory, name, content, directoryIdentity, createdFiles) {
+  assertCandidateDirectoryIdentity(directory, directoryIdentity);
   const target = safeCandidateFile(directory, name);
-  const temporary = safeCandidateFile(directory, `.${name}.${process.pid}.${crypto.randomUUID()}.tmp`);
   const noFollow = fs.constants.O_NOFOLLOW || 0;
-  const descriptor = fs.openSync(temporary, fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_EXCL | noFollow, 0o600);
+  const descriptor = fs.openSync(target, fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_EXCL | noFollow, 0o600);
+  let identity;
   try {
+    const opened = fs.fstatSync(descriptor);
+    identity = { path: target, dev: opened.dev, ino: opened.ino };
+    createdFiles.push(identity);
     fs.writeFileSync(descriptor, content, 'utf8');
     fs.fsyncSync(descriptor);
   } finally {
     fs.closeSync(descriptor);
   }
-  assertSafeCandidateDirectory(directory);
-  assertNotSymlink(target, `candidate file ${name}`);
-  fs.renameSync(temporary, target);
+  assertCandidateDirectoryIdentity(directory, directoryIdentity);
+  const written = fs.lstatSync(target);
+  if (!written.isFile() || written.isSymbolicLink() || written.dev !== identity.dev || written.ino !== identity.ino) throw new Error(`Candidate file ${name} changed during publication.`);
 }
 
 function fsyncCandidateDirectory(directory) {
@@ -815,51 +837,61 @@ function writeCandidateStore(cwd = process.cwd(), input = {}) {
   const common = gitCommonDir(cwd);
   const root = candidateStoreRoot(common);
   const directory = safeCandidatePath(root, candidateId);
-  const lockPath = path.join(root, `.${candidateId}.lock`);
-  assertNotSymlink(lockPath, 'candidate store lock');
-  let lock;
-  let stagingDirectory;
+  const createdFiles = [];
+  let claimedDirectory = false;
+  let directoryIdentity;
+  let completed = false;
   try {
-    lock = fs.openSync(lockPath, 'wx', 0o600);
     if (fs.realpathSync(root) !== root) throw new Error('Unsafe candidate store directory outside the Git common directory.');
-    if (fs.existsSync(directory)) {
-      assertNotSymlink(directory, 'candidate directory');
-      throw new Error(`Candidate ${candidateId} already exists and must remain isolated.`);
+    try {
+      fs.mkdirSync(directory, { mode: 0o700 });
+      claimedDirectory = true;
+    } catch (error) {
+      if (error && error.code === 'EEXIST') throw new Error(`Candidate ${candidateId} already exists and must remain isolated.`);
+      throw error;
     }
-    stagingDirectory = fs.mkdtempSync(path.join(root, `.${candidateId}.stage-`));
-    fs.chmodSync(stagingDirectory, 0o700);
-    assertSafeCandidateDirectory(stagingDirectory, 'candidate staging directory');
-    writeCandidateFile(stagingDirectory, 'baseline-config.json', baselineContent);
-    writeCandidateFile(stagingDirectory, 'proposed-config.json', proposedContent);
-    writeCandidateFile(stagingDirectory, 'fixture-manifest.json', fixtureContent);
-    writeCandidateFile(stagingDirectory, 'candidate.json', recordContent);
+    directoryIdentity = candidateDirectoryIdentity(directory);
+    writeCandidateFile(directory, 'baseline-config.json', baselineContent, directoryIdentity, createdFiles);
+    writeCandidateFile(directory, 'proposed-config.json', proposedContent, directoryIdentity, createdFiles);
+    writeCandidateFile(directory, 'fixture-manifest.json', fixtureContent, directoryIdentity, createdFiles);
+    writeCandidateFile(directory, 'candidate.json', recordContent, directoryIdentity, createdFiles);
     const commit = `${JSON.stringify({ recordHash: hashBytes(recordContent), baselineHash, candidateHash, fixtureManifestHash: record.fixtureManifestHash }, null, 2)}\n`;
-    writeCandidateFile(stagingDirectory, 'record.commit', commit);
-    readCandidateStoreDirectory(stagingDirectory, candidateId);
-    fsyncCandidateDirectory(stagingDirectory);
-    if (fs.realpathSync(root) !== root || fs.existsSync(directory)) throw new Error(`Candidate ${candidateId} already exists or publication parent changed.`);
-    fs.renameSync(stagingDirectory, directory);
-    stagingDirectory = null;
+    fsyncCandidateDirectory(directory);
+    writeCandidateFile(directory, 'record.commit', commit, directoryIdentity, createdFiles);
+    fsyncCandidateDirectory(directory);
+    readCandidateStoreDirectory(directory, candidateId);
     fsyncCandidateDirectory(root);
+    completed = true;
   } finally {
-    if (stagingDirectory && fs.existsSync(stagingDirectory)) {
-      assertSafeCandidateDirectory(stagingDirectory, 'candidate staging directory');
-      fs.rmSync(stagingDirectory, { recursive: true, force: true });
+    if (claimedDirectory && !completed) {
+      for (const created of createdFiles.reverse()) {
+        if (!fs.existsSync(created.path)) continue;
+        const actual = fs.lstatSync(created.path);
+        if (actual.isFile() && !actual.isSymbolicLink() && actual.dev === created.dev && actual.ino === created.ino) fs.unlinkSync(created.path);
+      }
+      if (fs.existsSync(directory)) {
+        const actual = fs.lstatSync(directory);
+        if (actual.isDirectory() && !actual.isSymbolicLink() && directoryIdentity && actual.dev === directoryIdentity.dev && actual.ino === directoryIdentity.ino) {
+          try {
+            fs.rmdirSync(directory);
+          } catch (error) {
+            if (!error || error.code !== 'ENOTEMPTY') throw error;
+          }
+        }
+      }
     }
-    if (lock !== undefined) fs.closeSync(lock);
-    if (fs.existsSync(lockPath) && !fs.lstatSync(lockPath).isSymbolicLink()) fs.unlinkSync(lockPath);
   }
   return { directory, ...record, fixtureManifest };
 }
 
 function readCandidateStoreDirectory(directory, safeId) {
   assertSafeCandidateDirectory(directory);
+  const commit = parseCandidateJson(directory, 'record.commit');
   const baselineContent = readCandidateFile(directory, 'baseline-config.json');
   const proposedContent = readCandidateFile(directory, 'proposed-config.json');
   const fixtureContent = readCandidateFile(directory, 'fixture-manifest.json');
   const recordContent = readCandidateFile(directory, 'candidate.json');
   const record = parseCandidateJson(directory, 'candidate.json');
-  const commit = parseCandidateJson(directory, 'record.commit');
   assertOnlyKeys(record, ['candidateId', 'profileId', 'baselineHash', 'candidateHash', 'fixtureManifestHash', 'results', 'promotionRecommendation'], 'Candidate record');
   if (record.candidateId !== safeId || hashBytes(baselineContent) !== assertSha256(record.baselineHash, 'Candidate record baselineHash') || hashBytes(proposedContent) !== assertSha256(record.candidateHash, 'Candidate record candidateHash') || hashBytes(fixtureContent) !== assertSha256(record.fixtureManifestHash, 'Candidate record fixtureManifestHash')) throw new Error('Candidate record content hashes do not match its immutable stored files.');
   assertOnlyKeys(commit, ['recordHash', 'baselineHash', 'candidateHash', 'fixtureManifestHash'], 'Candidate commit marker');
