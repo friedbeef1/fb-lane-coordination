@@ -14,6 +14,9 @@ const {
   buildProjectGraph,
   validateProjectGraph,
   writeProjectGraph,
+  refreshProjectGraph,
+  queryProjectGraph,
+  resolveProjectContext,
 } = require(graphModule);
 
 function write(root, relative, contents) {
@@ -120,4 +123,45 @@ test('writes deterministic graph, Markdown, HTML, and state artifacts atomically
   }
   const second = writeProjectGraph(root, graph);
   assert.strictEqual(second.changed, false);
+});
+
+test('incremental refresh reuses unchanged sources and replaces only changed-source relationships', () => {
+  const root = fixture();
+  const first = refreshProjectGraph(root, { generatedAt: '2026-07-26T00:00:00.000Z' });
+  assert.ok(first.changedSources.length > 0);
+  const second = refreshProjectGraph(root, { generatedAt: '2026-07-26T00:01:00.000Z' });
+  assert.deepStrictEqual(second.changedSources, []);
+  assert.ok(second.reusedSources.length > 0);
+
+  const target = path.join(root, 'docs/handoffs/TASK-100.md');
+  fs.appendFileSync(target, '\n## Next action\n\nRun the focused proof.\n');
+  const third = refreshProjectGraph(root, { generatedAt: '2026-07-26T00:02:00.000Z' });
+  assert.deepStrictEqual(third.changedSources, ['docs/handoffs/TASK-100.md']);
+  assert.ok(third.reusedSources.includes('PROJECT_BOARD.md'));
+});
+
+test('bounded query returns source-cited direct and one-hop results', () => {
+  const root = fixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-07-26T00:00:00.000Z' });
+  const results = queryProjectGraph(graph, 'What verifies TASK-100?');
+  assert.ok(results.length <= 20);
+  assert.ok(results.some(result => result.source === 'docs/qa/TASK-100.md'));
+  assert.ok(results.every(result => result.source && Array.isArray(result.relationshipPath)));
+});
+
+test('missing, stale, or corrupt graph falls back to normalized FB records', () => {
+  const root = fixture();
+  let context = resolveProjectContext(root, 'What verifies TASK-100?');
+  assert.strictEqual(context.route, 'normalized-record-fallback');
+  assert.ok(context.results.some(result => result.source === 'docs/qa/TASK-100.md'));
+
+  const graph = buildProjectGraph(root, { generatedAt: '2026-07-26T00:00:00.000Z' });
+  writeProjectGraph(root, graph);
+  context = resolveProjectContext(root, 'What verifies TASK-100?');
+  assert.strictEqual(context.route, 'project-graph');
+
+  fs.writeFileSync(path.join(root, '.fb/graph/project-graph.json'), '{broken');
+  context = resolveProjectContext(root, 'What verifies TASK-100?');
+  assert.strictEqual(context.route, 'normalized-record-fallback');
+  assert.ok(context.findings.includes('Project graph is unreadable; used normalized FB records.'));
 });

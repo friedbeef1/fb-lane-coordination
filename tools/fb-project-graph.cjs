@@ -257,8 +257,83 @@ function readProjectGraph(root) {
   return JSON.parse(fs.readFileSync(path.join(root, '.fb', 'graph', 'project-graph.json'), 'utf8'));
 }
 
-function queryProjectGraph() {
-  return [];
+function refreshProjectGraph(root, options = {}) {
+  let previous = null;
+  try {
+    previous = readProjectGraph(root);
+  } catch {
+    previous = null;
+  }
+  const graph = buildProjectGraph(root, options);
+  const oldSources = new Map((previous?.sourceFingerprint?.sources || []).map(source => [source.relativePath, source.sha256]));
+  const newSources = new Map(graph.sourceFingerprint.sources.map(source => [source.relativePath, source.sha256]));
+  const changedSources = [...newSources].filter(([relative, hash]) => oldSources.get(relative) !== hash).map(([relative]) => relative).sort();
+  const removedSources = [...oldSources.keys()].filter(relative => !newSources.has(relative)).sort();
+  const reusedSources = [...newSources].filter(([relative, hash]) => oldSources.get(relative) === hash).map(([relative]) => relative).sort();
+  writeProjectGraph(root, graph);
+  return { graph, changedSources, removedSources, reusedSources };
+}
+
+function queryProjectGraph(graph, query) {
+  const value = String(query || '').toLowerCase();
+  const taskIds = [...value.toUpperCase().matchAll(/TASK-[A-Z0-9-]+/g)].map(match => match[0]);
+  const keywords = value.split(/[^a-z0-9-]+/).filter(word => word.length >= 3);
+  const adjacency = new Map();
+  for (const edge of graph.edges || []) {
+    if (!adjacency.has(edge.from)) adjacency.set(edge.from, []);
+    if (!adjacency.has(edge.to)) adjacency.set(edge.to, []);
+    adjacency.get(edge.from).push({ edge, nodeId: edge.to });
+    adjacency.get(edge.to).push({ edge, nodeId: edge.from });
+  }
+  const nodes = new Map((graph.nodes || []).map(node => [node.id, node]));
+  const scores = new Map();
+  for (const node of nodes.values()) {
+    const haystack = `${node.id} ${node.label} ${node.type} ${node.source}`.toLowerCase();
+    let score = 0;
+    if (taskIds.some(task => haystack.includes(task.toLowerCase()))) score += 100;
+    for (const keyword of keywords) if (haystack.includes(keyword)) score += 5;
+    if (value.includes('verif') && node.type === 'qa') score += 20;
+    if (value.includes('decision') && node.type === 'decision') score += 20;
+    if (value.includes('release') && node.type === 'release') score += 20;
+    if (value.includes('workstream') && node.type === 'workstream') score += 20;
+    if (score) scores.set(node.id, { score, relationshipPath: [] });
+  }
+  const direct = [...scores.entries()].sort((a, b) => b[1].score - a[1].score).slice(0, 8);
+  for (const [nodeId, match] of direct) {
+    for (const neighbor of adjacency.get(nodeId) || []) {
+      const bonus = value.includes('verif') && neighbor.edge.type === 'verified-by' ? 50
+        : value.includes('depend') && neighbor.edge.type === 'depends-on' ? 50
+          : value.includes('decision') && neighbor.edge.type === 'supports' ? 40 : 10;
+      const existing = scores.get(neighbor.nodeId);
+      const candidate = {
+        score: match.score + bonus,
+        relationshipPath: [nodeId, neighbor.edge.type, neighbor.nodeId],
+      };
+      if (!existing || candidate.score > existing.score) scores.set(neighbor.nodeId, candidate);
+    }
+  }
+  return [...scores.entries()]
+    .map(([id, match]) => ({ ...nodes.get(id), relationshipPath: match.relationshipPath, score: match.score }))
+    .filter(result => result.id)
+    .sort((a, b) => b.score - a.score || a.id.localeCompare(b.id))
+    .slice(0, 20);
+}
+
+function resolveProjectContext(root, query) {
+  const findings = [];
+  try {
+    const graph = readProjectGraph(root);
+    const current = buildProjectGraph(root, { generatedAt: graph.generatedAt });
+    const validation = validateProjectGraph(root, graph);
+    if (graph.schemaVersion !== GRAPH_SCHEMA_VERSION) findings.push('Project graph schema is unsupported.');
+    if (graph.sourceFingerprint?.hash !== current.sourceFingerprint.hash) findings.push('Project graph is stale; used normalized FB records.');
+    findings.push(...validation.map(finding => finding.message));
+    if (!findings.length) return { route: 'project-graph', results: queryProjectGraph(graph, query), findings: [] };
+  } catch {
+    findings.push('Project graph is unreadable; used normalized FB records.');
+  }
+  const fallbackGraph = buildProjectGraph(root);
+  return { route: 'normalized-record-fallback', results: queryProjectGraph(fallbackGraph, query), findings };
 }
 
 function evaluateGraduation() {
@@ -271,7 +346,8 @@ module.exports = {
   validateProjectGraph,
   writeProjectGraph,
   readProjectGraph,
+  refreshProjectGraph,
   queryProjectGraph,
+  resolveProjectContext,
   evaluateGraduation,
 };
-
