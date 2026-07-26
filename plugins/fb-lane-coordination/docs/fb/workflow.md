@@ -90,6 +90,15 @@ Until that approval exists, status remains
 major release do not require a separate interruption; internal-only work keeps
 the concrete not-required path above.
 
+If the user does not approve, record
+`Changelog approval: pending — <entry link and date>` in the Task Receipt and
+keep the affected release gate open. At the start and closeout of every later
+documentation, README, plugin-guidance, or changelog review, Product scans
+active handoffs for that pending field and surfaces it again with the entry
+link. Continue until the user approves, rejects, or explicitly defers it. A
+pending approval does not block unrelated documentation work, but it cannot be
+silently dropped or treated as approval.
+
 For a user-visible UI plan, record `browser screenshot/mockup`, `imagegen
 asset/style option`, or `skip with reason`. Skip only for non-visual work or a
 tiny copy, spacing, or single-control change. Attach a feasible material visual

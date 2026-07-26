@@ -98,6 +98,11 @@ For a major user-visible release, Product must show the drafted entry to the
 user and record explicit changelog approval before **Ready to ship**. Keep the
 candidate at `Checking — changelog approval needed` until then; build approval
 and **Push Live** do not substitute for this wording approval.
+An unanswered request becomes a durable `Changelog approval: pending` gate.
+Every later documentation or plugin-guidance review must surface it again with
+the entry link until the user approves, rejects, or explicitly defers it.
+Unrelated documentation may continue, but never silently clear the affected
+release gate.
 Classify failures before revision, keep insufficient products at the exact
 Checking quality-gap state, and close selected evals only with fresh rerun and
 regression evidence. Never weaken a target or change authority automatically.

@@ -52,6 +52,10 @@ For a major user-visible release, Product drafts the entry and asks the user to
 approve its wording before **Ready to ship**. Record the explicit changelog
 approval in the Task Receipt; do not infer it from build approval or **Push
 Live**.
+Persist an unanswered request as `Changelog approval: pending` in the linked
+handoff and board gate. Every later documentation or plugin-guidance review
+must surface it again until the user approves, rejects, or explicitly defers
+it; never infer approval or silently clear the gate.
 
 - [Workstream-first start and `$bfm` reconciliation](../../docs/fb/start.md)
 - [Source hierarchy, locks, BFM, and closeout](../../docs/fb/workflow.md)

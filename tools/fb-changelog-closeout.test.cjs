@@ -111,4 +111,23 @@ check('major-release guidance requires explicit user approval of drafted changel
   assert.match(handoff, /Changelog approval:\s*approved — James, originating conversation, 2026-07-26/i);
 });
 
+check('unanswered changelog approval persists into later documentation reviews', () => {
+  const repoRoot = path.resolve(__dirname, '..');
+  for (const relative of [
+    'docs/fb/workflow.md',
+    'docs/fb/evidence.md',
+    'docs/fb/sessions.md',
+    'skills/fb-product/SKILL.md',
+    'skills/bfm/SKILL.md',
+    'skills/fb-lane-coordination/SKILL.md',
+    'skills/fb-business/SKILL.md',
+  ]) {
+    const source = fs.readFileSync(path.join(repoRoot, relative), 'utf8');
+    assert.match(source, /Changelog approval:\s*pending|changelog approval as pending|pending changelog approval/i);
+    assert.match(source, /every later\s+documentation|at every later\s+documentation|later documentation-review/i);
+    assert.match(source, /approves?, rejects?, or explicitly\s+defers?/i);
+    assert.match(source, /silently\s+(?:dropped|clear)|never\s+silently\s+clear/i);
+  }
+});
+
 console.log(`\n✅ ${passed} focused changelog-closeout checks passed.`);

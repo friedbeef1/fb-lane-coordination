@@ -19,6 +19,12 @@ task handoff, keep this workstream card to task IDs/blockers/next action/links,
 and record a concrete other-lanes rationale or escalation instead of repeating
 scope and checks across files.
 
+In every later documentation, README, plugin-guidance, or changelog review,
+scan active handoffs for `Changelog approval: pending`. Surface each pending
+entry again until the user approves, rejects, or explicitly defers it.
+Unrelated documentation may continue, but never infer approval or silently
+clear the affected release gate.
+
 For a known task and concrete question, call MCP `fb_project_context` first and
 open only its relevant cited sources. The graph routes to authoritative
 records; it is not a source of truth. Use the board → index → handoff → card
