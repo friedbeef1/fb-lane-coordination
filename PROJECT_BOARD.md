@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-048 | Ready | FB-Product / BFM | Project Navigation | Prototype and evaluate a graduated repository-local graph that derives from normalized FB records, begins deterministically, and expands only after demonstrated retrieval friction | `tools/fb-project-graph*`, `.fb/graph/`, TASK-048 experiment/QA/coordination records | [Handoff](docs/handoffs/TASK-048.md); [Design](docs/superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md); [Plan](docs/superpowers/plans/2026-07-26-fb-graduated-project-graph-pilot.md); execution approach pending |
+| TASK-048 | Staging QA | FB-Product / BFM | Project Navigation | Prototype and evaluate a graduated repository-local graph that derives from normalized FB records, begins deterministically, and expands only after demonstrated retrieval friction | `tools/fb-project-graph*`, `.fb/graph/`, TASK-048 experiment/QA/coordination records | [Handoff](docs/handoffs/TASK-048.md); [Results](docs/experiments/TASK-048-graduated-project-graph-pilot.md); [QA](docs/qa/TASK-048.md) |
 | TASK-047 | Staging QA | FB-Product / BFM | Harness Efficiency | Normalize durable evidence, add risk-triggered review and deterministic verification reuse, and reduce duplicated coordination context | `tools/fb-records.*`, validator/doctor integration, canonical/package harness and skills, templates, TASK-047 records | [Handoff](docs/handoffs/TASK-047.md); [Pilot](docs/experiments/TASK-047-real-task-pilot.md); [Plan](docs/superpowers/plans/2026-07-23-fb-durable-efficiency-evidence-normalization.md); [QA](docs/qa/TASK-047.md); focused local gate passed |
 | TASK-031 | In Progress | FB-Product / BFM | Closeout + Plugin Release | Require a Full BFM changelog decision before Ready to ship and rebuild FB as 0.3.1-beta | Closeout/session/runtime contracts, canonical/package docs and skills, release metadata and records | [Handoff](docs/handoffs/TASK-031.md); PR #48; `0.3.1-beta+codex.20260718021942`; Push Live remains separate |
 | TASK-030 | Done | FB-Product / BFM | Codex Plugin Release | Release the Codex plugin as `0.3.0-beta`, align active metadata/prompts/docs with the six-workstream loop, and prove the packaged install | None | [Handoff](docs/handoffs/TASK-030.md); [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44) merged; `0.3.0-beta+codex.20260717150502` installed and enabled; GitHub readiness and live cache proof passed |
@@ -58,7 +58,7 @@
 
 ### TASK-048 - FB Graduated Project Graph
 
-*   **Status**: Ready (pilot plan complete)
+*   **Status**: Staging QA (pilot complete; Product decision required)
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Project Navigation
 *   **Scope**: Design a graduated project graph derived from normalized FB records, with deterministic Level 1 navigation, evidence-gated semantic expansion, safe fallback, privacy boundaries, measurement, and future plugin integration.
@@ -68,11 +68,11 @@
     *   **Key Results**: The graph remains derived; new projects start cheaply; deeper mapping requires demonstrated retrieval friction; graph failure never blocks normal FB; pilot cost and navigation benefit are measured.
 *   **Definition of Done**: Visible new/growing/fallback examples and a pre-registered navigation comparison produce an evidence-backed stop, revise, or plugin-integration recommendation.
 *   **Gate / Review Point**: Focused local pilot review only.
-*   **Approval**: design and focused pilot approved in conversation; execution approach pending.
+*   **Approval**: design, inline prototype, and focused pilot approved in conversation.
     *   **Justification**: James explicitly chose the graduated graph approach after distinguishing FB's loops from the graph that maps them.
 *   **Affected Screens / Locks**: `tools/fb-project-graph*`, `.fb/graph/`, `docs/experiments/TASK-048-graduated-project-graph-pilot.md`, `docs/qa/TASK-048.md`, TASK-048 coordination records.
 *   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-048.md); [Design](docs/superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md); [Plan](docs/superpowers/plans/2026-07-26-fb-graduated-project-graph-pilot.md); branch `codex/fb-graduated-project-graph`.
-*   **Latest Update**: *2026-07-26*: James approved inline prototype implementation followed by a realistic six-concurrent-workstream normalized-versus-graph comparison. Baseline records tests pass 11/11 and 41 package mirrors agree; no implementation or external action has occurred.
+*   **Latest Update**: *2026-07-26*: The deterministic comparison reduced ongoing navigation bytes 66.9% and repeated reads 73.7% without correctness loss. Six real concurrent Codex tasks remained 6/6 correct, but the corrected graph arm used 2.5% more gross input tokens and 12.3% more wall time. Result: promising but inconclusive. The one-repair circuit breaker is reached; plugin integration requires a separate Product decision.
 
 ---
 

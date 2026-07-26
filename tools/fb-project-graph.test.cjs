@@ -150,6 +150,17 @@ test('bounded query returns source-cited direct and one-hop results', () => {
   assert.ok(results.every(result => result.source && Array.isArray(result.relationshipPath)));
 });
 
+test('current-task query scopes generic questions to linked task documents without unrelated noise', () => {
+  const root = fixture();
+  write(root, 'docs/superpowers/specs/TASK-100-design.md', '# TASK-100 design\n');
+  fs.appendFileSync(path.join(root, 'docs/handoffs/TASK-100.md'), '\n## Design\n\n[Detailed design](../superpowers/specs/TASK-100-design.md)\n');
+  const graph = buildProjectGraph(root, { generatedAt: '2026-07-26T00:00:00.000Z' });
+  const results = queryProjectGraph(graph, 'What user-visible artifacts are proposed?', { currentTask: 'TASK-100' });
+  assert.ok(results.some(result => result.source === 'docs/superpowers/specs/TASK-100-design.md'));
+  assert.ok(results.every(result => !result.id.includes('TASK-999')));
+  assert.ok(results.length <= 20);
+});
+
 test('missing, stale, or corrupt graph falls back to normalized FB records', () => {
   const root = fixture();
   let context = resolveProjectContext(root, 'What verifies TASK-100?');

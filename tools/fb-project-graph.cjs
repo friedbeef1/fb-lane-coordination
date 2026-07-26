@@ -6,8 +6,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const GRAPH_SCHEMA_VERSION = 1;
-const NODE_TYPES = new Set(['project', 'okr', 'workstream', 'task', 'handoff', 'decision', 'qa', 'commit', 'release']);
-const EDGE_TYPES = new Set(['contains', 'supports', 'owned-by', 'documented-by', 'depends-on', 'supersedes', 'implemented-by', 'verified-by', 'released-as']);
+const NODE_TYPES = new Set(['project', 'okr', 'workstream', 'task', 'handoff', 'decision', 'document', 'qa', 'commit', 'release']);
+const EDGE_TYPES = new Set(['contains', 'supports', 'owned-by', 'documented-by', 'depends-on', 'references', 'supersedes', 'implemented-by', 'verified-by', 'released-as']);
 const AUTHORITY_EDGE_TYPES = new Set(['approved-by', 'authorizes', 'releases']);
 const SENSITIVE = /\b(?:authorization\s*:\s*bearer|api[_-]?key|password|secret|token)\b/i;
 
@@ -153,6 +153,10 @@ function buildProjectGraph(root, options = {}) {
         const dependencyId = `handoff:${resolved}`;
         addNode(nodes, { id: dependencyId, type: 'handoff', label: path.basename(resolved, '.md'), source: resolved, status: 'confirmed' });
         addEdge(edges, { from: handoffId, to: dependencyId, type: 'depends-on', source: relative, status: 'confirmed' });
+      } else if (resolved.endsWith('.md')) {
+        const documentId = `document:${resolved}`;
+        addNode(nodes, { id: documentId, type: 'document', label: path.basename(resolved, '.md'), source: resolved, status: 'confirmed' });
+        addEdge(edges, { from: handoffId, to: documentId, type: 'references', source: relative, status: 'confirmed' });
       }
     }
   }
@@ -274,7 +278,7 @@ function refreshProjectGraph(root, options = {}) {
   return { graph, changedSources, removedSources, reusedSources };
 }
 
-function queryProjectGraph(graph, query) {
+function queryProjectGraph(graph, query, options = {}) {
   const value = String(query || '').toLowerCase();
   const taskIds = [...value.toUpperCase().matchAll(/TASK-[A-Z0-9-]+/g)].map(match => match[0]);
   const keywords = value.split(/[^a-z0-9-]+/).filter(word => word.length >= 3);
@@ -286,10 +290,31 @@ function queryProjectGraph(graph, query) {
     adjacency.get(edge.to).push({ edge, nodeId: edge.from });
   }
   const nodes = new Map((graph.nodes || []).map(node => [node.id, node]));
+  const scopedDistances = new Map();
+  if (options.currentTask) {
+    const start = `task:${String(options.currentTask).toUpperCase()}`;
+    if (nodes.has(start)) {
+      scopedDistances.set(start, 0);
+      let frontier = [start];
+      for (let depth = 1; depth <= 2; depth += 1) {
+        const next = [];
+        for (const nodeId of frontier) {
+          for (const neighbor of adjacency.get(nodeId) || []) {
+            if (!scopedDistances.has(neighbor.nodeId)) {
+              scopedDistances.set(neighbor.nodeId, depth);
+              next.push(neighbor.nodeId);
+            }
+          }
+        }
+        frontier = next;
+      }
+    }
+  }
   const scores = new Map();
   for (const node of nodes.values()) {
+    if (scopedDistances.size && !scopedDistances.has(node.id)) continue;
     const haystack = `${node.id} ${node.label} ${node.type} ${node.source}`.toLowerCase();
-    let score = 0;
+    let score = scopedDistances.has(node.id) ? 100 - scopedDistances.get(node.id) * 20 : 0;
     if (taskIds.some(task => haystack.includes(task.toLowerCase()))) score += 100;
     for (const keyword of keywords) if (haystack.includes(keyword)) score += 5;
     if (value.includes('verif') && node.type === 'qa') score += 20;

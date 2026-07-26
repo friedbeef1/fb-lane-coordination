@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-048
 lane: fb-product
-status: ready
+status: implemented
 approval: approved
 record_model: normalized-v1
 okr_fit: aligned
@@ -18,16 +18,15 @@ not introduce another workstream, approval system, or source of product truth.
 
 ## Scope
 
-Design the Level 0–3 graduation model, deterministic Level 1 pilot, evidence
-gate for deeper Graphify mapping, fallback behavior, privacy boundaries,
-measurement, and eventual plugin integration.
+Design and evaluate the Level 0–3 graduation model, deterministic Level 1
+pilot, evidence gate for deeper Graphify mapping, fallback behavior, privacy
+boundaries, and measurement. Plugin integration remains a later decision.
 
 ## Out of Scope
 
-Implementation before James reviews the written design, hosted services, graph
-database requirements, automatic commit hooks, transcript capture,
-cross-project exports, plugin publication, release, merge, deployment, or
-consumer-project mutation.
+Hosted services, graph database requirements, automatic commit hooks,
+transcript capture, cross-project exports, bootstrap or plugin integration,
+publication, release, merge, deployment, or consumer-project mutation.
 
 ## User Decisions
 
@@ -60,11 +59,24 @@ consumer-project mutation.
 
 ## Current State
 
-Design approved and the focused deterministic pilot implementation plan is
-ready, including a six-concurrent-workstream normalized-versus-graph comparison.
-No runtime, plugin, package, consumer repository, release, or deployment change
-has been made.
+The focused prototype and comparison are implemented. Deterministic navigation
+reduced ongoing bytes by 66.9% and repeated reads by 73.7%, with break-even near
+the second comparable orientation cycle. In six real concurrent Codex tasks,
+the graph arm remained 6/6 correct but used 2.5% more gross input tokens and
+12.3% more wall time. The result is **promising but inconclusive**.
+
+The prototype remains repository-local and ignored under `.fb/graph/`. No
+plugin, package, consumer repository, release, or deployment change was made.
+The one-repair circuit breaker is reached.
 
 ## Implementation Plan
 
 [Graduated project graph pilot](../superpowers/plans/2026-07-26-fb-graduated-project-graph-pilot.md)
+
+## Verification Handoff
+
+- [Experiment and results](../experiments/TASK-048-graduated-project-graph-pilot.md)
+- [Focused QA](../qa/TASK-048.md)
+- Outcome: Staging QA for Product review; not approved for plugin integration.
+- Next owner: Product decides whether the demonstrated navigation reduction
+  justifies a separate, tightly scoped graph-response experiment.
