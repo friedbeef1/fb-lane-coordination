@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-049
 lane: fb-product
-status: checking
+status: implemented
 approval: approved
 record_model: normalized-v1
 okr_fit: aligned
@@ -77,11 +77,11 @@ consumer-project installation.
   active workstream guidance, generated package mirrors, and fallback install
   guidance.
 - Verification: [TASK-049 focused QA](../qa/TASK-049.md)
-- Review state: staging candidate
-- Remaining owner/action: complete the release checkpoint, then honor the
-  already approved **Push Live** boundary.
+- Review state: not reviewable
+- Remaining owner/action: publish the approved release, reinstall it, and verify
+  the active plugin from a new Codex task.
 
 ## Release boundary
 
-The candidate may publish only after the release checkpoint. Refreshed
-changelog wording and **Push Live** are approved.
+The release checkpoint passed. Refreshed changelog wording and **Push Live**
+are approved.

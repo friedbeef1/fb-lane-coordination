@@ -31,6 +31,8 @@ merge, or deployment has occurred yet.
 - Package synchronizer: 10/10 passed.
 - Codex plugin validator: passed.
 - Affected Node syntax and whitespace: passed.
+- Complete repository validator: passed after one consolidated coordination
+  repair; final doctor reported **Ready**.
 
 ## Safety result
 
@@ -43,5 +45,5 @@ scope, implementation, closeout, merge, or release.
 
 ## Remaining gate
 
-Refreshed changelog wording and **Push Live** are approved. The complete
-validator runs once as the final release checkpoint.
+Refreshed changelog wording, final release checkpoint, and **Push Live** are
+approved. Candidate is **Ready to ship**.

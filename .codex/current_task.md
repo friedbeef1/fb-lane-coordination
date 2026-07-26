@@ -2,10 +2,10 @@
 
 * **Current Task**: TASK-049 Graph-directed plugin navigation and FB 0.4.0-beta release
 * **Lane**: FB-Product / BFM
-* **Status**: Checking — release candidate `0.4.0-beta+codex.20260726101229`
+* **Status**: Ready to ship — release candidate `0.4.0-beta+codex.20260726101229`
 * **BFM Class**: Full BFM
 * **Release Vehicle**: TASK-049 branch; release after passing checkpoint and approved changelog wording
 * **Worktree**: `/Users/jamesyeang/Documents/fb-lane/recovered-worktree`
 * **Locked Files**: Graph runtime/contracts, canonical/package mirrors, release metadata, TASK-049 records.
 
-Gate: complete the release checkpoint and obtain refreshed changelog wording approval. Push Live is approved for the green candidate.
+Gate: release checkpoint and changelog approval passed. Push Live is approved.
