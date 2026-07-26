@@ -52,11 +52,11 @@ review_state: not reviewable
 - Verification: [TASK-050 QA](../qa/TASK-050.md)
 - Quantified evidence: [controlled before/after experiment](../benchmarks/control-loop/README.md)
 - Review state: not reviewable
-- External gates: whole-branch review, one complete release checkpoint,
-  review-branch push, and later explicit **Push Live**.
-- Repository state: local candidate branch; no publication or deployment.
-- Remaining owner/action: Product/BFM completes focused verification and review,
-  completes whole-branch review, then runs the single release checkpoint.
+- External gates: review-branch push and later explicit **Push Live**.
+- Repository state: local **Ready to ship** candidate; no publication or
+  deployment.
+- Remaining owner/action: Product/BFM pushes the review branch. James may then
+  inspect the optional GitHub links and say **Push Live** to authorize release.
 
 ## Release boundary
 

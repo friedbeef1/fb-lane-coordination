@@ -2,7 +2,7 @@
 
 * **Current Task**: TASK-050 Generic agent control loop and FB 0.5.0-beta release
 * **Lane**: FB-Product / BFM
-* **Status**: Checking — focused Task 3 verification in progress
+* **Status**: Ready to ship — whole-branch review and one release checkpoint passed
 * **Release Build**: `0.5.0-beta+codex.20260726130257`
 * **BFM Class**: Full BFM
 * **Release Vehicle**: `codex/fb-agent-control-loop`; stop at Ready to ship before Push Live

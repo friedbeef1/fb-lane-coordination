@@ -1,7 +1,7 @@
 ---
 type: fb-qa
 task: TASK-050
-status: checking
+status: ready-to-ship
 record_model: normalized-v1
 ---
 
@@ -38,9 +38,11 @@ FB `0.5.0-beta+codex.20260726130257` on
   [full result and methodology](../benchmarks/control-loop/README.md).
 - Changelog wording: approved by James in the originating conversation on
   2026-07-26.
-- Independent whole-branch review: pending.
-- Complete release validator: intentionally pending the one explicit release
-  checkpoint.
+- Independent whole-branch review: specification and quality passed with zero
+  Critical or Important findings.
+- Complete release validator: passed once at the explicit release checkpoint,
+  including 48 package mirrors, 70 CLI checks, session, eval, beginner,
+  positioning, two-speed, efficiency, doctor, syntax, and whitespace.
 
 ## Safety result
 
@@ -50,5 +52,6 @@ publication, installation, or deployment.
 
 ## Remaining gate
 
-Whole-branch review and one complete release checkpoint remain before
-**Ready to ship**. **Push Live** remains separate.
+The candidate is **Ready to ship**. Review-branch push is the remaining
+non-release delivery action. Merge, publication, installation, and deployment
+still require **Push Live**.
