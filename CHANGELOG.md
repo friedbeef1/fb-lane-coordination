@@ -24,7 +24,8 @@ falls back to the normal board → index → handoff → card route.
 install `fb-lane-coordination@fb-lane`, and start a new Codex task to load
 `0.4.0-beta+codex.20260726101229`, the refreshed MCP tool, and skills.
 
-**Changelog approval:** Pending refreshed release wording approval.
+**Changelog approval:** Approved by James in the originating conversation on
+2026-07-26.
 
 ## 0.3.1-beta - 2026-07-18
 

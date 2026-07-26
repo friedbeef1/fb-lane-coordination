@@ -43,6 +43,5 @@ scope, implementation, closeout, merge, or release.
 
 ## Remaining gate
 
-Refreshed changelog wording requires explicit approval. After approval, the
-complete validator runs once as the final release checkpoint; **Push Live** is
-already approved for the green candidate.
+Refreshed changelog wording and **Push Live** are approved. The complete
+validator runs once as the final release checkpoint.

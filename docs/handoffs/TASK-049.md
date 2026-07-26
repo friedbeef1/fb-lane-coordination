@@ -59,17 +59,16 @@ consumer-project installation.
 ## Task Receipt
 
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#040-beta--2026-07-26)
-- Changelog approval: pending — refreshed 0.4.0-beta release wording, 2026-07-26
+- Changelog approval: approved — James, originating conversation, 2026-07-26
 - Delivered: bundled MCP context tool, graph runtime, nine-page harness route,
   active workstream guidance, generated package mirrors, and fallback install
   guidance.
 - Verification: [TASK-049 focused QA](../qa/TASK-049.md)
 - Review state: staging candidate
-- Remaining owner/action: complete the release checkpoint, obtain explicit
-  approval for the refreshed changelog wording, then honor the already approved
-  **Push Live** boundary.
+- Remaining owner/action: complete the release checkpoint, then honor the
+  already approved **Push Live** boundary.
 
 ## Release boundary
 
-The candidate may publish only after the release checkpoint and refreshed
-changelog wording approval. **Push Live** remains the release authority.
+The candidate may publish only after the release checkpoint. Refreshed
+changelog wording and **Push Live** are approved.
