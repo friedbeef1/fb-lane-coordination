@@ -36,17 +36,21 @@ FB `0.5.0-beta+codex.20260726130257` on
   sensitivity model includes fallible comparison and gate behavior. These are
   simulator results, not observed Codex usage. See the
   [full result and methodology](../benchmarks/control-loop/README.md).
-- Graduated-control simulator: the pre-registered four-scenario, 24-case,
-  three-seed, three-arm experiment wrote 864 arm/case records exactly once.
-  Process-all, Full FB, and Graduated FB produced 66.7%, 78.5%, and 74.0%
-  product-ready outcomes respectively. Graduated FB used 328,390 modeled token
-  units versus 313,920 for process-all and 385,740 for Full FB. Its 1,542
+- Graduated-control simulator repair: 14/14 methodology contracts passed before
+  the one recorded replacement run. The original result from commit `06b292d`
+  is superseded and non-publishable because process-all omitted its promised
+  final-QA cost. The replacement has four explicit domain workflows, common
+  random numbers, executable-grader hashing, and 864 arm/case records.
+  Process-all, Full FB, and Graduated FB produced 63.5%, 79.5%, and 80.2%
+  product-ready outcomes respectively. Graduated FB used 347,590 modeled token
+  units versus 331,200 for process-all and 384,160 for Full FB. Its 1,505
   modeled token units per ready outcome were lower than both alternatives.
-  Immediate sensitive-trigger protection was 100%, but exact-level graduation
-  accuracy was only 38.9%, with 106 false and 70 missed graduations and only
-  7/36 step-down successes. The unfavorable policy result is retained and
-  means the fixed thresholds are not yet a recommended production default.
-  These are deterministic modeled results, not observed Codex usage. See the
+  Immediate sensitive-trigger protection was 100%; exact-level graduation was
+  62.5%, with 108 over-applied controls, zero missed required levels, and 23/23
+  safe eligible step-downs. The settings were fixed before the recorded
+  replacement run, but there is no external preregistration and the bundle
+  cannot prove historical execution count. These are deterministic modeled
+  results, not observed Codex usage. See the
   [full graduated result](../benchmarks/control-loop/graduated.md) and
   [machine evidence](../benchmarks/control-loop/graduated-results.json).
 - Changelog wording: approved by James in the originating conversation on

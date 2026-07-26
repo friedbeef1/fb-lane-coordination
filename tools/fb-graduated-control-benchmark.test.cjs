@@ -14,16 +14,28 @@ const settingsPath = path.join(root, 'tools', 'fixtures', 'fb-graduated-control-
 
 const readJson = file => JSON.parse(fs.readFileSync(file, 'utf8'));
 
-test('frozen study has four scenarios, 24 sequential cases each, seven phases, and three seeds', () => {
-  const truth = benchmark.expandTruth(readJson(truthPath));
+test('frozen study has four explicit scenario-specific workflows, 24 sequential cases each, seven phases, and three seeds', () => {
+  const source = readJson(truthPath);
+  const truth = benchmark.expandTruth(source);
   const settings = readJson(settingsPath);
   assert.deepEqual(settings.seeds, [11, 29, 47]);
+  assert.equal(source.caseBlueprints, undefined, 'one shared rotated blueprint is forbidden');
   assert.equal(truth.scenarios.length, 4);
+  const signatures = new Set();
+  const domainEvents = new Set();
   for (const scenario of truth.scenarios) {
     assert.equal(scenario.cases.length, 24);
     assert.equal(new Set(scenario.cases.map(row => row.sequence)).size, 24);
     assert.deepEqual([...new Set(scenario.cases.map(row => row.phase))], settings.phases);
+    signatures.add(scenario.cases.map(row => row.kind).join('|'));
+    for (const row of scenario.cases) {
+      assert.match(row.visible.domainEvent, new RegExp(`^${scenario.id}:`));
+      assert.equal(domainEvents.has(row.visible.domainEvent), false, `duplicate domain event ${row.visible.domainEvent}`);
+      domainEvents.add(row.visible.domainEvent);
+    }
   }
+  assert.equal(signatures.size, 4, 'scenario condition sequences must be structurally distinct');
+  assert.equal(domainEvents.size, 96);
 });
 
 test('fixtures cover light, improvement, preservation, regression, ambiguity, repeated failure, safety, repair, unresolved and stable work', () => {
@@ -60,28 +72,65 @@ test('all three arms execute every case exactly once for every seed', () => {
     ['full-fb', 'graduated-fb', 'process-all']);
 });
 
-test('graduated transitions use visible evidence, safety escalates immediately, and step-down obeys the clean window', () => {
+test('process-all pays for exactly one final QA per case and no FB focused stage', () => {
   const result = benchmark.runExperiment({ truthPath, settingsPath });
-  const rows = result.rawRecords.filter(row =>
-    row.arm === 'graduated-fb' && row.scenarioId === 'media' && row.seed === 11);
+  const rows = result.rawRecords.filter(row => row.arm === 'process-all');
+  assert.equal(rows.length, 288);
+  assert.ok(rows.every(row => row.calls.process === 1));
+  assert.ok(rows.every(row => row.calls.qa === 1));
+  assert.ok(rows.every(row => row.calls.focused === 0));
+  assert.equal(rows.reduce((sum, row) => sum + row.calls.qa, 0), 288);
+});
+
+test('like-for-like fallibility uses common random numbers independent of arm', () => {
+  const result = benchmark.runExperiment({ truthPath, settingsPath });
+  for (const component of ['route', 'comparison', 'gate', 'diagnosis', 'repair']) {
+    const grouped = new Map();
+    for (const row of result.rawRecords.filter(row => row.componentDraws[component] !== undefined)) {
+      const key = `${row.seed}:${row.scenarioId}:${row.caseId}`;
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key).push(row.componentDraws[component]);
+    }
+    assert.ok([...grouped.values()].some(values => values.length > 1), `no shared ${component} calls`);
+    assert.ok([...grouped.values()].every(values => values.every(value => value === values[0])),
+      `${component} draws differ by arm`);
+  }
+});
+
+test('graduated transitions use visible evidence, safety escalates immediately, and step-down is truly eligible and safe', () => {
+  const result = benchmark.runExperiment({ truthPath, settingsPath });
+  const rows = result.rawRecords.filter(row => row.arm === 'graduated-fb');
   assert.ok(rows.some(row => row.transition?.to > row.transition?.from));
   const sensitive = rows.filter(row => row.visibleSafetyTrigger);
   assert.ok(sensitive.length > 0);
   assert.ok(sensitive.every(row => row.executionLevel === 4 && row.safetyTriggerResponded));
   const demotions = rows.filter(row => row.transition?.direction === 'down');
   assert.ok(demotions.length > 0);
-  assert.ok(demotions.every(row => row.transition.evidence.cleanStreak >= 3));
+  assert.ok(demotions.every(row =>
+    row.stepDownOpportunity
+    && row.transition.from - row.transition.to === 1
+    && row.transition.evidence.cleanStreak >= 3));
+  assert.ok(rows.filter(row =>
+    row.currentPublicFloor > 0 || row.visibleSafetyTrigger).every(row =>
+    row.transition?.direction !== 'down' || row.executionLevel >= row.currentPublicFloor));
+  assert.ok(rows.filter(row => row.stepDownSuccess).every(row =>
+    !row.missedGraduation && row.executionLevel >= row.minimumRequiredLevel));
+  assert.ok(rows.every(row =>
+    Number(row.graduationExact) + Number(row.falseGraduation) + Number(row.missedGraduation) === 1));
 });
 
-test('graduation thresholds and cost assumptions are pre-registered and hash-bound', () => {
+test('frozen declared thresholds, costs, and actual executable grader are hash-bound without claiming external preregistration', () => {
   const result = benchmark.runExperiment({ truthPath, settingsPath });
   assert.equal(result.inputs.policy.level1MinimumVolume, 4);
   assert.equal(result.inputs.policy.level2ObservedRegressions, 1);
   assert.equal(result.inputs.policy.level3ClassifiableFailures, 2);
   assert.equal(result.inputs.policy.stepDownCleanWindow, 3);
-  for (const key of ['truth', 'settings', 'policy', 'costModel', 'grader', 'seeds']) {
+  for (const key of ['truth', 'settings', 'policy', 'costModel', 'graderImplementation', 'seeds']) {
     assert.match(result.hashes[key], /^[a-f0-9]{64}$/);
   }
+  assert.equal(result.hashes.grader, undefined);
+  assert.match(result.graderEvidence.limitation, /does not prove.*pre.?registration/i);
+  assert.match(result.graderEvidence.executableContract, /gradeRecord/);
 });
 
 test('full and graduated controls are fallible and preserve unfavorable outcomes', () => {
@@ -91,8 +140,10 @@ test('full and graduated controls are fallible and preserve unfavorable outcomes
   assert.ok(result.rawRecords.some(row => row.arm !== 'process-all' && row.gateError));
   assert.ok(result.rawRecords.some(row => row.arm !== 'process-all' && row.diagnosisCorrect === false));
   assert.ok(result.rawRecords.some(row => row.arm !== 'process-all' && row.repairAttempted && !row.accepted));
-  assert.ok(result.summary.scenarioSeed.some(row =>
-    row.arms.processAll.productReadyRate > row.arms.graduatedFb.productReadyRate));
+  assert.ok(result.rawRecords.some(row =>
+    row.arm !== 'process-all'
+    && (row.routerError || row.comparisonError || row.gateError || row.diagnosisError)
+    && !row.accepted), 'fallible controls must preserve at least one unfavorable outcome');
 });
 
 test('recomputed aggregates cover aggregate, scenario, phase, seed, level and signed comparisons', () => {
@@ -133,13 +184,14 @@ test('validation rejects missing, duplicate, selective, altered, non-finite, pri
   }
 });
 
-test('a run is deterministic but cannot be selectively rerun or tuned', () => {
+test('a run is deterministic and declares no selective rerun while admitting historical execution is not bundle-verifiable', () => {
   const first = benchmark.runExperiment({ truthPath, settingsPath });
   const second = benchmark.runExperiment({ truthPath, settingsPath });
   assert.deepEqual(first, second);
-  assert.equal(first.runPolicy.executionCount, 1);
-  assert.equal(first.runPolicy.selectiveRerunsAllowed, false);
-  assert.equal(first.runPolicy.postResultTuningAllowed, false);
+  assert.equal(first.runDeclaration.selectiveRerunsAllowed, false);
+  assert.equal(first.runDeclaration.postResultTuningPerformed, false);
+  assert.match(first.runDeclaration.limitation, /cannot independently prove/i);
+  assert.equal(first.runPolicy, undefined);
 });
 
 test('writer emits validated machine evidence and a report with scenario, phase, seed and limitation tables', () => {
@@ -155,6 +207,10 @@ test('writer emits validated machine evidence and a report with scenario, phase,
     assert.match(report, /modeled, not observed Codex usage/i);
     assert.match(report, /fixed-treatment benchmark/);
     assert.match(report, /unfavourable|unfavorable/i);
+    assert.match(report, /frozen declared settings/i);
+    assert.match(report, /no external preregistration/i);
+    assert.match(report, /supersedes/i);
+    assert.doesNotMatch(report, /\bpre-registered\b/i);
     assert.doesNotThrow(() => benchmark.validateBundle(readJson(written.resultPath)));
   } finally {
     fs.rmSync(output, { recursive: true, force: true });

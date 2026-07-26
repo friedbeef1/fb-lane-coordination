@@ -52,6 +52,9 @@ review_state: not reviewable
 - Verification: [TASK-050 QA](../qa/TASK-050.md)
 - Quantified evidence: [controlled before/after experiment](../benchmarks/control-loop/README.md)
 - Graduated evidence: [three-arm mixed-complexity experiment](../benchmarks/control-loop/graduated.md)
+- Superseded evidence: the original graduated result from `06b292d` is
+  non-publishable because the process-all arm omitted the promised final QA.
+  The linked replacement is the only current graduated result.
 - Review state: not reviewable
 - External gate: explicit **Push Live**.
 - Repository state: **Checking** while the separately added graduated benchmark

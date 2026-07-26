@@ -1,6 +1,8 @@
 # FB three-arm graduated-control benchmark
 
-Experiment: `fb-graduated-control-050-20260726`
+Experiment: `fb-graduated-control-050-repair-20260727`
+
+This result supersedes the non-publishable result `b4d4373fc0f1b2a8304aaba425e12ac8f4827c2a0b42f47892c50ed1df5ea6ae` from `06b292dff0a620ce616ac4c916ad85554911d3fe`: The superseded run omitted the process-all final QA cost and is not publishable.
 
 This deterministic simulation compares Process-all, Full FB, and Graduated FB across four mixed-complexity scenarios with 24 sequential cases each: 96 cases per arm per seed, 288 cases per arm, and 864 arm/case records overall. Seeds are 11, 29, and 47. Outcomes are simulator observations. Token units and elapsed time are modeled, not observed Codex usage. See the [machine-readable evidence](graduated-results.json) and the earlier [fixed-treatment benchmark](README.md).
 
@@ -8,76 +10,76 @@ This deterministic simulation compares Process-all, Full FB, and Graduated FB ac
 
 | Arm | Product-ready | Work units | Modeled token units | Modeled minutes | Tokens per ready outcome | Unnecessary processing | Unresolved failures |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Process-all | 192/288 (66.7%) | 3168 | 313920 | 604.8 | 1635 | 84 | 96 |
-| Full FB | 226/288 (78.5%) | 4135 | 385740 | 643.2 | 1707 | 9 | 62 |
-| Graduated FB | 213/288 (74.0%) | 3472 | 328390 | 575.4 | 1542 | 28 | 75 |
+| Process-all | 183/288 (63.5%) | 3456 | 331200 | 619.2 | 1810 | 93 | 105 |
+| Full FB | 229/288 (79.5%) | 4120 | 384160 | 640.3 | 1678 | 13 | 59 |
+| Graduated FB | 231/288 (80.2%) | 3706 | 347590 | 604.5 | 1505 | 13 | 57 |
 
-Graduated FB recorded 38.9% graduation accuracy, 106 false graduations, 70 missed graduations, 7/36 step-down successes, and 100.0% immediate safety-trigger response.
+Graduated FB recorded 62.5% graduation accuracy, 108 false graduations, 0 missed graduations, 23/23 step-down successes, and 100.0% immediate safety-trigger response.
 
 ## Scenario results
 
 | Scenario | Arm | Ready rate | Modeled token units | Unresolved failures |
 |---|---|---:|---:|---:|
-| media | Process-all | 66.7% | 78480 | 24 |
-| media | Full FB | 80.6% | 98880 | 14 |
-| media | Graduated FB | 75.0% | 76570 | 18 |
-| product | Process-all | 66.7% | 78480 | 24 |
-| product | Full FB | 76.4% | 91060 | 17 |
-| product | Graduated FB | 72.2% | 83230 | 20 |
-| software | Process-all | 66.7% | 78480 | 24 |
-| software | Full FB | 80.6% | 101920 | 14 |
-| software | Graduated FB | 77.8% | 87370 | 16 |
-| support | Process-all | 66.7% | 78480 | 24 |
-| support | Full FB | 76.4% | 93880 | 17 |
-| support | Graduated FB | 70.8% | 81220 | 21 |
+| media | Process-all | 62.5% | 82800 | 27 |
+| media | Full FB | 83.3% | 97640 | 12 |
+| media | Graduated FB | 83.3% | 87490 | 12 |
+| product | Process-all | 62.5% | 82800 | 27 |
+| product | Full FB | 79.2% | 90560 | 15 |
+| product | Graduated FB | 79.2% | 81670 | 15 |
+| software | Process-all | 66.7% | 82800 | 24 |
+| software | Full FB | 79.2% | 105180 | 15 |
+| software | Graduated FB | 79.2% | 94180 | 15 |
+| support | Process-all | 62.5% | 82800 | 27 |
+| support | Full FB | 76.4% | 90780 | 17 |
+| support | Graduated FB | 79.2% | 84250 | 15 |
 
 ## Phase results
 
 | Phase | Arm | Ready rate | Modeled token units | Repairs |
 |---|---|---:|---:|---:|
-| clean-start | Process-all | 100.0% | 39240 | 0 |
-| clean-start | Full FB | 100.0% | 42400 | 0 |
-| clean-start | Graduated FB | 100.0% | 39240 | 0 |
-| growing-volume | Process-all | 100.0% | 52320 | 0 |
-| growing-volume | Full FB | 93.8% | 54000 | 0 |
-| growing-volume | Graduated FB | 93.8% | 44910 | 0 |
-| first-regression | Process-all | 66.7% | 39240 | 0 |
-| first-regression | Full FB | 94.4% | 21120 | 0 |
-| first-regression | Graduated FB | 94.4% | 23240 | 0 |
-| repeated-failure | Process-all | 0.0% | 52320 | 0 |
-| repeated-failure | Full FB | 25.0% | 109340 | 34 |
-| repeated-failure | Graduated FB | 16.7% | 72680 | 13 |
-| sensitive-event | Process-all | 33.3% | 39240 | 0 |
-| sensitive-event | Full FB | 63.9% | 69000 | 12 |
-| sensitive-event | Graduated FB | 52.8% | 70960 | 12 |
-| repaired-stability | Process-all | 75.0% | 52320 | 0 |
-| repaired-stability | Full FB | 83.3% | 65720 | 10 |
-| repaired-stability | Graduated FB | 75.0% | 54600 | 8 |
-| step-down-opportunity | Process-all | 100.0% | 39240 | 0 |
-| step-down-opportunity | Full FB | 100.0% | 24160 | 0 |
-| step-down-opportunity | Graduated FB | 97.2% | 22760 | 0 |
+| clean-start | Process-all | 100.0% | 41400 | 0 |
+| clean-start | Full FB | 94.4% | 40880 | 0 |
+| clean-start | Graduated FB | 100.0% | 31350 | 0 |
+| growing-volume | Process-all | 100.0% | 55200 | 0 |
+| growing-volume | Full FB | 100.0% | 50960 | 0 |
+| growing-volume | Graduated FB | 100.0% | 37150 | 0 |
+| first-regression | Process-all | 41.7% | 41400 | 0 |
+| first-regression | Full FB | 94.4% | 24380 | 0 |
+| first-regression | Graduated FB | 94.4% | 20450 | 0 |
+| repeated-failure | Process-all | 0.0% | 55200 | 0 |
+| repeated-failure | Full FB | 39.6% | 111080 | 34 |
+| repeated-failure | Graduated FB | 39.6% | 106480 | 34 |
+| sensitive-event | Process-all | 33.3% | 41400 | 0 |
+| sensitive-event | Full FB | 41.7% | 67480 | 12 |
+| sensitive-event | Graduated FB | 41.7% | 67480 | 12 |
+| repaired-stability | Process-all | 75.0% | 55200 | 0 |
+| repaired-stability | Full FB | 93.8% | 63700 | 11 |
+| repaired-stability | Graduated FB | 93.8% | 60500 | 11 |
+| step-down-opportunity | Process-all | 100.0% | 41400 | 0 |
+| step-down-opportunity | Full FB | 94.4% | 25680 | 0 |
+| step-down-opportunity | Graduated FB | 94.4% | 24180 | 0 |
 
 ## Seed ranges
 
-The table preserves all three seed outcomes; no unfavorable result was removed or rerun. Process-all beat Graduated FB in product seed 11 (66.7% process-all versus 62.5% graduated); support seed 11 (66.7% process-all versus 62.5% graduated). Full FB had the highest aggregate and per-scenario ready rate, at greater modeled cost.
+The table preserves all three seed outcomes; no unfavorable result was removed or rerun. Process-all had no scenario/seed aggregate ready-rate win over Graduated FB; unfavorable component errors and unresolved outcomes still remain in the raw evidence. Full FB and Graduated FB use common random draws for every like-for-like component call.
 
 | Seed | Arm | Ready rate | Modeled token units | Tokens per ready outcome |
 |---:|---|---:|---:|---:|
-| 11 | Process-all | 66.7% | 104640 | 1635 |
-| 11 | Full FB | 80.2% | 131660 | 1710 |
-| 11 | Graduated FB | 70.8% | 102740 | 1511 |
-| 29 | Process-all | 66.7% | 104640 | 1635 |
-| 29 | Full FB | 80.2% | 130660 | 1697 |
-| 29 | Graduated FB | 75.0% | 114080 | 1584 |
-| 47 | Process-all | 66.7% | 104640 | 1635 |
-| 47 | Full FB | 75.0% | 123420 | 1714 |
-| 47 | Graduated FB | 76.0% | 111570 | 1528 |
+| 11 | Process-all | 63.5% | 110400 | 1810 |
+| 11 | Full FB | 81.3% | 129140 | 1656 |
+| 11 | Graduated FB | 81.3% | 116560 | 1494 |
+| 29 | Process-all | 63.5% | 110400 | 1810 |
+| 29 | Full FB | 77.1% | 120300 | 1626 |
+| 29 | Graduated FB | 78.1% | 108980 | 1453 |
+| 47 | Process-all | 63.5% | 110400 | 1810 |
+| 47 | Full FB | 80.2% | 134720 | 1750 |
+| 47 | Graduated FB | 81.3% | 122050 | 1565 |
 
 | Arm | Median ready rate | Ready-rate range | Median modeled token units | Modeled-token range |
 |---|---:|---:|---:|---:|
-| Process-all | 66.7% | 66.7%–66.7% | 104640 | 104640–104640 |
-| Full FB | 80.2% | 75.0%–80.2% | 130660 | 123420–131660 |
-| Graduated FB | 75.0% | 70.8%–76.0% | 111570 | 102740–114080 |
+| Process-all | 63.5% | 63.5%–63.5% | 110400 | 110400–110400 |
+| Full FB | 80.2% | 77.1%–81.3% | 129140 | 120300–134720 |
+| Graduated FB | 81.3% | 78.1%–81.3% | 116560 | 108980–122050 |
 
 ## Graduated-level use
 
@@ -85,27 +87,29 @@ The table preserves all three seed outcomes; no unfavorable result was removed o
 |---|---:|---:|
 | Process-all | 0 | 288 |
 | Full FB | 4 | 288 |
-| Graduated FB | 0 | 60 |
-| Graduated FB | 1 | 60 |
-| Graduated FB | 2 | 57 |
-| Graduated FB | 3 | 75 |
+| Graduated FB | 0 | 18 |
+| Graduated FB | 1 | 77 |
+| Graduated FB | 2 | 70 |
+| Graduated FB | 3 | 87 |
 | Graduated FB | 4 | 36 |
 
-## Pre-registered policy
+## Frozen declared settings
 
-Level 1 requires four prior cases plus visible already-good or ambiguous evidence. Level 2 requires one observed regression. Level 3 requires two classifiable failures. A visible privacy, auth, payment, destructive, provider, migration, or release trigger immediately applies Level 4. Three consecutive clean results permit one-level step-down. Transitions use prior public observations only; hidden truth is grader-only.
+The policy, fixtures, fallibility, costs, and seeds were fixed before the one recorded replacement run. There is no external preregistration, and the bundle cannot independently prove historical execution count.
+
+Level 1 requires four prior cases plus visible already-good or ambiguous evidence. Level 2 requires one observed regression. Level 3 requires two classifiable failures. A visible privacy, auth, payment, destructive, provider, migration, or release trigger immediately applies Level 4. Three consecutive clean results permit one-level step-down. Current public ambiguity, regression, classifiable failure, or safety evidence sets a floor before any demotion. Transitions use public observations only; hidden target levels and grading truth are grader-only.
 
 ## Evidence hashes
 
 | Frozen input | SHA-256 |
 |---|---|
-| truth | `929d4c80ae7c0461db89733175a904531a6f50be3b4dc0df5edd4fc4b0b7debd` |
-| settings | `298aff33ae7098ead9116c6207322ec13d7ca1e2e94f89c57495f1375f5ec667` |
+| truth | `a3660cec3acd103e74a19fccad6a22844e2e71aae7097a79fdba0dbc295ce61d` |
+| settings | `07312853718b7da8901a6c92c0297223ce7ec382676ed58219c85960fff2037c` |
 | policy | `6661e10d4fd18bce627e7b5ac1f9fb076d3e393ed73d902ca58fdd4fc03a52f3` |
 | costModel | `1a7307fdaf03c58b58266b8c400f1a13c842daa81288185baeed245a8a417971` |
-| grader | `ef0cea8208b08c3e7d5d8823d378189c42fd622688fa3eeb9f981aa9e1ebfc83` |
+| graderImplementation | `313d05a862b6cd78e681ce5cbcfe313246f4afdc016617665e142e8a42d177b1` |
 | seeds | `8c3598742bd3db5b46521974773964aca87fb75c16a00efa90781758078b03fd` |
 
 ## Limitations
 
-This is a deterministic modeled experiment, not production telemetry. It does not establish actual Codex token savings, wall-clock savings, human-attention savings, or population-wide percentages. The cost model and fallibility rates are declared assumptions. Four constructed scenario families cannot represent every project. The fixed thresholds were not tuned after results, and unfavorable outcomes remain in the evidence. Real projects require prospective observation before these figures can become product claims.
+This is a deterministic modeled experiment, not production telemetry. It does not establish actual Codex token savings, wall-clock savings, human-attention savings, or population-wide percentages. The cost model and fallibility rates are declared assumptions. Four constructed scenario families cannot represent every project. The replacement-run declaration says no post-result tuning or selective rerun occurred, but the bundle cannot independently prove that history. The grader-implementation hash binds the exact executable target/grading/summary functions in this runner; it does not prove external preregistration, correctness, or production validity. Unfavorable outcomes remain in the evidence. Real projects require prospective observation before these figures can become product claims.

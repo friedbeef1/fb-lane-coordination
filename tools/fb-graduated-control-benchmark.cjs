@@ -10,13 +10,6 @@ const DEFAULT_TRUTH = path.join(__dirname, 'fixtures', 'fb-graduated-control-tru
 const DEFAULT_SETTINGS = path.join(__dirname, 'fixtures', 'fb-graduated-control-settings.json');
 const ARMS = ['process-all', 'full-fb', 'graduated-fb'];
 const CALLS = ['process', 'focused', 'route', 'comparison', 'qa', 'safety', 'diagnosis', 'repair', 'humanDecision'];
-const GRADER = Object.freeze({
-  schemaVersion: 'fb-graduated-control-grader-v1',
-  accepted: 'delivered artifact has quality=true and safety=true',
-  disposition: 'arm disposition equals hidden expected disposition',
-  graduation: 'minimum useful level implied by hidden case conditions',
-  diagnosis: 'visible diagnosis equals hidden failure class',
-});
 const FORBIDDEN_KEY = /^(?:secret|credential|password|token|privateReasoning|transcript|rawPrompt|chainOfThought|hidden)$/i;
 const CREDENTIAL = /(?:\b(?:token|password|secret|api[_-]?key)\s*[:=]\s*\S{8,}|\bsk-[A-Za-z0-9_-]{8,})/i;
 
@@ -67,21 +60,11 @@ function blueprintDetails(kind, safetyKind) {
 }
 
 function expandTruth(source) {
-  if (source.scenarios[0]?.cases) return structuredClone(source);
-  const phases = [...new Set(source.caseBlueprints.map(row => row.phase))];
   return {
     schemaVersion: source.schemaVersion,
-    scenarios: source.scenarios.map((scenario, scenarioIndex) => {
-      const blueprints = [];
-      for (const phase of phases) {
-        const group = source.caseBlueprints.filter(row => row.phase === phase);
-        for (let offset = 0; offset < group.length; offset += 1) {
-          blueprints.push(group[(offset + scenarioIndex) % group.length]);
-        }
-      }
-      return {
-        ...scenario,
-        cases: blueprints.map((blueprint, index) => {
+    scenarios: source.scenarios.map(scenario => ({
+      ...scenario,
+      cases: scenario.cases.map((blueprint, index) => {
           const detail = blueprintDetails(blueprint.kind, scenario.safetyKind);
           const artifact = pair => ({ quality: pair[0], safety: pair[1] });
           return {
@@ -91,6 +74,7 @@ function expandTruth(source) {
             kind: blueprint.kind,
             visible: {
               scenarioFamily: scenario.id,
+              domainEvent: `${scenario.id}:${blueprint.event}`,
               baselineReady: detail.baseline[0] && detail.baseline[1],
               benefitSignal: detail.expected === 'process',
               routeAmbiguous: Boolean(detail.ambiguous),
@@ -106,12 +90,11 @@ function expandTruth(source) {
               conditions: detail.conditions,
               expectedDisposition: detail.expected,
               failureClass: detail.failure || null,
-              minimumUsefulLevel: detail.minimumLevel,
+              minimumRequiredLevel: detail.minimumLevel,
             },
           };
-        }),
-      };
-    }),
+      }),
+    })),
   };
 }
 
@@ -120,7 +103,6 @@ function projectPublicCase(item) {
     id: item.id,
     sequence: item.sequence,
     phase: item.phase,
-    kind: item.kind,
     visible: structuredClone(item.visible),
     baseline: structuredClone(item.baseline),
     transformation: structuredClone(item.transformation),
@@ -139,18 +121,45 @@ function initialState() {
   };
 }
 
-function chooseGraduatedLevel(state, item, policy) {
+function publicRequiredFloor(item) {
   if (item.visible.safetyTrigger) {
-    return { level: 4, transition: state.currentLevel === 4 ? null : {
+    return 4;
+  }
+  if (item.visible.observedFailureSignal) return 3;
+  if (item.visible.observedRegressionSignal) return 2;
+  if (item.visible.routeAmbiguous
+    || (item.visible.baselineReady && !item.visible.benefitSignal)) return 1;
+  return 0;
+}
+
+function chooseGraduatedLevel(state, item, policy) {
+  const currentPublicFloor = publicRequiredFloor(item);
+  if (currentPublicFloor === 4) {
+    return {
+      level: 4,
+      currentPublicFloor,
+      stepDownEligible: false,
+      transition: state.currentLevel === 4 ? null : {
       direction: 'up', from: state.currentLevel, to: 4,
       temporarySafetyOverride: true, evidence: { safetyTrigger: item.visible.safetyTrigger },
-    } };
+      },
+    };
   }
   let level = state.currentLevel;
   let transition = null;
-  if (state.cleanStreak >= policy.stepDownCleanWindow && level > 0) {
+  const stepDownEligible = state.cleanStreak >= policy.stepDownCleanWindow
+    && level > currentPublicFloor;
+  if (currentPublicFloor > level) {
+    transition = {
+      direction: 'up',
+      from: level,
+      to: currentPublicFloor,
+      evidence: { currentPublicFloor },
+    };
+    level = currentPublicFloor;
+  } else if (stepDownEligible) {
     const from = level;
-    level -= policy.stepDownLevelsPerCase;
+    level = Math.max(currentPublicFloor, level - policy.stepDownLevelsPerCase);
     transition = { direction: 'down', from, to: level, evidence: { cleanStreak: state.cleanStreak } };
   } else {
     let target = level;
@@ -171,7 +180,7 @@ function chooseGraduatedLevel(state, item, policy) {
       level = target;
     }
   }
-  return { level, transition };
+  return { level, transition, currentPublicFloor, stepDownEligible };
 }
 
 function emptyCalls() {
@@ -199,11 +208,21 @@ function visibleDiagnosis(signal) {
 
 function executeCase(arm, item, state, settings, seed, scenarioId = 'unit') {
   const calls = emptyCalls();
+  const componentDraws = {};
+  const draw = component => {
+    const value = deterministic(seed, scenarioId, item.id, component);
+    componentDraws[component] = value;
+    return value;
+  };
   let executionLevel;
   let transition = null;
+  let currentPublicFloor = publicRequiredFloor(item);
+  let stepDownEligible = false;
   if (arm === 'process-all') executionLevel = 0;
   else if (arm === 'full-fb') executionLevel = 4;
-  else ({ level: executionLevel, transition } = chooseGraduatedLevel(state, item, settings.policy));
+  else ({
+    level: executionLevel, transition, currentPublicFloor, stepDownEligible,
+  } = chooseGraduatedLevel(state, item, settings.policy));
 
   let disposition = 'process';
   let routerError = false;
@@ -213,7 +232,7 @@ function executeCase(arm, item, state, settings, seed, scenarioId = 'unit') {
     const intended = item.visible.routeAmbiguous
       ? (item.visible.benefitSignal ? 'process' : 'skip')
       : (item.visible.baselineReady && !item.visible.benefitSignal ? 'skip' : 'process');
-    routerError = deterministic(seed, scenarioId, item.id, arm, 'route') >= settings.fallibility.routerAccuracy;
+    routerError = draw('route') >= settings.fallibility.routerAccuracy;
     disposition = routerError ? (intended === 'process' ? 'skip' : 'process') : intended;
     if (item.visible.routeAmbiguous) calls.humanDecision = 1;
   }
@@ -229,7 +248,8 @@ function executeCase(arm, item, state, settings, seed, scenarioId = 'unit') {
   let result = 'preserved baseline';
   if (disposition === 'process') {
     calls.process = 1;
-    calls.focused = 1;
+    if (arm === 'process-all') calls.qa = 1;
+    else calls.focused = 1;
     selected = item.transformation;
     deliveredArtifact = 'transformed-candidate';
     worseCandidateAttempt = item.baseline.quality && item.baseline.safety && (!selected.quality || !selected.safety);
@@ -237,7 +257,7 @@ function executeCase(arm, item, state, settings, seed, scenarioId = 'unit') {
     if (arm === 'full-fb' || executionLevel >= 2) {
       calls.comparison = 1;
       calls.qa = 1;
-      comparisonError = deterministic(seed, scenarioId, item.id, arm, 'comparison') >= settings.fallibility.comparisonAccuracy;
+      comparisonError = draw('comparison') >= settings.fallibility.comparisonAccuracy;
       const candidateWorse = item.baseline.quality && item.baseline.safety && (!selected.quality || !selected.safety);
       if (candidateWorse && !comparisonError) {
         selected = item.baseline;
@@ -249,7 +269,7 @@ function executeCase(arm, item, state, settings, seed, scenarioId = 'unit') {
     const safetyActive = arm === 'full-fb' || executionLevel === 4;
     if (safetyActive) {
       calls.safety = 1;
-      gateError = deterministic(seed, scenarioId, item.id, arm, 'gate') >= settings.fallibility.gateAccuracy;
+      gateError = draw('gate') >= settings.fallibility.gateAccuracy;
       if (!selected.safety && !gateError) {
         deliveredArtifact = 'none';
         result = 'safety gate blocked candidate';
@@ -259,7 +279,7 @@ function executeCase(arm, item, state, settings, seed, scenarioId = 'unit') {
     const failed = deliveredArtifact === 'none' || !selected.quality || !selected.safety;
     if (failed && (arm === 'full-fb' || executionLevel >= 3)) {
       calls.diagnosis = 1;
-      diagnosisError = deterministic(seed, scenarioId, item.id, arm, 'diagnosis') >= settings.fallibility.diagnosisAccuracy;
+      diagnosisError = draw('diagnosis') >= settings.fallibility.diagnosisAccuracy;
       diagnosedFailure = visibleDiagnosis(item.visible.observedFailureSignal);
       if (diagnosisError && diagnosedFailure) {
         diagnosedFailure = { Build: 'Brief', Brief: 'Eval', Eval: 'Environment', Environment: 'Build' }[diagnosedFailure];
@@ -267,7 +287,7 @@ function executeCase(arm, item, state, settings, seed, scenarioId = 'unit') {
       if (item.repair) {
         calls.repair = 1;
         repairAttempted = true;
-        const repairError = deterministic(seed, scenarioId, item.id, arm, 'repair') >= settings.fallibility.repairAccuracy;
+        const repairError = draw('repair') >= settings.fallibility.repairAccuracy;
         selected = repairError ? item.transformation : item.repair;
         deliveredArtifact = selected.quality && selected.safety ? 'repair-candidate' : 'none';
         result = deliveredArtifact === 'none' ? 'bounded repair unresolved' : 'accepted bounded repair';
@@ -284,6 +304,8 @@ function executeCase(arm, item, state, settings, seed, scenarioId = 'unit') {
     seed,
     executionLevel,
     transition,
+    currentPublicFloor,
+    stepDownEligible,
     disposition,
     accepted,
     deliveredArtifact,
@@ -297,6 +319,7 @@ function executeCase(arm, item, state, settings, seed, scenarioId = 'unit') {
     unresolvedFailure: !accepted,
     visibleSafetyTrigger: item.visible.safetyTrigger,
     safetyTriggerResponded: !item.visible.safetyTrigger || executionLevel === 4,
+    componentDraws,
     result,
     calls,
     ...applyCost(calls, settings.costModel),
@@ -320,19 +343,26 @@ function updateState(state, publicItem, record) {
 }
 
 function gradeRecord(record, item) {
-  const required = item.hidden.minimumUsefulLevel;
+  const required = item.hidden.minimumRequiredLevel;
+  const graduated = record.arm === 'graduated-fb';
+  const exact = graduated && record.executionLevel === required;
+  const falseGraduation = graduated && record.executionLevel > required;
+  const missedGraduation = graduated && record.executionLevel < required;
+  const stepDownOpportunity = graduated && record.stepDownEligible;
   return {
     ...record,
     dispositionCorrect: record.disposition === item.hidden.expectedDisposition,
     unnecessaryProcessing: record.disposition === 'process' && item.hidden.expectedDisposition === 'skip',
     diagnosisCorrect: record.diagnosedFailure === null ? null : record.diagnosedFailure === item.hidden.failureClass,
-    minimumUsefulLevel: required,
-    graduationCorrect: record.arm !== 'graduated-fb' ? null : record.executionLevel === required,
-    falseGraduation: record.arm === 'graduated-fb' && !item.visible.safetyTrigger && record.executionLevel > required,
-    missedGraduation: record.arm === 'graduated-fb' && record.executionLevel < required,
-    stepDownOpportunity: record.arm === 'graduated-fb' && item.phase === 'step-down-opportunity',
-    stepDownSuccess: record.arm === 'graduated-fb' && item.phase === 'step-down-opportunity'
-      && record.transition?.direction === 'down',
+    minimumRequiredLevel: required,
+    graduationExact: graduated ? exact : null,
+    falseGraduation,
+    missedGraduation,
+    stepDownOpportunity,
+    stepDownSuccess: stepDownOpportunity
+      && record.transition?.direction === 'down'
+      && record.transition.from - record.transition.to === 1
+      && !missedGraduation,
     reworkAvoided: record.arm !== 'process-all' && record.worseCandidateAttempt && record.deliveredArtifact === 'baseline',
   };
 }
@@ -342,7 +372,7 @@ function metricSummary(records) {
   const count = records.length;
   const accepted = records.filter(row => row.accepted).length;
   const diagnosed = records.filter(row => row.diagnosisCorrect !== null);
-  const graduated = records.filter(row => row.graduationCorrect !== null);
+  const graduated = records.filter(row => row.graduationExact !== null);
   const stepDown = records.filter(row => row.stepDownOpportunity);
   return {
     caseCount: count,
@@ -366,13 +396,23 @@ function metricSummary(records) {
       ? records.filter(row => row.visibleSafetyTrigger && row.safetyTriggerResponded).length
         / records.filter(row => row.visibleSafetyTrigger).length
       : null,
-    graduationAccuracy: graduated.length ? graduated.filter(row => row.graduationCorrect).length / graduated.length : null,
+    graduationAccuracy: graduated.length ? graduated.filter(row => row.graduationExact).length / graduated.length : null,
     falseGraduations: records.filter(row => row.falseGraduation).length,
     missedGraduations: records.filter(row => row.missedGraduation).length,
     stepDownOpportunities: stepDown.length,
     stepDownSuccesses: stepDown.filter(row => row.stepDownSuccess).length,
     reworkAvoided: records.filter(row => row.reworkAvoided).length,
   };
+}
+
+function graderExecutableContract() {
+  return [
+    `blueprintDetails=${blueprintDetails.toString()}`,
+    `expandTruth=${expandTruth.toString()}`,
+    `publicRequiredFloor=${publicRequiredFloor.toString()}`,
+    `gradeRecord=${gradeRecord.toString()}`,
+    `metricSummary=${metricSummary.toString()}`,
+  ].join('\n\n');
 }
 
 function armObject(records) {
@@ -484,14 +524,24 @@ function runExperiment(options = {}) {
     }
   }
   const bundle = {
-    schemaVersion: 'fb-graduated-control-result-v1',
+    schemaVersion: 'fb-graduated-control-result-v2',
     experimentId: settings.experimentId,
     evidenceType: {
       outcomes: 'observed deterministic simulator results',
       tokenAndTime: 'modeled, not observed Codex usage',
       productionGeneralization: 'unmeasured',
     },
-    runPolicy: { executionCount: 1, selectiveRerunsAllowed: false, postResultTuningAllowed: false },
+    supersedes: settings.supersedes,
+    runDeclaration: {
+      recordedRun: 'one replacement comparative run after the consolidated methodology repair',
+      selectiveRerunsAllowed: false,
+      postResultTuningPerformed: false,
+      limitation: 'The result bundle cannot independently prove historical execution count or absence of exploratory runs.',
+    },
+    graderEvidence: {
+      executableContract: graderExecutableContract(),
+      limitation: 'This source hash binds the executable grader used here; it does not prove external preregistration or production validity.',
+    },
     inputs: {
       scenarioIds: truth.scenarios.map(row => row.id),
       casesPerScenario: 24,
@@ -507,7 +557,7 @@ function runExperiment(options = {}) {
       settings: hash(settings),
       policy: hash(settings.policy),
       costModel: hash(settings.costModel),
-      grader: hash(GRADER),
+      graderImplementation: hash(graderExecutableContract()),
       seeds: hash(settings.seeds),
     },
     rawRecords,
@@ -552,12 +602,14 @@ function validateBundle(bundle, sources = {}) {
   const settings = sources.settings || readJson(DEFAULT_SETTINGS);
   const hashes = {
     truth: hash(truthSource), settings: hash(settings), policy: hash(settings.policy),
-    costModel: hash(settings.costModel), grader: hash(GRADER), seeds: hash(settings.seeds),
+    costModel: hash(settings.costModel),
+    graderImplementation: hash(graderExecutableContract()),
+    seeds: hash(settings.seeds),
   };
   if (canonical(bundle.hashes) !== canonical(hashes)) throw new Error('Frozen input hash mismatch.');
   if (canonical(bundle.inputs.policy) !== canonical(settings.policy)
     || canonical(bundle.inputs.fallibility) !== canonical(settings.fallibility)) {
-    throw new Error('Pre-registered policy or fallibility changed.');
+    throw new Error('Frozen declared policy or fallibility changed.');
   }
   if (bundle.rawRecords.length !== 864) throw new Error('Expected 864 records; missing or selective evidence.');
   const keys = new Set();
@@ -602,8 +654,12 @@ function reportMarkdown(bundle) {
   const processWins = bundle.summary.scenarioSeed.filter(row =>
     row.arms.processAll.productReadyRate > row.arms.graduatedFb.productReadyRate)
     .map(row => `${row.scenarioId} seed ${row.seed} (${pct(row.arms.processAll.productReadyRate)} process-all versus ${pct(row.arms.graduatedFb.productReadyRate)} graduated)`);
+  const processWinText = processWins.length
+    ? `Process-all beat Graduated FB in ${processWins.join('; ')}.`
+    : 'Process-all had no scenario/seed aggregate ready-rate win over Graduated FB; unfavorable component errors and unresolved outcomes still remain in the raw evidence.';
   return `# FB three-arm graduated-control benchmark\n\n` +
     `Experiment: \`${bundle.experimentId}\`\n\n` +
+    `This result supersedes the non-publishable result \`${bundle.supersedes.resultSha256}\` from \`${bundle.supersedes.sourceCommit}\`: ${bundle.supersedes.reason}\n\n` +
     `This deterministic simulation compares Process-all, Full FB, and Graduated FB across four mixed-complexity scenarios with 24 sequential cases each: 96 cases per arm per seed, 288 cases per arm, and 864 arm/case records overall. Seeds are 11, 29, and 47. ` +
     `Outcomes are simulator observations. Token units and elapsed time are modeled, not observed Codex usage. ` +
     `See the [machine-readable evidence](graduated-results.json) and the earlier [fixed-treatment benchmark](README.md).\n\n` +
@@ -612,16 +668,18 @@ function reportMarkdown(bundle) {
     `${graduated.stepDownSuccesses}/${graduated.stepDownOpportunities} step-down successes, and ${pct(graduated.safetyTriggerResponseRate)} immediate safety-trigger response.\n\n` +
     `## Scenario results\n\n| Scenario | Arm | Ready rate | Modeled token units | Unresolved failures |\n|---|---|---:|---:|---:|\n${scenarioRows}\n\n` +
     `## Phase results\n\n| Phase | Arm | Ready rate | Modeled token units | Repairs |\n|---|---|---:|---:|---:|\n${phaseRows}\n\n` +
-    `## Seed ranges\n\nThe table preserves all three seed outcomes; no unfavorable result was removed or rerun. Process-all beat Graduated FB in ${processWins.join('; ')}. Full FB had the highest aggregate and per-scenario ready rate, at greater modeled cost.\n\n| Seed | Arm | Ready rate | Modeled token units | Tokens per ready outcome |\n|---:|---|---:|---:|---:|\n${seedRows}\n\n` +
+    `## Seed ranges\n\nThe table preserves all three seed outcomes; no unfavorable result was removed or rerun. ${processWinText} Full FB and Graduated FB use common random draws for every like-for-like component call.\n\n| Seed | Arm | Ready rate | Modeled token units | Tokens per ready outcome |\n|---:|---|---:|---:|---:|\n${seedRows}\n\n` +
     `| Arm | Median ready rate | Ready-rate range | Median modeled token units | Modeled-token range |\n|---|---:|---:|---:|---:|\n${seedRangeRows}\n\n` +
     `## Graduated-level use\n\n| Arm | Level | Cases |\n|---|---:|---:|\n${levelRows}\n\n` +
-    `## Pre-registered policy\n\nLevel 1 requires four prior cases plus visible already-good or ambiguous evidence. Level 2 requires one observed regression. Level 3 requires two classifiable failures. ` +
+    `## Frozen declared settings\n\nThe policy, fixtures, fallibility, costs, and seeds were fixed before the one recorded replacement run. There is no external preregistration, and the bundle cannot independently prove historical execution count.\n\n` +
+    `Level 1 requires four prior cases plus visible already-good or ambiguous evidence. Level 2 requires one observed regression. Level 3 requires two classifiable failures. ` +
     `A visible privacy, auth, payment, destructive, provider, migration, or release trigger immediately applies Level 4. Three consecutive clean results permit one-level step-down. ` +
-    `Transitions use prior public observations only; hidden truth is grader-only.\n\n` +
+    `Current public ambiguity, regression, classifiable failure, or safety evidence sets a floor before any demotion. Transitions use public observations only; hidden target levels and grading truth are grader-only.\n\n` +
     `## Evidence hashes\n\n| Frozen input | SHA-256 |\n|---|---|\n${hashes}\n\n` +
     `## Limitations\n\nThis is a deterministic modeled experiment, not production telemetry. It does not establish actual Codex token savings, wall-clock savings, human-attention savings, or population-wide percentages. ` +
-    `The cost model and fallibility rates are declared assumptions. Four constructed scenario families cannot represent every project. The fixed thresholds were not tuned after results, ` +
-    `and unfavorable outcomes remain in the evidence. Real projects require prospective observation before these figures can become product claims.\n`;
+    `The cost model and fallibility rates are declared assumptions. Four constructed scenario families cannot represent every project. The replacement-run declaration says no post-result tuning or selective rerun occurred, but the bundle cannot independently prove that history. ` +
+    `The grader-implementation hash binds the exact executable target/grading/summary functions in this runner; it does not prove external preregistration, correctness, or production validity. ` +
+    `Unfavorable outcomes remain in the evidence. Real projects require prospective observation before these figures can become product claims.\n`;
 }
 
 function runAndWrite(options = {}) {

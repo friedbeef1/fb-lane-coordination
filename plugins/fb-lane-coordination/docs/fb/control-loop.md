@@ -135,31 +135,34 @@ tokens or work units. See the
 A second deterministic simulation tested the way FB is intended to operate:
 start with a focused check, add routing, comparison, diagnosis, and protection
 only as visible evidence requires them, then step down after clean evidence.
-It used four mixed-complexity scenarios, 24 sequential cases per scenario,
-three fixed seeds, and three arms. The 864 arm/case executions ran once from
-pre-registered thresholds; none was selectively rerun.
+It used four distinct mixed-complexity workflows, 24 sequential cases per
+workflow, three fixed seeds, and three arms. The 864 arm/case records came from
+one recorded replacement run using settings fixed before that run. There is no
+external preregistration, and the bundle cannot independently prove historical
+execution count.
 
 | Outcome | Process-all | Full FB | Graduated FB |
 |---|---:|---:|---:|
-| Product-ready outcomes | 192/288 (66.7%) | 226/288 (78.5%) | 213/288 (74.0%) |
-| Unnecessary processing | 84 | 9 | 28 |
-| Worse candidate attempts | 12 | 1 | 1 |
-| Unresolved failures | 96 | 62 | 75 |
-| Modeled token units | 313,920 | 385,740 | 328,390 |
-| Modeled token units per ready outcome | 1,635 | 1,707 | 1,542 |
-| Modeled elapsed minutes | 604.8 | 643.2 | 575.4 |
+| Product-ready outcomes | 183/288 (63.5%) | 229/288 (79.5%) | 231/288 (80.2%) |
+| Unnecessary processing | 93 | 13 | 13 |
+| Worse candidate attempts | 21 | 4 | 4 |
+| Unresolved failures | 105 | 59 | 57 |
+| Modeled token units | 331,200 | 384,160 | 347,590 |
+| Modeled token units per ready outcome | 1,810 | 1,678 | 1,505 |
+| Modeled elapsed minutes | 619.2 | 640.3 | 604.5 |
 | Immediate safety-trigger response | 0% | 100% | 100% |
 
-Graduated FB retained most of Full FB's readiness improvement while using
-14.9% fewer modeled token units than Full FB. Against process-all it produced
-7.3 percentage points more ready outcomes, used 4.6% more modeled token units
-in total, and used 5.7% fewer modeled token units per ready outcome.
+Graduated FB produced a 0.7 percentage-point higher ready rate than Full FB
+while using 9.5% fewer modeled token units. Against process-all it produced
+16.7 percentage points more ready outcomes, used 4.9% more modeled token units
+in total, and used 16.9% fewer modeled token units per ready outcome.
 
-The graduation policy itself needs improvement before its thresholds become a
-recommended default: exact-level graduation accuracy was only 38.9%, with 106
-over-graduations, 70 missed graduations, and 7 successful step-downs across 36
-opportunities. The safety override did work in every sensitive case. These are
-modeled simulator results, not observed Codex usage or production performance.
+Exact-level graduation accuracy was 62.5%. The policy over-applied controls in
+108 cases but missed no frozen required level; all 23 genuinely eligible
+step-downs demoted exactly one level without missing the required capability.
+The safety override worked in every sensitive case. This is promising
+simulator behavior, not evidence that these thresholds are a production
+default. Token and time values are modeled, not observed Codex usage.
 See the
 [full graduated methodology, scenario/phase/seed tables, raw evidence, and limitations](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/benchmarks/control-loop/graduated.md).
 

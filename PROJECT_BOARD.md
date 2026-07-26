@@ -76,7 +76,7 @@
 *   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-26-fb-generic-agent-control-loop.md);
     [handoff](docs/handoffs/TASK-050.md); [focused QA](docs/qa/TASK-050.md);
     [quantified experiment](docs/benchmarks/control-loop/README.md).
-*   **Latest Update**: *2026-07-26*: Runtime/MCP 49/49, session 20 focused
+*   **Latest Update**: *2026-07-27*: Runtime/MCP 49/49, session 20 focused
     checks, eval 18/18, efficiency 20/20, CLI/bootstrap 70/70, six-workstream
     and six-skill compatibility, root/package documentation and metadata,
     changelog 13/13, Ready-to-ship 5/5, 48-mirror parity, syntax, targeted
@@ -85,13 +85,15 @@
     for FB, with higher gross modeled work but lower modeled work per accepted
     outcome. Whole-branch review and the one complete release checkpoint passed;
     the Ready-to-ship candidate is pushed on `codex/fb-agent-control-loop`, and
-    **Push Live** remains separate. A later pre-registered graduated experiment
-    compared process-all, Full FB, and Graduated FB across 864 executions.
-    Graduated FB reached 74.0% ready versus 66.7% process-all and 78.5% Full FB
-    while using fewer modeled token units per ready outcome than both. Exact
-    graduation accuracy was only 38.9%, so those thresholds are not yet a
-    recommended default. TASK-050 is back in Checking for independent evidence
-    review; the prior release checkpoint will not be rerun.
+    **Push Live** remains separate. The first graduated result is superseded and
+    non-publishable because process-all omitted its final-QA cost. A single
+    repaired replacement run used four explicit workflows, common random
+    numbers, and 864 records: Process-all, Full FB, and Graduated FB reached
+    63.5%, 79.5%, and 80.2% ready at 331,200, 384,160, and 347,590 modeled token
+    units. Graduated FB missed no frozen required level and completed 23/23
+    genuinely eligible safe step-downs, but over-applied controls in 108 cases.
+    TASK-050 remains Checking for independent evidence review; the prior release
+    checkpoint will not be rerun.
 
 ### TASK-049 - Graph-Directed Plugin Navigation
 
