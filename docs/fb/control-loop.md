@@ -95,7 +95,7 @@ candidate and benchmark evidence. The loop never promotes itself, changes eval
 authority, edits canonical configuration, merges, publishes, or deploys.
 Only **Push Live** authorizes the final release action.
 
-## Quantified control-loop experiment
+## Fixed-treatment benchmark
 
 An eight-case deterministic simulation compared a process-everything baseline
 with the FB control loop. It deliberately included good inputs, improvements,
@@ -129,6 +129,39 @@ so routing, comparison, and gate mistakes can outweigh the loop's benefit.
 One human judgment contributes one modeled attention minute but zero agent
 tokens or work units. See the
 [full methodology, raw outcomes, assumptions, sensitivity results, and hashes](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/benchmarks/control-loop/README.md).
+
+## Graduated benchmark
+
+A second deterministic simulation tested the way FB is intended to operate:
+start with a focused check, add routing, comparison, diagnosis, and protection
+only as visible evidence requires them, then step down after clean evidence.
+It used four mixed-complexity scenarios, 24 sequential cases per scenario,
+three fixed seeds, and three arms. The 864 arm/case executions ran once from
+pre-registered thresholds; none was selectively rerun.
+
+| Outcome | Process-all | Full FB | Graduated FB |
+|---|---:|---:|---:|
+| Product-ready outcomes | 192/288 (66.7%) | 226/288 (78.5%) | 213/288 (74.0%) |
+| Unnecessary processing | 84 | 9 | 28 |
+| Worse candidate attempts | 12 | 1 | 1 |
+| Unresolved failures | 96 | 62 | 75 |
+| Modeled token units | 313,920 | 385,740 | 328,390 |
+| Modeled token units per ready outcome | 1,635 | 1,707 | 1,542 |
+| Modeled elapsed minutes | 604.8 | 643.2 | 575.4 |
+| Immediate safety-trigger response | 0% | 100% | 100% |
+
+Graduated FB retained most of Full FB's readiness improvement while using
+14.9% fewer modeled token units than Full FB. Against process-all it produced
+7.3 percentage points more ready outcomes, used 4.6% more modeled token units
+in total, and used 5.7% fewer modeled token units per ready outcome.
+
+The graduation policy itself needs improvement before its thresholds become a
+recommended default: exact-level graduation accuracy was only 38.9%, with 106
+over-graduations, 70 missed graduations, and 7 successful step-downs across 36
+opportunities. The safety override did work in every sensitive case. These are
+modeled simulator results, not observed Codex usage or production performance.
+See the
+[full graduated methodology, scenario/phase/seed tables, raw evidence, and limitations](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/benchmarks/control-loop/graduated.md).
 
 ## Deliberate limits
 

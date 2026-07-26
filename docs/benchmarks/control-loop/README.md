@@ -4,6 +4,11 @@ Experiment: `fb-control-loop-050-20260726`
 
 This is a deterministic simulation. Counts are directly observed deterministic counts from the frozen cases. Token units and elapsed minutes are modeled, not observed Codex usage. See the [machine-readable result](results.json).
 
+This fixed-treatment study is the mechanism-level/full-loop cost ceiling. See
+the separate [three-arm graduated benchmark](graduated.md) for mixed,
+long-running scenarios where FB adds and removes controls from observable
+evidence.
+
 | Outcome | Process-all baseline | FB control loop | FB minus baseline |
 |---|---:|---:|---:|
 | Product-ready rate | 25.0% | 50.0% | 25.0% |

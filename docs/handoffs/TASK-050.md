@@ -51,13 +51,14 @@ review_state: not reviewable
   version metadata, and TASK-050 records.
 - Verification: [TASK-050 QA](../qa/TASK-050.md)
 - Quantified evidence: [controlled before/after experiment](../benchmarks/control-loop/README.md)
+- Graduated evidence: [three-arm mixed-complexity experiment](../benchmarks/control-loop/graduated.md)
 - Review state: not reviewable
 - External gate: explicit **Push Live**.
-- Repository state: **Ready to ship** candidate pushed on
-  `codex/fb-agent-control-loop`; no merge, publication, installation, or
-  deployment.
-- Remaining owner/action: James may inspect the optional GitHub links and say
-  **Push Live** to authorize release.
+- Repository state: **Checking** while the separately added graduated benchmark
+  receives independent methodology and evidence review; no merge, publication,
+  installation, or deployment.
+- Remaining owner/action: Product reviews the graduated evidence and restores
+  **Ready to ship** only if the evidence and documentation are accurate.
 
 ## Release boundary
 

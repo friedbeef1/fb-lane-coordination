@@ -1,7 +1,7 @@
 ---
 type: fb-qa
 task: TASK-050
-status: ready-to-ship
+status: checking
 record_model: normalized-v1
 ---
 
@@ -36,6 +36,19 @@ FB `0.5.0-beta+codex.20260726130257` on
   sensitivity model includes fallible comparison and gate behavior. These are
   simulator results, not observed Codex usage. See the
   [full result and methodology](../benchmarks/control-loop/README.md).
+- Graduated-control simulator: the pre-registered four-scenario, 24-case,
+  three-seed, three-arm experiment wrote 864 arm/case records exactly once.
+  Process-all, Full FB, and Graduated FB produced 66.7%, 78.5%, and 74.0%
+  product-ready outcomes respectively. Graduated FB used 328,390 modeled token
+  units versus 313,920 for process-all and 385,740 for Full FB. Its 1,542
+  modeled token units per ready outcome were lower than both alternatives.
+  Immediate sensitive-trigger protection was 100%, but exact-level graduation
+  accuracy was only 38.9%, with 106 false and 70 missed graduations and only
+  7/36 step-down successes. The unfavorable policy result is retained and
+  means the fixed thresholds are not yet a recommended production default.
+  These are deterministic modeled results, not observed Codex usage. See the
+  [full graduated result](../benchmarks/control-loop/graduated.md) and
+  [machine evidence](../benchmarks/control-loop/graduated-results.json).
 - Changelog wording: approved by James in the originating conversation on
   2026-07-26.
 - Independent whole-branch review: specification and quality passed with zero
@@ -52,6 +65,7 @@ publication, installation, or deployment.
 
 ## Remaining gate
 
-The candidate is **Ready to ship** on the pushed review branch
-`codex/fb-agent-control-loop`. Merge, publication, installation, and deployment
-still require **Push Live**.
+The candidate returned to **Checking** while the graduated benchmark receives
+an independent methodology and evidence review. Its prior release checkpoint
+is not being rerun. Merge, publication, installation, and deployment still
+require **Push Live** after Product restores **Ready to ship**.

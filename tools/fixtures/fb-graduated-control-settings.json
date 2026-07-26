@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "fb-graduated-control-settings-v1",
+  "experimentId": "fb-graduated-control-050-20260726",
+  "seeds": [11, 29, 47],
+  "phases": [
+    "clean-start",
+    "growing-volume",
+    "first-regression",
+    "repeated-failure",
+    "sensitive-event",
+    "repaired-stability",
+    "step-down-opportunity"
+  ],
+  "policy": {
+    "level1MinimumVolume": 4,
+    "level1AlreadyGoodOrAmbiguous": 1,
+    "level2ObservedRegressions": 1,
+    "level3ClassifiableFailures": 2,
+    "stepDownCleanWindow": 3,
+    "stepDownLevelsPerCase": 1
+  },
+  "fallibility": {
+    "routerAccuracy": 0.9,
+    "comparisonAccuracy": 0.91,
+    "gateAccuracy": 0.94,
+    "diagnosisAccuracy": 0.72,
+    "repairAccuracy": 0.68
+  },
+  "costModel": {
+    "process": { "workUnits": 10, "tokenUnits": 1000, "minutes": 2 },
+    "focused": { "workUnits": 1, "tokenUnits": 90, "minutes": 0.1 },
+    "route": { "workUnits": 1, "tokenUnits": 80, "minutes": 0.08 },
+    "comparison": { "workUnits": 2, "tokenUnits": 180, "minutes": 0.2 },
+    "qa": { "workUnits": 2, "tokenUnits": 150, "minutes": 0.15 },
+    "safety": { "workUnits": 1, "tokenUnits": 100, "minutes": 0.1 },
+    "diagnosis": { "workUnits": 3, "tokenUnits": 220, "minutes": 0.25 },
+    "repair": { "workUnits": 8, "tokenUnits": 800, "minutes": 1.5 },
+    "humanDecision": { "workUnits": 0, "tokenUnits": 0, "minutes": 1 }
+  }
+}

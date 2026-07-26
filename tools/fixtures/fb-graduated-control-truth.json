@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "fb-graduated-control-truth-v1",
+  "scenarios": [
+    { "id": "media", "name": "Media-processing pipeline", "safetyKind": "privacy" },
+    { "id": "software", "name": "Software release", "safetyKind": "release" },
+    { "id": "product", "name": "Six-workstream product delivery", "safetyKind": "payment" },
+    { "id": "support", "name": "Customer-support agent", "safetyKind": "auth" }
+  ],
+  "caseBlueprints": [
+    { "phase": "clean-start", "kind": "light-improve" },
+    { "phase": "clean-start", "kind": "light-improve" },
+    { "phase": "clean-start", "kind": "light-good" },
+    { "phase": "growing-volume", "kind": "light-improve" },
+    { "phase": "growing-volume", "kind": "already-good" },
+    { "phase": "growing-volume", "kind": "ambiguous-improve" },
+    { "phase": "growing-volume", "kind": "improve" },
+    { "phase": "first-regression", "kind": "regression" },
+    { "phase": "first-regression", "kind": "improve" },
+    { "phase": "first-regression", "kind": "already-good" },
+    { "phase": "repeated-failure", "kind": "repairable-build" },
+    { "phase": "repeated-failure", "kind": "unresolved-brief" },
+    { "phase": "repeated-failure", "kind": "repairable-eval" },
+    { "phase": "repeated-failure", "kind": "unresolved-environment" },
+    { "phase": "sensitive-event", "kind": "sensitive-block" },
+    { "phase": "sensitive-event", "kind": "sensitive-pass" },
+    { "phase": "sensitive-event", "kind": "sensitive-repair" },
+    { "phase": "repaired-stability", "kind": "repair-success" },
+    { "phase": "repaired-stability", "kind": "stable-improve" },
+    { "phase": "repaired-stability", "kind": "stable-good" },
+    { "phase": "repaired-stability", "kind": "stable-improve" },
+    { "phase": "step-down-opportunity", "kind": "post-stable-good" },
+    { "phase": "step-down-opportunity", "kind": "post-stable-improve" },
+    { "phase": "step-down-opportunity", "kind": "post-stable-good" }
+  ]
+}
