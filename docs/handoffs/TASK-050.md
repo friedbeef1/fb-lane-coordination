@@ -52,11 +52,12 @@ review_state: not reviewable
 - Verification: [TASK-050 QA](../qa/TASK-050.md)
 - Quantified evidence: [controlled before/after experiment](../benchmarks/control-loop/README.md)
 - Review state: not reviewable
-- External gates: review-branch push and later explicit **Push Live**.
-- Repository state: local **Ready to ship** candidate; no publication or
+- External gate: explicit **Push Live**.
+- Repository state: **Ready to ship** candidate pushed on
+  `codex/fb-agent-control-loop`; no merge, publication, installation, or
   deployment.
-- Remaining owner/action: Product/BFM pushes the review branch. James may then
-  inspect the optional GitHub links and say **Push Live** to authorize release.
+- Remaining owner/action: James may inspect the optional GitHub links and say
+  **Push Live** to authorize release.
 
 ## Release boundary
 

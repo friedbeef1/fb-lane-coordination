@@ -84,7 +84,8 @@
     eight-case simulator measured 2/8 ready outcomes for process-all and 4/8
     for FB, with higher gross modeled work but lower modeled work per accepted
     outcome. Whole-branch review and the one complete release checkpoint passed;
-    the candidate is Ready to ship and **Push Live** remains separate.
+    the Ready-to-ship candidate is pushed on `codex/fb-agent-control-loop`, and
+    **Push Live** remains separate.
 
 ### TASK-049 - Graph-Directed Plugin Navigation
 

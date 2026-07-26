@@ -52,6 +52,6 @@ publication, installation, or deployment.
 
 ## Remaining gate
 
-The candidate is **Ready to ship**. Review-branch push is the remaining
-non-release delivery action. Merge, publication, installation, and deployment
+The candidate is **Ready to ship** on the pushed review branch
+`codex/fb-agent-control-loop`. Merge, publication, installation, and deployment
 still require **Push Live**.
