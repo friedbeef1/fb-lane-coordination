@@ -72,7 +72,7 @@
     *   **Justification**: James explicitly chose the graduated graph approach after distinguishing FB's loops from the graph that maps them.
 *   **Affected Screens / Locks**: `tools/fb-project-graph*`, `.fb/graph/`, `docs/experiments/TASK-048-graduated-project-graph-pilot.md`, `docs/qa/TASK-048.md`, TASK-048 coordination records.
 *   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-048.md); [Design](docs/superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md); [Plan](docs/superpowers/plans/2026-07-26-fb-graduated-project-graph-pilot.md); branch `codex/fb-graduated-project-graph`.
-*   **Latest Update**: *2026-07-26*: James approved proceeding to visible tests and examples. The pilot plan is ready; no implementation or external action has occurred.
+*   **Latest Update**: *2026-07-26*: James approved inline prototype implementation followed by a realistic six-concurrent-workstream normalized-versus-graph comparison. Baseline records tests pass 11/11 and 41 package mirrors agree; no implementation or external action has occurred.
 
 ---
 

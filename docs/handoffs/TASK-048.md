@@ -61,8 +61,9 @@ consumer-project mutation.
 ## Current State
 
 Design approved and the focused deterministic pilot implementation plan is
-ready. No runtime, plugin, package, consumer repository, release, or deployment
-change has been made.
+ready, including a six-concurrent-workstream normalized-versus-graph comparison.
+No runtime, plugin, package, consumer repository, release, or deployment change
+has been made.
 
 ## Implementation Plan
 

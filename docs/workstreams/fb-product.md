@@ -7,7 +7,7 @@ Lane: FB-Product
 
 - Status: Ready; focused pilot plan complete.
 - Blockers: Execution approach selection only.
-- Next action: Execute the [pilot plan](../superpowers/plans/2026-07-26-fb-graduated-project-graph-pilot.md).
+- Next action: Execute the [pilot plan](../superpowers/plans/2026-07-26-fb-graduated-project-graph-pilot.md), including its six-concurrent-workstream comparison.
 - Links: [Handoff](../handoffs/TASK-048.md), [design](../superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md), [normalized records](../fb/records.md).
 
 ## TASK-047 — Durable efficiency and evidence normalization

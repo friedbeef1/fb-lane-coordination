@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build and evaluate a repository-local deterministic FB project graph that visibly demonstrates new-project, growing-project, and safe-fallback behavior before any permanent plugin workflow change.
+**Goal:** Build and evaluate a repository-local deterministic FB project graph that visibly demonstrates new-project, growing-project, safe-fallback, and six-concurrent-workstream behavior before any permanent plugin workflow change.
 
 **Architecture:** A focused CommonJS module reads normalized FB records, emits a source-cited Level 1 graph, evaluates explicit retrieval-friction records for Level 2 recommendation, and answers bounded navigation queries. Generated graphs remain ignored derived artifacts; a curated experiment report records fixture and real-repository results. No semantic extraction or consumer-repository write occurs in this pilot.
 
@@ -331,6 +331,8 @@ Create the experiment document before running examples. Record:
 
 - hypothesis;
 - exact Level 0, Level 1, Level 2-recommended, stale, and corrupt scenarios;
+- one six-workstream concurrent scenario run with normalized-record navigation
+  and graph-assisted navigation;
 - allowed metrics;
 - query answer keys stored separately from graph inputs;
 - stopping rules;
@@ -450,6 +452,11 @@ into Git. Require three visible examples:
 3. `damaged-graph`: the same growing records with corrupt graph JSON; expected
    normalized-record fallback.
 
+Require a fourth comparative fixture with Product/User, Business, Design, Tech,
+Discovery, and Bugs. Each workstream receives a distinct question with at least
+one shared governing decision or dependency so repeated orientation is
+observable. Both arms receive identical authoritative records and answer keys.
+
 Require:
 
 ```js
@@ -457,6 +464,10 @@ assert.strictEqual(results.newProject.level, 1);
 assert.strictEqual(results.growingProject.graduation.action, 'recommend-scoped-level-2');
 assert.strictEqual(results.growingProject.semanticExtractionRan, false);
 assert.strictEqual(results.damagedGraph.route, 'normalized-record-fallback');
+assert.strictEqual(results.concurrent.normalized.workstreamsStarted, 6);
+assert.strictEqual(results.concurrent.graphAssisted.workstreamsStarted, 6);
+assert.strictEqual(results.concurrent.normalized.maxConcurrent, 6);
+assert.strictEqual(results.concurrent.graphAssisted.maxConcurrent, 6);
 ```
 
 - [ ] **Step 2: Run focused RED**
@@ -507,6 +518,31 @@ no graph. The graph arm receives the graph first, then opens only cited
 authoritative sources. Count exact files and bytes read. Do not label byte
 counts as provider tokens.
 
+For the concurrent comparison, start all six workstream queries behind one
+barrier and release them together. Preserve per-workstream results and then run
+one deterministic Product/BFM reconciliation over each arm. Record:
+
+```js
+{
+  workstreamsStarted: 6,
+  maxConcurrent,
+  wallMilliseconds,
+  summedWorkerMilliseconds,
+  filesRead,
+  uniqueFilesRead,
+  repeatedFileReads,
+  bytesRead,
+  correctAnswers,
+  incorrectAssumptions,
+  missingDependencies,
+  reconciliationFindings,
+}
+```
+
+The controller supplies only the current workstream question, allowed records,
+and required answer shape. It does not forward accumulated transcripts or
+pre-reconcile either arm.
+
 - [ ] **Step 4: Add the current FB repository example**
 
 Run the same pre-registered questions against the current repository:
@@ -551,6 +587,7 @@ Expected output includes:
 new-project: Level 1
 growing-project: Level 2 recommended; semantic extraction not run
 damaged-graph: normalized-record fallback
+six-workstream comparison: normalized and graph-assisted arms complete
 FB repository: comparison complete
 Unmirror snapshot: complete or explicit blocked result
 ```
@@ -647,6 +684,8 @@ Report:
 
 - rendered Markdown and HTML example locations;
 - fixture-level results;
+- six-concurrent-workstream wall time, summed worker time, repeated reads,
+  correctness, and reconciliation comparison;
 - FB and Unmirror result or blocker;
 - exact navigation savings and graph-maintenance cost;
 - correctness and fallback evidence;
@@ -655,4 +694,3 @@ Report:
 Do not add the graph to bootstrap, package mirrors, installed plugin, or other
 projects until Product approves the pilot result and a separate plugin
 integration slice.
-
