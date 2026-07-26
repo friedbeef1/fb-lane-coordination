@@ -17,6 +17,13 @@ const {
 } = require('./fb-session.cjs');
 const { assertFullBfmChangelog } = require('./fb-changelog-closeout.cjs');
 const { collectEvalDoctorChecks } = require('./fb-eval.cjs');
+const {
+  REQUIRED_EVENT_FIELDS,
+  routeArtifact,
+  validateStageEvent,
+  appendStageEvent,
+  collectControlLoopDoctorChecks,
+} = require('./fb-control-loop.cjs');
 const { validateNormalizedRepository } = require('./fb-records.cjs');
 const { projectContextPacket } = require('./fb-project-graph.cjs');
 const {
@@ -32,6 +39,12 @@ const {
 } = require('./fb-efficiency.cjs');
 
 const FB_MODEL_LINE = ['FB 0.2.0-beta:', 'AI', 'Loop', 'Engineering', 'for', 'Everyday', 'People'].join(' ');
+const CONTROL_EVENT_MCP_SCHEMA = {
+  type: 'object',
+  description: 'Flat fb-stage-event-v1 record. Nested objects, transcripts, raw prompts, complete outputs, private reasoning, and secrets are rejected.',
+  properties: Object.fromEntries(REQUIRED_EVENT_FIELDS.map(field => [field, {}])),
+  required: REQUIRED_EVENT_FIELDS,
+};
 
 function expandHome(filePath) {
   if (!filePath || typeof filePath !== 'string') {
@@ -1652,6 +1665,9 @@ function handleDoctor() {
     for (const check of collectEvalDoctorChecks(rootDir)) {
       add(check.level, check.label, check.detail, check.fix);
     }
+    for (const check of collectControlLoopDoctorChecks(rootDir)) {
+      add(check.level, check.label, check.detail, check.fix);
+    }
     const normalizedRecordFindings = validateNormalizedRepository(rootDir);
     if (normalizedRecordFindings.length > 0) {
       for (const finding of normalizedRecordFindings) {
@@ -2564,6 +2580,34 @@ function handleMcpRequest(request) {
           }
         },
         {
+          name: 'fb_control_event_validate',
+          description: 'Validate one privacy-safe, flat stage event without recording it. This does not evaluate product semantics or authorize a release.',
+          inputSchema: CONTROL_EVENT_MCP_SCHEMA
+        },
+        {
+          name: 'fb_control_event_record',
+          description: 'Validate and append one privacy-safe, flat stage event to the repository clone-local JSONL registry. It does not copy event JSONL into Markdown or authorize a release.',
+          inputSchema: CONTROL_EVENT_MCP_SCHEMA
+        },
+        {
+          name: 'fb_control_route',
+          description: 'Evaluate deterministic control-loop route rules. Safety and ambiguity return judgment_required; this tool never invokes an LLM or transformation.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              artifactRef: { type: 'string' },
+              description: { type: 'string' },
+              metadataRef: { type: 'string' },
+              criteriaIds: { type: 'array', items: { type: 'string' } },
+              costRisk: { type: 'string' },
+              degradationRisk: { type: 'string' },
+              safetyTriggers: { type: 'array', items: { type: 'string' } },
+              routeRules: { type: 'array' }
+            },
+            required: ['artifactRef']
+          }
+        },
+        {
           name: 'fb_lane_claim',
           description: 'Claim a task from the board, checkout a feature branch, lock files, and commit the board update.',
           inputSchema: {
@@ -2619,7 +2663,16 @@ function handleMcpRequest(request) {
       process.chdir(workspaceRoot);
 
       try {
-        if (name === 'fb_lane_status') {
+        if (name === 'fb_control_event_validate') {
+          const { workspacePath, ...event } = toolArgs;
+          message = JSON.stringify(validateStageEvent(event));
+        } else if (name === 'fb_control_event_record') {
+          const { workspacePath, ...event } = toolArgs;
+          message = JSON.stringify(appendStageEvent(workspaceRoot, event));
+        } else if (name === 'fb_control_route') {
+          const { workspacePath, ...input } = toolArgs;
+          message = JSON.stringify(routeArtifact(input));
+        } else if (name === 'fb_lane_status') {
           const { tasks } = parseBoard(boardPath);
           message = toolArgs.details
             ? renderTechnicalStatus(tasks, { format: 'mcp', workspaceRoot })

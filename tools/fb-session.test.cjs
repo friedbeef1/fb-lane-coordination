@@ -23,6 +23,7 @@ const {
   submitVerificationReuse,
 } = require(path.join(__dirname, 'fb-session.cjs'));
 const { selectAutomatedChecks } = require(path.join(__dirname, 'fb-efficiency.cjs'));
+const { appendStageEvent } = require(path.join(__dirname, 'fb-control-loop.cjs'));
 const cleanEnv = {
   ...process.env,
   CODEX_THREAD_ID: '',
@@ -684,6 +685,46 @@ test('verification checkpoint commits and pushes only recap and linked handoff w
     assert.strictEqual(remoteHead, git(worktree, ['rev-parse', 'HEAD']));
   } finally {
     fixture.cleanup();
+  }
+});
+
+test('verification checkpoint keeps control-loop evidence as a counted clone-local link and rejects copied JSONL payloads', () => {
+  const fixture = createRepo();
+  try {
+    const worktree = addWorktree(fixture, 'session/control-loop-summary');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'control-loop-summary'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 22;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: control loop source evidence']);
+    const sourceCommit = git(worktree, ['rev-parse', '--short', 'HEAD']);
+    appendStageEvent(worktree, {
+      schemaVersion: 'fb-stage-event-v1', eventId: 'event-session-summary', timestamp: '2026-07-26T00:00:00.000Z',
+      runId: 'run-session-summary', sessionId: 'control-loop-summary', taskId: 'TASK-001', stage: 'verification',
+      capability: 'focused-check', attempt: 1, decision: 'process', result: 'passed', artifactRef: 'src/app.js',
+      baselineRef: 'src/app.js', candidateRef: null, criteriaIds: ['criterion-session-summary'],
+      evidenceRefs: ['docs/handoffs/TASK-001.md#verification-handoff'], failureClass: null, durationMs: 4,
+      inputTokens: 'unavailable', outputTokens: 'unavailable', cost: 'unavailable', nextAction: 'Retain the summary link only.',
+    });
+    appendEvidence(worktree, 'control-loop-summary', 'TASK-001', sourceCommit);
+    fs.appendFileSync(recapPath(worktree, 'control-loop-summary'), '\nStage event summary: [run-session-summary](fb-lane/events/run-session-summary.jsonl) (1 event).\n');
+    assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'control-loop-summary']));
+  } finally {
+    fixture.cleanup();
+  }
+
+  const copied = createRepo();
+  try {
+    const worktree = addWorktree(copied, 'session/control-loop-copied');
+    assertOk(promote(worktree, 'TASK-001', 'tech', 'execution', 'control-loop-copied'));
+    fs.writeFileSync(path.join(worktree, 'src', 'app.js'), 'module.exports = 23;\n');
+    git(worktree, ['add', 'src/app.js']);
+    git(worktree, ['commit', '-qm', 'feat: copied event source']);
+    const sourceCommit = git(worktree, ['rev-parse', '--short', 'HEAD']);
+    appendEvidence(worktree, 'control-loop-copied', 'TASK-001', sourceCommit);
+    fs.appendFileSync(recapPath(worktree, 'control-loop-copied'), '\nStage event summary: [run-session-copied](fb-lane/events/run-session-copied.jsonl) (1 event).\n{"schemaVersion":"fb-stage-event-v1","eventId":"copied-event"}\n');
+    assertFailed(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'control-loop-copied']), /stage event|JSONL|copy/i);
+  } finally {
+    copied.cleanup();
   }
 });
 

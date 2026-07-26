@@ -7,6 +7,7 @@ const { execFileSync, spawnSync } = require('child_process');
 const { assertSelectedEvalCloseout, validateSelectedEvalIntegration } = require('./fb-eval.cjs');
 const { automatedVerificationDecision, selectAutomatedChecks } = require('./fb-efficiency.cjs');
 const { assertFullBfmChangelog } = require('./fb-changelog-closeout.cjs');
+const { assertStageEventSummaryMarkdown } = require('./fb-control-loop.cjs');
 
 const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const LANES = new Set(['product', 'tech', 'design', 'business', 'discovery', 'bugs', 'bfm', 'coordination']);
@@ -771,7 +772,7 @@ function assertStructuredFailures(markdown) {
   }
 }
 
-function assertCheckpointEvidence(reason, recap, handoff, record) {
+function assertCheckpointEvidence(reason, recap, handoff, record, cwd) {
   const combined = `${recap}\n${handoff}`;
   assertCuratedPrivacy(combined);
   assertStructuredFailures(combined);
@@ -788,6 +789,7 @@ function assertCheckpointEvidence(reason, recap, handoff, record) {
       throw new Error('Blocked checkpoint requires a concrete Blocker and actionable Next action.');
     }
   } else if (reason === 'verification') {
+    assertStageEventSummaryMarkdown(combined, cwd);
     const hasCommit = /\b[0-9a-f]{7,40}\b/i.test(combined);
     const checks = fieldValue(combined, 'Commands and results') || fieldValue(combined, 'Checks, failures, recovery, and results');
     const limits = fieldValue(combined, 'Known limits');
@@ -902,7 +904,7 @@ function checkpointSessionLocked(cwd, sessionId, reason, env) {
   }
   const recap = fs.readFileSync(recapPath, 'utf8');
   const handoff = fs.readFileSync(handoffPath, 'utf8');
-  assertCheckpointEvidence(reason, recap, handoff, record);
+  assertCheckpointEvidence(reason, recap, handoff, record, cwd);
   const baseCommit = git(cwd, ['rev-parse', 'HEAD']).stdout;
   mutateSession(cwd, sessionId, current => {
     current.pendingCheckpoint = {

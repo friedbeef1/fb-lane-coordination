@@ -20,6 +20,8 @@
   "tools/fb-records.test.cjs",
   "tools/fb-project-graph.cjs",
   "tools/fb-project-graph-plugin.test.cjs",
+  "tools/fb-control-loop.cjs",
+  "tools/fb-control-loop.test.cjs",
   "docs/why-fb.md",
   "docs/evidence/TASK-026-two-speed.md",
   "docs/fb/README.md",
