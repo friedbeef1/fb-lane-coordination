@@ -535,9 +535,10 @@ test('stores each candidate in its isolated clone-local directory without touchi
     const input = candidateStoreInput({ fixtureManifest: manifest });
     const record = writeCandidateStore(fixture.repo, input);
     assert.match(record.directory, /fb-lane\/candidates\/candidate-001$/);
+    assert.strictEqual(fs.lstatSync(record.directory).isFile(), true);
     assert.strictEqual(fs.readFileSync(canonical, 'utf8'), '{"mode":"baseline"}\n');
-    assert.deepStrictEqual(JSON.parse(fs.readFileSync(path.join(record.directory, 'proposed-config.json'), 'utf8')), proposedConfig());
-    assert.strictEqual(JSON.parse(fs.readFileSync(path.join(record.directory, 'candidate.json'), 'utf8')).fixtureManifestHash, sha256(serializedJson(manifest)));
+    assert.deepStrictEqual(readCandidateStore(fixture.repo, record.candidateId).fixtureManifest, manifest);
+    assert.strictEqual(readCandidateStore(fixture.repo, record.candidateId).candidateHash, serializedHash(proposedConfig()));
   } finally {
     fixture.cleanup();
   }
@@ -617,56 +618,92 @@ test('rejects incomplete and symlinked candidate targets without deleting existi
   }
 });
 
-test('claims the final candidate directory before writing and readers reject the partial record', () => {
+test('keeps candidate payload writes bound to the exclusively opened record when its parent path is replaced', () => {
   const fixture = createRepo();
   const originalWriteFile = fs.writeFileSync;
   try {
     const common = path.resolve(fixture.repo, git(fixture.repo, ['rev-parse', '--git-common-dir']));
     const candidates = path.join(common, 'fb-lane', 'candidates');
     const target = path.join(candidates, 'candidate-partial');
-    let observedClaimedDirectory = false;
-    let observedReaderRejection = false;
+    const movedCandidates = path.join(common, 'fb-lane', 'candidates-owned-moved');
+    let replacedParent = false;
     fs.writeFileSync = (file, ...args) => {
-      if (!observedClaimedDirectory && typeof file === 'number') {
-        observedClaimedDirectory = fs.existsSync(target) && fs.lstatSync(target).isDirectory();
-        try {
-          readCandidateStore(fixture.repo, 'candidate-partial');
-        } catch (error) {
-          observedReaderRejection = /incomplete|missing|commit/i.test(error.message);
-        }
+      if (!replacedParent && typeof file === 'number') {
+        assert.strictEqual(fs.lstatSync(target).isFile(), true);
+        fs.renameSync(candidates, movedCandidates);
+        fs.mkdirSync(candidates, { mode: 0o700 });
+        fs.writeFileSync(path.join(candidates, 'foreign.txt'), 'foreign survives\n');
+        replacedParent = true;
       }
       return originalWriteFile(file, ...args);
     };
-    const record = writeCandidateStore(fixture.repo, candidateStoreInput({ candidateId: 'candidate-partial' }));
-    assert.strictEqual(observedClaimedDirectory, true);
-    assert.strictEqual(observedReaderRejection, true);
-    assert.strictEqual(readCandidateStore(fixture.repo, record.candidateId).candidateHash, record.candidateHash);
+    assert.throws(() => writeCandidateStore(fixture.repo, candidateStoreInput({ candidateId: 'candidate-partial' })), /candidate|store|changed|incomplete|unsafe/i);
+    assert.strictEqual(replacedParent, true);
+    assert.strictEqual(fs.readFileSync(path.join(candidates, 'foreign.txt'), 'utf8'), 'foreign survives\n');
+    assert.strictEqual(fs.existsSync(path.join(candidates, 'candidate-partial')), false);
+    assert.match(fs.readFileSync(path.join(movedCandidates, 'candidate-partial'), 'utf8'), /fb-candidate-record-v2/);
   } finally {
     fs.writeFileSync = originalWriteFile;
     fixture.cleanup();
   }
 });
 
-test('cleans only its claimed partial candidate when publication fails', () => {
+test('never deletes an adversarial replacement after a failed candidate write', () => {
   const fixture = createRepo();
   const originalWriteFile = fs.writeFileSync;
+  const originalLstat = fs.lstatSync;
   try {
     const common = path.resolve(fixture.repo, git(fixture.repo, ['rev-parse', '--git-common-dir']));
     const candidates = path.join(common, 'fb-lane', 'candidates');
     fs.mkdirSync(candidates, { recursive: true });
-    const unrelated = path.join(candidates, 'unrelated-candidate');
-    fs.mkdirSync(unrelated);
-    fs.writeFileSync(path.join(unrelated, 'preserve.txt'), 'keep\n');
-    let writes = 0;
+    const target = path.join(candidates, 'candidate-failed');
+    const displaced = path.join(candidates, 'candidate-failed-owned');
+    let candidateWriteFailed = false;
+    let replacementInstalled = false;
     fs.writeFileSync = (file, ...args) => {
-      if (typeof file === 'number' && ++writes === 2) throw new Error('simulated candidate write failure');
+      if (typeof file === 'number') {
+        candidateWriteFailed = true;
+        throw new Error('simulated candidate write failure');
+      }
       return originalWriteFile(file, ...args);
     };
+    fs.lstatSync = file => {
+      const stat = originalLstat(file);
+      if (candidateWriteFailed && !replacementInstalled && (file === target || path.dirname(file) === target)) {
+        const replacementTarget = file === target ? target : file;
+        const ownedTarget = file === target ? displaced : `${file}.owned`;
+        fs.renameSync(replacementTarget, ownedTarget);
+        originalWriteFile(replacementTarget, 'foreign replacement\n');
+        replacementInstalled = true;
+      }
+      return stat;
+    };
     assert.throws(() => writeCandidateStore(fixture.repo, candidateStoreInput({ candidateId: 'candidate-failed' })), /simulated candidate write failure/);
-    assert.strictEqual(fs.existsSync(path.join(candidates, 'candidate-failed')), false);
-    assert.strictEqual(fs.readFileSync(path.join(unrelated, 'preserve.txt'), 'utf8'), 'keep\n');
+    if (!replacementInstalled) fs.lstatSync(target);
+    assert.strictEqual(replacementInstalled, true);
+    assert.strictEqual(fs.readFileSync(target, 'utf8'), 'foreign replacement\n');
+    assert.throws(() => readCandidateStore(fixture.repo, 'candidate-failed'), /invalid|incomplete|hash|schema|record/i);
   } finally {
     fs.writeFileSync = originalWriteFile;
+    fs.lstatSync = originalLstat;
+    fixture.cleanup();
+  }
+});
+
+test('rejects partial or hash-invalid single-file candidate records', () => {
+  const fixture = createRepo();
+  try {
+    const common = path.resolve(fixture.repo, git(fixture.repo, ['rev-parse', '--git-common-dir']));
+    const candidates = path.join(common, 'fb-lane', 'candidates');
+    fs.mkdirSync(candidates, { recursive: true });
+    fs.writeFileSync(path.join(candidates, 'candidate-partial-json'), '{"schemaVersion":"fb-candidate-record-v2"');
+    assert.throws(() => readCandidateStore(fixture.repo, 'candidate-partial-json'), /invalid|incomplete|json/i);
+    const record = writeCandidateStore(fixture.repo, candidateStoreInput({ candidateId: 'candidate-hash-source' }));
+    const tampered = JSON.parse(fs.readFileSync(record.directory, 'utf8'));
+    tampered.payload.proposedConfig.mode = 'tampered';
+    fs.writeFileSync(path.join(candidates, 'candidate-hash-invalid'), `${JSON.stringify(tampered, null, 2)}\n`);
+    assert.throws(() => readCandidateStore(fixture.repo, 'candidate-hash-invalid'), /hash|candidate|record/i);
+  } finally {
     fixture.cleanup();
   }
 });
@@ -704,7 +741,7 @@ try {
     assert.strictEqual(record.candidateHash, serializedHash(proposedConfig()));
     const common = path.resolve(fixture.repo, git(fixture.repo, ['rev-parse', '--git-common-dir']));
     const candidates = path.join(common, 'fb-lane', 'candidates');
-    assert.deepStrictEqual(fs.readdirSync(candidates).filter(name => name.includes('.stage-')), []);
+    assert.strictEqual(fs.lstatSync(path.join(candidates, 'candidate-concurrent')).isFile(), true);
   } finally {
     fixture.cleanup();
   }

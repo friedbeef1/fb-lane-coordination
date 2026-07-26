@@ -720,72 +720,71 @@ function safeCandidatePath(root, candidateId) {
   return target;
 }
 
-function assertSafeCandidateDirectory(directory, label = 'candidate directory') {
+function directoryIdentity(directory, label) {
   assertNotSymlink(directory, label);
   if (!fs.existsSync(directory) || !fs.lstatSync(directory).isDirectory() || fs.realpathSync(directory) !== directory) throw new Error(`Unsafe ${label}.`);
-  return directory;
-}
-
-function safeCandidateFile(directory, name) {
-  const file = path.join(directory, name);
-  if (path.dirname(file) !== directory) throw new Error('Unsafe candidate file path.');
-  assertNotSymlink(file, `candidate file ${name}`);
-  return file;
-}
-
-function candidateDirectoryIdentity(directory) {
-  assertSafeCandidateDirectory(directory);
   const stat = fs.lstatSync(directory);
   return { dev: stat.dev, ino: stat.ino };
 }
 
-function assertCandidateDirectoryIdentity(directory, expected) {
-  assertSafeCandidateDirectory(directory);
+function assertDirectoryIdentity(directory, expected, label) {
+  assertNotSymlink(directory, label);
+  if (!fs.existsSync(directory) || !fs.lstatSync(directory).isDirectory() || fs.realpathSync(directory) !== directory) throw new Error(`Unsafe ${label}.`);
   const actual = fs.lstatSync(directory);
-  if (actual.dev !== expected.dev || actual.ino !== expected.ino) throw new Error('Claimed candidate directory changed during publication.');
+  if (actual.dev !== expected.dev || actual.ino !== expected.ino) throw new Error(`${label} changed during candidate publication.`);
 }
 
-function writeCandidateFile(directory, name, content, directoryIdentity, createdFiles) {
-  assertCandidateDirectoryIdentity(directory, directoryIdentity);
-  const target = safeCandidateFile(directory, name);
+function writeCandidateRecordFile(root, target, content, expectedRootIdentity) {
+  const rootDescriptor = fs.openSync(root, fs.constants.O_RDONLY);
+  const rootStat = fs.fstatSync(rootDescriptor);
+  const rootIdentity = { dev: rootStat.dev, ino: rootStat.ino };
   const noFollow = fs.constants.O_NOFOLLOW || 0;
-  const descriptor = fs.openSync(target, fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_EXCL | noFollow, 0o600);
-  let identity;
+  let descriptor;
   try {
+    if (!rootStat.isDirectory() || rootIdentity.dev !== expectedRootIdentity.dev || rootIdentity.ino !== expectedRootIdentity.ino) throw new Error('Candidate store directory changed before candidate publication.');
+    assertDirectoryIdentity(root, rootIdentity, 'candidate store directory');
+    descriptor = fs.openSync(target, fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_EXCL | noFollow, 0o600);
     const opened = fs.fstatSync(descriptor);
-    identity = { path: target, dev: opened.dev, ino: opened.ino };
-    createdFiles.push(identity);
+    if (!opened.isFile()) throw new Error('Candidate record claim is not a regular file.');
+    assertDirectoryIdentity(root, rootIdentity, 'candidate store directory');
     fs.writeFileSync(descriptor, content, 'utf8');
     fs.fsyncSync(descriptor);
+    fs.fsyncSync(rootDescriptor);
   } finally {
-    fs.closeSync(descriptor);
-  }
-  assertCandidateDirectoryIdentity(directory, directoryIdentity);
-  const written = fs.lstatSync(target);
-  if (!written.isFile() || written.isSymbolicLink() || written.dev !== identity.dev || written.ino !== identity.ino) throw new Error(`Candidate file ${name} changed during publication.`);
-}
-
-function fsyncCandidateDirectory(directory) {
-  const descriptor = fs.openSync(directory, fs.constants.O_RDONLY);
-  try {
-    fs.fsyncSync(descriptor);
-  } finally {
-    fs.closeSync(descriptor);
+    if (descriptor !== undefined) fs.closeSync(descriptor);
+    fs.closeSync(rootDescriptor);
   }
 }
 
-function readCandidateFile(directory, name) {
-  assertSafeCandidateDirectory(directory);
-  const file = safeCandidateFile(directory, name);
-  if (!fs.existsSync(file) || !fs.lstatSync(file).isFile()) throw new Error(`Candidate record is incomplete: ${name} is missing.`);
-  return fs.readFileSync(file, 'utf8');
+function readCandidateRecordFile(root, target, expectedRootIdentity) {
+  const rootDescriptor = fs.openSync(root, fs.constants.O_RDONLY);
+  const rootStat = fs.fstatSync(rootDescriptor);
+  const rootIdentity = { dev: rootStat.dev, ino: rootStat.ino };
+  const noFollow = fs.constants.O_NOFOLLOW || 0;
+  let descriptor;
+  try {
+    if (!rootStat.isDirectory() || rootIdentity.dev !== expectedRootIdentity.dev || rootIdentity.ino !== expectedRootIdentity.ino) throw new Error('Candidate store directory changed before candidate read.');
+    assertDirectoryIdentity(root, rootIdentity, 'candidate store directory');
+    descriptor = fs.openSync(target, fs.constants.O_RDONLY | noFollow);
+    const opened = fs.fstatSync(descriptor);
+    if (!opened.isFile()) throw new Error('Candidate record is incomplete or not a regular file.');
+    assertDirectoryIdentity(root, rootIdentity, 'candidate store directory');
+    const content = fs.readFileSync(descriptor, 'utf8');
+    assertDirectoryIdentity(root, rootIdentity, 'candidate store directory');
+    const current = fs.lstatSync(target);
+    if (!current.isFile() || current.isSymbolicLink() || current.dev !== opened.dev || current.ino !== opened.ino) throw new Error('Candidate record changed while it was read.');
+    return content;
+  } finally {
+    if (descriptor !== undefined) fs.closeSync(descriptor);
+    fs.closeSync(rootDescriptor);
+  }
 }
 
-function parseCandidateJson(directory, name) {
+function parseCandidateRecord(root, target, expectedRootIdentity) {
   try {
-    return JSON.parse(readCandidateFile(directory, name));
+    return JSON.parse(readCandidateRecordFile(root, target, expectedRootIdentity));
   } catch (error) {
-    throw new Error(`Candidate record has invalid ${name}: ${error.message}`);
+    throw new Error(`Candidate record is invalid or incomplete: ${error.message}`);
   }
 }
 
@@ -824,86 +823,74 @@ function writeCandidateStore(cwd = process.cwd(), input = {}) {
   if (new Set(results.map(item => item.caseId)).size !== results.length) throw new Error('Candidate results must not repeat a case.');
   if (results.some(item => !fixtureManifest.cases.some(fixture => fixture.id === item.caseId))) throw new Error('Candidate results must use only cases in the frozen golden fixture set.');
   if (!['promote', 'hold', 'reject'].includes(input.promotionRecommendation)) throw new Error('Candidate promotionRecommendation must be promote, hold, or reject.');
-  const record = {
+  const payload = {
     candidateId,
     profileId,
+    baselineConfig: input.baselineConfig,
+    proposedConfig: input.proposedConfig,
     baselineHash,
     candidateHash,
     fixtureManifestHash: hashBytes(fixtureContent),
+    fixtureManifest,
     results,
     promotionRecommendation: input.promotionRecommendation,
   };
-  const recordContent = `${JSON.stringify(record, null, 2)}\n`;
+  const payloadHash = hashBytes(serializeJson(payload));
+  const recordContent = serializeJson({
+    schemaVersion: 'fb-candidate-record-v2',
+    publication: 'complete',
+    payloadHash,
+    payload,
+  });
   const common = gitCommonDir(cwd);
   const root = candidateStoreRoot(common);
-  const directory = safeCandidatePath(root, candidateId);
-  const createdFiles = [];
-  let claimedDirectory = false;
-  let directoryIdentity;
-  let completed = false;
+  const rootIdentity = directoryIdentity(root, 'candidate store directory');
+  const target = safeCandidatePath(root, candidateId);
   try {
-    if (fs.realpathSync(root) !== root) throw new Error('Unsafe candidate store directory outside the Git common directory.');
-    try {
-      fs.mkdirSync(directory, { mode: 0o700 });
-      claimedDirectory = true;
-    } catch (error) {
-      if (error && error.code === 'EEXIST') throw new Error(`Candidate ${candidateId} already exists and must remain isolated.`);
-      throw error;
-    }
-    directoryIdentity = candidateDirectoryIdentity(directory);
-    writeCandidateFile(directory, 'baseline-config.json', baselineContent, directoryIdentity, createdFiles);
-    writeCandidateFile(directory, 'proposed-config.json', proposedContent, directoryIdentity, createdFiles);
-    writeCandidateFile(directory, 'fixture-manifest.json', fixtureContent, directoryIdentity, createdFiles);
-    writeCandidateFile(directory, 'candidate.json', recordContent, directoryIdentity, createdFiles);
-    const commit = `${JSON.stringify({ recordHash: hashBytes(recordContent), baselineHash, candidateHash, fixtureManifestHash: record.fixtureManifestHash }, null, 2)}\n`;
-    fsyncCandidateDirectory(directory);
-    writeCandidateFile(directory, 'record.commit', commit, directoryIdentity, createdFiles);
-    fsyncCandidateDirectory(directory);
-    readCandidateStoreDirectory(directory, candidateId);
-    fsyncCandidateDirectory(root);
-    completed = true;
-  } finally {
-    if (claimedDirectory && !completed) {
-      for (const created of createdFiles.reverse()) {
-        if (!fs.existsSync(created.path)) continue;
-        const actual = fs.lstatSync(created.path);
-        if (actual.isFile() && !actual.isSymbolicLink() && actual.dev === created.dev && actual.ino === created.ino) fs.unlinkSync(created.path);
-      }
-      if (fs.existsSync(directory)) {
-        const actual = fs.lstatSync(directory);
-        if (actual.isDirectory() && !actual.isSymbolicLink() && directoryIdentity && actual.dev === directoryIdentity.dev && actual.ino === directoryIdentity.ino) {
-          try {
-            fs.rmdirSync(directory);
-          } catch (error) {
-            if (!error || error.code !== 'ENOTEMPTY') throw error;
-          }
-        }
-      }
-    }
+    writeCandidateRecordFile(root, target, recordContent, rootIdentity);
+  } catch (error) {
+    if (error && ['EEXIST', 'EISDIR', 'ELOOP'].includes(error.code)) throw new Error(`Candidate ${candidateId} already exists and must remain isolated.`);
+    throw error;
   }
-  return { directory, ...record, fixtureManifest };
-}
-
-function readCandidateStoreDirectory(directory, safeId) {
-  assertSafeCandidateDirectory(directory);
-  const commit = parseCandidateJson(directory, 'record.commit');
-  const baselineContent = readCandidateFile(directory, 'baseline-config.json');
-  const proposedContent = readCandidateFile(directory, 'proposed-config.json');
-  const fixtureContent = readCandidateFile(directory, 'fixture-manifest.json');
-  const recordContent = readCandidateFile(directory, 'candidate.json');
-  const record = parseCandidateJson(directory, 'candidate.json');
-  assertOnlyKeys(record, ['candidateId', 'profileId', 'baselineHash', 'candidateHash', 'fixtureManifestHash', 'results', 'promotionRecommendation'], 'Candidate record');
-  if (record.candidateId !== safeId || hashBytes(baselineContent) !== assertSha256(record.baselineHash, 'Candidate record baselineHash') || hashBytes(proposedContent) !== assertSha256(record.candidateHash, 'Candidate record candidateHash') || hashBytes(fixtureContent) !== assertSha256(record.fixtureManifestHash, 'Candidate record fixtureManifestHash')) throw new Error('Candidate record content hashes do not match its immutable stored files.');
-  assertOnlyKeys(commit, ['recordHash', 'baselineHash', 'candidateHash', 'fixtureManifestHash'], 'Candidate commit marker');
-  if (commit.recordHash !== hashBytes(recordContent) || commit.baselineHash !== record.baselineHash || commit.candidateHash !== record.candidateHash || commit.fixtureManifestHash !== record.fixtureManifestHash) throw new Error('Candidate record commit marker does not match its complete stored record.');
-  const fixtureManifest = validateGoldenFixtureManifest(JSON.parse(fixtureContent));
-  return { directory, ...record, fixtureManifest };
+  const stored = readCandidateStore(cwd, candidateId);
+  return { ...stored, directory: target };
 }
 
 function readCandidateStore(cwd = process.cwd(), candidateId) {
   const safeId = assertSafeIdentifier(candidateId, 'candidate ID');
   const root = candidateStoreRoot(gitCommonDir(cwd));
-  return readCandidateStoreDirectory(safeCandidatePath(root, safeId), safeId);
+  const rootIdentity = directoryIdentity(root, 'candidate store directory');
+  const target = safeCandidatePath(root, safeId);
+  const envelope = parseCandidateRecord(root, target, rootIdentity);
+  assertPrivacySafeValue(envelope, 'Candidate record');
+  assertOnlyKeys(envelope, ['schemaVersion', 'publication', 'payloadHash', 'payload'], 'Candidate record envelope');
+  if (envelope.schemaVersion !== 'fb-candidate-record-v2' || envelope.publication !== 'complete') throw new Error('Candidate record is incomplete or uses an unsupported schema.');
+  assertPlainObject(envelope.payload, 'Candidate record payload');
+  if (assertSha256(envelope.payloadHash, 'Candidate payload hash') !== hashBytes(serializeJson(envelope.payload))) throw new Error('Candidate record payload hash does not match its stored content.');
+  const record = envelope.payload;
+  assertOnlyKeys(record, ['candidateId', 'profileId', 'baselineConfig', 'proposedConfig', 'baselineHash', 'candidateHash', 'fixtureManifestHash', 'fixtureManifest', 'results', 'promotionRecommendation'], 'Candidate record payload');
+  if (record.candidateId !== safeId) throw new Error('Candidate record ID does not match its immutable store key.');
+  assertPlainObject(record.baselineConfig, 'Candidate baseline config');
+  assertPlainObject(record.proposedConfig, 'Candidate proposed config');
+  const baselineHash = assertSha256(record.baselineHash, 'Candidate record baselineHash');
+  const candidateHash = assertSha256(record.candidateHash, 'Candidate record candidateHash');
+  if (hashBytes(serializeJson(record.baselineConfig)) !== baselineHash || hashBytes(serializeJson(record.proposedConfig)) !== candidateHash) throw new Error('Candidate record configuration hashes do not match its stored payload.');
+  const fixtureManifest = validateGoldenFixtureManifest(record.fixtureManifest);
+  if (hashBytes(serializeJson(fixtureManifest)) !== assertSha256(record.fixtureManifestHash, 'Candidate record fixtureManifestHash')) throw new Error('Candidate record fixture-manifest hash does not match its stored payload.');
+  const results = Array.isArray(record.results) ? record.results.map(validateCandidateResult) : (() => { throw new Error('Candidate record results must be an array.'); })();
+  if (new Set(results.map(item => item.caseId)).size !== results.length || results.some(item => !fixtureManifest.cases.some(fixture => fixture.id === item.caseId))) throw new Error('Candidate record results must remain bounded by the frozen fixture set.');
+  if (!['promote', 'hold', 'reject'].includes(record.promotionRecommendation)) throw new Error('Candidate promotionRecommendation must be promote, hold, or reject.');
+  return {
+    directory: target,
+    candidateId: safeId,
+    profileId: assertSafeIdentifier(record.profileId, 'profile ID'),
+    baselineHash,
+    candidateHash,
+    fixtureManifestHash: record.fixtureManifestHash,
+    results,
+    promotionRecommendation: record.promotionRecommendation,
+    fixtureManifest,
+  };
 }
 
 function validateBenchmarkRun(run, candidateRecord, label, role) {
