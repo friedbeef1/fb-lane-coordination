@@ -3,7 +3,7 @@ type: fb-lane-handoff
 task: TASK-048
 lane: fb-product
 status: ready
-approval: design-approved
+approval: approved
 record_model: normalized-v1
 okr_fit: aligned
 ---
@@ -60,5 +60,10 @@ consumer-project mutation.
 
 ## Current State
 
-Design written for Product review. No runtime, plugin, package, consumer
-repository, release, or deployment change has been made.
+Design approved and the focused deterministic pilot implementation plan is
+ready. No runtime, plugin, package, consumer repository, release, or deployment
+change has been made.
+
+## Implementation Plan
+
+[Graduated project graph pilot](../superpowers/plans/2026-07-26-fb-graduated-project-graph-pilot.md)

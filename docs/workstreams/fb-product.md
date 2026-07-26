@@ -5,10 +5,10 @@ Lane: FB-Product
 
 ## TASK-048 — FB graduated project graph
 
-- Status: In Progress; written design review.
-- Blockers: Implementation planning waits for James to review the committed design.
-- Next action: Product reviews the [design](../superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md).
-- Links: [Handoff](../handoffs/TASK-048.md), [normalized records](../fb/records.md).
+- Status: Ready; focused pilot plan complete.
+- Blockers: Execution approach selection only.
+- Next action: Execute the [pilot plan](../superpowers/plans/2026-07-26-fb-graduated-project-graph-pilot.md).
+- Links: [Handoff](../handoffs/TASK-048.md), [design](../superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md), [normalized records](../fb/records.md).
 
 ## TASK-047 — Durable efficiency and evidence normalization
 
