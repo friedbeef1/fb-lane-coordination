@@ -28,7 +28,7 @@ FB `0.5.0-beta+codex.20260726130257` on
 - Ready-to-ship boundary: 5/5 passed.
 - Package synchronization: 48 declared mirrors aligned.
 - Affected Node syntax, TASK-050/control-loop links, and whitespace: passed.
-- Controlled before/after simulator: 9/9 focused contracts passed. The frozen
+- Controlled before/after simulator: 12/12 focused contracts passed. The frozen
   eight-case run produced 2/8 product-ready outcomes for process-all and 4/8
   for FB, while preserving one valid case where the baseline won. Gross modeled
   work increased; modeled work per accepted outcome fell. Diagnosis was correct
