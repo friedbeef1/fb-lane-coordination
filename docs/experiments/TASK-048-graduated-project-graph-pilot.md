@@ -173,3 +173,42 @@ does not demonstrate the intended total token or time saving. Therefore:
 
 The one-repair circuit breaker has been reached. Further automatic tuning or
 reruns would be selective experimentation and are outside this pilot.
+
+## Final graph-first replacement experiment
+
+James separately approved one final experiment after reviewing the first
+pilot's confound. This experiment asks whether a minimal graph packet can
+**replace** routine project orientation rather than accompany it.
+
+### Preregistered comparison
+
+- Both arms use the same six TASK-048 workstream questions, model, read-only
+  repository snapshot, concurrency, and correctness rubric.
+- The normalized arm starts from the ordinary board → index → handoff route.
+- The graph-first arm starts from a question-specific packet capped at the
+  current task plus at most three directly relevant cited sources.
+- Graph-first workers must not read the board, handoff index, AGENTS file,
+  unrelated workstream cards, or broad graph output. They may open a cited
+  authoritative source only when the compact packet cannot support the answer.
+- Fixed provider and installed-plugin context is reported separately where the
+  provider exposes it; it is not represented as project-orientation content.
+- The original real-agent baseline is not reused because the permitted inputs
+  differ. Both arms are rerun from equal isolated snapshots.
+- Run each arm once with six workers concurrently. Preserve unfavorable and
+  failed outcomes. No selective rerun.
+
+### Success predicates
+
+- 6/6 correct in both arms;
+- no missed governing decision, dependency, verification gate, or authority
+  boundary;
+- at least 20% fewer graph-arm project-orientation bytes;
+- at least 20% fewer uncached provider input tokens when authoritative usage is
+  available;
+- no material wall-time increase (greater than 10%);
+- safe source fallback remains available but is not used for routine
+  orientation.
+
+One consolidated implementation repair is allowed before the comparative run.
+After the run, any failure or no-progress result ends efficiency
+productization and returns the evidence to Product.

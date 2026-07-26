@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-048 | Staging QA | FB-Product / BFM | Project Navigation | Prototype and evaluate a graduated repository-local graph that derives from normalized FB records, begins deterministically, and expands only after demonstrated retrieval friction | `tools/fb-project-graph*`, `.fb/graph/`, TASK-048 experiment/QA/coordination records | [Handoff](docs/handoffs/TASK-048.md); [Results](docs/experiments/TASK-048-graduated-project-graph-pilot.md); [QA](docs/qa/TASK-048.md) |
+| TASK-048 | In Progress | FB-Product / BFM | Project Navigation | Run the approved final graph-first replacement experiment after the initial pilot proved navigation reduction but not real token/time savings | `tools/fb-project-graph*`, `.fb/graph/`, TASK-048 experiment/QA/coordination records | [Handoff](docs/handoffs/TASK-048.md); [Results](docs/experiments/TASK-048-graduated-project-graph-pilot.md); [QA](docs/qa/TASK-048.md) |
 | TASK-047 | Staging QA | FB-Product / BFM | Harness Efficiency | Normalize durable evidence, add risk-triggered review and deterministic verification reuse, and reduce duplicated coordination context | `tools/fb-records.*`, validator/doctor integration, canonical/package harness and skills, templates, TASK-047 records | [Handoff](docs/handoffs/TASK-047.md); [Pilot](docs/experiments/TASK-047-real-task-pilot.md); [Plan](docs/superpowers/plans/2026-07-23-fb-durable-efficiency-evidence-normalization.md); [QA](docs/qa/TASK-047.md); focused local gate passed |
 | TASK-031 | In Progress | FB-Product / BFM | Closeout + Plugin Release | Require a Full BFM changelog decision before Ready to ship and rebuild FB as 0.3.1-beta | Closeout/session/runtime contracts, canonical/package docs and skills, release metadata and records | [Handoff](docs/handoffs/TASK-031.md); PR #48; `0.3.1-beta+codex.20260718021942`; Push Live remains separate |
 | TASK-030 | Done | FB-Product / BFM | Codex Plugin Release | Release the Codex plugin as `0.3.0-beta`, align active metadata/prompts/docs with the six-workstream loop, and prove the packaged install | None | [Handoff](docs/handoffs/TASK-030.md); [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44) merged; `0.3.0-beta+codex.20260717150502` installed and enabled; GitHub readiness and live cache proof passed |
@@ -58,7 +58,7 @@
 
 ### TASK-048 - FB Graduated Project Graph
 
-*   **Status**: Staging QA (pilot complete; Product decision required)
+*   **Status**: In Progress (final graph-first replacement experiment approved)
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Project Navigation
 *   **Scope**: Design a graduated project graph derived from normalized FB records, with deterministic Level 1 navigation, evidence-gated semantic expansion, safe fallback, privacy boundaries, measurement, and future plugin integration.
@@ -73,6 +73,7 @@
 *   **Affected Screens / Locks**: `tools/fb-project-graph*`, `.fb/graph/`, `docs/experiments/TASK-048-graduated-project-graph-pilot.md`, `docs/qa/TASK-048.md`, TASK-048 coordination records.
 *   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-048.md); [Design](docs/superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md); [Plan](docs/superpowers/plans/2026-07-26-fb-graduated-project-graph-pilot.md); branch `codex/fb-graduated-project-graph`.
 *   **Latest Update**: *2026-07-26*: The deterministic comparison reduced ongoing navigation bytes 66.9% and repeated reads 73.7% without correctness loss. Six real concurrent Codex tasks remained 6/6 correct, but the corrected graph arm used 2.5% more gross input tokens and 12.3% more wall time. Result: promising but inconclusive. The one-repair circuit breaker is reached; plugin integration requires a separate Product decision.
+*   **Latest Decision**: *2026-07-26*: James approved one final, separately preregistered graph-first experiment. Both arms will run from equal isolated snapshots; the graph packet replaces broad orientation and is capped to question-specific cited sources.
 
 ---
 
