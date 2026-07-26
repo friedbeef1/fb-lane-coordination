@@ -5,6 +5,7 @@
 // control-loop runtime first so the initial execution records the public RED.
 
 const assert = require('assert');
+const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -18,6 +19,13 @@ const {
   compareBaseline,
   aggregateGates,
   assertStageEventSummaryMarkdown,
+  validateProfileManifest,
+  validateGoldenFixtureManifest,
+  diagnoseConfiguration,
+  writeCandidateStore,
+  compareFrozenBenchmark,
+  assessCandidateProgress,
+  validatePromotion,
 } = require('./fb-control-loop.cjs');
 
 let passed = 0;
@@ -124,6 +132,63 @@ function routeInput(overrides = {}) {
       when: { descriptionIncludes: 'Normalize' },
       evidenceRefs: ['rules/normalize-imports'],
     }],
+    ...overrides,
+  };
+}
+
+function sha256(value) {
+  return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function profileManifest(overrides = {}) {
+  return {
+    schemaVersion: 'fb-profile-manifest-v1',
+    profiles: [{
+      id: 'reviewer-default',
+      promptRef: 'profiles/reviewer.md',
+      configRef: 'profiles/reviewer.json',
+      baselineHash: sha256('baseline reviewer config'),
+    }],
+    ...overrides,
+  };
+}
+
+function goldenManifest(overrides = {}) {
+  return {
+    schemaVersion: 'fb-golden-fixture-manifest-v1',
+    cases: [{
+      id: 'case-safe-output',
+      label: 'Rejects unsafe output',
+      artifactRef: 'fixtures/safe-output.json',
+      criteriaIds: ['criterion-safety'],
+      mustPass: ['criterion-safety'],
+      mustNotHappen: ['credential-output'],
+    }, {
+      id: 'case-correct-output',
+      label: 'Produces the reviewed response',
+      artifactRef: 'fixtures/correct-output.json',
+      criteriaIds: ['criterion-correctness'],
+      mustPass: ['criterion-correctness'],
+      mustNotHappen: [],
+    }],
+    ...overrides,
+  };
+}
+
+function benchmarkRun(manifest, overrides = {}) {
+  const manifestHash = sha256(JSON.stringify(manifest));
+  return {
+    fixtureManifestHash: manifestHash,
+    settings: { temperature: 0 },
+    modelRef: 'model/reviewer-v1',
+    limits: { maxTokens: 200 },
+    graderContract: 'grader/reviewer-v1',
+    results: manifest.cases.map(item => ({
+      caseId: item.id,
+      criteria: Object.fromEntries(item.criteriaIds.map(id => [id, 'pass'])),
+      observed: [],
+      evidenceRefs: [`evidence/${item.id}`],
+    })),
     ...overrides,
   };
 }
@@ -357,6 +422,138 @@ test('requires every stage-event declaration to use the one counted clone-local 
   } finally {
     fixture.cleanup();
   }
+});
+
+test('validates stable profile and golden-fixture manifest contracts', () => {
+  const profiles = validateProfileManifest(profileManifest());
+  const fixtures = validateGoldenFixtureManifest(goldenManifest());
+  assert.deepStrictEqual(profiles.profiles.map(profile => profile.id), ['reviewer-default']);
+  assert.deepStrictEqual(fixtures.cases.map(item => item.id), ['case-safe-output', 'case-correct-output']);
+  assert.deepStrictEqual(fixtures.cases[0].mustNotHappen, ['credential-output']);
+});
+
+test('rejects unsafe manifest paths and non-SHA256 baseline hashes', () => {
+  assert.throws(() => validateProfileManifest(profileManifest({ profiles: [{
+    id: 'reviewer-default', promptRef: '../private.md', configRef: 'profiles/reviewer.json', baselineHash: sha256('baseline'),
+  }] })), /path|relative|unsafe/i);
+  assert.throws(() => validateProfileManifest(profileManifest({ profiles: [{
+    id: 'reviewer-default', promptRef: 'profiles/reviewer.md', configRef: 'profiles/reviewer.json', baselineHash: 'not-a-hash',
+  }] })), /hash|sha256/i);
+});
+
+test('classifies curated observed failures without accepting raw transcript inputs', () => {
+  const events = [baseEvent({ result: 'failed', failureClass: 'build', evidenceRefs: ['evidence/build-log'] })];
+  const result = diagnoseConfiguration({
+    stageEvents: events,
+    evalEvidence: [],
+    candidateDiff: { changedPaths: ['profiles/reviewer.json'], evidenceRefs: ['evidence/diff'] },
+    observedFailures: [{ kind: 'build', evidenceRef: 'evidence/build-log' }],
+  });
+  assert.strictEqual(result.failureClass, 'Build failure');
+  assert.throws(() => diagnoseConfiguration({ ...result, rawTranscript: 'private output' }), /curated|unknown|input/i);
+});
+
+test('classifies brief, eval, and environment failures from their curated evidence', () => {
+  const base = { stageEvents: [], candidateDiff: { changedPaths: ['profiles/reviewer.json'], evidenceRefs: ['evidence/diff'] } };
+  assert.strictEqual(diagnoseConfiguration({ ...base, evalEvidence: [], observedFailures: [{ kind: 'brief', evidenceRef: 'evidence/brief' }] }).failureClass, 'Brief failure');
+  assert.strictEqual(diagnoseConfiguration({ ...base, evalEvidence: [{ result: 'failed', evidenceRef: 'evidence/eval' }], observedFailures: [] }).failureClass, 'Eval failure');
+  assert.strictEqual(diagnoseConfiguration({ ...base, evalEvidence: [], observedFailures: [{ kind: 'environment', evidenceRef: 'evidence/environment' }] }).failureClass, 'Environment failure');
+});
+
+test('stores each candidate in its isolated clone-local directory without touching canonical configuration', () => {
+  const fixture = createRepo();
+  try {
+    const canonical = path.join(fixture.repo, 'profiles', 'reviewer.json');
+    fs.mkdirSync(path.dirname(canonical));
+    fs.writeFileSync(canonical, '{"mode":"baseline"}\n');
+    const manifest = goldenManifest();
+    const record = writeCandidateStore(fixture.repo, {
+      candidateId: 'candidate-001',
+      profileId: 'reviewer-default',
+      proposedConfig: { mode: 'candidate' },
+      baselineHash: sha256('baseline reviewer config'),
+      candidateHash: sha256('candidate reviewer config'),
+      fixtureManifest: manifest,
+      results: [{ caseId: 'case-safe-output', result: 'pass', evidenceRefs: ['evidence/candidate'] }],
+      promotionRecommendation: 'hold',
+    });
+    assert.match(record.directory, /fb-lane\/candidates\/candidate-001$/);
+    assert.strictEqual(fs.readFileSync(canonical, 'utf8'), '{"mode":"baseline"}\n');
+    assert.deepStrictEqual(JSON.parse(fs.readFileSync(path.join(record.directory, 'proposed-config.json'), 'utf8')), { mode: 'candidate' });
+    assert.strictEqual(JSON.parse(fs.readFileSync(path.join(record.directory, 'candidate.json'), 'utf8')).fixtureManifestHash, sha256(JSON.stringify(manifest)));
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('rejects candidate-store results that are outside the frozen fixture set', () => {
+  const fixture = createRepo();
+  try {
+    assert.throws(() => writeCandidateStore(fixture.repo, {
+      candidateId: 'candidate-outside-fixture',
+      profileId: 'reviewer-default',
+      proposedConfig: { mode: 'candidate' },
+      baselineHash: sha256('baseline reviewer config'),
+      candidateHash: sha256('candidate reviewer config'),
+      fixtureManifest: goldenManifest(),
+      results: [{ caseId: 'case-not-frozen', result: 'pass', evidenceRefs: ['evidence/candidate'] }],
+      promotionRecommendation: 'hold',
+    }), /frozen|fixture|case/i);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('rejects benchmark runs with missing frozen cases or changed settings', () => {
+  const manifest = goldenManifest();
+  const baseline = benchmarkRun(manifest);
+  const candidate = benchmarkRun(manifest, { results: [benchmarkRun(manifest).results[0]] });
+  assert.throws(() => compareFrozenBenchmark({ fixtureManifest: manifest, baseline, candidate }), /case|frozen|parity/i);
+  assert.throws(() => compareFrozenBenchmark({ fixtureManifest: manifest, baseline, candidate: benchmarkRun(manifest, { settings: { temperature: 1 } }) }), /settings|identical|environment/i);
+});
+
+test('preserves unfavorable candidate results and selects the baseline on a must-pass regression', () => {
+  const manifest = goldenManifest();
+  const baseline = benchmarkRun(manifest);
+  const candidate = benchmarkRun(manifest);
+  candidate.results[1].criteria['criterion-correctness'] = 'fail';
+  candidate.results[1].observed = ['incorrect-response'];
+  const comparison = compareFrozenBenchmark({ fixtureManifest: manifest, baseline, candidate });
+  assert.strictEqual(comparison.verdict, 'baseline');
+  assert.deepStrictEqual(comparison.candidate.results[1].observed, ['incorrect-response']);
+  assert.match(comparison.regressions[0].reason, /must-pass/i);
+});
+
+test('requires a repeated candidate to materially change configuration or evidence', () => {
+  const previous = { candidateId: 'candidate-001', candidateHash: sha256('candidate'), evidenceRefs: ['evidence/one'] };
+  const repeated = { candidateId: 'candidate-002', candidateHash: sha256('candidate'), evidenceRefs: ['evidence/one'] };
+  const progressed = { candidateId: 'candidate-003', candidateHash: sha256('candidate changed'), evidenceRefs: ['evidence/one'] };
+  assert.strictEqual(assessCandidateProgress({ previousCandidate: previous, candidate: repeated, repair: { attempt: 2, maxAttempts: 3, budgetRemaining: 1 } }).status, 'stopped');
+  assert.strictEqual(assessCandidateProgress({ previousCandidate: previous, candidate: progressed, repair: { attempt: 2, maxAttempts: 3, budgetRemaining: 1 } }).status, 'progressed');
+});
+
+test('stops configuration repair at the supplied budget boundary', () => {
+  const result = assessCandidateProgress({
+    candidate: { candidateId: 'candidate-001', candidateHash: sha256('candidate'), evidenceRefs: ['evidence/one'] },
+    repair: { attempt: 1, maxAttempts: 3, budgetRemaining: 0 },
+  });
+  assert.strictEqual(result.status, 'stopped');
+  assert.match(result.productBoundary, /budget/i);
+});
+
+test('rejects promotion unless Product approves the exact candidate and benchmark evidence', () => {
+  const input = {
+    candidate: { candidateId: 'candidate-001', benchmarkEvidenceRef: 'evidence/benchmark-001', promotionRecommendation: 'promote' },
+    benchmark: { candidateId: 'candidate-001', evidenceRef: 'evidence/benchmark-001', verdict: 'candidate' },
+  };
+  assert.throws(() => validatePromotion(input), /approval|Product/i);
+  assert.throws(() => validatePromotion({ ...input, approval: { decision: 'approve', candidateId: 'candidate-other', benchmarkEvidenceRef: 'evidence/benchmark-001', approvedBy: 'Product' } }), /exact|candidate/i);
+  assert.deepStrictEqual(validatePromotion({ ...input, approval: { decision: 'approve', candidateId: 'candidate-001', benchmarkEvidenceRef: 'evidence/benchmark-001', approvedBy: 'Product' } }), {
+    valid: true,
+    promotion: 'product_approved',
+    candidateId: 'candidate-001',
+    benchmarkEvidenceRef: 'evidence/benchmark-001',
+  });
 });
 
 test('bundled MCP validates and records flat events and evaluates deterministic routing', async () => {
