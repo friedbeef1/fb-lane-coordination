@@ -58,8 +58,8 @@ FB `0.5.0-beta+codex.20260726130257` on
   288 process-all QA calls, common arm-independent draws, four distinct
   workflows, 23/23 safe eligible step-downs, zero missed required levels,
   executable grader binding, exact recomputation, and package parity.
-- Fast-decay policy experiment: 14/14 dedicated contracts passed. One
-  authoritative four-arm run preserved the reviewed Task 5 first-three-arm
+- Fast-decay policy experiment: 15/15 dedicated contracts passed. One
+  replacement four-arm run preserved the reviewed Task 5 first-three-arm
   evidence exactly and added 288 Fast-decay FB v2 records. The candidate
   retained 231/288 product-ready outcomes, 57 unresolved failures, zero missed
   required levels, and 100% immediate safety response while reducing modeled
@@ -69,6 +69,12 @@ FB `0.5.0-beta+codex.20260726130257` on
   evidence and operating guidance was not changed. See the
   [fast-decay report](../benchmarks/control-loop/fast-decay.md) and
   [machine evidence](../benchmarks/control-loop/fast-decay-results.json).
+  This replacement supersedes invalid result
+  `fef75ab0e470a0007f74210c34cea94aa1e936cd1c0818ee26c97b13931d3915`
+  from `ebe22ed`: review found that unresolved diagnosis evidence was retained
+  but did not actively hold persistent Level 3. The replacement binds that
+  history and does not claim the bundle proves the absence of exploratory runs
+  or tuning.
 - Changelog wording: approved by James in the originating conversation on
   2026-07-26.
 - Independent whole-branch review: specification and quality passed with zero

@@ -183,7 +183,9 @@ function pruneEvidenceWindow(state, sequence, policy) {
 }
 
 function corroboratedLevel(window, policy) {
-  let level = 0;
+  let level = window.some(entry => entry.kind === 'diagnosis' && entry.unresolved)
+    ? 3
+    : 0;
   for (const [kind, candidate] of [['routing', 1], ['comparison', 2], ['diagnosis', 3]]) {
     if (window.filter(entry => entry.kind === kind).length >= policy.corroboratingObservations) {
       level = Math.max(level, candidate);
@@ -802,11 +804,13 @@ function runExperiment(options = {}) {
       productionGeneralization: 'unmeasured',
     },
     supersedes: settings.supersedes,
+    supersedesFastDecay: settings.supersedesFastDecay,
     runDeclaration: {
-      recordedRun: 'one authoritative four-arm fast-decay comparative run',
+      recordedRun: 'one replacement four-arm run after correcting the unresolved-evidence floor',
       selectiveRerunsAllowed: false,
       postResultTuningPerformed: false,
-      limitation: 'The result bundle cannot independently prove historical execution count or absence of exploratory runs.',
+      developmentHistory: 'A pre-authoritative probe exposed that accepted-repair evidence was not clearing correctly and was repaired before the first evidence write. The first written result was then invalidated in review because unresolved evidence did not actively hold Level 3.',
+      limitation: 'The result bundle cannot independently prove historical execution count, absence of exploratory runs, or that thresholds were not tuned.',
     },
     graderEvidence: {
       executableContract: graderExecutableContract(),
@@ -954,6 +958,7 @@ function reportMarkdown(bundle) {
   return `# FB four-arm fast-decay benchmark\n\n` +
     `Experiment: \`${bundle.experimentId}\`\n\n` +
     `This experiment preserves the reviewed Task 5 evidence unchanged. Its first three arms reproduce the reviewed aggregates and all 864 raw records exactly; Fast-decay FB v2 is the only new arm.\n\n` +
+    `It supersedes invalid result \`${bundle.supersedesFastDecay.resultSha256}\` from \`${bundle.supersedesFastDecay.sourceCommit}\`: ${bundle.supersedesFastDecay.reason}\n\n` +
     `This deterministic simulation adds Fast-decay FB v2 to the exact reviewed Process-all, Full FB, and Graduated FB v1 workflows: 288 cases per arm and 1,152 arm/case records overall. Seeds are 11, 29, and 47. ` +
     `Outcomes are simulator observations. Token units and elapsed time are modeled, not observed Codex usage. ` +
     `See the [machine-readable evidence](fast-decay-results.json), the reviewed [graduated benchmark](graduated.md), and the earlier [fixed-treatment benchmark](README.md).\n\n` +
@@ -961,13 +966,13 @@ function reportMarkdown(bundle) {
     `Graduated FB recorded ${pct(graduated.graduationAccuracy)} graduation accuracy, ${graduated.falseGraduations} false graduations, ${graduated.missedGraduations} missed graduations, ` +
     `${graduated.stepDownSuccesses}/${graduated.stepDownOpportunities} step-down successes, and ${pct(graduated.safetyTriggerResponseRate)} immediate safety-trigger response.\n\n` +
     `Fast-decay v2 recorded ${fast.excessControlCases} excess-control cases, ${fast.excessLevelUnits} excess-level units, ${fast.persistentPromotionEvents} persistent promotions, ${fast.falsePersistentPromotions} false persistent promotions, ${fast.temporaryEscalations} temporary escalations, ${fast.missedGraduations} missed levels, and ${pct(fast.safetyTriggerResponseRate)} immediate safety response.\n\n` +
-    `## Adoption gate\n\nThe policy was not tuned after this authoritative run. Guidance changes are allowed only if every predicate passes. Overall: **${bundle.adoption.passed ? 'PASS — adopt' : 'FAIL — reject'}**.\n\n| Predicate | Actual | Required | Result |\n|---|---:|---:|---|\n${gateRows}\n\n` +
+    `## Adoption gate\n\nThe thresholds were frozen for the replacement run; the bundle cannot independently prove absence of tuning. Guidance changes are allowed only if every predicate passes. Overall: **${bundle.adoption.passed ? 'PASS — adopt' : 'FAIL — reject'}**.\n\n| Predicate | Actual | Required | Result |\n|---|---:|---:|---|\n${gateRows}\n\n` +
     `## Scenario results\n\n| Scenario | Arm | Ready rate | Modeled token units | Unresolved failures |\n|---|---|---:|---:|---:|\n${scenarioRows}\n\n` +
     `## Phase results\n\n| Phase | Arm | Ready rate | Modeled token units | Repairs |\n|---|---|---:|---:|---:|\n${phaseRows}\n\n` +
     `## Seed ranges\n\nThe table preserves all three seed outcomes; no unfavorable result was removed or rerun. ${processWinText} Full FB and Graduated FB use common random draws for every like-for-like component call.\n\n| Seed | Arm | Ready rate | Modeled token units | Tokens per ready outcome |\n|---:|---|---:|---:|---:|\n${seedRows}\n\n` +
     `| Arm | Median ready rate | Ready-rate range | Median modeled token units | Modeled-token range |\n|---|---:|---:|---:|---:|\n${seedRangeRows}\n\n` +
     `## Graduated-level use\n\n| Arm | Level | Cases |\n|---|---:|---:|\n${levelRows}\n\n` +
-    `## Frozen declared settings\n\nThe policy, fixtures, fallibility, costs, and seeds were fixed before the one recorded replacement run. There is no external preregistration, and the bundle cannot independently prove historical execution count.\n\n` +
+    `## Frozen declared settings\n\nThe policy thresholds, fixtures, fallibility, costs, and seeds were fixed for this replacement run. A pre-authoritative probe exposed accepted-repair clearing and was corrected before the first evidence write. Review then invalidated the first written fast-decay result because unresolved evidence did not actively hold Level 3. There is no external preregistration, and the bundle cannot independently prove historical execution count or absence of tuning.\n\n` +
     `Level 1 requires four prior cases plus visible already-good or ambiguous evidence. Level 2 requires one observed regression. Level 3 requires two classifiable failures. ` +
     `A visible privacy, auth, payment, destructive, provider, migration, or release trigger immediately applies Level 4. Three consecutive clean results permit one-level step-down. ` +
     `Current public ambiguity, regression, classifiable failure, or safety evidence sets a floor before any demotion. Fast-decay v2 requires two corroborating observations inside six cases, permits direct decay after two clean outcomes, and keeps active safety and unresolved evidence. Transitions use public observations only; hidden target levels and grading truth are grader-only.\n\n` +

@@ -1,8 +1,10 @@
 # FB four-arm fast-decay benchmark
 
-Experiment: `fb-fast-decay-control-050-20260727`
+Experiment: `fb-fast-decay-control-050-repair-20260727`
 
 This experiment preserves the reviewed Task 5 evidence unchanged. Its first three arms reproduce the reviewed aggregates and all 864 raw records exactly; Fast-decay FB v2 is the only new arm.
+
+It supersedes invalid result `fef75ab0e470a0007f74210c34cea94aa1e936cd1c0818ee26c97b13931d3915` from `ebe22ed402cff2632d836be39e7ea69b5f30a42f`: The superseded candidate retained unresolved diagnosis evidence in its window but did not make that evidence hold persistent Level 3.
 
 This deterministic simulation adds Fast-decay FB v2 to the exact reviewed Process-all, Full FB, and Graduated FB v1 workflows: 288 cases per arm and 1,152 arm/case records overall. Seeds are 11, 29, and 47. Outcomes are simulator observations. Token units and elapsed time are modeled, not observed Codex usage. See the [machine-readable evidence](fast-decay-results.json), the reviewed [graduated benchmark](graduated.md), and the earlier [fixed-treatment benchmark](README.md).
 
@@ -21,7 +23,7 @@ Fast-decay v2 recorded 85 excess-control cases, 173 excess-level units, 33 persi
 
 ## Adoption gate
 
-The policy was not tuned after this authoritative run. Guidance changes are allowed only if every predicate passes. Overall: **FAIL — reject**.
+The thresholds were frozen for the replacement run; the bundle cannot independently prove absence of tuning. Guidance changes are allowed only if every predicate passes. Overall: **FAIL — reject**.
 
 | Predicate | Actual | Required | Result |
 |---|---:|---:|---|
@@ -132,7 +134,7 @@ The table preserves all three seed outcomes; no unfavorable result was removed o
 
 ## Frozen declared settings
 
-The policy, fixtures, fallibility, costs, and seeds were fixed before the one recorded replacement run. There is no external preregistration, and the bundle cannot independently prove historical execution count.
+The policy thresholds, fixtures, fallibility, costs, and seeds were fixed for this replacement run. A pre-authoritative probe exposed accepted-repair clearing and was corrected before the first evidence write. Review then invalidated the first written fast-decay result because unresolved evidence did not actively hold Level 3. There is no external preregistration, and the bundle cannot independently prove historical execution count or absence of tuning.
 
 Level 1 requires four prior cases plus visible already-good or ambiguous evidence. Level 2 requires one observed regression. Level 3 requires two classifiable failures. A visible privacy, auth, payment, destructive, provider, migration, or release trigger immediately applies Level 4. Three consecutive clean results permit one-level step-down. Current public ambiguity, regression, classifiable failure, or safety evidence sets a floor before any demotion. Fast-decay v2 requires two corroborating observations inside six cases, permits direct decay after two clean outcomes, and keeps active safety and unresolved evidence. Transitions use public observations only; hidden target levels and grading truth are grader-only.
 
@@ -141,11 +143,11 @@ Level 1 requires four prior cases plus visible already-good or ambiguous evidenc
 | Frozen input | SHA-256 |
 |---|---|
 | truth | `a3660cec3acd103e74a19fccad6a22844e2e71aae7097a79fdba0dbc295ce61d` |
-| settings | `b8f5ffb68523ac2d1ecaf04a3ee30f8a2fcac0e85cde186dbcd9a9ed22eb0bb9` |
+| settings | `2824018dd397269af6f90b591e603b6bd49a6512663e524a59dcb9218f6376a0` |
 | policy | `6661e10d4fd18bce627e7b5ac1f9fb076d3e393ed73d902ca58fdd4fc03a52f3` |
 | fastDecayPolicy | `c8a8b26387190bcb9eae15279d5fde027416336f568fe954e0f002c160c964de` |
 | costModel | `1a7307fdaf03c58b58266b8c400f1a13c842daa81288185baeed245a8a417971` |
-| graderImplementation | `04c749ccea177e6f7edd4f71e0d86db733f0353d58460e06803367e5e9eac061` |
+| graderImplementation | `621c18027b36974f871dbdc962050a23310452c5c73259656ddaa0a7e68d41f6` |
 | seeds | `8c3598742bd3db5b46521974773964aca87fb75c16a00efa90781758078b03fd` |
 
 ## Limitations

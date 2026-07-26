@@ -53,6 +53,8 @@ review_state: not reviewable
 - Quantified evidence: [controlled before/after experiment](../benchmarks/control-loop/README.md)
 - Graduated evidence: [three-arm mixed-complexity experiment](../benchmarks/control-loop/graduated.md)
 - Rejected policy evidence: [four-arm fast-decay experiment](../benchmarks/control-loop/fast-decay.md)
+  (replacement result; the invalid `ebe22ed` result is identified by hash in
+  the report)
 - Superseded evidence: the original graduated result from `06b292d` is
   non-publishable because the process-all arm omitted the promised final QA.
   The linked replacement is the only current graduated result.

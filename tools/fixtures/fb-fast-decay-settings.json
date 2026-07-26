@@ -1,6 +1,11 @@
 {
   "schemaVersion": "fb-fast-decay-settings-v1",
-  "experimentId": "fb-fast-decay-control-050-20260727",
+  "experimentId": "fb-fast-decay-control-050-repair-20260727",
+  "supersedesFastDecay": {
+    "resultSha256": "fef75ab0e470a0007f74210c34cea94aa1e936cd1c0818ee26c97b13931d3915",
+    "sourceCommit": "ebe22ed402cff2632d836be39e7ea69b5f30a42f",
+    "reason": "The superseded candidate retained unresolved diagnosis evidence in its window but did not make that evidence hold persistent Level 3."
+  },
   "supersedes": {
     "resultSha256": "b4d4373fc0f1b2a8304aaba425e12ac8f4827c2a0b42f47892c50ed1df5ea6ae",
     "sourceCommit": "06b292dff0a620ce616ac4c916ad85554911d3fe",

@@ -93,22 +93,33 @@ test('rolling evidence expires and two clean outcomes permit direct multi-level 
   });
 });
 
-test('unresolved evidence remains active until accepted repair while safety is immediate and temporary', () => {
+test('unresolved diagnosis holds Level 3 until accepted classified repair and clean decay', () => {
   const settings = readJson(settingsPath);
   const state = candidate.initialFastDecayState();
   state.seen = 20;
   state.evidenceWindow = [{ sequence: 1, kind: 'diagnosis', unresolved: true }];
   const ordinary = candidate.chooseFastDecayLevel(state, candidate.makePublicProbe({ sequence: 21 }), settings.fastDecayPolicy);
   assert.equal(ordinary.evidenceWindow.length, 1);
+  assert.equal(ordinary.persistentLevel, 3);
+  assert.equal(ordinary.level, 3);
   const safety = candidate.chooseFastDecayLevel(state, candidate.makePublicProbe({ sequence: 21, safety: 'privacy' }), settings.fastDecayPolicy);
   assert.equal(safety.level, 4);
   assert.equal(safety.temporaryEscalation, true);
-  assert.equal(safety.persistentLevel, 0);
+  assert.equal(safety.persistentLevel, 3);
   const repaired = candidate.makePublicProbe({ sequence: 21, failure: 'output_defect' });
   const repairedChoice = candidate.chooseFastDecayLevel(state, repaired, settings.fastDecayPolicy);
   candidate.updateFastDecayState(state, repaired,
     { accepted: true, worseCandidateAttempt: false }, repairedChoice, settings.fastDecayPolicy);
   assert.ok(state.evidenceWindow.every(entry => entry.unresolved === false));
+  for (const sequence of [22, 23]) {
+    const clean = candidate.makePublicProbe({ sequence });
+    const cleanChoice = candidate.chooseFastDecayLevel(state, clean, settings.fastDecayPolicy);
+    candidate.updateFastDecayState(state, clean,
+      { accepted: true, worseCandidateAttempt: false }, cleanChoice, settings.fastDecayPolicy);
+  }
+  const decayed = candidate.chooseFastDecayLevel(state,
+    candidate.makePublicProbe({ sequence: 24 }), settings.fastDecayPolicy);
+  assert.equal(decayed.level, 0);
 });
 
 test('common component draws match v1 and fast decay for like-for-like calls', () => {
@@ -169,7 +180,8 @@ test('writer emits one reviewed-history-preserving report and valid evidence', (
     assert.match(report, /four-arm fast-decay benchmark/i);
     assert.match(report, /adoption gate/i);
     assert.match(report, /modeled, not observed Codex usage/i);
-    assert.match(report, /no tuning|not tuned/i);
+    assert.match(report, /cannot independently prove absence of tuning/i);
+    assert.match(report, /supersedes invalid result/i);
     assert.doesNotThrow(() => candidate.validateBundle(readJson(written.resultPath)));
   } finally {
     fs.rmSync(output, { recursive: true, force: true });
@@ -180,6 +192,18 @@ test('checked report is exactly rendered from the authoritative machine bundle',
   const bundle = readJson(path.join(root, 'docs', 'benchmarks', 'control-loop', 'fast-decay-results.json'));
   const report = fs.readFileSync(path.join(root, 'docs', 'benchmarks', 'control-loop', 'fast-decay.md'), 'utf8');
   assert.equal(report, candidate.reportMarkdown(bundle));
+});
+
+test('replacement discloses the invalidated evidence and development-history boundary', () => {
+  const settings = readJson(settingsPath);
+  assert.equal(settings.supersedesFastDecay.resultSha256,
+    'fef75ab0e470a0007f74210c34cea94aa1e936cd1c0818ee26c97b13931d3915');
+  assert.equal(settings.supersedesFastDecay.sourceCommit,
+    'ebe22ed402cff2632d836be39e7ea69b5f30a42f');
+  const bundle = candidate.runExperiment({ truthPath, settingsPath });
+  assert.match(bundle.runDeclaration.developmentHistory, /pre-authoritative probe/i);
+  assert.match(bundle.runDeclaration.developmentHistory, /invalidated/i);
+  assert.match(bundle.runDeclaration.limitation, /cannot independently prove/i);
 });
 
 test('rejected evidence is linked while canonical guidance and skills remain unchanged', () => {
