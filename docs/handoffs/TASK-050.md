@@ -57,11 +57,11 @@ review_state: not reviewable
   The linked replacement is the only current graduated result.
 - Review state: not reviewable
 - External gate: explicit **Push Live**.
-- Repository state: **Checking** while the separately added graduated benchmark
-  receives independent methodology and evidence review; no merge, publication,
-  installation, or deployment.
-- Remaining owner/action: Product reviews the graduated evidence and restores
-  **Ready to ship** only if the evidence and documentation are accurate.
+- Repository state: **Ready to ship** after independent review accepted the
+  graduated benchmark as transparent deterministic modeled evidence; no merge,
+  publication, installation, or deployment.
+- Remaining owner/action: James may inspect the GitHub evidence and say
+  **Push Live** to authorize release.
 
 ## Release boundary
 

@@ -1,7 +1,7 @@
 ---
 type: fb-qa
 task: TASK-050
-status: checking
+status: ready-to-ship
 record_model: normalized-v1
 ---
 
@@ -53,6 +53,11 @@ FB `0.5.0-beta+codex.20260726130257` on
   results, not observed Codex usage. See the
   [full graduated result](../benchmarks/control-loop/graduated.md) and
   [machine evidence](../benchmarks/control-loop/graduated-results.json).
+- Graduated-control independent methodology review: specification and quality
+  passed with zero Critical or Important findings. The reviewer confirmed all
+  288 process-all QA calls, common arm-independent draws, four distinct
+  workflows, 23/23 safe eligible step-downs, zero missed required levels,
+  executable grader binding, exact recomputation, and package parity.
 - Changelog wording: approved by James in the originating conversation on
   2026-07-26.
 - Independent whole-branch review: specification and quality passed with zero
@@ -69,7 +74,7 @@ publication, installation, or deployment.
 
 ## Remaining gate
 
-The candidate returned to **Checking** while the graduated benchmark receives
-an independent methodology and evidence review. Its prior release checkpoint
-is not being rerun. Merge, publication, installation, and deployment still
-require **Push Live** after Product restores **Ready to ship**.
+The candidate is restored to **Ready to ship** after the graduated benchmark's
+independent methodology review passed. Its prior release checkpoint was not
+rerun. Merge, publication, installation, and deployment still require
+**Push Live**.

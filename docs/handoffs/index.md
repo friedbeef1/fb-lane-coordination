@@ -12,7 +12,7 @@ Use this file as the first read for handoff discovery. `PROJECT_BOARD.md` remain
 
 | Task / Topic | Lane | Status | Depends / Blocks / Gate | Checks / Evidence | Detail |
 |---|---|---|---|---|---|
-| TASK-050 - Generic agent control loop and FB 0.5.0-beta | FB-Product / BFM + FB-Tech | Checking | Graduated 864-execution evidence review pending; prior release checkpoint is not rerun; Push Live remains separate | Focused runtime/release evidence plus fixed and graduated quantified simulators | [TASK-050.md](TASK-050.md) |
+| TASK-050 - Generic agent control loop and FB 0.5.0-beta | FB-Product / BFM + FB-Tech | Ready to ship | Graduated 864-execution methodology review passed; prior release checkpoint was not rerun; Push Live remains separate | Focused runtime/release evidence plus independently reviewed fixed and graduated quantified simulators | [TASK-050.md](TASK-050.md) |
 | TASK-049 - Graph-directed plugin navigation and FB 0.4.0-beta | FB-Product / BFM | Done | PR #51 merged; `0.4.0-beta+codex.20260726101229` installed and enabled | Root/package MCP, project-specific IDs, MÉJA consumer smoke, metadata, parity, validator, and install smoke | [TASK-049.md](TASK-049.md) |
 | TASK-048 - FB graduated project graph | FB-Product / BFM | Staging QA | Controlled graph-first routing benefit demonstrated; plugin integration remains separate | 6/6 correctness with lower uncached input, orientation content, and wall time | [TASK-048.md](TASK-048.md) |
 | TASK-047 - Durable efficiency and evidence normalization | FB-Product / BFM | Staging QA | Focused local gate passed; no release checkpoint or external action | Root/package 11/11; CLI/bootstrap 70/70; 41 mirrors; doctor, syntax, links, whitespace passed | [TASK-047.md](TASK-047.md) |

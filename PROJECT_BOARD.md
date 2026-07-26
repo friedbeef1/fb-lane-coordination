@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-050 | In Progress | FB-Product / BFM + FB-Tech | Agent Control Loop | Add generic rules-first routing, clone-local stage events, baseline comparison, layered gates, and isolated golden-fixture configuration evolution for FB 0.5 | New control-loop runtime/tests, session/eval integration, canonical/package harness and skills, TASK-050 records; no publication or live deployment | Graduated 864-execution benchmark complete; independent evidence review pending; prior release checkpoint is not rerun; Push Live remains separate |
+| TASK-050 | Staging QA | FB-Product / BFM + FB-Tech | Agent Control Loop | Add generic rules-first routing, clone-local stage events, baseline comparison, layered gates, and isolated golden-fixture configuration evolution for FB 0.5 | New control-loop runtime/tests, session/eval integration, canonical/package harness and skills, TASK-050 records; no publication or live deployment | Graduated 864-execution benchmark and independent methodology review passed; Ready to ship; prior release checkpoint was not rerun; Push Live remains separate |
 | TASK-049 | Done | FB-Product / BFM | Plugin Navigation | Integrate graph-directed targeted reading into the bundled Codex plugin, support repository-specific task IDs, and release `0.4.0-beta+codex.20260726101229` | `tools/fb-project-graph*`, MCP surface, release metadata, canonical/package graph guidance and skills | [Handoff](docs/handoffs/TASK-049.md); [QA](docs/qa/TASK-049.md); [PR #51](https://github.com/friedbeef1/fb-lane-coordination/pull/51); installed and enabled |
 | TASK-048 | Staging QA | FB-Product / BFM | Project Navigation | Evaluate graduated graph navigation and a minimal graph-first route without changing product-truth authority | `tools/fb-project-graph*`, `.fb/graph/`, TASK-048 experiment/QA/coordination records | [Handoff](docs/handoffs/TASK-048.md); [Results](docs/experiments/TASK-048-graduated-project-graph-pilot.md); [QA](docs/qa/TASK-048.md) |
 | TASK-047 | Staging QA | FB-Product / BFM | Harness Efficiency | Normalize durable evidence, add risk-triggered review and deterministic verification reuse, and reduce duplicated coordination context | `tools/fb-records.*`, validator/doctor integration, canonical/package harness and skills, templates, TASK-047 records | [Handoff](docs/handoffs/TASK-047.md); [Pilot](docs/experiments/TASK-047-real-task-pilot.md); [Plan](docs/superpowers/plans/2026-07-23-fb-durable-efficiency-evidence-normalization.md); [QA](docs/qa/TASK-047.md); focused local gate passed |
@@ -92,8 +92,9 @@
     63.5%, 79.5%, and 80.2% ready at 331,200, 384,160, and 347,590 modeled token
     units. Graduated FB missed no frozen required level and completed 23/23
     genuinely eligible safe step-downs, but over-applied controls in 108 cases.
-    TASK-050 remains Checking for independent evidence review; the prior release
-    checkpoint will not be rerun.
+    Independent methodology review passed with zero Critical or Important
+    findings. TASK-050 is restored to Ready to ship; the prior release
+    checkpoint was not rerun.
 
 ### TASK-049 - Graph-Directed Plugin Navigation
 
