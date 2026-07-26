@@ -17,6 +17,12 @@ verification in a QA artifact, reuse checks only with a matching fingerprint,
 and use the compact BFM closeout shape. Select light or broader lane review from
 risk and overlap; the user does not choose the internal path.
 
+For each known task question, call MCP `fb_project_context` before broad
+orientation and open only its relevant cited sources. The graph routes to
+authoritative records; it is not a source of truth. Use the board → index →
+handoff → card fallback when the packet says fallback or is incomplete,
+ambiguous, or contradictory.
+
 The one loop has six planning/evidence workstreams: Product/User (technical slug
 `product`), Business, Design, Tech, Discovery, and Bugs. Each workstream runs a
 mini-loop and records ready or blocked evidence in `docs/handoffs/<TASK-ID>.md`.
@@ -44,6 +50,7 @@ merge or deployment.
 - [Session promotion, checkpoints, recall, review, and closeout](../../docs/fb/sessions.md)
 - [Selected evals, authority, Quality Gaps, and revision closure](../../docs/fb/evals.md)
 - [Normalized records, verification reuse, and efficiency metrics](../../docs/fb/records.md)
+- [Graph-directed context and fallback](../../docs/fb/graph.md)
 
 For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must

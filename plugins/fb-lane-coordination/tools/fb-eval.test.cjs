@@ -468,7 +468,7 @@ test('canonical catalog, categories, compatibility entry point, and root/package
   assert.doesNotMatch(validatorSource, /sameFile\s*\(/);
 });
 
-test('bootstrap installs eight pages and both templates while preserving project-owned eval records and instructions', () => {
+test('bootstrap installs nine pages and both templates while preserving project-owned eval records and instructions', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-eval-bootstrap-'));
   try {
     fs.mkdirSync(path.join(root, 'docs', 'evals'), { recursive: true });
@@ -476,7 +476,7 @@ test('bootstrap installs eight pages and both templates while preserving project
     fs.writeFileSync(path.join(root, 'docs', 'evals', 'eval-record-template.md'), '# Project-owned eval template\n');
     fs.writeFileSync(path.join(root, 'AGENTS.md'), '# Project instructions\n\nKeep this sentence.\n');
     execFileSync('node', [cliPath, 'bootstrap', '--platform', 'codex'], { cwd: root, stdio: 'ignore' });
-    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md']) assert.ok(fs.existsSync(path.join(root, 'docs', 'fb', page)), page);
+    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md']) assert.ok(fs.existsSync(path.join(root, 'docs', 'fb', page)), page);
     assert.strictEqual(fs.readFileSync(path.join(root, 'docs', 'evals', 'project-owned.md'), 'utf8'), '# Keep this eval\n');
     assert.strictEqual(fs.readFileSync(path.join(root, 'docs', 'evals', 'eval-record-template.md'), 'utf8'), '# Project-owned eval template\n');
     assert.ok(fs.existsSync(path.join(root, 'docs', 'evals', 'agent-behavior-scorecard-template.md')));
@@ -500,16 +500,16 @@ test('documented fallback command sequence acquires every bootstrap runtime and 
     fs.mkdirSync(path.join(archiveRoot, 'tools'), { recursive: true });
     fs.mkdirSync(path.join(archiveRoot, 'docs', 'fb'), { recursive: true });
     fs.mkdirSync(path.join(archiveRoot, 'docs', 'evals'), { recursive: true });
-    for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs', 'fb-efficiency.cjs', 'fb-changelog-closeout.cjs', 'fb-records.cjs']) fs.copyFileSync(path.join(repoRoot, 'tools', tool), path.join(archiveRoot, 'tools', tool));
-    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md']) fs.copyFileSync(path.join(repoRoot, 'docs', 'fb', page), path.join(archiveRoot, 'docs', 'fb', page));
+    for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs', 'fb-efficiency.cjs', 'fb-changelog-closeout.cjs', 'fb-records.cjs', 'fb-project-graph.cjs']) fs.copyFileSync(path.join(repoRoot, 'tools', tool), path.join(archiveRoot, 'tools', tool));
+    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md']) fs.copyFileSync(path.join(repoRoot, 'docs', 'fb', page), path.join(archiveRoot, 'docs', 'fb', page));
     for (const asset of ['eval-record-template.md', 'agent-behavior-scorecard-template.md']) fs.copyFileSync(path.join(repoRoot, 'docs', 'evals', asset), path.join(archiveRoot, 'docs', 'evals', asset));
     const archive = path.join(archiveParent, 'source.tar.gz');
     execFileSync('tar', ['-czf', archive, '-C', archiveParent, 'fb-lane-coordination-main']);
     const output = execFileSync('bash', ['-eu', '-o', 'pipefail', '-c', commands], { cwd: root, env: { ...process.env, FB_LANE_ARCHIVE_URL: `file://${archive}` }, encoding: 'utf8' });
     assert.match(output, /FB bootstrapped successfully/i);
-    for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs', 'fb-efficiency.cjs', 'fb-changelog-closeout.cjs', 'fb-records.cjs']) assert.strictEqual(fs.readFileSync(path.join(root, 'tools', tool), 'utf8'), fs.readFileSync(path.join(repoRoot, 'tools', tool), 'utf8'), tool);
+    for (const tool of ['fb-lane.cjs', 'fb-session.cjs', 'fb-eval.cjs', 'fb-efficiency.cjs', 'fb-changelog-closeout.cjs', 'fb-records.cjs', 'fb-project-graph.cjs']) assert.strictEqual(fs.readFileSync(path.join(root, 'tools', tool), 'utf8'), fs.readFileSync(path.join(repoRoot, 'tools', tool), 'utf8'), tool);
     assert.doesNotThrow(() => execFileSync('node', ['-e', "require('./tools/fb-lane.cjs')"], { cwd: root, stdio: 'ignore' }));
-    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md']) assert.strictEqual(fs.readFileSync(path.join(root, 'docs', 'fb', page), 'utf8'), fs.readFileSync(path.join(repoRoot, 'docs', 'fb', page), 'utf8'), page);
+    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md']) assert.strictEqual(fs.readFileSync(path.join(root, 'docs', 'fb', page), 'utf8'), fs.readFileSync(path.join(repoRoot, 'docs', 'fb', page), 'utf8'), page);
     for (const asset of ['eval-record-template.md', 'agent-behavior-scorecard-template.md']) assert.strictEqual(fs.readFileSync(path.join(root, 'docs', 'evals', asset), 'utf8'), fs.readFileSync(path.join(repoRoot, 'docs', 'evals', asset), 'utf8'), asset);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });

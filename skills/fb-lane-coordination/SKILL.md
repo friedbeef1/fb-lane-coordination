@@ -40,6 +40,11 @@ broad validation waits for a release checkpoint.
 Follow [records.md](../../docs/fb/records.md) for one-fact-one-home ownership,
 risk-triggered review, deterministic verification reuse, event-driven health
 checks, compact closeout, and local efficiency metrics.
+For a known task and concrete question, call MCP `fb_project_context` before
+broad orientation and open only the returned relevant cited sources. The graph
+routes to authoritative records; it is not a source of truth. If the tool
+returns fallback, or its packet is incomplete or contradictory, use the
+board → index → handoff → workstream-card route.
 For Full BFM, require the canonical Build Brief and Task Receipt changelog
 decision from `workflow.md` before Ready to ship. Quick and Normal work do not
 create automatic changelog noise.

@@ -34,7 +34,7 @@
     "privacyPolicyURL": "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
     "termsOfServiceURL": "https://docs.github.com/en/site-policy/github-terms/github-terms-of-service",
     "defaultPrompt": [
-      "Start here: use $fb-lane, run doctor if setup looks incomplete, show current status and active locks, then ask what outcome I want to deliver.",
+      "Start here: use $fb-lane. When a task and question are known, call fb_project_context and open only its relevant cited authoritative records; use the normal board/index fallback when the packet is insufficient. Run doctor if setup looks incomplete, show current status and active locks, then ask what outcome I want to deliver.",
       "Use $fb-lane to route questions through Product/User, Business, Design, Tech, Discovery, and Bugs. Each relevant workstream should investigate its question, gather evidence, recommend a path, and create a ready handoff MD file; record None relevant instead of inventing work.",
       "Run $bfm only after Product approval. Scan all six workstreams and ready handoffs, reconcile duplicates, contradictions, dependencies, locks, and the approved goal, then prioritize and direct Codex implementation.",
       "Own automated testing and bounded repair for the exact candidate. For Full BFM, verify the Build Brief and Task Receipt changelog decision before reporting Ready to ship. Then say exactly: Automated checks passed. Optional review links are available above. Say **Push Live** to deploy. Never merge or deploy before Push Live.",

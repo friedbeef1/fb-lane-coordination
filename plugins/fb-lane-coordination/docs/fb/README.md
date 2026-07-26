@@ -9,6 +9,12 @@ one authoritative home per fact, direct links elsewhere, deterministic
 verification reuse, and compact closeout.
 Only **Push Live** authorizes merge or deployment.
 
+For a known task and concrete question, agents first use
+`fb_project_context` as described in [graph.md](graph.md). A healthy graph
+routes to at most three relevant authoritative files. An insufficient or
+unhealthy result uses the safe fallback route below. The graph never becomes a
+source of truth.
+
 ## Source of truth
 
 Read the smallest relevant layer, in this order:
@@ -49,3 +55,4 @@ owner transfer, staging, or review does not request one.
 - Resuming durable work, checkpoints, recall, review, or closeout: [sessions.md](sessions.md)
 - Selecting harness/product evals, recording Quality Gaps, or closing revision loops: [evals.md](evals.md)
 - Normalizing durable facts, reusing verification, or closing compactly: [records.md](records.md)
+- Reducing broad orientation through source-cited targeted reading: [graph.md](graph.md)

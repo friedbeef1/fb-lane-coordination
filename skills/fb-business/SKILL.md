@@ -19,6 +19,11 @@ task handoff, keep this workstream card to task IDs/blockers/next action/links,
 and record a concrete other-lanes rationale or escalation instead of repeating
 scope and checks across files.
 
+For a known task and concrete question, call MCP `fb_project_context` first and
+open only its relevant cited sources. The graph routes to authoritative
+records; it is not a source of truth. Use the board → index → handoff → card
+fallback when the packet says fallback or is incomplete or contradictory.
+
 ## Responsibilities
 
 - Audience, positioning, pricing, onboarding copy, marketing text, help content, FAQs, and business rationale.

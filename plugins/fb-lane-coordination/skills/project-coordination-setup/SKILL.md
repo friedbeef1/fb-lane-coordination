@@ -5,7 +5,7 @@ description: Use when bootstrapping an FB-coordinated project with board, handof
 
 # Set up an FB-coordinated project
 
-The bootstrap installs the canonical eight-page [FB harness](../../docs/fb/README.md)
+The bootstrap installs the canonical nine-page [FB harness](../../docs/fb/README.md)
 pack and adds or updates a thin managed route in `AGENTS.md` and
 `.codex/rules.md`. Fresh projects receive the pack and routes. On reruns, the
 bootstrap preserves project-owned text and replaces only a complete block from
@@ -22,6 +22,12 @@ ship**. Only **Push Live** authorizes merge or deployment.
 The installed [start.md](../../docs/fb/start.md) defines the single public
 workstream-first path. After relevant workstreams create ready handoffs, `$bfm`
 activates Product reconciliation and execution of approved scope.
+
+The installed [graph.md](../../docs/fb/graph.md) defines graph-directed
+orientation. For a known task and question, agents call MCP
+`fb_project_context` and open only its relevant cited authoritative records.
+The graph is not a source of truth. Missing, stale, unhealthy, incomplete, or
+contradictory packets fall back to the board → index → handoff → card route.
 
 - [First-project contract and approval boundary](../../docs/fb/start.md)
 - [Board/index/handoff/workstream roles and execution](../../docs/fb/workflow.md)

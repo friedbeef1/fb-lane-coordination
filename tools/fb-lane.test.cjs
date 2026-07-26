@@ -1128,7 +1128,7 @@ test('documents the completed bootstrap and v2 review-authoring contract across 
   ];
   for (const relativePath of setupSkills) {
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
-    assert.match(source, /bootstrap (?:installs|copies) the canonical eight-page (?:FB harness|\[FB harness\]\([^)]*\))\s*pack/i, `${relativePath} must describe the completed pack install`);
+    assert.match(source, /bootstrap (?:installs|copies) the canonical nine-page (?:FB harness|\[FB harness\]\([^)]*\))\s*pack/i, `${relativePath} must describe the completed pack install`);
     assert.match(source, /thin managed route/i, `${relativePath} must describe thin managed routes`);
     assert.match(source, /preserv(?:e|es|ing) project-owned text/i, `${relativePath} must preserve project-owned text`);
     assert.match(source, /fb-harness-route-start.*fb-harness-route-end/is, `${relativePath} must name the managed replacement boundary`);

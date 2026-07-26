@@ -18,6 +18,12 @@ chat carry only compact links. Product expands lane review when risk, overlap,
 conflict, or cross-lane acceptance requires it and treats savings targets as
 hypotheses until measured.
 
+For a known task and concrete question, call MCP `fb_project_context` before
+broad orientation and open only its relevant cited sources. The graph routes to
+authoritative records; it is not a source of truth. Use the board → index →
+handoff → card fallback when the packet says fallback or is incomplete,
+ambiguous, or contradictory.
+
 The one delivery loop has six planning/evidence workstreams in canonical order:
 Product/User (technical slug `product`), Business, Design, Tech, Discovery, and
 Bugs. Each runs its smallest real mini-loop, records evidence in
@@ -35,6 +41,7 @@ explicit **Push Live** authorizes merge or deployment.
 - [Repository-local sessions and evidence-aware closeout](../../docs/fb/sessions.md)
 - [Eval selection, authority decisions, and product-quality loops](../../docs/fb/evals.md)
 - [Authoritative records, risk review, verification reuse, and closeout](../../docs/fb/records.md)
+- [Graph-directed context and fallback](../../docs/fb/graph.md)
 
 For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must

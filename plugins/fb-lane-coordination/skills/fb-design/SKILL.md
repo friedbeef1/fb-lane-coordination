@@ -19,6 +19,11 @@ the handoff and visual/test proof in the QA artifact, while the Design card
 contains only task IDs, blockers, next action, and links. Escalate overlapping
 or cross-lane surfaces instead of asserting a generic no-impact result.
 
+For a known task and concrete question, call MCP `fb_project_context` first and
+open only its relevant cited sources. The graph routes to authoritative
+records; it is not a source of truth. Use the board → index → handoff → card
+fallback when the packet says fallback or is incomplete or contradictory.
+
 ## Responsibilities
 
 - UI/UX design, icons, CSS/layout plans, typography guidance, visual assets, responsive behavior, and visual QA plans.

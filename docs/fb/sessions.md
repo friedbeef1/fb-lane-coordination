@@ -180,9 +180,9 @@ review.
 
 ## Install, upgrade, and removal
 
-Bootstrap confirms the eight-page harness and adds or refreshes only the managed
+Bootstrap confirms the nine-page harness and adds or refreshes only the managed
 FB route block in project-owned instructions. Upgrades replace the bundled
-eight-page pack and managed route while preserving all text outside the markers.
+nine-page pack and managed route while preserving all text outside the markers.
 For cleanup, close or preserve active session evidence first, then remove the
 clone-local `fb-sessions` directory and dead mutation lock from the Git common
 directory if no session command is running. Plugin removal does not delete

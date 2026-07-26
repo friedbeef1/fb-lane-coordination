@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-049 | Staging QA | FB-Product / BFM | Plugin Navigation | Integrate demonstrated graph-directed targeted reading into the bundled Codex plugin with automatic authoritative-record fallback | `tools/fb-project-graph*`, MCP surface, canonical/package graph guidance and skills | [Handoff](docs/handoffs/TASK-049.md); [QA](docs/qa/TASK-049.md); local Ready to ship candidate |
 | TASK-048 | Staging QA | FB-Product / BFM | Project Navigation | Evaluate graduated graph navigation and a minimal graph-first route without changing product-truth authority | `tools/fb-project-graph*`, `.fb/graph/`, TASK-048 experiment/QA/coordination records | [Handoff](docs/handoffs/TASK-048.md); [Results](docs/experiments/TASK-048-graduated-project-graph-pilot.md); [QA](docs/qa/TASK-048.md) |
 | TASK-047 | Staging QA | FB-Product / BFM | Harness Efficiency | Normalize durable evidence, add risk-triggered review and deterministic verification reuse, and reduce duplicated coordination context | `tools/fb-records.*`, validator/doctor integration, canonical/package harness and skills, templates, TASK-047 records | [Handoff](docs/handoffs/TASK-047.md); [Pilot](docs/experiments/TASK-047-real-task-pilot.md); [Plan](docs/superpowers/plans/2026-07-23-fb-durable-efficiency-evidence-normalization.md); [QA](docs/qa/TASK-047.md); focused local gate passed |
 | TASK-031 | In Progress | FB-Product / BFM | Closeout + Plugin Release | Require a Full BFM changelog decision before Ready to ship and rebuild FB as 0.3.1-beta | Closeout/session/runtime contracts, canonical/package docs and skills, release metadata and records | [Handoff](docs/handoffs/TASK-031.md); PR #48; `0.3.1-beta+codex.20260718021942`; Push Live remains separate |
@@ -53,6 +54,21 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-049 - Graph-Directed Plugin Navigation
+
+*   **Status**: Staging QA
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Plugin Navigation
+*   **Scope**: Add one read-only MCP context tool that refreshes the derived Level 1 graph, returns a capped task-specific packet, directs agents to authoritative sources, and falls back safely when graph context is unhealthy or insufficient.
+*   **Out of Scope**: Replacing normalized records, semantic graph extraction, hosted storage, automatic transcript capture, plugin publication, release, merge, deployment, or consumer-project installation.
+*   **Approval**: approved in conversation after TASK-048's final controlled comparison.
+*   **Definition of Done**: Root/package behavior agrees; unknown, stale, unsafe, and insufficient graph context cannot create inferred authority; active skills and harness guidance use graph-first targeted reading with explicit fallback.
+*   **Affected Screens / Locks**: `tools/fb-project-graph*`, `tools/fb-lane.cjs`, `docs/fb/graph.md`, active skills, package manifest and generated mirrors.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-049.md); [TASK-048 evidence](docs/experiments/TASK-048-graduated-project-graph-pilot.md).
+*   **Latest Update**: *2026-07-26*: Root graph contracts 19/19, packaged context 5/5, CLI 70/70, eval/bootstrap 18/18, metadata, 44-mirror parity, synchronizer 10/10, syntax, whitespace, and Codex plugin validation passed. Changelog and QA closeout recorded. Local candidate is Ready to ship; release remains separate.
 
 ---
 

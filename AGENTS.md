@@ -21,6 +21,13 @@ summaries. The reusable FB operating rules live in [docs/fb/](docs/fb/README.md)
   [evals.md](docs/fb/evals.md)
 - Authoritative records, verification reuse, and compact closeout:
   [records.md](docs/fb/records.md)
+- Graph-directed targeted reading and safe fallback:
+  [graph.md](docs/fb/graph.md)
+
+For a known task and concrete question, call MCP `fb_project_context` before
+broad orientation. Open only its relevant cited authoritative records. The
+graph is not a source of truth; use the normal board → index → handoff → card
+fallback when the packet is insufficient or contradictory.
 
 When planning or evidence is useful, start in whichever workstream matches the
 question. Product/User is selected only for user-needs and product questions,

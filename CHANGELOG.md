@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased — Graph-directed context
+
+**What changed:** FB's Codex plugin now provides read-only MCP
+`fb_project_context` routing. For a known task and question, agents receive a
+compact graph-derived packet with at most three relevant authoritative files
+instead of automatically loading broad project coordination history.
+
+**Why it matters:** The TASK-048 controlled experiment preserved 6/6 answer
+correctness while reducing uncached input tokens, orientation content, and
+concurrent wall time. The plugin applies that behavior as targeted navigation,
+not as a replacement for repository truth.
+
+**Compatibility:** Existing boards, handoffs, workstream cards, commands,
+plugin IDs, and release gates remain unchanged. Missing, stale, unhealthy,
+ambiguous, contradictory, or insufficient graph context falls back to the
+normal board → index → handoff → card route.
+
+**Installation or upgrade:** No action until this candidate is released. After
+an approved plugin release, upgrade the `fb-lane` marketplace plugin and start
+a new Codex task to load the refreshed MCP tool and skills.
+
 ## 0.3.1-beta - 2026-07-18
 
 **What changed:** Full BFM now records whether a delivered candidate requires a

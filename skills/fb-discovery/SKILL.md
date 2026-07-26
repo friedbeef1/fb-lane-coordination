@@ -15,6 +15,11 @@ Use [records.md](../../docs/fb/records.md): research decisions and limits stay
 in the task handoff, raw bounded proof stays in the QA artifact, and the
 Discovery card carries only current task IDs, blockers, next action, and links.
 
+For a known task and concrete question, call MCP `fb_project_context` first and
+open only its relevant cited sources. The graph routes to authoritative
+records; it is not a source of truth. Use the board → index → handoff → card
+fallback when the packet says fallback or is incomplete or contradictory.
+
 ## Mini-loop
 
 1. Read `AGENTS.md`, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, the linked

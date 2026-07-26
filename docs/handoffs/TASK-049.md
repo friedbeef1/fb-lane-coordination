@@ -1,0 +1,68 @@
+---
+type: fb-lane-handoff
+task: TASK-049
+lane: fb-product
+status: implemented
+approval: approved
+record_model: normalized-v1
+okr_fit: aligned
+---
+
+# TASK-049 — Graph-Directed Plugin Navigation
+
+## Approved Decision
+
+Integrate the demonstrated TASK-048 behavior as a read-only Codex-plugin route:
+use a minimal graph packet to select authoritative evidence, not to replace it.
+
+## Scope
+
+- Add MCP `fb_project_context(taskId, question, workspacePath?)`.
+- Refresh deterministic Level 1 derived state automatically.
+- Return compact facts and at most three readable authoritative sources.
+- Fall back to board → index → handoff → card when the task is unknown or graph
+  state is unhealthy, ambiguous, contradictory, or insufficient.
+- Align canonical and packaged harness pages and active skills mechanically.
+
+## Out of Scope
+
+Semantic graph extraction, graph databases, hosted services, transcript
+capture, inferred approval, plugin publication, release, merge, deployment, or
+consumer-project installation.
+
+## Acceptance
+
+- Targeted packets never treat graph output as source of truth.
+- Unknown task IDs do not guess.
+- Stale derived state refreshes from authoritative records.
+- Root/package focused contracts, syntax, package parity, and whitespace pass.
+
+## Build Brief
+
+- Changelog expectation: required
+- Deliver the read-only MCP context tool, capped task-specific routing,
+  automatic deterministic refresh, safe fallback, canonical guidance, and
+  generated plugin mirrors.
+- Do not publish, install, merge, or change release authority.
+
+## Evidence
+
+- [TASK-048 controlled experiment](../experiments/TASK-048-graduated-project-graph-pilot.md)
+- Focused plugin contract: `tools/fb-project-graph-plugin.test.cjs`
+- [Focused QA](../qa/TASK-049.md)
+
+## Task Receipt
+
+- Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#unreleased--graph-directed-context)
+- Delivered: bundled MCP context tool, graph runtime, nine-page harness route,
+  active workstream guidance, generated package mirrors, and fallback install
+  guidance.
+- Verification: [TASK-049 focused QA](../qa/TASK-049.md)
+- Review state: not reviewable
+- Remaining owner/action: Product release checkpoint and **Push Live** if
+  marketplace publication is desired.
+
+## Release boundary
+
+This local candidate does not publish or install the plugin. Release requires a
+separate release checkpoint and **Push Live**.

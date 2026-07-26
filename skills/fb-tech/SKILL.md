@@ -19,6 +19,11 @@ verification fingerprints belong in the QA artifact; the handoff links to that
 proof. Reuse evidence only when source, lockfiles, configuration, toolchain,
 target, base, command, and environment still match.
 
+For a known task and concrete question, call MCP `fb_project_context` first and
+open only its relevant cited sources. The graph routes to authoritative
+records; it is not a source of truth. Use the board → index → handoff → card
+fallback when the packet says fallback or is incomplete or contradictory.
+
 ## Responsibilities
 
 - Backend/API/auth/schema/migration/integration planning, tests to run, reliability, and security review.
