@@ -1,7 +1,14 @@
 # FB-Product Workstream Status
 
-Last Updated: 2026-07-17
+Last Updated: 2026-07-26
 Lane: FB-Product
+
+## TASK-048 — FB graduated project graph
+
+- Status: In Progress; written design review.
+- Blockers: Implementation planning waits for James to review the committed design.
+- Next action: Product reviews the [design](../superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md).
+- Links: [Handoff](../handoffs/TASK-048.md), [normalized records](../fb/records.md).
 
 ## TASK-047 — Durable efficiency and evidence normalization
 

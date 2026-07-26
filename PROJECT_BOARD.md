@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-048 | In Progress | FB-Product / BFM | Project Navigation | Design a graduated repository-local graph that derives from normalized FB records, begins deterministically, and expands only after demonstrated retrieval friction | `docs/superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md`, TASK-048 coordination records | [Handoff](docs/handoffs/TASK-048.md); [Design](docs/superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md); implementation awaits written-spec review |
 | TASK-047 | Staging QA | FB-Product / BFM | Harness Efficiency | Normalize durable evidence, add risk-triggered review and deterministic verification reuse, and reduce duplicated coordination context | `tools/fb-records.*`, validator/doctor integration, canonical/package harness and skills, templates, TASK-047 records | [Handoff](docs/handoffs/TASK-047.md); [Pilot](docs/experiments/TASK-047-real-task-pilot.md); [Plan](docs/superpowers/plans/2026-07-23-fb-durable-efficiency-evidence-normalization.md); [QA](docs/qa/TASK-047.md); focused local gate passed |
 | TASK-031 | In Progress | FB-Product / BFM | Closeout + Plugin Release | Require a Full BFM changelog decision before Ready to ship and rebuild FB as 0.3.1-beta | Closeout/session/runtime contracts, canonical/package docs and skills, release metadata and records | [Handoff](docs/handoffs/TASK-031.md); PR #48; `0.3.1-beta+codex.20260718021942`; Push Live remains separate |
 | TASK-030 | Done | FB-Product / BFM | Codex Plugin Release | Release the Codex plugin as `0.3.0-beta`, align active metadata/prompts/docs with the six-workstream loop, and prove the packaged install | None | [Handoff](docs/handoffs/TASK-030.md); [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44) merged; `0.3.0-beta+codex.20260717150502` installed and enabled; GitHub readiness and live cache proof passed |
@@ -52,6 +53,26 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-048 - FB Graduated Project Graph
+
+*   **Status**: In Progress (written design review)
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Project Navigation
+*   **Scope**: Design a graduated project graph derived from normalized FB records, with deterministic Level 1 navigation, evidence-gated semantic expansion, safe fallback, privacy boundaries, measurement, and future plugin integration.
+*   **Out of Scope**: Implementation before written-spec review, hosted services, graph databases, automatic commit hooks, transcript capture, cross-project export, release, publication, merge, deployment, or consumer-repository mutation.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce repeated context reconstruction while preserving FB's existing Loop Engineering authority and normalized evidence model.
+    *   **Key Results**: The graph remains derived; new projects start cheaply; deeper mapping requires demonstrated retrieval friction; graph failure never blocks normal FB; pilot cost and navigation benefit are measured.
+    *   **Definition of Done**: James reviews the committed design and either requests revisions or approves implementation planning.
+    *   **Gate / Review Point**: Written-spec review only.
+    *   **Approval**: design approved in conversation; written specification review pending.
+    *   **Justification**: James explicitly chose the graduated graph approach after distinguishing FB's loops from the graph that maps them.
+*   **Affected Screens / Locks**: `docs/superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md`, `docs/handoffs/TASK-048.md`, board/index/Product card.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-048.md); [Design](docs/superpowers/specs/2026-07-26-fb-graduated-project-graph-design.md); branch `codex/fb-graduated-project-graph`.
+*   **Latest Update**: *2026-07-26*: Product design is written from current `origin/main`. No implementation or external action is authorized.
 
 ---
 
