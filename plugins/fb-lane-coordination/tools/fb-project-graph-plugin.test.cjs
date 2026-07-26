@@ -18,25 +18,25 @@ function write(root, relative, contents) {
   fs.writeFileSync(target, contents);
 }
 
-function fixture() {
+function fixture(taskId = 'TASK-200') {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-graph-plugin-'));
   write(root, 'PROJECT_BOARD.md', `# Board
 
 | ID | Status | Owner | Area | Scope | Locks | Links |
 |---|---|---|---|---|---|---|
-| TASK-200 | In Progress | FB-Tech | Navigation | Route focused context | none | [Handoff](docs/handoffs/TASK-200.md); [QA](docs/qa/TASK-200.md) |
+| ${taskId} | In Progress | FB-Tech | Navigation | Route focused context | none | [Handoff](docs/handoffs/${taskId}.md); [QA](docs/qa/${taskId}.md) |
 `);
-  write(root, 'docs/handoffs/index.md', '# Index\n\n[TASK-200](TASK-200.md)\n');
-  write(root, 'docs/handoffs/TASK-200.md', `---
+  write(root, 'docs/handoffs/index.md', `# Index\n\n[${taskId}](${taskId}.md)\n`);
+  write(root, `docs/handoffs/${taskId}.md`, `---
 type: fb-lane-handoff
-task: TASK-200
+task: ${taskId}
 lane: fb-tech
 status: ready
 approval: approved
 record_model: normalized-v1
 ---
 
-# TASK-200
+# ${taskId}
 
 ## Approved Decision
 
@@ -44,15 +44,15 @@ Use graph-first targeted reading.
 
 ## Evidence
 
-[Experiment](../experiments/TASK-200.md)
+[Experiment](../experiments/${taskId}.md)
 
 ## Verification
 
-[QA](../qa/TASK-200.md)
+[QA](../qa/${taskId}.md)
 `);
-  write(root, 'docs/experiments/TASK-200.md', '# Experiment\n\nTargeted reading passed.\n');
-  write(root, 'docs/qa/TASK-200.md', '# QA\n\nFocused checks passed.\n');
-  write(root, 'docs/workstreams/fb-tech.md', '# Tech\n\nTASK-200 is active.\n');
+  write(root, `docs/experiments/${taskId}.md`, '# Experiment\n\nTargeted reading passed.\n');
+  write(root, `docs/qa/${taskId}.md`, '# QA\n\nFocused checks passed.\n');
+  write(root, 'docs/workstreams/fb-tech.md', `# Tech\n\n${taskId} is active.\n`);
   return root;
 }
 
@@ -71,6 +71,17 @@ test('plugin context refreshes the graph and returns a capped task-specific rout
   assert.ok(!packet.readableSources.includes('PROJECT_BOARD.md'));
   assert.ok(!packet.readableSources.includes('docs/handoffs/index.md'));
   assert.ok(fs.existsSync(path.join(root, '.fb', 'graph', 'project-graph.json')));
+});
+
+test('plugin context routes project-specific task prefixes used by existing repositories', () => {
+  const root = fixture('MEJA-111');
+  const packet = projectContextPacket(root, {
+    taskId: 'MEJA-111',
+    question: 'What verifies MEJA-111?',
+  });
+  assert.strictEqual(packet.route, 'project-graph');
+  assert.strictEqual(packet.taskId, 'MEJA-111');
+  assert.ok(packet.readableSources.includes('docs/qa/MEJA-111.md'));
 });
 
 test('plugin context refreshes stale derived state without broad fallback', () => {

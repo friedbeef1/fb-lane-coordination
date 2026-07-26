@@ -941,6 +941,7 @@ function assertCodexBootstrap(args) {
     assert.match(output, /returning-project health/, 'bootstrap quick start must reserve status for returning-project health');
     assert.match(codexRules, /docs\/fb\/guardrails\.md/, 'Codex rules must route sidechat authority through the harness');
     assert.ok(!fs.existsSync(path.join(root, '.mcp.json')), 'expected bootstrap not to create project MCP config');
+    assert.match(fs.readFileSync(path.join(root, '.gitignore'), 'utf8'), /^\.fb\/graph\/$/m, 'expected bootstrap to ignore derived graph artifacts');
     assert.ok(!fs.existsSync(path.join(root, '.claude')), 'expected bootstrap not to create Claude Code files');
     assert.ok(!fs.existsSync(path.join(root, 'agents')), 'expected bootstrap not to create Antigravity files');
     assert.doesNotMatch(output, /Antigravity|Claude Code|MCP/i);

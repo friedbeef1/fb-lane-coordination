@@ -10,6 +10,7 @@ const NODE_TYPES = new Set(['project', 'okr', 'workstream', 'task', 'handoff', '
 const EDGE_TYPES = new Set(['contains', 'supports', 'owned-by', 'documented-by', 'depends-on', 'references', 'supersedes', 'implemented-by', 'verified-by', 'released-as']);
 const AUTHORITY_EDGE_TYPES = new Set(['approved-by', 'authorizes', 'releases']);
 const SENSITIVE = /\b(?:authorization\s*:\s*bearer|api[_-]?key|password|secret|token)\b/i;
+const SAFE_TASK_ID = /^[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)$/;
 
 function relativePath(root, candidate) {
   return path.relative(root, candidate).split(path.sep).join('/');
@@ -33,9 +34,12 @@ function markdownLinks(markdown) {
 function boardRows(markdown) {
   const rows = [];
   for (const line of String(markdown).split(/\r?\n/)) {
-    if (!/^\|\s*TASK-[^|]+\|/.test(line)) continue;
+    if (!line.trimStart().startsWith('|')) continue;
     const cells = line.split('|').slice(1, -1).map(cell => cell.trim());
-    if (cells.length >= 2) rows.push({ task: cells[0], status: cells[1], owner: cells[2] || '', line });
+    const task = String(cells[0] || '').toUpperCase();
+    if (cells.length >= 2 && SAFE_TASK_ID.test(task)) {
+      rows.push({ task, status: cells[1], owner: cells[2] || '', line });
+    }
   }
   return rows;
 }
@@ -220,10 +224,10 @@ function reportMarkdown(graph) {
 ## Example queries
 
 - What is active and blocked?
-- What decision governs TASK-…?
-- What verifies TASK-…?
-- What depends on TASK-…?
-- Which release contains TASK-…?
+- What decision governs <PROJECT>-…?
+- What verifies <PROJECT>-…?
+- What depends on <PROJECT>-…?
+- Which release contains <PROJECT>-…?
 `;
 }
 
@@ -280,7 +284,6 @@ function refreshProjectGraph(root, options = {}) {
 
 function queryProjectGraph(graph, query, options = {}) {
   const value = String(query || '').toLowerCase();
-  const taskIds = [...value.toUpperCase().matchAll(/TASK-[A-Z0-9-]+/g)].map(match => match[0]);
   const keywords = value.split(/[^a-z0-9-]+/).filter(word => word.length >= 3);
   const adjacency = new Map();
   for (const edge of graph.edges || []) {
@@ -290,6 +293,11 @@ function queryProjectGraph(graph, query, options = {}) {
     adjacency.get(edge.to).push({ edge, nodeId: edge.from });
   }
   const nodes = new Map((graph.nodes || []).map(node => [node.id, node]));
+  const upperQuery = value.toUpperCase();
+  const taskIds = [...nodes.values()]
+    .filter(node => node.type === 'task')
+    .map(node => node.id.slice('task:'.length))
+    .filter(taskId => upperQuery.includes(taskId));
   const scopedDistances = new Map();
   if (options.currentTask) {
     const start = `task:${String(options.currentTask).toUpperCase()}`;
@@ -364,7 +372,7 @@ function resolveProjectContext(root, query) {
 function projectContextPacket(root, options = {}) {
   const taskId = String(options.taskId || '').toUpperCase();
   const question = String(options.question || '').trim();
-  if (!/^TASK-[A-Z0-9-]+$/.test(taskId) || !question) {
+  if (!SAFE_TASK_ID.test(taskId) || !question) {
     return {
       route: 'normalized-record-fallback',
       taskId,

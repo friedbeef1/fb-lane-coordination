@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-049
 lane: fb-product
-status: implemented
+status: checking
 approval: approved
 record_model: normalized-v1
 okr_fit: aligned
@@ -23,6 +23,8 @@ use a minimal graph packet to select authoritative evidence, not to replace it.
 - Fall back to board → index → handoff → card when the task is unknown or graph
   state is unhealthy, ambiguous, contradictory, or insufficient.
 - Align canonical and packaged harness pages and active skills mechanically.
+- Accept safe repository-specific task prefixes such as `MEJA-*`.
+- Release the verified candidate as `0.4.0-beta+codex.20260726101229`.
 
 ## Out of Scope
 
@@ -34,6 +36,8 @@ consumer-project installation.
 
 - Targeted packets never treat graph output as source of truth.
 - Unknown task IDs do not guess.
+- Existing repositories with safe project-specific task IDs receive the same
+  targeted graph route.
 - Stale derived state refreshes from authoritative records.
 - Root/package focused contracts, syntax, package parity, and whitespace pass.
 
@@ -42,8 +46,9 @@ consumer-project installation.
 - Changelog expectation: required
 - Deliver the read-only MCP context tool, capped task-specific routing,
   automatic deterministic refresh, safe fallback, canonical guidance, and
-  generated plugin mirrors.
-- Do not publish, install, merge, or change release authority.
+  generated plugin mirrors under the 0.4.0-beta release line.
+- Publish and install only after the release checkpoint, approved changelog
+  wording, and explicit **Push Live**.
 
 ## Evidence
 
@@ -53,17 +58,18 @@ consumer-project installation.
 
 ## Task Receipt
 
-- Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#unreleased--graph-directed-context)
-- Changelog approval: approved — James, originating conversation, 2026-07-26
+- Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#040-beta--2026-07-26)
+- Changelog approval: pending — refreshed 0.4.0-beta release wording, 2026-07-26
 - Delivered: bundled MCP context tool, graph runtime, nine-page harness route,
   active workstream guidance, generated package mirrors, and fallback install
   guidance.
 - Verification: [TASK-049 focused QA](../qa/TASK-049.md)
-- Review state: not reviewable
-- Remaining owner/action: Product release checkpoint and **Push Live** if
-  marketplace publication is desired.
+- Review state: staging candidate
+- Remaining owner/action: complete the release checkpoint, obtain explicit
+  approval for the refreshed changelog wording, then honor the already approved
+  **Push Live** boundary.
 
 ## Release boundary
 
-This local candidate does not publish or install the plugin. Release requires a
-separate release checkpoint and **Push Live**.
+The candidate may publish only after the release checkpoint and refreshed
+changelog wording approval. **Push Live** remains the release authority.

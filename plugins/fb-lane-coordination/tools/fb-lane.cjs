@@ -2790,6 +2790,16 @@ function installFbHarnessPack(rootDir) {
   }
 }
 
+function ensureGraphIgnore(rootDir) {
+  const ignorePath = path.join(rootDir, '.gitignore');
+  const rule = '.fb/graph/';
+  const existing = fs.existsSync(ignorePath) ? fs.readFileSync(ignorePath, 'utf8') : '';
+  if (existing.split(/\r?\n/).some(line => line.trim() === rule)) return false;
+  const separator = existing && !existing.endsWith('\n') ? '\n' : '';
+  fs.writeFileSync(ignorePath, `${existing}${separator}${rule}\n`, 'utf8');
+  return true;
+}
+
 // Main execution parsing
 function handleBootstrap(args = []) {
   let options;
@@ -2971,6 +2981,7 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
 
   installFbHarnessPack(rootDir);
   console.log('📝 Installed docs/fb/ harness pack.');
+  if (ensureGraphIgnore(rootDir)) console.log('📝 Ignored derived .fb/graph/ artifacts.');
   const harnessRoute = fbHarnessRoute();
   if (!fs.existsSync(agentsPath)) {
     fs.writeFileSync(agentsPath, `# Agent & Thread Coordination Rules — ${projectName}\n\n${harnessRoute}\n`, 'utf8');

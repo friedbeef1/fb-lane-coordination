@@ -17,6 +17,16 @@ Lane: FB-Product
 - Next action: Optional Product review. No release checkpoint or external action is requested.
 - Links: [Handoff](../handoffs/TASK-047.md), [Plan](../superpowers/plans/2026-07-23-fb-durable-efficiency-evidence-normalization.md), [QA](../qa/TASK-047.md).
 
+## TASK-049 — Graph-directed context and FB 0.4.0-beta
+
+- Status: Checking.
+- Outcome target: route known project tasks to compact authoritative context,
+  preserve safe fallback, support repository-specific IDs such as `MEJA-*`,
+  and publish the verified Codex plugin.
+- Release candidate: `0.4.0-beta+codex.20260726101229`.
+- Release gate: full checkpoint plus explicit approval of refreshed changelog
+  wording; **Push Live** is approved for the green candidate.
+
 ## TASK-031 — Full BFM changelog closeout and FB 0.3.1-beta
 
 - Status: In Progress on PR #48.
