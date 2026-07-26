@@ -33,6 +33,12 @@ merge, or deployment has occurred yet.
 - Affected Node syntax and whitespace: passed.
 - Complete repository validator: passed after one consolidated coordination
   repair; final doctor reported **Ready**.
+- GitHub readiness: passed on PR #51 after one focused two-line whitespace
+  repair.
+- Public install smoke: marketplace upgraded; plugin
+  `0.4.0-beta+codex.20260726101229` installed and enabled; all six workstream
+  skills plus BFM present; bundled MCP listed `fb_project_context`; installed
+  MCP routed real MÉJA `MEJA-111` to `docs/qa/MEJA-111.md`.
 
 ## Safety result
 
@@ -45,5 +51,5 @@ scope, implementation, closeout, merge, or release.
 
 ## Remaining gate
 
-Refreshed changelog wording, final release checkpoint, and **Push Live** are
-approved. Candidate is **Ready to ship**.
+Release completed through PR #51 and the existing GitHub marketplace. A new
+Codex task is required to load the refreshed skills and MCP server.

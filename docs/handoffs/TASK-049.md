@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-049
 lane: fb-product
-status: implemented
+status: done
 approval: approved
 record_model: normalized-v1
 okr_fit: aligned
@@ -78,10 +78,11 @@ consumer-project installation.
   guidance.
 - Verification: [TASK-049 focused QA](../qa/TASK-049.md)
 - Review state: not reviewable
-- Remaining owner/action: publish the approved release, reinstall it, and verify
-  the active plugin from a new Codex task.
+- Remaining owner/action: start a new Codex task when using the refreshed skills
+  and MCP server.
 
 ## Release boundary
 
-The release checkpoint passed. Refreshed changelog wording and **Push Live**
-are approved.
+The release checkpoint passed. [PR #51](https://github.com/friedbeef1/fb-lane-coordination/pull/51)
+merged to `main`; the marketplace was upgraded and
+`0.4.0-beta+codex.20260726101229` installed and enabled.
