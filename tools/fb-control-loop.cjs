@@ -6,7 +6,10 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
+const { isDeepStrictEqual } = require('util');
 const { spawnSync } = require('child_process');
+const { quickPolicyForPaths, evaluateRunBudget } = require('./fb-efficiency.cjs');
 
 const SCHEMA_VERSION = 'fb-stage-event-v1';
 const EVENT_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
@@ -273,6 +276,21 @@ function assertOnlyKeys(value, allowed, label) {
   }
 }
 
+function assertPrivacySafeValue(value, label) {
+  if (typeof value === 'string') {
+    if (CREDENTIAL_MATERIAL.test(value)) throw new Error(`${label} contains forbidden credential material.`);
+    return value;
+  }
+  if (value === null || ['number', 'boolean', 'undefined'].includes(typeof value)) return value;
+  if (Array.isArray(value)) return value.map((item, index) => assertPrivacySafeValue(item, `${label}[${index}]`));
+  assertPlainObject(value, label);
+  for (const [key, item] of Object.entries(value)) {
+    if (FORBIDDEN_KEY.test(key)) throw new Error(`${label} contains forbidden privacy field ${key}.`);
+    assertPrivacySafeValue(item, `${label}.${key}`);
+  }
+  return value;
+}
+
 function assertRepositoryRelativePath(value, label) {
   if (typeof value !== 'string' || !value || value.includes('\0') || path.posix.isAbsolute(value) || path.win32.isAbsolute(value)) {
     throw new Error(`${label} must be a safe repository-relative path.`);
@@ -297,10 +315,25 @@ function uniqueStringArray(value, label, allowEmpty = false) {
 }
 
 function manifestHash(manifest) {
-  return require('crypto').createHash('sha256').update(JSON.stringify(manifest)).digest('hex');
+  return crypto.createHash('sha256').update(JSON.stringify(manifest)).digest('hex');
+}
+
+function hashBytes(value) {
+  return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function serializeJson(value) {
+  assertPrivacySafeValue(value, 'Serialized configuration');
+  return `${JSON.stringify(value, null, 2)}\n`;
+}
+
+function assertEvidenceRef(value, label) {
+  if (typeof value !== 'string' || !value.trim()) throw new Error(`${label} must be a non-empty evidence reference.`);
+  return assertPrivacySafeValue(value, label);
 }
 
 function validateProfileManifest(manifest) {
+  assertPrivacySafeValue(manifest, 'Profile manifest');
   assertOnlyKeys(manifest, ['schemaVersion', 'profiles'], 'Profile manifest');
   if (manifest.schemaVersion !== 'fb-profile-manifest-v1') throw new Error('Profile manifest schemaVersion must be fb-profile-manifest-v1.');
   if (!Array.isArray(manifest.profiles) || !manifest.profiles.length) throw new Error('Profile manifest requires one or more profiles.');
@@ -321,6 +354,7 @@ function validateProfileManifest(manifest) {
 }
 
 function validateGoldenFixtureManifest(manifest) {
+  assertPrivacySafeValue(manifest, 'Golden-fixture manifest');
   assertOnlyKeys(manifest, ['schemaVersion', 'cases'], 'Golden-fixture manifest');
   if (manifest.schemaVersion !== 'fb-golden-fixture-manifest-v1') throw new Error('Golden-fixture manifest schemaVersion must be fb-golden-fixture-manifest-v1.');
   if (!Array.isArray(manifest.cases) || !manifest.cases.length) throw new Error('Golden-fixture manifest requires one or more cases.');
@@ -348,10 +382,10 @@ function validateGoldenFixtureManifest(manifest) {
 }
 
 function validateCuratedFailure(item, index) {
+  assertPrivacySafeValue(item, `Observed failure ${index}`);
   assertOnlyKeys(item, ['kind', 'evidenceRef'], `Observed failure ${index}`);
   if (!['build', 'brief', 'eval', 'environment'].includes(item.kind)) throw new Error(`Observed failure ${index} has an unsupported kind.`);
-  if (typeof item.evidenceRef !== 'string' || !item.evidenceRef.trim()) throw new Error(`Observed failure ${index} requires an evidenceRef.`);
-  return { kind: item.kind, evidenceRef: item.evidenceRef };
+  return { kind: item.kind, evidenceRef: assertEvidenceRef(item.evidenceRef, `Observed failure ${index} evidenceRef`) };
 }
 
 function diagnoseConfiguration(input = {}) {
@@ -360,13 +394,13 @@ function diagnoseConfiguration(input = {}) {
   const stageEvents = input.stageEvents.map(validateStageEvent);
   const evalEvidence = input.evalEvidence.map((item, index) => {
     assertOnlyKeys(item, ['result', 'evidenceRef'], `Eval evidence ${index}`);
-    if (!['passed', 'failed'].includes(item.result) || typeof item.evidenceRef !== 'string' || !item.evidenceRef.trim()) throw new Error(`Eval evidence ${index} must contain a result and evidenceRef.`);
-    return { result: item.result, evidenceRef: item.evidenceRef };
+    if (!['passed', 'failed'].includes(item.result)) throw new Error(`Eval evidence ${index} must contain a result and evidenceRef.`);
+    return { result: item.result, evidenceRef: assertEvidenceRef(item.evidenceRef, `Eval evidence ${index} evidenceRef`) };
   });
   assertOnlyKeys(input.candidateDiff, ['changedPaths', 'evidenceRefs'], 'Candidate diff');
   const candidateDiff = {
     changedPaths: uniqueStringArray(input.candidateDiff.changedPaths, 'Candidate diff changedPaths').map(value => assertRepositoryRelativePath(value, 'Candidate diff changedPath')),
-    evidenceRefs: uniqueStringArray(input.candidateDiff.evidenceRefs, 'Candidate diff evidenceRefs'),
+    evidenceRefs: uniqueStringArray(input.candidateDiff.evidenceRefs, 'Candidate diff evidenceRefs').map(value => assertEvidenceRef(value, 'Candidate diff evidenceRef')),
   };
   const observedFailures = input.observedFailures.map(validateCuratedFailure);
   const kinds = new Set(observedFailures.map(item => item.kind));
@@ -387,7 +421,7 @@ function diagnoseConfiguration(input = {}) {
   };
 }
 
-function ensureCandidateDirectory(common, candidateId) {
+function candidateStoreRoot(common) {
   const laneDirectory = path.join(common, 'fb-lane');
   const candidateDirectory = path.join(laneDirectory, 'candidates');
   for (const [directory, label] of [[laneDirectory, 'control-loop store directory'], [candidateDirectory, 'candidate store directory']]) {
@@ -395,54 +429,169 @@ function ensureCandidateDirectory(common, candidateId) {
     if (!fs.existsSync(directory)) fs.mkdirSync(directory, { mode: 0o700 });
     assertNotSymlink(directory, label);
   }
-  const target = path.join(candidateDirectory, candidateId);
-  assertNotSymlink(target, 'candidate directory');
-  if (fs.existsSync(target)) throw new Error(`Candidate ${candidateId} already exists and must remain isolated.`);
-  fs.mkdirSync(target, { mode: 0o700 });
-  if (fs.realpathSync(target) !== target) throw new Error('Unsafe candidate directory outside the Git common directory.');
+  if (fs.realpathSync(candidateDirectory) !== candidateDirectory) throw new Error('Unsafe candidate store directory outside the Git common directory.');
+  return candidateDirectory;
+}
+
+function safeCandidatePath(root, candidateId) {
+  const target = path.resolve(root, candidateId);
+  if (path.dirname(target) !== root) throw new Error('Unsafe candidate path.');
   return target;
 }
 
+function assertSafeCandidateDirectory(directory, label = 'candidate directory') {
+  assertNotSymlink(directory, label);
+  if (!fs.existsSync(directory) || !fs.lstatSync(directory).isDirectory() || fs.realpathSync(directory) !== directory) throw new Error(`Unsafe ${label}.`);
+  return directory;
+}
+
+function safeCandidateFile(directory, name) {
+  const file = path.join(directory, name);
+  if (path.dirname(file) !== directory) throw new Error('Unsafe candidate file path.');
+  assertNotSymlink(file, `candidate file ${name}`);
+  return file;
+}
+
+function writeCandidateFile(directory, name, content) {
+  assertSafeCandidateDirectory(directory);
+  const target = safeCandidateFile(directory, name);
+  const temporary = safeCandidateFile(directory, `.${name}.${process.pid}.${crypto.randomUUID()}.tmp`);
+  fs.writeFileSync(temporary, content, { mode: 0o600, flag: 'wx' });
+  assertSafeCandidateDirectory(directory);
+  assertNotSymlink(target, `candidate file ${name}`);
+  fs.renameSync(temporary, target);
+}
+
+function readCandidateFile(directory, name) {
+  assertSafeCandidateDirectory(directory);
+  const file = safeCandidateFile(directory, name);
+  if (!fs.existsSync(file) || !fs.lstatSync(file).isFile()) throw new Error(`Candidate record is incomplete: ${name} is missing.`);
+  return fs.readFileSync(file, 'utf8');
+}
+
+function parseCandidateJson(directory, name) {
+  try {
+    return JSON.parse(readCandidateFile(directory, name));
+  } catch (error) {
+    throw new Error(`Candidate record has invalid ${name}: ${error.message}`);
+  }
+}
+
+function recoverIncompleteCandidate(target) {
+  if (!fs.existsSync(target)) return false;
+  assertSafeCandidateDirectory(target);
+  const committed = path.join(target, 'record.commit');
+  if (fs.existsSync(committed)) throw new Error(`Candidate ${path.basename(target)} already exists and must remain isolated.`);
+  fs.rmSync(target, { recursive: true, force: true });
+  return true;
+}
+
 function validateCandidateResult(item, index) {
+  assertPrivacySafeValue(item, `Candidate result ${index}`);
   assertOnlyKeys(item, ['caseId', 'result', 'evidenceRefs'], `Candidate result ${index}`);
   return {
     caseId: assertSafeIdentifier(item.caseId, 'candidate result case ID'),
     result: ['pass', 'fail'].includes(item.result) ? item.result : (() => { throw new Error(`Candidate result ${index} must be pass or fail.`); })(),
-    evidenceRefs: uniqueStringArray(item.evidenceRefs, `Candidate result ${index} evidenceRefs`),
+    evidenceRefs: uniqueStringArray(item.evidenceRefs, `Candidate result ${index} evidenceRefs`).map(value => assertEvidenceRef(value, `Candidate result ${index} evidenceRef`)),
   };
 }
 
 function writeCandidateStore(cwd = process.cwd(), input = {}) {
-  assertOnlyKeys(input, ['candidateId', 'profileId', 'proposedConfig', 'baselineHash', 'candidateHash', 'fixtureManifest', 'results', 'promotionRecommendation'], 'Candidate store input');
+  assertPrivacySafeValue(input, 'Candidate store input');
+  assertOnlyKeys(input, ['candidateId', 'profileManifest', 'profileId', 'baselineConfig', 'proposedConfig', 'baselineHash', 'candidateHash', 'fixtureManifest', 'results', 'promotionRecommendation'], 'Candidate store input');
   const candidateId = assertSafeIdentifier(input.candidateId, 'candidate ID');
   const profileId = assertSafeIdentifier(input.profileId, 'profile ID');
+  const profileManifest = validateProfileManifest(input.profileManifest);
+  const profile = profileManifest.profiles.find(item => item.id === profileId);
+  if (!profile) throw new Error(`Candidate profile ${profileId} is not present in the profile manifest.`);
+  assertPlainObject(input.baselineConfig, 'Baseline config');
   assertPlainObject(input.proposedConfig, 'Proposed config');
+  assertPrivacySafeValue(input.baselineConfig, 'Baseline config');
+  assertPrivacySafeValue(input.proposedConfig, 'Proposed config');
+  const baselineContent = serializeJson(input.baselineConfig);
+  const proposedContent = serializeJson(input.proposedConfig);
+  const baselineHash = hashBytes(baselineContent);
+  const candidateHash = hashBytes(proposedContent);
+  if (assertSha256(input.baselineHash, 'Candidate baselineHash') !== baselineHash || profile.baselineHash !== baselineHash) throw new Error('Candidate baseline hash must match the exact profile-manifest baseline configuration.');
+  if (assertSha256(input.candidateHash, 'Candidate candidateHash') !== candidateHash) throw new Error('Candidate hash must match the exact proposed configuration bytes.');
   const fixtureManifest = validateGoldenFixtureManifest(input.fixtureManifest);
+  const fixtureContent = `${JSON.stringify(fixtureManifest, null, 2)}\n`;
   if (!Array.isArray(input.results) || input.results.length > fixtureManifest.cases.length) throw new Error('Candidate results must be bounded by the frozen golden case set.');
   const results = input.results.map(validateCandidateResult);
   if (new Set(results.map(item => item.caseId)).size !== results.length) throw new Error('Candidate results must not repeat a case.');
   if (results.some(item => !fixtureManifest.cases.some(fixture => fixture.id === item.caseId))) throw new Error('Candidate results must use only cases in the frozen golden fixture set.');
   if (!['promote', 'hold', 'reject'].includes(input.promotionRecommendation)) throw new Error('Candidate promotionRecommendation must be promote, hold, or reject.');
-  const directory = ensureCandidateDirectory(gitCommonDir(cwd), candidateId);
   const record = {
     candidateId,
     profileId,
-    baselineHash: assertSha256(input.baselineHash, 'Candidate baselineHash'),
-    candidateHash: assertSha256(input.candidateHash, 'Candidate candidateHash'),
-    fixtureManifestHash: manifestHash(fixtureManifest),
+    baselineHash,
+    candidateHash,
+    fixtureManifestHash: hashBytes(fixtureContent),
     results,
     promotionRecommendation: input.promotionRecommendation,
   };
-  fs.writeFileSync(path.join(directory, 'proposed-config.json'), `${JSON.stringify(input.proposedConfig, null, 2)}\n`, { mode: 0o600, flag: 'wx' });
-  fs.writeFileSync(path.join(directory, 'candidate.json'), `${JSON.stringify(record, null, 2)}\n`, { mode: 0o600, flag: 'wx' });
-  return { directory, ...record };
+  const recordContent = `${JSON.stringify(record, null, 2)}\n`;
+  const common = gitCommonDir(cwd);
+  const root = candidateStoreRoot(common);
+  const directory = safeCandidatePath(root, candidateId);
+  const lockPath = path.join(root, `.${candidateId}.lock`);
+  assertNotSymlink(lockPath, 'candidate store lock');
+  let lock;
+  let recoveredIncompleteStore = false;
+  try {
+    lock = fs.openSync(lockPath, 'wx', 0o600);
+    if (fs.realpathSync(root) !== root) throw new Error('Unsafe candidate store directory outside the Git common directory.');
+    recoveredIncompleteStore = recoverIncompleteCandidate(directory);
+    fs.mkdirSync(directory, { mode: 0o700 });
+    assertSafeCandidateDirectory(directory);
+    writeCandidateFile(directory, 'baseline-config.json', baselineContent);
+    writeCandidateFile(directory, 'proposed-config.json', proposedContent);
+    writeCandidateFile(directory, 'fixture-manifest.json', fixtureContent);
+    writeCandidateFile(directory, 'candidate.json', recordContent);
+    const commit = `${JSON.stringify({ recordHash: hashBytes(recordContent), baselineHash, candidateHash, fixtureManifestHash: record.fixtureManifestHash }, null, 2)}\n`;
+    writeCandidateFile(directory, 'record.commit', commit);
+  } finally {
+    if (lock !== undefined) fs.closeSync(lock);
+    if (fs.existsSync(lockPath) && !fs.lstatSync(lockPath).isSymbolicLink()) fs.unlinkSync(lockPath);
+  }
+  return { directory, ...record, fixtureManifest, recoveredIncompleteStore };
 }
 
-function validateBenchmarkRun(run, manifest, expectedHash, label) {
-  assertOnlyKeys(run, ['fixtureManifestHash', 'settings', 'modelRef', 'limits', 'graderContract', 'results'], `${label} benchmark run`);
+function readCandidateStore(cwd = process.cwd(), candidateId) {
+  const safeId = assertSafeIdentifier(candidateId, 'candidate ID');
+  const root = candidateStoreRoot(gitCommonDir(cwd));
+  const directory = safeCandidatePath(root, safeId);
+  assertSafeCandidateDirectory(directory);
+  const baselineContent = readCandidateFile(directory, 'baseline-config.json');
+  const proposedContent = readCandidateFile(directory, 'proposed-config.json');
+  const fixtureContent = readCandidateFile(directory, 'fixture-manifest.json');
+  const recordContent = readCandidateFile(directory, 'candidate.json');
+  const record = parseCandidateJson(directory, 'candidate.json');
+  const commit = parseCandidateJson(directory, 'record.commit');
+  assertOnlyKeys(record, ['candidateId', 'profileId', 'baselineHash', 'candidateHash', 'fixtureManifestHash', 'results', 'promotionRecommendation'], 'Candidate record');
+  if (record.candidateId !== safeId || hashBytes(baselineContent) !== assertSha256(record.baselineHash, 'Candidate record baselineHash') || hashBytes(proposedContent) !== assertSha256(record.candidateHash, 'Candidate record candidateHash') || hashBytes(fixtureContent) !== assertSha256(record.fixtureManifestHash, 'Candidate record fixtureManifestHash')) throw new Error('Candidate record content hashes do not match its immutable stored files.');
+  assertOnlyKeys(commit, ['recordHash', 'baselineHash', 'candidateHash', 'fixtureManifestHash'], 'Candidate commit marker');
+  if (commit.recordHash !== hashBytes(recordContent) || commit.baselineHash !== record.baselineHash || commit.candidateHash !== record.candidateHash || commit.fixtureManifestHash !== record.fixtureManifestHash) throw new Error('Candidate record commit marker does not match its complete stored record.');
+  const fixtureManifest = validateGoldenFixtureManifest(JSON.parse(fixtureContent));
+  return { directory, ...record, fixtureManifest };
+}
+
+function validateBenchmarkRun(run, candidateRecord, label, role) {
+  const manifest = candidateRecord.fixtureManifest;
+  const expectedHash = candidateRecord.fixtureManifestHash;
+  assertOnlyKeys(run, ['runId', 'candidateId', 'profileId', 'configHash', 'fixtureManifestHash', 'settings', 'modelRef', 'limits', 'graderContract', 'results'], `${label} benchmark run`);
+  const expectedConfigHash = role === 'baseline' ? candidateRecord.baselineHash : candidateRecord.candidateHash;
+  if (assertSafeIdentifier(run.runId, `${label} benchmark run ID`) !== run.runId || run.candidateId !== candidateRecord.candidateId || run.profileId !== candidateRecord.profileId || assertSha256(run.configHash, `${label} benchmark configHash`) !== expectedConfigHash) throw new Error(`${label} benchmark run identity does not match the stored candidate configuration.`);
   if (run.fixtureManifestHash !== expectedHash) throw new Error(`${label} benchmark run does not use the frozen fixture manifest.`);
   assertPlainObject(run.settings, `${label} benchmark settings`);
   assertPlainObject(run.limits, `${label} benchmark limits`);
+  assertPrivacySafeValue(run.settings, `${label} benchmark settings`);
+  assertOnlyKeys(run.limits, ['maxTokens', 'maxOutputTokens', 'maxDurationMs', 'maxCost', 'maxCases'], `${label} benchmark limits`);
+  for (const value of Object.values(run.limits)) {
+    if (!(typeof value === 'number' && Number.isFinite(value) && value >= 0)) throw new Error(`${label} benchmark limits must be authoritative non-negative numbers.`);
+  }
+  assertPrivacySafeValue(run.modelRef, `${label} benchmark modelRef`);
+  assertPrivacySafeValue(run.graderContract, `${label} benchmark graderContract`);
   if (typeof run.modelRef !== 'string' || !run.modelRef.trim() || typeof run.graderContract !== 'string' || !run.graderContract.trim()) throw new Error(`${label} benchmark run requires a modelRef and graderContract.`);
   if (!Array.isArray(run.results)) throw new Error(`${label} benchmark run requires results.`);
   const byId = new Map();
@@ -453,20 +602,22 @@ function validateBenchmarkRun(run, manifest, expectedHash, label) {
     assertPlainObject(result.criteria, `${label} benchmark result criteria`);
     const criteriaIds = Object.keys(result.criteria);
     if (criteriaIds.length !== fixture.criteriaIds.length || criteriaIds.some(id => !fixture.criteriaIds.includes(id)) || Object.values(result.criteria).some(value => !['pass', 'fail'].includes(value))) throw new Error(`${label} benchmark result criteria must exactly match the frozen case contract.`);
-    byId.set(result.caseId, { caseId: result.caseId, criteria: { ...result.criteria }, observed: uniqueStringArray(result.observed, `${label} benchmark result observed`, true), evidenceRefs: uniqueStringArray(result.evidenceRefs, `${label} benchmark result evidenceRefs`) });
+    byId.set(result.caseId, { caseId: result.caseId, criteria: { ...result.criteria }, observed: uniqueStringArray(result.observed, `${label} benchmark result observed`, true), evidenceRefs: uniqueStringArray(result.evidenceRefs, `${label} benchmark result evidenceRefs`).map(value => assertEvidenceRef(value, `${label} benchmark result evidenceRef`)) });
   }
   if (byId.size !== manifest.cases.length) throw new Error(`${label} benchmark run is missing frozen cases or selectively reran the fixture set.`);
-  return { fixtureManifestHash: run.fixtureManifestHash, settings: { ...run.settings }, modelRef: run.modelRef, limits: { ...run.limits }, graderContract: run.graderContract, results: manifest.cases.map(item => byId.get(item.id)) };
+  return { runId: run.runId, candidateId: run.candidateId, profileId: run.profileId, configHash: run.configHash, fixtureManifestHash: run.fixtureManifestHash, settings: { ...run.settings }, modelRef: run.modelRef, limits: { ...run.limits }, graderContract: run.graderContract, results: manifest.cases.map(item => byId.get(item.id)) };
 }
 
-function compareFrozenBenchmark(input = {}) {
-  assertOnlyKeys(input, ['fixtureManifest', 'baseline', 'candidate'], 'Frozen benchmark comparison input');
-  const fixtureManifest = validateGoldenFixtureManifest(input.fixtureManifest);
-  const frozenFixtureManifestHash = manifestHash(fixtureManifest);
-  const baseline = validateBenchmarkRun(input.baseline, fixtureManifest, frozenFixtureManifestHash, 'Baseline');
-  const candidate = validateBenchmarkRun(input.candidate, fixtureManifest, frozenFixtureManifestHash, 'Candidate');
+function compareFrozenBenchmark(cwd = process.cwd(), input = {}) {
+  assertOnlyKeys(input, ['candidateId', 'baseline', 'candidate'], 'Frozen benchmark comparison input');
+  const candidateRecord = readCandidateStore(cwd, input.candidateId);
+  const fixtureManifest = candidateRecord.fixtureManifest;
+  const frozenFixtureManifestHash = candidateRecord.fixtureManifestHash;
+  const baseline = validateBenchmarkRun(input.baseline, candidateRecord, 'Baseline', 'baseline');
+  const candidate = validateBenchmarkRun(input.candidate, candidateRecord, 'Candidate', 'candidate');
+  if (baseline.runId === candidate.runId) throw new Error('Baseline and candidate benchmark runs require distinct stable run identities.');
   for (const field of ['settings', 'modelRef', 'limits', 'graderContract']) {
-    if (!require('util').isDeepStrictEqual(baseline[field], candidate[field])) throw new Error(`Baseline and candidate benchmark ${field} must be identical.`);
+    if (!isDeepStrictEqual(baseline[field], candidate[field])) throw new Error(`Baseline and candidate benchmark ${field} must be identical.`);
   }
   const regressions = [];
   const improvements = [];
@@ -481,7 +632,9 @@ function compareFrozenBenchmark(input = {}) {
       if (candidateResult.observed.includes(forbidden)) regressions.push({ caseId: fixture.id, forbidden, reason: `must-not-happen behavior ${forbidden} was observed.` });
     }
   }
-  return { frozenFixtureManifestHash, baseline, candidate, regressions, verdict: regressions.length ? 'baseline' : improvements.length ? 'candidate' : 'tie' };
+  const verdict = regressions.length ? 'baseline' : improvements.length ? 'candidate' : 'tie';
+  const benchmarkResultHash = hashBytes(JSON.stringify({ candidateId: candidateRecord.candidateId, frozenFixtureManifestHash, baseline, candidate, regressions, verdict }));
+  return { candidateId: candidateRecord.candidateId, frozenFixtureManifestHash, benchmarkResultHash, baseline, candidate, regressions, verdict };
 }
 
 function assessCandidateProgress(input = {}) {
@@ -492,28 +645,50 @@ function assessCandidateProgress(input = {}) {
   };
   const candidate = validateCandidate(input.candidate, 'Candidate');
   const previousCandidate = input.previousCandidate === undefined ? null : validateCandidate(input.previousCandidate, 'Previous candidate');
-  assertOnlyKeys(input.repair, ['attempt', 'maxAttempts', 'budgetRemaining', 'timedOut', 'userDecisionChanged'], 'Repair state');
+  assertPrivacySafeValue(input.repair, 'Repair state');
+  assertOnlyKeys(input.repair, ['mode', 'changedPaths', 'state', 'event'], 'Repair state');
   const repair = input.repair;
-  if (!Number.isInteger(repair.attempt) || repair.attempt < 0 || !Number.isInteger(repair.maxAttempts) || repair.maxAttempts < 1 || typeof repair.budgetRemaining !== 'number' || !Number.isFinite(repair.budgetRemaining) || repair.budgetRemaining < 0 || (repair.timedOut !== undefined && typeof repair.timedOut !== 'boolean') || (repair.userDecisionChanged !== undefined && typeof repair.userDecisionChanged !== 'boolean')) throw new Error('Repair state must use authoritative existing limits and budget values.');
+  assertPlainObject(repair.state, 'Repair state state');
+  assertPlainObject(repair.event, 'Repair state event');
+  if (!['Quick BFM', 'Full BFM'].includes(repair.mode)) throw new Error('Repair state must declare the trusted Quick BFM or Full BFM policy mode.');
   let productBoundary = '';
-  if (repair.userDecisionChanged) productBoundary = 'Product boundary: the user decision changed; do not continue repair.';
-  else if (repair.timedOut) productBoundary = 'Product boundary: repair timed out; choose whether to retry with new evidence.';
-  else if (repair.budgetRemaining <= 0) productBoundary = 'Product boundary: the supplied repair budget is exhausted.';
-  else if (repair.attempt >= repair.maxAttempts) productBoundary = 'Product boundary: the supplied repair attempt limit is exhausted.';
-  else if (previousCandidate && previousCandidate.candidateHash === candidate.candidateHash && require('util').isDeepStrictEqual(previousCandidate.evidenceRefs, candidate.evidenceRefs)) productBoundary = 'Product boundary: repeated candidate has no material configuration or evidence change.';
+  const materialProgress = !(previousCandidate && previousCandidate.candidateHash === candidate.candidateHash && isDeepStrictEqual(previousCandidate.evidenceRefs, candidate.evidenceRefs));
+  if (!materialProgress) productBoundary = 'Product boundary: repeated candidate has no material configuration or evidence change.';
+  else if (repair.mode === 'Quick BFM') {
+    if (!Array.isArray(repair.changedPaths) || !repair.changedPaths.length || quickPolicyForPaths(repair.changedPaths).mode !== 'Quick BFM') throw new Error('Quick repair requires paths governed by the existing Quick BFM policy.');
+    const budget = evaluateRunBudget({ ...repair.state, changedPaths: repair.changedPaths }, { ...repair.event, type: 'repair', materialProgress });
+    if (budget.blocked) productBoundary = `Product boundary: ${budget.reason}`;
+  } else {
+    if (repair.changedPaths !== undefined) throw new Error('Full repair policy does not accept caller-controlled Quick-path policy values.');
+    if (!Number.isInteger(repair.state.repairLoops) || repair.state.repairLoops < 0) throw new Error('Full repair requires authoritative repair-loop state.');
+    if (repair.state.deadlineAt !== undefined && (!Number.isFinite(repair.state.deadlineAt) || !Number.isFinite(repair.event.now))) throw new Error('Full repair deadline state requires authoritative numeric deadlineAt and now values.');
+    const timedOut = repair.state.deadlineAt !== undefined && repair.event.now >= repair.state.deadlineAt;
+    if (timedOut || repair.state.repairLoops >= 2) productBoundary = timedOut
+      ? 'Product boundary: Full repair deadline is exhausted; choose the next execution slice.'
+      : 'Product boundary: the trusted Full BFM repair budget is exhausted.';
+  }
   return productBoundary ? { status: 'stopped', candidateId: candidate.candidateId, productBoundary } : { status: 'progressed', candidateId: candidate.candidateId };
 }
 
 function validatePromotion(input = {}) {
+  assertPrivacySafeValue(input, 'Promotion validation input');
   assertOnlyKeys(input, ['candidate', 'benchmark', 'approval'], 'Promotion validation input');
-  assertOnlyKeys(input.candidate, ['candidateId', 'benchmarkEvidenceRef', 'promotionRecommendation'], 'Promotion candidate');
-  assertOnlyKeys(input.benchmark, ['candidateId', 'evidenceRef', 'verdict'], 'Promotion benchmark');
+  assertOnlyKeys(input.candidate, ['candidateId', 'benchmarkEvidenceRef', 'fixtureManifestHash', 'benchmarkResultHash', 'promotionRecommendation'], 'Promotion candidate');
+  assertOnlyKeys(input.benchmark, ['candidateId', 'evidenceRef', 'fixtureManifestHash', 'resultHash', 'verdict'], 'Promotion benchmark');
   if (!input.approval) throw new Error('Promotion requires explicit Product approval tied to the exact candidate and benchmark evidence.');
-  assertOnlyKeys(input.approval, ['decision', 'candidateId', 'benchmarkEvidenceRef', 'approvedBy'], 'Product approval');
+  assertOnlyKeys(input.approval, ['decision', 'candidateId', 'benchmarkEvidenceRef', 'fixtureManifestHash', 'benchmarkResultHash', 'approvalRef', 'approvedBy'], 'Product approval');
   const candidateId = assertSafeIdentifier(input.candidate.candidateId, 'promotion candidate ID');
+  const candidateEvidence = assertEvidenceRef(input.candidate.benchmarkEvidenceRef, 'Promotion candidate benchmarkEvidenceRef');
+  const benchmarkEvidence = assertEvidenceRef(input.benchmark.evidenceRef, 'Promotion benchmark evidenceRef');
+  const approvalEvidence = assertEvidenceRef(input.approval.benchmarkEvidenceRef, 'Product approval benchmarkEvidenceRef');
+  const approvalRef = assertEvidenceRef(input.approval.approvalRef, 'Product approval approvalRef');
+  const fixtureManifestHash = assertSha256(input.candidate.fixtureManifestHash, 'Promotion candidate fixtureManifestHash');
+  const benchmarkResultHash = assertSha256(input.candidate.benchmarkResultHash, 'Promotion candidate benchmarkResultHash');
+  if (!approvalRef) throw new Error('Promotion requires a Product approval reference.');
+  if (assertSha256(input.benchmark.fixtureManifestHash, 'Promotion benchmark fixtureManifestHash') !== fixtureManifestHash || assertSha256(input.benchmark.resultHash, 'Promotion benchmark resultHash') !== benchmarkResultHash || assertSha256(input.approval.fixtureManifestHash, 'Product approval fixtureManifestHash') !== fixtureManifestHash || assertSha256(input.approval.benchmarkResultHash, 'Product approval benchmarkResultHash') !== benchmarkResultHash) throw new Error('Promotion approval must match the exact frozen benchmark manifest and result.');
   if (input.candidate.promotionRecommendation !== 'promote' || input.benchmark.verdict !== 'candidate' || input.approval.decision !== 'approve' || input.approval.approvedBy !== 'Product') throw new Error('Promotion requires an exact Product approval for a promotable candidate benchmark.');
-  if (input.benchmark.candidateId !== candidateId || input.approval.candidateId !== candidateId || input.candidate.benchmarkEvidenceRef !== input.benchmark.evidenceRef || input.approval.benchmarkEvidenceRef !== input.benchmark.evidenceRef) throw new Error('Promotion approval must match the exact candidate and benchmark evidence.');
-  return { valid: true, promotion: 'product_approved', candidateId, benchmarkEvidenceRef: input.benchmark.evidenceRef };
+  if (input.benchmark.candidateId !== candidateId || input.approval.candidateId !== candidateId || candidateEvidence !== benchmarkEvidence || approvalEvidence !== benchmarkEvidence) throw new Error('Promotion approval must match the exact candidate and benchmark evidence.');
+  return { valid: true, promotion: 'product_approved', candidateId, benchmarkEvidenceRef: benchmarkEvidence };
 }
 
 function stageEventSummary(cwd = process.cwd()) {
@@ -569,6 +744,7 @@ module.exports = {
   validateGoldenFixtureManifest,
   diagnoseConfiguration,
   writeCandidateStore,
+  readCandidateStore,
   compareFrozenBenchmark,
   assessCandidateProgress,
   validatePromotion,
