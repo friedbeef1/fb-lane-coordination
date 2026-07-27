@@ -72,9 +72,10 @@ FB `0.5.0-beta+codex.20260726130257` on
   This replacement supersedes invalid result
   `fef75ab0e470a0007f74210c34cea94aa1e936cd1c0818ee26c97b13931d3915`
   from `ebe22ed`: review found that unresolved diagnosis evidence was retained
-  but did not actively hold persistent Level 3. The replacement binds that
-  history and does not claim the bundle proves the absence of exploratory runs
-  or tuning.
+  but did not actively hold persistent Level 3. Bundle validation binds the
+  exact superseded-result identity, invalidation reason, replacement-run
+  declaration, and disclosed development history. It does not prove historical
+  execution count, the absence of exploratory runs, or the absence of tuning.
 - Changelog wording: approved by James in the originating conversation on
   2026-07-26.
 - Independent whole-branch review: specification and quality passed with zero

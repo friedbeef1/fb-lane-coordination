@@ -206,6 +206,42 @@ test('replacement discloses the invalidated evidence and development-history bou
   assert.match(bundle.runDeclaration.limitation, /cannot independently prove/i);
 });
 
+test('bundle binds the exact superseded fast-decay result identity and invalidation reason', () => {
+  const result = candidate.runExperiment({ truthPath, settingsPath });
+  const mutations = [
+    bundle => { bundle.supersedesFastDecay.resultSha256 = '0'.repeat(64); },
+    bundle => { bundle.supersedesFastDecay.sourceCommit = '0'.repeat(40); },
+    bundle => { bundle.supersedesFastDecay.reason = 'Changed invalidation reason.'; },
+    bundle => { delete bundle.supersedesFastDecay.reason; },
+    bundle => { bundle.supersedesFastDecay.unexpected = true; },
+  ];
+  for (const mutate of mutations) {
+    const changed = structuredClone(result);
+    mutate(changed);
+    assert.throws(() => candidate.validateBundle(changed),
+      /superseded fast-decay evidence/i);
+  }
+});
+
+test('bundle binds the exact replacement declaration and development history', () => {
+  const result = candidate.runExperiment({ truthPath, settingsPath });
+  const mutations = [
+    bundle => { bundle.runDeclaration.recordedRun = 'Changed run declaration.'; },
+    bundle => { bundle.runDeclaration.selectiveRerunsAllowed = true; },
+    bundle => { bundle.runDeclaration.postResultTuningPerformed = true; },
+    bundle => { bundle.runDeclaration.developmentHistory = 'Changed history.'; },
+    bundle => { bundle.runDeclaration.limitation = 'Changed limitation.'; },
+    bundle => { delete bundle.runDeclaration.developmentHistory; },
+    bundle => { bundle.runDeclaration.unexpected = true; },
+  ];
+  for (const mutate of mutations) {
+    const changed = structuredClone(result);
+    mutate(changed);
+    assert.throws(() => candidate.validateBundle(changed),
+      /replacement run declaration/i);
+  }
+});
+
 test('rejected evidence is linked while canonical guidance and skills remain unchanged', () => {
   for (const relative of [
     'docs/benchmarks/control-loop/fast-decay.md',

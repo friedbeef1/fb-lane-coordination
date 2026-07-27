@@ -15,6 +15,18 @@ const V1_ARMS = ARMS.slice(0, 3);
 const CALLS = ['process', 'focused', 'route', 'comparison', 'qa', 'safety', 'diagnosis', 'repair', 'humanDecision'];
 const FORBIDDEN_KEY = /^(?:secret|credential|password|token|privateReasoning|transcript|rawPrompt|chainOfThought|hidden)$/i;
 const CREDENTIAL = /(?:\b(?:token|password|secret|api[_-]?key)\s*[:=]\s*\S{8,}|\bsk-[A-Za-z0-9_-]{8,})/i;
+const EXPECTED_SUPERSEDED_FAST_DECAY = {
+  resultSha256: 'fef75ab0e470a0007f74210c34cea94aa1e936cd1c0818ee26c97b13931d3915',
+  sourceCommit: 'ebe22ed402cff2632d836be39e7ea69b5f30a42f',
+  reason: 'The superseded candidate retained unresolved diagnosis evidence in its window but did not make that evidence hold persistent Level 3.',
+};
+const EXPECTED_RUN_DECLARATION = {
+  recordedRun: 'one replacement four-arm run after correcting the unresolved-evidence floor',
+  selectiveRerunsAllowed: false,
+  postResultTuningPerformed: false,
+  developmentHistory: 'A pre-authoritative probe exposed that accepted-repair evidence was not clearing correctly and was repaired before the first evidence write. The first written result was then invalidated in review because unresolved evidence did not actively hold Level 3.',
+  limitation: 'The result bundle cannot independently prove historical execution count, absence of exploratory runs, or that thresholds were not tuned.',
+};
 
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -805,13 +817,7 @@ function runExperiment(options = {}) {
     },
     supersedes: settings.supersedes,
     supersedesFastDecay: settings.supersedesFastDecay,
-    runDeclaration: {
-      recordedRun: 'one replacement four-arm run after correcting the unresolved-evidence floor',
-      selectiveRerunsAllowed: false,
-      postResultTuningPerformed: false,
-      developmentHistory: 'A pre-authoritative probe exposed that accepted-repair evidence was not clearing correctly and was repaired before the first evidence write. The first written result was then invalidated in review because unresolved evidence did not actively hold Level 3.',
-      limitation: 'The result bundle cannot independently prove historical execution count, absence of exploratory runs, or that thresholds were not tuned.',
-    },
+    runDeclaration: structuredClone(EXPECTED_RUN_DECLARATION),
     graderEvidence: {
       executableContract: graderExecutableContract(),
       limitation: 'This source hash binds the executable grader used here; it does not prove external preregistration or production validity.',
@@ -882,6 +888,12 @@ function expectedRaw(truth, settings) {
 function validateBundle(bundle, sources = {}) {
   walkPrivacy(bundle);
   assertFinite(bundle);
+  if (canonical(bundle.supersedesFastDecay) !== canonical(EXPECTED_SUPERSEDED_FAST_DECAY)) {
+    throw new Error('Superseded fast-decay evidence does not match this evidence version.');
+  }
+  if (canonical(bundle.runDeclaration) !== canonical(EXPECTED_RUN_DECLARATION)) {
+    throw new Error('Replacement run declaration does not match this evidence version.');
+  }
   const truthSource = sources.truthSource || readJson(DEFAULT_TRUTH);
   const truth = expandTruth(truthSource);
   const settings = sources.settings || readJson(DEFAULT_SETTINGS);
