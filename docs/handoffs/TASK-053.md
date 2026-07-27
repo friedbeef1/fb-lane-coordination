@@ -24,5 +24,10 @@ record_model: normalized-v1
 
 ## Current state
 
-The complete benchmark bundle is frozen. Counted execution is pending.
+The first nine-run execution is excluded because the hidden environment input
+used `accessAvailable` while the public contract did not name that field. It
+measured schema guessing rather than blocker reasoning.
 
+Version 2 makes `accessAvailable: false` public to every arm and freezes a new
+bundle before any replacement run. All three arms will receive fresh fixtures;
+no version-1 candidate receives repair credit.

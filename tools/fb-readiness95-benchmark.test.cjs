@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
@@ -15,6 +16,17 @@ const promptsPath = path.join(
   'readiness95-prompts.json',
 );
 const grader = require('./fb-readiness95-grader.cjs');
+
+function hashPublicFacts(files) {
+  const hash = crypto.createHash('sha256');
+  for (const relativePath of files) {
+    hash.update(relativePath);
+    hash.update('\0');
+    hash.update(fs.readFileSync(path.join(fixture, relativePath)));
+    hash.update('\0');
+  }
+  return hash.digest('hex');
+}
 
 test('freezes 20 deliverable criteria and 8 independent blocker gates', () => {
   const contract = JSON.parse(
@@ -47,8 +59,21 @@ test('arm prompts preserve equivalent facts while graph alone receives a compile
   assert.equal(prompts.arms.vanilla.graphPacket, null);
   assert.equal(prompts.arms.broadFb.graphPacket, null);
   assert(prompts.arms.preventiveGraphFb.graphPacket);
+  assert.equal(
+    prompts.arms.vanilla.publicFactHash,
+    hashPublicFacts(prompts.publicFactFiles),
+  );
   assert.equal(prompts.arms.vanilla.publicFactHash, prompts.arms.broadFb.publicFactHash);
   assert.equal(prompts.arms.vanilla.publicFactHash, prompts.arms.preventiveGraphFb.publicFactHash);
+});
+
+test('public contract names every hidden input field used by blocker grading', () => {
+  const tech = fs.readFileSync(path.join(fixture, 'docs', 'tech.md'), 'utf8');
+  assert.match(
+    tech,
+    /`accessAvailable: false`/,
+    'environment blocking must not depend on guessing a hidden field name',
+  );
 });
 
 test('grader separates readiness from blockers and requires both gates', () => {

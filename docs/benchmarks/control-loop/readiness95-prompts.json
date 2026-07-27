@@ -11,7 +11,7 @@
   "arms": {
     "vanilla": {
       "fixture": "fb-readiness95-holdout",
-      "publicFactHash": "551754826b6408d292c6c18aab779bb5094f75cc50f95ab3577bbd523de0af0e",
+      "publicFactHash": "7e41c15c3e14667aeb236744880a89262c3999bfd0401d3154c49dfa56be30c1",
       "firstCandidateOnly": true,
       "repairAllowed": false,
       "outsideAccessAllowed": false,
@@ -20,7 +20,7 @@
     },
     "broadFb": {
       "fixture": "fb-readiness95-holdout",
-      "publicFactHash": "551754826b6408d292c6c18aab779bb5094f75cc50f95ab3577bbd523de0af0e",
+      "publicFactHash": "7e41c15c3e14667aeb236744880a89262c3999bfd0401d3154c49dfa56be30c1",
       "firstCandidateOnly": true,
       "repairAllowed": false,
       "outsideAccessAllowed": false,
@@ -29,7 +29,7 @@
     },
     "preventiveGraphFb": {
       "fixture": "fb-readiness95-holdout",
-      "publicFactHash": "551754826b6408d292c6c18aab779bb5094f75cc50f95ab3577bbd523de0af0e",
+      "publicFactHash": "7e41c15c3e14667aeb236744880a89262c3999bfd0401d3154c49dfa56be30c1",
       "firstCandidateOnly": true,
       "repairAllowed": false,
       "outsideAccessAllowed": false,
