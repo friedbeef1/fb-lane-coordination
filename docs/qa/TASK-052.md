@@ -1,7 +1,7 @@
 ---
 type: fb-qa
 task: TASK-052
-status: in-progress
+status: staging-qa
 ---
 
 # TASK-052 QA

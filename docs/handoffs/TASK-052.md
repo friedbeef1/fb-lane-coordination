@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-052
 lane: fb-product
-status: in-progress
+status: staging-qa
 fb_harness: v3
 record_model: normalized-v1
 ---
@@ -44,9 +44,9 @@ record_model: normalized-v1
   24/24 intentional blockers correct.
 - From the graph baseline, 91% requires 44/67 avoidable failures prevented
   (65.7%); 99% requires 65/67 (97.0%).
-- No preventive accuracy was assumed. The autonomous holdout that supplies
-  observed prevention evidence recorded Vanilla 9/13 median, broad FB 9/13
-  median, and preventive graph FB 13/13 median across three counted runs.
+- No preventive accuracy was assumed. The autonomous holdout recorded
+  exploratory scores of Vanilla 9/13 median, broad FB 9/13 median, and
+  preventive graph FB 13/13 median across three counted runs.
 - Preventive graph ranged from 12/13 to 13/13, but neither milestone is
   demonstrated: one run missed the independent privacy blocker gate and the
   holdout was not frozen into a reproducible bundle before execution.

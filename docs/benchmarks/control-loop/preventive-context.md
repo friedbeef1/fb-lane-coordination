@@ -31,10 +31,11 @@ The sensitivity curve is mathematical. It does not prove graph effectiveness. Au
 
 ## Autonomous composite holdout
 
-The counted holdout gave each arm the same composite Features, Bugs, Tech, and
-Design project and freedom to choose its own agent topology. The initial
-shakedown was excluded. Every counted run chose one inline agent, maximum
-concurrency one, and one integration pass.
+The run notes reported that each arm received a composite Features, Bugs, Tech,
+and Design project and freedom to choose its own agent topology. The initial
+shakedown was excluded. They also reported one inline agent, maximum
+concurrency one, and one integration pass for every counted run. These
+characteristics were not captured in a pre-frozen auditable run bundle.
 
 | Arm | Counted hidden results | Median readiness | Range |
 |---|---|---:|---:|
