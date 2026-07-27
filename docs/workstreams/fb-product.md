@@ -3,6 +3,16 @@
 Last Updated: 2026-07-26
 Lane: FB-Product
 
+## TASK-051 — Context and repair efficiency
+
+- Status: In Progress.
+- Outcome target: at least 10% lower raw modeled and observed tokens and elapsed
+  time than no-FB work without readiness, control, or safety regression.
+- Adoption boundary: active canonical/plugin behavior remains unchanged unless
+  both frozen modeled and real-Codex gates pass.
+- Links: [Handoff](../handoffs/TASK-051.md) and
+  [plan](../superpowers/plans/2026-07-27-fb-context-repair-efficiency.md).
+
 ## TASK-050 — Generic agent control loop and FB 0.5.0-beta
 
 - Status: Ready to ship.

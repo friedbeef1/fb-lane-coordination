@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-051 | In Progress | FB-Product / BFM + FB-Tech | Context Efficiency | Compile delta graph context, consolidate repair evidence, and adopt only after material raw-token and elapsed-time savings | `tools/fb-project-graph*`, control-loop/efficiency runtime, focused benchmark/evidence, conditional canonical/package guidance | [Handoff](docs/handoffs/TASK-051.md); [Plan](docs/superpowers/plans/2026-07-27-fb-context-repair-efficiency.md); branch `codex/fb-context-repair-efficiency` |
 | TASK-050 | Staging QA | FB-Product / BFM + FB-Tech | Agent Control Loop | Add generic rules-first routing, clone-local stage events, baseline comparison, layered gates, and isolated golden-fixture configuration evolution for FB 0.5 | New control-loop runtime/tests, session/eval integration, canonical/package harness and skills, TASK-050 records; no publication or live deployment | Graduated 864-execution benchmark and independent methodology review passed; Ready to ship; prior release checkpoint was not rerun; Push Live remains separate |
 | TASK-049 | Done | FB-Product / BFM | Plugin Navigation | Integrate graph-directed targeted reading into the bundled Codex plugin, support repository-specific task IDs, and release `0.4.0-beta+codex.20260726101229` | `tools/fb-project-graph*`, MCP surface, release metadata, canonical/package graph guidance and skills | [Handoff](docs/handoffs/TASK-049.md); [QA](docs/qa/TASK-049.md); [PR #51](https://github.com/friedbeef1/fb-lane-coordination/pull/51); installed and enabled |
 | TASK-048 | Staging QA | FB-Product / BFM | Project Navigation | Evaluate graduated graph navigation and a minimal graph-first route without changing product-truth authority | `tools/fb-project-graph*`, `.fb/graph/`, TASK-048 experiment/QA/coordination records | [Handoff](docs/handoffs/TASK-048.md); [Results](docs/experiments/TASK-048-graduated-project-graph-pilot.md); [QA](docs/qa/TASK-048.md) |
@@ -55,6 +56,27 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-051 - Context and Repair Efficiency
+
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Product / BFM + FB-Tech
+*   **Area**: Graph context, repair reuse, and measured efficiency
+*   **Scope**: Add bounded delta context and consolidated repair candidates,
+    preserve reviewed baselines, and activate them only after modeled and
+    observed 10% raw-token/time gates pass.
+*   **Out of Scope**: Weaker safety, transcript capture, hosted telemetry,
+    selective reruns, merge, publication, installation, or deployment.
+*   **Definition of Done**: Focused runtime tasks pass review; frozen evidence
+    produces an adopt/reject decision; active plugin behavior changes only when
+    both adoption gates pass.
+*   **Affected Screens / Locks**: `tools/fb-project-graph*`,
+    `tools/fb-control-loop*`, `tools/fb-efficiency*`, new focused benchmark and
+    evidence, and conditional canonical/package guidance.
+*   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-27-fb-context-repair-efficiency.md);
+    [handoff](docs/handoffs/TASK-051.md).
 
 ---
 

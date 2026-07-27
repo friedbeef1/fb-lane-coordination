@@ -1,12 +1,13 @@
 # Active Task Context
 
-* **Current Task**: TASK-050 Generic agent control loop and FB 0.5.0-beta release
+* **Current Task**: TASK-051 Context and repair efficiency
 * **Lane**: FB-Product / BFM
-* **Status**: Ready to ship — whole-branch review and one release checkpoint passed
-* **Release Build**: `0.5.0-beta+codex.20260726130257`
+* **Status**: In Progress — candidate behavior remains inactive pending modeled and real-Codex adoption gates
+* **Release Build**: none; experimental candidate
 * **BFM Class**: Full BFM
-* **Release Vehicle**: `codex/fb-agent-control-loop`; stop at Ready to ship before Push Live
+* **Release Vehicle**: `codex/fb-context-repair-efficiency`; no release requested
 * **Worktree**: `/private/tmp/fb-agent-control-loop`
-* **Locked Files**: Control-loop runtime/contracts, canonical/package mirrors, release metadata, TASK-050 records.
+* **Locked Files**: Project-graph context compiler, control-loop/efficiency repair contracts, focused benchmark/evidence, conditional canonical/package guidance, TASK-051 records.
 
-Release checkpoint, push, merge, publication, installation, and deployment remain pending.
+TASK-050 remains separately Ready to ship. TASK-051 does not authorize merge,
+publication, installation, deployment, or another release checkpoint.
