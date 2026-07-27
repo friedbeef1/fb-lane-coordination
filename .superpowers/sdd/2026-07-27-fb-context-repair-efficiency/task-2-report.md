@@ -119,7 +119,9 @@ Results: 58/58 control-loop tests passed; syntax and whitespace checks passed.
 
 ### Repair commit
 
-Pending commit at report update.
+Implementation: `81e5620f57017dad8473ed454669caf8ceb0fc93`
+(`fix: consume Quick repair authority`). This report update is recorded
+separately to preserve that implementation commit identity.
 
 ### Repair concerns
 
