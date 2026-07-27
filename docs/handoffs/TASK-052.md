@@ -30,11 +30,12 @@ record_model: normalized-v1
   active user-facing behavior.
 - Implement the approved
   [preventive-context benchmark design](../superpowers/specs/2026-07-27-fb-preventive-context-benchmark-design.md)
-  test-first.
+  through the
+  [test-first implementation plan](../superpowers/plans/2026-07-27-fb-preventive-context-benchmark.md).
 - Preserve TASK-050 and TASK-051 evidence.
 
 ## Current state
 
 - Design approved.
-- Frozen implementation plan and experiment code are pending.
+- The implementation plan is frozen; experiment code is pending.
 - No experiment result or adoption claim exists yet.
