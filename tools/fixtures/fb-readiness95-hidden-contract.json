@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "fb-readiness95-hidden-contract-v1",
+  "readiness95Required": 19,
+  "blockersRequired": 8,
+  "deliverableCriteria": [
+    "terminal-done-excluded",
+    "terminal-deferred-excluded",
+    "superseded-revision-excluded",
+    "current-revision-selected",
+    "late-feature-selected",
+    "critical-bug-first",
+    "critical-bug-selected",
+    "ordinary-bug-selected",
+    "critical-before-ordinary",
+    "bug-evidence-preserved",
+    "safe-tech-selected",
+    "dependency-tech-selected",
+    "dependency-order-correct",
+    "ready-to-ship-status",
+    "deployment-not-authorized",
+    "aria-label-verified",
+    "focus-visible-verified",
+    "narrow-viewport-verified",
+    "https-links-only",
+    "routine-user-qa-none"
+  ],
+  "blockerCriteria": [
+    "unapproved-feature-blocked",
+    "missing-reproduction-blocked",
+    "missing-observable-blocked",
+    "privacy-unapproved-blocked",
+    "release-unapproved-blocked",
+    "payment-unapproved-blocked",
+    "auth-unapproved-blocked",
+    "environment-unavailable-blocked"
+  ]
+}

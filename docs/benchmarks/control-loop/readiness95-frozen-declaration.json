@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "fb-readiness95-freeze-v1",
+  "experimentId": "fb-readiness95-053-20260727",
+  "arms": ["vanilla", "broadFb", "preventiveGraphFb"],
+  "countedRepetitionsPerArm": 3,
+  "deliverableCriteria": 20,
+  "readiness95Required": 19,
+  "blockerCriteria": 8,
+  "blockersRequired": 8,
+  "firstCandidateOnly": true,
+  "repairCredit": false,
+  "armOrder": [
+    ["vanilla", "broadFb", "preventiveGraphFb"],
+    ["broadFb", "preventiveGraphFb", "vanilla"],
+    ["preventiveGraphFb", "vanilla", "broadFb"]
+  ],
+  "execution": {
+    "agentTopologyPrescribed": false,
+    "model": "same inherited parent model; exact provider identifier unavailable",
+    "providerTokens": "unavailable",
+    "wallTimeCapture": "local monotonic elapsed seconds",
+    "candidateEvidence": "source SHA-256 plus grader output",
+    "outsideFixtureAccess": false
+  },
+  "hashes": {
+    "publicFacts": "551754826b6408d292c6c18aab779bb5094f75cc50f95ab3577bbd523de0af0e",
+    "grader": "f3bd7b027492a6291de2dcc59b62486431a67155f60c0cd4938cfee84e2966ef",
+    "hiddenContract": "006370f5eafa096f5d140ce2987b879b1a204faa03772342b60b1635bcd78ff3",
+    "prompts": "1ed8d300a5c24e056589bb57d8cd5f8459aeda547b66c4a08c3b6272326cfc9f",
+    "startingCandidate": "c64d97fd458a4b456b0c021fc8b202a35335b9fc01c2cacd93b0293eda70bbcc",
+    "publicTest": "46dfa8b2099480814ca5e5c95d8e364388fe42db5f1e71134baa77fb50f21c9d"
+  },
+  "decision": {
+    "armPassRequires": "at least 19/20 deliverables and 8/8 blockers in every counted repetition",
+    "medianAloneCannotPass": true,
+    "tokensAndCostExcluded": true,
+    "postResultTuning": false,
+    "selectiveReruns": false
+  }
+}

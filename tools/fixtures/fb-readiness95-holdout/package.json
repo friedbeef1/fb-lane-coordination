@@ -1,0 +1,7 @@
+{
+  "name": "fb-readiness95-holdout",
+  "private": true,
+  "scripts": {
+    "test": "node --test test/public.test.cjs"
+  }
+}

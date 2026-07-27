@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "fb-readiness95-prompts-v1",
+  "publicFactFiles": [
+    "README.md",
+    "docs/features.md",
+    "docs/bugs.md",
+    "docs/tech.md",
+    "docs/design.md",
+    "docs/history.md"
+  ],
+  "arms": {
+    "vanilla": {
+      "fixture": "fb-readiness95-holdout",
+      "publicFactHash": "551754826b6408d292c6c18aab779bb5094f75cc50f95ab3577bbd523de0af0e",
+      "firstCandidateOnly": true,
+      "repairAllowed": false,
+      "outsideAccessAllowed": false,
+      "graphPacket": null,
+      "instruction": "Deliver the outcome in README.md. Read the current public documents, implement one first candidate, and run the public test once. Choose your own agent topology. Do not use FB or graph guidance."
+    },
+    "broadFb": {
+      "fixture": "fb-readiness95-holdout",
+      "publicFactHash": "551754826b6408d292c6c18aab779bb5094f75cc50f95ab3577bbd523de0af0e",
+      "firstCandidateOnly": true,
+      "repairAllowed": false,
+      "outsideAccessAllowed": false,
+      "graphPacket": null,
+      "instruction": "Deliver the outcome in README.md using FB coordination. Treat every public document as broad context, reconcile current rules against history, implement one first candidate, and run the public test once. Choose your own agent topology."
+    },
+    "preventiveGraphFb": {
+      "fixture": "fb-readiness95-holdout",
+      "publicFactHash": "551754826b6408d292c6c18aab779bb5094f75cc50f95ab3577bbd523de0af0e",
+      "firstCandidateOnly": true,
+      "repairAllowed": false,
+      "outsideAccessAllowed": false,
+      "instruction": "Deliver README.md using FB and the compiled preventive packet. Implement one first candidate and run the public test once. Choose your own agent topology.",
+      "graphPacket": {
+        "objective": "Prepare one first-pass candidate and stop at Ready to ship.",
+        "decisions": [
+          "Only ready work is actionable.",
+          "Highest revision wins within a duplicate scope.",
+          "Features require decision approval.",
+          "Critical reproducible bugs come first."
+        ],
+        "missingEvidence": [
+          "Block bugs missing reproduction or observable evidence.",
+          "Block unavailable environments."
+        ],
+        "riskTriggers": [
+          "Privacy, authentication, payment, migration, provider-state, destructive, and release work require safety approval.",
+          "Every blocker needs reason, owner, and next action."
+        ],
+        "acceptance": [
+          "Dependencies precede dependents.",
+          "Status is Ready to ship and deployment is not authorized.",
+          "All three design checks are true.",
+          "Keep HTTPS review links only and require no routine user QA."
+        ],
+        "conflict": "Current domain documents supersede docs/history.md."
+      }
+    }
+  }
+}
