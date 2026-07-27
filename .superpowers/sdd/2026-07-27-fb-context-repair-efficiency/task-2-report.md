@@ -171,7 +171,9 @@ Results: 58/58 control-loop tests passed; syntax and whitespace checks passed.
 
 ### Repair commit
 
-Pending commit at report update.
+Implementation: `ceb501551e9daa8199cd945d11a02e683d3abacc`
+(`fix: bind Quick repairs to stable slices`). This report update is recorded
+separately to preserve that implementation commit identity.
 
 ### Repair concerns
 
