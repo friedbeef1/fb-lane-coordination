@@ -65,8 +65,9 @@ Results: 57/57 control-loop tests passed; syntax and whitespace checks passed.
 
 ## Commit
 
-`76285de1b40ae15355e90bf8fd6ec620a624f309` (`feat: add consolidated repair
-planner`); amended after recording this commit reference.
+Implementation: `d190dbf723c0142eab781401c2556330a0e0f95a`
+(`feat: add consolidated repair planner`). This report is recorded separately
+to preserve that implementation commit identity.
 
 ## Concerns
 
