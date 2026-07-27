@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Compare Vanilla, broad-context FB, and preventive graph FB on first-pass deliverable readiness and test one frozen preventive candidate against 91% and 99% milestones without post-failure repair credit.
+**Goal:** Compare autonomous Vanilla, autonomous broad-context FB, and autonomous preventive graph FB on Features, Bugs, Tech, and Design work while testing one frozen preventive candidate against 91% and 99% first-pass milestones without post-failure repair credit.
 
-**Architecture:** A focused benchmark module consumes the immutable reviewed graduated-control evidence and frozen truth. It classifies 264 cases as deliverable and 24 as intentional blockers, derives first-pass outcomes for the two existing arms, applies one public-signal-only preventive policy to the graph arm, and writes a frozen declaration plus machine and Markdown results. The existing benchmark and plugin runtime remain unchanged.
+**Architecture:** A focused benchmark module reuses the reviewed graduated-control runner mechanics but supplies new frozen Features, Bugs, Tech, and Design truth. It classifies 264 cases as deliverable and 24 as intentional blockers, applies one public-signal-only preventive policy, and writes a frozen declaration plus machine and Markdown results. A separate real-Codex holdout gives all three arms equal authority and aggregate budgets while allowing each system to choose its own agent topology; existing evidence and plugin runtime remain unchanged.
 
 **Tech Stack:** Node.js CommonJS, `node:test`, JSON fixtures, Markdown evidence, Git hashes.
 
@@ -16,6 +16,12 @@
 - Do not credit diagnosis or repair after a failed first implementation.
 - Do not use hidden grading fields to route or construct candidate context.
 - Preserve all unfavorable outcomes and refuse an in-place authoritative rerun.
+- Use Features, Bugs, Tech, and Design as the four scenario families; do not
+  pool their results with older Media, Product, Software, or Support outcomes.
+- Do not prescribe agent count, concurrency, workstreams, or integration passes
+  in the autonomous holdout; record what each arm chooses.
+- Report authoritative provider tokens and cost when available, otherwise mark
+  them unavailable rather than inventing estimates.
 - Do not change active plugin behavior, package mirrors, publication, merge, installation, or deployment state.
 
 ---
@@ -25,10 +31,13 @@
 **Files:**
 - Create: `tools/fb-preventive-context-benchmark.cjs`
 - Create: `tools/fb-preventive-context-benchmark.test.cjs`
+- Create: `tools/fixtures/fb-preventive-context-truth.json`
+- Create: `tools/fixtures/fb-preventive-context-settings.json`
 - Create: `docs/benchmarks/control-loop/preventive-context-frozen-declaration.json`
 
 **Interfaces:**
-- Consumes: reviewed `graduated-results.json`, frozen truth, and settings.
+- Consumes: reviewed runner mechanics plus new frozen Features, Bugs, Tech, and
+  Design truth and settings.
 - Produces: `classifyCases(truth)`, `firstPassRecords(reviewed, classification)`, `buildDeclaration()`, and `validateDeclaration()`.
 
 - [ ] **Step 1: Write denominator and repair-exclusion tests**
@@ -46,6 +55,8 @@ assert(firstPass.fullFb.every(row => !row.repairCredited));
 
 The test also requires all 24 blocker IDs to be exactly the frozen
 `unresolved-environment` and `sensitive-block` cases across three seeds.
+It requires exactly 24 cases in each of Features, Bugs, Tech, and Design and
+rejects the older family names.
 
 - [ ] **Step 2: Run the test and verify RED**
 
@@ -82,7 +93,7 @@ The declaration binds:
 Run the focused test, syntax check, and whitespace check. Commit:
 
 ```bash
-git add tools/fb-preventive-context-benchmark.cjs tools/fb-preventive-context-benchmark.test.cjs docs/benchmarks/control-loop/preventive-context-frozen-declaration.json
+git add tools/fb-preventive-context-benchmark.cjs tools/fb-preventive-context-benchmark.test.cjs tools/fixtures/fb-preventive-context-truth.json tools/fixtures/fb-preventive-context-settings.json docs/benchmarks/control-loop/preventive-context-frozen-declaration.json
 git commit -m "test: freeze preventive context benchmark"
 ```
 
@@ -219,10 +230,10 @@ Do not modify thresholds or rerun after seeing the result.
 - [ ] **Step 5: Validate and close the modeled result**
 
 Run the focused suite, syntax, record coherence, and whitespace checks. Update
-TASK-052 records with the actual result. If the deterministic result is below
-91%, close the real-Codex gate. If it reaches 91% but misses 99%, preserve the
-result and permit evidence-only diagnosis without tuning or adoption. Only a
-99% result with every safety/privacy/efficiency predicate may open Task 4.
+TASK-052 records with the actual result. Preserve the result whether it is
+below 91%, between 91% and 99%, or at least 99%. Only an integrity, privacy, or
+safety failure closes Task 4; missing a readiness milestone does not suppress
+the approved autonomous realism comparison.
 
 - [ ] **Step 6: Commit**
 
@@ -235,39 +246,50 @@ git commit -m "test: record preventive context result"
 
 ---
 
-### Task 4: Conditional real-Codex holdout
+### Task 4: Autonomous real-Codex holdout
 
 **Files:**
-- Create only if Task 3 opens the gate:
+- Create after Task 3 passes integrity, privacy, and safety:
   `docs/benchmarks/control-loop/preventive-context-real-codex.json`
-- Modify only if Task 3 opens the gate:
+- Modify:
   `docs/benchmarks/control-loop/preventive-context.md`
   `docs/qa/TASK-052.md`
   `docs/handoffs/TASK-052.md`
   `PROJECT_BOARD.md`
 
 **Interfaces:**
-- Consumes: the frozen six-scenario holdout and three prompt projections.
-- Produces: observed provider tokens, wall time, first-pass readiness, and blocker correctness.
+- Consumes: the frozen six-scenario holdout, three prompt projections,
+  identical starting repositories, and equal aggregate authority/resource
+  budgets.
+- Produces: observed orchestration choices, provider tokens when available,
+  wall time, first-pass readiness, and blocker correctness.
 
-- [ ] **Step 1: Verify the conditional gate**
+- [ ] **Step 1: Verify the integrity and safety gate**
 
-Do not run real Codex unless the modeled candidate reaches 99% and every
-non-readiness predicate passes.
+Do not run real Codex if evidence integrity, privacy, or safety validation
+fails. A missed modeled milestone remains unfavorable evidence but does not
+suppress the approved autonomous comparison.
 
 - [ ] **Step 2: Run one excluded shakedown**
 
-Verify prompt isolation, usage capture, time limits, privacy rejection, and
-first-pass scoring. Exclude this evidence from comparison.
+Verify prompt isolation, equal aggregate budgets, orchestration-event capture,
+usage capture, time limits, privacy rejection, and first-pass scoring. Exclude
+this evidence from comparison.
 
 - [ ] **Step 3: Run the fixed three-arm holdout once**
 
-Preserve every valid unfavorable outcome. Do not retry failed product runs.
+Give each arm the same outcome, tools, model, repository state, resource
+ceiling, and authority. Do not tell any arm how many agents to spawn or whether
+to use concurrency. Record agents spawned, maximum concurrency, workstreams,
+integration passes, tool calls, and elapsed time. Preserve every valid
+unfavorable outcome and do not retry failed product runs.
 
 - [ ] **Step 4: Record evidence and commit**
 
-Report real usage separately from modeled results. Do not generalize six
-scenarios into a universal percentage.
+Report real usage separately from modeled results. If authoritative provider
+tokens or cost are unavailable, report `unavailable`; context bytes are a
+secondary proxy only. Do not generalize six scenarios into a universal
+percentage.
 
 ---
 
@@ -285,4 +307,3 @@ git status --short --branch
 
 Do not run the full repository validator, duplicate packaged tests, package
 generation, publication, merge, installation, or deployment.
-

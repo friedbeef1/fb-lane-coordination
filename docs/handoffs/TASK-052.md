@@ -14,8 +14,10 @@ record_model: normalized-v1
 - **What was requested:** Test whether FB can cross 91% and reach 99% product
   readiness by preventing failures through better context rather than
   repairing them.
-- **User decisions:** Compare Vanilla, FB without graph routing, and preventive
-  graph FB; keep legitimate blockers safe and separate.
+- **User decisions:** Compare autonomous Vanilla, autonomous FB without graph
+  routing, and autonomous preventive graph FB; let each system choose its agent
+  topology; use Features, Bugs, Tech, and Design scenario families; keep
+  legitimate blockers safe and separate.
 - **Assumptions:** The existing frozen scenarios remain useful when their
   deliverable denominator is corrected.
 - **Out of scope:** Hidden-answer use, selective reruns, automatic adoption,
@@ -38,4 +40,6 @@ record_model: normalized-v1
 
 - Design approved.
 - The implementation plan is frozen; experiment code is pending.
+- The controlled fixtures use Features, Bugs, Tech, and Design. Earlier generic
+  scenario results remain historical and are not pooled.
 - No experiment result or adoption claim exists yet.
