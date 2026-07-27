@@ -2,38 +2,40 @@
   "schemaVersion": "fb-readiness95-prompts-v1",
   "publicFactFiles": [
     "README.md",
+    "docs/interface.json",
     "docs/features.md",
     "docs/bugs.md",
     "docs/tech.md",
     "docs/design.md",
     "docs/history.md"
   ],
+  "commonInstruction": "Read the public fixture, implement one first candidate, run the recorded public test command once, and stop. Choose your own agent topology.",
   "arms": {
     "vanilla": {
       "fixture": "fb-readiness95-holdout",
-      "publicFactHash": "7e41c15c3e14667aeb236744880a89262c3999bfd0401d3154c49dfa56be30c1",
+      "publicFactHash": "abba58d1380b2ebbf402f6a648b7a27b97109eddf06abc6c21985eb99cd099c5",
       "firstCandidateOnly": true,
       "repairAllowed": false,
       "outsideAccessAllowed": false,
       "graphPacket": null,
-      "instruction": "Deliver the outcome in README.md. Read the current public documents, implement one first candidate, and run the public test once. Choose your own agent topology. Do not use FB or graph guidance."
+      "treatmentInstruction": "Use the public documents directly. Do not use FB or graph guidance."
     },
     "broadFb": {
       "fixture": "fb-readiness95-holdout",
-      "publicFactHash": "7e41c15c3e14667aeb236744880a89262c3999bfd0401d3154c49dfa56be30c1",
+      "publicFactHash": "abba58d1380b2ebbf402f6a648b7a27b97109eddf06abc6c21985eb99cd099c5",
       "firstCandidateOnly": true,
       "repairAllowed": false,
       "outsideAccessAllowed": false,
       "graphPacket": null,
-      "instruction": "Deliver the outcome in README.md using FB coordination. Treat every public document as broad context, reconcile current rules against history, implement one first candidate, and run the public test once. Choose your own agent topology."
+      "treatmentInstruction": "Use FB coordination. Treat every public document as broad context and reconcile current rules against history. Do not use a graph packet."
     },
     "preventiveGraphFb": {
       "fixture": "fb-readiness95-holdout",
-      "publicFactHash": "7e41c15c3e14667aeb236744880a89262c3999bfd0401d3154c49dfa56be30c1",
+      "publicFactHash": "abba58d1380b2ebbf402f6a648b7a27b97109eddf06abc6c21985eb99cd099c5",
       "firstCandidateOnly": true,
       "repairAllowed": false,
       "outsideAccessAllowed": false,
-      "instruction": "Deliver README.md using FB and the compiled preventive packet. Implement one first candidate and run the public test once. Choose your own agent topology.",
+      "treatmentInstruction": "Use FB coordination and the compiled preventive graph packet. Treat the packet as a routing summary of the public documents, not extra product facts.",
       "graphPacket": {
         "objective": "Prepare one first-pass candidate and stop at Ready to ship.",
         "decisions": [

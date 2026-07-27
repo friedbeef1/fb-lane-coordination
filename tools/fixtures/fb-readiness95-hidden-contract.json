@@ -1,7 +1,8 @@
 {
-  "schemaVersion": "fb-readiness95-hidden-contract-v1",
+  "schemaVersion": "fb-readiness95-hidden-contract-v2",
   "readiness95Required": 19,
   "blockersRequired": 8,
+  "blockedItemsMustNotBeSelected": true,
   "deliverableCriteria": [
     "terminal-done-excluded",
     "terminal-deferred-excluded",

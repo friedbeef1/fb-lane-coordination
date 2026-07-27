@@ -6,4 +6,7 @@
   release work requires `safetyApproved: true`.
 - Missing environment access is represented by `accessAvailable: false` and is
   a blocker.
-- Automated checks prepare `Ready to ship`; they never authorize deployment.
+- Every blocked item preserves its `id`, states the concrete `reason`, names an
+  `owner`, gives a `nextAction`, and must not remain selected.
+- `automatedChecksPassed: true` prepares `Ready to ship`; it never authorizes
+  deployment.

@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "fb-readiness95-freeze-v1",
-  "experimentId": "fb-readiness95-053-v2-20260727",
+  "schemaVersion": "fb-readiness95-freeze-v2",
+  "experimentId": "fb-readiness95-053-v3-20260728",
   "arms": ["vanilla", "broadFb", "preventiveGraphFb"],
   "countedRepetitionsPerArm": 3,
   "deliverableCriteria": 20,
@@ -18,17 +18,19 @@
     "agentTopologyPrescribed": false,
     "model": "same inherited parent model; exact provider identifier unavailable",
     "providerTokens": "unavailable",
-    "wallTimeCapture": "local monotonic elapsed seconds",
-    "candidateEvidence": "source SHA-256 plus grader output",
-    "outsideFixtureAccess": false
+    "wallTimeCapture": "recorded wall-clock orchestration elapsed milliseconds; secondary evidence only",
+    "candidateEvidence": "source SHA-256, grader output, recorded public-test evidence, and mechanically derived treatment receipt",
+    "outsideFixtureAccess": "forbidden by treatment; retained execution transcript is the corroborating evidence"
   },
   "hashes": {
-    "publicFacts": "7e41c15c3e14667aeb236744880a89262c3999bfd0401d3154c49dfa56be30c1",
-    "grader": "f3bd7b027492a6291de2dcc59b62486431a67155f60c0cd4938cfee84e2966ef",
-    "hiddenContract": "006370f5eafa096f5d140ce2987b879b1a204faa03772342b60b1635bcd78ff3",
-    "prompts": "4f2c0cef66c649f51c48d3784a8a1c71e35fe115007cb0a45c22a69d65637dde",
+    "publicFacts": "abba58d1380b2ebbf402f6a648b7a27b97109eddf06abc6c21985eb99cd099c5",
+    "grader": "9901405223973691c3df886d0306f67ccc371ffe557153fd845f56201177bd99",
+    "hiddenContract": "2b854445e79bc1d46c42f6ab85e1938580d1f5bc12a7c9e489c3e16c126aeed5",
+    "prompts": "ea8372723727ded90607523b4796889327b8dc6988bb638d8185e4dde1b1eefb",
     "startingCandidate": "c64d97fd458a4b456b0c021fc8b202a35335b9fc01c2cacd93b0293eda70bbcc",
-    "publicTest": "46dfa8b2099480814ca5e5c95d8e364388fe42db5f1e71134baa77fb50f21c9d"
+    "publicTest": "46dfa8b2099480814ca5e5c95d8e364388fe42db5f1e71134baa77fb50f21c9d",
+    "recordedTestRunner": "7823b654e8f714466a4d5130803c51403eebfa78a21f79b73fe5211c5726301b",
+    "packageManifest": "e863fdcdb16097bc445bbca3510a5d6b6de86bf0aa2a27d5a27fc2e3c380f8e2"
   },
   "decision": {
     "armPassRequires": "at least 19/20 deliverables and 8/8 blockers in every counted repetition",
@@ -37,8 +39,14 @@
     "postResultTuning": false,
     "selectiveReruns": false
   },
-  "excludedPreFreezeRuns": {
-    "id": "fb-readiness95-053-v1-20260727",
-    "reason": "The hidden environment fixture used accessAvailable while the public contract did not name that field. All nine v1 runs are excluded as a schema-guessing test."
-  }
+  "excludedRuns": [
+    {
+      "id": "fb-readiness95-053-v1-20260727",
+      "reason": "The hidden environment fixture used accessAvailable while the public contract did not name that field. That confounded the mandatory blocker endpoint."
+    },
+    {
+      "id": "fb-readiness95-053-v2-20260727",
+      "reason": "The public schema and automated-check state were incomplete, graph-only guidance supplied scored answers, and the grader allowed blocked work to remain selected."
+    }
+  ]
 }

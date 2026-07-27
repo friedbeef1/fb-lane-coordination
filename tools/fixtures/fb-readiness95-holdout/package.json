@@ -2,6 +2,7 @@
   "name": "fb-readiness95-holdout",
   "private": true,
   "scripts": {
-    "test": "node --test test/public.test.cjs"
+    "test": "node --test test/public.test.cjs",
+    "test:recorded": "node tools/run-public-test-once.cjs"
   }
 }

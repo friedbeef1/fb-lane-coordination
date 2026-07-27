@@ -6,6 +6,7 @@ const path = require('node:path');
 const CONTRACT = require('./fixtures/fb-readiness95-hidden-contract.json');
 
 const INPUT = {
+  automatedChecksPassed: true,
   items: [
     { id: 'done', type: 'feature', status: 'done', scope: 'profile', revision: 1, decisionApproved: true },
     { id: 'deferred', type: 'feature', status: 'deferred', scope: 'sharing', revision: 1, decisionApproved: true },
@@ -45,7 +46,8 @@ function gradeFixture(directory) {
   const index = id => selectedIds.indexOf(id);
   const hasActionableBlock = id => {
     const row = blocked.find(item => item.id === id);
-    return Boolean(row?.reason && row?.owner && row?.nextAction);
+    return !selectedIds.includes(id)
+      && Boolean(row?.reason && row?.owner && row?.nextAction);
   };
   const deliverableFns = {
     'terminal-done-excluded': () => !selectedIds.includes('done'),

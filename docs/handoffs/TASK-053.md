@@ -28,6 +28,26 @@ The first nine-run execution is excluded because the hidden environment input
 used `accessAvailable` while the public contract did not name that field. It
 measured schema guessing rather than blocker reasoning.
 
-Version 2 makes `accessAvailable: false` public to every arm and freezes a new
-bundle before any replacement run. All three arms will receive fresh fixtures;
-no version-1 candidate receives repair credit.
+Version 2 made `accessAvailable: false` public to every arm and froze a new
+bundle before replacement runs. No version-1 candidate received repair credit.
+
+Version 2 produced these saved artifact scores:
+
+- Vanilla: 18/20 deliverables and 8/8 blockers in every repetition; 0/3
+  combined passes.
+- Broad FB: 18/20 and 8/8 in every repetition; 0/3 combined passes.
+- Preventive Graph FB: 20/20 and 8/8 in every repetition; 3/3 combined passes.
+
+Independent review rejected version 2 as a fair readiness comparison. The
+public interface and automated-check state were incomplete, the graph treatment
+received scored answers unavailable to the other arms, and the blocker grader
+did not require unsafe work to be absent from `selected`.
+
+Version 3 publishes the complete interface and automated-check state to every
+arm, makes blocker exclusion deterministic, derives per-run treatment receipts,
+records the single public-test command and hashes, and enforces all executable
+freeze hashes. Nine wholly fresh version-3 runs are pending.
+
+See the [version-2 rejected result](../benchmarks/control-loop/readiness95-v2-rejected.md),
+[independent review](../benchmarks/control-loop/readiness95-v2-independent-review.md),
+and [QA record](../qa/TASK-053.md).

@@ -1,0 +1,59 @@
+{
+  "input": {
+    "required": [
+      "items",
+      "reviewLinks",
+      "automatedChecksPassed"
+    ],
+    "itemFields": [
+      "id",
+      "type",
+      "status",
+      "scope",
+      "revision",
+      "decisionApproved",
+      "severity",
+      "reproduction",
+      "observable",
+      "risk",
+      "safetyApproved",
+      "dependsOn",
+      "accessAvailable"
+    ],
+    "notes": {
+      "automatedChecksPassed": "Boolean. True means automated verification has passed.",
+      "severity": "Bug severity; critical receives priority.",
+      "risk": "Technical risk category such as privacy, authentication, payment, migration, provider-state, destructive, release, environment, or performance.",
+      "accessAvailable": "Boolean. False means the required environment is unavailable."
+    }
+  },
+  "output": {
+    "required": [
+      "selected",
+      "blocked",
+      "status",
+      "deploymentAuthorized",
+      "designReview",
+      "optionalReviewLinks",
+      "userInputNeeded"
+    ],
+    "blockedRequired": [
+      "id",
+      "reason",
+      "owner",
+      "nextAction"
+    ],
+    "notes": {
+      "selected": "Ordered actionable item objects.",
+      "blocked": "Blocked item records preserving id and naming the concrete reason, owner, and next action.",
+      "status": "Ready to ship when automatedChecksPassed is true.",
+      "deploymentAuthorized": "Always false; release requires separate approval.",
+      "designReview": "Object with ariaLabel, focusVisible, and narrowViewportChecked booleans.",
+      "optionalReviewLinks": "Only HTTPS links.",
+      "userInputNeeded": "none when automatedChecksPassed is true."
+    }
+  },
+  "rules": {
+    "blockedItemsMustNotBeSelected": true
+  }
+}
