@@ -11,6 +11,15 @@ const EDGE_TYPES = new Set(['contains', 'supports', 'owned-by', 'documented-by',
 const AUTHORITY_EDGE_TYPES = new Set(['approved-by', 'authorizes', 'releases']);
 const SENSITIVE = /\b(?:authorization\s*:\s*bearer|api[_-]?key|password|secret|token)\b/i;
 const SAFE_TASK_ID = /^[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)$/;
+const WORKSTREAMS = new Map([
+  ['Product/User', 'fb-product'],
+  ['Business', 'fb-business'],
+  ['Design', 'fb-design'],
+  ['Tech', 'fb-tech'],
+  ['Discovery', 'fb-discovery'],
+  ['Bugs', 'fb-bugs'],
+]);
+const FORBIDDEN_CONTEXT = /\b(?:transcript|conversation history|private reasoning|credential|unredacted private data|api[_ -]?key|authorization\s*:\s*bearer)\b/i;
 
 function relativePath(root, candidate) {
   return path.relative(root, candidate).split(path.sep).join('/');
@@ -482,6 +491,227 @@ function projectContextPacket(root, options = {}) {
   };
 }
 
+function markdownSection(markdown, heading) {
+  const match = String(markdown).match(new RegExp(`^##\\s+${heading}\\s*\\n([\\s\\S]*?)(?=^##\\s+|(?![\\s\\S]))`, 'im'));
+  return match ? match[1].trim() : '';
+}
+
+function compactLines(value) {
+  return String(value).split(/\r?\n/).map(line => line.trim())
+    .filter(Boolean).map(line => line.replace(/^[-*]\s+/, '')).filter(Boolean);
+}
+
+function safeRelativeSource(root, source) {
+  if (typeof source !== 'string' || !source || path.isAbsolute(source) || source === '..' || source.startsWith('../')) return false;
+  const absolute = path.resolve(root, source);
+  const relative = relativePath(root, absolute);
+  return relative !== '..' && !relative.startsWith('../') && fs.existsSync(absolute) && fs.statSync(absolute).isFile();
+}
+
+function sourceState(root, sources) {
+  const state = {};
+  for (const source of sources) {
+    if (safeRelativeSource(root, source)) state[source] = sha256(fs.readFileSync(path.join(root, source)));
+  }
+  return state;
+}
+
+function normalizedContextFallback(taskId, workstream, reason) {
+  return {
+    schema: 'fb-context-packet-v1',
+    route: 'normalized-record-fallback',
+    taskId,
+    workstream,
+    fallbackReason: reason,
+    citations: ['PROJECT_BOARD.md', 'docs/handoffs/index.md'],
+    changedEvidence: [],
+    unchangedEvidence: [],
+    nextSourceStateHashes: {},
+    metrics: { citationCount: 2, changedEvidenceCharacters: 0, changedSourceCount: 0, unchangedSourceCount: 0 },
+  };
+}
+
+function taskObjective(root, taskId) {
+  const boardPath = path.join(root, 'PROJECT_BOARD.md');
+  if (!fs.existsSync(boardPath)) return '';
+  for (const row of String(fs.readFileSync(boardPath, 'utf8')).split(/\r?\n/)) {
+    const cells = row.split('|').slice(1, -1).map(cell => cell.trim());
+    if (String(cells[0] || '').toUpperCase() === taskId) return cells[4] || '';
+  }
+  return '';
+}
+
+function excerptForSource(source, contents) {
+  if (source.startsWith('docs/handoffs/')) {
+    const selected = [
+      markdownSection(contents, 'User Decision'),
+      markdownSection(contents, 'Approved Decision'),
+      markdownSection(contents, 'Assumptions'),
+      markdownSection(contents, 'Acceptance Criteria'),
+      markdownSection(contents, 'Required Output'),
+      markdownSection(contents, 'Verification'),
+    ].filter(Boolean).join('\n');
+    if (selected) return selected;
+  }
+  return String(contents).replace(/^---[\s\S]*?---\s*/m, '').trim();
+}
+
+function boundedExcerpt(source, contents, remaining) {
+  if (remaining <= 0 || contents.length < 2) return '';
+  const selected = excerptForSource(source, contents).replace(/\s+/g, ' ').trim();
+  const limit = Math.min(1600, remaining, Math.max(1, contents.length - 1));
+  if (!selected) return '';
+  return selected.slice(0, limit).trim();
+}
+
+function compileDeltaContext(root, options = {}) {
+  const resolvedRoot = path.resolve(root);
+  const taskId = String(options.taskId || '').toUpperCase();
+  const workstream = String(options.workstream || '');
+  const question = String(options.question || '').trim();
+  const requiredOutput = String(options.requiredOutput || '').trim();
+  if (!SAFE_TASK_ID.test(taskId) || !WORKSTREAMS.has(workstream) || !question || !requiredOutput) {
+    return normalizedContextFallback(taskId, workstream, 'A safe task ID, supported workstream, concrete question, and required output are required.');
+  }
+  if (FORBIDDEN_CONTEXT.test(question) || FORBIDDEN_CONTEXT.test(requiredOutput)) {
+    return normalizedContextFallback(taskId, workstream, 'Forbidden context content was requested.');
+  }
+  let graph;
+  try {
+    graph = buildProjectGraph(resolvedRoot);
+  } catch (error) {
+    return normalizedContextFallback(taskId, workstream, `Project graph could not be built: ${error.message}`);
+  }
+  const validation = validateProjectGraph(resolvedRoot, graph);
+  const taskNode = graph.nodes.find(node => node.id === `task:${taskId}`);
+  const handoffSource = `docs/handoffs/${taskId}.md`;
+  if (validation.length || !taskNode || !safeRelativeSource(resolvedRoot, handoffSource)) {
+    return normalizedContextFallback(taskId, workstream, validation.length
+      ? 'Project graph is unhealthy; use authoritative normalized records.'
+      : `${taskId} is not represented with a required handoff source.`);
+  }
+  const handoff = fs.readFileSync(path.join(resolvedRoot, handoffSource), 'utf8');
+  const meta = frontmatter(handoff);
+  if (meta.task !== taskId || meta.lane !== WORKSTREAMS.get(workstream) || SENSITIVE.test(handoff) || FORBIDDEN_CONTEXT.test(handoff)) {
+    return normalizedContextFallback(taskId, workstream, 'Required fields are contradictory or source content is forbidden.');
+  }
+  const linkedSources = markdownLinks(handoff)
+    .map(target => resolvedMarkdownTarget(resolvedRoot, handoffSource, target))
+    .filter(source => source && safeRelativeSource(resolvedRoot, source));
+  const sources = [...new Set([handoffSource, ...linkedSources, 'PROJECT_BOARD.md'])].slice(0, 4);
+  const nextSourceStateHashes = sourceState(resolvedRoot, sources);
+  const known = options.knownSourceHashes && typeof options.knownSourceHashes === 'object' ? options.knownSourceHashes : {};
+  const changedEvidence = [];
+  const unchangedEvidence = [];
+  let remaining = 4000;
+  for (const source of sources) {
+    const contents = fs.readFileSync(path.join(resolvedRoot, source), 'utf8');
+    const hash = nextSourceStateHashes[source];
+    if (known[source] === hash) {
+      unchangedEvidence.push({ source, sha256: hash });
+      continue;
+    }
+    const excerpt = boundedExcerpt(source, contents, remaining);
+    if (!excerpt) continue;
+    changedEvidence.push({ source, sha256: hash, excerpt });
+    remaining -= excerpt.length;
+  }
+  const citations = sources.slice(0, 4);
+  const decisions = compactLines(markdownSection(handoff, 'User Decision') || markdownSection(handoff, 'Approved Decision'));
+  return {
+    schema: 'fb-context-packet-v1',
+    route: 'project-graph',
+    taskId,
+    workstream,
+    question,
+    currentObjective: taskObjective(resolvedRoot, taskId),
+    activeTaskNode: taskNode,
+    userDecisions: decisions,
+    approvedDecisions: decisions,
+    assumptions: compactLines(markdownSection(handoff, 'Assumptions')),
+    acceptanceCriteria: compactLines(markdownSection(handoff, 'Acceptance Criteria')),
+    requiredOutput,
+    changedEvidence,
+    unchangedEvidence,
+    nextSourceStateHashes,
+    citations,
+    fallbackReason: null,
+    metrics: {
+      citationCount: citations.length,
+      changedEvidenceCharacters: changedEvidence.reduce((total, item) => total + item.excerpt.length, 0),
+      changedSourceCount: changedEvidence.length,
+      unchangedSourceCount: unchangedEvidence.length,
+    },
+  };
+}
+
+function normalizedReconciliationFallback(reason) {
+  return {
+    schema: 'fb-bfm-reconciliation-v1',
+    route: 'normalized-record-fallback',
+    fallbackReason: reason,
+    dispositions: [...WORKSTREAMS.keys()].map(workstream => ({ workstream, disposition: 'None relevant' })),
+    relevant: [],
+    citations: ['PROJECT_BOARD.md', 'docs/handoffs/index.md'],
+    nextSourceStateHashes: {},
+  };
+}
+
+function compileBfmReconciliation(root, options = {}) {
+  const resolvedRoot = path.resolve(root);
+  for (const lane of WORKSTREAMS.values()) {
+    if (!safeRelativeSource(resolvedRoot, `docs/workstreams/${lane}.md`)) {
+      return normalizedReconciliationFallback(`Required workstream source is missing: docs/workstreams/${lane}.md.`);
+    }
+  }
+  let graph;
+  try {
+    graph = buildProjectGraph(resolvedRoot);
+  } catch (error) {
+    return normalizedReconciliationFallback(`Project graph could not be built: ${error.message}`);
+  }
+  if (validateProjectGraph(resolvedRoot, graph).length) return normalizedReconciliationFallback('Project graph is unhealthy; use authoritative normalized records.');
+  const records = [];
+  for (const source of sourceFiles(resolvedRoot).filter(item => item.startsWith('docs/handoffs/') && path.basename(item) !== 'index.md')) {
+    const contents = fs.readFileSync(path.join(resolvedRoot, source), 'utf8');
+    const meta = frontmatter(contents);
+    const workstream = [...WORKSTREAMS.entries()].find(([, lane]) => lane === meta.lane)?.[0];
+    if (!workstream || !SAFE_TASK_ID.test(String(meta.task || '')) || SENSITIVE.test(contents) || FORBIDDEN_CONTEXT.test(contents)) {
+      return normalizedReconciliationFallback('A required handoff field is contradictory or forbidden.');
+    }
+    records.push({ source, contents, taskId: meta.task, workstream, status: String(meta.status || '').toLowerCase(), sha256: sha256(contents) });
+  }
+  const ready = records.filter(record => record.status === 'ready');
+  const duplicate = ready.find((record, index) => ready.slice(index + 1).some(other => other.taskId === record.taskId));
+  if (duplicate) return normalizedReconciliationFallback(`Duplicate contradictory ready task ID: ${duplicate.taskId}.`);
+  const known = options.knownSourceHashes && typeof options.knownSourceHashes === 'object' ? options.knownSourceHashes : {};
+  const terminal = new Set(['completed', 'implemented', 'deferred', 'done', 'unchanged']);
+  const dispositions = [];
+  const relevant = [];
+  for (const [workstream] of WORKSTREAMS) {
+    const candidates = records.filter(record => record.workstream === workstream && !terminal.has(record.status));
+    const selected = candidates.find(record => ['ready', 'blocked', 'changed', 'conflicting'].includes(record.status));
+    const changed = selected && known[selected.source] !== selected.sha256;
+    if (!selected || !changed) {
+      dispositions.push({ workstream, disposition: 'None relevant' });
+      continue;
+    }
+    const item = { taskId: selected.taskId, workstream, status: selected.status, source: selected.source, sha256: selected.sha256 };
+    dispositions.push({ workstream, disposition: selected.status, handoff: item });
+    relevant.push(item);
+  }
+  const sources = records.map(record => record.source).sort();
+  return {
+    schema: 'fb-bfm-reconciliation-v1',
+    route: 'project-graph',
+    dispositions,
+    relevant,
+    citations: relevant.map(item => item.source).slice(0, 4),
+    nextSourceStateHashes: sourceState(resolvedRoot, sources),
+    fallbackReason: null,
+  };
+}
+
 function evaluateGraduation(input = {}) {
   const currentLevel = Number.isInteger(input.currentLevel) ? input.currentLevel : 1;
   if (input.projectClass === 'disposable') {
@@ -543,5 +773,7 @@ module.exports = {
   queryProjectGraph,
   resolveProjectContext,
   projectContextPacket,
+  compileDeltaContext,
+  compileBfmReconciliation,
   evaluateGraduation,
 };
