@@ -1124,22 +1124,27 @@ function repairPlannerInput(overrides = {}) {
 }
 
 test('plans exactly one minimal repair packet and reruns only failed proofs', () => {
-  const result = planConsolidatedRepair(repairPlannerInput());
-  assert.strictEqual(result.status, 'repair');
-  assert.deepStrictEqual(result.packet.failedProofIds, ['proof-build']);
-  assert.deepStrictEqual(result.packet.candidate, {
-    candidateId: 'candidate-repair-002',
-    candidateHash: sha256('candidate-repair-002'),
-  });
-  assert.deepStrictEqual(result.packet.candidateDiff, {
-    changedPaths: ['tools/fb-control-loop.cjs'],
-    evidenceRefs: ['evidence/diff'],
-  });
-  assert.strictEqual(result.packet.failure, 'Build failure');
-  assert.strictEqual(result.packet.brief, 'Repair the focused control-loop candidate.');
-  assert.ok(result.packet.requiredEvidence.includes('evidence/diff'));
-  assert.ok(result.packet.requiredEvidence.includes('evidence/repair'));
-  assert.strictEqual(Object.hasOwn(result.packet, 'passedProofIds'), false);
+  const fixture = createRepo();
+  try {
+    const result = planConsolidatedRepair(fixture.repo, repairPlannerInput());
+    assert.strictEqual(result.status, 'repair');
+    assert.deepStrictEqual(result.packet.failedProofIds, ['proof-build']);
+    assert.deepStrictEqual(result.packet.candidate, {
+      candidateId: 'candidate-repair-002',
+      candidateHash: sha256('candidate-repair-002'),
+    });
+    assert.deepStrictEqual(result.packet.candidateDiff, {
+      changedPaths: ['tools/fb-control-loop.cjs'],
+      evidenceRefs: ['evidence/diff'],
+    });
+    assert.strictEqual(result.packet.failure, 'Build failure');
+    assert.strictEqual(result.packet.brief, 'Repair the focused control-loop candidate.');
+    assert.ok(result.packet.requiredEvidence.includes('evidence/diff'));
+    assert.ok(result.packet.requiredEvidence.includes('evidence/repair'));
+    assert.strictEqual(Object.hasOwn(result.packet, 'passedProofIds'), false);
+  } finally {
+    fixture.cleanup();
+  }
 });
 
 test('stops repair planning when every required proof has passed', () => {
@@ -1182,6 +1187,24 @@ test('uses existing Quick and Full repair authority without resetting either bud
     }));
     assert.deepStrictEqual(full, { status: 'blocked-budget' });
     assert.strictEqual(readFullRepairBudget(fixture.repo, budgetRef).repairCount, 2);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('consumes one Quick repair authority so replay cannot receive a second packet', () => {
+  const fixture = createRepo();
+  try {
+    const input = repairPlannerInput({
+      repairAuthority: {
+        mode: 'Quick BFM',
+        changedPaths: ['tools/fb-control-loop.cjs'],
+        state: { repairLoops: 0, startedAt: 12345 },
+        event: { now: 12346 },
+      },
+    });
+    assert.strictEqual(planConsolidatedRepair(fixture.repo, input).status, 'repair');
+    assert.deepStrictEqual(planConsolidatedRepair(fixture.repo, input), { status: 'blocked-budget' });
   } finally {
     fixture.cleanup();
   }

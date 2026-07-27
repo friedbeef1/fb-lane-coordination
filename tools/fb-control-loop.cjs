@@ -25,6 +25,7 @@ const GATE_IDS = new Set(['focused', 'comparison', 'safety', 'integration', 'rel
 const FORBIDDEN_KEY = /(?:secret|token|password|credential|api[_-]?key|environment[_-]?value|env[_-]?value|transcript|raw[_-]?prompt|complete[_-]?output|private[_-]?reasoning|chain[_-]?of[_-]?thought)/i;
 const CREDENTIAL_MATERIAL = /(?:\b(?:sk|rk|pk|xox[baprs])[-_][A-Za-z0-9_-]{8,}\b|\bgh[pousr]_[A-Za-z0-9]{20,}\b|\bAIza[0-9A-Za-z_-]{20,}\b|\bAKIA[0-9A-Z]{16}\b|-----BEGIN(?: [A-Z]+)? PRIVATE KEY-----|\bBearer\s+[A-Za-z0-9._~+/-]{12,}\b|\b(?:api[_-]?key|token|password|secret)\s*[:=]\s*[^\s,;]{8,})/i;
 const FULL_REPAIR_BUDGET_SCHEMA_VERSION = 'fb-full-repair-budget-v1';
+const QUICK_REPAIR_AUTHORITY_SCHEMA_VERSION = 'fb-quick-repair-authority-v1';
 const FULL_REPAIR_BUDGET_DURATION_MS = 120 * 60 * 1000;
 const FULL_REPAIR_MAX_REPAIRS = 2;
 const FULL_REPAIR_LOCK_WAIT_MS = 5000;
@@ -99,6 +100,30 @@ function fullRepairBudgetPaths(cwd = process.cwd(), runId) {
   return { common, directory, filePath };
 }
 
+function quickRepairAuthorityDirectory(common) {
+  const laneDirectory = path.join(common, 'fb-lane');
+  const authorityDirectory = path.join(laneDirectory, 'quick-repair-authorities');
+  assertNotSymlink(laneDirectory, 'Quick repair-authority store directory');
+  if (!fs.existsSync(laneDirectory)) fs.mkdirSync(laneDirectory, { mode: 0o700 });
+  assertNotSymlink(laneDirectory, 'Quick repair-authority store directory');
+  assertNotSymlink(authorityDirectory, 'Quick repair-authority directory');
+  if (!fs.existsSync(authorityDirectory)) fs.mkdirSync(authorityDirectory, { mode: 0o700 });
+  assertNotSymlink(authorityDirectory, 'Quick repair-authority directory');
+  const realDirectory = fs.realpathSync(authorityDirectory);
+  if (realDirectory !== path.join(common, 'fb-lane', 'quick-repair-authorities')) throw new Error('Unsafe Quick repair-authority directory outside the Git common directory.');
+  return realDirectory;
+}
+
+function quickRepairAuthorityPath(cwd, authorityId) {
+  const safeAuthorityId = assertSafeIdentifier(authorityId, 'Quick repair authority ID');
+  const common = gitCommonDir(cwd);
+  const directory = quickRepairAuthorityDirectory(common);
+  const filePath = path.resolve(directory, `${safeAuthorityId}.json`);
+  if (path.dirname(filePath) !== directory) throw new Error('Unsafe Quick repair-authority path.');
+  assertNotSymlink(filePath, 'Quick repair-authority record');
+  return filePath;
+}
+
 function fullRepairSleep(milliseconds) {
   const view = new Int32Array(new SharedArrayBuffer(4));
   Atomics.wait(view, 0, 0, milliseconds);
@@ -150,6 +175,31 @@ function withFullRepairBudgetLock(cwd, fn) {
   } finally {
     fs.rmSync(lockDirectory, { recursive: true, force: true });
   }
+}
+
+function quickRepairAuthorityId(brief, changedPaths, state) {
+  const startedAt = state.sliceStartedAt ?? state.startedAt;
+  if (!Number.isFinite(startedAt) || startedAt < 0) throw new Error('Quick consolidated repair requires a trusted non-negative slice start time.');
+  return hashBytes(JSON.stringify({
+    briefHash: hashBytes(brief),
+    changedPaths: [...changedPaths].sort(),
+    startedAt,
+    tokenLimit: state.tokenLimit ?? null,
+    costLimit: state.costLimit ?? null,
+  }));
+}
+
+function claimQuickRepairAuthority(cwd, authorityId) {
+  return withFullRepairBudgetLock(cwd, () => {
+    const filePath = quickRepairAuthorityPath(cwd, authorityId);
+    if (fs.existsSync(filePath)) return false;
+    writeExclusiveJson(filePath, {
+      schemaVersion: QUICK_REPAIR_AUTHORITY_SCHEMA_VERSION,
+      authorityId,
+      claimedAt: Date.now(),
+    });
+    return true;
+  });
 }
 
 function assertFullRepairBudgetRef(value) {
@@ -1041,7 +1091,8 @@ function planConsolidatedRepair(cwdOrInput = process.cwd(), maybeInput) {
     if (authority.budgetRef !== undefined || !Array.isArray(authority.changedPaths) || !authority.changedPaths.length || !authority.state || !authority.event || quickPolicyForPaths(authority.changedPaths).mode !== 'Quick BFM') throw new Error('Quick consolidated repair requires existing Quick BFM path and state authority.');
     assertPlainObject(authority.state, 'Quick consolidated repair state');
     assertOnlyKeys(authority.event, ['now', 'authoritativeTokens', 'authoritativeCost'], 'Quick consolidated repair event');
-    exhausted = evaluateRunBudget({ ...authority.state, changedPaths: authority.changedPaths }, { ...authority.event, type: 'repair', materialProgress: true }).blocked;
+    const budget = evaluateRunBudget({ ...authority.state, changedPaths: authority.changedPaths }, { ...authority.event, type: 'repair', materialProgress: true });
+    exhausted = budget.blocked || !claimQuickRepairAuthority(cwd, quickRepairAuthorityId(input.brief, authority.changedPaths, authority.state));
   } else {
     const authority = input.repairAuthority;
     if (authority.changedPaths !== undefined || authority.state !== undefined || authority.event !== undefined || authority.budgetRef === undefined) throw new Error('Full consolidated repair requires one existing durable Full budget reference.');
