@@ -10,6 +10,13 @@ const graduated = require('./fb-graduated-control-benchmark.cjs');
 const ROOT = path.resolve(__dirname, '..');
 const TRUTH_PATH = path.join(__dirname, 'fixtures', 'fb-preventive-context-truth.json');
 const SETTINGS_PATH = path.join(__dirname, 'fixtures', 'fb-preventive-context-settings.json');
+const DECLARATION_PATH = path.join(
+  ROOT,
+  'docs',
+  'benchmarks',
+  'control-loop',
+  'preventive-context-frozen-declaration.json',
+);
 const RESULT_NAME = 'preventive-context-results.json';
 const REPORT_NAME = 'preventive-context.md';
 const RATES = Object.freeze([0, 0.25, 0.5, 0.75, 0.91, 0.95, 0.99, 1]);
@@ -30,6 +37,32 @@ function canonical(value) {
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function validateFrozenDeclaration() {
+  const declaration = readJson(DECLARATION_PATH);
+  const expectedFamilies = ['features', 'bugs', 'tech', 'design'];
+  if (canonical(declaration.families) !== canonical(expectedFamilies)
+    || declaration.observationsPerArm !== 288
+    || declaration.deliverableObservations !== 264
+    || declaration.intentionalBlockerObservations !== 24
+    || declaration.milestones.readiness91Required !== 241
+    || declaration.milestones.readiness99Required !== 262
+    || declaration.milestones.correctBlockersRequired !== 24
+    || declaration.policy.postFailureRepairCredit !== false
+    || declaration.policy.assumedPreventionAccuracy !== null
+    || declaration.policy.inPlaceRerunAllowed !== false) {
+    throw new Error('Frozen preventive declaration contract mismatch.');
+  }
+  const hashes = {
+    runner: sha256(fs.readFileSync(__filename)),
+    truth: sha256(fs.readFileSync(TRUTH_PATH)),
+    settings: sha256(fs.readFileSync(SETTINGS_PATH)),
+  };
+  if (canonical(declaration.hashes) !== canonical(hashes)) {
+    throw new Error('Frozen preventive declaration hash mismatch.');
+  }
+  return true;
 }
 
 function fixtureIndex() {
@@ -281,6 +314,7 @@ if (require.main === module) main();
 
 module.exports = {
   classifyFixture,
+  validateFrozenDeclaration,
   runControlledDiagnostic,
   preventionSensitivity,
   buildDiagnosticBundle,

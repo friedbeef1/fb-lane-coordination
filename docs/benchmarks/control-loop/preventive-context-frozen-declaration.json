@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "fb-preventive-context-freeze-v1",
+  "experimentId": "fb-preventive-context-052-20260727",
+  "runnerDevelopmentBaseCommit": "27d1a31cc7e1d3675d38544d9e7e3240d5f274b8",
+  "families": ["features", "bugs", "tech", "design"],
+  "casesPerFamily": 24,
+  "seeds": [11, 29, 47],
+  "observationsPerArm": 288,
+  "deliverableObservations": 264,
+  "intentionalBlockerObservations": 24,
+  "milestones": {
+    "readiness91Required": 241,
+    "readiness99Required": 262,
+    "correctBlockersRequired": 24
+  },
+  "sensitivityRates": [0, 0.25, 0.5, 0.75, 0.91, 0.95, 0.99, 1],
+  "policy": {
+    "postFailureRepairCredit": false,
+    "assumedPreventionAccuracy": null,
+    "autonomousEvidenceSuppliesObservedPrevention": true,
+    "preserveUnfavorableResults": true,
+    "inPlaceRerunAllowed": false,
+    "postResultTuningAllowed": false
+  },
+  "hashes": {
+    "runner": "bb5b42107b2076288a66b58c6861d11a75a61eed0c07b973dd98e626fea2ef4e",
+    "truth": "e413babaa40f7b065072bb6182a41a103d80ae11990f4126217d24fc1bdb0bb5",
+    "settings": "0fb9f770d404b247790e9a89e9b9766ffe183e14b2027db32676137682a1128b"
+  },
+  "boundaries": {
+    "hiddenGraderDataInPrompts": false,
+    "intentionalBlockersMayBecomeReady": false,
+    "transcriptCapture": false,
+    "privateReasoningCapture": false,
+    "secretCapture": false,
+    "mergePublicationInstallationDeployment": false
+  }
+}

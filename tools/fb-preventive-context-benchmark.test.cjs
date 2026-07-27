@@ -89,6 +89,10 @@ test('sensitivity never relabels the 24 intentional blockers', () => {
   assert.equal(curve.points[1].totalResolvedOutcomes, 288);
 });
 
+test('frozen declaration binds runner, fixtures, milestones, and no-assumption policy', () => {
+  assert.equal(benchmark.validateFrozenDeclaration(), true);
+});
+
 test('writes one immutable diagnostic and validates exact recomputation', () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-preventive-'));
   const written = benchmark.writeDiagnostic({ outputDirectory: directory });
