@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "fb-context-efficiency-freeze-v1",
+  "experimentId": "fb-context-efficiency-051-20260727",
+  "authoritativeModeledRunCount": 1,
+  "candidateModel": {
+    "sourceArm": "graduated-fb",
+    "behaviorChange": "cost-only",
+    "contextCost": {
+      "implementationPath": "tools/fb-project-graph.cjs",
+      "implementationCommit": "7053cba2531d3d6bfb7c766fa3790c3457f35f0a",
+      "implementationSha256": "d51f104873810f41cfaec93f8b62501a3628248679e225ff5ee62bf75ba4d9d5",
+      "excerptFraction": 0.75,
+      "adjustedCalls": [
+        "focused",
+        "route",
+        "comparison",
+        "qa",
+        "safety",
+        "diagnosis",
+        "repair"
+      ],
+      "unchangedCalls": [
+        "process",
+        "humanDecision"
+      ],
+      "tokenRounding": "ceil-per-call",
+      "derivation": "The implemented compiler caps every selected evidence excerpt at 75% of its source and selected content. The model conservatively applies that pre-existing 0.75 fraction only to coordination/control call costs; core process work and human decisions remain unchanged."
+    },
+    "repairReuse": {
+      "implementationPath": "tools/fb-control-loop.cjs",
+      "implementationCommit": "edc0f765d38fba1c0ac8953bdd1b511eb2fac67b",
+      "implementationSha256": "7131e371559eba73af5e8582339a6dab6b14ee2c06ab215d224d8594d101e103",
+      "diagnosisPacketsPerFailureMaximum": 1,
+      "repairPacketsPerEligibleFailureMaximum": 1,
+      "failedProofsOnly": true,
+      "passedProofRerunCost": 0,
+      "proofRerunCallsRemoved": [],
+      "derivation": "The implemented planner emits one consolidated packet and schedules failed proofs only. Reviewed records already charge at most one diagnosis and one repair and expose no per-proof rerun call, so this arm removes no reviewed calls and claims no additional modeled saving for proof reuse."
+    },
+    "costModel": {
+      "process": {
+        "workUnits": 10,
+        "tokenUnits": 1000,
+        "minutes": 2
+      },
+      "focused": {
+        "workUnits": 1,
+        "tokenUnits": 68,
+        "minutes": 0.075
+      },
+      "route": {
+        "workUnits": 1,
+        "tokenUnits": 60,
+        "minutes": 0.06
+      },
+      "comparison": {
+        "workUnits": 2,
+        "tokenUnits": 135,
+        "minutes": 0.15
+      },
+      "qa": {
+        "workUnits": 2,
+        "tokenUnits": 113,
+        "minutes": 0.1125
+      },
+      "safety": {
+        "workUnits": 1,
+        "tokenUnits": 75,
+        "minutes": 0.075
+      },
+      "diagnosis": {
+        "workUnits": 3,
+        "tokenUnits": 165,
+        "minutes": 0.1875
+      },
+      "repair": {
+        "workUnits": 8,
+        "tokenUnits": 600,
+        "minutes": 1.125
+      },
+      "humanDecision": {
+        "workUnits": 0,
+        "tokenUnits": 0,
+        "minutes": 1
+      }
+    }
+  },
+  "thresholds": {
+    "modeledTokenUnitsMaximum": 298080,
+    "modeledMinutesMaximum": 557.3,
+    "productReadyRateMinimum": 0.792,
+    "missedRequiredControlsMaximum": 0,
+    "safetyTriggerResponseRateMinimum": 1,
+    "unresolvedFailuresMaximum": 57,
+    "privacyBoundaryMustBePreserved": true,
+    "releaseBoundaryMustBePreserved": true
+  },
+  "boundaries": {
+    "privacyPreserved": true,
+    "releasePreserved": true,
+    "privacyRule": "Context packets reject transcripts, private reasoning, secrets, credentials, and unredacted private data.",
+    "releaseRule": "Candidate evidence cannot approve, merge, publish, install, deploy, or replace Push Live authority.",
+    "activeGuidanceChanged": false
+  },
+  "runnerGrader": {
+    "path": "tools/fb-context-efficiency-benchmark.cjs",
+    "sha256": "227db66d61328638f35cc0f108816f8f1623ac259cea8e6df328129e3a312ee7",
+    "contract": "Reproduce reviewed evidence, clone Graduated FB behavior and draws, apply frozen cost-only model, recompute raw records, and require every adoption predicate."
+  },
+  "reviewedEvidence": {
+    "path": "docs/benchmarks/control-loop/graduated-results.json",
+    "sha256": "a24c62093880bb6cc8ff93e0e873b402e75d7b3a63b0e83471ce4c9e07276f05",
+    "gitBlob": "2bae8db62d7e2df7fff403690a6d98d6e7f42666",
+    "sourceCommit": "d10e6eb17a62ecbce47c8f7701938a77f7d99850",
+    "schemaVersion": "fb-graduated-control-result-v2",
+    "experimentId": "fb-graduated-control-050-repair-20260727",
+    "recordCount": 864,
+    "rawRecordsSha256": "af3cbca6e661587e595b11d6663c0ee4d821482c1af0a2c6b4d5f67b5433e2b7",
+    "truthSha256": "a3660cec3acd103e74a19fccad6a22844e2e71aae7097a79fdba0dbc295ce61d",
+    "settingsSha256": "07312853718b7da8901a6c92c0297223ce7ec382676ed58219c85960fff2037c",
+    "policySha256": "6661e10d4fd18bce627e7b5ac1f9fb076d3e393ed73d902ca58fdd4fc03a52f3",
+    "costModelSha256": "1a7307fdaf03c58b58266b8c400f1a13c842daa81288185baeed245a8a417971",
+    "graderImplementationSha256": "313d05a862b6cd78e681ce5cbcfe313246f4afdc016617665e142e8a42d177b1",
+    "seedsSha256": "8c3598742bd3db5b46521974773964aca87fb75c16a00efa90781758078b03fd"
+  },
+  "publicationDeclaration": {
+    "preserveEveryValidUnfavorableResult": true,
+    "selectiveRerunsAllowed": false,
+    "postResultThresholdTuningAllowed": false,
+    "postResultModelTuningAllowed": false,
+    "adoptionRequiresEveryPredicate": true,
+    "overwriteAuthoritativeEvidenceAllowed": false
+  }
+}
