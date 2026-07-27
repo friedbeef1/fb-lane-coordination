@@ -94,7 +94,13 @@
     genuinely eligible safe step-downs, but over-applied controls in 108 cases.
     Independent methodology review passed with zero Critical or Important
     findings. TASK-050 is restored to Ready to ship; the prior release
-    checkpoint was not rerun.
+    checkpoint was not rerun. A follow-up fast-decay candidate preserved
+    readiness, unresolved outcomes, zero missed controls, and 100% safety while
+    reducing modeled tokens by 1.1% and excess-control cases from 108 to 85.
+    That 21.3% reduction missed the frozen 25% adoption threshold (81 or fewer),
+    so the candidate was rejected and canonical guidance and plugin behavior
+    remain unchanged. Its repaired evidence and exact metadata binding passed
+    independent review with zero Critical or Important findings.
 
 ### TASK-049 - Graph-Directed Plugin Navigation
 

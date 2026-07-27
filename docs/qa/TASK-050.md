@@ -76,6 +76,10 @@ FB `0.5.0-beta+codex.20260726130257` on
   exact superseded-result identity, invalidation reason, replacement-run
   declaration, and disclosed development history. It does not prove historical
   execution count, the absence of exploratory runs, or the absence of tuning.
+  Independent review of the repaired evidence and metadata binding passed with
+  zero Critical or Important findings. The dedicated evidence contract passed
+  17/17 checks. The rejected candidate therefore remains useful experimental
+  evidence, but it does not change the canonical control policy or plugin.
 - Changelog wording: approved by James in the originating conversation on
   2026-07-26.
 - Independent whole-branch review: specification and quality passed with zero

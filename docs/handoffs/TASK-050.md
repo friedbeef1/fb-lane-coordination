@@ -54,7 +54,10 @@ review_state: not reviewable
 - Graduated evidence: [three-arm mixed-complexity experiment](../benchmarks/control-loop/graduated.md)
 - Rejected policy evidence: [four-arm fast-decay experiment](../benchmarks/control-loop/fast-decay.md)
   (replacement result; the invalid `ebe22ed` result is identified by hash in
-  the report)
+  the report). Independent review of the repaired evidence and metadata
+  binding passed with zero Critical or Important findings. The adoption gate
+  still failed at 85 excess-control cases versus the frozen maximum of 81, so
+  no operating-guidance or plugin change was adopted.
 - Superseded evidence: the original graduated result from `06b292d` is
   non-publishable because the process-all arm omitted the promised final QA.
   The linked replacement is the only current graduated result.
