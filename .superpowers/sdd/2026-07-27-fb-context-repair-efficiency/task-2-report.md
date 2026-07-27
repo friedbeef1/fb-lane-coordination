@@ -180,3 +180,60 @@ separately to preserve that implementation commit identity.
 Callers must preserve the stable Quick execution-slice identifier across repair
 planning attempts; a different `sliceId` intentionally denotes a different
 execution slice.
+
+## Review repair — round 3
+
+### Scope
+
+Replaced the caller-selected Quick `sliceId` claim with a pre-issued,
+clone-local one-use authority reference. Issuance durably binds the authority
+to task ID, slice ID, candidate identity/hash, state identity, changed paths,
+and the current Quick policy; planning validates that exact binding before an
+atomic one-time consume.
+
+### RED
+
+Command:
+
+```sh
+node tools/fb-control-loop.test.cjs
+```
+
+Observed expected RED after adding pre-issuance contracts: the focused suite
+failed with `TypeError: issueQuickRepairAuthority is not a function` at the
+new authority issuance helper.
+
+### GREEN
+
+Commands:
+
+```sh
+node tools/fb-control-loop.test.cjs
+node --check tools/fb-control-loop.cjs
+git diff --check
+```
+
+Results: 58/58 control-loop tests passed; syntax and whitespace checks passed.
+
+### Repair self-review
+
+- `issueQuickRepairAuthority` creates an exclusive clone-local record and
+  refuses another issuance for the same immutable task/state/path/policy
+  binding, including an alternate caller slice label.
+- The planner accepts only the returned authority reference. A forged or
+  substituted reference either has no durable record or fails exact task,
+  candidate/hash, state, path, and policy binding validation.
+- Consumption changes the durable one-use record from active to consumed under
+  the existing authority lock; replay yields `blocked-budget` without another
+  packet. Full repair and safety behavior are unchanged.
+- The durable record stores identifiers, hashes, policy, and counters only;
+  no brief, prompt, transcript, or output body is persisted.
+
+### Repair commit
+
+Pending commit at report update.
+
+### Repair concerns
+
+Quick callers must request the authority before planning, then retain the
+returned opaque reference for that one permitted repair.

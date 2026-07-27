@@ -31,6 +31,7 @@ const {
   advanceFullRepairBudget,
   closeFullRepairBudget,
   planConsolidatedRepair,
+  issueQuickRepairAuthority,
   aggregateEfficiencyMetrics,
   validatePromotion,
   collectControlLoopDoctorChecks,
@@ -1092,6 +1093,7 @@ test('doctor treats a non-Git optional consumer as unavailable but malformed Git
 
 function repairPlannerInput(overrides = {}) {
   return {
+    taskId: 'TASK-051',
     brief: 'Repair the focused control-loop candidate.',
     diagnosis: {
       failureClass: 'Build failure',
@@ -1115,7 +1117,6 @@ function repairPlannerInput(overrides = {}) {
     safetyTriggers: [],
     repairAuthority: {
       mode: 'Quick BFM',
-      sliceId: 'quick-slice-001',
       changedPaths: ['tools/fb-control-loop.cjs'],
       state: { repairLoops: 0, startedAt: 0 },
       event: { now: 1 },
@@ -1124,10 +1125,23 @@ function repairPlannerInput(overrides = {}) {
   };
 }
 
+function issueQuickAuthority(fixture, input, sliceId = 'quick-slice-001') {
+  return issueQuickRepairAuthority(fixture.repo, {
+    taskId: 'TASK-051',
+    sliceId,
+    candidateId: input.candidate.candidateId,
+    candidateHash: input.candidate.candidateHash,
+    changedPaths: input.repairAuthority.changedPaths,
+    state: input.repairAuthority.state,
+  });
+}
+
 test('plans exactly one minimal repair packet and reruns only failed proofs', () => {
   const fixture = createRepo();
   try {
-    const result = planConsolidatedRepair(fixture.repo, repairPlannerInput());
+    const input = repairPlannerInput();
+    input.repairAuthority.authorityRef = issueQuickAuthority(fixture, input);
+    const result = planConsolidatedRepair(fixture.repo, input);
     assert.strictEqual(result.status, 'repair');
     assert.deepStrictEqual(result.packet.failedProofIds, ['proof-build']);
     assert.deepStrictEqual(result.packet.candidate, {
@@ -1166,7 +1180,6 @@ test('uses existing Quick and Full repair authority without resetting either bud
   const quick = planConsolidatedRepair(repairPlannerInput({
     repairAuthority: {
       mode: 'Quick BFM',
-      sliceId: 'quick-slice-budget',
       changedPaths: ['tools/fb-control-loop.cjs'],
       state: { repairLoops: 1, startedAt: 0 },
       event: { now: 1 },
@@ -1194,30 +1207,26 @@ test('uses existing Quick and Full repair authority without resetting either bud
   }
 });
 
-test('consumes one Quick repair authority so replay cannot receive a second packet', () => {
+test('uses only pre-issued Quick authority references and blocks forgery, reissue, and replay', () => {
   const fixture = createRepo();
   try {
     const input = repairPlannerInput({
       repairAuthority: {
         mode: 'Quick BFM',
-        sliceId: 'quick-slice-001',
         changedPaths: ['tools/fb-control-loop.cjs'],
         state: { repairLoops: 0, startedAt: 12345 },
         event: { now: 12346 },
       },
     });
-    assert.strictEqual(planConsolidatedRepair(fixture.repo, input).status, 'repair');
-    const changedPacket = repairPlannerInput({
-      brief: 'Different mutable repair packet text.',
-      repairAuthority: {
-        mode: 'Quick BFM',
-        sliceId: 'quick-slice-001',
-        changedPaths: ['tools/fb-control-loop.cjs'],
-        state: { repairLoops: 0, startedAt: 12345, costLimit: 3 },
-        event: { now: 12346 },
-      },
+    const authorityRef = issueQuickAuthority(fixture, input);
+    input.repairAuthority.authorityRef = authorityRef;
+    assert.throws(() => issueQuickAuthority(fixture, input, 'quick-slice-forged'), /already issued|authority|slice/i);
+    const forged = repairPlannerInput({
+      repairAuthority: { ...input.repairAuthority, authorityRef: { authorityId: 'quick-slice-forged' } },
     });
-    assert.deepStrictEqual(planConsolidatedRepair(fixture.repo, changedPacket), { status: 'blocked-budget' });
+    assert.throws(() => planConsolidatedRepair(fixture.repo, forged), /issued|authority|reference/i);
+    assert.strictEqual(planConsolidatedRepair(fixture.repo, input).status, 'repair');
+    assert.deepStrictEqual(planConsolidatedRepair(fixture.repo, input), { status: 'blocked-budget' });
   } finally {
     fixture.cleanup();
   }
