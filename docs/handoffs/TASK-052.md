@@ -39,7 +39,13 @@ record_model: normalized-v1
 ## Current state
 
 - Design approved.
-- The implementation plan is frozen; experiment code is pending.
+- The controlled diagnostic is complete: Vanilla 183/264, broad-context FB
+  195/264, and graph-routed FB 197/264 first-pass deliverables; every arm kept
+  24/24 intentional blockers correct.
+- From the graph baseline, 91% requires 44/67 avoidable failures prevented
+  (65.7%); 99% requires 65/67 (97.0%).
+- No preventive accuracy was assumed. The autonomous holdout that supplies
+  observed prevention evidence is pending.
 - The controlled fixtures use Features, Bugs, Tech, and Design. Earlier generic
   scenario results remain historical and are not pooled.
-- No experiment result or adoption claim exists yet.
+- No adoption claim exists.
