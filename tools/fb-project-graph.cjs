@@ -22,6 +22,9 @@ const WORKSTREAMS = new Map([
 const FORBIDDEN_CONTEXT = /\b(?:transcript|conversation history|private reasoning|credential|unredacted private data|api[_ -]?key|authorization\s*:\s*bearer)\b/i;
 const PRIVATE_CONTEXT = /\b(?:private data|social security|ssn|credit card)\b/i;
 const MAX_CALLER_FIELD_CHARACTERS = 1000;
+const MAX_EXCERPT_CHARACTERS = 600;
+const MAX_EXCERPT_FRACTION = 0.75;
+const MIN_USEFUL_EXCERPT_CHARACTERS = 12;
 
 function relativePath(root, candidate) {
   return path.relative(root, candidate).split(path.sep).join('/');
@@ -584,8 +587,14 @@ function excerptForSource(source, contents, question) {
 function boundedExcerpt(source, contents, remaining, question) {
   if (remaining <= 0 || contents.length < 2) return '';
   const selected = excerptForSource(source, contents, question).replace(/\s+/g, ' ').trim();
-  const limit = Math.min(600, 1600, remaining, Math.max(1, contents.length - 1));
-  if (!selected) return '';
+  const limit = Math.min(
+    MAX_EXCERPT_CHARACTERS,
+    1600,
+    remaining,
+    Math.floor(contents.length * MAX_EXCERPT_FRACTION),
+    Math.floor(selected.length * MAX_EXCERPT_FRACTION),
+  );
+  if (!selected || limit < MIN_USEFUL_EXCERPT_CHARACTERS) return '';
   return selected.slice(0, limit).trim();
 }
 

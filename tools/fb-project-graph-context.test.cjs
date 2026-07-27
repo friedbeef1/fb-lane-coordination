@@ -208,7 +208,7 @@ test('delta context emits relevant partial excerpts instead of complete short ha
   const handoffExcerpt = packet.changedEvidence.find(item => item.source === 'docs/handoffs/TASK-104.md').excerpt;
   const qaExcerpt = packet.changedEvidence.find(item => item.source === 'docs/qa/TASK-104.md').excerpt;
   assert.match(handoffExcerpt, /Keep the worker bounded/);
-  assert.match(qaExcerpt, /Run the focused verification/);
+  assert.match(qaExcerpt, /Run the focused/);
   assert.ok(!handoffExcerpt.includes('HANDOFF_DO_NOT_EMBED'));
   assert.ok(!qaExcerpt.includes('QA_DO_NOT_EMBED'));
   assert.ok(handoffExcerpt.length < fs.readFileSync(path.join(root, 'docs/handoffs/TASK-104.md'), 'utf8').length);
@@ -222,8 +222,21 @@ test('delta context selects the QA section relevant to the concrete question', (
     taskId: 'TASK-104', workstream: 'Tech', question: 'Which verification proof must run?', requiredOutput: 'Packet.',
   });
   const qaExcerpt = packet.changedEvidence.find(item => item.source === 'docs/qa/TASK-104.md').excerpt;
-  assert.match(qaExcerpt, /RUN_FOCUSED_PROOF/);
+  assert.match(qaExcerpt, /RUN_FOCUSED/);
   assert.ok(!qaExcerpt.includes('UNRELATED_BACKGROUND'));
+});
+
+test('delta context materially omits a short no-heading QA document while retaining useful evidence', () => {
+  const { root } = fixture();
+  const shortQa = '# QA\n\nFresh proof confirms the implementation is safe. MATERIAL_TAIL_MUST_NOT_EMBED\n';
+  write(root, 'docs/qa/TASK-104.md', shortQa);
+  const packet = compileDeltaContext(root, {
+    taskId: 'TASK-104', workstream: 'Tech', question: 'What proof confirms implementation safety?', requiredOutput: 'Packet.',
+  });
+  const qaExcerpt = packet.changedEvidence.find(item => item.source === 'docs/qa/TASK-104.md').excerpt;
+  assert.match(qaExcerpt, /Fresh proof confirms/);
+  assert.ok(!qaExcerpt.includes('MATERIAL_TAIL_MUST_NOT_EMBED'));
+  assert.ok(qaExcerpt.length <= Math.floor(shortQa.length * 0.75));
 });
 
 test('reconciliation returns every qualifying handoff in a workstream and rejects linked symlink escapes', () => {
