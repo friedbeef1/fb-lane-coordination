@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "fb-preventive-context-autonomous-v1",
+  "experimentId": "fb-preventive-context-052-autonomous-20260727",
+  "evidenceType": {
+    "outcomes": "observed autonomous Codex first-candidate outcomes",
+    "providerTokens": "unavailable",
+    "elapsedWallTime": "unavailable",
+    "productionGeneralization": "directional small holdout"
+  },
+  "fixture": {
+    "shape": "one composite local project",
+    "families": ["features", "bugs", "tech", "design"],
+    "hiddenCriteria": 13,
+    "publicTests": 2,
+    "repairCredit": false
+  },
+  "topologyPolicy": {
+    "agentCountPrescribed": false,
+    "concurrencyPrescribed": false,
+    "aggregateAuthorityEquivalent": true,
+    "observedAgentsPerArmRun": 1,
+    "observedMaximumConcurrency": 1,
+    "observedIntegrationPasses": 1
+  },
+  "excludedShakedown": {
+    "vanilla": 11,
+    "broadFb": 10,
+    "preventiveGraphFb": 13
+  },
+  "countedRuns": {
+    "vanilla": [9, 9, 9],
+    "broadFb": [9, 7, 9],
+    "preventiveGraphFb": [13, 13, 12]
+  },
+  "summary": {
+    "vanilla": {
+      "medianPassed": 9,
+      "rangePassed": [9, 9],
+      "medianReadiness": 0.6923076923076923
+    },
+    "broadFb": {
+      "medianPassed": 9,
+      "rangePassed": [7, 9],
+      "medianReadiness": 0.6923076923076923
+    },
+    "preventiveGraphFb": {
+      "medianPassed": 13,
+      "rangePassed": [12, 13],
+      "medianReadiness": 1,
+      "rangeReadiness": [0.9230769230769231, 1]
+    }
+  },
+  "preventionAgainstMedianBaseline": {
+    "baselineFailures": 4,
+    "preventiveGraphFailures": [0, 0, 1],
+    "preventionRateRange": [0.75, 1],
+    "medianPreventionRate": 1,
+    "crossesModeled91RequirementEveryRun": true,
+    "crossesModeled99RequirementEveryRun": false
+  },
+  "decision": {
+    "readiness91": "supported directionally",
+    "readiness99": "not demonstrated robustly",
+    "adoption": "not authorized",
+    "reason": "One of three counted preventive-graph runs missed the privacy blocker, and authoritative token and elapsed-time evidence were unavailable."
+  }
+}

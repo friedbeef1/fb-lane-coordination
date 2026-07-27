@@ -1,0 +1,7 @@
+{
+  "name": "fb-preventive-holdout",
+  "private": true,
+  "scripts": {
+    "test": "node --test test/public.test.cjs"
+  }
+}

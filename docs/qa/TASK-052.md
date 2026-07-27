@@ -31,7 +31,22 @@ that graph context achieves either prevention rate.
 
 ## Autonomous holdout
 
-Pending. The holdout will let each arm choose its own agent topology and will
-report provider usage as unavailable if the execution environment does not
-expose authoritative tokens.
+The excluded shakedown scored Vanilla 11/13, broad FB 10/13, and preventive
+graph FB 13/13.
 
+Three counted repetitions produced:
+
+| Arm | Results | Median | Range |
+|---|---|---:|---:|
+| Vanilla | 9, 9, 9 of 13 | 69.2% | 69.2% |
+| Broad-context FB | 9, 7, 9 of 13 | 69.2% | 53.8%–69.2% |
+| Preventive graph FB | 13, 13, 12 of 13 | 100% | 92.3%–100% |
+
+- Every arm chose one inline agent, concurrency one, and one integration pass.
+- No counted arm received repair credit.
+- Preventive graph crossed the 91% prevention requirement in all three runs.
+- It did not cross the 99% requirement in every run; one run missed a privacy
+  blocker.
+- Provider tokens and elapsed wall time: unavailable from the autonomous
+  execution interface.
+- Adoption: not authorized.
