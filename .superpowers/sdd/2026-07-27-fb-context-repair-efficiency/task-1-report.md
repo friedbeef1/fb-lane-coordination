@@ -99,3 +99,46 @@ Results: focused context suite 9 passed, 0 failed; combined graph/context/plugin
 ### Repair concerns
 
 None.
+
+## Re-review repair — round 2
+
+### Scope
+
+Closed the remaining categorical non-embedding finding and its missing coverage. `boundedExcerpt` now has an independent 75% ceiling for both the full source and the selected relevant content, in addition to the existing 600-character/global limits. Sources too small to yield a useful partial excerpt are cited but not embedded.
+
+### RED
+
+Command:
+
+```sh
+node --test tools/fb-project-graph-context.test.cjs
+```
+
+Observed expected RED after adding the no-heading short-QA test: 9 passed, 1 failed. The failure showed `MATERIAL_TAIL_MUST_NOT_EMBED` still present in the short QA excerpt, proving that the old `contents.length - 1` bound could effectively reproduce the document.
+
+### GREEN
+
+Commands:
+
+```sh
+node --test tools/fb-project-graph-context.test.cjs
+node --test tools/fb-project-graph.test.cjs tools/fb-project-graph-plugin.test.cjs tools/fb-project-graph-context.test.cjs
+node --check tools/fb-project-graph.cjs
+git diff --check
+```
+
+Results: focused context suite 10 passed, 0 failed; combined graph/context/plugin suite 25 passed, 0 failed; syntax and whitespace checks passed.
+
+### Repair self-review
+
+- The independent fractional ceiling omits a material portion even when a source is short, one-paragraph, or has no Markdown section boundaries.
+- The new adversarial test proves retained evidence remains useful while `MATERIAL_TAIL_MUST_NOT_EMBED` is absent.
+- Existing question-relevant QA tests now assert useful partial evidence rather than requiring a complete section, preserving the categorical non-embedding boundary.
+
+### Repair commit
+
+`7053cba2531d3d6bfb7c766fa3790c3457f35f0a` (`fix: prevent full context excerpts`).
+
+### Repair concerns
+
+None.
