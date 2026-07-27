@@ -11,8 +11,9 @@ record_model: normalized-v1
 
 ## Project Start Brief
 
-- **What was requested:** Test whether FB can reach 95% product readiness by
-  preventing failures through better context rather than repairing them.
+- **What was requested:** Test whether FB can cross 91% and reach 99% product
+  readiness by preventing failures through better context rather than
+  repairing them.
 - **User decisions:** Compare Vanilla, FB without graph routing, and preventive
   graph FB; keep legitimate blockers safe and separate.
 - **Assumptions:** The existing frozen scenarios remain useful when their
