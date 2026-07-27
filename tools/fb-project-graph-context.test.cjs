@@ -159,3 +159,87 @@ test('BFM reconciliation blocks duplicate contradictory ready task IDs and falls
   assert.strictEqual(missing.route, 'normalized-record-fallback');
   assert.match(missing.fallbackReason, /missing/i);
 });
+
+test('delta context falls back before hashing linked or board evidence containing sensitive or private content', () => {
+  const { root } = fixture();
+  write(root, 'docs/qa/TASK-104.md', '# QA\n\nAuthorization: Bearer leaked-value\n');
+  let packet = compileDeltaContext(root, {
+    taskId: 'TASK-104', workstream: 'Tech', question: 'What proof is required?', requiredOutput: 'Packet.',
+  });
+  assert.strictEqual(packet.route, 'normalized-record-fallback');
+  assert.ok(!JSON.stringify(packet).includes('leaked-value'));
+
+  write(root, 'docs/qa/TASK-104.md', '# QA\n\nFocused proof only.\n');
+  const boardPath = path.join(root, 'PROJECT_BOARD.md');
+  fs.writeFileSync(boardPath, fs.readFileSync(boardPath, 'utf8').replace('Keep Tech focused', 'Authorization: Bearer board-value'));
+  packet = compileDeltaContext(root, {
+    taskId: 'TASK-104', workstream: 'Tech', question: 'What proof is required?', requiredOutput: 'Packet.',
+  });
+  assert.strictEqual(packet.route, 'normalized-record-fallback');
+  assert.ok(!JSON.stringify(packet).includes('board-value'));
+});
+
+test('delta context rejects sensitive or unbounded caller fields and never emits a raw question', () => {
+  const { root } = fixture();
+  for (const options of [
+    { question: 'Summarize password=hunter2', requiredOutput: 'Packet.' },
+    { question: 'What proof is required?', requiredOutput: 'Include secret value.' },
+    { question: 'x'.repeat(2001), requiredOutput: 'Packet.' },
+    { question: 'What proof is required?', requiredOutput: 'y'.repeat(2001) },
+  ]) {
+    const packet = compileDeltaContext(root, { taskId: 'TASK-104', workstream: 'Tech', ...options });
+    assert.strictEqual(packet.route, 'normalized-record-fallback');
+    assert.ok(!JSON.stringify(packet).includes('hunter2'));
+  }
+  const packet = compileDeltaContext(root, {
+    taskId: 'TASK-104', workstream: 'Tech', question: 'What proof is required?', requiredOutput: 'Packet.',
+  });
+  assert.strictEqual(Object.hasOwn(packet, 'question'), false);
+});
+
+test('delta context emits relevant partial excerpts instead of complete short handoff or QA documents', () => {
+  const { root } = fixture();
+  write(root, 'docs/handoffs/TASK-104.md', `${handoff('TASK-104', 'fb-tech', 'ready')}\n\n## Internal Notes\n\nHANDOFF_DO_NOT_EMBED\n`);
+  write(root, 'docs/qa/TASK-104.md', '# QA\n\n## Required Proof\n\nRun the focused verification.\n\n## Internal Notes\n\nQA_DO_NOT_EMBED\n');
+  const packet = compileDeltaContext(root, {
+    taskId: 'TASK-104', workstream: 'Tech', question: 'What verification proof is required?', requiredOutput: 'Packet.',
+  });
+  assert.strictEqual(packet.route, 'project-graph');
+  const handoffExcerpt = packet.changedEvidence.find(item => item.source === 'docs/handoffs/TASK-104.md').excerpt;
+  const qaExcerpt = packet.changedEvidence.find(item => item.source === 'docs/qa/TASK-104.md').excerpt;
+  assert.match(handoffExcerpt, /Keep the worker bounded/);
+  assert.match(qaExcerpt, /Run the focused verification/);
+  assert.ok(!handoffExcerpt.includes('HANDOFF_DO_NOT_EMBED'));
+  assert.ok(!qaExcerpt.includes('QA_DO_NOT_EMBED'));
+  assert.ok(handoffExcerpt.length < fs.readFileSync(path.join(root, 'docs/handoffs/TASK-104.md'), 'utf8').length);
+  assert.ok(qaExcerpt.length < fs.readFileSync(path.join(root, 'docs/qa/TASK-104.md'), 'utf8').length);
+});
+
+test('delta context selects the QA section relevant to the concrete question', () => {
+  const { root } = fixture();
+  write(root, 'docs/qa/TASK-104.md', '# QA\n\n## Background\n\nUNRELATED_BACKGROUND\n\n## Verification Proof\n\nRUN_FOCUSED_PROOF\n');
+  const packet = compileDeltaContext(root, {
+    taskId: 'TASK-104', workstream: 'Tech', question: 'Which verification proof must run?', requiredOutput: 'Packet.',
+  });
+  const qaExcerpt = packet.changedEvidence.find(item => item.source === 'docs/qa/TASK-104.md').excerpt;
+  assert.match(qaExcerpt, /RUN_FOCUSED_PROOF/);
+  assert.ok(!qaExcerpt.includes('UNRELATED_BACKGROUND'));
+});
+
+test('reconciliation returns every qualifying handoff in a workstream and rejects linked symlink escapes', () => {
+  const { root } = fixture();
+  write(root, 'docs/handoffs/TASK-777.md', handoff('TASK-777', 'fb-tech', 'blocked'));
+  const reconciliation = compileBfmReconciliation(root);
+  assert.strictEqual(reconciliation.route, 'project-graph');
+  assert.deepStrictEqual(reconciliation.relevant.filter(item => item.workstream === 'Tech').map(item => item.taskId), ['TASK-104', 'TASK-777']);
+
+  const external = path.join(os.tmpdir(), `fb-context-external-${process.pid}.md`);
+  fs.writeFileSync(external, '# QA\n\noutside project\n');
+  const qaPath = path.join(root, 'docs/qa/TASK-104.md');
+  fs.rmSync(qaPath);
+  fs.symlinkSync(external, qaPath);
+  const packet = compileDeltaContext(root, {
+    taskId: 'TASK-104', workstream: 'Tech', question: 'What proof is required?', requiredOutput: 'Packet.',
+  });
+  assert.strictEqual(packet.route, 'normalized-record-fallback');
+});

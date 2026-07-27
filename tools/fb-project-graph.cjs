@@ -20,6 +20,8 @@ const WORKSTREAMS = new Map([
   ['Bugs', 'fb-bugs'],
 ]);
 const FORBIDDEN_CONTEXT = /\b(?:transcript|conversation history|private reasoning|credential|unredacted private data|api[_ -]?key|authorization\s*:\s*bearer)\b/i;
+const PRIVATE_CONTEXT = /\b(?:private data|social security|ssn|credit card)\b/i;
+const MAX_CALLER_FIELD_CHARACTERS = 1000;
 
 function relativePath(root, candidate) {
   return path.relative(root, candidate).split(path.sep).join('/');
@@ -503,9 +505,21 @@ function compactLines(value) {
 
 function safeRelativeSource(root, source) {
   if (typeof source !== 'string' || !source || path.isAbsolute(source) || source === '..' || source.startsWith('../')) return false;
-  const absolute = path.resolve(root, source);
-  const relative = relativePath(root, absolute);
-  return relative !== '..' && !relative.startsWith('../') && fs.existsSync(absolute) && fs.statSync(absolute).isFile();
+  try {
+    const absolute = path.resolve(root, source);
+    const relative = relativePath(root, absolute);
+    if (relative === '..' || relative.startsWith('../') || fs.lstatSync(absolute).isSymbolicLink()) return false;
+    const resolvedRoot = fs.realpathSync(root);
+    const resolvedSource = fs.realpathSync(absolute);
+    const resolvedRelative = relativePath(resolvedRoot, resolvedSource);
+    return resolvedRelative !== '..' && !resolvedRelative.startsWith('../') && fs.statSync(resolvedSource).isFile();
+  } catch {
+    return false;
+  }
+}
+
+function forbiddenContext(value) {
+  return SENSITIVE.test(String(value)) || FORBIDDEN_CONTEXT.test(String(value)) || PRIVATE_CONTEXT.test(String(value));
 }
 
 function sourceState(root, sources) {
@@ -531,17 +545,20 @@ function normalizedContextFallback(taskId, workstream, reason) {
   };
 }
 
-function taskObjective(root, taskId) {
-  const boardPath = path.join(root, 'PROJECT_BOARD.md');
-  if (!fs.existsSync(boardPath)) return '';
-  for (const row of String(fs.readFileSync(boardPath, 'utf8')).split(/\r?\n/)) {
+function taskObjective(board, taskId) {
+  for (const row of String(board).split(/\r?\n/)) {
     const cells = row.split('|').slice(1, -1).map(cell => cell.trim());
     if (String(cells[0] || '').toUpperCase() === taskId) return cells[4] || '';
   }
   return '';
 }
 
-function excerptForSource(source, contents) {
+function questionKeywords(question) {
+  return [...new Set(String(question).toLowerCase().split(/[^a-z0-9]+/)
+    .filter(word => word.length >= 4 && !['what', 'which', 'must', 'required', 'evidence'].includes(word)))];
+}
+
+function excerptForSource(source, contents, question) {
   if (source.startsWith('docs/handoffs/')) {
     const selected = [
       markdownSection(contents, 'User Decision'),
@@ -550,16 +567,24 @@ function excerptForSource(source, contents) {
       markdownSection(contents, 'Acceptance Criteria'),
       markdownSection(contents, 'Required Output'),
       markdownSection(contents, 'Verification'),
-    ].filter(Boolean).join('\n');
+    ].filter(Boolean).slice(0, 3).join('\n');
     if (selected) return selected;
   }
-  return String(contents).replace(/^---[\s\S]*?---\s*/m, '').trim();
+  const body = String(contents).replace(/^---[\s\S]*?---\s*/m, '').trim();
+  const sections = [...body.matchAll(/^##\s+([^\n]+)\s*\n([\s\S]*?)(?=^##\s+|(?![\s\S]))/gm)]
+    .map(match => ({ heading: match[1], content: match[2].trim() }));
+  const keywords = questionKeywords(question);
+  const relevant = sections.find(section => !/\b(?:internal|private|notes?)\b/i.test(section.heading)
+    && keywords.some(keyword => `${section.heading} ${section.content}`.toLowerCase().includes(keyword)))
+    || sections.find(section => !/\b(?:internal|private|notes?)\b/i.test(section.heading)) || sections[0];
+  if (relevant?.content) return relevant.content;
+  return body.split(/\n\s*\n/).find(paragraph => paragraph.trim() && !/^#/.test(paragraph.trim()))?.trim() || '';
 }
 
-function boundedExcerpt(source, contents, remaining) {
+function boundedExcerpt(source, contents, remaining, question) {
   if (remaining <= 0 || contents.length < 2) return '';
-  const selected = excerptForSource(source, contents).replace(/\s+/g, ' ').trim();
-  const limit = Math.min(1600, remaining, Math.max(1, contents.length - 1));
+  const selected = excerptForSource(source, contents, question).replace(/\s+/g, ' ').trim();
+  const limit = Math.min(600, 1600, remaining, Math.max(1, contents.length - 1));
   if (!selected) return '';
   return selected.slice(0, limit).trim();
 }
@@ -573,7 +598,8 @@ function compileDeltaContext(root, options = {}) {
   if (!SAFE_TASK_ID.test(taskId) || !WORKSTREAMS.has(workstream) || !question || !requiredOutput) {
     return normalizedContextFallback(taskId, workstream, 'A safe task ID, supported workstream, concrete question, and required output are required.');
   }
-  if (FORBIDDEN_CONTEXT.test(question) || FORBIDDEN_CONTEXT.test(requiredOutput)) {
+  if (question.length > MAX_CALLER_FIELD_CHARACTERS || requiredOutput.length > MAX_CALLER_FIELD_CHARACTERS
+    || forbiddenContext(question) || forbiddenContext(requiredOutput)) {
     return normalizedContextFallback(taskId, workstream, 'Forbidden context content was requested.');
   }
   let graph;
@@ -592,26 +618,36 @@ function compileDeltaContext(root, options = {}) {
   }
   const handoff = fs.readFileSync(path.join(resolvedRoot, handoffSource), 'utf8');
   const meta = frontmatter(handoff);
-  if (meta.task !== taskId || meta.lane !== WORKSTREAMS.get(workstream) || SENSITIVE.test(handoff) || FORBIDDEN_CONTEXT.test(handoff)) {
+  if (meta.task !== taskId || meta.lane !== WORKSTREAMS.get(workstream) || forbiddenContext(handoff)) {
     return normalizedContextFallback(taskId, workstream, 'Required fields are contradictory or source content is forbidden.');
   }
   const linkedSources = markdownLinks(handoff)
     .map(target => resolvedMarkdownTarget(resolvedRoot, handoffSource, target))
-    .filter(source => source && safeRelativeSource(resolvedRoot, source));
+    .filter(Boolean);
+  if (linkedSources.some(source => !safeRelativeSource(resolvedRoot, source))) {
+    return normalizedContextFallback(taskId, workstream, 'A linked evidence source is missing or unsafe.');
+  }
   const sources = [...new Set([handoffSource, ...linkedSources, 'PROJECT_BOARD.md'])].slice(0, 4);
+  const sourceContents = new Map();
+  for (const source of sources) {
+    if (!safeRelativeSource(resolvedRoot, source)) return normalizedContextFallback(taskId, workstream, 'A candidate source is missing or unsafe.');
+    const contents = fs.readFileSync(path.join(resolvedRoot, source), 'utf8');
+    if (forbiddenContext(contents)) return normalizedContextFallback(taskId, workstream, 'A candidate source contains forbidden content.');
+    sourceContents.set(source, contents);
+  }
   const nextSourceStateHashes = sourceState(resolvedRoot, sources);
   const known = options.knownSourceHashes && typeof options.knownSourceHashes === 'object' ? options.knownSourceHashes : {};
   const changedEvidence = [];
   const unchangedEvidence = [];
   let remaining = 4000;
   for (const source of sources) {
-    const contents = fs.readFileSync(path.join(resolvedRoot, source), 'utf8');
+    const contents = sourceContents.get(source);
     const hash = nextSourceStateHashes[source];
     if (known[source] === hash) {
       unchangedEvidence.push({ source, sha256: hash });
       continue;
     }
-    const excerpt = boundedExcerpt(source, contents, remaining);
+    const excerpt = boundedExcerpt(source, contents, remaining, question);
     if (!excerpt) continue;
     changedEvidence.push({ source, sha256: hash, excerpt });
     remaining -= excerpt.length;
@@ -623,8 +659,7 @@ function compileDeltaContext(root, options = {}) {
     route: 'project-graph',
     taskId,
     workstream,
-    question,
-    currentObjective: taskObjective(resolvedRoot, taskId),
+    currentObjective: taskObjective(sourceContents.get('PROJECT_BOARD.md'), taskId),
     activeTaskNode: taskNode,
     userDecisions: decisions,
     approvedDecisions: decisions,
@@ -676,7 +711,7 @@ function compileBfmReconciliation(root, options = {}) {
     const contents = fs.readFileSync(path.join(resolvedRoot, source), 'utf8');
     const meta = frontmatter(contents);
     const workstream = [...WORKSTREAMS.entries()].find(([, lane]) => lane === meta.lane)?.[0];
-    if (!workstream || !SAFE_TASK_ID.test(String(meta.task || '')) || SENSITIVE.test(contents) || FORBIDDEN_CONTEXT.test(contents)) {
+    if (!workstream || !SAFE_TASK_ID.test(String(meta.task || '')) || forbiddenContext(contents)) {
       return normalizedReconciliationFallback('A required handoff field is contradictory or forbidden.');
     }
     records.push({ source, contents, taskId: meta.task, workstream, status: String(meta.status || '').toLowerCase(), sha256: sha256(contents) });
@@ -690,15 +725,21 @@ function compileBfmReconciliation(root, options = {}) {
   const relevant = [];
   for (const [workstream] of WORKSTREAMS) {
     const candidates = records.filter(record => record.workstream === workstream && !terminal.has(record.status));
-    const selected = candidates.find(record => ['ready', 'blocked', 'changed', 'conflicting'].includes(record.status));
-    const changed = selected && known[selected.source] !== selected.sha256;
-    if (!selected || !changed) {
+    const selected = candidates.filter(record => ['ready', 'blocked', 'changed', 'conflicting'].includes(record.status)
+      && known[record.source] !== record.sha256);
+    if (!selected.length) {
       dispositions.push({ workstream, disposition: 'None relevant' });
       continue;
     }
-    const item = { taskId: selected.taskId, workstream, status: selected.status, source: selected.source, sha256: selected.sha256 };
-    dispositions.push({ workstream, disposition: selected.status, handoff: item });
-    relevant.push(item);
+    const items = selected.map(record => ({ taskId: record.taskId, workstream, status: record.status, source: record.source, sha256: record.sha256 }));
+    const statuses = [...new Set(items.map(item => item.status))];
+    dispositions.push({
+      workstream,
+      disposition: statuses.length === 1 ? statuses[0] : 'conflicting',
+      handoff: items[0],
+      handoffs: items,
+    });
+    relevant.push(...items);
   }
   const sources = records.map(record => record.source).sort();
   return {
