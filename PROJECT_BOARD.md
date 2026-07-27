@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-052 | In Progress | FB-Product / BFM + FB-Tech | Preventive Context | Compare Vanilla, broad-context FB, and preventive graph FB on first-pass readiness; require 251/264 deliverables and 24/24 correct blockers without repair credit | TASK-052 experiment runner/tests, frozen evidence, design/plan, handoff/QA only; no active plugin or package changes | [Handoff](docs/handoffs/TASK-052.md); [Design](docs/superpowers/specs/2026-07-27-fb-preventive-context-benchmark-design.md) |
 | TASK-051 | Staging QA | FB-Product / BFM + FB-Tech | Context Efficiency | Candidate rejected; 310,358 modeled token units exceeded the frozen 298,080 maximum, privacy failed as implementation evidence, and Task 4/adoption remain closed | TASK-051 records and benchmark evidence only; experimental runtime removed from the final tree while Git history and frozen evidence remain | [Handoff](docs/handoffs/TASK-051.md); [QA](docs/qa/TASK-051.md); [Superseding review](docs/benchmarks/control-loop/context-efficiency-independent-review.md); [Plan](docs/superpowers/plans/2026-07-27-fb-context-repair-efficiency.md) |
 | TASK-050 | Staging QA | FB-Product / BFM + FB-Tech | Agent Control Loop | Add generic rules-first routing, clone-local stage events, baseline comparison, layered gates, and isolated golden-fixture configuration evolution for FB 0.5 | New control-loop runtime/tests, session/eval integration, canonical/package harness and skills, TASK-050 records; no publication or live deployment | Graduated 864-execution benchmark and independent methodology review passed; Ready to ship; prior release checkpoint was not rerun; Push Live remains separate |
 | TASK-049 | Done | FB-Product / BFM | Plugin Navigation | Integrate graph-directed targeted reading into the bundled Codex plugin, support repository-specific task IDs, and release `0.4.0-beta+codex.20260726101229` | `tools/fb-project-graph*`, MCP surface, release metadata, canonical/package graph guidance and skills | [Handoff](docs/handoffs/TASK-049.md); [QA](docs/qa/TASK-049.md); [PR #51](https://github.com/friedbeef1/fb-lane-coordination/pull/51); installed and enabled |
@@ -56,6 +57,29 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-052 - Preventive Context Benchmark
+
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Product / BFM + FB-Tech
+*   **Area**: First-pass context quality and benchmark evidence
+*   **Scope**: Compare Vanilla, broad-context FB, and preventive graph FB using
+    the same public facts. Measure 95% against 264 deliverable cases and require
+    all 24 intentional blockers to remain correctly blocked.
+*   **Out of Scope**: Repair credit in headline readiness, hidden grader data,
+    selective reruns, active plugin behavior, package generation, merge,
+    publication, installation, or deployment.
+*   **Definition of Done**: The prevention policy is frozen before the
+    authoritative run; focused tests prove denominator integrity, arm
+    isolation, privacy, safety, and no-repair scoring; adoption requires every
+    declared predicate.
+*   **Affected Screens / Locks**: TASK-052 runner/tests, frozen benchmark
+    evidence, design/plan, handoff, QA, board, and index.
+*   **Links & Deliverables**:
+    [design](docs/superpowers/specs/2026-07-27-fb-preventive-context-benchmark-design.md);
+    [handoff](docs/handoffs/TASK-052.md).
 
 ---
 
