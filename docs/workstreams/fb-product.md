@@ -1,16 +1,26 @@
 # FB-Product Workstream Status
 
-Last Updated: 2026-07-26
+Last Updated: 2026-07-27
 Lane: FB-Product
 
 ## TASK-051 — Context and repair efficiency
 
-- Status: In Progress.
-- Outcome target: at least 10% lower raw modeled and observed tokens and elapsed
-  time than no-FB work without readiness, control, or safety regression.
-- Adoption boundary: active canonical/plugin behavior remains unchanged unless
-  both frozen modeled and real-Codex gates pass.
-- Links: [Handoff](../handoffs/TASK-051.md) and
+- Status: Staging QA (candidate rejected; no adoption).
+- Outcome: the sole authoritative modeled run used 310,358 token units against
+  the frozen 298,080 maximum (fail); modeled elapsed time passed at 555.375 of
+  557.3 minutes. Readiness was 231/288 (80.2%), missed required controls were
+  zero, immediate safety response was 100%, and unresolved failures were 57.
+- Decision: privacy and release boundaries passed, but the all-predicate
+  decision is reject. Task 4, six real-Codex comparisons, active guidance, and
+  plugin adoption were correctly skipped. This is modeled evidence only, not a
+  production token or wall-clock claim.
+- Audit boundary: root-only candidate runtime remains on the experiment branch
+  for auditability and is intentionally not generated into the plugin. The
+  plugin tree has no diff from Task 1 base `e5bc1f5`; package parity is not
+  claimed.
+- Review: independent Task 3 review and scoped repair re-review approved with
+  zero remaining Critical, Important, or Minor findings.
+- Links: [Handoff](../handoffs/TASK-051.md), [QA](../qa/TASK-051.md), and
   [plan](../superpowers/plans/2026-07-27-fb-context-repair-efficiency.md).
 
 ## TASK-050 — Generic agent control loop and FB 0.5.0-beta
