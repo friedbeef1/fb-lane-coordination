@@ -173,7 +173,7 @@ workstream record was changed.
 ## Commit
 
 Implementation, frozen declaration, and authoritative evidence:
-`7e646066f05c27850827b7d27c4d89ccfc72b6dc`
+`7e64606fad7f40495ab3b2e94f1d2b2336d427d7`
 (`test: evaluate context efficiency candidate`).
 
 This report is recorded separately so the implementation/evidence commit
@@ -187,3 +187,57 @@ source-excerpt bound, not observed provider token or elapsed-time evidence.
 Because reviewed records expose no per-proof rerun call, the model claims no
 additional repair-reuse saving. No production or population-wide efficiency
 claim is established.
+
+## Review repair — round 1
+
+### Scope
+
+Closed the independent review's focused-proof gap without changing production
+logic or any frozen experiment artifact:
+
+- added a read-only focused test that loads the committed frozen declaration
+  and machine result and passes them through `validateBundle`;
+- asserted the exact eight stored adoption predicate keys;
+- directly proved that `privacyPreserved: false` alone rejects adoption;
+- directly proved that `releasePreserved: false` alone rejects adoption;
+- corrected the nonexistent implementation/evidence commit hash above to the
+  actual commit.
+
+No authoritative experiment command was rerun. The frozen declaration, machine
+result, and readable experiment report were not modified.
+
+### Verification-only test evidence
+
+Command after adding the focused assertions:
+
+```sh
+node --test tools/fb-context-efficiency-benchmark.test.cjs
+```
+
+Result: 9/9 passed immediately. The existing production validator already
+implemented the required behavior, so this is verification-only coverage and
+not a claimed TDD RED or production fix.
+
+The new test validates the committed JSON artifacts rather than regenerated
+in-memory objects. Its two direct boundary checks use an otherwise passing
+candidate summary and require `failedPredicates` to be exactly
+`privacyBoundary` or `releaseBoundary`, respectively.
+
+### Frozen-artifact preservation
+
+Pre-repair SHA-256 values:
+
+| Frozen artifact | SHA-256 |
+|---|---|
+| `context-efficiency-frozen-declaration.json` | `96fa898717612306eadadb8366e690a1b94d080974e7118e2e2448e12414bc0c` |
+| `context-efficiency-results.json` | `818b754dd34e5b98b94380ca12eea0bced0d1949ac84f988dc4a8aa4ea6589fa` |
+| `context-efficiency.md` | `8deb7485da38cbace12830e88675005ef958d561d271388e3b9e710c67036a5f` |
+
+The final verification rechecks these exact values. Task 4 remains ineligible,
+and the original rejection remains unchanged.
+
+### Repair concerns
+
+None beyond the existing modeled-evidence limitation and rejected adoption
+status. No runtime, model, threshold, result, guidance, plugin, or release
+surface changed.

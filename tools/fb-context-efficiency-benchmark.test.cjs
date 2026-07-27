@@ -118,6 +118,53 @@ test('frozen hashes bind the model, thresholds, runner/grader, reviewed evidence
   assert.equal(result.hashes.declaration, benchmark.canonicalHash(declaration));
 });
 
+test('committed frozen artifacts validate and expose all eight adoption predicates', () => {
+  const declaration = readJson(path.join(
+    root, 'docs', 'benchmarks', 'control-loop', 'context-efficiency-frozen-declaration.json',
+  ));
+  const result = readJson(path.join(
+    root, 'docs', 'benchmarks', 'control-loop', 'context-efficiency-results.json',
+  ));
+  assert.doesNotThrow(() => benchmark.validateBundle(result, {
+    root, reviewedPath, declaration,
+  }));
+  assert.deepEqual(Object.keys(result.adoption.predicates).sort(), [
+    'missedRequiredControls',
+    'modeledMinutes',
+    'modeledTokenUnits',
+    'privacyBoundary',
+    'productReadyRate',
+    'releaseBoundary',
+    'safetyTriggerResponseRate',
+    'unresolvedFailures',
+  ]);
+
+  const passingSummary = {
+    ...result.candidateSummary,
+    modeledTokenUnits: declaration.thresholds.modeledTokenUnitsMaximum,
+    modeledMinutes: declaration.thresholds.modeledMinutesMaximum,
+    productReadyRate: declaration.thresholds.productReadyRateMinimum,
+    missedRequiredControls: declaration.thresholds.missedRequiredControlsMaximum,
+    safetyTriggerResponseRate: declaration.thresholds.safetyTriggerResponseRateMinimum,
+    unresolvedFailures: declaration.thresholds.unresolvedFailuresMaximum,
+  };
+  const privacyRejected = benchmark.evaluateAdoption(
+    passingSummary,
+    declaration.thresholds,
+    { ...result.boundaries, privacyPreserved: false },
+  );
+  assert.equal(privacyRejected.decision, 'reject');
+  assert.deepEqual(privacyRejected.failedPredicates, ['privacyBoundary']);
+
+  const releaseRejected = benchmark.evaluateAdoption(
+    passingSummary,
+    declaration.thresholds,
+    { ...result.boundaries, releasePreserved: false },
+  );
+  assert.equal(releaseRejected.decision, 'reject');
+  assert.deepEqual(releaseRejected.failedPredicates, ['releaseBoundary']);
+});
+
 test('validation rejects evidence, draw, cost, summary, hash, boundary, threshold, and rerun-policy mutations', () => {
   const { declaration, result } = fixture();
   const cases = [
