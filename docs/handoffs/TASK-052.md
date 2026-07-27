@@ -19,8 +19,9 @@ record_model: normalized-v1
   deliverable denominator is corrected.
 - **Out of scope:** Hidden-answer use, selective reruns, automatic adoption,
   plugin changes, publication, merge, installation, or deployment.
-- **Success:** At least 251/264 first-pass deliverables ready, 24/24 intentional
-  blockers correct, and the frozen efficiency, safety, and privacy gates pass.
+- **Success:** Report both the 241/264 (91%) and 262/264 (99%) first-pass
+  milestones, keep 24/24 intentional blockers correct, and pass the frozen
+  efficiency, safety, and privacy gates. Adoption requires the 99% milestone.
 
 ## Build Brief
 
@@ -36,4 +37,3 @@ record_model: normalized-v1
 - Design approved.
 - Frozen implementation plan and experiment code are pending.
 - No experiment result or adoption claim exists yet.
-

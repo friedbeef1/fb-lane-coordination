@@ -2,9 +2,10 @@
 
 ## Objective
 
-Test whether graph-derived context can raise first-pass product readiness to at
-least 95% by preventing avoidable failures before implementation, rather than
-repairing failures afterward.
+Test whether graph-derived context can raise first-pass product readiness
+through two explicit milestones—at least 91% and at least 99%—by preventing
+avoidable failures before implementation, rather than repairing failures
+afterward.
 
 The experiment compares:
 
@@ -28,8 +29,14 @@ The experiment therefore reports two separate outcomes:
 - **Blocker correctness:** correctly blocked outcomes among the 24 intentional
   blockers.
 
-Adoption requires at least 251/264 first-pass deliverables ready and 24/24
-intentional blockers handled correctly.
+The experiment reports both milestones:
+
+- **91% milestone:** at least 241/264 first-pass deliverables ready.
+- **99% milestone:** at least 262/264 first-pass deliverables ready.
+
+Both milestones separately require 24/24 intentional blockers handled
+correctly. The report shows the marginal tokens, elapsed time, context reads,
+and prevented failures required to move from 91% to 99%.
 
 ## Prevention boundary
 
@@ -103,7 +110,8 @@ The preventive graph candidate passes only when:
 
 | Measure | Required |
 |---|---:|
-| First-pass deliverable readiness | at least 251/264 |
+| First-pass deliverable readiness, 91% milestone | at least 241/264 |
+| First-pass deliverable readiness, 99% milestone | at least 262/264 |
 | Intentional blockers correct | 24/24 |
 | Raw tokens | at least 10% below Vanilla |
 | Elapsed time | at least 10% below Vanilla |
@@ -111,8 +119,12 @@ The preventive graph candidate passes only when:
 | Safety-trigger response | 100% |
 | Privacy boundary | all adversarial checks pass |
 
-Failure of any gate rejects adoption. A deterministic failure prevents the
-real-Codex holdout from running.
+The 91% and 99% outcomes are reported separately. Adoption requires the 99%
+milestone and every non-readiness gate. A deterministic result below 91%
+prevents the real-Codex holdout from running. A deterministic result at or
+above 91% but below 99% permits an evidence-only diagnosis of the remaining
+failures, but it does not permit adoption or post-result tuning of the frozen
+candidate.
 
 ## Outputs
 
@@ -125,4 +137,3 @@ real-Codex holdout from running.
 
 The experiment does not update active plugin behavior, generate package
 mirrors, publish, merge, install, or deploy.
-
