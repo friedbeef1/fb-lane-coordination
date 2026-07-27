@@ -40,7 +40,7 @@ Result: 19 passed, 0 failed. Also passed `node --check tools/fb-project-graph.cj
 
 ## Commit
 
-Pending at report creation; populated after commit amendment.
+`679abaf000934102f227b039ca816482f651e394` (`feat: add delta context compiler`); amended after this report update.
 
 ## Concerns
 
