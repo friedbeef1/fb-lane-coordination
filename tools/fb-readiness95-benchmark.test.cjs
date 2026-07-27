@@ -28,7 +28,7 @@ const resultsPath = path.join(
   'docs',
   'benchmarks',
   'control-loop',
-  'readiness95-v2-results.json',
+  'readiness95-results.json',
 );
 const prepareRunnerPath = path.join(
   __dirname,
@@ -342,11 +342,19 @@ test('recorded arm pass requires all three repetitions to clear both gates', () 
       );
       assert.equal(run.publicTestExit, 0);
       assert.equal(run.candidateModifiedAfterTest ?? false, false);
+      assert.equal(run.receiptMatches, true);
+      assert.equal(run.candidateMatchesEvidence, true);
+      assert.match(run.treatmentReceiptSha256, /^[a-f0-9]{64}$/);
+      assert.match(run.publicTestEvidenceSha256, /^[a-f0-9]{64}$/);
     }
     assert.equal(
       results.aggregates[arm].armPass,
       runs.every(run => run.pass),
     );
   }
-  assert.match(results.excludedV1.reason, /accessAvailable/);
+  assert.equal(results.result, 'parity');
+  assert.match(results.interpretation, /all three arms/i);
+  assert.equal(results.excludedRuns.length, 2);
+  assert.match(results.excludedRuns[0].reason, /accessAvailable/);
+  assert.match(results.excludedRuns[1].reason, /graph-only guidance/i);
 });

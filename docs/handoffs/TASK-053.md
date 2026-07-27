@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-053
 lane: fb-product
-status: in-progress
+status: staging-qa
 fb_harness: v3
 record_model: normalized-v1
 ---
@@ -43,11 +43,56 @@ public interface and automated-check state were incomplete, the graph treatment
 received scored answers unavailable to the other arms, and the blocker grader
 did not require unsafe work to be absent from `selected`.
 
-Version 3 publishes the complete interface and automated-check state to every
-arm, makes blocker exclusion deterministic, derives per-run treatment receipts,
-records the single public-test command and hashes, and enforces all executable
-freeze hashes. Nine wholly fresh version-3 runs are pending.
+Version 3 published the complete interface and automated-check state to every
+arm, made blocker exclusion deterministic, derived per-run treatment receipts,
+recorded the single public-test command and hashes, and enforced all executable
+freeze hashes before execution.
 
-See the [version-2 rejected result](../benchmarks/control-loop/readiness95-v2-rejected.md),
-[independent review](../benchmarks/control-loop/readiness95-v2-independent-review.md),
+Nine wholly fresh version-3 runs then produced:
+
+| Arm | Combined passes | Deliverables | Blockers | Median elapsed |
+|---|---:|---:|---:|---:|
+| Vanilla | 3/3 | 20/20 every run | 8/8 every run | 207.61 s |
+| Broad FB | 3/3 | 20/20 every run | 8/8 every run | 228.74 s |
+| Preventive Graph FB | 3/3 | 20/20 every run | 8/8 every run | 189.06 s |
+
+The result is **parity on this fixed benchmark**. It does not show an FB
+quality advantage, and the small topology-confounded timing sample does not
+support a speed claim. No plugin adoption or product-process change follows
+from this result.
+
+See the [version-3 result](../benchmarks/control-loop/readiness95.md),
+[independent result review](../benchmarks/control-loop/readiness95-v3-independent-review.md),
 and [QA record](../qa/TASK-053.md).
+
+## Task Receipt
+
+- **Approved brief:** Compare Vanilla, Broad FB, and Preventive Graph FB at a
+  fixed 95% deliverable gate plus mandatory blocker gate.
+- **Candidate range:** `d16f745` through the version-3 result closeout on
+  `codex/fb-preventive-context-benchmark`.
+- **Changed surfaces:** TASK-053 fixture, prompts, grader, freeze, focused
+  contract, result documentation, QA, board, and handoff routing.
+- **Execution:** three fresh isolated repetitions per arm; one candidate and
+  one recorded public test per subject; no repair or selective rerun.
+- **Failures and recovery:** versions 1 and 2 were excluded rather than
+  repaired after methodology defects were found. Version 3 was frozen only
+  after a bounded independent pre-run review returned GO.
+- **Verification:** focused contract 9/9; all nine evidence bindings and grades
+  recomputed; independent result review ACCEPT with 0 Critical and 0 Important
+  findings.
+- **Review state:** not reviewable — benchmark evidence only; there is no app
+  candidate or review environment.
+- **External gates:** no push, merge, publication, plugin installation, or
+  deployment authorized.
+- **Remaining owner/action:** Product may design a different real-project
+  incremental-benefit study only if its result would change a product decision.
+
+## Brief Validation
+
+- **Result:** pass
+- **Satisfied:** frozen threshold, equivalent scored facts, isolated subjects,
+  one-pass scoring, blocker integrity, reproducible evidence, honest exclusions,
+  and independent review.
+- **Not established:** token savings, causal graph advantage, real-project
+  production readiness, or universal FB superiority.
