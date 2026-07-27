@@ -231,7 +231,9 @@ Results: 58/58 control-loop tests passed; syntax and whitespace checks passed.
 
 ### Repair commit
 
-Pending commit at report update.
+Implementation: `edc0f765d38fba1c0ac8953bdd1b511eb2fac67b`
+(`fix: require pre-issued Quick authority`). This report update is recorded
+separately to preserve that implementation commit identity.
 
 ### Repair concerns
 
