@@ -1115,6 +1115,7 @@ function repairPlannerInput(overrides = {}) {
     safetyTriggers: [],
     repairAuthority: {
       mode: 'Quick BFM',
+      sliceId: 'quick-slice-001',
       changedPaths: ['tools/fb-control-loop.cjs'],
       state: { repairLoops: 0, startedAt: 0 },
       event: { now: 1 },
@@ -1165,6 +1166,7 @@ test('uses existing Quick and Full repair authority without resetting either bud
   const quick = planConsolidatedRepair(repairPlannerInput({
     repairAuthority: {
       mode: 'Quick BFM',
+      sliceId: 'quick-slice-budget',
       changedPaths: ['tools/fb-control-loop.cjs'],
       state: { repairLoops: 1, startedAt: 0 },
       event: { now: 1 },
@@ -1198,13 +1200,24 @@ test('consumes one Quick repair authority so replay cannot receive a second pack
     const input = repairPlannerInput({
       repairAuthority: {
         mode: 'Quick BFM',
+        sliceId: 'quick-slice-001',
         changedPaths: ['tools/fb-control-loop.cjs'],
         state: { repairLoops: 0, startedAt: 12345 },
         event: { now: 12346 },
       },
     });
     assert.strictEqual(planConsolidatedRepair(fixture.repo, input).status, 'repair');
-    assert.deepStrictEqual(planConsolidatedRepair(fixture.repo, input), { status: 'blocked-budget' });
+    const changedPacket = repairPlannerInput({
+      brief: 'Different mutable repair packet text.',
+      repairAuthority: {
+        mode: 'Quick BFM',
+        sliceId: 'quick-slice-001',
+        changedPaths: ['tools/fb-control-loop.cjs'],
+        state: { repairLoops: 0, startedAt: 12345, costLimit: 3 },
+        event: { now: 12346 },
+      },
+    });
+    assert.deepStrictEqual(planConsolidatedRepair(fixture.repo, changedPacket), { status: 'blocked-budget' });
   } finally {
     fixture.cleanup();
   }

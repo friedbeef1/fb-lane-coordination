@@ -177,16 +177,8 @@ function withFullRepairBudgetLock(cwd, fn) {
   }
 }
 
-function quickRepairAuthorityId(brief, changedPaths, state) {
-  const startedAt = state.sliceStartedAt ?? state.startedAt;
-  if (!Number.isFinite(startedAt) || startedAt < 0) throw new Error('Quick consolidated repair requires a trusted non-negative slice start time.');
-  return hashBytes(JSON.stringify({
-    briefHash: hashBytes(brief),
-    changedPaths: [...changedPaths].sort(),
-    startedAt,
-    tokenLimit: state.tokenLimit ?? null,
-    costLimit: state.costLimit ?? null,
-  }));
+function quickRepairAuthorityId(sliceId) {
+  return assertSafeIdentifier(sliceId, 'Quick repair authority slice ID');
 }
 
 function claimQuickRepairAuthority(cwd, authorityId) {
@@ -1079,7 +1071,7 @@ function planConsolidatedRepair(cwdOrInput = process.cwd(), maybeInput) {
     if (!['resolved', 'unresolved'].includes(trigger.status)) throw new Error(`Consolidated repair safety trigger ${index} has an invalid status.`);
     return trigger.status === 'unresolved';
   });
-  assertOnlyKeys(input.repairAuthority, ['mode', 'changedPaths', 'state', 'event', 'budgetRef'], 'Consolidated repair authority');
+  assertOnlyKeys(input.repairAuthority, ['mode', 'sliceId', 'changedPaths', 'state', 'event', 'budgetRef'], 'Consolidated repair authority');
   if (!['Quick BFM', 'Full BFM'].includes(input.repairAuthority.mode)) throw new Error('Consolidated repair requires existing Quick BFM or Full BFM authority.');
   if (unresolvedSafety) return { status: 'blocked-safety' };
   if (failedProofIds.length === 0) return { status: 'ready' };
@@ -1088,14 +1080,14 @@ function planConsolidatedRepair(cwdOrInput = process.cwd(), maybeInput) {
   let exhausted = false;
   if (input.repairAuthority.mode === 'Quick BFM') {
     const authority = input.repairAuthority;
-    if (authority.budgetRef !== undefined || !Array.isArray(authority.changedPaths) || !authority.changedPaths.length || !authority.state || !authority.event || quickPolicyForPaths(authority.changedPaths).mode !== 'Quick BFM') throw new Error('Quick consolidated repair requires existing Quick BFM path and state authority.');
+    if (authority.budgetRef !== undefined || typeof authority.sliceId !== 'string' || !Array.isArray(authority.changedPaths) || !authority.changedPaths.length || !authority.state || !authority.event || quickPolicyForPaths(authority.changedPaths).mode !== 'Quick BFM') throw new Error('Quick consolidated repair requires an existing stable Quick BFM slice ID, path, and state authority.');
     assertPlainObject(authority.state, 'Quick consolidated repair state');
     assertOnlyKeys(authority.event, ['now', 'authoritativeTokens', 'authoritativeCost'], 'Quick consolidated repair event');
     const budget = evaluateRunBudget({ ...authority.state, changedPaths: authority.changedPaths }, { ...authority.event, type: 'repair', materialProgress: true });
-    exhausted = budget.blocked || !claimQuickRepairAuthority(cwd, quickRepairAuthorityId(input.brief, authority.changedPaths, authority.state));
+    exhausted = budget.blocked || !claimQuickRepairAuthority(cwd, quickRepairAuthorityId(authority.sliceId));
   } else {
     const authority = input.repairAuthority;
-    if (authority.changedPaths !== undefined || authority.state !== undefined || authority.event !== undefined || authority.budgetRef === undefined) throw new Error('Full consolidated repair requires one existing durable Full budget reference.');
+    if (authority.sliceId !== undefined || authority.changedPaths !== undefined || authority.state !== undefined || authority.event !== undefined || authority.budgetRef === undefined) throw new Error('Full consolidated repair requires one existing durable Full budget reference.');
     const budgetRef = assertFullRepairBudgetRef(authority.budgetRef);
     if (budgetRef.candidateId !== candidate.candidateId) throw new Error('Full consolidated repair budget must match the current candidate.');
     const budget = readFullRepairBudget(cwd, budgetRef);

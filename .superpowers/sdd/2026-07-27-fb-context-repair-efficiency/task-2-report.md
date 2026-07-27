@@ -126,3 +126,55 @@ separately to preserve that implementation commit identity.
 ### Repair concerns
 
 None.
+
+## Review repair — round 2
+
+### Scope
+
+Replaced the mutable Quick authority claim derivation with the smallest stable
+caller-required execution-slice identity. The durable one-use claim no longer
+depends on brief, paths, or budget limits.
+
+### RED
+
+Command:
+
+```sh
+node tools/fb-control-loop.test.cjs
+```
+
+Observed expected RED after changing the replay test's brief and cost limit
+while retaining `sliceId`: the second call still returned `repair` instead of
+`blocked-budget` because the prior claim ID used mutable request values.
+
+### GREEN
+
+Commands:
+
+```sh
+node tools/fb-control-loop.test.cjs
+node --check tools/fb-control-loop.cjs
+git diff --check
+```
+
+Results: 58/58 control-loop tests passed; syntax and whitespace checks passed.
+
+### Repair self-review
+
+- Quick planning now requires a safe, stable `sliceId`; it is the only durable
+  claim identity, so mutable brief and budget changes cannot create another
+  claim for the same execution slice.
+- Full authority rejects `sliceId` and retains its durable budget-reference
+  contract; safety, ready, and no-progress precedence remain unchanged.
+- The clone-local one-use record continues to contain only the safe identifier
+  and timing metadata, never prompt, brief, or output content.
+
+### Repair commit
+
+Pending commit at report update.
+
+### Repair concerns
+
+Callers must preserve the stable Quick execution-slice identifier across repair
+planning attempts; a different `sliceId` intentionally denotes a different
+execution slice.
