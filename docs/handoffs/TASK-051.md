@@ -2,10 +2,9 @@
 type: fb-lane-handoff
 task: TASK-051
 lane: fb-product
-status: implemented
+status: staging-qa
 fb_harness: v3
 record_model: normalized-v1
-review_state: approved
 ---
 
 # TASK-051 — Context and repair efficiency
@@ -49,19 +48,21 @@ review_state: approved
   elapsed time passed at 555.375 minutes against 557.3; readiness remained
   231/288 (80.2%), missed required controls remained zero, immediate safety
   response remained 100%, and unresolved failures remained 57.
-- Boundaries: privacy and release boundaries passed. This is modeled evidence
-  only and establishes no production token or wall-clock claim.
+- Boundaries: the frozen model assumed privacy passed, but whole-branch runtime
+  probes disproved that assumption. Privacy is unverified/failed as
+  implementation evidence. The modeled time pass is not implementation proof.
 - Adoption: Task 4, the six real-Codex comparisons, active guidance, and
-  plugin adoption were correctly skipped.
-- Audit boundary: root-only candidate runtime remains on the experiment branch
-  for auditability and is intentionally not generated into the plugin. The
-  plugin tree has no diff from Task 1 base `e5bc1f5`; package parity is not
-  claimed.
-- Review state: approved — independent Task 3 review and scoped repair
-  re-review ended with zero remaining Critical, Important, or Minor findings.
-- Repository state: **Staging QA (candidate rejected; no adoption)** on
-  `codex/fb-context-repair-efficiency`; no merge or release occurred.
+  plugin adoption remain closed.
+- Final-tree boundary: the unsafe experimental runtime was removed from the
+  final tree. Its Git history and frozen evidence remain; the plugin tree still
+  has no diff from Task 1 base `e5bc1f5`.
+- Review state: the
+  [superseding independent review](../benchmarks/control-loop/context-efficiency-independent-review.md)
+  records the whole-branch findings and overrides earlier approval/privacy
+  claims without altering the frozen artifacts.
+- Repository state: **Staging QA** on
+  `codex/fb-context-repair-efficiency`; candidate rejected, no adoption, merge,
+  or release.
 - Verification: [TASK-051 QA](../qa/TASK-051.md)
-- Remaining owner/action: none. Preserve the rejected modeled evidence and
-  audit-only root candidate runtime; no release, package generation, or
-  adoption action is authorized.
+- Remaining owner/action: none. Preserve the rejected modeled evidence and keep
+  Task 4/adoption closed; no release or package generation is authorized.

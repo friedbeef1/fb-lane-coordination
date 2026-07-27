@@ -2,6 +2,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
@@ -118,16 +119,32 @@ test('frozen hashes bind the model, thresholds, runner/grader, reviewed evidence
   assert.equal(result.hashes.declaration, benchmark.canonicalHash(declaration));
 });
 
-test('committed frozen artifacts validate and expose all eight adoption predicates', () => {
+test('committed frozen artifacts remain intact and no longer bind to the removed candidate runtime', () => {
   const declaration = readJson(path.join(
     root, 'docs', 'benchmarks', 'control-loop', 'context-efficiency-frozen-declaration.json',
   ));
   const result = readJson(path.join(
     root, 'docs', 'benchmarks', 'control-loop', 'context-efficiency-results.json',
   ));
-  assert.doesNotThrow(() => benchmark.validateBundle(result, {
+  assert.throws(() => benchmark.validateBundle(result, {
     root, reviewedPath, declaration,
-  }));
+  }), /mismatch/);
+  const fileHash = file => crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  assert.notEqual(
+    declaration.candidateModel.contextCost.implementationSha256,
+    fileHash(path.join(root, 'tools', 'fb-project-graph.cjs')),
+  );
+  assert.notEqual(
+    declaration.candidateModel.repairReuse.implementationSha256,
+    fileHash(path.join(root, 'tools', 'fb-control-loop.cjs')),
+  );
+  assert.equal(result.hashes.declaration, benchmark.canonicalHash(declaration));
+  assert.equal(result.hashes.candidateModel, benchmark.canonicalHash(declaration.candidateModel));
+  assert.equal(result.hashes.thresholds, benchmark.canonicalHash(declaration.thresholds));
+  assert.equal(result.adoption.decision, 'reject');
+  assert.deepEqual(result.adoption.failedPredicates, ['modeledTokenUnits']);
+  assert.equal(result.task4Eligible, false);
+  assert.equal(result.activeGuidanceChanged, false);
   assert.deepEqual(Object.keys(result.adoption.predicates).sort(), [
     'missedRequiredControls',
     'modeledMinutes',

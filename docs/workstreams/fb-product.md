@@ -5,21 +5,20 @@ Lane: FB-Product
 
 ## TASK-051 — Context and repair efficiency
 
-- Status: Staging QA (candidate rejected; no adoption).
+- Status: Staging QA.
 - Outcome: the sole authoritative modeled run used 310,358 token units against
   the frozen 298,080 maximum (fail); modeled elapsed time passed at 555.375 of
   557.3 minutes. Readiness was 231/288 (80.2%), missed required controls were
   zero, immediate safety response was 100%, and unresolved failures were 57.
-- Decision: privacy and release boundaries passed, but the all-predicate
-  decision is reject. Task 4, six real-Codex comparisons, active guidance, and
-  plugin adoption were correctly skipped. This is modeled evidence only, not a
-  production token or wall-clock claim.
-- Audit boundary: root-only candidate runtime remains on the experiment branch
-  for auditability and is intentionally not generated into the plugin. The
-  plugin tree has no diff from Task 1 base `e5bc1f5`; package parity is not
-  claimed.
-- Review: independent Task 3 review and scoped repair re-review approved with
-  zero remaining Critical, Important, or Minor findings.
+- Decision: the all-predicate decision remains reject. The frozen model assumed
+  privacy passed, but whole-branch probes disproved that assumption; privacy is
+  unverified/failed as implementation evidence, and the modeled time pass is
+  not implementation proof. Task 4 and adoption remain closed.
+- Final-tree boundary: the experimental runtime was removed from the final
+  tree while its Git history and frozen evidence remain. The plugin tree has no
+  diff from Task 1 base `e5bc1f5`; package parity is not claimed.
+- Review: the [superseding independent review](../benchmarks/control-loop/context-efficiency-independent-review.md)
+  replaces earlier privacy and whole-branch approval claims.
 - Links: [Handoff](../handoffs/TASK-051.md), [QA](../qa/TASK-051.md), and
   [plan](../superpowers/plans/2026-07-27-fb-context-repair-efficiency.md).
 

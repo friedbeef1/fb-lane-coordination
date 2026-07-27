@@ -20,12 +20,10 @@ const REQUIRED_EVENT_FIELDS = [
   'durationMs', 'inputTokens', 'outputTokens', 'cost', 'nextAction',
 ];
 const USAGE_FIELDS = new Set(['durationMs', 'inputTokens', 'outputTokens', 'cost']);
-const CONTEXT_METRIC_FIELDS = new Set(['contextBytes', 'changedSourceCount', 'reusedSourceCount', 'repeatedReadCount']);
 const GATE_IDS = new Set(['focused', 'comparison', 'safety', 'integration', 'release']);
 const FORBIDDEN_KEY = /(?:secret|token|password|credential|api[_-]?key|environment[_-]?value|env[_-]?value|transcript|raw[_-]?prompt|complete[_-]?output|private[_-]?reasoning|chain[_-]?of[_-]?thought)/i;
 const CREDENTIAL_MATERIAL = /(?:\b(?:sk|rk|pk|xox[baprs])[-_][A-Za-z0-9_-]{8,}\b|\bgh[pousr]_[A-Za-z0-9]{20,}\b|\bAIza[0-9A-Za-z_-]{20,}\b|\bAKIA[0-9A-Z]{16}\b|-----BEGIN(?: [A-Z]+)? PRIVATE KEY-----|\bBearer\s+[A-Za-z0-9._~+/-]{12,}\b|\b(?:api[_-]?key|token|password|secret)\s*[:=]\s*[^\s,;]{8,})/i;
 const FULL_REPAIR_BUDGET_SCHEMA_VERSION = 'fb-full-repair-budget-v1';
-const QUICK_REPAIR_AUTHORITY_SCHEMA_VERSION = 'fb-quick-repair-authority-v1';
 const FULL_REPAIR_BUDGET_DURATION_MS = 120 * 60 * 1000;
 const FULL_REPAIR_MAX_REPAIRS = 2;
 const FULL_REPAIR_LOCK_WAIT_MS = 5000;
@@ -100,30 +98,6 @@ function fullRepairBudgetPaths(cwd = process.cwd(), runId) {
   return { common, directory, filePath };
 }
 
-function quickRepairAuthorityDirectory(common) {
-  const laneDirectory = path.join(common, 'fb-lane');
-  const authorityDirectory = path.join(laneDirectory, 'quick-repair-authorities');
-  assertNotSymlink(laneDirectory, 'Quick repair-authority store directory');
-  if (!fs.existsSync(laneDirectory)) fs.mkdirSync(laneDirectory, { mode: 0o700 });
-  assertNotSymlink(laneDirectory, 'Quick repair-authority store directory');
-  assertNotSymlink(authorityDirectory, 'Quick repair-authority directory');
-  if (!fs.existsSync(authorityDirectory)) fs.mkdirSync(authorityDirectory, { mode: 0o700 });
-  assertNotSymlink(authorityDirectory, 'Quick repair-authority directory');
-  const realDirectory = fs.realpathSync(authorityDirectory);
-  if (realDirectory !== path.join(common, 'fb-lane', 'quick-repair-authorities')) throw new Error('Unsafe Quick repair-authority directory outside the Git common directory.');
-  return realDirectory;
-}
-
-function quickRepairAuthorityPath(cwd, authorityId) {
-  const safeAuthorityId = assertSafeIdentifier(authorityId, 'Quick repair authority ID');
-  const common = gitCommonDir(cwd);
-  const directory = quickRepairAuthorityDirectory(common);
-  const filePath = path.resolve(directory, `${safeAuthorityId}.json`);
-  if (path.dirname(filePath) !== directory) throw new Error('Unsafe Quick repair-authority path.');
-  assertNotSymlink(filePath, 'Quick repair-authority record');
-  return filePath;
-}
-
 function fullRepairSleep(milliseconds) {
   const view = new Int32Array(new SharedArrayBuffer(4));
   Atomics.wait(view, 0, 0, milliseconds);
@@ -175,116 +149,6 @@ function withFullRepairBudgetLock(cwd, fn) {
   } finally {
     fs.rmSync(lockDirectory, { recursive: true, force: true });
   }
-}
-
-function stableJson(value) {
-  if (Array.isArray(value)) return value.map(stableJson);
-  if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map(key => [key, stableJson(value[key])]));
-  return value;
-}
-
-function quickRepairStateHash(state) {
-  assertPlainObject(state, 'Quick repair authority state');
-  assertPrivacySafeValue(state, 'Quick repair authority state');
-  return hashBytes(JSON.stringify(stableJson(state)));
-}
-
-function assertQuickRepairAuthorityRef(value) {
-  assertOnlyKeys(value, ['authorityId'], 'Quick repair authority reference');
-  return { authorityId: assertSafeIdentifier(value.authorityId, 'Quick repair authority ID') };
-}
-
-function assertQuickRepairAuthorityRecord(value, expectedRef) {
-  assertOnlyKeys(value, ['schemaVersion', 'authorityId', 'taskId', 'sliceId', 'candidateId', 'candidateHash', 'changedPaths', 'policy', 'stateHash', 'bindingHash', 'issuedAt', 'repairCount', 'maxRepairs', 'state'], 'Quick repair authority record');
-  if (value.schemaVersion !== QUICK_REPAIR_AUTHORITY_SCHEMA_VERSION) throw new Error('Quick repair authority record has an unsupported schema version.');
-  const authorityId = assertSafeIdentifier(value.authorityId, 'Quick repair authority ID');
-  if (expectedRef && authorityId !== expectedRef.authorityId) throw new Error('Quick repair authority reference does not match its durable record.');
-  const taskId = assertSafeIdentifier(value.taskId, 'Quick repair authority task ID');
-  const sliceId = assertSafeIdentifier(value.sliceId, 'Quick repair authority slice ID');
-  const candidateId = assertSafeIdentifier(value.candidateId, 'Quick repair authority candidate ID');
-  const candidateHash = assertSha256(value.candidateHash, 'Quick repair authority candidate hash');
-  const changedPaths = uniqueStringArray(value.changedPaths, 'Quick repair authority changedPaths').map(pathValue => assertRepositoryRelativePath(pathValue, 'Quick repair authority changedPath'));
-  const policy = quickPolicyForPaths(changedPaths);
-  if (policy.mode !== 'Quick BFM' || !isDeepStrictEqual(value.policy, policy)) throw new Error('Quick repair authority record has an invalid bound Quick policy.');
-  const stateHash = assertSha256(value.stateHash, 'Quick repair authority state hash');
-  const bindingHash = assertSha256(value.bindingHash, 'Quick repair authority binding hash');
-  if (!Number.isFinite(value.issuedAt) || !Number.isInteger(value.repairCount) || value.repairCount < 0 || value.repairCount > 1 || value.maxRepairs !== 1 || !['active', 'consumed'].includes(value.state)) throw new Error('Quick repair authority record has an invalid one-use state.');
-  if ((value.state === 'active') !== (value.repairCount === 0)) throw new Error('Quick repair authority record state and repair count disagree.');
-  return { ...value, authorityId, taskId, sliceId, candidateId, candidateHash, changedPaths, policy, stateHash, bindingHash };
-}
-
-function readQuickRepairAuthorityRecord(cwd, ref) {
-  const filePath = quickRepairAuthorityPath(cwd, ref.authorityId);
-  if (!fs.existsSync(filePath)) throw new Error(`Quick repair authority ${ref.authorityId} was not issued for this clone.`);
-  let record;
-  try {
-    record = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  } catch (error) {
-    throw new Error(`Quick repair authority ${ref.authorityId} is not valid durable JSON: ${error.message}`);
-  }
-  return { filePath, record: assertQuickRepairAuthorityRecord(record, ref) };
-}
-
-function quickRepairBindingHash(taskId, changedPaths, stateHash, policy) {
-  return hashBytes(JSON.stringify(stableJson({ taskId, changedPaths: [...changedPaths].sort(), stateHash, policy })));
-}
-
-function quickRepairAuthorityRecords(cwd) {
-  const common = gitCommonDir(cwd);
-  const directory = quickRepairAuthorityDirectory(common);
-  return fs.readdirSync(directory).filter(name => name.endsWith('.json')).map(name => {
-    const ref = { authorityId: path.basename(name, '.json') };
-    return readQuickRepairAuthorityRecord(cwd, assertQuickRepairAuthorityRef(ref)).record;
-  });
-}
-
-function issueQuickRepairAuthority(cwd = process.cwd(), input = {}) {
-  assertPrivacySafeValue(input, 'Quick repair authority issuance');
-  assertOnlyKeys(input, ['taskId', 'sliceId', 'candidateId', 'candidateHash', 'changedPaths', 'state'], 'Quick repair authority issuance');
-  const taskId = assertSafeIdentifier(input.taskId, 'Quick repair authority task ID');
-  const sliceId = assertSafeIdentifier(input.sliceId, 'Quick repair authority slice ID');
-  const candidateId = assertSafeIdentifier(input.candidateId, 'Quick repair authority candidate ID');
-  const candidateHash = assertSha256(input.candidateHash, 'Quick repair authority candidate hash');
-  const changedPaths = uniqueStringArray(input.changedPaths, 'Quick repair authority changedPaths').map(pathValue => assertRepositoryRelativePath(pathValue, 'Quick repair authority changedPath'));
-  const policy = quickPolicyForPaths(changedPaths);
-  if (policy.mode !== 'Quick BFM') throw new Error('Quick repair authority requires existing Quick BFM policy paths.');
-  const stateHash = quickRepairStateHash(input.state);
-  const bindingHash = quickRepairBindingHash(taskId, changedPaths, stateHash, policy);
-  return withFullRepairBudgetLock(cwd, () => {
-    if (quickRepairAuthorityRecords(cwd).some(record => record.bindingHash === bindingHash)) throw new Error('Quick repair authority for this immutable execution slice is already issued and cannot be reset.');
-    const authorityId = `quick-${crypto.randomBytes(16).toString('hex')}`;
-    const filePath = quickRepairAuthorityPath(cwd, authorityId);
-    writeExclusiveJson(filePath, {
-      schemaVersion: QUICK_REPAIR_AUTHORITY_SCHEMA_VERSION,
-      authorityId,
-      taskId,
-      sliceId,
-      candidateId,
-      candidateHash,
-      changedPaths,
-      policy,
-      stateHash,
-      bindingHash,
-      issuedAt: Date.now(),
-      repairCount: 0,
-      maxRepairs: 1,
-      state: 'active',
-    });
-    return { authorityId };
-  });
-}
-
-function consumeQuickRepairAuthority(cwd, authorityRef, binding) {
-  const ref = assertQuickRepairAuthorityRef(authorityRef);
-  return withFullRepairBudgetLock(cwd, () => {
-    const { filePath, record } = readQuickRepairAuthorityRecord(cwd, ref);
-    if (record.taskId !== binding.taskId || record.candidateId !== binding.candidateId || record.candidateHash !== binding.candidateHash || !isDeepStrictEqual(record.changedPaths, binding.changedPaths) || !isDeepStrictEqual(record.policy, binding.policy) || record.stateHash !== binding.stateHash) {
-      throw new Error('Quick repair authority reference does not match the current immutable slice binding.');
-    }
-    if (record.state !== 'active' || record.repairCount >= record.maxRepairs) return false;
-    replaceFullRepairBudgetRecord(filePath, { ...record, repairCount: 1, state: 'consumed' });
-    return true;
-  });
 }
 
 function assertFullRepairBudgetRef(value) {
@@ -512,8 +376,7 @@ function validateStageEvent(event) {
   if (!Number.isInteger(event.attempt) || event.attempt < 0) throw new Error('Stage event attempt must be a non-negative integer.');
   stringArray(event.criteriaIds, 'Stage event criteriaIds');
   stringArray(event.evidenceRefs, 'Stage event evidenceRefs');
-  for (const field of [...USAGE_FIELDS, ...CONTEXT_METRIC_FIELDS]) {
-    if (!Object.hasOwn(event, field) && CONTEXT_METRIC_FIELDS.has(field)) continue;
+  for (const field of USAGE_FIELDS) {
     if (!(event[field] === 'unavailable' || (typeof event[field] === 'number' && Number.isFinite(event[field]) && event[field] >= 0))) {
       throw new Error(`Stage event ${field} must be an authoritative non-negative value or unavailable.`);
     }
@@ -1125,113 +988,6 @@ function assessCandidateProgress(cwdOrInput = process.cwd(), maybeInput) {
   return productBoundary ? { status: 'stopped', candidateId: candidate.candidateId, productBoundary } : { status: 'progressed', candidateId: candidate.candidateId };
 }
 
-function planConsolidatedRepair(cwdOrInput = process.cwd(), maybeInput) {
-  const cwd = typeof cwdOrInput === 'string' ? cwdOrInput : process.cwd();
-  const input = typeof cwdOrInput === 'string' ? maybeInput : cwdOrInput;
-  assertPrivacySafeValue(input, 'Consolidated repair input');
-  assertOnlyKeys(input, ['taskId', 'brief', 'diagnosis', 'candidate', 'previousCandidate', 'requiredProofIds', 'failedProofIds', 'passedProofIds', 'evidenceRefs', 'safetyTriggers', 'repairAuthority'], 'Consolidated repair input');
-  const taskId = assertSafeIdentifier(input.taskId, 'Consolidated repair task ID');
-  if (typeof input.brief !== 'string' || !input.brief.trim()) throw new Error('Consolidated repair requires the current brief.');
-  assertOnlyKeys(input.diagnosis, ['failureClass', 'changedPaths', 'evidenceRefs'], 'Consolidated repair diagnosis');
-  if (!['Build failure', 'Brief failure', 'Eval failure', 'Environment failure'].includes(input.diagnosis.failureClass)) throw new Error('Consolidated repair requires one curated diagnosis failure class.');
-  const diagnosis = {
-    failureClass: input.diagnosis.failureClass,
-    changedPaths: uniqueStringArray(input.diagnosis.changedPaths, 'Consolidated repair diagnosis changedPaths').map(value => assertRepositoryRelativePath(value, 'Consolidated repair diagnosis changedPath')),
-    evidenceRefs: uniqueStringArray(input.diagnosis.evidenceRefs, 'Consolidated repair diagnosis evidenceRefs').map(value => assertEvidenceRef(value, 'Consolidated repair diagnosis evidenceRef')),
-  };
-  const validateCandidate = (value, label) => {
-    assertOnlyKeys(value, ['candidateId', 'candidateHash', 'evidenceRefs'], label);
-    return {
-      candidateId: assertSafeIdentifier(value.candidateId, `${label} ID`),
-      candidateHash: assertSha256(value.candidateHash, `${label} hash`),
-      evidenceRefs: uniqueStringArray(value.evidenceRefs, `${label} evidenceRefs`).map(item => assertEvidenceRef(item, `${label} evidenceRef`)),
-    };
-  };
-  const candidate = validateCandidate(input.candidate, 'Consolidated repair candidate');
-  const previousCandidate = input.previousCandidate === undefined ? null : validateCandidate(input.previousCandidate, 'Consolidated repair previous candidate');
-  const proofIds = (value, label) => uniqueStringArray(value, label, true).map(item => assertSafeIdentifier(item, label));
-  const requiredProofIds = proofIds(input.requiredProofIds, 'Consolidated repair required proof IDs');
-  if (!requiredProofIds.length) throw new Error('Consolidated repair requires at least one required proof ID.');
-  const failedProofIds = proofIds(input.failedProofIds, 'Consolidated repair failed proof IDs');
-  const passedProofIds = proofIds(input.passedProofIds, 'Consolidated repair passed proof IDs');
-  if (failedProofIds.some(id => passedProofIds.includes(id))) throw new Error('A proof cannot be both passed and failed.');
-  const accountedProofIds = new Set([...failedProofIds, ...passedProofIds]);
-  if (requiredProofIds.some(id => !accountedProofIds.has(id)) || [...accountedProofIds].some(id => !requiredProofIds.includes(id))) throw new Error('Consolidated repair proof results must exactly cover required proofs.');
-  const evidenceRefs = uniqueStringArray(input.evidenceRefs, 'Consolidated repair evidenceRefs').map(item => assertEvidenceRef(item, 'Consolidated repair evidenceRef'));
-  if (!Array.isArray(input.safetyTriggers)) throw new Error('Consolidated repair safetyTriggers must be an array.');
-  const unresolvedSafety = input.safetyTriggers.some((trigger, index) => {
-    assertOnlyKeys(trigger, ['id', 'status'], `Consolidated repair safety trigger ${index}`);
-    assertSafeIdentifier(trigger.id, `Consolidated repair safety trigger ${index} ID`);
-    if (!['resolved', 'unresolved'].includes(trigger.status)) throw new Error(`Consolidated repair safety trigger ${index} has an invalid status.`);
-    return trigger.status === 'unresolved';
-  });
-  assertOnlyKeys(input.repairAuthority, ['mode', 'authorityRef', 'changedPaths', 'state', 'event', 'budgetRef'], 'Consolidated repair authority');
-  if (!['Quick BFM', 'Full BFM'].includes(input.repairAuthority.mode)) throw new Error('Consolidated repair requires existing Quick BFM or Full BFM authority.');
-  if (unresolvedSafety) return { status: 'blocked-safety' };
-  if (failedProofIds.length === 0) return { status: 'ready' };
-  const materialProgress = !(previousCandidate && previousCandidate.candidateHash === candidate.candidateHash && isDeepStrictEqual(previousCandidate.evidenceRefs, candidate.evidenceRefs));
-  if (!materialProgress) return { status: 'blocked-no-progress' };
-  let exhausted = false;
-  if (input.repairAuthority.mode === 'Quick BFM') {
-    const authority = input.repairAuthority;
-    if (authority.budgetRef !== undefined || !Array.isArray(authority.changedPaths) || !authority.changedPaths.length || !authority.state || !authority.event || quickPolicyForPaths(authority.changedPaths).mode !== 'Quick BFM') throw new Error('Quick consolidated repair requires Quick BFM paths and state authority.');
-    assertPlainObject(authority.state, 'Quick consolidated repair state');
-    assertOnlyKeys(authority.event, ['now', 'authoritativeTokens', 'authoritativeCost'], 'Quick consolidated repair event');
-    const budget = evaluateRunBudget({ ...authority.state, changedPaths: authority.changedPaths }, { ...authority.event, type: 'repair', materialProgress: true });
-    if (!budget.blocked && authority.authorityRef === undefined) throw new Error('Quick consolidated repair requires one pre-issued durable Quick authority reference.');
-    exhausted = budget.blocked || !consumeQuickRepairAuthority(cwd, authority.authorityRef, {
-      taskId,
-      candidateId: candidate.candidateId,
-      candidateHash: candidate.candidateHash,
-      changedPaths: authority.changedPaths,
-      policy: quickPolicyForPaths(authority.changedPaths),
-      stateHash: quickRepairStateHash(authority.state),
-    });
-  } else {
-    const authority = input.repairAuthority;
-    if (authority.authorityRef !== undefined || authority.changedPaths !== undefined || authority.state !== undefined || authority.event !== undefined || authority.budgetRef === undefined) throw new Error('Full consolidated repair requires one existing durable Full budget reference.');
-    const budgetRef = assertFullRepairBudgetRef(authority.budgetRef);
-    if (budgetRef.candidateId !== candidate.candidateId) throw new Error('Full consolidated repair budget must match the current candidate.');
-    const budget = readFullRepairBudget(cwd, budgetRef);
-    try {
-      const fullAuthority = authoritativeFullBfmAuthority(cwd, budgetRef.sessionId);
-      exhausted = budget.state !== 'active' || Date.now() >= budget.deadlineAt || budget.repairCount >= budget.maxRepairs || fullAuthority.decisionVersion !== budget.decisionVersion;
-    } catch (error) {
-      exhausted = true;
-    }
-  }
-  if (exhausted) return { status: 'blocked-budget' };
-  return {
-    status: 'repair',
-    packet: {
-      brief: input.brief,
-      candidate: { candidateId: candidate.candidateId, candidateHash: candidate.candidateHash },
-      candidateDiff: { changedPaths: diagnosis.changedPaths, evidenceRefs: diagnosis.evidenceRefs },
-      failure: diagnosis.failureClass,
-      requiredEvidence: refs(diagnosis.evidenceRefs, evidenceRefs),
-      failedProofIds,
-    },
-  };
-}
-
-function aggregateEfficiencyMetrics(stageEvents) {
-  if (!Array.isArray(stageEvents) || !stageEvents.length) throw new Error('Efficiency aggregation requires one or more stage events.');
-  const events = stageEvents.map(validateStageEvent);
-  const total = field => events.some(event => event[field] === undefined || event[field] === 'unavailable')
-    ? 'unavailable'
-    : events.reduce((sum, event) => sum + event[field], 0);
-  const inputTokens = total('inputTokens');
-  const outputTokens = total('outputTokens');
-  return {
-    inputTokens,
-    outputTokens,
-    rawTokens: inputTokens === 'unavailable' || outputTokens === 'unavailable' ? 'unavailable' : inputTokens + outputTokens,
-    elapsedMs: total('durationMs'),
-    repeatedReads: total('repeatedReadCount'),
-    repairPasses: events.filter(event => event.stage === 'repair' && event.result === 'passed').length,
-  };
-}
-
 function validatePromotion(input = {}) {
   assertPrivacySafeValue(input, 'Promotion validation input');
   assertOnlyKeys(input, ['candidate', 'benchmark', 'approval'], 'Promotion validation input');
@@ -1312,9 +1068,6 @@ module.exports = {
   readCandidateStore,
   compareFrozenBenchmark,
   assessCandidateProgress,
-  planConsolidatedRepair,
-  issueQuickRepairAuthority,
-  aggregateEfficiencyMetrics,
   issueFullRepairBudget,
   readFullRepairBudget,
   advanceFullRepairBudget,

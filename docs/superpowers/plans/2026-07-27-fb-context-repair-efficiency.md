@@ -177,4 +177,3 @@ Run focused runtime, MCP, session/efficiency, package-context, parity, syntax,
 links, and whitespace checks plus one independent whole-branch review. Do not
 run another complete release checkpoint unless Product later requests a
 release. Stop at local **Ready to ship**; **Push Live** remains separate.
-

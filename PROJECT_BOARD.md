@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-051 | Staging QA (candidate rejected; no adoption) | FB-Product / BFM + FB-Tech | Context Efficiency | Frozen modeled candidate rejected: 310,358 token units exceeded the 298,080 maximum; no Task 4, guidance, or plugin adoption | TASK-051 coordination/QA records; audit-only root candidate runtime remains on `codex/fb-context-repair-efficiency` | [Handoff](docs/handoffs/TASK-051.md); [QA](docs/qa/TASK-051.md); [Plan](docs/superpowers/plans/2026-07-27-fb-context-repair-efficiency.md) |
+| TASK-051 | Staging QA | FB-Product / BFM + FB-Tech | Context Efficiency | Candidate rejected; 310,358 modeled token units exceeded the frozen 298,080 maximum, privacy failed as implementation evidence, and Task 4/adoption remain closed | TASK-051 records and benchmark evidence only; experimental runtime removed from the final tree while Git history and frozen evidence remain | [Handoff](docs/handoffs/TASK-051.md); [QA](docs/qa/TASK-051.md); [Superseding review](docs/benchmarks/control-loop/context-efficiency-independent-review.md); [Plan](docs/superpowers/plans/2026-07-27-fb-context-repair-efficiency.md) |
 | TASK-050 | Staging QA | FB-Product / BFM + FB-Tech | Agent Control Loop | Add generic rules-first routing, clone-local stage events, baseline comparison, layered gates, and isolated golden-fixture configuration evolution for FB 0.5 | New control-loop runtime/tests, session/eval integration, canonical/package harness and skills, TASK-050 records; no publication or live deployment | Graduated 864-execution benchmark and independent methodology review passed; Ready to ship; prior release checkpoint was not rerun; Push Live remains separate |
 | TASK-049 | Done | FB-Product / BFM | Plugin Navigation | Integrate graph-directed targeted reading into the bundled Codex plugin, support repository-specific task IDs, and release `0.4.0-beta+codex.20260726101229` | `tools/fb-project-graph*`, MCP surface, release metadata, canonical/package graph guidance and skills | [Handoff](docs/handoffs/TASK-049.md); [QA](docs/qa/TASK-049.md); [PR #51](https://github.com/friedbeef1/fb-lane-coordination/pull/51); installed and enabled |
 | TASK-048 | Staging QA | FB-Product / BFM | Project Navigation | Evaluate graduated graph navigation and a minimal graph-first route without changing product-truth authority | `tools/fb-project-graph*`, `.fb/graph/`, TASK-048 experiment/QA/coordination records | [Handoff](docs/handoffs/TASK-048.md); [Results](docs/experiments/TASK-048-graduated-project-graph-pilot.md); [QA](docs/qa/TASK-048.md) |
@@ -61,7 +61,7 @@
 
 ### TASK-051 - Context and Repair Efficiency
 
-*   **Status**: Staging QA (candidate rejected; no adoption)
+*   **Status**: Staging QA
 *   **Owner / Thread**: FB-Product / BFM + FB-Tech
 *   **Area**: Graph context, repair reuse, and measured efficiency
 *   **Scope**: Close the frozen modeled result: the candidate used 310,358
@@ -71,16 +71,17 @@
     remained 100%, and unresolved failures remained 57.
 *   **Out of Scope**: Weaker safety, transcript capture, hosted telemetry,
     selective reruns, merge, publication, installation, or deployment.
-*   **Definition of Done**: The all-predicate decision is reject. Privacy and
-    release boundaries passed; Task 4, six real-Codex comparisons, active
-    guidance, and plugin adoption were correctly skipped. Independent Task 3
-    review and scoped repair re-review were approved with zero remaining
-    Critical, Important, or Minor findings.
-*   **Affected Screens / Locks**: TASK-051 coordination/QA records only. The
-    root-only candidate runtime remains on the experiment branch for auditability
-    and is intentionally not generated into the plugin.
+*   **Definition of Done**: The all-predicate decision remains reject.
+    Whole-branch probes disproved the frozen privacy assumption, so privacy is
+    unverified/failed as implementation evidence and the modeled time pass is
+    not implementation proof. Task 4, six real-Codex comparisons, active
+    guidance, and plugin adoption remain closed.
+*   **Affected Screens / Locks**: TASK-051 coordination/QA records and
+    benchmark evidence only. The experimental runtime was removed from the
+    final tree while its Git history and frozen evidence remain.
 *   **Links & Deliverables**: [Plan](docs/superpowers/plans/2026-07-27-fb-context-repair-efficiency.md);
-    [handoff](docs/handoffs/TASK-051.md); [QA](docs/qa/TASK-051.md).
+    [handoff](docs/handoffs/TASK-051.md); [QA](docs/qa/TASK-051.md);
+    [superseding review](docs/benchmarks/control-loop/context-efficiency-independent-review.md).
 
 ---
 
