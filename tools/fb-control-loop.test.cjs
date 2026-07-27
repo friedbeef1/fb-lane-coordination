@@ -30,6 +30,8 @@ const {
   readFullRepairBudget,
   advanceFullRepairBudget,
   closeFullRepairBudget,
+  planConsolidatedRepair,
+  aggregateEfficiencyMetrics,
   validatePromotion,
   collectControlLoopDoctorChecks,
 } = require('./fb-control-loop.cjs');
@@ -1086,6 +1088,174 @@ test('doctor treats a non-Git optional consumer as unavailable but malformed Git
     fs.rmSync(nonGit, { recursive: true, force: true });
     fixture.cleanup();
   }
+});
+
+function repairPlannerInput(overrides = {}) {
+  return {
+    brief: 'Repair the focused control-loop candidate.',
+    diagnosis: {
+      failureClass: 'Build failure',
+      changedPaths: ['tools/fb-control-loop.cjs'],
+      evidenceRefs: ['evidence/diff'],
+    },
+    candidate: {
+      candidateId: 'candidate-repair-002',
+      candidateHash: sha256('candidate-repair-002'),
+      evidenceRefs: ['evidence/candidate'],
+    },
+    previousCandidate: {
+      candidateId: 'candidate-repair-001',
+      candidateHash: sha256('candidate-repair-001'),
+      evidenceRefs: ['evidence/previous'],
+    },
+    requiredProofIds: ['proof-build', 'proof-focused'],
+    failedProofIds: ['proof-build'],
+    passedProofIds: ['proof-focused'],
+    evidenceRefs: ['evidence/repair'],
+    safetyTriggers: [],
+    repairAuthority: {
+      mode: 'Quick BFM',
+      changedPaths: ['tools/fb-control-loop.cjs'],
+      state: { repairLoops: 0, startedAt: 0 },
+      event: { now: 1 },
+    },
+    ...overrides,
+  };
+}
+
+test('plans exactly one minimal repair packet and reruns only failed proofs', () => {
+  const result = planConsolidatedRepair(repairPlannerInput());
+  assert.strictEqual(result.status, 'repair');
+  assert.deepStrictEqual(result.packet.failedProofIds, ['proof-build']);
+  assert.deepStrictEqual(result.packet.candidate, {
+    candidateId: 'candidate-repair-002',
+    candidateHash: sha256('candidate-repair-002'),
+  });
+  assert.deepStrictEqual(result.packet.candidateDiff, {
+    changedPaths: ['tools/fb-control-loop.cjs'],
+    evidenceRefs: ['evidence/diff'],
+  });
+  assert.strictEqual(result.packet.failure, 'Build failure');
+  assert.strictEqual(result.packet.brief, 'Repair the focused control-loop candidate.');
+  assert.ok(result.packet.requiredEvidence.includes('evidence/diff'));
+  assert.ok(result.packet.requiredEvidence.includes('evidence/repair'));
+  assert.strictEqual(Object.hasOwn(result.packet, 'passedProofIds'), false);
+});
+
+test('stops repair planning when every required proof has passed', () => {
+  const result = planConsolidatedRepair(repairPlannerInput({
+    failedProofIds: [],
+    passedProofIds: ['proof-build', 'proof-focused'],
+  }));
+  assert.deepStrictEqual(result, { status: 'ready' });
+});
+
+test('stops repair planning for repeated candidate and evidence state', () => {
+  const candidate = repairPlannerInput().candidate;
+  const result = planConsolidatedRepair(repairPlannerInput({ previousCandidate: { ...candidate } }));
+  assert.deepStrictEqual(result, { status: 'blocked-no-progress' });
+});
+
+test('uses existing Quick and Full repair authority without resetting either budget', () => {
+  const quick = planConsolidatedRepair(repairPlannerInput({
+    repairAuthority: {
+      mode: 'Quick BFM',
+      changedPaths: ['tools/fb-control-loop.cjs'],
+      state: { repairLoops: 1, startedAt: 0 },
+      event: { now: 1 },
+    },
+  }));
+  assert.deepStrictEqual(quick, { status: 'blocked-budget' });
+
+  const fixture = createRepo();
+  try {
+    const sessionId = createFullExecutionSession(fixture.repo, 'full-planner-session');
+    const budgetRef = issueFullRepairBudget(fixture.repo, {
+      sessionId,
+      runId: 'full-planner-run',
+      candidateId: 'candidate-repair-002',
+    });
+    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef, materialProgress: true, event: {} }).status, 'progressed');
+    assert.strictEqual(advanceFullRepairBudget(fixture.repo, { budgetRef, materialProgress: true, event: {} }).status, 'progressed');
+    const full = planConsolidatedRepair(fixture.repo, repairPlannerInput({
+      repairAuthority: { mode: 'Full BFM', budgetRef },
+    }));
+    assert.deepStrictEqual(full, { status: 'blocked-budget' });
+    assert.strictEqual(readFullRepairBudget(fixture.repo, budgetRef).repairCount, 2);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('gives unresolved visible safety boundaries precedence over exhausted repair budgets', () => {
+  const result = planConsolidatedRepair(repairPlannerInput({
+    safetyTriggers: [{ id: 'authentication', status: 'unresolved' }],
+    repairAuthority: {
+      mode: 'Quick BFM',
+      changedPaths: ['tools/fb-control-loop.cjs'],
+      state: { repairLoops: 1, startedAt: 0 },
+      event: { now: 1 },
+    },
+  }));
+  assert.deepStrictEqual(result, { status: 'blocked-safety' });
+});
+
+test('does not plan against a Full repair budget after its Product authority changes', () => {
+  const fixture = createRepo();
+  try {
+    const sessionId = createFullExecutionSession(fixture.repo, 'full-planner-stale-session');
+    const budgetRef = issueFullRepairBudget(fixture.repo, {
+      sessionId,
+      runId: 'full-planner-stale-run',
+      candidateId: 'candidate-repair-002',
+    });
+    fs.writeFileSync(path.join(fixture.repo, 'docs', 'handoffs', 'TASK-050.md'), '# TASK-050\n\nProduct decision version: decision-v2\n');
+    const result = planConsolidatedRepair(fixture.repo, repairPlannerInput({
+      repairAuthority: { mode: 'Full BFM', budgetRef },
+    }));
+    assert.deepStrictEqual(result, { status: 'blocked-budget' });
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('validates optional flat context metrics without breaking existing stage events', () => {
+  assert.doesNotThrow(() => validateStageEvent(baseEvent()));
+  const event = validateStageEvent(baseEvent({
+    contextBytes: 2400,
+    changedSourceCount: 2,
+    reusedSourceCount: 'unavailable',
+    repeatedReadCount: 0,
+  }));
+  assert.strictEqual(event.contextBytes, 2400);
+  for (const field of ['contextBytes', 'changedSourceCount', 'reusedSourceCount', 'repeatedReadCount']) {
+    assert.throws(() => validateStageEvent(baseEvent({ [field]: -1 })), /non-negative|unavailable/i);
+  }
+  assert.throws(() => validateStageEvent(baseEvent({ repeatedReadCount: { count: 1 } })), /flat|nested/i);
+});
+
+test('aggregates clone-local raw efficiency evidence without retaining prompt or output content', () => {
+  const summary = aggregateEfficiencyMetrics([
+    baseEvent({ eventId: 'metrics-001', stage: 'repair', inputTokens: 30, outputTokens: 10, durationMs: 20, repeatedReadCount: 2 }),
+    baseEvent({ eventId: 'metrics-002', stage: 'verify', inputTokens: 20, outputTokens: 5, durationMs: 30, repeatedReadCount: 1 }),
+  ]);
+  assert.deepStrictEqual(summary, {
+    inputTokens: 50,
+    outputTokens: 15,
+    rawTokens: 65,
+    elapsedMs: 50,
+    repeatedReads: 3,
+    repairPasses: 1,
+  });
+  assert.deepStrictEqual(aggregateEfficiencyMetrics([baseEvent({ eventId: 'metrics-old' })]), {
+    inputTokens: 'unavailable',
+    outputTokens: 'unavailable',
+    rawTokens: 'unavailable',
+    elapsedMs: 8,
+    repeatedReads: 'unavailable',
+    repairPasses: 0,
+  });
+  assert.throws(() => aggregateEfficiencyMetrics([baseEvent({ rawPrompt: 'private output' })]), /privacy|forbidden|prompt/i);
 });
 
 (async () => {

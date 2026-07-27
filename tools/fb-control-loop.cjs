@@ -20,6 +20,7 @@ const REQUIRED_EVENT_FIELDS = [
   'durationMs', 'inputTokens', 'outputTokens', 'cost', 'nextAction',
 ];
 const USAGE_FIELDS = new Set(['durationMs', 'inputTokens', 'outputTokens', 'cost']);
+const CONTEXT_METRIC_FIELDS = new Set(['contextBytes', 'changedSourceCount', 'reusedSourceCount', 'repeatedReadCount']);
 const GATE_IDS = new Set(['focused', 'comparison', 'safety', 'integration', 'release']);
 const FORBIDDEN_KEY = /(?:secret|token|password|credential|api[_-]?key|environment[_-]?value|env[_-]?value|transcript|raw[_-]?prompt|complete[_-]?output|private[_-]?reasoning|chain[_-]?of[_-]?thought)/i;
 const CREDENTIAL_MATERIAL = /(?:\b(?:sk|rk|pk|xox[baprs])[-_][A-Za-z0-9_-]{8,}\b|\bgh[pousr]_[A-Za-z0-9]{20,}\b|\bAIza[0-9A-Za-z_-]{20,}\b|\bAKIA[0-9A-Z]{16}\b|-----BEGIN(?: [A-Z]+)? PRIVATE KEY-----|\bBearer\s+[A-Za-z0-9._~+/-]{12,}\b|\b(?:api[_-]?key|token|password|secret)\s*[:=]\s*[^\s,;]{8,})/i;
@@ -376,7 +377,8 @@ function validateStageEvent(event) {
   if (!Number.isInteger(event.attempt) || event.attempt < 0) throw new Error('Stage event attempt must be a non-negative integer.');
   stringArray(event.criteriaIds, 'Stage event criteriaIds');
   stringArray(event.evidenceRefs, 'Stage event evidenceRefs');
-  for (const field of USAGE_FIELDS) {
+  for (const field of [...USAGE_FIELDS, ...CONTEXT_METRIC_FIELDS]) {
+    if (!Object.hasOwn(event, field) && CONTEXT_METRIC_FIELDS.has(field)) continue;
     if (!(event[field] === 'unavailable' || (typeof event[field] === 'number' && Number.isFinite(event[field]) && event[field] >= 0))) {
       throw new Error(`Stage event ${field} must be an authoritative non-negative value or unavailable.`);
     }
@@ -988,6 +990,103 @@ function assessCandidateProgress(cwdOrInput = process.cwd(), maybeInput) {
   return productBoundary ? { status: 'stopped', candidateId: candidate.candidateId, productBoundary } : { status: 'progressed', candidateId: candidate.candidateId };
 }
 
+function planConsolidatedRepair(cwdOrInput = process.cwd(), maybeInput) {
+  const cwd = typeof cwdOrInput === 'string' ? cwdOrInput : process.cwd();
+  const input = typeof cwdOrInput === 'string' ? maybeInput : cwdOrInput;
+  assertPrivacySafeValue(input, 'Consolidated repair input');
+  assertOnlyKeys(input, ['brief', 'diagnosis', 'candidate', 'previousCandidate', 'requiredProofIds', 'failedProofIds', 'passedProofIds', 'evidenceRefs', 'safetyTriggers', 'repairAuthority'], 'Consolidated repair input');
+  if (typeof input.brief !== 'string' || !input.brief.trim()) throw new Error('Consolidated repair requires the current brief.');
+  assertOnlyKeys(input.diagnosis, ['failureClass', 'changedPaths', 'evidenceRefs'], 'Consolidated repair diagnosis');
+  if (!['Build failure', 'Brief failure', 'Eval failure', 'Environment failure'].includes(input.diagnosis.failureClass)) throw new Error('Consolidated repair requires one curated diagnosis failure class.');
+  const diagnosis = {
+    failureClass: input.diagnosis.failureClass,
+    changedPaths: uniqueStringArray(input.diagnosis.changedPaths, 'Consolidated repair diagnosis changedPaths').map(value => assertRepositoryRelativePath(value, 'Consolidated repair diagnosis changedPath')),
+    evidenceRefs: uniqueStringArray(input.diagnosis.evidenceRefs, 'Consolidated repair diagnosis evidenceRefs').map(value => assertEvidenceRef(value, 'Consolidated repair diagnosis evidenceRef')),
+  };
+  const validateCandidate = (value, label) => {
+    assertOnlyKeys(value, ['candidateId', 'candidateHash', 'evidenceRefs'], label);
+    return {
+      candidateId: assertSafeIdentifier(value.candidateId, `${label} ID`),
+      candidateHash: assertSha256(value.candidateHash, `${label} hash`),
+      evidenceRefs: uniqueStringArray(value.evidenceRefs, `${label} evidenceRefs`).map(item => assertEvidenceRef(item, `${label} evidenceRef`)),
+    };
+  };
+  const candidate = validateCandidate(input.candidate, 'Consolidated repair candidate');
+  const previousCandidate = input.previousCandidate === undefined ? null : validateCandidate(input.previousCandidate, 'Consolidated repair previous candidate');
+  const proofIds = (value, label) => uniqueStringArray(value, label, true).map(item => assertSafeIdentifier(item, label));
+  const requiredProofIds = proofIds(input.requiredProofIds, 'Consolidated repair required proof IDs');
+  if (!requiredProofIds.length) throw new Error('Consolidated repair requires at least one required proof ID.');
+  const failedProofIds = proofIds(input.failedProofIds, 'Consolidated repair failed proof IDs');
+  const passedProofIds = proofIds(input.passedProofIds, 'Consolidated repair passed proof IDs');
+  if (failedProofIds.some(id => passedProofIds.includes(id))) throw new Error('A proof cannot be both passed and failed.');
+  const accountedProofIds = new Set([...failedProofIds, ...passedProofIds]);
+  if (requiredProofIds.some(id => !accountedProofIds.has(id)) || [...accountedProofIds].some(id => !requiredProofIds.includes(id))) throw new Error('Consolidated repair proof results must exactly cover required proofs.');
+  const evidenceRefs = uniqueStringArray(input.evidenceRefs, 'Consolidated repair evidenceRefs').map(item => assertEvidenceRef(item, 'Consolidated repair evidenceRef'));
+  if (!Array.isArray(input.safetyTriggers)) throw new Error('Consolidated repair safetyTriggers must be an array.');
+  const unresolvedSafety = input.safetyTriggers.some((trigger, index) => {
+    assertOnlyKeys(trigger, ['id', 'status'], `Consolidated repair safety trigger ${index}`);
+    assertSafeIdentifier(trigger.id, `Consolidated repair safety trigger ${index} ID`);
+    if (!['resolved', 'unresolved'].includes(trigger.status)) throw new Error(`Consolidated repair safety trigger ${index} has an invalid status.`);
+    return trigger.status === 'unresolved';
+  });
+  assertOnlyKeys(input.repairAuthority, ['mode', 'changedPaths', 'state', 'event', 'budgetRef'], 'Consolidated repair authority');
+  if (!['Quick BFM', 'Full BFM'].includes(input.repairAuthority.mode)) throw new Error('Consolidated repair requires existing Quick BFM or Full BFM authority.');
+  if (unresolvedSafety) return { status: 'blocked-safety' };
+  if (failedProofIds.length === 0) return { status: 'ready' };
+  const materialProgress = !(previousCandidate && previousCandidate.candidateHash === candidate.candidateHash && isDeepStrictEqual(previousCandidate.evidenceRefs, candidate.evidenceRefs));
+  if (!materialProgress) return { status: 'blocked-no-progress' };
+  let exhausted = false;
+  if (input.repairAuthority.mode === 'Quick BFM') {
+    const authority = input.repairAuthority;
+    if (authority.budgetRef !== undefined || !Array.isArray(authority.changedPaths) || !authority.changedPaths.length || !authority.state || !authority.event || quickPolicyForPaths(authority.changedPaths).mode !== 'Quick BFM') throw new Error('Quick consolidated repair requires existing Quick BFM path and state authority.');
+    assertPlainObject(authority.state, 'Quick consolidated repair state');
+    assertOnlyKeys(authority.event, ['now', 'authoritativeTokens', 'authoritativeCost'], 'Quick consolidated repair event');
+    exhausted = evaluateRunBudget({ ...authority.state, changedPaths: authority.changedPaths }, { ...authority.event, type: 'repair', materialProgress: true }).blocked;
+  } else {
+    const authority = input.repairAuthority;
+    if (authority.changedPaths !== undefined || authority.state !== undefined || authority.event !== undefined || authority.budgetRef === undefined) throw new Error('Full consolidated repair requires one existing durable Full budget reference.');
+    const budgetRef = assertFullRepairBudgetRef(authority.budgetRef);
+    if (budgetRef.candidateId !== candidate.candidateId) throw new Error('Full consolidated repair budget must match the current candidate.');
+    const budget = readFullRepairBudget(cwd, budgetRef);
+    try {
+      const fullAuthority = authoritativeFullBfmAuthority(cwd, budgetRef.sessionId);
+      exhausted = budget.state !== 'active' || Date.now() >= budget.deadlineAt || budget.repairCount >= budget.maxRepairs || fullAuthority.decisionVersion !== budget.decisionVersion;
+    } catch (error) {
+      exhausted = true;
+    }
+  }
+  if (exhausted) return { status: 'blocked-budget' };
+  return {
+    status: 'repair',
+    packet: {
+      brief: input.brief,
+      candidate: { candidateId: candidate.candidateId, candidateHash: candidate.candidateHash },
+      candidateDiff: { changedPaths: diagnosis.changedPaths, evidenceRefs: diagnosis.evidenceRefs },
+      failure: diagnosis.failureClass,
+      requiredEvidence: refs(diagnosis.evidenceRefs, evidenceRefs),
+      failedProofIds,
+    },
+  };
+}
+
+function aggregateEfficiencyMetrics(stageEvents) {
+  if (!Array.isArray(stageEvents) || !stageEvents.length) throw new Error('Efficiency aggregation requires one or more stage events.');
+  const events = stageEvents.map(validateStageEvent);
+  const total = field => events.some(event => event[field] === undefined || event[field] === 'unavailable')
+    ? 'unavailable'
+    : events.reduce((sum, event) => sum + event[field], 0);
+  const inputTokens = total('inputTokens');
+  const outputTokens = total('outputTokens');
+  return {
+    inputTokens,
+    outputTokens,
+    rawTokens: inputTokens === 'unavailable' || outputTokens === 'unavailable' ? 'unavailable' : inputTokens + outputTokens,
+    elapsedMs: total('durationMs'),
+    repeatedReads: total('repeatedReadCount'),
+    repairPasses: events.filter(event => event.stage === 'repair' && event.result === 'passed').length,
+  };
+}
+
 function validatePromotion(input = {}) {
   assertPrivacySafeValue(input, 'Promotion validation input');
   assertOnlyKeys(input, ['candidate', 'benchmark', 'approval'], 'Promotion validation input');
@@ -1068,6 +1167,8 @@ module.exports = {
   readCandidateStore,
   compareFrozenBenchmark,
   assessCandidateProgress,
+  planConsolidatedRepair,
+  aggregateEfficiencyMetrics,
   issueFullRepairBudget,
   readFullRepairBudget,
   advanceFullRepairBudget,
