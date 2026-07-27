@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Compare autonomous Vanilla, autonomous broad-context FB, and autonomous preventive graph FB on Features, Bugs, Tech, and Design work while testing one frozen preventive candidate against 91% and 99% first-pass milestones without post-failure repair credit.
+**Goal:** Compare autonomous Vanilla, autonomous broad-context FB, and autonomous preventive graph FB on Features, Bugs, Tech, and Design work, then place their observed prevention rates on a frozen 91%/99% sensitivity curve without post-failure repair credit.
 
-**Architecture:** A focused benchmark module reuses the reviewed graduated-control runner mechanics but supplies new frozen Features, Bugs, Tech, and Design truth. It classifies 264 cases as deliverable and 24 as intentional blockers, applies one public-signal-only preventive policy, and writes a frozen declaration plus machine and Markdown results. A separate real-Codex holdout gives all three arms equal authority and aggregate budgets while allowing each system to choose its own agent topology; existing evidence and plugin runtime remain unchanged.
+**Architecture:** A focused benchmark module reuses the reviewed graduated-control runner mechanics but supplies new frozen Features, Bugs, Tech, and Design truth. It classifies 264 cases as deliverable and 24 as intentional blockers and calculates a prevention-versus-readiness sensitivity curve without assuming graph effectiveness. A separate real-Codex holdout gives all three arms equal authority and aggregate budgets while allowing each system to choose its own agent topology; observed prevention rates are then placed on the frozen curve. Existing evidence and plugin runtime remain unchanged.
 
 **Tech Stack:** Node.js CommonJS, `node:test`, JSON fixtures, Markdown evidence, Git hashes.
 
@@ -15,6 +15,8 @@
 - Require 24/24 intentional blockers correct for either milestone.
 - Do not credit diagnosis or repair after a failed first implementation.
 - Do not use hidden grading fields to route or construct candidate context.
+- Do not assign an assumed prevention accuracy to any arm; autonomous evidence
+  supplies observed prevention rates.
 - Preserve all unfavorable outcomes and refuse an in-place authoritative rerun.
 - Use Features, Bugs, Tech, and Design as the four scenario families; do not
   pool their results with older Media, Product, Software, or Support outcomes.
@@ -99,15 +101,17 @@ git commit -m "test: freeze preventive context benchmark"
 
 ---
 
-### Task 2: Add the public-signal preventive arm
+### Task 2: Add preventive packets and the sensitivity curve
 
 **Files:**
 - Modify: `tools/fb-preventive-context-benchmark.cjs`
 - Modify: `tools/fb-preventive-context-benchmark.test.cjs`
 
 **Interfaces:**
-- Consumes: projected public case fields, common deterministic draws, and the frozen preventive policy.
-- Produces: `compilePreventivePacket(publicCase, priorPublicState)` and `executePreventiveCase(packet, publicCase, draw)`.
+- Consumes: projected public case fields, avoidable-failure classification,
+  milestone thresholds, and cost ceilings.
+- Produces: `compilePreventivePacket(publicCase, priorPublicState)` and
+  `preventionSensitivity(baselineReady, avoidableFailures, rates)`.
 
 - [ ] **Step 1: Write arm-isolation and packet tests**
 
@@ -133,7 +137,7 @@ FB vocabulary; broad FB packets must not contain graph-selected fields.
 
 Expected: failure because the compiler and executor are absent.
 
-- [ ] **Step 3: Implement the frozen prevention policy**
+- [ ] **Step 3: Implement public-signal packets and sensitivity math**
 
 Use only public signals:
 
@@ -144,11 +148,11 @@ Use only public signals:
 - sensitive triggers add the safety contract and Level 4 gate;
 - `access_missing` and policy-boundary blockers remain blocked.
 
-Use the existing common deterministic component draws. Freeze preventive
-execution accuracy at the existing reviewed `repairAccuracy` of `0.68`; this is
-a conservative inherited capability assumption, not a tuned result. A
-successful preventive draw changes the first implementation outcome directly
-and records `preventionApplied: true`; it never calls or credits repair.
+Do not decide whether a packet succeeds. For each frozen rate in
+`[0, 0.25, 0.5, 0.75, 0.91, 0.95, 0.99, 1]`, calculate the number of avoidable
+failures that would need prevention, the resulting readiness, and the allowed
+token/time envelope. Calculate exact minimum prevention counts and rates for
+241/264 and 262/264 using ceiling arithmetic.
 
 - [ ] **Step 4: Add adversarial policy tests**
 
@@ -156,7 +160,7 @@ Prove:
 
 - missing criteria cannot pass without clarification evidence;
 - intentional blockers never become ready;
-- a failed preventive draw remains a first-pass failure;
+- no sensitivity point mutates or relabels an underlying case;
 - changing hidden truth without changing public inputs does not change routing;
 - safety and privacy checks override efficiency;
 - no post-failure diagnosis or repair changes headline readiness.
@@ -167,12 +171,12 @@ Run the focused test, syntax, and whitespace. Commit:
 
 ```bash
 git add tools/fb-preventive-context-benchmark.cjs tools/fb-preventive-context-benchmark.test.cjs
-git commit -m "feat: model preventive graph context"
+git commit -m "feat: model preventive context sensitivity"
 ```
 
 ---
 
-### Task 3: Execute one frozen modeled comparison
+### Task 3: Execute one frozen modeled diagnostic
 
 **Files:**
 - Modify: `tools/fb-preventive-context-benchmark.cjs`
@@ -184,8 +188,10 @@ git commit -m "feat: model preventive graph context"
 - Modify: `PROJECT_BOARD.md`
 
 **Interfaces:**
-- Consumes: the frozen declaration and tested three-arm runner.
-- Produces: one immutable result bundle, readable report, and coherent TASK-052 closeout.
+- Consumes: the frozen declaration, tested three-arm first-pass reconstruction,
+  and sensitivity calculator.
+- Produces: one immutable diagnostic bundle, readable report, and coherent
+  TASK-052 checkpoint.
 
 - [ ] **Step 1: Write result-integrity tests**
 
@@ -195,12 +201,14 @@ Require exact recomputation of:
 - 91% and 99% milestone predicates;
 - correct blockers;
 - raw modeled tokens and minutes;
-- prevention attempts and successes;
+- avoidable failures and required prevention counts/rates;
+- all eight sensitivity points and their cost envelopes;
 - post-headline repairs required but not credited;
 - safety, privacy, and missed-control metrics.
 
 Mutation tests must reject threshold changes, deleted unfavorable rows,
-blocker relabeling, repair credit, altered draws, and a second in-place run.
+blocker relabeling, repair credit, altered rates or sensitivity math, and a
+second in-place run.
 
 - [ ] **Step 2: Run the focused test and verify RED**
 
@@ -213,9 +221,11 @@ The Markdown report presents:
 | Arm | First-pass ready | 91% | 99% | Correct blockers | Tokens | Time |
 |---|---:|---:|---:|---:|---:|---:|
 
-It reports signed comparisons, the cost from the 91% threshold to the 99%
-threshold, failure categories, and limitations. It must label all token/time
-values modeled rather than observed.
+It separately reports the sensitivity curve, exact prevention needed for 91%
+and 99%, signed baseline comparisons, the cost envelope from 91% to 99%,
+failure categories, and limitations. It must state that the curve is
+mathematical and does not claim graph effectiveness. All token/time values are
+modeled rather than observed.
 
 - [ ] **Step 4: Run the sole authoritative modeled comparison**
 
@@ -225,15 +235,15 @@ Run:
 node tools/fb-preventive-context-benchmark.cjs run
 ```
 
-Do not modify thresholds or rerun after seeing the result.
+Do not modify thresholds, rates, classification, or cost envelopes after
+seeing the result.
 
 - [ ] **Step 5: Validate and close the modeled result**
 
 Run the focused suite, syntax, record coherence, and whitespace checks. Update
-TASK-052 records with the actual result. Preserve the result whether it is
-below 91%, between 91% and 99%, or at least 99%. Only an integrity, privacy, or
-safety failure closes Task 4; missing a readiness milestone does not suppress
-the approved autonomous realism comparison.
+TASK-052 records with the actual diagnostic and the minimum prevention rates
+required for 91% and 99%. Only an integrity, privacy, or safety failure closes
+Task 4.
 
 - [ ] **Step 6: Commit**
 

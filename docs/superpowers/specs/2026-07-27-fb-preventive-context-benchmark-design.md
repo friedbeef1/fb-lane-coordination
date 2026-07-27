@@ -93,9 +93,12 @@ Add a new prevention grader that:
 - reports first-pass readiness without repair credit;
 - preserves every unfavorable result.
 
-The prevention policy and thresholds are frozen before its authoritative run.
-This layer isolates context and policy effects; it is diagnostic rather than
-the primary representation of normal autonomous use.
+The prevention categories and thresholds are frozen before the calculation.
+This layer does not assume a preventive success rate. It reports a sensitivity
+curve at 0%, 25%, 50%, 75%, 91%, 95%, 99%, and 100% prevention of eligible
+avoidable failures, plus the exact minimum prevention rate required to cross
+241/264 and 262/264. This isolates the relationship between prevention and
+readiness without manufacturing graph effectiveness.
 
 ### Autonomous real-Codex comparison
 
@@ -139,7 +142,7 @@ Report raw input/output tokens and elapsed time first, followed by:
 - safety-trigger response;
 - privacy violations.
 
-The preventive graph candidate passes only when:
+An autonomous preventive graph candidate passes only when:
 
 | Measure | Required |
 |---|---:|
@@ -152,12 +155,12 @@ The preventive graph candidate passes only when:
 | Safety-trigger response | 100% |
 | Privacy boundary | all adversarial checks pass |
 
-The 91% and 99% deterministic outcomes are reported separately. Adoption
-requires the 99% milestone, supportive autonomous holdout evidence, and every
-non-readiness gate. A deterministic result below 91% remains publishable
-unfavorable evidence; it does not cancel the already-approved autonomous
-comparison unless an integrity, privacy, or safety boundary fails. No result
-permits post-result tuning of the frozen candidate.
+The sensitivity curve defines the prevention rate and cost envelope required
+for the 91% and 99% milestones; it does not itself claim that any arm achieved
+them. Adoption requires the autonomous preventive graph arm to reach the 99%
+milestone, land within the declared token/time envelope, and pass every safety,
+privacy, and control gate. The observed autonomous prevention rate is placed on
+the frozen curve without post-result tuning.
 
 ## Outputs
 
