@@ -2,7 +2,7 @@
   "schemaVersion": "fb-preventive-context-autonomous-v1",
   "experimentId": "fb-preventive-context-052-autonomous-20260727",
   "evidenceType": {
-    "outcomes": "observed autonomous Codex first-candidate outcomes",
+    "outcomes": "exploratory autonomous Codex outcomes; not auditable comparative evidence",
     "providerTokens": "unavailable",
     "elapsedWallTime": "unavailable",
     "productionGeneralization": "directional small holdout"
@@ -55,13 +55,13 @@
     "preventiveGraphFailures": [0, 0, 1],
     "preventionRateRange": [0.75, 1],
     "medianPreventionRate": 1,
-    "crossesModeled91RequirementEveryRun": true,
+    "crossesModeled91RequirementEveryRun": false,
     "crossesModeled99RequirementEveryRun": false
   },
   "decision": {
-    "readiness91": "supported directionally",
-    "readiness99": "not demonstrated robustly",
-    "adoption": "not authorized",
-    "reason": "One of three counted preventive-graph runs missed the privacy blocker, and authoritative token and elapsed-time evidence were unavailable."
+    "readiness91": "not demonstrated",
+    "readiness99": "not demonstrated",
+    "adoption": "reject",
+    "reason": "Autonomous inputs and runs were not frozen or reproducible, one graph run missed the independent privacy blocker gate, the 13 checks were not mapped to the controlled denominator, and authoritative efficiency evidence was unavailable."
   }
 }

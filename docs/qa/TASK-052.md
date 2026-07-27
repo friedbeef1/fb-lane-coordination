@@ -44,9 +44,12 @@ Three counted repetitions produced:
 
 - Every arm chose one inline agent, concurrency one, and one integration pass.
 - No counted arm received repair credit.
-- Preventive graph crossed the 91% prevention requirement in all three runs.
-- It did not cross the 99% requirement in every run; one run missed a privacy
-  blocker.
+- The aggregate scores do not establish either milestone. One graph run missed
+  the independent privacy blocker gate, and the 13 checks were not mapped to
+  the controlled deliverable/blocker denominator.
+- Autonomous inputs, prompts, candidates, grader, budgets, and run events were
+  not frozen into a reproducible repository bundle before execution.
 - Provider tokens and elapsed wall time: unavailable from the autonomous
   execution interface.
-- Adoption: not authorized.
+- Independent verdict: rejected as comparative evidence.
+- Adoption: rejected.

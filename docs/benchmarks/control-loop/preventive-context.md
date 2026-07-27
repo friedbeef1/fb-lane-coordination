@@ -42,12 +42,13 @@ concurrency one, and one integration pass.
 | Autonomous broad-context FB | 9/13, 7/13, 9/13 | 69.2% | 53.8%–69.2% |
 | Autonomous preventive graph FB | 13/13, 13/13, 12/13 | 100% | 92.3%–100% |
 
-Against the median four-failure baseline, preventive graph context prevented
-75%–100% of failures. Every run exceeded the modeled 65.7% prevention
-requirement for the 91% milestone. One run fell below the 97.0% prevention
-requirement for the 99% milestone because it failed to block one privacy item.
+These scores are exploratory only. The autonomous fixture, prompts, graph
+packet, grader, candidates, budgets, and run events were not frozen into an
+auditable bundle before execution. The 13 checks were also not mapped to the
+controlled deliverable/blocker denominator. Most importantly, one graph run
+missed the independent privacy blocker gate.
 
-Therefore **91% is directionally supported**, while **99% is not robustly
-demonstrated**. Authoritative provider tokens and per-arm wall time were not
-available from the autonomous execution interface, so the efficiency adoption
-gate remains open and no plugin adoption is authorized.
+Therefore **neither 91% nor 99% is demonstrated**. Authoritative provider
+tokens, tool calls, context reads, and per-arm wall time were also unavailable.
+See the [independent review](preventive-context-autonomous-independent-review.md).
+No plugin adoption is authorized.

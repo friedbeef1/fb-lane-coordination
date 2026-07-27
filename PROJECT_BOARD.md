@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-052 | Staging QA | FB-Product / BFM + FB-Tech | Preventive Context | Controlled and autonomous Features/Bugs/Tech/Design evidence complete; no adoption | Preventive graph 13/13 median and 12–13 range; 91% supported in every counted run, 99% not robust; all arms chose one inline agent; provider tokens/time unavailable | [Handoff](docs/handoffs/TASK-052.md); [QA](docs/qa/TASK-052.md); [Result](docs/benchmarks/control-loop/preventive-context.md); [Autonomous data](docs/benchmarks/control-loop/preventive-context-autonomous.json) |
+| TASK-052 | Staging QA | FB-Product / BFM + FB-Tech | Preventive Context | Controlled sensitivity valid; autonomous comparison rejected; no adoption | 91% needs 65.7% prevention and 99% needs 97.0%; neither demonstrated by auditable autonomous evidence; efficiency unavailable | [Handoff](docs/handoffs/TASK-052.md); [QA](docs/qa/TASK-052.md); [Result](docs/benchmarks/control-loop/preventive-context.md); [Independent review](docs/benchmarks/control-loop/preventive-context-autonomous-independent-review.md) |
 | TASK-051 | Staging QA | FB-Product / BFM + FB-Tech | Context Efficiency | Candidate rejected; 310,358 modeled token units exceeded the frozen 298,080 maximum, privacy failed as implementation evidence, and Task 4/adoption remain closed | TASK-051 records and benchmark evidence only; experimental runtime removed from the final tree while Git history and frozen evidence remain | [Handoff](docs/handoffs/TASK-051.md); [QA](docs/qa/TASK-051.md); [Superseding review](docs/benchmarks/control-loop/context-efficiency-independent-review.md); [Plan](docs/superpowers/plans/2026-07-27-fb-context-repair-efficiency.md) |
 | TASK-050 | Staging QA | FB-Product / BFM + FB-Tech | Agent Control Loop | Add generic rules-first routing, clone-local stage events, baseline comparison, layered gates, and isolated golden-fixture configuration evolution for FB 0.5 | New control-loop runtime/tests, session/eval integration, canonical/package harness and skills, TASK-050 records; no publication or live deployment | Graduated 864-execution benchmark and independent methodology review passed; Ready to ship; prior release checkpoint was not rerun; Push Live remains separate |
 | TASK-049 | Done | FB-Product / BFM | Plugin Navigation | Integrate graph-directed targeted reading into the bundled Codex plugin, support repository-specific task IDs, and release `0.4.0-beta+codex.20260726101229` | `tools/fb-project-graph*`, MCP surface, release metadata, canonical/package graph guidance and skills | [Handoff](docs/handoffs/TASK-049.md); [QA](docs/qa/TASK-049.md); [PR #51](https://github.com/friedbeef1/fb-lane-coordination/pull/51); installed and enabled |
@@ -62,7 +62,7 @@
 
 ### TASK-052 - Preventive Context Benchmark
 
-*   **Status**: In Progress
+*   **Status**: Staging QA
 *   **Owner / Thread**: FB-Product / BFM + FB-Tech
 *   **Area**: First-pass context quality and benchmark evidence
 *   **Scope**: Compare autonomous Vanilla, broad-context FB, and preventive

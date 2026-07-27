@@ -47,10 +47,12 @@ record_model: normalized-v1
 - No preventive accuracy was assumed. The autonomous holdout that supplies
   observed prevention evidence recorded Vanilla 9/13 median, broad FB 9/13
   median, and preventive graph FB 13/13 median across three counted runs.
-- Preventive graph ranged from 12/13 to 13/13: the 91% milestone was supported
-  in every run, but 99% was not robust because one run missed a privacy blocker.
+- Preventive graph ranged from 12/13 to 13/13, but neither milestone is
+  demonstrated: one run missed the independent privacy blocker gate and the
+  holdout was not frozen into a reproducible bundle before execution.
 - Every arm chose one inline agent and one integration pass. Provider tokens
   and elapsed time were unavailable, so efficiency adoption remains blocked.
 - The controlled fixtures use Features, Bugs, Tech, and Design. Earlier generic
   scenario results remain historical and are not pooled.
-- No adoption is authorized.
+- Independent review rejected the autonomous comparison as evidence. No
+  adoption is authorized.
