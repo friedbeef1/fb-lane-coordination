@@ -1,0 +1,68 @@
+[
+  {
+    "id": "unmirror-intro",
+    "project": "Unmirror",
+    "sourceRepo": "/Users/jamesyeang/Projects/mirrorcam",
+    "startCommit": "2600f57",
+    "acceptanceCommits": ["c6e5fde", "de82cbc"],
+    "class": "isolated",
+    "publicRecords": ["docs/handoffs/TASK-P-INTRO-REASSURANCE-20260721.md"],
+    "focusedProof": "unmirror-intro",
+    "hiddenGrader": "unmirror-intro"
+  },
+  {
+    "id": "unmirror-saved-capture",
+    "project": "Unmirror",
+    "sourceRepo": "/Users/jamesyeang/Projects/mirrorcam",
+    "startCommit": "568a6b4",
+    "acceptanceCommits": ["c26ab07", "9b7cd27", "5d5a33b", "070ae67", "191a69d", "b4aaf03", "afa47a6", "fc359d6"],
+    "class": "multi-surface",
+    "publicRecords": ["docs/handoffs/TASK-P-SAVED-CAPTURE-VIEW-20260723.md"],
+    "focusedProof": "unmirror-saved-capture",
+    "hiddenGrader": "unmirror-saved-capture"
+  },
+  {
+    "id": "unmirror-native-analytics",
+    "project": "Unmirror",
+    "sourceRepo": "/Users/jamesyeang/Projects/mirrorcam",
+    "startCommit": "71bf297",
+    "acceptanceCommits": ["e548495", "42bc97c"],
+    "class": "sensitive",
+    "publicRecords": ["docs/handoffs/TASK-NATIVE-ANALYTICS-20260720.md"],
+    "focusedProof": "unmirror-native-analytics",
+    "hiddenGrader": "unmirror-native-analytics"
+  },
+  {
+    "id": "meja-scroll",
+    "project": "MÉJA",
+    "sourceRepo": "/Users/jamesyeang/Documents/New project-recovered-20260723",
+    "startCommit": "cdfa26d",
+    "acceptanceCommits": ["27f67cc", "60c51f6"],
+    "class": "isolated-bug",
+    "publicRecords": ["docs/handoffs/MEJA-111.md"],
+    "focusedProof": "meja-scroll",
+    "hiddenGrader": "meja-scroll"
+  },
+  {
+    "id": "meja-pairing",
+    "project": "MÉJA",
+    "sourceRepo": "/Users/jamesyeang/Documents/New project-recovered-20260723",
+    "startCommit": "da4868f",
+    "acceptanceCommits": ["53d6d8d", "39dbbd7", "ffe9c79", "6eb73c2", "bb817e0", "1ff4f1d", "1462645"],
+    "class": "complex-repair",
+    "publicRecords": ["docs/handoffs/MEJA-111.md"],
+    "focusedProof": "meja-pairing",
+    "hiddenGrader": "meja-pairing"
+  },
+  {
+    "id": "meja-redesign",
+    "project": "MÉJA",
+    "sourceRepo": "/Users/jamesyeang/Documents/New project-recovered-20260723",
+    "startCommit": "a815a90",
+    "acceptanceCommits": ["3bd46b2", "469cf31"],
+    "class": "multi-workstream",
+    "publicRecords": ["docs/handoffs/2026-07-24-meja-mobbin-host-audience-redesign-product-handoff.md"],
+    "focusedProof": "meja-redesign",
+    "hiddenGrader": "meja-redesign"
+  }
+]

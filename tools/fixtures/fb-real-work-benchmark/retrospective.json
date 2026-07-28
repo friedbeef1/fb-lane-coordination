@@ -1,0 +1,20 @@
+[
+  {"project":"Unmirror","taskId":"intro-headline","class":"isolated","sourceCommits":2,"repairCommits":0,"surfaces":["web","android","ios"],"safetyTrigger":false},
+  {"project":"Unmirror","taskId":"saved-capture","class":"multi-surface","sourceCommits":8,"repairCommits":3,"surfaces":["web","android","ios"],"safetyTrigger":false},
+  {"project":"Unmirror","taskId":"native-analytics","class":"sensitive","sourceCommits":2,"repairCommits":1,"surfaces":["android","ios"],"safetyTrigger":true},
+  {"project":"Unmirror","taskId":"intro-polish","class":"multi-surface","sourceCommits":3,"repairCommits":1,"surfaces":["web","android","ios"],"safetyTrigger":false},
+  {"project":"Unmirror","taskId":"landscape-camera","class":"multi-surface","sourceCommits":3,"repairCommits":1,"surfaces":["android","ios"],"safetyTrigger":false},
+  {"project":"Unmirror","taskId":"unified-shutter","class":"complex-repair","sourceCommits":7,"repairCommits":4,"surfaces":["android","ios"],"safetyTrigger":false},
+  {"project":"Unmirror","taskId":"actual-reassurance","class":"multi-surface","sourceCommits":4,"repairCommits":1,"surfaces":["web","android"],"safetyTrigger":false},
+  {"project":"Unmirror","taskId":"intro-persistence","class":"isolated-bug","sourceCommits":2,"repairCommits":0,"surfaces":["web"],"safetyTrigger":false},
+  {"project":"Unmirror","taskId":"ios-camera-crash","class":"complex-repair","sourceCommits":3,"repairCommits":2,"surfaces":["ios"],"safetyTrigger":true},
+  {"project":"MÉJA","taskId":"host-scroll","class":"isolated-bug","sourceCommits":2,"repairCommits":0,"surfaces":["web"],"safetyTrigger":false},
+  {"project":"MÉJA","taskId":"pairing-presence","class":"complex-repair","sourceCommits":7,"repairCommits":4,"surfaces":["web","supabase"],"safetyTrigger":true},
+  {"project":"MÉJA","taskId":"host-audience-redesign","class":"multi-workstream","sourceCommits":2,"repairCommits":0,"surfaces":["web"],"safetyTrigger":false},
+  {"project":"MÉJA","taskId":"home-scroll","class":"isolated-bug","sourceCommits":3,"repairCommits":1,"surfaces":["web"],"safetyTrigger":false},
+  {"project":"MÉJA","taskId":"sync-warning","class":"multi-workstream","sourceCommits":3,"repairCommits":1,"surfaces":["web","supabase"],"safetyTrigger":true},
+  {"project":"MÉJA","taskId":"auth-hardening","class":"sensitive","sourceCommits":5,"repairCommits":2,"surfaces":["web","supabase"],"safetyTrigger":true},
+  {"project":"MÉJA","taskId":"topic-flip","class":"isolated","sourceCommits":2,"repairCommits":1,"surfaces":["web"],"safetyTrigger":false},
+  {"project":"MÉJA","taskId":"back-navigation","class":"isolated","sourceCommits":2,"repairCommits":0,"surfaces":["web"],"safetyTrigger":false},
+  {"project":"MÉJA","taskId":"first-timer-readiness","class":"isolated","sourceCommits":2,"repairCommits":1,"surfaces":["web"],"safetyTrigger":false}
+]
