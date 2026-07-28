@@ -40,6 +40,10 @@ surface-specific 5- or 15-minute target in the canonical workflow. Full BFM may
 run for hours by planning many slices up front. Build their dependency graph,
 run independent non-overlapping slices through agents or subagents in parallel,
 and keep dependencies, shared files, and unresolved decisions sequential.
+Follow the canonical workflow's **automatic worktree allocation** contract for
+source-changing slices. BFM owns claim, create-or-reuse, and the visible
+slice/branch/worktree mapping; it must not ask the user to organize worktrees.
+Planning-only work creates none.
 Focused checks prove slices; integration checks prove meaningful combinations;
 broad validation waits for a release checkpoint.
 Follow [records.md](../../docs/fb/records.md) for one-fact-one-home ownership,

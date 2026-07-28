@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased — automatic BFM worktrees
+
+**What changed:** After `$bfm` splits approved source work, FB now automatically
+creates or reuses one linked Git worktree for every independent,
+non-overlapping implementation slice. Planning-only work creates no worktree;
+dependent, overlapping, shared-file, sensitive, and unresolved work stays
+sequential.
+
+**Why it matters:** Users no longer need to create, choose, or organize
+implementation worktrees. FB owns the slice-to-branch-to-worktree mapping while
+preserving Product/BFM reconciliation and explicit integration.
+
+**Compatibility:** Existing `claim`, `quick`, `$bfm`, plugin identifiers,
+workstreams, handoffs, and **Push Live** authority remain unchanged. Worktrees
+remain ordinary Git worktrees, and legacy `--no-worktree` remains a compatibility
+escape hatch rather than the default.
+
+**Installation or upgrade:** No action until release. After publication,
+upgrade the `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, and start a new Codex task.
+
+**Changelog approval:** Pending user wording approval.
+
 ## 0.5.0-beta repair-efficiency update — 2026-07-28
 
 **What changed:** FB now gives an earned repair one fresh, criterion-specific

@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-058
 lane: fb-product
-status: ready
+status: implemented
 approval: approved
 fb_harness: v3
 record_model: normalized-v1
@@ -48,6 +48,50 @@ Changelog expectation: required
 
 ## Changelog Decision
 
-Changelog: pending — add a candidate-matched entry describing automatic
-worktree allocation before Ready to ship.
+Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#unreleased--automatic-bfm-worktrees)
 
+Changelog approval: pending — user wording approval is required before Ready
+to ship.
+
+## Brief Validation
+
+Status: pass
+
+- Automatic claim allocation is mandatory for every independent,
+  non-overlapping source-changing slice.
+- Planning-only work creates no implementation worktree.
+- Dependent, overlapping, shared-file, sensitive, and unresolved work remains
+  sequential.
+- BFM uses the existing create-or-reuse claim path and reports a
+  slice/branch/worktree mapping without asking the user to manage worktrees.
+- Canonical and packaged contracts are mechanically aligned.
+
+Missing criteria: None.
+
+## Task Receipt
+
+- **Delivered:** Canonical workflow and installed-skill sources now require BFM
+  to invoke the existing linked-worktree claim path for each eligible slice.
+- **Runtime boundary:** Existing `claim` and `quick` implementation remains the
+  execution primitive; no redundant worktree subsystem was added.
+- **Changed surfaces:** Workflow, BFM and coordination skills, README,
+  changelog, focused contract, package manifest, generated plugin mirrors, and
+  TASK-058 evidence.
+- **Automated checks:** New root/package contract 3/3; existing linked-worktree
+  CLI/session contract passed; 49 generated mirrors matched; affected syntax,
+  README anchor, and whitespace passed.
+- **Changelog:** updated —
+  [CHANGELOG.md](../../CHANGELOG.md#unreleased--automatic-bfm-worktrees);
+  wording approval remains pending.
+- **Review state:** not reviewable
+- **External gates:** Merge, publication, plugin installation, and deployment
+  remain unauthorized. Ready to ship remains blocked only by changelog wording
+  approval.
+- **Repository state:** Candidate remains on the TASK-058 linked-worktree
+  branch for focused Product review.
+- **Remaining owner/action:** User approves or revises the drafted changelog
+  wording; Product then records approval and may prepare the release boundary.
+
+## Verification Handoff
+
+See [TASK-058 QA](../qa/TASK-058.md).

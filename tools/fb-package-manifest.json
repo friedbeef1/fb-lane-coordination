@@ -23,6 +23,7 @@
   "tools/fb-control-loop.cjs",
   "tools/fb-control-loop.test.cjs",
   "tools/fb-control-loop-docs.test.cjs",
+  "tools/fb-automatic-worktrees.test.cjs",
   "docs/why-fb.md",
   "docs/evidence/TASK-026-two-speed.md",
   "docs/fb/README.md",

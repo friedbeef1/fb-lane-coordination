@@ -138,6 +138,30 @@ material decision lacks a preview.
 7. Classify work as `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`. Recheck status immediately before a claim.
 8. Select only relevant eval IDs from [evals.md](evals.md), record their authority, and separate mechanical evidence from Product/user judgment.
 
+## Automatic implementation worktrees
+
+After the Story Split Pass, BFM must automatically create or reuse one linked
+worktree for every independent, non-overlapping source-changing slice. For each
+eligible slice, BFM invokes `fb_lane_claim` or
+`node tools/fb-lane.cjs claim <task-id> <lane> <locked-files>` and captures the
+returned branch and worktree path before starting its worker. The claim path
+reuses an exact clean branch match; otherwise it creates the worktree beneath
+the primary checkout's `.worktrees/` directory.
+
+Planning-only work does not receive an implementation worktree. Dependent,
+overlapping, shared-file, sensitive, or unresolved-decision slices remain
+sequential until their blocking condition is cleared; BFM may still isolate a
+sequential source-changing slice when that protects the primary checkout. BFM
+must not ask the user to create, choose, organize, or manage implementation
+worktrees.
+
+Before workers start, BFM reports a compact **slice / branch / worktree map**.
+After each worker returns, BFM verifies the claimed branch and worktree,
+integrates only the approved candidate, and records whether each worktree is
+clean, merged, blocked, stale, or retained. Worktree isolation does not make a
+handoff visible across checkouts: Product/BFM must integrate ready handoff
+commits into its coordination checkout before reconciliation.
+
 ## Internal execution routing
 
 Agents classify clear isolated low-risk work, approved bounded corrections, and

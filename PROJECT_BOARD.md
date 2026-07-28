@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-058 | In Progress | FB-Tech | Automatic worktree orchestration | Make `$bfm` create or reuse linked worktrees for every independent source-changing slice without user setup, while keeping planning-only and overlapping work lightweight or sequential | `docs/fb/workflow.md`, `README.md`, `skills/bfm/SKILL.md`, `skills/fb-lane-coordination/SKILL.md`, `tools/fb-automatic-worktrees.test.cjs`, `CHANGELOG.md`, `docs/handoffs/TASK-058.md`, `docs/qa/TASK-058.md` | [Handoff](docs/handoffs/TASK-058.md) |
+| TASK-058 | In Progress | FB-Tech | Automatic worktree orchestration | Make `$bfm` create or reuse linked worktrees for every independent source-changing slice without user setup, while keeping planning-only and overlapping work lightweight or sequential | Canonical/package workflow and skills, README, focused contract, generated mirrors, changelog, and TASK-058 evidence | [Handoff](docs/handoffs/TASK-058.md); [QA](docs/qa/TASK-058.md); Checking — changelog approval needed |
 | TASK-057 | Done | FB-Product / BFM + FB-Tech | Harness reliability | Prevent incomplete OKR records from reaching release validation | Normalized handoff template, focused record validation, generated plugin mirrors, and TASK-057 evidence | [Handoff](docs/handoffs/TASK-057.md); [QA evidence](docs/qa/TASK-057.md); merged and published as `708593a` |
 | TASK-056 | Staging QA | FB-Product / BFM + FB-Tech | Prospective repair-efficiency benchmark | Twelve fresh runs completed: efficient Graph used 15.8% fewer tokens and 23.6% less wall time, with 3/6 accepted outcomes versus Vanilla's 1/6 | Isolated fixtures and benchmark evidence only; no source-repository, plugin-release, provider-write, production, or deployment change | [Handoff](docs/handoffs/TASK-056.md); [Result](docs/benchmarks/repair-efficiency/README.md); [QA](docs/qa/TASK-056.md) |
 | TASK-055 | Staging QA | FB-Product / BFM + FB-Tech | Repair efficiency | Fresh criterion-specific delta repair packets, concrete-correction gate, no-change/no-improvement stop, and upfront execution slicing are implemented and prospectively validated | `tools/fb-efficiency*`, canonical/package workflow, guardrails, BFM skill, approved changelog; no release, provider, production, or deployment change | [Handoff](docs/handoffs/TASK-055.md); [TASK-056 evidence](docs/benchmarks/repair-efficiency/README.md); focused 28/28 and 48-mirror parity passed |
@@ -86,6 +86,12 @@
     *   **Approval**: approved
     *   **Justification**: James explicitly requested that the system set up worktrees instead of requiring manual user organization.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-058.md).
+*   **Latest Update**:
+    *   *2026-07-28*: The Full BFM claim created the linked implementation
+        worktree automatically. Canonical/package behavior now requires one
+        automatic create-or-reuse claim per eligible source slice; focused and
+        existing linked-worktree checks passed. Candidate remains
+        `Checking — changelog approval needed`; no external action occurred.
 
 ### TASK-057 - Shift OKR Validation Left
 
