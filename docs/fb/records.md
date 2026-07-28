@@ -34,6 +34,12 @@ supersession links, and compact-card boundaries. Historical records remain
 valid without retrofit. These checks enforce structure and consistency; Product
 still judges meaning, risk, and evidence sufficiency.
 
+For every non-quick normalized handoff, use the canonical template. The focused
+records check rejects the record immediately unless the handoff contains its
+complete Goal Alignment Session and the matching board task contains a complete,
+explicitly approved Goal Alignment Session. Never postpone this repair to the
+release validator, and never invent approval to make the check pass.
+
 ## Risk-triggered workstream review
 
 A bounded correction may stay on the light path only when it records:

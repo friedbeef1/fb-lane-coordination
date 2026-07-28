@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-057 | Staging QA | FB-Product / BFM + FB-Tech | Harness reliability | Prevent incomplete OKR records from reaching release validation | Normalized handoff template, focused record validation, generated plugin mirrors, and TASK-057 evidence; no release or publication | [Handoff](docs/handoffs/TASK-057.md); [QA](docs/qa/TASK-057.md) |
 | TASK-056 | Staging QA | FB-Product / BFM + FB-Tech | Prospective repair-efficiency benchmark | Twelve fresh runs completed: efficient Graph used 15.8% fewer tokens and 23.6% less wall time, with 3/6 accepted outcomes versus Vanilla's 1/6 | Isolated fixtures and benchmark evidence only; no source-repository, plugin-release, provider-write, production, or deployment change | [Handoff](docs/handoffs/TASK-056.md); [Result](docs/benchmarks/repair-efficiency/README.md); [QA](docs/qa/TASK-056.md) |
 | TASK-055 | Staging QA | FB-Product / BFM + FB-Tech | Repair efficiency | Fresh criterion-specific delta repair packets, concrete-correction gate, no-change/no-improvement stop, and upfront execution slicing are implemented and prospectively validated | `tools/fb-efficiency*`, canonical/package workflow, guardrails, BFM skill, approved changelog; no release, provider, production, or deployment change | [Handoff](docs/handoffs/TASK-055.md); [TASK-056 evidence](docs/benchmarks/repair-efficiency/README.md); focused 28/28 and 48-mirror parity passed |
 | TASK-054 | Staging QA | FB-Product / BFM + FB-Tech | Real-work efficiency benchmark | Six paired historical replays completed; Preventive Graph FB was 13.1% slower and used 34.7% more total tokens with equal 2/6 final acceptance, so Vanilla remains the evidence-supported default | Evidence and harness only; source repositories stayed read-only; no plugin, production, provider, release, or deploy changes | [Handoff](docs/handoffs/TASK-054.md); [Result](docs/benchmarks/real-work/README.md); [QA](docs/qa/TASK-054.md) |
@@ -63,6 +64,25 @@
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
 
 ---
+
+### TASK-057 - Shift OKR Validation Left
+
+*   **Status**: Staging QA
+*   **Owner / Thread**: FB-Product / BFM + FB-Tech
+*   **Area**: Harness reliability
+*   **Scope**: Put the complete Goal Alignment contract in the canonical
+    normalized-handoff template and enforce it through focused normalized-record
+    validation before release closeout.
+*   **Out of Scope**: Changing OKR semantics, inventing approval, release,
+    marketplace publication, installation, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce FB coordination and repair overhead while preserving or improving product readiness, safety, and explicit release control.
+    *   **Key Results**: Incomplete prospective handoffs fail the focused records check; the canonical template contains every required field; package mirrors remain generated and identical.
+    *   **Definition of Done**: Focused RED/GREEN records proof, package parity, affected syntax, doctor, and whitespace pass.
+    *   **Gate / Review Point**: Focused local verification; integration remains separate.
+    *   **Approval**: approved
+    *   **Justification**: James approved preventing the observed late OKR-validation failure from recurring.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-057.md); [QA](docs/qa/TASK-057.md).
 
 ### TASK-056 - Prospective Repair-Efficiency Benchmark
 

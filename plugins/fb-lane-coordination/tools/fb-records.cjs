@@ -70,6 +70,33 @@ function linkTarget(value) {
   return /\[[^\]]+\]\(([^)]+)\)/.test(String(value));
 }
 
+function completeHandoffGoalAlignment(markdown) {
+  return /^##\s+Goal Alignment Session\b/m.test(markdown)
+    && /^Product (?:OKR|Goal):\s*\S/im.test(markdown)
+    && /^Lane OKR Fit:\s*(aligned|suggest approach change|blocked by OKR ambiguity)\b/im.test(markdown)
+    && /^Mini-loop Evidence:\s*\S/im.test(markdown)
+    && /^Evidence Against Product OKR:\s*\S/im.test(markdown);
+}
+
+function boardTaskSection(markdown, task) {
+  const escaped = String(task).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const source = String(markdown);
+  const heading = new RegExp(`^###\\s+${escaped}\\b.*$`, 'im').exec(source);
+  if (!heading) return '';
+  const afterHeading = heading.index + heading[0].length;
+  const remainder = source.slice(afterHeading);
+  const nextHeading = /^###\s+/m.exec(remainder);
+  return source.slice(heading.index, nextHeading ? afterHeading + nextHeading.index : source.length);
+}
+
+function approvedBoardGoalAlignment(markdown) {
+  if (!/(?:\*\*Goal Alignment Session\*\*|##\s+Goal Alignment Session\b)/i.test(markdown)) return false;
+  for (const field of ['Objective', 'Key Results', 'Definition of Done', 'Gate / Review Point', 'Approval', 'Justification']) {
+    if (!new RegExp(`(?:\\*\\*${field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*|${field}):`, 'i').test(markdown)) return false;
+  }
+  return /(?:\*\*Approval\*\*|Approval):\s*approved\b/i.test(markdown);
+}
+
 function validateNormalizedRepository(root) {
   const findings = [];
   const handoffDir = path.join(root, 'docs', 'handoffs');
@@ -84,7 +111,8 @@ function validateNormalizedRepository(root) {
   if (!handoffs.length) return findings;
 
   const boardPath = path.join(root, 'PROJECT_BOARD.md');
-  const board = fs.existsSync(boardPath) ? boardRows(fs.readFileSync(boardPath, 'utf8')) : new Map();
+  const boardMarkdown = fs.existsSync(boardPath) ? fs.readFileSync(boardPath, 'utf8') : '';
+  const board = boardRows(boardMarkdown);
   for (const handoff of handoffs) {
     const relative = path.relative(root, handoff.file);
     const task = handoff.meta.task;
@@ -94,6 +122,12 @@ function validateNormalizedRepository(root) {
     if (/^##\s+(Approved Decision|User Decision|Decision)\b/im.test(handoff.markdown)
       && !/^(approved|rejected|pending|blocked)$/i.test(handoff.meta.approval || '')) {
       findings.push({ code: 'handoff-approval', file: relative, message: 'Decision-bearing handoff requires an explicit approval state.' });
+    }
+    if (!/^TASK-Q-/i.test(String(task || '')) && !completeHandoffGoalAlignment(handoff.markdown)) {
+      findings.push({ code: 'handoff-goal-alignment', file: relative, message: 'Non-quick normalized handoff requires the complete Goal Alignment Session contract.' });
+    }
+    if (!/^TASK-Q-/i.test(String(task || '')) && !approvedBoardGoalAlignment(boardTaskSection(boardMarkdown, task))) {
+      findings.push({ code: 'board-goal-alignment', file: 'PROJECT_BOARD.md', message: `${task} requires an approved complete board Goal Alignment Session.` });
     }
     const row = board.get(task);
     if (row && statusFamily(row.status) !== statusFamily(handoff.meta.status)) {

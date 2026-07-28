@@ -9,6 +9,13 @@ record_model: normalized-v1
 
 # TASK-... — Title
 
+## Goal Alignment Session
+
+Product OKR: <copy the approved Product/Build Brief goal>
+Lane OKR Fit: aligned | suggest approach change | blocked by OKR ambiguity
+Mini-loop Evidence: <smallest real proof against the lane OKR>
+Evidence Against Product OKR: <evidence that weakens or blocks the approved Product OKR> | None identified
+
 ## Approved Decision
 
 ## Assumptions

@@ -27,13 +27,24 @@ function write(root, relative, contents) {
   fs.writeFileSync(target, contents);
 }
 
-function fixture(taskId = 'TASK-100') {
+function fixture(taskId = 'TASK-100', options = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-records-'));
   write(root, 'PROJECT_BOARD.md', `# Board
 
 | ID | Status | Owner | Area | Scope | Locks | Links |
 |---|---|---|---|---|---|---|
 | ${taskId} | Done | Product / BFM | Harness | Compact scope | tools/fb-records.cjs | [Handoff](docs/handoffs/${taskId}.md); [Evidence](docs/qa/${taskId}.md) |
+${options.omitGoalAlignment ? '' : `
+### ${taskId} - Normalized record
+
+* **Goal Alignment Session**:
+  * **Objective**: Preserve one durable source for every important fact.
+  * **Key Results**: Normalized records remain complete and linked.
+  * **Definition of Done**: The focused record contract passes.
+  * **Gate / Review Point**: Product review before closeout.
+  * **Approval**: approved
+  * **Justification**: The user approved this bounded normalized-record task.
+`}
 `);
   write(root, `docs/handoffs/${taskId}.md`, `---
 type: fb-lane-handoff
@@ -45,6 +56,14 @@ record_model: normalized-v1
 
 # ${taskId}
 
+${options.omitGoalAlignment ? '' : `## Goal Alignment Session
+
+Product OKR: Preserve one durable source for every important fact.
+Lane OKR Fit: aligned
+Mini-loop Evidence: The focused normalized-record contract passes.
+Evidence Against Product OKR: None identified.
+
+`}
 ## Approved Decision
 
 Use normalized evidence.
@@ -72,6 +91,28 @@ record_model: normalized-v1
 
 test('prospective normalized records pass with one linked authoritative home', () => {
   assert.deepStrictEqual(validateNormalizedRepository(fixture()), []);
+});
+
+test('prospective normalized records reject missing handoff and approved board goal alignment early', () => {
+  const findings = validateNormalizedRepository(fixture('TASK-100', { omitGoalAlignment: true }));
+  const codes = findings.map(finding => finding.code);
+  assert.ok(codes.includes('handoff-goal-alignment'), `missing handoff goal finding: ${codes.join(', ')}`);
+  assert.ok(codes.includes('board-goal-alignment'), `missing board goal finding: ${codes.join(', ')}`);
+});
+
+test('canonical normalized handoff template contains the complete early goal-alignment contract', () => {
+  const template = fs.readFileSync(path.join(__dirname, '..', 'templates', 'docs', 'handoffs', 'normalized-handoff-template.md'), 'utf8');
+  for (const field of ['## Goal Alignment Session', 'Product OKR:', 'Lane OKR Fit:', 'Mini-loop Evidence:', 'Evidence Against Product OKR:']) {
+    assert.match(template, new RegExp(field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `template missing ${field}`);
+  }
+});
+
+test('focused goal validation preserves established Product Goal vocabulary', () => {
+  const root = fixture();
+  const handoffPath = path.join(root, 'docs', 'handoffs', 'TASK-100.md');
+  const handoff = fs.readFileSync(handoffPath, 'utf8').replace('Product OKR:', 'Product Goal:');
+  fs.writeFileSync(handoffPath, handoff);
+  assert.deepStrictEqual(validateNormalizedRepository(root), []);
 });
 
 test('prospective normalized records accept safe repository-specific task prefixes', () => {
