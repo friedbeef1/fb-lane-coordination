@@ -1,6 +1,6 @@
 # TASK-058 verification
 
-Date: 2026-07-28
+Date: 2026-07-29
 Candidate: `tech/TASK-058-make-bfm-create-or-reuse-linked-worktrees-for-every-independent-source-changing-slice-without-user-setup-while-keeping-planning-only-and-overlapping-work-lightweight-or-sequential`
 
 ## Automated evidence
@@ -9,7 +9,7 @@ Candidate: `tech/TASK-058-make-bfm-create-or-reuse-linked-worktrees-for-every-in
 |---|---|
 | Live Full BFM claim | Passed: FB created the linked TASK-058 worktree automatically and returned its branch/path |
 | Focused automatic-worktree contract | 11/11 passed |
-| Existing CLI/MCP linked-worktree claim contract | Passed |
+| Existing session/CLI/MCP compatibility suite | 39/39 passed on the fresh rerun |
 | Planning-only exclusion | Passed structurally |
 | Dependent/overlapping sequential boundary | Passed structurally |
 | Existing exact-match reuse path | Passed structurally and by existing session fixture |
@@ -31,6 +31,6 @@ slice/branch/worktree mapping, and does not create unnecessary worktrees for
 planning-only or unsafe parallel work. It also removes a worktree only after a
 successful integration when the registered path is present, clean, and merged.
 Unsafe or uncertain worktrees remain registered with the task and locks open
-for an explicit owner action. The candidate remains
-`Checking — changelog approval needed`; no merge, publication, installation, or
-deployment occurred.
+for an explicit owner action. Changelog wording is approved and the candidate
+is **Ready to ship**. No merge, publication, installation, or deployment
+occurred; those actions still require **Push Live**.

@@ -50,8 +50,7 @@ Changelog expectation: required
 
 Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#unreleased--automatic-bfm-worktrees)
 
-Changelog approval: pending — user wording approval is required before Ready
-to ship.
+Changelog approval: approved by James on 2026-07-29.
 
 ## Brief Validation
 
@@ -88,22 +87,22 @@ Missing criteria: None.
   changelog, focused contract, package manifest, generated plugin mirrors, and
   TASK-058 evidence.
 - **Automated checks:** Focused root/package and real-Git contract 11/11;
-  existing linked-worktree CLI/session contract passed; 49 generated mirrors
+  fresh session/CLI/MCP compatibility suite 39/39; 49 generated mirrors
   matched; affected syntax, README anchor, and whitespace passed.
 - **Failure and recovery:** The first real CLI proof exposed Git's `+` marker
   for branches checked out in linked worktrees. Branch normalization and exact
   task-token matching fixed the integration path; the regression now passes.
 - **Changelog:** updated —
   [CHANGELOG.md](../../CHANGELOG.md#unreleased--automatic-bfm-worktrees);
-  wording approval remains pending.
+  wording approved by James on 2026-07-29.
 - **Review state:** not reviewable
 - **External gates:** Merge, publication, plugin installation, and deployment
-  remain unauthorized. Ready to ship remains blocked only by changelog wording
-  approval.
+  remain unauthorized pending explicit **Push Live**.
 - **Repository state:** Candidate remains on the TASK-058 linked-worktree
   branch for focused Product review.
-- **Remaining owner/action:** User approves or revises the drafted changelog
-  wording; Product then records approval and may prepare the release boundary.
+- **Remaining owner/action:** Candidate is **Ready to ship**. James retains
+  **Push Live** authority for merge, publication, plugin installation, and
+  deployment.
 
 ## Verification Handoff
 

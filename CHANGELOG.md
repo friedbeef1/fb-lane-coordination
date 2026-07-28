@@ -25,7 +25,7 @@ escape hatch rather than the default.
 upgrade the `fb-lane` marketplace, reinstall
 `fb-lane-coordination@fb-lane`, and start a new Codex task.
 
-**Changelog approval:** Pending user wording approval.
+**Changelog approval:** Approved by James on 2026-07-29.
 
 ## 0.5.0-beta repair-efficiency update — 2026-07-28
 
