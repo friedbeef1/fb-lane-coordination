@@ -1,0 +1,56 @@
+{
+  "unmirror-intro": {
+    "objective": "Align the approved intro headline across the supported Web, Android, and iOS experiences without broadening scope.",
+    "relevantDecisions": ["Use exactly: Why all that effort perfecting a reflection no one else sees?", "Keep existing navigation, privacy, analytics, and release behavior unchanged."],
+    "assumptions": ["All three platform source trees are present in the fixture.", "No deployment or device QA is part of this replay."],
+    "changedEvidence": ["The current starting tree contains inconsistent intro headline copy across platforms."],
+    "acceptanceCriteria": ["The exact approved headline appears in Web, Android, and iOS source.", "Focused source tests cover the approved headline.", "No release or provider behavior changes."],
+    "riskTriggers": [],
+    "requiredOutput": "Implement the smallest source and focused-test change, run the smallest relevant local proof, and report the result."
+  },
+  "unmirror-saved-capture": {
+    "objective": "Let users choose whether newly saved photos and silent clips use Actual or Mirror output across Web, Android, and iOS.",
+    "relevantDecisions": ["Default to Actual.", "Persist the choice locally.", "Apply the selected view to photos and clips.", "Keep existing local-only media and explicit save/share behavior."],
+    "assumptions": ["Existing capture and gallery flows are the integration surfaces.", "No provider, store, or deployment action is allowed."],
+    "changedEvidence": ["The starting tree has preview modes but no durable cross-platform saved-output choice."],
+    "acceptanceCriteria": ["Web, Android, and iOS expose and persist Actual or Mirror saved-output choice.", "Photo and clip output honor the choice.", "Tests cover default, persistence, and output behavior."],
+    "riskTriggers": ["Local media must not be uploaded.", "Do not alter camera permission or release behavior."],
+    "requiredOutput": "Implement one coherent cross-platform candidate with focused tests and report remaining device-only limits."
+  },
+  "unmirror-native-analytics": {
+    "objective": "Add privacy-limited native analytics parity with explicit enable or disable behavior and safe failure handling.",
+    "relevantDecisions": ["Use allow-listed events only.", "Do not capture media, filenames, free text, or person profiles.", "A missing provider token must be a no-op.", "Users can disable analytics locally."],
+    "assumptions": ["Provider credentials and live provider access are unavailable.", "Local deterministic tests are sufficient for this replay."],
+    "changedEvidence": ["The starting tree lacks complete native analytics plumbing and network recovery."],
+    "acceptanceCriteria": ["Android and iOS have allow-listed analytics clients.", "Missing tokens and disabled preference prevent capture.", "Provider/network errors do not break the product.", "Tests prove privacy and enable/disable boundaries."],
+    "riskTriggers": ["privacy", "secrets", "provider state"],
+    "requiredOutput": "Implement a local-only candidate and tests; do not contact or configure a real analytics provider."
+  },
+  "meja-scroll": {
+    "objective": "Keep host actions reachable when the pairing or host interface is taller than a short viewport.",
+    "relevantDecisions": ["Host surfaces may scroll vertically.", "Audience display behavior must remain unchanged.", "The Continue setup on laptop action must be reachable."],
+    "assumptions": ["A deterministic responsive source contract is acceptable without live staging."],
+    "changedEvidence": ["The starting tree can clip host actions on short desktop heights."],
+    "acceptanceCriteria": ["Host main content allows vertical scrolling when needed.", "Pairing layout does not lock the action below the viewport.", "A focused responsive test covers the reachability contract."],
+    "riskTriggers": [],
+    "requiredOutput": "Implement the smallest CSS and focused-test correction."
+  },
+  "meja-pairing": {
+    "objective": "Make laptop pairing continuation and exact-session presence resilient to delayed subscription and transient tracking failure.",
+    "relevantDecisions": ["Continue on the same session and selected mode.", "Track only the exact session role.", "Retry transient presence tracking without duplicate concurrent attempts.", "Clean timers and state on unsubscribe."],
+    "assumptions": ["The existing local fake Supabase test surface is available.", "No real provider write is allowed."],
+    "changedEvidence": ["The starting tree can lose continuation state and does not reliably recover failed presence tracking."],
+    "acceptanceCriteria": ["Laptop continuation preserves session and mode.", "Presence waits for subscription.", "A failed track retries once the timer fires.", "Cleanup prevents stale or duplicate tracking.", "Focused tests cover disconnected and connected cases."],
+    "riskTriggers": ["provider state", "session integrity"],
+    "requiredOutput": "Implement and test the smallest reliable local candidate without contacting Supabase."
+  },
+  "meja-redesign": {
+    "objective": "Integrate the approved Host and Audience redesign while preserving the game workflow.",
+    "relevantDecisions": ["Host gets compact round controls and clear People, Topics, Round, and More navigation.", "Audience shows active role, person, topic, timer, and round status.", "Setup supports Overview, Create Set, and Library.", "Responsive layouts must avoid horizontal overflow."],
+    "assumptions": ["Approved design evidence is represented by this written contract.", "No live visual approval or deployment is part of the replay."],
+    "changedEvidence": ["The starting tree predates the integrated Host and Audience composition."],
+    "acceptanceCriteria": ["Host, Audience, and Setup surfaces expose the approved information architecture.", "The redesign stylesheet is included in standalone output.", "Deterministic tests cover required markers and responsive containment."],
+    "riskTriggers": [],
+    "requiredOutput": "Implement the approved redesign candidate and focused structural/responsive tests."
+  }
+}

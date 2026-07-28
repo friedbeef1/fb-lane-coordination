@@ -10,6 +10,8 @@ const {
   validateRegistry,
 } = require('./fb-real-work-benchmark-lib.cjs');
 const {exportFixture, scanFixture} = require('./fb-real-work-fixture.cjs');
+const {compilePublicFacts, compileTreatment} = require('./fb-real-work-context.cjs');
+const {gradeCandidate} = require('./fb-real-work-grader.cjs');
 
 test('freezes six paired tasks and an 18-task real-work mix', () => {
   const tasks = loadTaskRegistry();
@@ -84,5 +86,46 @@ test('rejects unapproved repositories and secret-bearing retained files', () => 
     assert.match(scanFixture(target).rejected.join('\n'), /secret marker/);
   } finally {
     fs.rmSync(target, {recursive: true, force: true});
+  }
+});
+
+test('gives both treatments identical facts without leaking hidden controls', () => {
+  for (const task of loadTaskRegistry()) {
+    const facts = compilePublicFacts(task);
+    const vanilla = compileTreatment('vanilla', facts);
+    const graph = compileTreatment('graph', facts);
+    assert.equal(vanilla.publicFactsSha256, graph.publicFactsSha256);
+    assert.equal(vanilla.graphPacket, null);
+    assert.ok(graph.graphPacket);
+    assert.equal(JSON.stringify(vanilla).includes('hiddenGrader'), false);
+    assert.equal(JSON.stringify(graph).includes('acceptanceCommits'), false);
+    assert.equal(vanilla.prompt.includes('Preventive Graph'), false);
+  }
+});
+
+test('all untouched historical starts fail and historical accepted trees pass', () => {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-real-work-grade-'));
+  try {
+    for (const task of loadTaskRegistry()) {
+      const start = path.join(base, `${task.id}-start`);
+      const accepted = path.join(base, `${task.id}-accepted`);
+      exportFixture(task, start);
+      exportFixture({...task, startCommit: task.acceptanceCommits.at(-1)}, accepted);
+      assert.equal(gradeCandidate(task.id, start).pass, false, `${task.id} start unexpectedly passed`);
+      assert.equal(gradeCandidate(task.id, accepted).pass, true, `${task.id} accepted tree failed`);
+    }
+  } finally {
+    fs.rmSync(base, {recursive: true, force: true});
+  }
+});
+
+test('empty expected filenames cannot fool a grader', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-real-work-empty-'));
+  try {
+    fs.mkdirSync(path.join(root, 'src'), {recursive: true});
+    fs.writeFileSync(path.join(root, 'src', 'IntroScreen.tsx'), '');
+    assert.equal(gradeCandidate('unmirror-intro', root).pass, false);
+  } finally {
+    fs.rmSync(root, {recursive: true, force: true});
   }
 });
