@@ -3,7 +3,7 @@
 * **Current Task**: TASK-057 Shift OKR validation left
 * **Lane**: FB-Product / BFM + FB-Tech
 * **Status**: Staging QA
-* **Release Build**: `0.5.0-beta+codex.20260726130257`
+* **Release Build**: `0.5.0-beta+codex.20260728113402`
 * **BFM Class**: Quick bounded harness correction
 * **Release Vehicle**: `codex/fb-shift-left-okr-validation`; integration remains separate
 * **Worktree**: `/private/tmp/fb-shift-left-okr-validation`

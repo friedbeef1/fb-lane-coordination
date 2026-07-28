@@ -5,7 +5,7 @@
 The current GitHub documentation line uses the FB 0.5.0-beta product name.
 
 The Codex plugin manifest for this line is
-`0.5.0-beta+codex.20260726130257`. Treat that as the release-candidate build
+`0.5.0-beta+codex.20260728113402`. Treat that as the release-candidate build
 ID until the later install and public release checkpoint completes.
 
 Codex is the only supported and released integration. Claude Code and
@@ -31,7 +31,7 @@ Antigravity are paused; contributors can use the
 | Safe unblock | Blockers often became user prompts. | BFM recommends and executes safe unblock paths inside approved scope; hard gates still stop. |
 | Frontend planning | Visual decisions could stay in chat. | Frontend handoffs name `Visual Preview Decision` before source execution when visual uncertainty matters. |
 | Returning lanes | Re-read board and handoffs. | Workstream status cards show what Product/BFM already executed or deferred. |
-| Plugin builds | Build labels could look stale after docs changed. | The current release candidate is Codex `0.5.0-beta+codex.20260726130257`; public installation remains a later release checkpoint. |
+| Plugin builds | Build labels could look stale after docs changed. | The current release candidate is Codex `0.5.0-beta+codex.20260728113402`; public installation remains a later release checkpoint. |
 
 ## Practical Meaning
 

@@ -41,6 +41,7 @@ Evidence Against Product OKR: The graduated benchmark found excess-control overh
 - Preserve the six workstreams, internal execution selection, repair budgets,
   technical identifiers, and **Push Live**.
 - Release candidate: `0.5.0-beta+codex.20260726130257`.
+- Current publication build: `0.5.0-beta+codex.20260728113402`.
 
 ## Brief Validation
 

@@ -29,6 +29,7 @@ Lane: FB-Product
   comparison, layered gates, bounded diagnosis, and evidence-bound isolated
   configuration evolution without autonomous production changes.
 - Release candidate: `0.5.0-beta+codex.20260726130257`.
+- Current publication build: `0.5.0-beta+codex.20260728113402`.
 - Release gate: changelog wording, whole-branch review, and one complete release
   checkpoint passed. **Push Live** remains the separate release authorization.
 - Links: [Handoff](../handoffs/TASK-050.md), [control loop](../fb/control-loop.md),

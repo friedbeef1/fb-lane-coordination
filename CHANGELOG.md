@@ -7,7 +7,9 @@ delta packet containing the failed proof, changed files, relevant decisions,
 candidate reference, and concrete correction. Missing corrections,
 no-candidate-change results, and no-readiness-improvement results stop as
 harness failures instead of widening into accumulated-context rediscovery.
-Larger outcomes continue to split into bounded execution slices up front.
+Larger outcomes continue to split into bounded execution slices up front. New
+normalized handoffs also fail focused validation immediately when their Goal
+Alignment Session or matching approved board record is incomplete.
 
 **Why it matters:** A prospective six-pair historical benchmark measured
 Efficient-Graph FB at 23.6% less wall time and 15.8% fewer provider-reported
@@ -19,10 +21,10 @@ task mix, not a universal performance claim.
 gates, changelog authority, and **Push Live** release boundary remain
 unchanged. Normal isolated tasks may still route to Vanilla Codex.
 
-**Installation or upgrade:** No published build changes yet. After a future
-approved `0.5.0-beta` marketplace release, upgrade `fb-lane`, reinstall
-`fb-lane-coordination@fb-lane`, and start a new Codex task to load the refreshed
-repair guidance.
+**Installation or upgrade:** Upgrade the `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, and start a new Codex task to load
+`0.5.0-beta+codex.20260728113402`, the refreshed repair guidance, and the
+shift-left Goal Alignment validation.
 
 **Changelog approval:** Approved by James in the originating conversation on
 2026-07-28.

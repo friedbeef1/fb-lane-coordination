@@ -9,7 +9,7 @@ FB currently supports Codex only. Start with the
 setup paths when you are not installing through the plugin flow.
 
 The current local release candidate is **FB 0.5.0-beta** build
-`0.5.0-beta+codex.20260726130257`. Installation remains part of the later
+`0.5.0-beta+codex.20260728113402`. Installation remains part of the later
 release checkpoint, not this candidate-build step.
 
 Projects that need the optional generic agent control loop declare it in the
