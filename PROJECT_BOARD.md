@@ -64,6 +64,54 @@
 
 ---
 
+### TASK-056 - Prospective Repair-Efficiency Benchmark
+
+*   **Status**: Staging QA
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce FB coordination and repair overhead while preserving or improving product readiness, safety, and explicit release control.
+    *   **Key Results**: Measure provider tokens and wall time prospectively; preserve unfavorable outcomes; compare readiness and repair incidence on identical tasks.
+    *   **Definition of Done**: The frozen paired result and limitations are recorded, reproducible, privacy-safe, and reflected in framework and plugin guidance.
+    *   **Gate / Review Point**: One release validator and explicit merge approval.
+    *   **Approval**: approved
+    *   **Justification**: James approved this shared efficiency OKR and the measured prospective comparison in the originating conversation.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-056.md); [result](docs/benchmarks/repair-efficiency/README.md); [QA](docs/qa/TASK-056.md).
+
+### TASK-055 - Repair-Context Efficiency
+
+*   **Status**: Staging QA
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce FB coordination and repair overhead while preserving or improving product readiness, safety, and explicit release control.
+    *   **Key Results**: Use fresh criterion-specific repair packets; stop repairs without a concrete correction; rerun only the failed proof.
+    *   **Definition of Done**: Canonical and packaged contracts enforce one bounded evidence-driven repair without weakening safety gates.
+    *   **Gate / Review Point**: Prospective TASK-056 evidence and the release validator.
+    *   **Approval**: approved
+    *   **Justification**: James approved this shared efficiency OKR and the repair-context hardening in the originating conversation.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-055.md); [prospective evidence](docs/benchmarks/repair-efficiency/README.md).
+
+### TASK-054 - Real-Work Paired Benchmark
+
+*   **Status**: Staging QA
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce FB coordination and repair overhead while preserving or improving product readiness, safety, and explicit release control.
+    *   **Key Results**: Measure real provider tokens and wall time on identical historical tasks; retain unfavorable outcomes; identify the source of repair overhead.
+    *   **Definition of Done**: Six paired tasks preserve authoritative usage, honest readiness, and all unfavorable outcomes.
+    *   **Gate / Review Point**: Evidence review before any framework claim or repair-policy change.
+    *   **Approval**: approved
+    *   **Justification**: James approved this shared efficiency OKR and the paid benchmark execution in the originating conversation.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-054.md); [result](docs/benchmarks/real-work/README.md); [QA](docs/qa/TASK-054.md).
+
+### TASK-053 - Frozen 95% Readiness Benchmark
+
+*   **Status**: Staging QA
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce FB coordination and repair overhead while preserving or improving product readiness, safety, and explicit release control.
+    *   **Key Results**: Compare first-pass readiness under a frozen public contract; keep blocker handling correct; exclude invalid evidence rather than repairing it into a pass.
+    *   **Definition of Done**: Every counted arm meets the frozen readiness and blocker contract or remains an honest failure.
+    *   **Gate / Review Point**: Independent evidence review before using the result in product guidance.
+    *   **Approval**: approved
+    *   **Justification**: James approved this shared efficiency OKR and the frozen readiness comparison in the originating conversation.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-053.md).
+
 ### TASK-052 - Preventive Context Benchmark
 
 *   **Status**: Staging QA
@@ -78,6 +126,13 @@
 *   **Out of Scope**: Repair credit in headline readiness, hidden grader data,
     selective reruns, active plugin behavior, package generation, merge,
     publication, installation, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce FB coordination and repair overhead while preserving or improving product readiness, safety, and explicit release control.
+    *   **Key Results**: Measure 91% and 99% first-pass milestones without repair credit; preserve all intentional blockers; reject unfair treatment advantages.
+    *   **Definition of Done**: Frozen public inputs and hidden grading produce comparable, no-repair evidence across all arms.
+    *   **Gate / Review Point**: Methodology review before adopting any prevention claim.
+    *   **Approval**: approved
+    *   **Justification**: James approved this shared efficiency OKR and the preventive-context benchmark in the originating conversation.
 *   **Definition of Done**: The prevention policy is frozen before the
     authoritative run; focused tests prove denominator integrity, arm
     isolation, privacy, safety, and no-repair scoring; adoption requires every
@@ -103,6 +158,13 @@
     remained 100%, and unresolved failures remained 57.
 *   **Out of Scope**: Weaker safety, transcript capture, hosted telemetry,
     selective reruns, merge, publication, installation, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce FB coordination and repair overhead while preserving or improving product readiness, safety, and explicit release control.
+    *   **Key Results**: Test the frozen token and elapsed-time thresholds together; preserve zero missed controls and complete safety response; reject the candidate unless every predicate passes.
+    *   **Definition of Done**: The candidate is adopted only if every frozen efficiency, readiness, privacy, and safety predicate passes.
+    *   **Gate / Review Point**: Whole-branch evidence review before any active guidance or plugin adoption.
+    *   **Approval**: approved
+    *   **Justification**: James approved this shared efficiency OKR and the context-efficiency experiment in the originating conversation.
 *   **Definition of Done**: The all-predicate decision remains reject.
     Whole-branch probes disproved the frozen privacy assumption, so privacy is
     unverified/failed as implementation evidence and the modeled time pass is

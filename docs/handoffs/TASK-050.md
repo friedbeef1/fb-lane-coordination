@@ -10,6 +10,13 @@ review_state: not reviewable
 
 # TASK-050 — Generic agent control loop and FB 0.5.0-beta
 
+## Goal Alignment Session
+
+Product OKR: Reduce FB coordination and repair overhead while preserving or improving product readiness, safety, and explicit release control.
+Lane OKR Fit: aligned
+Mini-loop Evidence: Focused contracts, package parity, independent review, and the release checkpoint tested the bounded control loop without weakening release authority.
+Evidence Against Product OKR: The graduated benchmark found excess-control overhead, so its faster-decay policy was rejected rather than adopted.
+
 ## Project Start Brief
 
 - **What was requested:** Evaluate production-grade multimodal-agent practices

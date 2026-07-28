@@ -9,6 +9,13 @@ record_model: normalized-v1
 
 # TASK-055 — Repair-context efficiency
 
+## Goal Alignment Session
+
+Product OKR: Reduce FB coordination and repair overhead while preserving or improving product readiness, safety, and explicit release control.
+Lane OKR Fit: aligned
+Mini-loop Evidence: Deterministic contracts require fresh criterion-specific repair packets, a concrete correction, one consolidated repair, and a no-progress stop.
+Evidence Against Product OKR: None identified; prospective TASK-056 evidence is the outcome check rather than an assumed benefit.
+
 ## Project Start Brief
 
 - **Requested:** Apply the six changes proposed after TASK-054 so FB preserves

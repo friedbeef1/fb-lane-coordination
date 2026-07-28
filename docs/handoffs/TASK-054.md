@@ -10,6 +10,13 @@ record_model: normalized-v1
 
 # TASK-054 — Real-work Vanilla versus Preventive Graph FB benchmark
 
+## Goal Alignment Session
+
+Product OKR: Reduce FB coordination and repair overhead while preserving or improving product readiness, safety, and explicit release control.
+Lane OKR Fit: aligned
+Mini-loop Evidence: Six paired real-work replays measured provider tokens, wall time, readiness, and repair incidence with equal public facts and preserved unfavorable outcomes.
+Evidence Against Product OKR: Preventive Graph FB was 13.1% slower and used 34.7% more tokens, localizing the regression to repair work and rejecting the original efficiency claim.
+
 ## Project Start Brief
 
 - **Requested:** Replace rationale and modeled assumptions with quantitative
