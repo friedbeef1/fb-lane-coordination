@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-058 | Ready | FB-Product / BFM + FB-Tech | Automatic worktree orchestration | Make `$bfm` create or reuse linked worktrees for every independent source-changing slice without user setup, while keeping planning-only and overlapping work lightweight or sequential | Canonical/package BFM and coordination skills, workflow/product docs, focused automatic-worktree contract, generated mirrors, and TASK-058 evidence | [Handoff](docs/handoffs/TASK-058.md) |
 | TASK-057 | Done | FB-Product / BFM + FB-Tech | Harness reliability | Prevent incomplete OKR records from reaching release validation | Normalized handoff template, focused record validation, generated plugin mirrors, and TASK-057 evidence | [Handoff](docs/handoffs/TASK-057.md); [QA evidence](docs/qa/TASK-057.md); merged and published as `708593a` |
 | TASK-056 | Staging QA | FB-Product / BFM + FB-Tech | Prospective repair-efficiency benchmark | Twelve fresh runs completed: efficient Graph used 15.8% fewer tokens and 23.6% less wall time, with 3/6 accepted outcomes versus Vanilla's 1/6 | Isolated fixtures and benchmark evidence only; no source-repository, plugin-release, provider-write, production, or deployment change | [Handoff](docs/handoffs/TASK-056.md); [Result](docs/benchmarks/repair-efficiency/README.md); [QA](docs/qa/TASK-056.md) |
 | TASK-055 | Staging QA | FB-Product / BFM + FB-Tech | Repair efficiency | Fresh criterion-specific delta repair packets, concrete-correction gate, no-change/no-improvement stop, and upfront execution slicing are implemented and prospectively validated | `tools/fb-efficiency*`, canonical/package workflow, guardrails, BFM skill, approved changelog; no release, provider, production, or deployment change | [Handoff](docs/handoffs/TASK-055.md); [TASK-056 evidence](docs/benchmarks/repair-efficiency/README.md); focused 28/28 and 48-mirror parity passed |
@@ -64,6 +65,27 @@
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
 
 ---
+
+### TASK-058 - Automatic BFM Worktree Orchestration
+
+*   **Status**: Ready
+*   **Owner / Thread**: FB-Product / BFM + FB-Tech
+*   **Area**: Harness execution
+*   **Scope**: Require BFM to translate its approved execution graph into
+    automatic linked-worktree claims for independent source-changing slices,
+    reuse exact clean matches, and expose the resulting slice/branch/worktree
+    mapping without asking the user to organize worktrees.
+*   **Out of Scope**: Worktrees for planning-only conversations, automatic chat
+    discovery, parallel edits to overlapping files, merge/deploy/publication,
+    or replacing Git worktrees with a second isolation system.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce hands-on user coordination and file collisions while preserving FB product authority, bounded verification, and explicit release control.
+    *   **Key Results**: Independent source slices are claimed into distinct linked worktrees automatically; matching clean worktrees are reused; planning-only, overlapping, dependent, and sensitive work does not spawn unnecessary parallel worktrees; root and packaged contracts agree.
+    *   **Definition of Done**: Focused RED/GREEN orchestration proof, generated package parity, affected syntax, links, and whitespace pass.
+    *   **Gate / Review Point**: Focused local verification; merge, publication, installation, and deployment remain separate.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly requested that the system set up worktrees instead of requiring manual user organization.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-058.md).
 
 ### TASK-057 - Shift OKR Validation Left
 
