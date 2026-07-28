@@ -1,0 +1,161 @@
+{
+  "experimentId": "fb-real-work-paired-054-20260728",
+  "excluded": true,
+  "firstPass": {
+    "runId": "shakedown-first",
+    "taskId": "shakedown",
+    "arm": "vanilla",
+    "startedAt": "2026-07-28T04:56:51.860Z",
+    "finishedAt": "2026-07-28T04:57:20.691Z",
+    "wallTimeMs": 28832,
+    "exitCode": 0,
+    "timedOut": false,
+    "sessionId": "019fa715-35d3-7691-999e-7e5753ed4300",
+    "usage": {
+      "inputTokens": 73843,
+      "cachedInputTokens": 65920,
+      "outputTokens": 388,
+      "totalTokens": 74231,
+      "authoritative": true
+    },
+    "curatedEvents": [
+      {
+        "sequence": 1,
+        "type": "thread.started"
+      },
+      {
+        "sequence": 2,
+        "type": "turn.started"
+      },
+      {
+        "sequence": 3,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 4,
+        "type": "item.started"
+      },
+      {
+        "sequence": 5,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 6,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 7,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 8,
+        "type": "item.started"
+      },
+      {
+        "sequence": 9,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 10,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 11,
+        "type": "item.started"
+      },
+      {
+        "sequence": 12,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 13,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 14,
+        "type": "turn.completed",
+        "usage": {
+          "inputTokens": 73843,
+          "cachedInputTokens": 65920,
+          "outputTokens": 388,
+          "totalTokens": 74231,
+          "authoritative": true
+        }
+      }
+    ],
+    "candidateSha256": "2758f7e778323cce0d665a114c8b4e9cc99f2bedb8f2cd8e24740cd02cb4d8d7",
+    "stdoutSha256": "ac48b275ba6172f9726a1e2b5d22a1a7c0a5279186bef1696c4d691ea971a25d",
+    "stderrSha256": "3673b6d604e7aec908dc78824555844aed36c8da94521f26df44add5f494a4b8",
+    "repairCount": 0
+  },
+  "repair": {
+    "startedAt": "2026-07-28T04:57:20.704Z",
+    "finishedAt": "2026-07-28T04:57:35.872Z",
+    "wallTimeMs": 15168,
+    "exitCode": 0,
+    "timedOut": false,
+    "usage": {
+      "inputTokens": 119646,
+      "cachedInputTokens": 108032,
+      "outputTokens": 623,
+      "totalTokens": 120269,
+      "authoritative": true
+    },
+    "curatedEvents": [
+      {
+        "sequence": 1,
+        "type": "thread.started"
+      },
+      {
+        "sequence": 2,
+        "type": "turn.started"
+      },
+      {
+        "sequence": 3,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 4,
+        "type": "item.started"
+      },
+      {
+        "sequence": 5,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 6,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 7,
+        "type": "item.started"
+      },
+      {
+        "sequence": 8,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 9,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 10,
+        "type": "turn.completed",
+        "usage": {
+          "inputTokens": 119646,
+          "cachedInputTokens": 108032,
+          "outputTokens": 623,
+          "totalTokens": 120269,
+          "authoritative": true
+        }
+      }
+    ],
+    "candidateSha256": "a0ff25d128c6901925da295d2e6baa451c7c27119316bab144aa2833817fcc77",
+    "stdoutSha256": "7517989def0fc996f3fcdce2cf4bb7aa47d18bec5ed8f6aeebab021ef14cc72c",
+    "stderrSha256": "933400be572eeae75317c10195814e7e06e6d1ac511eb02825e5cef3d7c4d3a7"
+  },
+  "firstExpectedFailure": true,
+  "repairPassed": true,
+  "authoritativeUsage": true,
+  "passed": true
+}

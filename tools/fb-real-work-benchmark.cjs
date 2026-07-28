@@ -84,7 +84,7 @@ function freezeDeclaration() {
     countedFirstPassRuns: 12,
     repairMaximumPerRun: 1,
     userDecisionEvents: 0,
-    model: 'gpt-5.6-sol',
+    model: 'gpt-5.4',
     firstPassTimeoutMinutes: 20,
     repairTimeoutMinutes: 10,
     schedule: schedule(tasks),
@@ -159,11 +159,11 @@ async function shakedown(root, options = {}) {
     commandPrefix:options.commandPrefix,
     commandArgs:options.commandArgs || [
       'exec','--json','--ignore-user-config','--ignore-rules','--skip-git-repo-check',
-      '--sandbox','workspace-write','-m','gpt-5.6-sol','-C',fixture,'-',
+      '--sandbox','workspace-write','-m','gpt-5.4','-C',fixture,'-',
     ],
   });
   if (first.exitCode !== 0 || first.timedOut || !first.sessionId) {
-    throw new Error(`Shakedown first pass failed: exit=${first.exitCode} timeout=${first.timedOut}`);
+    throw new Error(`Shakedown first pass failed: exit=${first.exitCode} timeout=${first.timedOut} stderr=${first._stderr}`);
   }
   const firstExpectedFailure = fs.readFileSync(path.join(fixture,'answer.txt'),'utf8') !== 'READY\n';
   const repaired = await runRepair(first, {
@@ -183,6 +183,10 @@ async function shakedown(root, options = {}) {
     authoritativeUsage:first.usage.authoritative && repaired.repair.usage.authoritative,
     passed:firstExpectedFailure && repairPassed && first.usage.authoritative && repaired.repair.usage.authoritative,
   };
+  if (!repairPassed) {
+    fs.writeFileSync(path.join(absoluteRoot, 'shakedown', 'repair.debug.jsonl'), repaired.repair._rawOutput || '');
+    fs.writeFileSync(path.join(absoluteRoot, 'shakedown', 'repair.debug.stderr'), repaired.repair._stderr || '');
+  }
   atomicJson(path.join(DOCS_DIR, 'shakedown.json'), result);
   fs.rmSync(first._config.codexHome, {recursive:true, force:true});
   if (!result.authoritativeUsage) {
@@ -227,7 +231,7 @@ async function executeRun(root, scheduleRow, options = {}) {
     commandPrefix:options.commandPrefix,
     commandArgs:options.commandArgs || [
       'exec','--json','--ignore-user-config','--ignore-rules','--skip-git-repo-check',
-      '--sandbox','workspace-write','-m','gpt-5.6-sol','-C',fixture,'-',
+      '--sandbox','workspace-write','-m','gpt-5.4','-C',fixture,'-',
     ],
   });
   const firstGrade = gradeCandidate(task.id, fixture);

@@ -23,6 +23,9 @@ record_model: normalized-v1
   Report unattended completion rather than inventing screen-time savings.
 - **Evidence boundary:** freeze source commits, public packets, arm prompts,
   graders, order, budgets, and repair policy before counted execution.
+- **Model boundary:** the installed Codex CLI 0.139.0 cannot run
+  `gpt-5.6-sol`; both counted arms therefore use the same supported
+  `gpt-5.4` model.
 - **Safety boundary:** historical repositories are read-only inputs. Replays
   run only in isolated exported fixtures without network, provider, production,
   deployment, or release authority.
@@ -71,3 +74,11 @@ record_model: normalized-v1
 
 No push, merge, plugin change, publication, provider write, production change,
 deployment, or live action is authorized.
+
+## Pre-run checkpoint
+
+- Frozen declaration: [real-work benchmark declaration](../benchmarks/real-work/frozen-declaration.json)
+- Excluded shakedown: [real-work shakedown](../benchmarks/real-work/shakedown.json)
+- Methodology review: [pre-run review](../benchmarks/real-work/methodology-review.md)
+- Result: passed. Authoritative usage and a real one-shot resume repair were
+  demonstrated before counted execution.

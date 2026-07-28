@@ -62,6 +62,7 @@ test('exports a historical tree without git history or forbidden files', () => {
     spawnSync('git', ['init', '-q'], {cwd: source});
     fs.writeFileSync(path.join(source, 'package.json'), '{"scripts":{"test":"node --test"}}\n');
     fs.writeFileSync(path.join(source, '.env'), 'SECRET=value\n');
+    fs.writeFileSync(path.join(source, 'AGENTS.md'), 'Use a different workflow.\n');
     fs.mkdirSync(path.join(source, 'docs', 'handoffs'), {recursive: true});
     fs.writeFileSync(path.join(source, 'docs', 'handoffs', 'old.md'), 'history\n');
     spawnSync('git', ['add', '.'], {cwd: source});
@@ -77,6 +78,7 @@ test('exports a historical tree without git history or forbidden files', () => {
     const receipt = exportFixture(task, target);
     assert.equal(fs.existsSync(path.join(target, '.git')), false);
     assert.equal(fs.existsSync(path.join(target, '.env')), false);
+    assert.equal(fs.existsSync(path.join(target, 'AGENTS.md')), false);
     assert.equal(fs.existsSync(path.join(target, 'docs', 'handoffs', 'old.md')), false);
     assert.equal(receipt.startCommit, commit);
     assert.match(receipt.exportedFilesSha256, /^[a-f0-9]{64}$/);
@@ -168,7 +170,7 @@ test('runs one bounded fake Codex pass and one repair only', async () => {
     "const fs=require('node:fs');",
     "const path=require('node:path');",
     "const input=fs.readFileSync(0,'utf8');",
-    "fs.writeFileSync(path.join(process.cwd(),'source.txt'), input.includes('consolidated repair')?'repaired\\n':'candidate\\n');",
+    "fs.writeFileSync(path.join(process.cwd(),'source.txt'), /consolidated repair/i.test(input)?'repaired\\n':'candidate\\n');",
     "process.stdout.write(JSON.stringify({type:'thread.started',thread_id:'thread-fake'})+'\\n');",
     "process.stdout.write(JSON.stringify({type:'turn.completed',usage:{input_tokens:11,cached_input_tokens:2,output_tokens:7,total_tokens:18}})+'\\n');",
   ].join('\n'));

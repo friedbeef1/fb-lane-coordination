@@ -3,7 +3,7 @@
     "(^|/)\\.env(?:\\.|$)",
     "(^|/)(node_modules|dist|build|DerivedData|\\.gradle|coverage)(/|$)",
     "\\.(jks|keystore|p12|mobileprovision)$",
-    "(^|/)(PROJECT_BOARD\\.md|docs/handoffs|docs/sessions)(/|$)"
+    "(^|/)(PROJECT_BOARD\\.md|AGENTS\\.md|\\.codex|\\.agents|docs/handoffs|docs/sessions)(/|$)"
   ],
   "maximumBinaryBytes": 5242880,
   "secretPatterns": [

@@ -1,6 +1,6 @@
 {
   "experimentId": "fb-real-work-paired-054-20260728",
-  "generatedAt": "2026-07-28T04:43:09.113Z",
+  "generatedAt": "2026-07-28T04:56:35.227Z",
   "tasks": 6,
   "arms": [
     "vanilla",
@@ -9,7 +9,7 @@
   "countedFirstPassRuns": 12,
   "repairMaximumPerRun": 1,
   "userDecisionEvents": 0,
-  "model": "gpt-5.6-sol",
+  "model": "gpt-5.4",
   "firstPassTimeoutMinutes": 20,
   "repairTimeoutMinutes": 10,
   "schedule": [
@@ -112,12 +112,12 @@
   ],
   "hashes": {
     "tools/fb-real-work-benchmark-lib.cjs": "7973091ccc51cbed1a417744db4b582cc18056d1e036ed45d218371300d64aec",
-    "tools/fb-real-work-benchmark.cjs": "7eb46db4a3aef06da0f2b03a265462071f90d7c6a59fc5559a9de11b00732385",
+    "tools/fb-real-work-benchmark.cjs": "45695c3ffa06e166fc545da4649a6810047e2c971b22926bc971d65ebf5fca6b",
     "tools/fb-real-work-context.cjs": "b6a3f48a08d3f947edbec9e3e48a95cf234b21b838925a91dba0620a4fcfefd7",
     "tools/fb-real-work-fixture.cjs": "0f4eecb2f5062d798e31b7a41853e7b65d93da7e7edfd74f59b0a99b02e77991",
     "tools/fb-real-work-grader.cjs": "dc725b4ca43f89a83e1c1c9995ebb4663c77b2b50a2fc44d8f49a5469af620ee",
-    "tools/fb-real-work-runner.cjs": "d75c7b4d13972d6305610ee649e16e31fa3c7ac32a522b72aca2e6e7ca3f95eb",
-    "tools/fixtures/fb-real-work-benchmark/forbidden-paths.json": "89012f3ad459dab66ad1760c41d0b50d8358c3687703e6e5fa194f6e7dbf7ba1",
+    "tools/fb-real-work-runner.cjs": "e4677c2b79a90008167db854405156d24bc727b85377e7142b45f6fd3424a230",
+    "tools/fixtures/fb-real-work-benchmark/forbidden-paths.json": "bd20c9aa1a3c41b2c3ca63a7747e06a1b723da6cb6f9885fc599fbaf2fb64961",
     "tools/fixtures/fb-real-work-benchmark/graders/_shared.cjs": "1defb58d81bf29d1e47e233ffaa46a6dd8f580c3783ef4a987e4718f0f787f5d",
     "tools/fixtures/fb-real-work-benchmark/graders/meja-pairing.cjs": "357da2c05128ecdd63cb9dddeeca1fb4c8ae891e3b34816dd09f34d731f926ca",
     "tools/fixtures/fb-real-work-benchmark/graders/meja-redesign.cjs": "8989c6e2c0e5cf01d2234ba85b59a27dcf4c8adebdad6170f2a078f8829a70dc",

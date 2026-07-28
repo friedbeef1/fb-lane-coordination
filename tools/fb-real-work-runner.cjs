@@ -182,6 +182,7 @@ async function runFirstPass(config) {
       stderrSha256: sha256(result.stderr),
       repairCount: 0,
       _rawOutput: result.stdout,
+      _stderr: result.stderr,
       _config: {...config, codexHome: home},
     };
   } catch (error) {
@@ -195,17 +196,25 @@ async function runRepair(firstPass, failurePacket) {
   if (firstPass.repairCount) throw new Error('Second repair is not allowed');
   if (failurePacket.passed) throw new Error('Cannot repair a passing candidate');
   const config = firstPass._config;
-  const prompt = JSON.stringify({
-    failedPublicChecks: failurePacket.failedPublicChecks,
-    observedOutput: failurePacket.observedOutput,
-    requiredAcceptance: failurePacket.requiredAcceptance,
-    instruction: 'Make one consolidated repair, rerun only the failed proof, and stop.',
-  });
+  const prompt = [
+    'ONE CONSOLIDATED REPAIR IS REQUIRED.',
+    '',
+    'Failed public checks:',
+    ...(failurePacket.failedPublicChecks || []).map(value => `- ${value}`),
+    '',
+    `Observed result: ${failurePacket.observedOutput || 'The focused proof failed.'}`,
+    '',
+    'Required acceptance:',
+    ...(failurePacket.requiredAcceptance || []).map(value => `- ${value}`),
+    '',
+    'Make the smallest source correction now, rerun only the failed proof, and stop.',
+  ].join('\n');
   const command = config.command || 'codex';
   const prefix = config.commandPrefix || [];
   const args = config.repairCommandArgs || [
     'exec', 'resume', '--json', '--ignore-user-config',
-    firstPass.sessionId, '-',
+    '--skip-git-repo-check', '-m', 'gpt-5.4',
+    '-c', 'sandbox_mode="workspace-write"', firstPass.sessionId, '-',
   ];
   const startedAt = new Date().toISOString();
   const start = process.hrtime.bigint();
@@ -231,6 +240,8 @@ async function runRepair(firstPass, failurePacket) {
       candidateSha256: hashTree(config.fixtureDir),
       stdoutSha256: sha256(result.stdout),
       stderrSha256: sha256(result.stderr),
+      _stderr: result.stderr,
+      _rawOutput: result.stdout,
     },
   };
 }
@@ -238,7 +249,12 @@ async function runRepair(firstPass, failurePacket) {
 function publicEvidence(evidence) {
   const copy = JSON.parse(JSON.stringify(evidence));
   delete copy._rawOutput;
+  delete copy._stderr;
   delete copy._config;
+  if (copy.repair) {
+    delete copy.repair._stderr;
+    delete copy.repair._rawOutput;
+  }
   return copy;
 }
 

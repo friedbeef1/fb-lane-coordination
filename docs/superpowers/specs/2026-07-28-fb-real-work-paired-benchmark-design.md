@@ -94,7 +94,9 @@ counterbalanced task/arm order so one arm is not always first.
 
 For each subject:
 
-1. Start an ephemeral Codex execution with the same model and configuration.
+1. Start an ephemeral Codex execution with the same frozen model and
+   configuration. The available Codex CLI 0.139.0 cannot run `gpt-5.6-sol`, so
+   the executed study uses `gpt-5.4` for both arms.
 2. Record controller start time immediately before launch.
 3. Capture the complete JSONL event stream outside the fixture.
 4. Stop at the first candidate.
