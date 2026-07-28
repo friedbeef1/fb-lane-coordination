@@ -3,6 +3,7 @@ type: fb-lane-handoff
 task: TASK-054
 lane: fb-product
 status: staging-qa
+approval: approved
 fb_harness: v3
 record_model: normalized-v1
 ---
