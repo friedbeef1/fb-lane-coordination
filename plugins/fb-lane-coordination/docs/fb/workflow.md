@@ -142,11 +142,19 @@ material decision lacks a preview.
 
 After the Story Split Pass, BFM must automatically create or reuse one linked
 worktree for every independent, non-overlapping source-changing slice. For each
-eligible slice, BFM invokes `fb_lane_claim` or
+eligible slice, Product first records a **unique approved child task ID**, its
+inherited brief, dependencies, locks, and focused proof. BFM then invokes
+`fb_lane_claim` or
 `node tools/fb-lane.cjs claim <task-id> <lane> <locked-files>` and captures the
 returned branch and worktree path before starting its worker. The claim path
 reuses an exact clean branch match; otherwise it creates the worktree beneath
 the primary checkout's `.worktrees/` directory.
+
+BFM creates claims one at a time from the primary checkout so authoritative
+board and lock mutations cannot race. After all claims are registered, BFM may
+start independent workers concurrently. A parent outcome with one slice may
+reuse its existing task ID; several implementation slices never share one claim
+identity.
 
 Planning-only work does not receive an implementation worktree. Dependent,
 overlapping, shared-file, sensitive, or unresolved-decision slices remain
@@ -158,9 +166,16 @@ worktrees.
 Before workers start, BFM reports a compact **slice / branch / worktree map**.
 After each worker returns, BFM verifies the claimed branch and worktree,
 integrates only the approved candidate, and records whether each worktree is
-clean, merged, blocked, stale, or retained. Worktree isolation does not make a
-handoff visible across checkouts: Product/BFM must integrate ready handoff
-commits into its coordination checkout before reconciliation.
+clean, merged, blocked, stale, or retained. Integration and cleanup run from
+the primary checkout. After a branch is merged, FB removes its worktree only
+when it is registered, present, and clean. Cleanup never removes the primary
+checkout and never uses broad or forced pruning. A dirty, unmerged, missing,
+blocked, or deferred worktree remains registered with an owner and next action;
+the task and locks remain open when cleanup blocks.
+
+Worktree isolation does not make a handoff visible across checkouts:
+Product/BFM must integrate ready handoff commits into its coordination checkout
+before reconciliation.
 
 ## Internal execution routing
 

@@ -87,6 +87,12 @@
     *   **Justification**: James explicitly requested that the system set up worktrees instead of requiring manual user organization.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-058.md).
 *   **Latest Update**:
+    *   *2026-07-28*: Orphan prevention is now enforced in runtime and plugin
+        guidance. Integration must run from the primary checkout; clean merged
+        worktrees are removed before task locks release; dirty, unmerged,
+        missing, blocked, or deferred worktrees remain owned. Exact branch
+        matching also handles Git's linked-worktree `+` marker. Focused
+        real-Git/root/package proof is 11/11 and 49 mirrors match.
     *   *2026-07-28*: The Full BFM claim created the linked implementation
         worktree automatically. Canonical/package behavior now requires one
         automatic create-or-reuse claim per eligible source slice; focused and

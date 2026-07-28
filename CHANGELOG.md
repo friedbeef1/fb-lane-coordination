@@ -6,11 +6,15 @@
 creates or reuses one linked Git worktree for every independent,
 non-overlapping implementation slice. Planning-only work creates no worktree;
 dependent, overlapping, shared-file, sensitive, and unresolved work stays
-sequential.
+sequential. Each parallel slice receives a unique approved child task and claims
+are registered serially before workers begin. After integration, FB removes a
+worktree only when its branch is merged and the worktree is clean.
 
 **Why it matters:** Users no longer need to create, choose, or organize
 implementation worktrees. FB owns the slice-to-branch-to-worktree mapping while
-preserving Product/BFM reconciliation and explicit integration.
+preserving Product/BFM reconciliation and explicit integration. Dirty,
+unmerged, missing, blocked, or deferred worktrees remain owned and visible
+instead of being force-deleted or silently orphaned.
 
 **Compatibility:** Existing `claim`, `quick`, `$bfm`, plugin identifiers,
 workstreams, handoffs, and **Push Live** authority remain unchanged. Worktrees

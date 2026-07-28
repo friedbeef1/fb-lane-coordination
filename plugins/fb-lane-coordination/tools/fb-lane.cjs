@@ -205,6 +205,57 @@ function resolveWorktreePlan(records, branchName) {
   return { path: path.join(primary, '.worktrees', directory), reuse: false, primary };
 }
 
+function selectTaskBranch(branches, taskId) {
+  const safeTaskId = assertSafeTaskId(taskId);
+  const escapedTaskId = safeTaskId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`(^|/)${escapedTaskId}(?:-|$)`);
+  const matches = branches.filter(branch => pattern.test(branch));
+  if (matches.length > 1) {
+    throw new Error(
+      `Multiple branches match ${safeTaskId}: ${matches.join(', ')}. Retain them and require Product/BFM to choose the intended branch explicitly.`
+    );
+  }
+  return matches[0] || '';
+}
+
+function removeMergedWorktree(primaryPath, branchName) {
+  const branch = assertSafeBranchName(branchName);
+  const primary = fs.realpathSync(primaryPath);
+  const records = parseWorktreePorcelain(runGit(['-C', primary, 'worktree', 'list', '--porcelain']));
+  const registered = records.find(record => record.branch === branch);
+  if (!registered) return { status: 'not-registered', branch, worktree: null };
+
+  if (path.resolve(records[0].path) === path.resolve(registered.path)) {
+    throw new Error(`Refusing to remove the primary checkout for branch ${branch}.`);
+  }
+  if (!fs.existsSync(registered.path)) {
+    throw new Error(
+      `The registered worktree path is missing for ${branch}. Retain its metadata and require an owner to review the next action before any targeted prune.`
+    );
+  }
+  if (fs.realpathSync(registered.path) === primary) {
+    throw new Error(`Refusing to remove the primary checkout for branch ${branch}.`);
+  }
+  const dirt = runGit(['-C', registered.path, 'status', '--porcelain']);
+  if (dirt) {
+    throw new Error(
+      `Worktree ${registered.path} is dirty. Retain it and record an owner plus next action; automatic cleanup is blocked.`
+    );
+  }
+  try {
+    runGit(['-C', primary, 'merge-base', '--is-ancestor', branch, 'HEAD']);
+  } catch (err) {
+    throw new Error(`Branch ${branch} is not merged into the primary candidate. Retain its worktree for integration or explicit deferral.`);
+  }
+
+  runGit(['-C', primary, 'worktree', 'remove', registered.path]);
+  const remaining = parseWorktreePorcelain(runGit(['-C', primary, 'worktree', 'list', '--porcelain']));
+  if (remaining.some(record => record.path === registered.path || record.branch === branch)) {
+    throw new Error(`Git still registers ${registered.path} after cleanup; retain the task gate for owner recovery.`);
+  }
+  return { status: 'removed', branch, worktree: registered.path };
+}
+
 function ensureWorktreeContainerIgnored(primary) {
   try {
     runGit(['-C', primary, 'check-ignore', '-q', '.worktrees']);
@@ -2439,6 +2490,14 @@ function handleMerge(taskId) {
     process.exit(1);
   }
 
+  const mergeRecords = parseWorktreePorcelain(runGit(['worktree', 'list', '--porcelain']));
+  const primaryCheckout = mergeRecords[0] && mergeRecords[0].path;
+  const currentCheckout = runGit('rev-parse --show-toplevel');
+  if (!primaryCheckout || fs.realpathSync(currentCheckout) !== fs.realpathSync(primaryCheckout)) {
+    console.error('❌ Error: Run FB merge from the primary checkout. BFM owns this integration step; do not merge from an execution worktree.');
+    process.exit(1);
+  }
+
   const boardPath = findBoardPath();
   if (!boardPath) {
     console.error('❌ Error: PROJECT_BOARD.md not found.');
@@ -2471,9 +2530,12 @@ function handleMerge(taskId) {
   // Try to find the branch name matching the task ID
   let targetBranch = '';
   try {
-    const branches = runGit('branch --list').split('\n').map(b => b.replace('*', '').trim());
-    targetBranch = branches.find(b => b.includes(taskId)) || '';
-  } catch (err) {}
+    const branches = runGit('branch --list').split('\n').map(b => b.replace(/^[*+]\s*/, '').trim());
+    targetBranch = selectTaskBranch(branches, taskId);
+  } catch (err) {
+    console.error(`❌ Error: ${err.message}`);
+    process.exit(1);
+  }
 
   if (!targetBranch) {
     // Guess name if not found in local branch list
@@ -2493,6 +2555,15 @@ function handleMerge(taskId) {
       runGit('merge --abort');
     } catch (abortErr) {}
     console.error(`👉 Please run the merge manually to resolve conflicts:\n   git checkout main && git merge ${targetBranch}\n`);
+    process.exit(1);
+  }
+
+  let worktreeCleanup;
+  try {
+    worktreeCleanup = removeMergedWorktree(primaryCheckout, targetBranch);
+  } catch (err) {
+    console.error(`\n❌ Worktree cleanup blocked after merge: ${err.message}`);
+    console.error('👉 The task remains In Progress and its locks remain held. Record the retained worktree owner and next action, then retry cleanup from the primary checkout.');
     process.exit(1);
   }
 
@@ -2524,6 +2595,7 @@ function handleMerge(taskId) {
 
   console.log(`\n✅ Task ${taskId} is merged and completed!`);
   console.log(`   - Feature branch ${targetBranch} merged to main & deleted.`);
+  console.log(`   - Worktree cleanup: ${worktreeCleanup.status}${worktreeCleanup.worktree ? ` (${worktreeCleanup.worktree})` : ''}.`);
   console.log(`   - Board updated to Done. Locks released.\n`);
 
   try {
@@ -3288,6 +3360,8 @@ module.exports = {
   classifyBfmClass,
   parseWorktreePorcelain,
   resolveWorktreePlan,
+  selectTaskBranch,
+  removeMergedWorktree,
   renderQueueSummary,
   TASK_ID_PATTERN,
   LANE_PATTERN,
