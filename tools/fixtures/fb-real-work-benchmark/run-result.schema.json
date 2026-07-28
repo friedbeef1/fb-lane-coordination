@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["runId", "arm", "taskId", "startedAt", "finishedAt", "wallTimeMs", "exitCode", "sessionId", "usage", "candidateSha256"],
+  "properties": {
+    "runId": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+    "arm": {"enum": ["vanilla", "graph"]},
+    "taskId": {"type": "string"},
+    "wallTimeMs": {"type": "integer", "minimum": 0},
+    "exitCode": {"type": ["integer", "null"]},
+    "sessionId": {"type": ["string", "null"]},
+    "candidateSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "usage": {
+      "type": "object",
+      "required": ["inputTokens", "cachedInputTokens", "outputTokens", "totalTokens", "authoritative"]
+    }
+  }
+}

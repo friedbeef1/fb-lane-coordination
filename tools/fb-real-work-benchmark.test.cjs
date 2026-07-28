@@ -12,6 +12,12 @@ const {
 const {exportFixture, scanFixture} = require('./fb-real-work-fixture.cjs');
 const {compilePublicFacts, compileTreatment} = require('./fb-real-work-context.cjs');
 const {gradeCandidate} = require('./fb-real-work-grader.cjs');
+const {
+  parseCodexJsonl,
+  redactEvents,
+  runFirstPass,
+  runRepair,
+} = require('./fb-real-work-runner.cjs');
 
 test('freezes six paired tasks and an 18-task real-work mix', () => {
   const tasks = loadTaskRegistry();
@@ -127,5 +133,73 @@ test('empty expected filenames cannot fool a grader', () => {
     assert.equal(gradeCandidate('unmirror-intro', root).pass, false);
   } finally {
     fs.rmSync(root, {recursive: true, force: true});
+  }
+});
+
+test('parses authoritative Codex usage and rejects malformed JSONL', () => {
+  const parsed = parseCodexJsonl([
+    JSON.stringify({type:'thread.started', thread_id:'thread-123', message:'private'}),
+    JSON.stringify({type:'turn.completed', usage:{input_tokens:100,cached_input_tokens:25,output_tokens:40,total_tokens:140}}),
+  ].join('\n'));
+  assert.equal(parsed.sessionId, 'thread-123');
+  assert.deepEqual(parsed.usage, {
+    inputTokens:100,cachedInputTokens:25,outputTokens:40,totalTokens:140,authoritative:true,
+  });
+  assert.equal(JSON.stringify(redactEvents(parsed.events)).includes('private'), false);
+  assert.throws(() => parseCodexJsonl('{not json}\n'), /Malformed/);
+  assert.equal(parseCodexJsonl('{"type":"done"}\n').usage.authoritative, false);
+});
+
+test('runs one bounded fake Codex pass and one repair only', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-real-work-runner-'));
+  const fixture = path.join(root, 'fixture');
+  const fake = path.join(root, 'fake-codex.cjs');
+  fs.mkdirSync(fixture);
+  fs.writeFileSync(path.join(fixture, 'source.txt'), 'start\n');
+  fs.writeFileSync(fake, [
+    "const fs=require('node:fs');",
+    "const path=require('node:path');",
+    "const input=fs.readFileSync(0,'utf8');",
+    "fs.writeFileSync(path.join(process.cwd(),'source.txt'), input.includes('consolidated repair')?'repaired\\n':'candidate\\n');",
+    "process.stdout.write(JSON.stringify({type:'thread.started',thread_id:'thread-fake'})+'\\n');",
+    "process.stdout.write(JSON.stringify({type:'turn.completed',usage:{input_tokens:11,cached_input_tokens:2,output_tokens:7,total_tokens:18}})+'\\n');",
+  ].join('\n'));
+  try {
+    const first = await runFirstPass({
+      runId:'fake-vanilla',taskId:'fake',arm:'vanilla',fixtureDir:fixture,allowedRoot:root,
+      prompt:'implement',timeoutMs:5000,command:process.execPath,commandPrefix:[fake],commandArgs:[],
+    });
+    assert.equal(first.exitCode, 0);
+    assert.equal(first.sessionId, 'thread-fake');
+    assert.equal(first.usage.authoritative, true);
+    const repaired = await runRepair(first, {
+      passed:false,failedPublicChecks:['proof'],observedOutput:'failed',requiredAcceptance:['pass'],
+    });
+    assert.equal(repaired.repairCount, 1);
+    assert.equal(fs.readFileSync(path.join(fixture,'source.txt'),'utf8'), 'repaired\n');
+    await assert.rejects(() => runRepair(repaired, {passed:false}), /Second repair/);
+  } finally {
+    fs.rmSync(root, {recursive:true, force:true});
+  }
+});
+
+test('times out fake Codex and rejects run-directory escape', async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-real-work-timeout-'));
+  const fixture = path.join(root, 'fixture');
+  const fake = path.join(root, 'slow.cjs');
+  fs.mkdirSync(fixture);
+  fs.writeFileSync(fake, "setTimeout(()=>{}, 5000)\n");
+  try {
+    const evidence = await runFirstPass({
+      runId:'fake-timeout',taskId:'fake',arm:'graph',fixtureDir:fixture,allowedRoot:root,
+      prompt:'wait',timeoutMs:30,command:process.execPath,commandPrefix:[fake],commandArgs:[],
+    });
+    assert.equal(evidence.timedOut, true);
+    await assert.rejects(() => runFirstPass({
+      runId:'escape',taskId:'fake',arm:'graph',fixtureDir:os.tmpdir(),allowedRoot:root,
+      prompt:'bad',command:process.execPath,commandPrefix:[fake],commandArgs:[],
+    }), /escapes/);
+  } finally {
+    fs.rmSync(root, {recursive:true, force:true});
   }
 });
