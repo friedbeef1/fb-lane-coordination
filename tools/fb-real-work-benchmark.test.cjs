@@ -18,6 +18,12 @@ const {
   runFirstPass,
   runRepair,
 } = require('./fb-real-work-runner.cjs');
+const {
+  EXPERIMENT_ID,
+  freezeDeclaration,
+  schedule,
+  verifyFrozen,
+} = require('./fb-real-work-benchmark.cjs');
 
 test('freezes six paired tasks and an 18-task real-work mix', () => {
   const tasks = loadTaskRegistry();
@@ -106,6 +112,8 @@ test('gives both treatments identical facts without leaking hidden controls', ()
     assert.equal(JSON.stringify(vanilla).includes('hiddenGrader'), false);
     assert.equal(JSON.stringify(graph).includes('acceptanceCommits'), false);
     assert.equal(vanilla.prompt.includes('Preventive Graph'), false);
+    assert.ok(vanilla.prompt.length > graph.prompt.length, `${task.id} vanilla context was not larger`);
+    assert.equal(graph.prompt.includes(facts.rawRecords[0].content), false);
   }
 });
 
@@ -202,4 +210,16 @@ test('times out fake Codex and rejects run-directory escape', async () => {
   } finally {
     fs.rmSync(root, {recursive:true, force:true});
   }
+});
+
+test('freezes a counterbalanced 12-run schedule', () => {
+  const rows = schedule();
+  assert.equal(rows.length, 12);
+  assert.equal(new Set(rows.map(row=>row.runId)).size, 12);
+  assert.deepEqual(rows.slice(0,4).map(row=>row.arm), ['vanilla','graph','graph','vanilla']);
+  assert.equal(rows.every(row=>row.counted), true);
+  const declaration = freezeDeclaration();
+  assert.equal(declaration.experimentId, EXPERIMENT_ID);
+  assert.equal(declaration.countedFirstPassRuns, 12);
+  assert.doesNotThrow(()=>verifyFrozen(declaration));
 });

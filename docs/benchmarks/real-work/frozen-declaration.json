@@ -1,0 +1,141 @@
+{
+  "experimentId": "fb-real-work-paired-054-20260728",
+  "generatedAt": "2026-07-28T04:43:09.113Z",
+  "tasks": 6,
+  "arms": [
+    "vanilla",
+    "graph"
+  ],
+  "countedFirstPassRuns": 12,
+  "repairMaximumPerRun": 1,
+  "userDecisionEvents": 0,
+  "model": "gpt-5.6-sol",
+  "firstPassTimeoutMinutes": 20,
+  "repairTimeoutMinutes": 10,
+  "schedule": [
+    {
+      "runId": "unmirror-intro-vanilla",
+      "taskId": "unmirror-intro",
+      "arm": "vanilla",
+      "pairIndex": 0,
+      "orderWithinPair": 0,
+      "counted": true
+    },
+    {
+      "runId": "unmirror-intro-graph",
+      "taskId": "unmirror-intro",
+      "arm": "graph",
+      "pairIndex": 0,
+      "orderWithinPair": 1,
+      "counted": true
+    },
+    {
+      "runId": "unmirror-saved-capture-graph",
+      "taskId": "unmirror-saved-capture",
+      "arm": "graph",
+      "pairIndex": 1,
+      "orderWithinPair": 0,
+      "counted": true
+    },
+    {
+      "runId": "unmirror-saved-capture-vanilla",
+      "taskId": "unmirror-saved-capture",
+      "arm": "vanilla",
+      "pairIndex": 1,
+      "orderWithinPair": 1,
+      "counted": true
+    },
+    {
+      "runId": "unmirror-native-analytics-vanilla",
+      "taskId": "unmirror-native-analytics",
+      "arm": "vanilla",
+      "pairIndex": 2,
+      "orderWithinPair": 0,
+      "counted": true
+    },
+    {
+      "runId": "unmirror-native-analytics-graph",
+      "taskId": "unmirror-native-analytics",
+      "arm": "graph",
+      "pairIndex": 2,
+      "orderWithinPair": 1,
+      "counted": true
+    },
+    {
+      "runId": "meja-scroll-graph",
+      "taskId": "meja-scroll",
+      "arm": "graph",
+      "pairIndex": 3,
+      "orderWithinPair": 0,
+      "counted": true
+    },
+    {
+      "runId": "meja-scroll-vanilla",
+      "taskId": "meja-scroll",
+      "arm": "vanilla",
+      "pairIndex": 3,
+      "orderWithinPair": 1,
+      "counted": true
+    },
+    {
+      "runId": "meja-pairing-vanilla",
+      "taskId": "meja-pairing",
+      "arm": "vanilla",
+      "pairIndex": 4,
+      "orderWithinPair": 0,
+      "counted": true
+    },
+    {
+      "runId": "meja-pairing-graph",
+      "taskId": "meja-pairing",
+      "arm": "graph",
+      "pairIndex": 4,
+      "orderWithinPair": 1,
+      "counted": true
+    },
+    {
+      "runId": "meja-redesign-graph",
+      "taskId": "meja-redesign",
+      "arm": "graph",
+      "pairIndex": 5,
+      "orderWithinPair": 0,
+      "counted": true
+    },
+    {
+      "runId": "meja-redesign-vanilla",
+      "taskId": "meja-redesign",
+      "arm": "vanilla",
+      "pairIndex": 5,
+      "orderWithinPair": 1,
+      "counted": true
+    }
+  ],
+  "hashes": {
+    "tools/fb-real-work-benchmark-lib.cjs": "7973091ccc51cbed1a417744db4b582cc18056d1e036ed45d218371300d64aec",
+    "tools/fb-real-work-benchmark.cjs": "7eb46db4a3aef06da0f2b03a265462071f90d7c6a59fc5559a9de11b00732385",
+    "tools/fb-real-work-context.cjs": "b6a3f48a08d3f947edbec9e3e48a95cf234b21b838925a91dba0620a4fcfefd7",
+    "tools/fb-real-work-fixture.cjs": "0f4eecb2f5062d798e31b7a41853e7b65d93da7e7edfd74f59b0a99b02e77991",
+    "tools/fb-real-work-grader.cjs": "dc725b4ca43f89a83e1c1c9995ebb4663c77b2b50a2fc44d8f49a5469af620ee",
+    "tools/fb-real-work-runner.cjs": "d75c7b4d13972d6305610ee649e16e31fa3c7ac32a522b72aca2e6e7ca3f95eb",
+    "tools/fixtures/fb-real-work-benchmark/forbidden-paths.json": "89012f3ad459dab66ad1760c41d0b50d8358c3687703e6e5fa194f6e7dbf7ba1",
+    "tools/fixtures/fb-real-work-benchmark/graders/_shared.cjs": "1defb58d81bf29d1e47e233ffaa46a6dd8f580c3783ef4a987e4718f0f787f5d",
+    "tools/fixtures/fb-real-work-benchmark/graders/meja-pairing.cjs": "357da2c05128ecdd63cb9dddeeca1fb4c8ae891e3b34816dd09f34d731f926ca",
+    "tools/fixtures/fb-real-work-benchmark/graders/meja-redesign.cjs": "8989c6e2c0e5cf01d2234ba85b59a27dcf4c8adebdad6170f2a078f8829a70dc",
+    "tools/fixtures/fb-real-work-benchmark/graders/meja-scroll.cjs": "237125ca74b6bf084dcf0cb45887309e87459f534f101d8b3a3414e812c108fb",
+    "tools/fixtures/fb-real-work-benchmark/graders/unmirror-intro.cjs": "31206ab88c3e796b52d07edfa56bc2f058d927e09a929764d791dec590315bff",
+    "tools/fixtures/fb-real-work-benchmark/graders/unmirror-native-analytics.cjs": "e70acac30c79b0ca843ac5e668c6ba717c6428ceca05141b8fd6384684f9ef67",
+    "tools/fixtures/fb-real-work-benchmark/graders/unmirror-saved-capture.cjs": "d85e0b37f13bc88c870d6769e83f85c3e7227ceeab5e90123cd5f41da2ae61f7",
+    "tools/fixtures/fb-real-work-benchmark/prompts.json": "1bfe9abe8c20623568b6f46cbc7ca717087f41fdc6e3ac0afb87667c193d9820",
+    "tools/fixtures/fb-real-work-benchmark/retrospective.json": "e115547cc4a0ea2e4792749b16add78eb267ab50fc9d5e0eb40ed99ae726aad0",
+    "tools/fixtures/fb-real-work-benchmark/run-result.schema.json": "91c2637bddcfa648564a5225d352fe7a170d42c24e44233e9018b138f6bbabb3",
+    "tools/fixtures/fb-real-work-benchmark/tasks.json": "17f2dafe10353a7366f1ea75e29eab0f7de7787ce309e40f7c51b4634e46c346"
+  },
+  "sourceTrees": {
+    "unmirror-intro": "21e2c6a13ebc5b1cc9197d0182c1a8bae528d2df",
+    "unmirror-saved-capture": "30d2cea514c08f181ead9469a606435e611bc969",
+    "unmirror-native-analytics": "821ce58967dd557379fafeaa91af0b7cd6aa827b",
+    "meja-scroll": "8de65154d5945f7b72548ed7644f67f895e33e83",
+    "meja-pairing": "54bee32411939abc11a7042ccc8c954c970e5983",
+    "meja-redesign": "2afd46bc22ab5a182aeee5c97e04039567026fa9"
+  }
+}

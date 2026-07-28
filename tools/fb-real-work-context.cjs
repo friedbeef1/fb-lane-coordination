@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const {spawnSync} = require('node:child_process');
 const {FIXTURE_DIR} = require('./fb-real-work-benchmark-lib.cjs');
 
 const definitions = JSON.parse(fs.readFileSync(path.join(FIXTURE_DIR, 'prompts.json'), 'utf8'));
@@ -17,6 +18,18 @@ function hash(value) {
   return crypto.createHash('sha256').update(JSON.stringify(stable(value))).digest('hex');
 }
 
+function readPublicRecord(task, record) {
+  const result = spawnSync(
+    'git',
+    ['-C', task.sourceRepo, 'show', `${task.startCommit}:${record}`],
+    {encoding:'utf8', maxBuffer:16 * 1024 * 1024},
+  );
+  if (result.status !== 0) {
+    return `# Public task note\n\nSource record \`${record}\` was not present in the starting tree.\n`;
+  }
+  return result.stdout;
+}
+
 function compilePublicFacts(task) {
   const definition = definitions[task.id];
   if (!definition) throw new Error(`Missing public facts: ${task.id}`);
@@ -24,6 +37,7 @@ function compilePublicFacts(task) {
     taskId: task.id,
     ...JSON.parse(JSON.stringify(definition)),
     recordLinks: task.publicRecords.map((_, index) => `.benchmark-input/record-${index + 1}.md`),
+    rawRecords: task.publicRecords.map(record => ({path:record, content:readPublicRecord(task, record)})),
   };
 }
 
@@ -59,7 +73,13 @@ function compileTreatment(arm, publicFacts) {
       arm,
       publicFactsSha256,
       graphPacket: null,
-      prompt: `Use ordinary Codex execution to complete this task. Do not use FB workflow terminology.\n\n${rawBrief(publicFacts)}`,
+      prompt: [
+        'Use ordinary Codex execution to complete this task. Do not use FB workflow terminology.',
+        'The relevant raw historical task record follows. Reconcile it with the current source and implement the requested outcome.',
+        ...publicFacts.rawRecords.map(record => `SOURCE RECORD: ${record.path}\n\n${record.content}`),
+        `CURRENT REQUEST\n\n${publicFacts.objective}\n\nACCEPTANCE\n${publicFacts.acceptanceCriteria.map(value=>`- ${value}`).join('\n')}`,
+        `REQUIRED OUTPUT\n${publicFacts.requiredOutput}`,
+      ].join('\n\n'),
     };
   }
   const graphPacket = {
