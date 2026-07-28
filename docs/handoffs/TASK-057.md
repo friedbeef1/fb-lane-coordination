@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-057
 lane: fb-product
-status: staging-qa
+status: done
 approval: approved
 fb_harness: v3
 record_model: normalized-v1
@@ -49,5 +49,6 @@ Evidence Against Product OKR: None identified.
   affected syntax, doctor contract, and whitespace passed.
 - Evidence: [TASK-057 QA](../qa/TASK-057.md)
 - Review state: not reviewable
-- External gate: no merge, publication, installation, or deployment without
-  separate approval.
+- Release: merged to `main` as `708593a`; marketplace upgraded; build
+  `0.5.0-beta+codex.20260728113402` installed and enabled.
+- External gate: complete.

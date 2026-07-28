@@ -29,6 +29,11 @@ shift-left Goal Alignment validation.
 **Changelog approval:** Approved by James in the originating conversation on
 2026-07-28.
 
+**Release evidence:** Published from merged commit `708593a`; marketplace
+upgrade and reinstall reported `0.5.0-beta+codex.20260728113402` installed and
+enabled, with all six workstream skills, BFM, the relative bundled MCP route,
+and shift-left Goal Alignment guidance present.
+
 ## 0.5.0-beta — 2026-07-26
 
 **What changed:** FB adds an optional repository-local agent control loop:

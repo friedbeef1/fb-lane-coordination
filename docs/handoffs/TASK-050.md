@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-050
 lane: fb-product
-status: implemented
+status: done
 fb_harness: v3
 record_model: normalized-v1
 review_state: not reviewable

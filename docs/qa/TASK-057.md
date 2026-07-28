@@ -16,6 +16,9 @@ Candidate: `codex/fb-shift-left-okr-validation`
 | Root and packaged module syntax | Passed |
 | Doctor structural checks | Passed; only the expected dirty-worktree notice remained before commit |
 | Whitespace | Passed |
+| GitHub main | Merged as `708593a` |
+| Marketplace and installation | `0.5.0-beta+codex.20260728113402` installed and enabled |
+| Installed skills and MCP | Six workstreams plus BFM present; relative bundled-server route and Node syntax passed |
 
 ## Result
 
