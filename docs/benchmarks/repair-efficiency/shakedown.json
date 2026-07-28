@@ -1,0 +1,187 @@
+{
+  "experimentId": "fb-repair-efficiency-056-20260728",
+  "excluded": true,
+  "firstPass": {
+    "runId": "repair-efficiency-shakedown-first",
+    "taskId": "shakedown",
+    "arm": "efficient-graph",
+    "startedAt": "2026-07-28T08:18:56.619Z",
+    "finishedAt": "2026-07-28T08:19:15.408Z",
+    "wallTimeMs": 18808,
+    "exitCode": 0,
+    "timedOut": false,
+    "sessionId": "019fa7ce-384d-7cc2-a039-8285d2eab408",
+    "usage": {
+      "inputTokens": 57729,
+      "cachedInputTokens": 32768,
+      "outputTokens": 197,
+      "totalTokens": 57926,
+      "authoritative": true
+    },
+    "curatedEvents": [
+      {
+        "sequence": 1,
+        "type": "thread.started"
+      },
+      {
+        "sequence": 2,
+        "type": "turn.started"
+      },
+      {
+        "sequence": 3,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 4,
+        "type": "item.started"
+      },
+      {
+        "sequence": 5,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 6,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 7,
+        "type": "item.started"
+      },
+      {
+        "sequence": 8,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 9,
+        "type": "item.started"
+      },
+      {
+        "sequence": 10,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 11,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 12,
+        "type": "turn.completed",
+        "usage": {
+          "inputTokens": 57729,
+          "cachedInputTokens": 32768,
+          "outputTokens": 197,
+          "totalTokens": 57926,
+          "authoritative": true
+        }
+      }
+    ],
+    "candidateSha256": "2758f7e778323cce0d665a114c8b4e9cc99f2bedb8f2cd8e24740cd02cb4d8d7",
+    "stdoutSha256": "6261c6d300b058d080cfc8805a5ea84209b020eeabc5fa9fb37e5c2f28f04f35",
+    "stderrSha256": "f81d36a2f3c8adafa8d34853ab3d9ad0ef8aad390f7c10536c79e3cbfd4d4247",
+    "repairCount": 0
+  },
+  "repair": {
+    "runId": "repair-efficiency-shakedown-repair",
+    "taskId": "shakedown",
+    "arm": "efficient-graph",
+    "startedAt": "2026-07-28T08:19:15.540Z",
+    "finishedAt": "2026-07-28T08:19:51.878Z",
+    "wallTimeMs": 36341,
+    "exitCode": 0,
+    "timedOut": false,
+    "sessionId": "019fa7ce-8739-7aa2-a25c-965479574497",
+    "usage": {
+      "inputTokens": 75016,
+      "cachedInputTokens": 48512,
+      "outputTokens": 615,
+      "totalTokens": 75631,
+      "authoritative": true
+    },
+    "curatedEvents": [
+      {
+        "sequence": 1,
+        "type": "thread.started"
+      },
+      {
+        "sequence": 2,
+        "type": "turn.started"
+      },
+      {
+        "sequence": 3,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 4,
+        "type": "item.started"
+      },
+      {
+        "sequence": 5,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 6,
+        "type": "item.started"
+      },
+      {
+        "sequence": 7,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 8,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 9,
+        "type": "item.started"
+      },
+      {
+        "sequence": 10,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 11,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 12,
+        "type": "item.started"
+      },
+      {
+        "sequence": 13,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 14,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 15,
+        "type": "item.started"
+      },
+      {
+        "sequence": 16,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 17,
+        "type": "item.completed"
+      },
+      {
+        "sequence": 18,
+        "type": "turn.completed",
+        "usage": {
+          "inputTokens": 75016,
+          "cachedInputTokens": 48512,
+          "outputTokens": 615,
+          "totalTokens": 75631,
+          "authoritative": true
+        }
+      }
+    ],
+    "candidateSha256": "a0ff25d128c6901925da295d2e6baa451c7c27119316bab144aa2833817fcc77",
+    "stdoutSha256": "3d341231536d0e9b9a2b8038492233e6b39f64912122db3b7fd04d1703e64e43",
+    "stderrSha256": "910bf6e5b2115659a209d97e3c102034a3cb5f63ca224a5fbea1c1875afee75a",
+    "repairCount": 0
+  },
+  "passed": true
+}

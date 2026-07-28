@@ -1,0 +1,110 @@
+{
+  "experimentId": "fb-repair-efficiency-056-20260728",
+  "generatedAt": "2026-07-28T08:16:14.907Z",
+  "model": "gpt-5.4",
+  "tasks": 6,
+  "arms": [
+    "vanilla",
+    "efficient-graph"
+  ],
+  "countedRuns": 12,
+  "repairMaximumPerRun": 1,
+  "schedule": [
+    {
+      "runId": "unmirror-intro-vanilla",
+      "taskId": "unmirror-intro",
+      "arm": "vanilla",
+      "pairIndex": 0,
+      "orderWithinPair": 0,
+      "counted": true
+    },
+    {
+      "runId": "unmirror-intro-efficient-graph",
+      "taskId": "unmirror-intro",
+      "arm": "efficient-graph",
+      "pairIndex": 0,
+      "orderWithinPair": 1,
+      "counted": true
+    },
+    {
+      "runId": "unmirror-saved-capture-efficient-graph",
+      "taskId": "unmirror-saved-capture",
+      "arm": "efficient-graph",
+      "pairIndex": 1,
+      "orderWithinPair": 0,
+      "counted": true
+    },
+    {
+      "runId": "unmirror-saved-capture-vanilla",
+      "taskId": "unmirror-saved-capture",
+      "arm": "vanilla",
+      "pairIndex": 1,
+      "orderWithinPair": 1,
+      "counted": true
+    },
+    {
+      "runId": "unmirror-native-analytics-vanilla",
+      "taskId": "unmirror-native-analytics",
+      "arm": "vanilla",
+      "pairIndex": 2,
+      "orderWithinPair": 0,
+      "counted": true
+    },
+    {
+      "runId": "unmirror-native-analytics-efficient-graph",
+      "taskId": "unmirror-native-analytics",
+      "arm": "efficient-graph",
+      "pairIndex": 2,
+      "orderWithinPair": 1,
+      "counted": true
+    },
+    {
+      "runId": "meja-scroll-efficient-graph",
+      "taskId": "meja-scroll",
+      "arm": "efficient-graph",
+      "pairIndex": 3,
+      "orderWithinPair": 0,
+      "counted": true
+    },
+    {
+      "runId": "meja-scroll-vanilla",
+      "taskId": "meja-scroll",
+      "arm": "vanilla",
+      "pairIndex": 3,
+      "orderWithinPair": 1,
+      "counted": true
+    },
+    {
+      "runId": "meja-pairing-vanilla",
+      "taskId": "meja-pairing",
+      "arm": "vanilla",
+      "pairIndex": 4,
+      "orderWithinPair": 0,
+      "counted": true
+    },
+    {
+      "runId": "meja-pairing-efficient-graph",
+      "taskId": "meja-pairing",
+      "arm": "efficient-graph",
+      "pairIndex": 4,
+      "orderWithinPair": 1,
+      "counted": true
+    },
+    {
+      "runId": "meja-redesign-efficient-graph",
+      "taskId": "meja-redesign",
+      "arm": "efficient-graph",
+      "pairIndex": 5,
+      "orderWithinPair": 0,
+      "counted": true
+    },
+    {
+      "runId": "meja-redesign-vanilla",
+      "taskId": "meja-redesign",
+      "arm": "vanilla",
+      "pairIndex": 5,
+      "orderWithinPair": 1,
+      "counted": true
+    }
+  ]
+}

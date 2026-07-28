@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.5.0-beta repair-efficiency update — 2026-07-28
+
+**What changed:** FB now gives an earned repair one fresh, criterion-specific
+delta packet containing the failed proof, changed files, relevant decisions,
+candidate reference, and concrete correction. Missing corrections,
+no-candidate-change results, and no-readiness-improvement results stop as
+harness failures instead of widening into accumulated-context rediscovery.
+Larger outcomes continue to split into bounded execution slices up front.
+
+**Why it matters:** A prospective six-pair historical benchmark measured
+Efficient-Graph FB at 23.6% less wall time and 15.8% fewer provider-reported
+tokens than fresh Vanilla Codex, with repair tokens reduced 69.3%. Accepted
+outcomes were 3/6 versus 1/6. These are directional results for the measured
+task mix, not a universal performance claim.
+
+**Compatibility:** Existing commands, plugin identifiers, workstreams, safety
+gates, changelog authority, and **Push Live** release boundary remain
+unchanged. Normal isolated tasks may still route to Vanilla Codex.
+
+**Installation or upgrade:** No published build changes yet. After a future
+approved `0.5.0-beta` marketplace release, upgrade `fb-lane`, reinstall
+`fb-lane-coordination@fb-lane`, and start a new Codex task to load the refreshed
+repair guidance.
+
+**Changelog approval:** Approved by James in the originating conversation on
+2026-07-28.
+
 ## 0.5.0-beta — 2026-07-26
 
 **What changed:** FB adds an optional repository-local agent control loop:

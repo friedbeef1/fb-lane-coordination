@@ -93,6 +93,12 @@ Use focused proof per slice, an integration check only when slices are
 meaningfully combined, and broad validation only at a release checkpoint. If a
 slice reveals unexpected complexity, keep completed slices and resplit only the
 remaining work.
+After a focused failure, create one fresh delta repair packet. Include the
+failed criterion and proof, changed files, candidate reference, relevant decisions,
+and one concrete correction. Start a fresh repair worker rather than resuming
+accumulated conversation context, then rerun only the failed proof. If there is
+no concrete correction, no candidate change, or no readiness improvement, stop
+and classify it as a harness failure; do not broaden diagnosis automatically.
 For durable work, promote the approved session in its linked worktree and keep
 the Task Receipt, Brief Validation, reciprocal links, verification checkpoint,
 Verification Handoff, and Test This Now aligned before submit or completed close.

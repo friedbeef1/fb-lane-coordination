@@ -18,6 +18,19 @@ and FB overlap substantially in
 session recall, evidence, and evaluation. FB adds a repository-local product
 authority and delivery loop around that intelligence.
 
+## Measured repair-efficiency evidence
+
+In one prospective benchmark of **six paired historical tasks**, Efficient-Graph
+FB used **23.6% less wall time** and **15.8% fewer provider-reported tokens**
+than fresh Vanilla Codex runs. Repair tokens fell 69.3%, and accepted outcomes
+were 3/6 versus 1/6. The saving came from preventing unnecessary repairs and
+giving earned repairs fresh criterion-specific delta context—not from a cheaper
+first pass.
+
+This is directional evidence for that task mix, **not a universal claim** that
+FB always wins. See the
+[method, fixture-level results, cost estimate, and limits](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/benchmarks/repair-efficiency/README.md).
+
 The following are product-delivery and coordination gaps that can arise around
 ordinary Codex use, not defects in Codex itself.
 

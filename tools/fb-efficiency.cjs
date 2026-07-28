@@ -471,6 +471,61 @@ function minimalWorkerContext(input = {}) {
   return { brief: input.brief, candidate: input.candidate, feedback: input.feedback, requiredEvidence: input.requiredEvidence };
 }
 
+function createDeltaRepairPacket(input = {}) {
+  const failedCriteria = Array.isArray(input.failedCriteria)
+    ? input.failedCriteria.map(criterion => ({
+      id: String(criterion.id || '').trim(),
+      expected: String(criterion.expected || '').trim(),
+      observed: String(criterion.observed || '').trim(),
+    })).filter(criterion => criterion.id && criterion.expected && criterion.observed)
+    : [];
+  if (failedCriteria.length === 0) {
+    return { action: 'stop', reason: 'no-failed-criterion', failedCriterionIds: [] };
+  }
+  const correction = String(input.correction || '').trim();
+  if (!correction) {
+    return {
+      action: 'stop',
+      reason: 'no-concrete-correction',
+      failedCriterionIds: failedCriteria.map(criterion => criterion.id),
+    };
+  }
+  const changedPaths = [...new Set((input.changedPaths || []).map(String).map(value => value.trim()).filter(Boolean))];
+  if (!String(input.candidateRef || '').trim() || changedPaths.length === 0) {
+    return {
+      action: 'stop',
+      reason: 'missing-candidate-delta',
+      failedCriterionIds: failedCriteria.map(criterion => criterion.id),
+    };
+  }
+  return {
+    action: 'repair',
+    contextMode: 'fresh-delta',
+    objective: String(input.objective || '').trim(),
+    candidateRef: String(input.candidateRef).trim(),
+    changedPaths,
+    failedCriteria,
+    relevantDecisions: (input.relevantDecisions || []).map(String),
+    proofOutput: String(input.proofOutput || '').trim(),
+    correction,
+    repairLimit: 1,
+    rerun: 'failed proof only',
+  };
+}
+
+function evaluateRepairOutcome(input = {}) {
+  if (input.beforeCandidateSha === input.afterCandidateSha) {
+    return { status: 'harness-failure', reason: 'no-candidate-change', continue: false };
+  }
+  if (input.passed === true) {
+    return { status: 'passed', reason: 'success-predicates-passed', continue: false };
+  }
+  if (!(Number(input.afterReadiness) > Number(input.beforeReadiness))) {
+    return { status: 'harness-failure', reason: 'no-readiness-improvement', continue: false };
+  }
+  return { status: 'checking', reason: 'material-improvement-but-proof-still-fails', continue: false };
+}
+
 function renderEfficiencyReceipt(metrics = {}) {
   const forbidden = Object.keys(metrics).find(key => /transcript|history|reasoning|secret|tokenValue|environment/i.test(key));
   if (forbidden) throw new Error('Efficiency metrics must exclude private, transcript, secret, and environment inputs.');
@@ -490,4 +545,4 @@ Circuit breaker triggered: ${metrics.circuitBreakerTriggered ? 'yes' : 'no'}
 `;
 }
 
-module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, quickPolicyForPaths, planExecutionSlices, verificationBudget, selectAutomatedChecks, runAutomatedCheck, runQuickSubmissionChecks, automatedVerificationDecision, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, renderEfficiencyReceipt };
+module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, quickPolicyForPaths, planExecutionSlices, verificationBudget, selectAutomatedChecks, runAutomatedCheck, runQuickSubmissionChecks, automatedVerificationDecision, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, createDeltaRepairPacket, evaluateRepairOutcome, renderEfficiencyReceipt };

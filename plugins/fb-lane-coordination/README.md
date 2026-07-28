@@ -19,6 +19,12 @@ For actionable findings say `Create a handoff MD for Product/BFM.` Then say
 all six, prioritizes, implements, tests, and stops at **Ready to ship**. Only
 **Push Live** authorizes merge or deployment.
 
+When an automated proof fails, FB gives one fresh repair task only the failed
+criterion, changed files, relevant decisions, candidate reference, and concrete
+correction. It does not replay accumulated conversation history. Missing
+corrections or repairs without candidate/readiness improvement stop instead of
+opening another automatic loop.
+
 ## Read by task
 
 - [Why FB: Codex, Capacitor, and FB](docs/why-fb.md)

@@ -25,6 +25,8 @@ const {
   runAutomatedCheck,
   runQuickSubmissionChecks,
   planExecutionSlices,
+  createDeltaRepairPacket,
+  evaluateRepairOutcome,
 } = require('./fb-efficiency.cjs');
 
 const bounded = {
@@ -182,6 +184,105 @@ test('BFM plans bounded execution slices up front and parallelizes only independ
     { id: 'a', outcome: 'A', paths: ['src/a.js'], completionCriteria: 'done', safetyTriggers: [], focusedCheck: 'test' },
     { id: 'a', outcome: 'B', paths: ['src/b.js'], completionCriteria: 'done', safetyTriggers: [], focusedCheck: 'test' },
   ]), /unique/i);
+});
+
+test('repair workers receive one fresh criterion-specific delta packet', () => {
+  const packet = createDeltaRepairPacket({
+    objective: 'Preserve the selected session during laptop continuation.',
+    candidateRef: 'candidate-abc1234',
+    changedPaths: ['src/pairing.js', 'tests/pairing.test.js'],
+    failedCriteria: [{
+      id: 'continuation',
+      expected: 'Laptop continuation preserves the exact session and mode.',
+      observed: 'The focused continuation assertion failed.',
+    }],
+    relevantDecisions: ['Continue on the same session and selected mode.'],
+    proofOutput: 'FAIL continuation: expected room-2, received room-1',
+    correction: 'Correct continuation state transfer in src/pairing.js.',
+  });
+
+  assert.deepStrictEqual(packet, {
+    action: 'repair',
+    contextMode: 'fresh-delta',
+    objective: 'Preserve the selected session during laptop continuation.',
+    candidateRef: 'candidate-abc1234',
+    changedPaths: ['src/pairing.js', 'tests/pairing.test.js'],
+    failedCriteria: [{
+      id: 'continuation',
+      expected: 'Laptop continuation preserves the exact session and mode.',
+      observed: 'The focused continuation assertion failed.',
+    }],
+    relevantDecisions: ['Continue on the same session and selected mode.'],
+    proofOutput: 'FAIL continuation: expected room-2, received room-1',
+    correction: 'Correct continuation state transfer in src/pairing.js.',
+    repairLimit: 1,
+    rerun: 'failed proof only',
+  });
+  assert.doesNotMatch(JSON.stringify(packet), /transcript|conversation history|rawRecords|allAcceptanceCriteria/i);
+});
+
+test('repair stops before another agent when no concrete correction exists', () => {
+  const packet = createDeltaRepairPacket({
+    objective: 'Preserve session state.',
+    candidateRef: 'candidate-abc1234',
+    changedPaths: ['src/pairing.js'],
+    failedCriteria: [{ id: 'continuation', expected: 'preserved', observed: 'failed' }],
+    relevantDecisions: ['Keep the exact session.'],
+    proofOutput: 'FAIL continuation',
+    correction: '',
+  });
+  assert.deepStrictEqual(packet, {
+    action: 'stop',
+    reason: 'no-concrete-correction',
+    failedCriterionIds: ['continuation'],
+  });
+});
+
+test('repair outcome treats no source or readiness improvement as a harness failure', () => {
+  assert.deepStrictEqual(evaluateRepairOutcome({
+    beforeCandidateSha: 'same',
+    afterCandidateSha: 'same',
+    beforeReadiness: 0.5,
+    afterReadiness: 0.5,
+    passed: false,
+  }), {
+    status: 'harness-failure',
+    reason: 'no-candidate-change',
+    continue: false,
+  });
+  assert.deepStrictEqual(evaluateRepairOutcome({
+    beforeCandidateSha: 'before',
+    afterCandidateSha: 'after',
+    beforeReadiness: 0.5,
+    afterReadiness: 0.5,
+    passed: false,
+  }), {
+    status: 'harness-failure',
+    reason: 'no-readiness-improvement',
+    continue: false,
+  });
+  assert.deepStrictEqual(evaluateRepairOutcome({
+    beforeCandidateSha: 'before',
+    afterCandidateSha: 'after',
+    beforeReadiness: 0.5,
+    afterReadiness: 1,
+    passed: true,
+  }), {
+    status: 'passed',
+    reason: 'success-predicates-passed',
+    continue: false,
+  });
+});
+
+test('canonical workflow and BFM skill require delta repair context and no-progress stop', () => {
+  const repoRoot = path.resolve(__dirname, '..');
+  for (const relative of ['docs/fb/workflow.md', 'docs/fb/guardrails.md', 'skills/bfm/SKILL.md']) {
+    const content = fs.readFileSync(path.join(repoRoot, relative), 'utf8');
+    assert.match(content, /fresh delta repair packet/i, relative);
+    assert.match(content, /failed criterion/i, relative);
+    assert.match(content, /changed files/i, relative);
+    assert.match(content, /no readiness improvement[\s\S]{0,100}harness failure/i, relative);
+  }
 });
 
 test('slice planning validates contracts, respects explicit direction, and isolates safety work', () => {

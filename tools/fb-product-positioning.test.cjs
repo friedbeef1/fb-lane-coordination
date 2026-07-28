@@ -22,6 +22,7 @@ const fullLoop = read('docs/fb/full-loop.md');
 const packagedFullLoop = read('plugins/fb-lane-coordination/docs/fb/full-loop.md');
 const agileTeams = read('docs/fb-for-agile-teams.md');
 const compact = canonical.replace(/\s+/g, ' ');
+const changelog = read('CHANGELOG.md');
 
 const deliveredPages = [
   {
@@ -104,6 +105,19 @@ for (const [label, page] of [['README', rootReadme], ['Why FB', canonical], ['pa
   assert.match(page, /\| Codex issue \| Codex problem solved by FB \|/i, `${label} must contain the exact Codex problem-map header`);
   for (const row of codexProblemRows) assert.ok(page.includes(row), `${label} must contain exact mapping: ${row}`);
 }
+
+for (const [label, page] of [['README', rootReadme], ['Why FB', canonical], ['packaged Why FB', packaged]]) {
+  assert.match(page, /Measured repair-efficiency evidence/i, `${label} must expose the measured repair-efficiency evidence`);
+  assert.match(page, /23\.6% less wall time/i, `${label} must report observed wall time honestly`);
+  assert.match(page, /15\.8% fewer (?:provider-reported )?tokens/i, `${label} must report observed token use honestly`);
+  assert.match(page, /six paired historical tasks/i, `${label} must disclose the sample`);
+  assert.match(page, /not a universal/i, `${label} must reject a universal marketing claim`);
+}
+for (const field of ['What changed', 'Why it matters', 'Compatibility', 'Installation or upgrade']) {
+  assert.match(changelog, new RegExp(`\\*\\*${field}:\\*\\*`), `changelog must contain ${field}`);
+}
+assert.match(changelog, /0\.5\.0-beta repair-efficiency update/i);
+assert.match(changelog, /Changelog approval:\*\* Approved by James[\s\S]{0,100}2026-07-28/i);
 assert.match(rootReadme, /not defects? in Codex/i, 'README must frame the map as coordination gaps rather than Codex defects');
 assert.match(canonical, /not defects? in Codex/i, 'Why FB must frame the map as coordination gaps rather than Codex defects');
 for (const evidence of ['TASK-020.md', 'TASK-022.md', 'TASK-024.md', 'TASK-023-walkthroughs.md']) {

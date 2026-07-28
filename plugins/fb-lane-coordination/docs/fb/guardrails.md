@@ -178,6 +178,12 @@ Report progress only when source, evidence, test state, blocker recovery, or an
 approved decision materially changes. A second Quick repair, one no-progress
 cycle, one repeated broad gate, or the surface-specific time/iteration limit
 triggers Full-BFM reconsideration rather than more automatic work.
+Every permitted repair receives a fresh delta repair packet. It contains the
+failed criterion, changed files, relevant decisions, focused proof output, and
+one concrete correction. Never forward accumulated conversation history. If a
+concrete correction is unavailable, do not start the repair. No candidate
+change or no readiness improvement is a harness failure and stops that repair
+path rather than widening it.
 For multi-slice Full BFM, focused checks prove each slice, integration checks
 prove meaningful combinations, and broad validation waits for the release
 checkpoint. Parallel execution is an optimization derived from the dependency

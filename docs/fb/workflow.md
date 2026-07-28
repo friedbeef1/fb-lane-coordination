@@ -178,6 +178,15 @@ candidate/diff, specific feedback, and required evidence—never accumulated
 conversation history, transcripts, unrelated reports, or private reasoning.
 Stop immediately when the explicit success predicates pass.
 
+When a focused proof fails, start a fresh repair worker with one **fresh delta repair packet**.
+It contains only the failed criterion and observed proof,
+changed files, candidate reference, relevant decisions, and one concrete
+correction. It does not resume or replay the accumulated worker conversation.
+Rerun only the failed proof. If no concrete correction can be identified, stop
+before starting the worker. No candidate change or no readiness improvement is
+a harness failure and ends the repair path; it is not permission for broader
+rediscovery or another diagnosis loop.
+
 Run only the smallest focused proof after each slice. At an integration or
 release checkpoint, run only the proof appropriate to that boundary: an
 integration check when dependent slices are meaningfully combined, and broad
