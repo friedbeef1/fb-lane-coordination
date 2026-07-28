@@ -14,6 +14,7 @@ const {compilePublicFacts, compileTreatment} = require('./fb-real-work-context.c
 const {gradeCandidate} = require('./fb-real-work-grader.cjs');
 const {
   parseCodexJsonl,
+  publicEvidence,
   redactEvents,
   runFirstPass,
   runRepair,
@@ -160,6 +161,17 @@ test('parses authoritative Codex usage and rejects malformed JSONL', () => {
   assert.equal(parseCodexJsonl('{"type":"done"}\n').usage.authoritative, false);
 });
 
+test('committed evidence strips private fields from first pass and repair', () => {
+  const evidence = publicEvidence({
+    runId:'sample',
+    _rawOutput:'private transcript',
+    _stderr:'private diagnostics',
+    _config:{secret:'value'},
+    repair:{wallTimeMs:1,_rawOutput:'repair transcript',_stderr:'repair diagnostics'},
+  });
+  assert.deepEqual(evidence, {runId:'sample',repair:{wallTimeMs:1}});
+});
+
 test('runs one bounded fake Codex pass and one repair only', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-real-work-runner-'));
   const fixture = path.join(root, 'fixture');
@@ -224,4 +236,9 @@ test('freezes a counterbalanced 12-run schedule', () => {
   assert.equal(declaration.experimentId, EXPERIMENT_ID);
   assert.equal(declaration.countedFirstPassRuns, 12);
   assert.doesNotThrow(()=>verifyFrozen(declaration));
+  const executed = JSON.parse(fs.readFileSync(
+    path.join(__dirname, '..', 'docs', 'benchmarks', 'real-work', 'frozen-declaration.json'),
+    'utf8',
+  ));
+  assert.doesNotThrow(()=>verifyFrozen(executed));
 });

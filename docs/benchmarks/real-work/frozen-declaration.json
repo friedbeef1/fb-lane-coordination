@@ -12,6 +12,14 @@
   "model": "gpt-5.4",
   "firstPassTimeoutMinutes": 20,
   "repairTimeoutMinutes": 10,
+  "postRunPatches": {
+    "tools/fb-real-work-benchmark.cjs": {
+      "before": "45695c3ffa06e166fc545da4649a6810047e2c971b22926bc971d65ebf5fca6b",
+      "after": "9d0c36339a8db658e502d25c12754105a7fef5a8a6040cc007a2a6dea51fbae7",
+      "scope": "serialization-only",
+      "reason": "Remove private underscore fields from repair evidence before writing result.json; candidates, execution, timing, usage, and grading are unchanged."
+    }
+  },
   "schedule": [
     {
       "runId": "unmirror-intro-vanilla",

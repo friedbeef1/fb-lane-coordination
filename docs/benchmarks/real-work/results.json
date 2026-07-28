@@ -1,0 +1,271 @@
+{
+  "experimentId": "fb-real-work-paired-054-20260728",
+  "generatedAt": "2026-07-28T07:16:55.428Z",
+  "sample": {
+    "pairs": 6,
+    "countedFirstPassRuns": 12
+  },
+  "totals": {
+    "vanilla": {
+      "wallTimeMs": 3541818,
+      "totalTokens": 19830509,
+      "firstPassWallTimeMs": 2988538,
+      "firstPassTokens": 13819504,
+      "repairWallTimeMs": 553280,
+      "repairTokens": 6011005,
+      "meanFirstPassReadiness": 0.5944444444444444,
+      "meanFinalReadiness": 0.5944444444444444
+    },
+    "graph": {
+      "wallTimeMs": 4004915,
+      "totalTokens": 26715484,
+      "firstPassWallTimeMs": 3034176,
+      "firstPassTokens": 10971990,
+      "repairWallTimeMs": 970739,
+      "repairTokens": 15743494,
+      "meanFirstPassReadiness": 0.6777777777777777,
+      "meanFinalReadiness": 0.7527777777777778
+    }
+  },
+  "pairs": [
+    {
+      "taskId": "unmirror-intro",
+      "class": "isolated",
+      "vanilla": {
+        "wallTimeMs": 239681,
+        "usage": {
+          "inputTokens": 1270213,
+          "cachedInputTokens": 1156224,
+          "outputTokens": 13901,
+          "totalTokens": 1284114
+        },
+        "firstPass": false,
+        "firstPassReadiness": 0,
+        "finalPass": false,
+        "finalReadiness": 0,
+        "repair": true
+      },
+      "graph": {
+        "wallTimeMs": 282683,
+        "usage": {
+          "inputTokens": 603966,
+          "cachedInputTokens": 531072,
+          "outputTokens": 11712,
+          "totalTokens": 615678
+        },
+        "firstPass": true,
+        "firstPassReadiness": 1,
+        "finalPass": true,
+        "finalReadiness": 1,
+        "repair": false
+      },
+      "difference": {
+        "wallTimeMs": 43002,
+        "totalTokens": -668436
+      }
+    },
+    {
+      "taskId": "unmirror-saved-capture",
+      "class": "multi-surface",
+      "vanilla": {
+        "wallTimeMs": 825076,
+        "usage": {
+          "inputTokens": 7328621,
+          "cachedInputTokens": 7129600,
+          "outputTokens": 31809,
+          "totalTokens": 7360430
+        },
+        "firstPass": true,
+        "firstPassReadiness": 1,
+        "finalPass": true,
+        "finalReadiness": 1,
+        "repair": false
+      },
+      "graph": {
+        "wallTimeMs": 775146,
+        "usage": {
+          "inputTokens": 12583806,
+          "cachedInputTokens": 12060288,
+          "outputTokens": 54571,
+          "totalTokens": 12638377
+        },
+        "firstPass": false,
+        "firstPassReadiness": 0.8,
+        "finalPass": true,
+        "finalReadiness": 1,
+        "repair": true
+      },
+      "difference": {
+        "wallTimeMs": -49930,
+        "totalTokens": 5277947
+      }
+    },
+    {
+      "taskId": "unmirror-native-analytics",
+      "class": "sensitive",
+      "vanilla": {
+        "wallTimeMs": 488066,
+        "usage": {
+          "inputTokens": 2081148,
+          "cachedInputTokens": 1969408,
+          "outputTokens": 20812,
+          "totalTokens": 2101960
+        },
+        "firstPass": true,
+        "firstPassReadiness": 1,
+        "finalPass": true,
+        "finalReadiness": 1,
+        "repair": false
+      },
+      "graph": {
+        "wallTimeMs": 865070,
+        "usage": {
+          "inputTokens": 3583519,
+          "cachedInputTokens": 3273856,
+          "outputTokens": 41096,
+          "totalTokens": 3624615
+        },
+        "firstPass": false,
+        "firstPassReadiness": 0.5,
+        "finalPass": false,
+        "finalReadiness": 0.75,
+        "repair": true
+      },
+      "difference": {
+        "wallTimeMs": 377004,
+        "totalTokens": 1522655
+      }
+    },
+    {
+      "taskId": "meja-scroll",
+      "class": "isolated-bug",
+      "vanilla": {
+        "wallTimeMs": 430468,
+        "usage": {
+          "inputTokens": 1224175,
+          "cachedInputTokens": 1089536,
+          "outputTokens": 14809,
+          "totalTokens": 1238984
+        },
+        "firstPass": false,
+        "firstPassReadiness": 0.6666666666666666,
+        "finalPass": false,
+        "finalReadiness": 0.6666666666666666,
+        "repair": true
+      },
+      "graph": {
+        "wallTimeMs": 436195,
+        "usage": {
+          "inputTokens": 1300915,
+          "cachedInputTokens": 1088896,
+          "outputTokens": 11208,
+          "totalTokens": 1312123
+        },
+        "firstPass": false,
+        "firstPassReadiness": 0.6666666666666666,
+        "finalPass": false,
+        "finalReadiness": 0.6666666666666666,
+        "repair": true
+      },
+      "difference": {
+        "wallTimeMs": 5727,
+        "totalTokens": 73139
+      }
+    },
+    {
+      "taskId": "meja-pairing",
+      "class": "complex-repair",
+      "vanilla": {
+        "wallTimeMs": 904817,
+        "usage": {
+          "inputTokens": 3374264,
+          "cachedInputTokens": 3125760,
+          "outputTokens": 29405,
+          "totalTokens": 3403669
+        },
+        "firstPass": false,
+        "firstPassReadiness": 0.5,
+        "finalPass": false,
+        "finalReadiness": 0.5,
+        "repair": true
+      },
+      "graph": {
+        "wallTimeMs": 745092,
+        "usage": {
+          "inputTokens": 2145193,
+          "cachedInputTokens": 1948160,
+          "outputTokens": 31088,
+          "totalTokens": 2176281
+        },
+        "firstPass": false,
+        "firstPassReadiness": 0.5,
+        "finalPass": false,
+        "finalReadiness": 0.5,
+        "repair": true
+      },
+      "difference": {
+        "wallTimeMs": -159725,
+        "totalTokens": -1227388
+      }
+    },
+    {
+      "taskId": "meja-redesign",
+      "class": "multi-workstream",
+      "vanilla": {
+        "wallTimeMs": 653710,
+        "usage": {
+          "inputTokens": 4387778,
+          "cachedInputTokens": 3918848,
+          "outputTokens": 53574,
+          "totalTokens": 4441352
+        },
+        "firstPass": false,
+        "firstPassReadiness": 0.4,
+        "finalPass": false,
+        "finalReadiness": 0.4,
+        "repair": true
+      },
+      "graph": {
+        "wallTimeMs": 900729,
+        "usage": {
+          "inputTokens": 6295297,
+          "cachedInputTokens": 5966848,
+          "outputTokens": 53113,
+          "totalTokens": 6348410
+        },
+        "firstPass": false,
+        "firstPassReadiness": 0.6,
+        "finalPass": false,
+        "finalReadiness": 0.6,
+        "repair": true
+      },
+      "difference": {
+        "wallTimeMs": 247019,
+        "totalTokens": 1907058
+      }
+    }
+  ],
+  "aggregate": {
+    "medianWallDifferenceMs": 24364.5,
+    "wallDifferenceRangeMs": [
+      -159725,
+      377004
+    ],
+    "medianTokenDifference": 797897,
+    "tokenDifferenceRange": [
+      -1227388,
+      5277947
+    ],
+    "vanillaFirstPassReady": 2,
+    "graphFirstPassReady": 1,
+    "vanillaFinalReady": 2,
+    "graphFinalReady": 2,
+    "vanillaRepairs": 4,
+    "graphRepairs": 5
+  },
+  "limitations": [
+    "Six paired historical replays are directional evidence for James’s workload, not a population estimate.",
+    "The comparison measures workflow packages; it does not isolate graph structure as the sole causal variable.",
+    "No user decisions occurred after launch, so unattended completion is observed but human screen time is not estimated."
+  ]
+}

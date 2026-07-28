@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-054
 lane: fb-product
-status: in-progress
+status: staging-qa
 fb_harness: v3
 record_model: normalized-v1
 ---
@@ -74,6 +74,59 @@ record_model: normalized-v1
 
 No push, merge, plugin change, publication, provider write, production change,
 deployment, or live action is authorized.
+
+## Result
+
+Status: **Staging QA — experiment complete; candidate rejected**
+
+| Measure | Vanilla | Preventive Graph FB | Graph difference |
+|---|---:|---:|---:|
+| Total wall time | 59.0 min | 66.7 min | +13.1% |
+| Total provider tokens | 19.83M | 26.72M | +34.7% |
+| First-pass tokens | 13.82M | 10.97M | −20.6% |
+| Repair tokens | 6.01M | 15.74M | +161.9% |
+| Final accepted outcomes | 2/6 | 2/6 | equal |
+
+The graph packet reduced first-pass tokens but its broader and more frequent
+repair work reversed that saving. The frozen decision rule therefore retains
+Vanilla as the default and rejects a token/time-saving claim for Preventive
+Graph FB.
+
+- [Full result](../benchmarks/real-work/README.md)
+- [Curated data](../benchmarks/real-work/results.json)
+- [QA](../qa/TASK-054.md)
+
+## Brief Validation
+
+Status: **pass**
+
+- Six paired historical tasks and the 18-task mix were frozen before counted
+  execution.
+- All 12 counted first passes completed once; only earned one-shot repairs ran.
+- Authoritative usage, wall time, first/final grade, and repair evidence are
+  present for every arm.
+- Source repositories remained read-only and no plugin or production behavior
+  changed.
+
+## Task Receipt
+
+- **Branch:** `codex/fb-real-work-paired-benchmark`
+- **Review state:** not reviewable — evidence study, not a runnable product
+  candidate
+- **System checks:** `node --test tools/fb-real-work-benchmark.test.cjs`
+  passed 12/12; affected syntax and `git diff --check` passed.
+- **Failure evidence:** Preventive Graph FB missed the adoption target; the
+  result and every unfavorable fixture remain preserved.
+- **Recovery:** the excluded shakedown identified and corrected unsupported
+  model selection, read-only resume, project-rule contamination, and repair
+  evidence serialization before or outside counted candidate execution.
+- **Limits:** six pairs; `gpt-5.4`; no human decisions; no device/provider/live
+  gates; no universal efficiency claim.
+- **Changelog:** not required — this task adds internal benchmark evidence and
+  does not change user-visible runtime, workflow, plugin, installation, or
+  compatibility behavior.
+- **External gates:** no push, merge, publication, deployment, or plugin
+  installation authorized.
 
 ## Pre-run checkpoint
 
