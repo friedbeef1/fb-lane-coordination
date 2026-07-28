@@ -1,0 +1,13 @@
+{
+  "pathPatterns": [
+    "(^|/)\\.env(?:\\.|$)",
+    "(^|/)(node_modules|dist|build|DerivedData|\\.gradle|coverage)(/|$)",
+    "\\.(jks|keystore|p12|mobileprovision)$",
+    "(^|/)(PROJECT_BOARD\\.md|docs/handoffs|docs/sessions)(/|$)"
+  ],
+  "maximumBinaryBytes": 5242880,
+  "secretPatterns": [
+    "-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----",
+    "(api[_-]?key|access[_-]?token|client[_-]?secret)\\s*[:=]\\s*[\"'][A-Za-z0-9_\\-]{20,}"
+  ]
+}
