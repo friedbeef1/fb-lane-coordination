@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-059 | Ready | FB-Tech | Three-tier real-work benchmark | Compare Vanilla Codex with Efficient-Graph FB across six easy, six medium, and six difficult historical tasks while preserving TASK-056 as immutable evidence | `tools/fb-three-tier-benchmark*`, `tools/fixtures/fb-three-tier-benchmark/`, `docs/benchmarks/difficulty-tiers/`, `docs/handoffs/TASK-059.md`, `docs/qa/TASK-059.md` | [Handoff](docs/handoffs/TASK-059.md); [Plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md) |
 | TASK-058 | In Progress | FB-Tech | Automatic worktree orchestration | Make `$bfm` create or reuse linked worktrees for every independent source-changing slice without user setup, while keeping planning-only and overlapping work lightweight or sequential | `docs/fb/workflow.md`, `README.md`, `skills/bfm/SKILL.md`, `skills/fb-lane-coordination/SKILL.md`, `tools/fb-automatic-worktrees.test.cjs`, `CHANGELOG.md`, `docs/handoffs/TASK-058.md`, `docs/qa/TASK-058.md` | [Handoff](docs/handoffs/TASK-058.md) |
 | TASK-057 | Done | FB-Product / BFM + FB-Tech | Harness reliability | Prevent incomplete OKR records from reaching release validation | Normalized handoff template, focused record validation, generated plugin mirrors, and TASK-057 evidence | [Handoff](docs/handoffs/TASK-057.md); [QA evidence](docs/qa/TASK-057.md); merged and published as `708593a` |
 | TASK-056 | Staging QA | FB-Product / BFM + FB-Tech | Prospective repair-efficiency benchmark | Twelve fresh runs completed: efficient Graph used 15.8% fewer tokens and 23.6% less wall time, with 3/6 accepted outcomes versus Vanilla's 1/6 | Isolated fixtures and benchmark evidence only; no source-repository, plugin-release, provider-write, production, or deployment change | [Handoff](docs/handoffs/TASK-056.md); [Result](docs/benchmarks/repair-efficiency/README.md); [QA](docs/qa/TASK-056.md) |
@@ -65,6 +66,28 @@
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
 
 ---
+
+### TASK-059 - Three-Tier Real-Work FB Benchmark
+
+*   **Status**: Ready
+*   **Owner / Thread**: FB-Tech
+*   **Area**: Benchmarking
+*   **Scope**: Extend the real-work benchmark to six easy, six medium, and six
+    difficult historical tasks, comparing Vanilla Codex with Efficient-Graph
+    FB under equal public facts, model, execution limits, and hidden grading.
+    Reuse the six completed TASK-056 pairs and run only the twelve missing
+    paired tasks.
+*   **Out of Scope**: Editing source repositories, selective reruns, rewriting
+    TASK-056 evidence, plugin behavior changes, release, merge, publication, or
+    deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Produce realistic tiered evidence for FB time, token, readiness, and acceptance tradeoffs without hiding partial readiness behind strict pass/fail totals.
+    *   **Key Results**: Eighteen traceable historical tasks; six tasks per tier; twenty-four new counted runs; immutable reuse receipts for TASK-056; tier-level wall time, tokens, strict acceptance, and mean readiness; zero source-repository writes.
+    *   **Definition of Done**: Registry traceability, source/accepted grader proof, controller lifecycle, privacy, token ceiling, result recomputation, focused syntax, links, and whitespace pass; valid unfavorable outcomes remain recorded.
+    *   **Gate / Review Point**: One excluded shakedown must pass before paid comparative runs; the aggregate provider-token ceiling is 60,000,000; no release action follows automatically.
+    *   **Approval**: approved
+    *   **Justification**: James approved a realistic easy/medium/difficult comparison and explicitly requested implementation.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-059.md); [plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md); [QA](docs/qa/TASK-059.md).
 
 ### TASK-058 - Automatic BFM Worktree Orchestration
 
