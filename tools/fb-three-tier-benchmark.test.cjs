@@ -265,9 +265,24 @@ test('protocol v2 easy graders reject unsafe or incomplete semantic mutations', 
       file: 'index.html',
       mutate: source => source.replaceAll('role="alert"', 'role="status"'),
     }, {
+      id: 'meja-sync-warning',
+      name: 'meja-sync-warning-without-dismissal',
+      file: 'index.html',
+      mutate: source => source.replace(
+        /<button type="button" class="warning-dismiss"[\s\S]*?<\/button>/,
+        '',
+      ),
+    }, {
       id: 'unmirror-ios-camera-crash',
       file: 'ios-native/Unmirror/CameraController.swift',
       mutate: source => source.replaceAll('isActive', 'ignoredActive'),
+    }, {
+      id: 'unmirror-ios-camera-crash',
+      name: 'unmirror-ios-camera-without-video-guard',
+      file: 'ios-native/Unmirror/CameraController.swift',
+      mutate: source => source
+        .replaceAll('hasVideoInput', 'hasAnyInput')
+        .replaceAll('$0.mediaType == .video', 'true'),
     }];
     for (const item of cases) {
       const task = tasks.get(item.id);
