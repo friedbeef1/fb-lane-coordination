@@ -96,6 +96,26 @@ dependency graph with outcome, surfaces/locks, dependencies, completion
 criteria, focused check, and safety triggers per slice. Run independent,
 non-overlapping slices through agents or subagents in parallel; keep dependent,
 shared-file, sensitive, and unresolved-decision work sequential.
+BFM must automatically allocate one linked worktree for every independent,
+non-overlapping source-changing slice. Give each eligible slice a **unique
+approved child task ID** with inherited brief, dependencies, locks, and focused
+proof. Invoke `fb_lane_claim` or
+`node tools/fb-lane.cjs claim <task-id> <lane> <locked-files>` for each eligible
+slice, reuse the exact clean match when returned, and record the resulting
+**slice / branch / worktree mapping** before workers start. Create claims one at
+a time from the primary checkout; after all claims are registered, start
+independent workers concurrently. Planning-only work does not receive a
+worktree. Dependent, overlapping, shared-file, sensitive, and
+unresolved-decision slices stay sequential. BFM must not ask the user to create,
+choose, organize, or manage worktrees.
+
+Product/BFM integrates committed handoffs into its coordination checkout before
+scanning because unmerged files inside another worktree are not automatically
+visible. Merge and cleanup run from the primary checkout. Cleanup removes only
+a registered, present, clean worktree whose branch is merged. If cleanup finds
+a dirty, unmerged, missing, blocked, or deferred worktree, retain it, keep the
+task and locks open, and record its owner plus next action. Never force-remove
+or broadly prune worktrees.
 Review the complete canonical candidate before generating package mirrors.
 Use focused proof per slice, an integration check only when slices are
 meaningfully combined, and broad validation only at a release checkpoint. If a
