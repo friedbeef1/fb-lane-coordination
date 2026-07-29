@@ -19,11 +19,19 @@ source of truth.
 
 Read the smallest relevant layer, in this order:
 
-1. `PROJECT_BOARD.md` — current task, owner, locks, approval, sequencing, and gates.
+1. `node tools/fb-lane.cjs status --context` or MCP
+   `fb_lane_status({context:true})` — bounded active scope, ownership, locks,
+   gates, and links.
 2. `docs/handoffs/index.md` — compact routing to the relevant handoff.
 3. The linked detailed handoff — plan, rationale, evidence, and closeout.
 4. `docs/workstreams/<lane>.md` — a revisit summary only.
-5. These FB pages — reusable operating policy; they do not replace project facts.
+5. `PROJECT_BOARD.md` — authoritative fallback when compact context is
+   missing, contradictory, truncated, or insufficient.
+6. These FB pages — reusable operating policy; they do not replace project facts.
+
+Completed board history is preserved in monthly Markdown archives after the
+board crosses its size threshold. See
+[why compact context does not hide important work](records.md#why-compact-context-does-not-hide-important-work).
 
 `AGENTS.md` is a navigator into this pack. Project rules and task-specific
 instructions take precedence when they are stricter.

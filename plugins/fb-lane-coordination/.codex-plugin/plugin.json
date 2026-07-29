@@ -1,6 +1,6 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.5.0-beta+codex.20260728113402",
+  "version": "0.5.1-beta+codex.20260729135705",
   "description": "FB connects six product workstreams to a rules-first control loop, Product-led BFM delivery, automated verification, and explicit release approval.",
   "author": {
     "name": "FB Contributors",
@@ -39,7 +39,7 @@
       "Run $bfm only after Product approval. Scan all six workstreams and ready handoffs, reconcile duplicates, contradictions, dependencies, locks, and the approved goal, then prioritize and direct Codex implementation.",
       "When the approved Build Brief opts into the generic control loop, use deterministic routing before judgment, preserve the baseline, record flat clone-local evidence, compare named criteria, run distinct required gates, and keep configuration candidates isolated until exact Product approval.",
       "Own automated testing and bounded repair for the exact candidate. For Full BFM, verify the Build Brief and Task Receipt changelog decision before reporting Ready to ship. Then say exactly: Automated checks passed. Optional review links are available above. Say **Push Live** to deploy. Never merge or deploy before Push Live.",
-      "Bootstrap this repo for Codex only, preserve the fb-lane-coordination IDs and MCP paths, add any missing six-workstream guidance, then run doctor and report whether FB is ready."
+      "Bootstrap this repo for Codex only, preserve the fb-lane-coordination IDs and MCP paths, and add any missing six-workstream guidance. Relay the one-time permission question for six repository-scoped sidebar tasks; after explicit Yes create only missing legacy/current workstreams, leave them idle, and use the honest manual fallback when Codex task inventory or creation is unavailable. Then run doctor and report whether FB is ready."
     ],
     "brandColor": "#0F766E"
   }

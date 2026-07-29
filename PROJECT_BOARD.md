@@ -13,8 +13,10 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-062 | Staging QA | FB-Tech | First-run onboarding | After bootstrap, ask once for permission to create missing repository-scoped Product/User, Business, Design, Tech, Discovery, and Bugs sidebar tasks, with honest manual fallback | `tools/fb-onboarding.cjs tools/fb-onboarding.test.cjs tools/fb-lane.cjs tools/fb-package-manifest.json skills/bfm/SKILL.md skills/project-coordination-setup/SKILL.md docs/fb/start.md docs/setup.md FAQ.md CHANGELOG.md PROJECT_BOARD.md docs/handoffs/TASK-062.md docs/qa/TASK-062.md docs/handoffs/index.md .codex/current_task.md` | [Handoff](docs/handoffs/TASK-062.md); [QA](docs/qa/TASK-062.md); release candidate `0.5.1-beta+codex.20260729135705` |
+| TASK-061 | Staging QA | FB-Tech | Board efficiency | Keep agent orientation compact by loading active board context only and mechanically archiving terminal board history after a size threshold | `tools/fb-board-context.cjs tools/fb-board-context.test.cjs tools/fb-lane.cjs tools/fb-lane.test.cjs tools/fb-package-manifest.json docs/fb/README.md docs/fb/records.md FAQ.md AGENTS.md .codex/rules.md templates/PROJECT_BOARD.md examples/my-app/AGENTS.md examples/my-app/.codex/rules.md skills/project-coordination-setup/SKILL.md PROJECT_BOARD.md docs/handoffs/TASK-061.md docs/qa/TASK-061.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-061.md) · [QA](docs/qa/TASK-061.md) |
 | TASK-059 | In Progress | FB-Tech | Three-tier real-work benchmark | Compare Vanilla Codex with Efficient-Graph FB across six easy, six medium, and six difficult historical tasks while preserving TASK-056 as immutable evidence | `tools/fb-three-tier-benchmark.cjs tools/fb-three-tier-benchmark.test.cjs tools/fixtures/fb-three-tier-benchmark docs/benchmarks/difficulty-tiers docs/handoffs/TASK-059.md docs/qa/TASK-059.md PROJECT_BOARD.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-059.md); [Plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md) |
-| TASK-058 | In Progress | FB-Tech | Automatic worktree orchestration | Make `$bfm` create or reuse linked worktrees for every independent source-changing slice without user setup, while keeping planning-only and overlapping work lightweight or sequential | `docs/fb/workflow.md`, `README.md`, `skills/bfm/SKILL.md`, `skills/fb-lane-coordination/SKILL.md`, `tools/fb-automatic-worktrees.test.cjs`, `CHANGELOG.md`, `docs/handoffs/TASK-058.md`, `docs/qa/TASK-058.md` | [Handoff](docs/handoffs/TASK-058.md) |
+| TASK-058 | Staging QA | FB-Tech | Automatic worktree orchestration | Make `$bfm` create or reuse linked worktrees for every independent source-changing slice without user setup, while keeping planning-only and overlapping work lightweight or sequential | Canonical/package workflow and skills, README, focused contract, generated mirrors, changelog, and TASK-058 evidence | [Handoff](docs/handoffs/TASK-058.md); [QA](docs/qa/TASK-058.md); Ready to ship — **Push Live** required |
 | TASK-057 | Done | FB-Product / BFM + FB-Tech | Harness reliability | Prevent incomplete OKR records from reaching release validation | Normalized handoff template, focused record validation, generated plugin mirrors, and TASK-057 evidence | [Handoff](docs/handoffs/TASK-057.md); [QA evidence](docs/qa/TASK-057.md); merged and published as `708593a` |
 | TASK-056 | Staging QA | FB-Product / BFM + FB-Tech | Prospective repair-efficiency benchmark | Twelve fresh runs completed: efficient Graph used 15.8% fewer tokens and 23.6% less wall time, with 3/6 accepted outcomes versus Vanilla's 1/6 | Isolated fixtures and benchmark evidence only; no source-repository, plugin-release, provider-write, production, or deployment change | [Handoff](docs/handoffs/TASK-056.md); [Result](docs/benchmarks/repair-efficiency/README.md); [QA](docs/qa/TASK-056.md) |
 | TASK-055 | Staging QA | FB-Product / BFM + FB-Tech | Repair efficiency | Fresh criterion-specific delta repair packets, concrete-correction gate, no-change/no-improvement stop, and upfront execution slicing are implemented and prospectively validated | `tools/fb-efficiency*`, canonical/package workflow, guardrails, BFM skill, approved changelog; no release, provider, production, or deployment change | [Handoff](docs/handoffs/TASK-055.md); [TASK-056 evidence](docs/benchmarks/repair-efficiency/README.md); focused 28/28 and 48-mirror parity passed |
@@ -67,6 +69,72 @@
 
 ---
 
+### TASK-062 - First-run `$bfm` onboarding
+
+*   **Status**: Staging QA — Ready to ship; implementation, focused
+    verification, changelog approval, and the single complete release
+    checkpoint passed.
+*   **Owner / Thread**: FB-Tech
+*   **Area**: Bootstrap and Codex task onboarding
+*   **Scope**: Introduce FB after bootstrap, ask once for permission, identify
+    existing repository-scoped legacy/current workstream tasks, create only
+    missing sidebar tasks when Codex task tools are available, and provide an
+    honest manual fallback otherwise.
+*   **Out of Scope**: Automatic transcript discovery, starting work in new
+    tasks, source edits from workstream tasks, hosted state, plugin publication,
+    merge, installation, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let a new or upgraded FB project acquire its six durable
+        workstream entry points without repeated setup questions or duplicate
+        tasks.
+    *   **Key Results**: Bootstrap asks once; legacy four-task projects add
+        only Discovery and Bugs; current six-task projects add nothing; created
+        tasks are repository-scoped and idle; unavailable Codex task tools
+        produce a truthful manual path; `$bfm` remains canonical while `/bfm`
+        is recognized as intent.
+    *   **Definition of Done**: Focused RED/GREEN behavior tests, root/package
+        parity, bootstrap idempotency, task-matching fixtures, syntax, links,
+        and whitespace pass.
+    *   **Gate / Review Point**: User-visible changelog wording requires
+        approval before Ready to ship; approved by James on 2026-07-29.
+        **Push Live** remains required for push, merge, publication,
+        installation, or deployment.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly requested implementation of
+        first-run `$bfm` onboarding.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-062.md);
+    [verification](docs/qa/TASK-062.md).
+
+### TASK-061 - Compact active board context
+
+*   **Status**: Staging QA
+*   **Owner / Thread**: FB-Tech
+*   **Area**: Board efficiency
+*   **Scope**: Give agents a bounded active-only board packet and mechanically
+    archive terminal board rows and detail blocks only after the board crosses
+    a conservative size threshold; keep the active harness overview and FAQ
+    aligned with the safety and fallback behavior.
+*   **Out of Scope**: Replacing Markdown, adding a database or dashboard,
+    deleting handoffs or Git history, weakening lock checks, changing release
+    authority, or rewriting historical archive content.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce repeated coordination context without weakening
+        shared-project collision protection or durable evidence.
+    *   **Key Results**: Default orientation excludes terminal history and long
+        detail blocks; active locks remain visible; oversized boards archive
+        older terminal entries idempotently while retaining three recent
+        terminal rows; package mirrors remain mechanical.
+    *   **Definition of Done**: Focused RED/GREEN tests prove bounded context,
+        threshold/no-threshold behavior, exact archival, idempotency, and
+        package parity.
+    *   **Gate / Review Point**: Focused runtime and documentation checks only;
+        no release checkpoint, publication, merge, or deployment.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly approved the simple mechanical
+        board-bloat safeguard.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-061.md) ·
+    [QA](docs/qa/TASK-061.md).
+
 ### TASK-059 - Three-Tier Real-Work FB Benchmark
 
 *   **Status**: In Progress
@@ -91,7 +159,7 @@
 
 ### TASK-058 - Automatic BFM Worktree Orchestration
 
-*   **Status**: In Progress
+*   **Status**: Staging QA
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Harness execution
 *   **Scope**: Require BFM to translate its approved execution graph into
@@ -109,6 +177,23 @@
     *   **Approval**: approved
     *   **Justification**: James explicitly requested that the system set up worktrees instead of requiring manual user organization.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-058.md).
+*   **Latest Update**:
+    *   *2026-07-29*: James approved the changelog wording. The fresh
+        candidate rerun passed 11/11 automatic-worktree checks, 39/39 session
+        compatibility checks, 49-mirror parity, affected syntax, and
+        whitespace. Candidate is **Ready to ship**; merge, publication,
+        installation, and deployment still require **Push Live**.
+    *   *2026-07-28*: Orphan prevention is now enforced in runtime and plugin
+        guidance. Integration must run from the primary checkout; clean merged
+        worktrees are removed before task locks release; dirty, unmerged,
+        missing, blocked, or deferred worktrees remain owned. Exact branch
+        matching also handles Git's linked-worktree `+` marker. Focused
+        real-Git/root/package proof is 11/11 and 49 mirrors match.
+    *   *2026-07-28*: The Full BFM claim created the linked implementation
+        worktree automatically. Canonical/package behavior now requires one
+        automatic create-or-reuse claim per eligible source slice; focused and
+        existing linked-worktree checks passed. Candidate remains
+        `Checking — changelog approval needed`; no external action occurred.
 
 ### TASK-057 - Shift OKR Validation Left
 

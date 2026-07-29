@@ -4,8 +4,8 @@
 
 **AI Loop Engineering for Everyday People**
 
-Current Codex release: **FB 0.5.0-beta**
-(`0.5.0-beta+codex.20260728113402`).
+Current Codex release: **FB 0.5.1-beta**
+(`0.5.1-beta+codex.20260729135705`).
 
 **FB is a Codex plugin that connects six product workstreams in one continuous
 delivery loop. Each workstream investigates part of the problem; `$bfm` brings
@@ -132,9 +132,15 @@ all six, reconciles and prioritizes, creates the Project Start Brief plus Build
 Brief, and BFM executes already-approved scope; see [the start
 contract](docs/fb/start.md).
 For substantial work, FB plans a dependency graph up front and breaks the
-outcome into small verifiable slices. Independent slices can run through agents
-in parallel; dependent or overlapping work stays sequential. The overall job
-may run for hours without repeatedly running broad tests between slices.
+outcome into small verifiable slices. After `$bfm`, FB automatically creates or
+reuses a linked worktree for every independent source-changing slice and can run
+those agents in parallel; dependent or overlapping work stays sequential. You
+do not need to create, choose, or organize implementation worktrees.
+Planning-only workstreams do not receive worktrees. The overall job may run for
+hours without repeatedly running broad tests between slices. After integration,
+FB removes only clean, merged task worktrees; unsafe or unfinished worktrees
+remain owned and visible instead of being force-deleted. See the
+[automatic implementation worktree contract](docs/fb/workflow.md#automatic-implementation-worktrees).
 
 ## Install
 

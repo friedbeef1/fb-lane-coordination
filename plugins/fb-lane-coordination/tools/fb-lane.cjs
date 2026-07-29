@@ -26,6 +26,8 @@ const {
 } = require('./fb-control-loop.cjs');
 const { validateNormalizedRepository } = require('./fb-records.cjs');
 const { projectContextPacket } = require('./fb-project-graph.cjs');
+const { renderBoardContext, compactBoardFiles } = require('./fb-board-context.cjs');
+const { ensureOnboardingReceipt } = require('./fb-onboarding.cjs');
 const {
   classifyExecutionMode,
   renderQuickRecord,
@@ -203,6 +205,57 @@ function resolveWorktreePlan(records, branchName) {
   if (existing) return { path: existing.path, reuse: true, primary };
   const directory = branchName.replace(/[^A-Za-z0-9._-]+/g, '-');
   return { path: path.join(primary, '.worktrees', directory), reuse: false, primary };
+}
+
+function selectTaskBranch(branches, taskId) {
+  const safeTaskId = assertSafeTaskId(taskId);
+  const escapedTaskId = safeTaskId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pattern = new RegExp(`(^|/)${escapedTaskId}(?:-|$)`);
+  const matches = branches.filter(branch => pattern.test(branch));
+  if (matches.length > 1) {
+    throw new Error(
+      `Multiple branches match ${safeTaskId}: ${matches.join(', ')}. Retain them and require Product/BFM to choose the intended branch explicitly.`
+    );
+  }
+  return matches[0] || '';
+}
+
+function removeMergedWorktree(primaryPath, branchName) {
+  const branch = assertSafeBranchName(branchName);
+  const primary = fs.realpathSync(primaryPath);
+  const records = parseWorktreePorcelain(runGit(['-C', primary, 'worktree', 'list', '--porcelain']));
+  const registered = records.find(record => record.branch === branch);
+  if (!registered) return { status: 'not-registered', branch, worktree: null };
+
+  if (path.resolve(records[0].path) === path.resolve(registered.path)) {
+    throw new Error(`Refusing to remove the primary checkout for branch ${branch}.`);
+  }
+  if (!fs.existsSync(registered.path)) {
+    throw new Error(
+      `The registered worktree path is missing for ${branch}. Retain its metadata and require an owner to review the next action before any targeted prune.`
+    );
+  }
+  if (fs.realpathSync(registered.path) === primary) {
+    throw new Error(`Refusing to remove the primary checkout for branch ${branch}.`);
+  }
+  const dirt = runGit(['-C', registered.path, 'status', '--porcelain']);
+  if (dirt) {
+    throw new Error(
+      `Worktree ${registered.path} is dirty. Retain it and record an owner plus next action; automatic cleanup is blocked.`
+    );
+  }
+  try {
+    runGit(['-C', primary, 'merge-base', '--is-ancestor', branch, 'HEAD']);
+  } catch (err) {
+    throw new Error(`Branch ${branch} is not merged into the primary candidate. Retain its worktree for integration or explicit deferral.`);
+  }
+
+  runGit(['-C', primary, 'worktree', 'remove', registered.path]);
+  const remaining = parseWorktreePorcelain(runGit(['-C', primary, 'worktree', 'list', '--porcelain']));
+  if (remaining.some(record => record.path === registered.path || record.branch === branch)) {
+    throw new Error(`Git still registers ${registered.path} after cleanup; retain the task gate for owner recovery.`);
+  }
+  return { status: 'removed', branch, worktree: registered.path };
 }
 
 function ensureWorktreeContainerIgnored(primary) {
@@ -407,6 +460,103 @@ function handoffFrontmatter(markdown) {
   return metadata;
 }
 
+function readyLikeHandoffStatus(markdown) {
+  const metadata = handoffFrontmatter(markdown);
+  if (metadata?.status && /^ready(?:\b|\s|—|-|:)/i.test(metadata.status.trim())) {
+    return metadata.status.trim();
+  }
+  const matches = [
+    ...String(markdown).matchAll(
+      /^\s*(?:[-*+]\s+)?(?:\*\*)?Status(?::(?:\*\*)?|\*\*:)\s*(.+?)\s*$/gim
+    ),
+  ];
+  const status = matches.at(-1)?.[1]?.replace(/\*\*$/u, '').trim() || '';
+  return /^ready(?:\b|\s|—|-|:)/i.test(status) ? status : '';
+}
+
+function handoffAuditRoots(rootDir) {
+  let linked = [rootDir];
+  let gitDirectory = path.join(rootDir, '.git');
+  try {
+    linked = execFileSync('git', ['worktree', 'list', '--porcelain'], {
+      cwd: rootDir,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .split(/\r?\n/)
+      .filter(line => line.startsWith('worktree '))
+      .map(line => line.slice('worktree '.length));
+    const common = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+      cwd: rootDir,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    gitDirectory = path.resolve(rootDir, common);
+  } catch {
+    // Temporary fixtures and pre-bootstrap projects may not be Git repositories.
+  }
+  const config = path.join(gitDirectory, 'fb-handoff-audit-roots');
+  const configured = fs.existsSync(config)
+    ? fs
+        .readFileSync(config, 'utf8')
+        .split(/\r?\n/)
+        .map(line => line.replace(/#.*$/u, '').trim())
+        .filter(Boolean)
+    : [];
+  const environment = String(process.env.FB_HANDOFF_AUDIT_ROOTS || '')
+    .split(path.delimiter)
+    .map(value => value.trim())
+    .filter(Boolean);
+  return [...new Set([...linked, ...configured, ...environment].map(value =>
+    path.resolve(rootDir, value)
+  ))];
+}
+
+function assertNoOrphanReadyHandoffs(rootDir, selected) {
+  const primary = path.resolve(rootDir);
+  const canonical = new Set();
+  const selectedCanonical = new Set(selected);
+  const ready = [];
+  const errors = [];
+  for (const root of handoffAuditRoots(rootDir)) {
+    const directory = path.join(root, 'docs', 'handoffs');
+    if (!fs.existsSync(directory)) continue;
+    for (const file of fs
+      .readdirSync(directory)
+      .filter(name => name.endsWith('.md') && name !== 'index.md')
+      .sort()
+      .reverse()) {
+      const relative = `docs/handoffs/${file}`;
+      if (root === primary) canonical.add(relative);
+      try {
+        const status = readyLikeHandoffStatus(
+          fs.readFileSync(path.join(directory, file), 'utf8')
+        );
+        if (status) ready.push({ root, relative, status });
+      } catch (error) {
+        errors.push(`${root}/${relative} (${error.code || 'READ_ERROR'})`);
+      }
+    }
+  }
+  const relevant = ready.filter(record => {
+    if (record.root === primary) return !selectedCanonical.has(record.relative);
+    return !canonical.has(record.relative);
+  });
+  if (relevant.length > 0) {
+    const detail = relevant
+      .map(record => `${record.root}/${record.relative} :: ${record.status}`)
+      .join('; ');
+    throw new Error(
+      `READINESS_FALSE_NEGATIVE: Ready-like handoffs remain unselected after the canonical scan: ${detail}`
+    );
+  }
+  if (errors.length > 0) {
+    throw new Error(
+      `READINESS_AUDIT_INCOMPLETE: handoff sources were unreadable: ${errors.join('; ')}`
+    );
+  }
+}
+
 function scanWorkstreamHandoffs(rootDir) {
   const handoffsDir = path.join(rootDir, 'docs', 'handoffs');
   const workstreams = Object.fromEntries(BFM_WORKSTREAMS.map(workstream => [workstream, { ready: [], blocked: [] }]));
@@ -435,7 +585,9 @@ function scanWorkstreamHandoffs(rootDir) {
     const result = workstreams[workstream];
     if (result.ready.length === 0 && result.blocked.length === 0) result.summary = 'None relevant';
   }
-  return { workstreams, selected: BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready) };
+  const selected = BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready);
+  assertNoOrphanReadyHandoffs(rootDir, selected);
+  return { workstreams, selected };
 }
 
 function workstreamStatusCardTemplate(laneName) {
@@ -1418,6 +1570,10 @@ function handleStatus(options = {}) {
     console.error('❌ Error: PROJECT_BOARD.md not found in this workspace.');
     process.exit(1);
   }
+  if (options.context) {
+    console.log(renderBoardContext(fs.readFileSync(boardPath, 'utf8')));
+    return;
+  }
   const { tasks } = parseBoard(boardPath);
   const rootDir = path.dirname(boardPath);
   const currentTaskPath = path.join(rootDir, '.codex', 'current_task.md');
@@ -2234,11 +2390,12 @@ function runTests(boardPath) {
   return true;
 }
 
-// Stage and commit the project board only if there are staged modifications
-function commitBoard(message) {
-  runGit('add PROJECT_BOARD.md');
+// Stage and commit the project board plus any exact archive files created by
+// mechanical compaction. Never stage the archive directory wholesale.
+function commitBoard(message, extraPaths = []) {
+  runGit(['add', 'PROJECT_BOARD.md', ...extraPaths]);
   try {
-    const staged = runGit('diff --cached --name-only PROJECT_BOARD.md');
+    const staged = runGit(['diff', '--cached', '--name-only', '--', 'PROJECT_BOARD.md', ...extraPaths]);
     if (staged.trim() !== '') {
       runGit(['commit', '-m', message]);
       return true;
@@ -2246,6 +2403,15 @@ function commitBoard(message) {
   } catch (err) {}
   console.log('ℹ️  Project board already up to date. No commit needed.');
   return false;
+}
+
+function completeBoardTask(boardPath, taskId, options = {}) {
+  updateBoardTask(boardPath, taskId, {
+    status: 'Done',
+    locks: '(None)',
+    lockedFiles: '(None)'
+  });
+  return compactBoardFiles(boardPath, options);
 }
 
 const NO_TESTS_SUBMIT_ERROR = 'Automated checks are required before Ready to ship; --no-tests cannot submit.';
@@ -2439,6 +2605,14 @@ function handleMerge(taskId) {
     process.exit(1);
   }
 
+  const mergeRecords = parseWorktreePorcelain(runGit(['worktree', 'list', '--porcelain']));
+  const primaryCheckout = mergeRecords[0] && mergeRecords[0].path;
+  const currentCheckout = runGit('rev-parse --show-toplevel');
+  if (!primaryCheckout || fs.realpathSync(currentCheckout) !== fs.realpathSync(primaryCheckout)) {
+    console.error('❌ Error: Run FB merge from the primary checkout. BFM owns this integration step; do not merge from an execution worktree.');
+    process.exit(1);
+  }
+
   const boardPath = findBoardPath();
   if (!boardPath) {
     console.error('❌ Error: PROJECT_BOARD.md not found.');
@@ -2471,9 +2645,12 @@ function handleMerge(taskId) {
   // Try to find the branch name matching the task ID
   let targetBranch = '';
   try {
-    const branches = runGit('branch --list').split('\n').map(b => b.replace('*', '').trim());
-    targetBranch = branches.find(b => b.includes(taskId)) || '';
-  } catch (err) {}
+    const branches = runGit('branch --list').split('\n').map(b => b.replace(/^[*+]\s*/, '').trim());
+    targetBranch = selectTaskBranch(branches, taskId);
+  } catch (err) {
+    console.error(`❌ Error: ${err.message}`);
+    process.exit(1);
+  }
 
   if (!targetBranch) {
     // Guess name if not found in local branch list
@@ -2496,15 +2673,24 @@ function handleMerge(taskId) {
     process.exit(1);
   }
 
-  // Update board
-  updateBoardTask(boardPath, taskId, {
-    status: 'Done',
-    locks: '(None)',
-    lockedFiles: '(None)'
-  });
+  let worktreeCleanup;
+  try {
+    worktreeCleanup = removeMergedWorktree(primaryCheckout, targetBranch);
+  } catch (err) {
+    console.error(`\n❌ Worktree cleanup blocked after merge: ${err.message}`);
+    console.error('👉 The task remains In Progress and its locks remain held. Record the retained worktree owner and next action, then retry cleanup from the primary checkout.');
+    process.exit(1);
+  }
+
+  // Release the task only after worktree cleanup succeeds, then mechanically
+  // archive older terminal history when the board crosses its threshold.
+  const compaction = completeBoardTask(boardPath, taskId);
+  const archivePaths = compaction.archivePath
+    ? [path.relative(path.dirname(boardPath), compaction.archivePath)]
+    : [];
 
   // Commit board
-  commitBoard(`docs: complete ${taskId} and release locks`);
+  commitBoard(`docs: complete ${taskId} and release locks`, archivePaths);
 
   // Push main
   runGit('push origin main');
@@ -2524,6 +2710,7 @@ function handleMerge(taskId) {
 
   console.log(`\n✅ Task ${taskId} is merged and completed!`);
   console.log(`   - Feature branch ${targetBranch} merged to main & deleted.`);
+  console.log(`   - Worktree cleanup: ${worktreeCleanup.status}${worktreeCleanup.worktree ? ` (${worktreeCleanup.worktree})` : ''}.`);
   console.log(`   - Board updated to Done. Locks released.\n`);
 
   try {
@@ -2595,11 +2782,12 @@ function handleMcpRequest(request) {
       tools: [
         {
           name: 'fb_lane_status',
-          description: 'Get the beginner project status card, with optional raw technical details.',
+          description: 'Get the beginner project status card, compact active-board context, or optional raw technical details.',
           inputSchema: {
             type: 'object',
             properties: {
               workspacePath: { type: 'string', description: 'Optional workspace/repo path to search for PROJECT_BOARD.md from.' },
+              context: { type: 'boolean', description: 'Show the bounded active-only board context used for agent orientation.' },
               details: { type: 'boolean', description: 'Show the raw technical workstream table.' }
             }
           }
@@ -2718,10 +2906,14 @@ function handleMcpRequest(request) {
           const { workspacePath, ...input } = toolArgs;
           message = JSON.stringify(routeArtifact(input));
         } else if (name === 'fb_lane_status') {
-          const { tasks } = parseBoard(boardPath);
-          message = toolArgs.details
-            ? renderTechnicalStatus(tasks, { format: 'mcp', workspaceRoot })
-            : renderBeginnerStatus(statusInputs(workspaceRoot, tasks));
+          if (toolArgs.context) {
+            message = renderBoardContext(fs.readFileSync(boardPath, 'utf8'));
+          } else {
+            const { tasks } = parseBoard(boardPath);
+            message = toolArgs.details
+              ? renderTechnicalStatus(tasks, { format: 'mcp', workspaceRoot })
+              : renderBeginnerStatus(statusInputs(workspaceRoot, tasks));
+          }
         } else if (name === 'fb_project_context') {
           const { taskId, question } = toolArgs;
           assertSafeTaskId(taskId);
@@ -2777,13 +2969,12 @@ function handleMcpRequest(request) {
           runGit('pull origin main');
           runGit(["merge", assertSafeBranchName(targetBranch)]);
 
-          updateBoardTask(boardPath, taskId, {
-            status: 'Done',
-            locks: '(None)',
-            lockedFiles: '(None)'
-          });
+          const compaction = completeBoardTask(boardPath, taskId);
+          const archivePaths = compaction.archivePath
+            ? [path.relative(path.dirname(boardPath), compaction.archivePath)]
+            : [];
 
-          commitBoard(`docs: complete ${taskId} and release locks`);
+          commitBoard(`docs: complete ${taskId} and release locks`, archivePaths);
           runGit('push origin main');
 
           try { runGit(["branch", "-d", assertSafeBranchName(targetBranch)]); } catch (e) {}
@@ -2831,9 +3022,12 @@ function fbHarnessRoute() {
   return `${FB_HARNESS_ROUTE_START}
 ## FB coordination route
 
-Read [the FB harness](docs/fb/README.md) after \`PROJECT_BOARD.md\`,
-\`docs/handoffs/index.md\`, and the linked handoff. Use the focused page that
-matches the task:
+Read [the FB harness](docs/fb/README.md) after using
+\`node tools/fb-lane.cjs status --context\` or
+\`fb_lane_status({context:true})\` for active work and locks. Then follow
+\`docs/handoffs/index.md\` and the linked handoff. Open the full
+\`PROJECT_BOARD.md\` only when the compact packet is insufficient or
+contradictory. Use the focused page that matches the task:
 
 Start in whichever workstream matches the question whenever planning or
 evidence is useful. Product/User is only for user and product questions, not
@@ -2843,8 +3037,9 @@ Product reconciles all six and records the consolidated Project Start Brief and
 Build Brief without a routine second approval; BFM then executes approved scope.
 
 For returning-project health, use \`$fb-lane status\` for the beginner card.
-For operational lock inspection, use CLI \`node tools/fb-lane.cjs status --details\`
-or MCP \`fb_lane_status({details:true})\`.
+For routine operational orientation, use CLI
+\`node tools/fb-lane.cjs status --context\` or MCP
+\`fb_lane_status({context:true})\`. Reserve \`--details\` for raw diagnostics.
 
 - First project, plan, lanes, or approval: [start.md](docs/fb/start.md)
 - Ownership, BFM execution, and closeout: [workflow.md](docs/fb/workflow.md)
@@ -2892,14 +3087,21 @@ function installFbHarnessPack(rootDir) {
   }
 }
 
-function ensureGraphIgnore(rootDir) {
+function ensureFbIgnoreRule(rootDir, rule) {
   const ignorePath = path.join(rootDir, '.gitignore');
-  const rule = '.fb/graph/';
   const existing = fs.existsSync(ignorePath) ? fs.readFileSync(ignorePath, 'utf8') : '';
   if (existing.split(/\r?\n/).some(line => line.trim() === rule)) return false;
   const separator = existing && !existing.endsWith('\n') ? '\n' : '';
   fs.writeFileSync(ignorePath, `${existing}${separator}${rule}\n`, 'utf8');
   return true;
+}
+
+function ensureGraphIgnore(rootDir) {
+  return ensureFbIgnoreRule(rootDir, '.fb/graph/');
+}
+
+function ensureOnboardingIgnore(rootDir) {
+  return ensureFbIgnoreRule(rootDir, '.fb/onboarding.json');
 }
 
 // Main execution parsing
@@ -3084,6 +3286,8 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   installFbHarnessPack(rootDir);
   console.log('📝 Installed docs/fb/ harness pack.');
   if (ensureGraphIgnore(rootDir)) console.log('📝 Ignored derived .fb/graph/ artifacts.');
+  if (ensureOnboardingIgnore(rootDir)) console.log('📝 Ignored clone-local .fb/onboarding.json receipt.');
+  const onboarding = ensureOnboardingReceipt(rootDir);
   const harnessRoute = fbHarnessRoute();
   if (!fs.existsSync(agentsPath)) {
     fs.writeFileSync(agentsPath, `# Agent & Thread Coordination Rules — ${projectName}\n\n${harnessRoute}\n`, 'utf8');
@@ -3184,6 +3388,11 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('======================================================================');
   console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');
+  if (onboarding.shouldPrompt) {
+    console.log('Meet FB — Focus Bridge. FB connects six planning and evidence workstreams to one `$bfm` delivery loop.');
+    console.log('May I create six repository-scoped sidebar tasks: Product/User, Business, Design, Tech, Discovery, and Bugs?');
+    console.log('Reply Yes or No. FB asks this setup question once, creates only missing legacy/current workstreams, and leaves every new task idle.\n');
+  }
 }
 
 function main() {
@@ -3200,7 +3409,10 @@ function main() {
   } else if (command === 'mcp') {
     runMcpServer();
   } else if (command === 'status') {
-    handleStatus({ details: args.includes('--details') });
+    handleStatus({
+      details: args.includes('--details'),
+      context: args.includes('--context'),
+    });
   } else if (command === 'doctor') {
     handleDoctor();
   } else if (command === 'bootstrap') {
@@ -3255,7 +3467,7 @@ Usage:
   ${sessionUsage()}
   node tools/fb-lane.cjs bootstrap [--platform codex]   - Bootstrap project board, rules, tools, and folders
   node tools/fb-lane.cjs doctor                         - Check FB-Lane setup health without writing files
-  node tools/fb-lane.cjs status [--details]             - Print the beginner status card or raw technical table
+  node tools/fb-lane.cjs status [--details|--context]   - Print beginner status, raw technical details, or bounded active context
   node tools/fb-lane.cjs claim <id> <lane> [locks]      - Claim task in a linked worktree by default
   node tools/fb-lane.cjs claim ... --no-worktree        - Use the legacy single-checkout compatibility path
   node tools/fb-lane.cjs quick <lane> <locks> <desc> --approval-ref <reference> - Create an approved quick task in a linked worktree
@@ -3288,8 +3500,13 @@ module.exports = {
   classifyBfmClass,
   parseWorktreePorcelain,
   resolveWorktreePlan,
+  selectTaskBranch,
+  removeMergedWorktree,
   renderQueueSummary,
   TASK_ID_PATTERN,
   LANE_PATTERN,
   scanWorkstreamHandoffs,
+  renderBoardContext,
+  compactBoardFiles,
+  completeBoardTask,
 };

@@ -1,6 +1,10 @@
 [
   "tools/fb-lane.cjs",
   "tools/fb-lane.test.cjs",
+  "tools/fb-board-context.cjs",
+  "tools/fb-board-context.test.cjs",
+  "tools/fb-onboarding.cjs",
+  "tools/fb-onboarding.test.cjs",
   "tools/fb-six-workstreams.test.cjs",
   "tools/fb-six-skills.test.cjs",
   "tools/fb-session.cjs",
@@ -23,6 +27,7 @@
   "tools/fb-control-loop.cjs",
   "tools/fb-control-loop.test.cjs",
   "tools/fb-control-loop-docs.test.cjs",
+  "tools/fb-automatic-worktrees.test.cjs",
   "docs/why-fb.md",
   "docs/evidence/TASK-026-two-speed.md",
   "docs/fb/README.md",

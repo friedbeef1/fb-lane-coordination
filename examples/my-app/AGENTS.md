@@ -2,6 +2,9 @@
 
 This project uses the standard **FB coordination model** to enable safe concurrent development.
 
+Start each session with `node tools/fb-lane.cjs status --context` for active
+work and locks. Open the full board only if that bounded packet is insufficient.
+
 Use the workstream-first contract in [docs/fb/start.md](../../docs/fb/start.md).
 Start in whichever workstream matches the question. After actionable handoffs
 are ready, `$bfm` activates Product reconciliation and execution of approved

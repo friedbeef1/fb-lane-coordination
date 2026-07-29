@@ -1,6 +1,6 @@
 # FB FAQ
 
-This FAQ describes the current **FB 0.5.0-beta** six-workstream model.
+This FAQ describes the current **FB 0.5.1-beta** six-workstream model.
 
 ## What does FB stand for?
 
@@ -25,6 +25,17 @@ isolated work can still use normal Codex without FB ceremony.
 No. Each workstream either contributes an actionable handoff or records **None
 relevant**. FB never manufactures work just to fill a lane.
 
+## Will FB create the six Codex sidebar tasks for me?
+
+After repository bootstrap, FB asks once for permission. With Yes, it detects
+repository-scoped current and legacy workstream tasks and creates only what is
+missing. Existing Product, Business, Design, and Tech projects gain only
+Discovery and Bugs. New tasks remain idle until you ask them a question.
+
+If Codex cannot list or create tasks in the current environment, FB tells you
+and provides paste-ready prompts. It does not pretend the tasks were created.
+Declining does not disable `$bfm`.
+
 ## What happens when I say `$bfm`?
 
 Build For Me (BFM) begins only after Product approval and explicit `$bfm`; see
@@ -34,6 +45,9 @@ Product scans Product/User, Business, Design, Tech, Discovery, and Bugs. It
 includes valid `ready` handoffs, keeps blocked work visible, excludes completed
 or deferred work, reconciles conflicts, prioritizes the sequence, directs Codex
 implementation, and runs automated checks.
+
+`$bfm` is the supported invocation. FB may understand `/bfm` as your intent,
+but `/bfm` is not a separate installed command.
 
 ## Does `$bfm` deploy?
 
@@ -45,6 +59,17 @@ deployment.
 FB keeps the candidate in **Checking**, diagnoses the evidence, and makes only
 scoped repairs within the declared loop budget. It does not silently change the
 approved outcome or weaken a valid test.
+
+## Can compact board context make FB miss important work?
+
+The compact packet is navigation, not a replacement for project truth. It
+keeps active scope, owners, locks, blockers, staging candidates, and evidence
+links. Only explicit terminal statuses are archived; unfamiliar statuses stay
+visible. `$bfm` still scans the handoff index and handoff statuses separately.
+If the packet reports omitted rows or is insufficient or contradictory, FB
+opens the authoritative full board. Archived history remains durable Markdown
+and is never deleted. See
+[the complete safeguard table](docs/fb/records.md#why-compact-context-does-not-hide-important-work).
 
 ## Can a sidechat hand work to any main task?
 

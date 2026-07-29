@@ -9,7 +9,10 @@ Default to normal/simple coding for one-thread work with no listed coordination 
 Use **FB light** for narrow triggered work: read the board/locks, keep the task lightweight, and avoid extra ceremony. Use **Product/BFM** when sequencing, approval, merge/release, provider/security/payment gates, core UX, or multiple lane outputs must be reconciled before source changes.
 
 ### On every session start
-1. Read `PROJECT_BOARD.md` — check active tasks and file locks.
+1. Run `node tools/fb-lane.cjs status --context` or MCP
+   `fb_lane_status({context:true})` — check active tasks and file locks without
+   loading terminal history. Open `PROJECT_BOARD.md` only when this packet is
+   insufficient or contradictory.
 2. Read `.codex/current_task.md` if it exists — it contains your task ID, branch, and locked files. Follow it exactly.
 3. Confirm your active branch matches the task. If not, stop and notify the user.
 4. Never modify files that are locked by another active task.

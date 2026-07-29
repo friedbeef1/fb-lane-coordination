@@ -1,7 +1,9 @@
 # FB coordination navigator
 
-Read this file, then the current project state: `PROJECT_BOARD.md`,
+Read this file, then use `node tools/fb-lane.cjs status --context` (or MCP
+`fb_lane_status({context:true})`) for active work and locks. Follow its links to
 `docs/handoffs/index.md`, the linked handoff, and the relevant workstream card.
+Open the full `PROJECT_BOARD.md` only when the compact packet is insufficient.
 The board is current truth; the index routes; handoffs hold detail; cards are
 summaries. The reusable FB operating rules live in [docs/fb/](docs/fb/README.md).
 

@@ -24,6 +24,23 @@ mini-loop and records a ready or blocked `docs/handoffs/<TASK-ID>.md` for the BF
 scanner; inactive workstreams need no manufactured work. BFM stops at **Ready to
 ship**. Only **Push Live** authorizes merge or deployment.
 
+Fresh bootstrap also creates a clone-local onboarding receipt in the Git common
+directory, shared by every worktree in that clone. Non-Git projects use ignored
+`.fb/onboarding.json`. It prints one permission question introducing FB. Relay
+that question to the user exactly once:
+
+> May I create six repository-scoped sidebar tasks: Product/User, Business,
+> Design, Tech, Discovery, and Bugs?
+
+Do not create tasks before explicit Yes. After Yes, follow the first-run
+sidebar procedure in the BFM skill: use Codex project/task tools when available,
+recognize repository-scoped current and legacy titles, create only missing
+tasks, and leave them idle. Existing Product, Business, Design, and Tech
+projects therefore gain only Discovery and Bugs. On No, record the decline and
+continue normally. When task tools are unavailable, state that limitation and
+return paste-ready manual prompts; never simulate success. Bootstrap reruns do
+not repeat the question or overwrite the decision receipt.
+
 The installed [start.md](../../docs/fb/start.md) defines the single public
 workstream-first path. After relevant workstreams create ready handoffs, `$bfm`
 activates Product reconciliation and execution of approved scope.
@@ -33,6 +50,14 @@ orientation. For a known task and question, agents call MCP
 `fb_project_context` and open only its relevant cited authoritative records.
 The graph is not a source of truth. Missing, stale, unhealthy, incomplete, or
 contradictory packets fall back to the board → index → handoff → card route.
+
+For routine session orientation, use CLI
+`node tools/fb-lane.cjs status --context` or MCP
+`fb_lane_status({context:true})`. It returns a bounded active-only board packet.
+Open the full board only when that packet is insufficient or contradictory.
+Completed-task closeout mechanically archives older terminal board history
+after the board exceeds 64 KiB, while retaining the three most recent terminal
+rows and every active or blocked row. This adds no user ceremony.
 
 - [First-project contract and approval boundary](../../docs/fb/start.md)
 - [Board/index/handoff/workstream roles and execution](../../docs/fb/workflow.md)
