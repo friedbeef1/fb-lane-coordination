@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-062
 lane: fb-product
-status: implemented
+status: ready
 approval: approved
 fb_harness: v3
 record_model: normalized-v1
@@ -72,7 +72,7 @@ Changelog expectation: required
 - **Failure and recovery:** The first safe-inventory assertion matched literal
   spaces and failed on a Markdown line wrap. The assertion was made
   whitespace-tolerant and only the failed root/package proof was rerun.
-- **Changelog:** pending approval — the proposed entry is
+- **Changelog:** updated and approved —
   [Unreleased — first-run `$bfm` onboarding](../../CHANGELOG.md#unreleased--first-run-bfm-onboarding).
 - Review state: not reviewable
 - Verification: [TASK-062 QA](../qa/TASK-062.md)
@@ -94,5 +94,6 @@ Status: pass
 - `$bfm` remains supported and `/bfm` remains intent only: satisfied.
 - Root/package alignment: 53 declared mirrors pass.
 
-Remaining closeout action: James approves or revises the changelog wording;
-then Product may record the decision and move the candidate to Ready to ship.
+Changelog approval was recorded from James on 2026-07-29. The candidate is
+**Ready to ship**. **Push Live** remains the separate authorization for push,
+merge, marketplace publication, installation, or deployment.

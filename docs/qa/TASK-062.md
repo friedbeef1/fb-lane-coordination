@@ -59,4 +59,5 @@ those unrelated suites were not rerun.
   repository-scoped inventory.
 - No push, merge, marketplace publication, plugin installation, or deployment
   was performed.
-- The candidate remains **Checking** until the changelog entry is approved.
+- James approved the changelog entry on 2026-07-29. The candidate is
+  **Ready to ship**; **Push Live** remains the external delivery boundary.

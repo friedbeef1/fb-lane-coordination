@@ -24,7 +24,7 @@ upgrade the `fb-lane` marketplace, reinstall
 `fb-lane-coordination@fb-lane`, bootstrap or rerun bootstrap in the project,
 and start a new Codex task.
 
-**Changelog approval:** Pending James approval.
+**Changelog approval:** Approved by James on 2026-07-29.
 
 ## Unreleased — automatic BFM worktrees
 
