@@ -1,6 +1,6 @@
 # TASK-059 QA
 
-Status: directional evidence complete; checking closeout
+Status: complete
 
 ## Required evidence
 
@@ -17,6 +17,7 @@ Status: directional evidence complete; checking closeout
 | Controller | Equal arms, bounded repair, checkpoints, privacy, and 30M directional ceiling | Passed |
 | Comparative runs | Six directional runs after one excluded shakedown | Passed |
 | Results | Tier-level wall time, tokens, acceptance, readiness, and limitations | [Passed](../benchmarks/difficulty-tiers/TASK-059-directional-results.md) |
+| Independent review | Arithmetic, treatment fairness, safety mutations, limits, and package parity | Approved |
 
 ## Directional result
 

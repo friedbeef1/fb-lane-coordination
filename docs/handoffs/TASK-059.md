@@ -108,6 +108,8 @@ and does not alter user-visible plugin behavior.
 - **Remaining owner/action:** Product reviews the directional claim and decides
   whether it is sufficient or whether a larger preregistered study is worth
   the cost.
+- **Independent review:** Approved after direct mutations proved that removing
+  warning dismissal or the iOS video-input guard still fails the contract.
 
 ## Brief Validation
 
