@@ -8,9 +8,19 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const FIXTURE_PATH = path.join(__dirname, 'fixtures', 'fb-three-tier-benchmark', 'tasks.json');
 const TASK_056_DECLARATION = path.join(REPO_ROOT, 'docs', 'benchmarks', 'repair-efficiency', 'declaration.json');
 const TASK_056_RESULTS = path.join(REPO_ROOT, 'docs', 'benchmarks', 'repair-efficiency', 'results.json');
+const TASK_056_HASHES = Object.freeze({
+  declaration: 'a8dd4eca5ab3b77e9790d40c4068722c10bd8c7fbe7406ea2a592b628e1b6897',
+  results: 'eac1d3b10318efdee46b1c6181037d86a01457dd6cffcbc02367db24ff1734df',
+});
 
 function sha256File(file) {
   return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+}
+
+function assertPinnedTask056File(file, expectedHash, label) {
+  const actualHash = sha256File(file);
+  if (actualHash !== expectedHash) throw new Error(`TASK-056 ${label} hash mismatch`);
+  return actualHash;
 }
 
 function loadTierRegistry() {
@@ -26,13 +36,13 @@ function totalUsage(...passes) {
   return usage;
 }
 
-function buildReuseReceipts() {
-  const results = JSON.parse(fs.readFileSync(TASK_056_RESULTS, 'utf8'));
+function buildReuseReceipts({resultsPath = TASK_056_RESULTS, declarationPath = TASK_056_DECLARATION} = {}) {
+  const originalResultHash = assertPinnedTask056File(resultsPath, TASK_056_HASHES.results, 'results');
+  const declarationHash = assertPinnedTask056File(declarationPath, TASK_056_HASHES.declaration, 'declaration');
+  const results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
   const reusedIds = new Set(loadTierRegistry()
     .filter(task => task.reuse === 'TASK-056')
     .map(task => task.id));
-  const originalResultHash = sha256File(TASK_056_RESULTS);
-  const declarationHash = sha256File(TASK_056_DECLARATION);
   return results.results
     .filter(result => reusedIds.has(result.taskId))
     .map(result => ({
