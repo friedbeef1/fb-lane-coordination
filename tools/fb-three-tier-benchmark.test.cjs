@@ -12,11 +12,14 @@ const {
   loadTierRegistry,
   buildReuseReceipts,
   buildThreeTierSchedule,
+  compileTreatment,
   preflight,
+  regradeCandidates,
   shakedown,
   runAll,
   summarize,
 } = require('./fb-three-tier-benchmark.cjs');
+const {grade: gradeSubchecks} = require('./fixtures/fb-three-tier-benchmark/graders/_shared.cjs');
 
 const IDS_BY_TIER = {
   easy: [
@@ -231,11 +234,106 @@ test('MÉJA auth-hardening grader rejects an AI dispatch reordered before authen
   }
 });
 
+test('protocol v2 easy graders reject unsafe or incomplete semantic mutations', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-three-tier-easy-mutations-'));
+  try {
+    const tasks = new Map(loadTierRegistry().map(task => [task.id, task]));
+    const cases = [{
+      id: 'unmirror-intro-persistence',
+      file: 'src/components/IntroScreen.tsx',
+      mutate: source => source.replaceAll('localStorage.setItem', 'discardedPreference'),
+    }, {
+      id: 'meja-topic-flip',
+      file: 'index.html',
+      mutate: source => source.replaceAll('topic-flip', 'generic-motion'),
+    }, {
+      id: 'meja-back-navigation',
+      file: 'index.html',
+      mutate: source => source.replaceAll('routeHistoryStack.pop()', 'location.hash'),
+    }, {
+      id: 'meja-first-timer-readiness',
+      file: 'index.html',
+      mutate: source => source.replaceAll('controllerAccess(', 'unrestrictedAccess('),
+    }];
+    for (const item of cases) {
+      const task = tasks.get(item.id);
+      const candidate = path.join(directory, item.id);
+      fs.mkdirSync(candidate);
+      archiveHistoricalTree(task.sourceRepo, task.acceptanceRefs.at(-1), candidate);
+      const file = path.join(candidate, item.file);
+      fs.writeFileSync(file, item.mutate(fs.readFileSync(file, 'utf8')));
+      const result = gradeHistoricalTree(task, candidate);
+      assert.equal(result.pass, false, `${item.id} unsafe mutation passed`);
+      assert.ok(result.readiness < 1, `${item.id} mutation retained full readiness`);
+    }
+  } finally {
+    fs.rmSync(directory, {recursive: true, force: true});
+  }
+});
+
 test('public task facts reject exact hidden grader answer literals', () => {
   const publicFacts = loadTierRegistry().flatMap(task => Object.values(task.publicFacts || {}));
   const publicText = JSON.stringify(publicFacts);
   assert.doesNotMatch(publicText, /440ms/);
   assert.doesNotMatch(publicText, /user_id filtering/);
+});
+
+test('protocol v2 facts are complete and equal while treatment structure differs by arm', () => {
+  const required = [
+    'relevantFiles',
+    'startingEvidence',
+    'dependencies',
+    'workSlices',
+    'verificationTargets',
+    'outcomeConstraints',
+  ];
+  for (const task of loadTierRegistry().filter(candidate => !candidate.reuse)) {
+    for (const field of required) {
+      assert.ok(Array.isArray(task.publicFacts[field]), `${task.id}.${field}`);
+      assert.ok(task.publicFacts[field].length, `${task.id}.${field} is empty`);
+    }
+    const vanilla = compileTreatment(task, 'vanilla');
+    const graph = compileTreatment(task, 'efficient-graph');
+    assert.deepEqual(vanilla.publicFacts, graph.publicFacts, `${task.id} fact parity`);
+    assert.equal(vanilla.structure, 'flat-brief');
+    assert.equal(graph.structure, 'graph-packet');
+    assert.equal(vanilla.packet, null);
+    assert.ok(graph.packet.nodes.length >= 3);
+    assert.deepEqual(graph.packet.dependencies, task.publicFacts.dependencies);
+    assert.deepEqual(graph.packet.slices, task.publicFacts.workSlices);
+    assert.deepEqual(graph.packet.verification, task.publicFacts.verificationTargets);
+    for (const value of Object.values(task.publicFacts).flat()) {
+      assert.ok(vanilla.prompt.includes(String(value)), `${task.id} vanilla omitted fact`);
+      assert.ok(graph.prompt.includes(String(value)), `${task.id} graph omitted fact`);
+    }
+    assert.notEqual(vanilla.prompt, graph.prompt);
+  }
+});
+
+test('shared grader scores weighted subchecks granularly and accepts semantic alternatives', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-three-tier-granular-'));
+  try {
+    fs.writeFileSync(path.join(directory, 'candidate.js'), 'const routeStack = []; routeStack.pop();\n');
+    const definition = {criteria: [{
+      id: 'navigation',
+      subchecks: [
+        {id: 'stack', path: '^candidate\\.js$', any: ['routeHistoryStack', 'routeStack'], weight: 90, mustPass: true},
+        {id: 'pop', path: '^candidate\\.js$', any: ['\\.pop\\(', 'removePreviousRoute\\('], weight: 5, mustPass: true},
+        {id: 'bounded', path: '^candidate\\.js$', any: ['\\.slice\\(', '\\.shift\\('], weight: 5, mustPass: true},
+      ],
+    }]};
+    const ninetyFive = gradeSubchecks(directory, definition);
+    assert.equal(ninetyFive.score, 95);
+    assert.equal(ninetyFive.readiness, 0.95);
+    assert.equal(ninetyFive.pass, false);
+    fs.writeFileSync(path.join(directory, 'candidate.js'), 'const routeStack = [];\n');
+    const ninety = gradeSubchecks(directory, definition);
+    assert.equal(ninety.score, 90);
+    assert.equal(ninety.readiness, 0.9);
+    assert.equal(ninety.pass, false);
+  } finally {
+    fs.rmSync(directory, {recursive: true, force: true});
+  }
 });
 
 function git(directory, args) {
@@ -714,10 +812,61 @@ test('privacy export rejects sensitive string values, not only forbidden keys', 
   }
 });
 
+test('regrade scores all eight stopped-pilot candidates without modifying v1 evidence', {
+  skip: !fs.existsSync('/private/tmp/fb-three-tier-059-20260729'),
+}, () => {
+  const pilotRoot = '/private/tmp/fb-three-tier-059-20260729';
+  const before = treeHashForTest(pilotRoot);
+  const result = regradeCandidates(pilotRoot);
+  const after = treeHashForTest(pilotRoot);
+  assert.equal(after, before);
+  assert.equal(result.protocol, 'three-tier-v2');
+  assert.equal(result.sourceEvidence, 'excluded-failed-pilot-v1');
+  assert.equal(result.candidates.length, 8);
+  assert.ok(result.candidates.every(candidate =>
+    Number.isFinite(candidate.grade.score) && candidate.grade.score >= 0 && candidate.grade.score <= 100));
+  assert.ok(result.candidates.some(candidate => candidate.grade.score % 25 !== 0));
+  assert.ok(result.candidates.every(candidate => candidate.grade.subchecks.length > candidate.grade.criteria.length));
+});
+
+test('missing-checkpoint resume resets interrupted fixture from its frozen base', async () => {
+  const fixture = makeControllerFixture();
+  try {
+    const options = controllerOptions(fixture);
+    const declaration = preflight(fixture.root, fixture.experimentId, options);
+    await shakedown(fixture.root, fixture.experimentId, options);
+    const row = declaration.schedule[0];
+    const interrupted = path.join(fixture.root, 'runs', row.runId, 'fixture', 'interrupted.txt');
+    fs.writeFileSync(interrupted, 'partial prior invocation\n');
+    const [result] = await runAll(fixture.root, fixture.experimentId, {...options, runId: row.runId});
+    assert.equal(result.firstPass.usage.authoritative, true);
+    assert.equal(fs.existsSync(interrupted), false);
+  } finally {
+    fs.rmSync(fixture.directory, {recursive: true, force: true});
+  }
+});
+
 function stableForTest(value) {
   if (Array.isArray(value)) return value.map(stableForTest);
   if (value && typeof value === 'object') {
     return Object.fromEntries(Object.keys(value).sort().map(key => [key, stableForTest(value[key])]));
   }
   return value;
+}
+
+function treeHashForTest(root) {
+  const digest = crypto.createHash('sha256');
+  function visit(directory) {
+    for (const entry of fs.readdirSync(directory, {withFileTypes: true}).sort((a, b) => a.name.localeCompare(b.name))) {
+      const absolute = path.join(directory, entry.name);
+      digest.update(path.relative(root, absolute));
+      digest.update('\0');
+      if (entry.isDirectory()) visit(absolute);
+      else if (entry.isFile()) digest.update(fs.readFileSync(absolute));
+      else if (entry.isSymbolicLink()) digest.update(fs.readlinkSync(absolute));
+      digest.update('\0');
+    }
+  }
+  visit(root);
+  return digest.digest('hex');
 }

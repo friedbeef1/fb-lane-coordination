@@ -29,7 +29,7 @@ const REPAIR_TIMEOUT_MS = 10 * 60 * 1000;
 const AGGREGATE_TOKEN_CEILING = 60_000_000;
 const MAXIMUM_PROVIDER_TOKENS_PER_RUN = 6_000_000;
 const SAFE_EXPERIMENT = /^[a-z0-9-]+$/;
-const CANONICAL_REGISTRY_SHA256 = 'ff706742393d390cd3c2e26cafad0f3c35a4a921a45bb347767ba9211b6e88f9';
+const CANONICAL_REGISTRY_SHA256 = 'f7e5c3e5a29bb2a08453f46d729e4810de5551ab485891a8c9bcc31cc13afc41';
 const SOURCE_REPOS = new Set([
   '/Users/jamesyeang/Projects/mirrorcam',
   '/Users/jamesyeang/Documents/New project-recovered-20260723',
@@ -250,13 +250,35 @@ function compileTreatment(task, arm) {
   const publicFacts = JSON.parse(JSON.stringify(task.publicFacts || {}));
   assertPrivacySafe(publicFacts, `${task.id}.publicFacts`);
   const publicFactsSha256 = hash(publicFacts);
-  const facts = JSON.stringify(publicFacts, null, 2);
+  const flatFacts = Object.entries(publicFacts).map(([key, value]) => {
+    const rendered = Array.isArray(value)
+      ? value.map(item => `- ${item}`).join('\n')
+      : String(value);
+    return `${key}:\n${rendered}`;
+  }).join('\n\n');
+  const packet = arm === 'efficient-graph' ? {
+    facts: publicFacts,
+    nodes: [
+      {id: 'objective', value: publicFacts.objective},
+      {id: 'starting-evidence', value: publicFacts.startingEvidence},
+      {id: 'outcome-constraints', value: publicFacts.outcomeConstraints},
+    ],
+    relevantFiles: publicFacts.relevantFiles,
+    dependencies: publicFacts.dependencies,
+    slices: publicFacts.workSlices,
+    evidence: publicFacts.startingEvidence,
+    verification: publicFacts.verificationTargets,
+  } : null;
   const prompt = arm === 'vanilla'
-    ? `Use ordinary Codex execution. Implement only this public task:\n\n${facts}`
-    : `Execute this Efficient-Graph FB packet with no extra coordination ceremony:\n\n${facts}`;
+    ? `Use ordinary Codex execution. Implement this flat public task brief.\n\n${flatFacts}`
+    : `Execute this Efficient-Graph FB packet with no extra coordination ceremony.\n\n${JSON.stringify(packet, null, 2)}`;
   return {
     arm,
+    protocolVersion: 'v2',
+    structure: arm === 'vanilla' ? 'flat-brief' : 'graph-packet',
     model: MODEL,
+    publicFacts,
+    packet,
     publicFactsSha256,
     prompt,
     promptSha256: hash(prompt),
@@ -511,6 +533,45 @@ function defaultGradeCandidate(task, candidateDir) {
   )).grade(candidateDir);
 }
 
+function regradeCandidates(pilotRoot, options = {}) {
+  const absoluteRoot = path.resolve(pilotRoot);
+  const tasks = options.tasks || loadTierRegistry();
+  const tasksById = new Map(tasks.map(task => [task.id, task]));
+  const runsRoot = path.join(absoluteRoot, 'runs');
+  const candidates = fs.readdirSync(runsRoot, {withFileTypes: true})
+    .filter(entry => entry.isDirectory())
+    .map(entry => entry.name)
+    .filter(runId => fs.existsSync(path.join(runsRoot, runId, 'result.json')))
+    .sort()
+    .map(runId => {
+      const arm = runId.endsWith('-efficient-graph') ? 'efficient-graph'
+        : runId.endsWith('-vanilla') ? 'vanilla' : null;
+      if (!arm) throw new Error(`Unknown stopped-pilot run id: ${runId}`);
+      const taskId = runId.slice(0, -(arm.length + 1));
+      const task = tasksById.get(taskId);
+      if (!task?.grader) throw new Error(`Missing regrade task: ${taskId}`);
+      const fixture = path.join(runsRoot, runId, 'fixture');
+      const before = sha256Value(fileManifest(fixture));
+      const grade = (options.gradeCandidate || defaultGradeCandidate)(task, fixture);
+      const after = sha256Value(fileManifest(fixture));
+      if (before !== after) throw new Error(`Regrade modified candidate: ${runId}`);
+      return {
+        runId,
+        taskId,
+        arm,
+        candidateSha256: before,
+        v1CheckpointSha256: sha256File(path.join(runsRoot, runId, 'result.json')),
+        grade,
+      };
+    });
+  return {
+    protocol: 'three-tier-v2',
+    sourceEvidence: 'excluded-failed-pilot-v1',
+    candidateCount: candidates.length,
+    candidates,
+  };
+}
+
 function usageForResult(result) {
   return totalUsage(result.firstPass, result.repair);
 }
@@ -730,6 +791,7 @@ async function runAll(root, experimentId, options = {}) {
     assertTokenBudget(root, declaration);
     const task = tasks.find(candidate => candidate.id === row.taskId);
     if (!task) throw new Error(`Missing task: ${row.taskId}`);
+    resetRunFixture(root, row, task);
     output.push(await executeRun(root, experimentId, row, task, options, declaration));
   }
   return output;
@@ -898,6 +960,12 @@ function argument(name, fallback) {
 
 async function main() {
   const command = process.argv[2];
+  if (command === 'regrade') {
+    const pilotRoot = argument('--pilot-root');
+    if (!pilotRoot) throw new Error('Usage: regrade --pilot-root DIR');
+    console.log(JSON.stringify(regradeCandidates(pilotRoot), null, 2));
+    return;
+  }
   const experimentId = argument('--experiment');
   assertSafeExperiment(experimentId);
   const root = argument('--root', path.join('/private/tmp', experimentId));
@@ -905,7 +973,7 @@ async function main() {
   else if (command === 'shakedown') console.log(JSON.stringify(await shakedown(root, experimentId), null, 2));
   else if (command === 'run') console.log(JSON.stringify(await runAll(root, experimentId, {runId: argument('--run-id')}), null, 2));
   else if (command === 'summarize') console.log(JSON.stringify(summarize(root, experimentId), null, 2));
-  else throw new Error('Usage: preflight|shakedown|run|summarize --experiment ID [--root DIR] [--run-id ID]');
+  else throw new Error('Usage: preflight|shakedown|run|summarize --experiment ID [--root DIR] [--run-id ID] | regrade --pilot-root DIR');
 }
 
 if (require.main === module) {
@@ -922,7 +990,9 @@ module.exports = {
   loadTierRegistry,
   buildReuseReceipts,
   buildThreeTierSchedule,
+  compileTreatment,
   preflight,
+  regradeCandidates,
   shakedown,
   runAll,
   summarize,
