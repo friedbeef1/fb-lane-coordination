@@ -27,6 +27,13 @@ and start a new Codex task.
 
 **Changelog approval:** Approved by James on 2026-07-29.
 
+**Release evidence:** Published from merged `main` commit `f3ed9a0`.
+Marketplace upgrade and reinstall reported
+`0.5.1-beta+codex.20260729135705` installed and enabled. The installed BFM and
+setup skills contain the permission-gated onboarding contract, the onboarding
+and CLI modules pass syntax checks, and the bundled MCP route resolves through
+the repository-relative `./tools/fb-lane.cjs` entry point.
+
 ### Automatic BFM worktrees
 
 **What changed:** After `$bfm` splits approved source work, FB now automatically

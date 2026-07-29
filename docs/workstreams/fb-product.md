@@ -1,17 +1,18 @@
 # FB-Product Workstream Status
 
-Last Updated: 2026-07-27
+Last Updated: 2026-07-29
 Lane: FB-Product
 
 ## TASK-062 — First-run `$bfm` onboarding and FB 0.5.1-beta
 
-- Status: Release checkpoint requested through **Push Live**.
+- Status: Done; published build installed and enabled.
 - Outcome: Bootstrap asks once for permission to create six repository-scoped
   sidebar tasks, detects legacy/current tasks, creates only missing workstreams,
   and leaves new tasks idle.
-- Release candidate: `0.5.1-beta+codex.20260729135705`.
-- Release gate: complete validator, merge to `main`, marketplace upgrade,
-  reinstall, and active plugin/MCP verification.
+- Published build: `0.5.1-beta+codex.20260729135705`.
+- Release evidence: complete validator passed once; GitHub `main` merge
+  `f3ed9a0`; marketplace upgrade, reinstall, active onboarding skills, and
+  bundled MCP verification passed.
 - Links: [Handoff](../handoffs/TASK-062.md) and
   [QA](../qa/TASK-062.md).
 

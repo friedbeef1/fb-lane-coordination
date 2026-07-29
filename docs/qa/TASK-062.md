@@ -12,6 +12,10 @@ The candidate implements one-time, permission-gated, repository-scoped
 six-workstream sidebar onboarding without creating any live Codex tasks during
 verification.
 
+Live release verification: passed. GitHub `main` contains merge `f3ed9a0`, and
+Codex reports `fb-lane-coordination@fb-lane` installed and enabled at
+`0.5.1-beta+codex.20260729135705`.
+
 ## Focused checks
 
 | Proof | Result |
@@ -65,7 +69,8 @@ contracts, doctor, syntax, and whitespace. No second broad validator was run.
 - The Codex app’s task-list arguments can vary by build. The skill retries only
   supported calls and falls back manually when it cannot prove a complete
   repository-scoped inventory.
-- At this checkpoint, no push, merge, marketplace publication, plugin
-  installation, or deployment had yet been performed.
-- James approved the changelog entry on 2026-07-29. The candidate is
-  **Ready to ship**; **Push Live** remains the external delivery boundary.
+- No sidebar tasks were created during release verification; each project still
+  requires its own one-time explicit permission.
+- James approved the changelog and **Push Live** on 2026-07-29. The release,
+  marketplace refresh, reinstall, and active plugin/MCP verification are
+  complete.

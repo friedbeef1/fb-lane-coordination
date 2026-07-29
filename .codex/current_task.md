@@ -1,8 +1,9 @@
 # Active Task Context
 * **Current Task**: TASK-062
 * **Lane**: FB-Tech
+* **Status**: Done
 * **BFM Class**: Full BFM
-* **Feature Branch**: tech/TASK-062-first-run-bfm-onboarding
+* **Release Vehicle**: GitHub `main` merge `f3ed9a0`; marketplace published
 * **Release Build**: `0.5.1-beta+codex.20260729135705`
 * **Locked Files**: `tools/fb-onboarding.cjs`,
   `tools/fb-onboarding.test.cjs`, `tools/fb-lane.cjs`,

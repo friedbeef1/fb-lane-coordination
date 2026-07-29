@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-062
 lane: fb-product
-status: ready
+status: done
 approval: approved
 fb_harness: v3
 record_model: normalized-v1
@@ -79,8 +79,12 @@ Release build: `0.5.1-beta+codex.20260729135705`
   [FB 0.5.1-beta](../../CHANGELOG.md#051-beta--2026-07-29).
 - Review state: not reviewable
 - Verification: [TASK-062 QA](../qa/TASK-062.md)
-- External gates: no push, merge, plugin publication, installation, or
-  deployment.
+- **Release:** Merged and pushed to GitHub `main` as `f3ed9a0`; marketplace
+  upgraded; `0.5.1-beta+codex.20260729135705` installed and enabled.
+- **Installed verification:** BFM/setup onboarding wording, root/package
+  manifests, onboarding/CLI syntax, and repository-relative bundled MCP route
+  passed.
+- External gates: none.
 
 ## Brief Validation
 
@@ -97,6 +101,6 @@ Status: pass
 - `$bfm` remains supported and `/bfm` remains intent only: satisfied.
 - Root/package alignment: 53 declared mirrors pass.
 
-Changelog approval was recorded from James on 2026-07-29. The candidate is
-**Ready to ship**. **Push Live** remains the separate authorization for push,
-merge, marketplace publication, installation, or deployment.
+Changelog and **Push Live** approval were recorded from James on 2026-07-29.
+The release is complete on GitHub `main`, in the `fb-lane` marketplace, and in
+the active Codex plugin installation.
