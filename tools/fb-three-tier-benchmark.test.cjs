@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const {spawnSync} = require('node:child_process');
 const {
   loadTierRegistry,
   buildReuseReceipts,
@@ -49,6 +50,36 @@ const RECEIPTS = {
   'meja-redesign:efficient-graph': {providerUsage: {inputTokens: 2206265, cachedInputTokens: 2056832, outputTokens: 25063, totalTokens: 2231328, authoritative: true}, wallTimeMs: 687966, acceptance: false, readiness: 0.6},
   'meja-redesign:vanilla': {providerUsage: {inputTokens: 3162376, cachedInputTokens: 2951552, outputTokens: 27176, totalTokens: 3189552, authoritative: true}, wallTimeMs: 766116, acceptance: false, readiness: 0.6},
 };
+
+const UNMIRROR_SOURCE_REPO = '/Users/jamesyeang/Projects/mirrorcam';
+const UNMIRROR_FIXTURES = {
+  'unmirror-intro-persistence': {sourceRef: 'a8a6290', acceptanceRefs: ['f618561']},
+  'unmirror-intro-polish': {sourceRef: 'a0e9702', acceptanceRefs: ['6c83c40']},
+  'unmirror-landscape-camera': {sourceRef: 'fb0dbe9', acceptanceRefs: ['fe6b69a']},
+  'unmirror-actual-reassurance': {sourceRef: 'f618561', acceptanceRefs: ['2cd5b90']},
+  'unmirror-unified-shutter': {sourceRef: '2d4a222', acceptanceRefs: ['5bd0e10']},
+  'unmirror-ios-camera-crash': {sourceRef: 'bb6b276', acceptanceRefs: ['e548495']},
+};
+
+function archiveHistoricalTree(ref, directory) {
+  const archive = spawnSync('git', ['-C', UNMIRROR_SOURCE_REPO, 'archive', '--format=tar', ref], {
+    encoding: null,
+    maxBuffer: 100 * 1024 * 1024,
+  });
+  assert.equal(archive.status, 0, archive.stderr?.toString('utf8'));
+  const extract = spawnSync('tar', ['-xf', '-', '-C', directory], {input: archive.stdout, encoding: 'utf8'});
+  assert.equal(extract.status, 0, extract.stderr);
+}
+
+function gradeHistoricalTree(task, directory) {
+  return require(path.join(
+    __dirname,
+    'fixtures',
+    'fb-three-tier-benchmark',
+    'graders',
+    `${task.grader}.cjs`,
+  )).grade(directory);
+}
 
 test('frozen registry has exactly the mandated three-tier task set and balanced total representation', () => {
   const tasks = loadTierRegistry();
@@ -109,5 +140,29 @@ test('three-tier schedule excludes reused pairs and schedules exactly the twelve
   assert.ok(schedule.every(row => row.counted && ['vanilla', 'efficient-graph'].includes(row.arm)));
   for (const taskId of new Set(schedule.map(row => row.taskId))) {
     assert.equal(schedule.filter(row => row.taskId === taskId).length, 2);
+  }
+});
+
+test('six Unmirror historical fixtures reject their start trees and accept their recorded states', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-three-tier-unmirror-'));
+  try {
+    const tasks = Object.fromEntries(loadTierRegistry().map(task => [task.id, task]));
+    for (const [id, expected] of Object.entries(UNMIRROR_FIXTURES)) {
+      const task = tasks[id];
+      assert.equal(task.sourceRepo, UNMIRROR_SOURCE_REPO, `${id} source repository`);
+      assert.equal(task.sourceRef, expected.sourceRef, `${id} source ref`);
+      assert.deepEqual(task.acceptanceRefs, expected.acceptanceRefs, `${id} accepted refs`);
+
+      const start = path.join(directory, `${id}-start`);
+      const accepted = path.join(directory, `${id}-accepted`);
+      fs.mkdirSync(start);
+      fs.mkdirSync(accepted);
+      archiveHistoricalTree(task.sourceRef, start);
+      archiveHistoricalTree(task.acceptanceRefs.at(-1), accepted);
+      assert.equal(gradeHistoricalTree(task, start).pass, false, `${id} start unexpectedly passed`);
+      assert.equal(gradeHistoricalTree(task, accepted).pass, true, `${id} accepted state failed`);
+    }
+  } finally {
+    fs.rmSync(directory, {recursive: true, force: true});
   }
 });
