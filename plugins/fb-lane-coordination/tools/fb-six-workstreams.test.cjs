@@ -85,6 +85,16 @@ try {
       /READINESS_FALSE_NEGATIVE[\s\S]*orphan\.md/i,
       'an empty canonical scan must fail when a configured orphan root contains a Ready-like handoff'
     );
+
+    fs.writeFileSync(
+      path.join(canonical, 'docs', 'handoffs', 'selected.md'),
+      handoff('PRODUCT-SELECTED', 'fb-product', 'ready')
+    );
+    assert.throws(
+      () => scanWorkstreamHandoffs(canonical),
+      /READINESS_FALSE_NEGATIVE[\s\S]*orphan\.md/i,
+      'one selected canonical handoff must not conceal another Ready-like off-home handoff'
+    );
   } finally {
     fs.rmSync(canonical, { recursive: true, force: true });
     fs.rmSync(orphan, { recursive: true, force: true });

@@ -71,6 +71,7 @@ function assertAlignedSkills() {
   assert.match(bfm, /scanWorkstreamHandoffs/);
   assert.match(bfm, /require\(['"]\.\/tools\/fb-lane\.cjs['"]\)/);
   assert.match(bfm, /orphan|off-home/i);
+  assert.match(bfm, /even when[\s\S]{0,100}(?:another|one or more)[\s\S]{0,80}(?:selected|Ready)/i);
   assert.match(bfm, /routing[\s\S]{0,80}(fail|persist)/i);
   assert.match(bfm, /None\s+relevant/);
   assert.match(bfm, /duplicate|contradict/i);

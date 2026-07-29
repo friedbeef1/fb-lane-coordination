@@ -460,9 +460,9 @@ function handoffAuditRoots(rootDir) {
 }
 
 function assertNoOrphanReadyHandoffs(rootDir, selected) {
-  if (selected.length > 0) return;
   const primary = path.resolve(rootDir);
   const canonical = new Set();
+  const selectedCanonical = new Set(selected);
   const ready = [];
   const errors = [];
   for (const root of handoffAuditRoots(rootDir)) {
@@ -485,15 +485,16 @@ function assertNoOrphanReadyHandoffs(rootDir, selected) {
       }
     }
   }
-  const relevant = ready.filter(record =>
-    record.root === primary || !canonical.has(record.relative)
-  );
+  const relevant = ready.filter(record => {
+    if (record.root === primary) return !selectedCanonical.has(record.relative);
+    return !canonical.has(record.relative);
+  });
   if (relevant.length > 0) {
     const detail = relevant
       .map(record => `${record.root}/${record.relative} :: ${record.status}`)
       .join('; ');
     throw new Error(
-      `READINESS_FALSE_NEGATIVE: scanner selected none, but Ready-like orphan or off-home handoffs exist: ${detail}`
+      `READINESS_FALSE_NEGATIVE: Ready-like handoffs remain unselected after the canonical scan: ${detail}`
     );
   }
   if (errors.length > 0) {

@@ -44,7 +44,9 @@ Use `scan.selected` in canonical order, report blocked entries, and record
 The scanner fails closed on Ready-like orphan or off-home handoffs listed by
 linked worktrees, `FB_HANDOFF_AUDIT_ROOTS`, or the clone-local
 `.git/fb-handoff-audit-roots` registry. Never report an empty Ready queue after
-that failure; Product must reconcile the artifact into its authoritative home.
+that failure. The audit remains active even when another handoff was selected;
+one selected item must never conceal additional Ready work. Product must
+reconcile each artifact into its authoritative home.
 Planning work is not Ready when board, index, handoff, or workstream routing
 failed to persist. Record it as blocked with its recovery path instead.
 Stop on duplicate or contradictory ready-handoff errors. Product reconciles
