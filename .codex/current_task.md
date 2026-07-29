@@ -1,9 +1,14 @@
 # Active Task Context
-* **Current Task**: TASK-058
+* **Current Task**: TASK-062
 * **Lane**: FB-Tech
 * **BFM Class**: Full BFM
-* **Feature Branch**: tech/TASK-058-make-bfm-create-or-reuse-linked-worktrees-for-every-independent-source-changing-slice-without-user-setup-while-keeping-planning-only-and-overlapping-work-lightweight-or-sequential
-* **Locked Files**: `docs/fb/workflow.md`, `README.md`, `skills/bfm/SKILL.md`, `skills/fb-lane-coordination/SKILL.md`, `tools/fb-automatic-worktrees.test.cjs`, `CHANGELOG.md`, `docs/handoffs/TASK-058.md`, `docs/qa/TASK-058.md`
+* **Feature Branch**: tech/TASK-062-first-run-bfm-onboarding
+* **Locked Files**: `tools/fb-onboarding.cjs`,
+  `tools/fb-onboarding.test.cjs`, `tools/fb-lane.cjs`,
+  `tools/fb-package-manifest.json`, `skills/bfm/SKILL.md`,
+  `skills/project-coordination-setup/SKILL.md`, `docs/fb/start.md`,
+  `docs/setup.md`, `FAQ.md`, `CHANGELOG.md`, and TASK-062 records.
 
 ## Task Scope:
-Make `$bfm` create or reuse linked worktrees for every independent source-changing slice without user setup, while keeping planning-only and overlapping work lightweight or sequential
+Add one-time first-run permission and idempotent six-workstream Codex sidebar
+task onboarding after repository bootstrap.

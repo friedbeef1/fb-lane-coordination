@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-062 | In Progress | FB-Tech | First-run onboarding | After bootstrap, ask once for permission to create missing repository-scoped Product/User, Business, Design, Tech, Discovery, and Bugs sidebar tasks, with honest manual fallback | `tools/fb-onboarding.cjs tools/fb-onboarding.test.cjs tools/fb-lane.cjs tools/fb-package-manifest.json skills/bfm/SKILL.md skills/project-coordination-setup/SKILL.md docs/fb/start.md docs/setup.md FAQ.md CHANGELOG.md PROJECT_BOARD.md docs/handoffs/TASK-062.md docs/qa/TASK-062.md docs/handoffs/index.md .codex/current_task.md` | [Handoff](docs/handoffs/TASK-062.md) |
 | TASK-061 | Staging QA | FB-Tech | Board efficiency | Keep agent orientation compact by loading active board context only and mechanically archiving terminal board history after a size threshold | `tools/fb-board-context.cjs tools/fb-board-context.test.cjs tools/fb-lane.cjs tools/fb-lane.test.cjs tools/fb-package-manifest.json docs/fb/README.md docs/fb/records.md FAQ.md AGENTS.md .codex/rules.md templates/PROJECT_BOARD.md examples/my-app/AGENTS.md examples/my-app/.codex/rules.md skills/project-coordination-setup/SKILL.md PROJECT_BOARD.md docs/handoffs/TASK-061.md docs/qa/TASK-061.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-061.md) · [QA](docs/qa/TASK-061.md) |
 | TASK-059 | In Progress | FB-Tech | Three-tier real-work benchmark | Compare Vanilla Codex with Efficient-Graph FB across six easy, six medium, and six difficult historical tasks while preserving TASK-056 as immutable evidence | `tools/fb-three-tier-benchmark.cjs tools/fb-three-tier-benchmark.test.cjs tools/fixtures/fb-three-tier-benchmark docs/benchmarks/difficulty-tiers docs/handoffs/TASK-059.md docs/qa/TASK-059.md PROJECT_BOARD.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-059.md); [Plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md) |
 | TASK-058 | Staging QA | FB-Tech | Automatic worktree orchestration | Make `$bfm` create or reuse linked worktrees for every independent source-changing slice without user setup, while keeping planning-only and overlapping work lightweight or sequential | Canonical/package workflow and skills, README, focused contract, generated mirrors, changelog, and TASK-058 evidence | [Handoff](docs/handoffs/TASK-058.md); [QA](docs/qa/TASK-058.md); Ready to ship — **Push Live** required |
@@ -67,6 +68,37 @@
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
 
 ---
+
+### TASK-062 - First-run `$bfm` onboarding
+
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Tech
+*   **Area**: Bootstrap and Codex task onboarding
+*   **Scope**: Introduce FB after bootstrap, ask once for permission, identify
+    existing repository-scoped legacy/current workstream tasks, create only
+    missing sidebar tasks when Codex task tools are available, and provide an
+    honest manual fallback otherwise.
+*   **Out of Scope**: Automatic transcript discovery, starting work in new
+    tasks, source edits from workstream tasks, hosted state, plugin publication,
+    merge, installation, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let a new or upgraded FB project acquire its six durable
+        workstream entry points without repeated setup questions or duplicate
+        tasks.
+    *   **Key Results**: Bootstrap asks once; legacy four-task projects add
+        only Discovery and Bugs; current six-task projects add nothing; created
+        tasks are repository-scoped and idle; unavailable Codex task tools
+        produce a truthful manual path; `$bfm` remains canonical while `/bfm`
+        is recognized as intent.
+    *   **Definition of Done**: Focused RED/GREEN behavior tests, root/package
+        parity, bootstrap idempotency, task-matching fixtures, syntax, links,
+        and whitespace pass.
+    *   **Gate / Review Point**: User-visible changelog wording requires
+        approval before Ready to ship; no merge, publication, or deployment.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly requested implementation of
+        first-run `$bfm` onboarding.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-062.md).
 
 ### TASK-061 - Compact active board context
 
