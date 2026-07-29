@@ -21,14 +21,13 @@ without Codex task-management tools receive honest paste-ready manual prompts.
 Existing projects, handoffs, commands, worktrees, plugin identifiers, and
 **Push Live** authority remain unchanged.
 
-**Installation or upgrade:** No action until release. After publication,
-upgrade the `fb-lane` marketplace, reinstall
+**Installation or upgrade:** Upgrade the `fb-lane` marketplace, reinstall
 `fb-lane-coordination@fb-lane`, bootstrap or rerun bootstrap in the project,
 and start a new Codex task.
 
 **Changelog approval:** Approved by James on 2026-07-29.
 
-## Unreleased — automatic BFM worktrees
+### Automatic BFM worktrees
 
 **What changed:** After `$bfm` splits approved source work, FB now automatically
 creates or reuses one linked Git worktree for every independent,
@@ -49,8 +48,7 @@ workstreams, handoffs, and **Push Live** authority remain unchanged. Worktrees
 remain ordinary Git worktrees, and legacy `--no-worktree` remains a compatibility
 escape hatch rather than the default.
 
-**Installation or upgrade:** No action until release. After publication,
-upgrade the `fb-lane` marketplace, reinstall
+**Installation or upgrade:** Upgrade the `fb-lane` marketplace, reinstall
 `fb-lane-coordination@fb-lane`, and start a new Codex task.
 
 **Changelog approval:** Approved by James on 2026-07-29.

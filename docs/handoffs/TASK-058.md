@@ -48,7 +48,7 @@ Changelog expectation: required
 
 ## Changelog Decision
 
-Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#unreleased--automatic-bfm-worktrees)
+Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#automatic-bfm-worktrees)
 
 Changelog approval: approved by James on 2026-07-29.
 
@@ -93,7 +93,7 @@ Missing criteria: None.
   for branches checked out in linked worktrees. Branch normalization and exact
   task-token matching fixed the integration path; the regression now passes.
 - **Changelog:** updated —
-  [CHANGELOG.md](../../CHANGELOG.md#unreleased--automatic-bfm-worktrees);
+  [CHANGELOG.md](../../CHANGELOG.md#automatic-bfm-worktrees);
   wording approved by James on 2026-07-29.
 - **Review state:** not reviewable
 - **External gates:** Merge, publication, plugin installation, and deployment
