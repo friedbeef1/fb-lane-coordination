@@ -1,5 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
@@ -281,8 +282,12 @@ process.stdin.on('end', () => {
   else if (/fresh delta repair/i.test(prompt)) fs.writeFileSync(path.join(process.cwd(), 'repaired.txt'), 'accepted\\n');
   else fs.writeFileSync(path.join(process.cwd(), 'candidate.txt'), 'accepted\\n');
   process.stdout.write(JSON.stringify({type:'thread.started',thread_id:'fake-thread'}) + '\\n');
+  if (process.env.FAKE_SECRET_STATUS === '1') {
+    process.stdout.write(JSON.stringify({type:'turn.progress',status:'api_key=sk-private-value'}) + '\\n');
+  }
   if (process.env.FAKE_UNAUTHORITATIVE !== '1') {
-    process.stdout.write(JSON.stringify({type:'turn.completed',usage:{input_tokens:11,cached_input_tokens:2,output_tokens:7,total_tokens:18}}) + '\\n');
+    const total = Number(process.env.FAKE_TOTAL_TOKENS || 18);
+    process.stdout.write(JSON.stringify({type:'turn.completed',usage:{input_tokens:Math.max(0,total-7),cached_input_tokens:2,output_tokens:Math.min(7,total),total_tokens:total}}) + '\\n');
   } else {
     process.stdout.write(JSON.stringify({type:'turn.completed'}) + '\\n');
   }
@@ -508,7 +513,211 @@ test('summary recomputes tier outcomes from immutable reuse receipts plus checkp
     assert.equal(result.tiers.easy.arms.vanilla.atLeast80Proportion, 0.5);
     assert.equal(result.tiers.easy.arms.vanilla.providerUsage.totalTokens, 68);
     assert.equal(result.tiers.easy.arms['efficient-graph'].providerUsage.totalTokens, 58);
+    assert.equal(result.runs.length, 4);
+    assert.equal(result.pairs.length, 2);
+    assert.ok(result.tiers.easy.arms.vanilla.wallTimeRangeMs.min <= 100);
+    assert.ok(result.tiers.easy.arms.vanilla.wallTimeRangeMs.max >= 100);
+    assert.ok(Number.isFinite(result.tiers.easy.arms.vanilla.wallTimeMedianMs));
+    assert.ok(Number.isFinite(result.tiers.easy.arms.vanilla.providerTokensMedian));
+    assert.equal(result.tiers.easy.arms.vanilla.repairUsed, 0);
+    assert.equal(result.tiers.easy.arms['efficient-graph'].repairUsed, 0);
+    assert.equal(
+      result.tiers.easy.signedDifferences.providerTokens,
+      result.tiers.easy.arms['efficient-graph'].providerUsage.totalTokens -
+        result.tiers.easy.arms.vanilla.providerUsage.totalTokens,
+    );
+    assert.ok(result.pairs.every(pair => Number.isFinite(pair.signedDifferences.providerTokens)));
   } finally {
     fs.rmSync(fixture.directory, {recursive: true, force: true});
   }
 });
+
+test('new-spend budget excludes immutable reuse receipts and rechecks reserve before repair', async () => {
+  const fixture = makeControllerFixture();
+  try {
+    const reused = [{
+      originalResultHash: 'a'.repeat(64),
+      declarationHash: 'b'.repeat(64),
+      taskId: 'reused-easy',
+      arm: 'vanilla',
+      providerUsage: {inputTokens: 900, cachedInputTokens: 0, outputTokens: 100, totalTokens: 1_000, authoritative: true},
+      wallTimeMs: 1,
+      acceptance: true,
+      readiness: 1,
+      repairUsed: false,
+    }];
+    const tasks = [
+      {...fixture.task},
+      {id: 'reused-easy', tier: 'easy', project: 'MÉJA', reuse: 'TASK-056', sourceRef: '1234567', acceptanceRefs: ['1234568']},
+    ];
+    const passOptions = controllerOptions(fixture, {
+      tasks,
+      reuseReceipts: reused,
+      aggregateTokenCeiling: 20,
+      maximumProviderTokensPerRun: 19,
+    });
+    preflight(fixture.root, fixture.experimentId, passOptions);
+    await shakedown(fixture.root, fixture.experimentId, passOptions);
+    const declaration = JSON.parse(fs.readFileSync(path.join(fixture.root, 'declaration.json'), 'utf8')).result;
+    const [result] = await runAll(fixture.root, fixture.experimentId, {
+      ...passOptions,
+      runId: declaration.schedule[0].runId,
+    });
+    assert.equal(result.firstPass.usage.totalTokens, 18);
+
+    const repairFixture = makeControllerFixture();
+    try {
+      const repairOptions = controllerOptions(repairFixture, {
+        aggregateTokenCeiling: 20,
+        maximumProviderTokensPerRun: 15,
+        env: {FAKE_TOTAL_TOKENS: '10'},
+        gradeCandidate(task, candidateDir) {
+          const pass = fs.existsSync(path.join(candidateDir, 'repaired.txt'));
+          return {criteria: [{id: 'candidate', pass}], passed: pass ? 1 : 0, total: 1, readiness: pass ? 1 : 0, pass};
+        },
+      });
+      const repairDeclaration = preflight(repairFixture.root, repairFixture.experimentId, repairOptions);
+      await shakedown(repairFixture.root, repairFixture.experimentId, repairOptions);
+      const [bounded] = await runAll(repairFixture.root, repairFixture.experimentId, {
+        ...repairOptions,
+        runId: repairDeclaration.schedule[0].runId,
+      });
+      assert.equal(bounded.repair, null);
+      assert.equal(bounded.repairSkippedReason, 'aggregate-token-ceiling');
+      assert.equal(fs.existsSync(path.join(
+        repairFixture.root,
+        'runs',
+        repairDeclaration.schedule[0].runId,
+        'fixture',
+        'repaired.txt',
+      )), false);
+    } finally {
+      fs.rmSync(repairFixture.directory, {recursive: true, force: true});
+    }
+
+    const overrunFixture = makeControllerFixture();
+    try {
+      const overrunOptions = controllerOptions(overrunFixture, {
+        aggregateTokenCeiling: 20,
+        maximumProviderTokensPerRun: 19,
+        env: {FAKE_TOTAL_TOKENS: '25'},
+      });
+      const overrunDeclaration = preflight(overrunFixture.root, overrunFixture.experimentId, overrunOptions);
+      await shakedown(overrunFixture.root, overrunFixture.experimentId, overrunOptions);
+      const overrunRow = overrunDeclaration.schedule[0];
+      await assert.rejects(
+        runAll(overrunFixture.root, overrunFixture.experimentId, {
+          ...overrunOptions,
+          runId: overrunRow.runId,
+        }),
+        /terminal token ceiling/i,
+      );
+      const terminal = JSON.parse(fs.readFileSync(
+        path.join(overrunFixture.root, 'runs', overrunRow.runId, 'result.json'),
+        'utf8',
+      )).result;
+      assert.equal(terminal.terminalReason, 'aggregate-token-ceiling-exceeded');
+      await assert.rejects(
+        runAll(overrunFixture.root, overrunFixture.experimentId, overrunOptions),
+        /terminal token ceiling/i,
+      );
+    } finally {
+      fs.rmSync(overrunFixture.directory, {recursive: true, force: true});
+    }
+  } finally {
+    fs.rmSync(fixture.directory, {recursive: true, force: true});
+  }
+});
+
+test('unauthoritative counted attempts reset cleanly and can be retried', async () => {
+  const fixture = makeControllerFixture();
+  try {
+    const options = controllerOptions(fixture);
+    const declaration = preflight(fixture.root, fixture.experimentId, options);
+    await shakedown(fixture.root, fixture.experimentId, options);
+    const row = declaration.schedule[0];
+    await assert.rejects(
+      runAll(fixture.root, fixture.experimentId, {
+        ...options,
+        runId: row.runId,
+        env: {FAKE_UNAUTHORITATIVE: '1'},
+      }),
+      /authoritative provider usage/i,
+    );
+    assert.equal(fs.existsSync(path.join(fixture.root, 'runs', row.runId, 'result.json')), false);
+    assert.equal(fs.existsSync(path.join(fixture.root, 'runs', row.runId, 'fixture', 'candidate.txt')), false);
+    const [retried] = await runAll(fixture.root, fixture.experimentId, {...options, runId: row.runId});
+    assert.equal(retried.firstPass.usage.authoritative, true);
+  } finally {
+    fs.rmSync(fixture.directory, {recursive: true, force: true});
+  }
+});
+
+test('declaration and checkpoints reject schedule or identity mutation even with a recomputed envelope hash', async () => {
+  const fixture = makeControllerFixture();
+  try {
+    const options = controllerOptions(fixture);
+    const declaration = preflight(fixture.root, fixture.experimentId, options);
+    await shakedown(fixture.root, fixture.experimentId, options);
+    const row = declaration.schedule[0];
+    await runAll(fixture.root, fixture.experimentId, {...options, runId: row.runId});
+
+    const checkpointFile = path.join(fixture.root, 'runs', row.runId, 'result.json');
+    const checkpoint = JSON.parse(fs.readFileSync(checkpointFile, 'utf8'));
+    checkpoint.result.arm = checkpoint.result.arm === 'vanilla' ? 'efficient-graph' : 'vanilla';
+    checkpoint.payloadSha256 = crypto.createHash('sha256')
+      .update(JSON.stringify(stableForTest(checkpoint.result)))
+      .digest('hex');
+    fs.chmodSync(checkpointFile, 0o644);
+    fs.writeFileSync(checkpointFile, `${JSON.stringify(checkpoint, null, 2)}\n`);
+    await assert.rejects(runAll(fixture.root, fixture.experimentId, options), /checkpoint binding mismatch/i);
+
+    const declarationFile = path.join(fixture.root, 'declaration.json');
+    const envelope = JSON.parse(fs.readFileSync(declarationFile, 'utf8'));
+    envelope.result.schedule.pop();
+    envelope.result.newCountedRuns = envelope.result.schedule.length;
+    envelope.payloadSha256 = crypto.createHash('sha256')
+      .update(JSON.stringify(stableForTest(envelope.result)))
+      .digest('hex');
+    fs.chmodSync(declarationFile, 0o644);
+    fs.writeFileSync(declarationFile, `${JSON.stringify(envelope, null, 2)}\n`);
+    assert.throws(() => summarize(fixture.root, fixture.experimentId, options), /schedule contract/i);
+  } finally {
+    fs.rmSync(fixture.directory, {recursive: true, force: true});
+  }
+});
+
+test('source fingerprint detects content changes to an already-dirty path', async () => {
+  const fixture = makeControllerFixture();
+  try {
+    const dirty = path.join(fixture.sourceRepo, 'dirty.txt');
+    fs.writeFileSync(dirty, 'before\n');
+    const options = controllerOptions(fixture);
+    preflight(fixture.root, fixture.experimentId, options);
+    await shakedown(fixture.root, fixture.experimentId, options);
+    fs.writeFileSync(dirty, 'after\n');
+    await assert.rejects(runAll(fixture.root, fixture.experimentId, options), /source status changed/i);
+  } finally {
+    fs.rmSync(fixture.directory, {recursive: true, force: true});
+  }
+});
+
+test('privacy export rejects sensitive string values, not only forbidden keys', async () => {
+  const fixture = makeControllerFixture();
+  try {
+    const options = controllerOptions(fixture, {env: {FAKE_SECRET_STATUS: '1'}});
+    preflight(fixture.root, fixture.experimentId, options);
+    await assert.rejects(shakedown(fixture.root, fixture.experimentId, options), /privacy rejection/i);
+    assert.equal(fs.existsSync(path.join(fixture.root, 'shakedown', 'result.json')), false);
+  } finally {
+    fs.rmSync(fixture.directory, {recursive: true, force: true});
+  }
+});
+
+function stableForTest(value) {
+  if (Array.isArray(value)) return value.map(stableForTest);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.keys(value).sort().map(key => [key, stableForTest(value[key])]));
+  }
+  return value;
+}
