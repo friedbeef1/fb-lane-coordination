@@ -255,6 +255,14 @@ test('protocol v2 easy graders reject unsafe or incomplete semantic mutations', 
       id: 'meja-first-timer-readiness',
       file: 'index.html',
       mutate: source => source.replaceAll('controllerAccess(', 'unrestrictedAccess('),
+    }, {
+      id: 'meja-sync-warning',
+      file: 'index.html',
+      mutate: source => source.replaceAll('role="alert"', 'role="status"'),
+    }, {
+      id: 'unmirror-ios-camera-crash',
+      file: 'ios-native/Unmirror/CameraController.swift',
+      mutate: source => source.replaceAll('isActive', 'ignoredActive'),
     }];
     for (const item of cases) {
       const task = tasks.get(item.id);

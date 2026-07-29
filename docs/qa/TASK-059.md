@@ -10,6 +10,7 @@ Status: protocol v2 ready for directional run
 | Immutable reuse | Six TASK-056 pairs reused without result mutation | Passed |
 | Graders | Historical start fails and accepted state passes | Passed |
 | Protocol correction | Granular scoring, semantic alternatives, equal facts, different treatment structure | Passed |
+| Selected-tier calibration | Medium and Difficult graders accept semantic outcomes and reject unsafe mutations | Passed |
 | Pilot preservation | Eight v1 checkpoints remain byte-identical and are excluded from claims | Passed |
 | Directional profile | One easy, medium, and difficult task per arm; six new runs | Passed |
 | Isolation | Source repositories receive no writes | Pending directional run |

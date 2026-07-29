@@ -60,6 +60,13 @@ simulation on 2026-07-29:
 The six-run directional profile uses Unmirror intro preference persistence,
 MÉJA sync-warning presentation, and Unmirror iOS camera-crash prevention.
 
+The first Medium pair exposed two remaining exact historical-name assertions.
+Both candidates had implemented the observable warning, dismissal, styling, and
+non-blocking local-play behavior. Product therefore approved semantic
+outcome-level grading for the selected Medium and Difficult fixtures before
+spending on the Difficult pair. The original checkpoints remain immutable; the
+final report identifies the Medium scores as deterministic regrades.
+
 ## Changelog
 
 Changelog expectation: not expected — this task records experimental evidence
