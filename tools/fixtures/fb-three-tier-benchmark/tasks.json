@@ -1,0 +1,20 @@
+[
+  {"id":"unmirror-intro","tier":"easy","project":"Unmirror","reuse":"TASK-056","sourceRef":"2600f57","acceptanceRefs":["c6e5fde","de82cbc"]},
+  {"id":"unmirror-intro-persistence","tier":"easy","project":"Unmirror","traceStatus":"pending-task-2"},
+  {"id":"meja-scroll","tier":"easy","project":"MÉJA","reuse":"TASK-056","sourceRef":"cdfa26d","acceptanceRefs":["27f67cc","60c51f6"]},
+  {"id":"meja-topic-flip","tier":"easy","project":"MÉJA","traceStatus":"pending-task-3"},
+  {"id":"meja-back-navigation","tier":"easy","project":"MÉJA","traceStatus":"pending-task-3"},
+  {"id":"meja-first-timer-readiness","tier":"easy","project":"MÉJA","traceStatus":"pending-task-3"},
+  {"id":"unmirror-intro-polish","tier":"medium","project":"Unmirror","traceStatus":"pending-task-2"},
+  {"id":"unmirror-landscape-camera","tier":"medium","project":"Unmirror","traceStatus":"pending-task-2"},
+  {"id":"unmirror-actual-reassurance","tier":"medium","project":"Unmirror","traceStatus":"pending-task-2"},
+  {"id":"meja-home-scroll","tier":"medium","project":"MÉJA","traceStatus":"pending-task-3"},
+  {"id":"meja-sync-warning","tier":"medium","project":"MÉJA","traceStatus":"pending-task-3"},
+  {"id":"meja-redesign","tier":"medium","project":"MÉJA","reuse":"TASK-056","sourceRef":"a815a90","acceptanceRefs":["3bd46b2","469cf31"]},
+  {"id":"unmirror-saved-capture","tier":"difficult","project":"Unmirror","reuse":"TASK-056","sourceRef":"568a6b4","acceptanceRefs":["c26ab07","9b7cd27","5d5a33b","070ae67","191a69d","b4aaf03","afa47a6","fc359d6"]},
+  {"id":"unmirror-native-analytics","tier":"difficult","project":"Unmirror","reuse":"TASK-056","sourceRef":"71bf297","acceptanceRefs":["e548495","42bc97c"]},
+  {"id":"unmirror-unified-shutter","tier":"difficult","project":"Unmirror","traceStatus":"pending-task-2"},
+  {"id":"unmirror-ios-camera-crash","tier":"difficult","project":"Unmirror","traceStatus":"pending-task-2"},
+  {"id":"meja-pairing","tier":"difficult","project":"MÉJA","reuse":"TASK-056","sourceRef":"da4868f","acceptanceRefs":["53d6d8d","39dbbd7","ffe9c79","6eb73c2","bb817e0","1ff4f1d","1462645"]},
+  {"id":"meja-auth-hardening","tier":"difficult","project":"MÉJA","traceStatus":"pending-task-3"}
+]
