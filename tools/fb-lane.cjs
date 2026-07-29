@@ -407,6 +407,102 @@ function handoffFrontmatter(markdown) {
   return metadata;
 }
 
+function readyLikeHandoffStatus(markdown) {
+  const metadata = handoffFrontmatter(markdown);
+  if (metadata?.status && /^ready(?:\b|\s|—|-|:)/i.test(metadata.status.trim())) {
+    return metadata.status.trim();
+  }
+  const matches = [
+    ...String(markdown).matchAll(
+      /^\s*(?:[-*+]\s+)?(?:\*\*)?Status(?::(?:\*\*)?|\*\*:)\s*(.+?)\s*$/gim
+    ),
+  ];
+  const status = matches.at(-1)?.[1]?.replace(/\*\*$/u, '').trim() || '';
+  return /^ready(?:\b|\s|—|-|:)/i.test(status) ? status : '';
+}
+
+function handoffAuditRoots(rootDir) {
+  let linked = [rootDir];
+  let gitDirectory = path.join(rootDir, '.git');
+  try {
+    linked = execFileSync('git', ['worktree', 'list', '--porcelain'], {
+      cwd: rootDir,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .split(/\r?\n/)
+      .filter(line => line.startsWith('worktree '))
+      .map(line => line.slice('worktree '.length));
+    const common = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+      cwd: rootDir,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    gitDirectory = path.resolve(rootDir, common);
+  } catch {
+    // Temporary fixtures and pre-bootstrap projects may not be Git repositories.
+  }
+  const config = path.join(gitDirectory, 'fb-handoff-audit-roots');
+  const configured = fs.existsSync(config)
+    ? fs
+        .readFileSync(config, 'utf8')
+        .split(/\r?\n/)
+        .map(line => line.replace(/#.*$/u, '').trim())
+        .filter(Boolean)
+    : [];
+  const environment = String(process.env.FB_HANDOFF_AUDIT_ROOTS || '')
+    .split(path.delimiter)
+    .map(value => value.trim())
+    .filter(Boolean);
+  return [...new Set([...linked, ...configured, ...environment].map(value =>
+    path.resolve(rootDir, value)
+  ))];
+}
+
+function assertNoOrphanReadyHandoffs(rootDir, selected) {
+  if (selected.length > 0) return;
+  const primary = path.resolve(rootDir);
+  const canonical = new Set();
+  const ready = [];
+  const errors = [];
+  for (const root of handoffAuditRoots(rootDir)) {
+    const directory = path.join(root, 'docs', 'handoffs');
+    if (!fs.existsSync(directory)) continue;
+    for (const file of fs
+      .readdirSync(directory)
+      .filter(name => name.endsWith('.md') && name !== 'index.md')
+      .sort()
+      .reverse()) {
+      const relative = `docs/handoffs/${file}`;
+      if (root === primary) canonical.add(relative);
+      try {
+        const status = readyLikeHandoffStatus(
+          fs.readFileSync(path.join(directory, file), 'utf8')
+        );
+        if (status) ready.push({ root, relative, status });
+      } catch (error) {
+        errors.push(`${root}/${relative} (${error.code || 'READ_ERROR'})`);
+      }
+    }
+  }
+  const relevant = ready.filter(record =>
+    record.root === primary || !canonical.has(record.relative)
+  );
+  if (relevant.length > 0) {
+    const detail = relevant
+      .map(record => `${record.root}/${record.relative} :: ${record.status}`)
+      .join('; ');
+    throw new Error(
+      `READINESS_FALSE_NEGATIVE: scanner selected none, but Ready-like orphan or off-home handoffs exist: ${detail}`
+    );
+  }
+  if (errors.length > 0) {
+    throw new Error(
+      `READINESS_AUDIT_INCOMPLETE: handoff sources were unreadable: ${errors.join('; ')}`
+    );
+  }
+}
+
 function scanWorkstreamHandoffs(rootDir) {
   const handoffsDir = path.join(rootDir, 'docs', 'handoffs');
   const workstreams = Object.fromEntries(BFM_WORKSTREAMS.map(workstream => [workstream, { ready: [], blocked: [] }]));
@@ -435,7 +531,9 @@ function scanWorkstreamHandoffs(rootDir) {
     const result = workstreams[workstream];
     if (result.ready.length === 0 && result.blocked.length === 0) result.summary = 'None relevant';
   }
-  return { workstreams, selected: BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready) };
+  const selected = BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready);
+  assertNoOrphanReadyHandoffs(rootDir, selected);
+  return { workstreams, selected };
 }
 
 function workstreamStatusCardTemplate(laneName) {

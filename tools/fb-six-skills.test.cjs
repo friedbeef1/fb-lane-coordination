@@ -70,6 +70,8 @@ function assertAlignedSkills() {
   const bfm = read('plugins/fb-lane-coordination/skills/bfm/SKILL.md');
   assert.match(bfm, /scanWorkstreamHandoffs/);
   assert.match(bfm, /require\(['"]\.\/tools\/fb-lane\.cjs['"]\)/);
+  assert.match(bfm, /orphan|off-home/i);
+  assert.match(bfm, /routing[\s\S]{0,80}(fail|persist)/i);
   assert.match(bfm, /None\s+relevant/);
   assert.match(bfm, /duplicate|contradict/i);
   assert.match(bfm, /Pre-`\$bfm` approval attaches to the ready scope and handoffs[\s\S]{0,220}do not require those briefs to preexist invocation/i);

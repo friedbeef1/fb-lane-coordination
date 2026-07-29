@@ -41,6 +41,12 @@ const scan = scanWorkstreamHandoffs(projectRoot);
 
 Use `scan.selected` in canonical order, report blocked entries, and record
 `None relevant` only when the six-workstream scan/report requires a disposition.
+The scanner fails closed on Ready-like orphan or off-home handoffs listed by
+linked worktrees, `FB_HANDOFF_AUDIT_ROOTS`, or the clone-local
+`.git/fb-handoff-audit-roots` registry. Never report an empty Ready queue after
+that failure; Product must reconcile the artifact into its authoritative home.
+Planning work is not Ready when board, index, handoff, or workstream routing
+failed to persist. Record it as blocked with its recovery path instead.
 Stop on duplicate or contradictory ready-handoff errors. Product reconciles
 duplicates, conflicts, and dependencies, prioritizes, and creates the Project
 Start Brief plus Build Brief before execution. Pause only for a changed

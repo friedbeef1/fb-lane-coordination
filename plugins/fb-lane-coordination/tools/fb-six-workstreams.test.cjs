@@ -66,6 +66,30 @@ try {
     fs.rmSync(sparse, { recursive: true, force: true });
   }
 
+  const canonical = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-six-canonical-'));
+  const orphan = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-six-orphan-'));
+  try {
+    fs.mkdirSync(path.join(canonical, '.git'), { recursive: true });
+    fs.mkdirSync(path.join(canonical, 'docs', 'handoffs'), { recursive: true });
+    fs.mkdirSync(path.join(orphan, 'docs', 'handoffs'), { recursive: true });
+    fs.writeFileSync(
+      path.join(canonical, '.git', 'fb-handoff-audit-roots'),
+      `${orphan}\n`
+    );
+    fs.writeFileSync(
+      path.join(orphan, 'docs', 'handoffs', 'orphan.md'),
+      '# Orphan\n\n**Status:** Ready for Product/BFM sequencing\n'
+    );
+    assert.throws(
+      () => scanWorkstreamHandoffs(canonical),
+      /READINESS_FALSE_NEGATIVE[\s\S]*orphan\.md/i,
+      'an empty canonical scan must fail when a configured orphan root contains a Ready-like handoff'
+    );
+  } finally {
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(orphan, { recursive: true, force: true });
+  }
+
   fs.writeFileSync(path.join(root, 'docs', 'handoffs', '12-cross-workstream-duplicate.md'), handoff('PRODUCT-1', 'fb-bugs', 'ready', 'Contradictory duplicate.'));
   assert.throws(() => scanWorkstreamHandoffs(root), /duplicate|contradict/i);
 
