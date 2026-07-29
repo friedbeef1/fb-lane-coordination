@@ -12,7 +12,11 @@ exports.grade = root => grade(root, {criteria: [
   {id: 'android-normalized-preference', path: '^android-native/app/src/main/java/.*/MainActivity\\.kt$', subchecks: [
     {id: 'android-local-preferences', every: ['SharedPreferences', 'getSharedPreferences'], weight: 10},
     {id: 'android-restores-selection', any: ['readIntroExamplePreference', 'readSelectedIntroExample', 'resolveStoredIntroExample'], weight: 10},
-    {id: 'android-normalizes-invalid', any: ['normalizedIntroExampleLabel', 'normalizeIntroExampleSelection'], weight: 10},
+    {id: 'android-normalizes-invalid', any: [
+      'normalizedIntroExampleLabel[\\s\\S]{0,180}else\\s+"Female"',
+      'normalizeIntroExamplePreference[\\s\\S]{0,180}else\\s+"female"',
+      'normalizeStoredIntroExampleLabel[\\s\\S]{0,180}else\\s*->\\s*"Female"',
+    ], weight: 10},
     {id: 'android-persists-selection', every: ['putString', '\\.apply\\(\\)'], weight: 10},
   ]},
   {id: 'web-remount-test', path: '^src/App\\.test\\.tsx$', subchecks: [

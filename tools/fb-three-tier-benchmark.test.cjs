@@ -244,6 +244,11 @@ test('protocol v2 easy graders reject unsafe or incomplete semantic mutations', 
       file: 'src/components/IntroScreen.tsx',
       mutate: source => source.replaceAll('localStorage.setItem', 'discardedPreference'),
     }, {
+      id: 'unmirror-intro-persistence',
+      name: 'unmirror-intro-invalid-default',
+      file: 'android-native/app/src/main/java/ai/toughtalks/unmirror/MainActivity.kt',
+      mutate: source => source.replace('else "Female"', 'else "Male"'),
+    }, {
       id: 'meja-topic-flip',
       file: 'index.html',
       mutate: source => source.replaceAll('topic-flip', 'generic-motion'),
@@ -266,7 +271,7 @@ test('protocol v2 easy graders reject unsafe or incomplete semantic mutations', 
     }];
     for (const item of cases) {
       const task = tasks.get(item.id);
-      const candidate = path.join(directory, item.id);
+      const candidate = path.join(directory, item.name || item.id);
       fs.mkdirSync(candidate);
       archiveHistoricalTree(task.sourceRepo, task.acceptanceRefs.at(-1), candidate);
       const file = path.join(candidate, item.file);
@@ -330,6 +335,21 @@ test('directional profile selects one bounded representative per tier and no reu
   assert.deepEqual(profile.reuseReceipts, []);
   assert.equal(profile.aggregateTokenCeiling, 30_000_000);
   assert.equal(buildThreeTierSchedule(profile.tasks).length, 6);
+});
+
+test('directional evidence reports raw measurements and calibration limits', () => {
+  const docs = path.join(__dirname, '..', 'docs', 'benchmarks', 'difficulty-tiers');
+  const result = JSON.parse(fs.readFileSync(path.join(docs, 'TASK-059-directional-results.json'), 'utf8'));
+  const report = fs.readFileSync(path.join(docs, 'TASK-059-directional-results.md'), 'utf8');
+  assert.equal(result.runs.length, 6);
+  assert.equal(result.aggregate.vanilla.providerTokens, 3384809);
+  assert.equal(result.aggregate.efficientGraph.providerTokens, 1894419);
+  assert.equal(result.aggregate.efficientGraphVersusVanilla.providerTokenDifferencePercent, -44);
+  assert.equal(result.aggregate.efficientGraphVersusVanilla.wallTimeDifferencePercent, -7.3);
+  assert.ok(result.runs.every(run => run.semanticReadinessPercent === 100));
+  assert.match(report, /directional evidence, not a universal percentage/i);
+  assert.match(report, /physical-device, provider-backed, visual, or production readiness/i);
+  assert.match(report, /Cached input tokens are included/i);
 });
 
 test('shared grader scores weighted subchecks granularly and accepts semantic alternatives', () => {

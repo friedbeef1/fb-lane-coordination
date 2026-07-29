@@ -81,4 +81,41 @@ and does not alter user-visible plugin behavior.
 
 ## Task Receipt
 
-Pending implementation and evidence.
+- **Approved brief:** Compare equal-fact Vanilla and Efficient-Graph FB
+  treatments across realistic difficulty tiers without editing source
+  repositories.
+- **Scope change:** James approved a directional six-run profile after the
+  original readiness scale proved too coarse for the intended 90–95% signal.
+- **Candidate evidence:** Protocol v2 commits `7b2d352`, `324aa5a`,
+  `3cae162`, and `fdf55ee`; final evidence is in
+  [TASK-059 directional results](../benchmarks/difficulty-tiers/TASK-059-directional-results.md).
+- **Checks:** Historical accepted/start proofs, unsafe mutations,
+  equal-fact/different-structure contract, directional profile, privacy,
+  interrupted reset, package parity, syntax, links, and whitespace.
+- **Observed outcome:** Efficient Graph used 44.0% fewer raw provider tokens
+  and 7.3% less wall time across three task pairs, with both arms passing all
+  defined local outcomes. Graph was slower on the Difficult task.
+- **Calibration:** Original paid checkpoints remain immutable. Semantic
+  regrading changed only interpretation, not candidates, time, or usage.
+- **Review state:** not reviewable — benchmark evidence has no runnable product
+  candidate.
+- **Limits:** Three pairs; static/local grading; no physical-device,
+  provider-backed, visual, production, or human-attention measurement.
+- **External gates:** No merge, push, plugin publication, installation,
+  deployment, or release authorized.
+- **Repository state:** Source repositories remained read-only; only this FB
+  benchmark branch changed.
+- **Remaining owner/action:** Product reviews the directional claim and decides
+  whether it is sufficient or whether a larger preregistered study is worth
+  the cost.
+
+## Brief Validation
+
+Status: pass
+
+- Equal public facts and model: satisfied by frozen treatment hashes.
+- One Easy, Medium, and Difficult pair: satisfied by six immutable checkpoints.
+- Raw time and provider tokens: recorded from authoritative Codex usage.
+- Readiness: all defined semantic subchecks passed; unsafe mutations still
+  fail.
+- Honest limitations: recorded in the result report and QA artifact.

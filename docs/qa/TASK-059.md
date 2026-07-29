@@ -1,6 +1,6 @@
 # TASK-059 QA
 
-Status: protocol v2 ready for directional run
+Status: directional evidence complete; checking closeout
 
 ## Required evidence
 
@@ -13,10 +13,22 @@ Status: protocol v2 ready for directional run
 | Selected-tier calibration | Medium and Difficult graders accept semantic outcomes and reject unsafe mutations | Passed |
 | Pilot preservation | Eight v1 checkpoints remain byte-identical and are excluded from claims | Passed |
 | Directional profile | One easy, medium, and difficult task per arm; six new runs | Passed |
-| Isolation | Source repositories receive no writes | Pending directional run |
-| Controller | Equal arms, bounded repair, checkpoints, privacy, and 30M directional ceiling | Pending directional run |
-| Comparative runs | Six directional runs after one excluded shakedown | Pending |
-| Results | Tier-level wall time, tokens, acceptance, readiness, and limitations | Pending |
+| Isolation | Source repositories receive no writes | Passed at every counted checkpoint |
+| Controller | Equal arms, bounded repair, checkpoints, privacy, and 30M directional ceiling | Passed |
+| Comparative runs | Six directional runs after one excluded shakedown | Passed |
+| Results | Tier-level wall time, tokens, acceptance, readiness, and limitations | [Passed](../benchmarks/difficulty-tiers/TASK-059-directional-results.md) |
+
+## Directional result
+
+| Measure | Vanilla | Efficient Graph | Difference |
+|---|---:|---:|---:|
+| Wall time | 13m 04s | 12m 07s | Graph 7.3% lower |
+| Raw provider tokens | 3,384,809 | 1,894,419 | Graph 44.0% lower |
+| Defined local outcomes | 3/3 | 3/3 | no difference |
+| Repair passes | 3 | 3 | no difference |
+
+The result is directional static/local evidence. It does not prove
+physical-device, provider-backed, visual, or production readiness.
 
 ## External gates
 

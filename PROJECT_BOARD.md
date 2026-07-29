@@ -69,7 +69,7 @@
 
 ### TASK-059 - Three-Tier Real-Work FB Benchmark
 
-*   **Status**: In Progress
+*   **Status**: Checking
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Benchmarking
 *   **Scope**: Extend the real-work benchmark to six easy, six medium, and six
@@ -89,6 +89,8 @@
     *   **Approval**: approved
     *   **Justification**: James approved a realistic easy/medium/difficult comparison and explicitly requested implementation.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-059.md); [plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md); [QA](docs/qa/TASK-059.md).
+    Directional results: [report](docs/benchmarks/difficulty-tiers/TASK-059-directional-results.md);
+    [machine-readable evidence](docs/benchmarks/difficulty-tiers/TASK-059-directional-results.json).
 
 ### TASK-058 - Automatic BFM Worktree Orchestration
 
