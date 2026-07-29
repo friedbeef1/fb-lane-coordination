@@ -13,6 +13,7 @@ const {
   buildReuseReceipts,
   buildThreeTierSchedule,
   compileTreatment,
+  directionalProfile,
   preflight,
   regradeCandidates,
   shakedown,
@@ -308,6 +309,19 @@ test('protocol v2 facts are complete and equal while treatment structure differs
     }
     assert.notEqual(vanilla.prompt, graph.prompt);
   }
+});
+
+test('directional profile selects one bounded representative per tier and no reused evidence', () => {
+  const profile = directionalProfile();
+  assert.deepEqual(profile.tasks.map(task => task.id), [
+    'unmirror-intro-persistence',
+    'meja-sync-warning',
+    'unmirror-ios-camera-crash',
+  ]);
+  assert.deepEqual(profile.tasks.map(task => task.tier), ['easy', 'medium', 'difficult']);
+  assert.deepEqual(profile.reuseReceipts, []);
+  assert.equal(profile.aggregateTokenCeiling, 30_000_000);
+  assert.equal(buildThreeTierSchedule(profile.tasks).length, 6);
 });
 
 test('shared grader scores weighted subchecks granularly and accepts semantic alternatives', () => {

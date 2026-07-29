@@ -29,6 +29,11 @@ const REPAIR_TIMEOUT_MS = 10 * 60 * 1000;
 const AGGREGATE_TOKEN_CEILING = 60_000_000;
 const MAXIMUM_PROVIDER_TOKENS_PER_RUN = 6_000_000;
 const SAFE_EXPERIMENT = /^[a-z0-9-]+$/;
+const DIRECTIONAL_TASK_IDS = [
+  'unmirror-intro-persistence',
+  'meja-sync-warning',
+  'unmirror-ios-camera-crash',
+];
 const CANONICAL_REGISTRY_SHA256 = 'f7e5c3e5a29bb2a08453f46d729e4810de5551ab485891a8c9bcc31cc13afc41';
 const SOURCE_REPOS = new Set([
   '/Users/jamesyeang/Projects/mirrorcam',
@@ -284,6 +289,23 @@ function compileTreatment(task, arm) {
     promptSha256: hash(prompt),
     firstPassTimeoutMs: FIRST_PASS_TIMEOUT_MS,
     repairTimeoutMs: REPAIR_TIMEOUT_MS,
+  };
+}
+
+function directionalProfile() {
+  const tasksById = new Map(loadTierRegistry().map(task => [task.id, task]));
+  const tasks = DIRECTIONAL_TASK_IDS.map(id => {
+    const task = tasksById.get(id);
+    if (!task || task.reuse) throw new Error(`Directional task is unavailable: ${id}`);
+    return task;
+  });
+  if (new Set(tasks.map(task => task.tier)).size !== 3) {
+    throw new Error('Directional profile requires one task per tier');
+  }
+  return {
+    tasks,
+    reuseReceipts: [],
+    aggregateTokenCeiling: 30_000_000,
   };
 }
 
@@ -969,11 +991,14 @@ async function main() {
   const experimentId = argument('--experiment');
   assertSafeExperiment(experimentId);
   const root = argument('--root', path.join('/private/tmp', experimentId));
-  if (command === 'preflight') console.log(JSON.stringify(preflight(root, experimentId), null, 2));
-  else if (command === 'shakedown') console.log(JSON.stringify(await shakedown(root, experimentId), null, 2));
-  else if (command === 'run') console.log(JSON.stringify(await runAll(root, experimentId, {runId: argument('--run-id')}), null, 2));
-  else if (command === 'summarize') console.log(JSON.stringify(summarize(root, experimentId), null, 2));
-  else throw new Error('Usage: preflight|shakedown|run|summarize --experiment ID [--root DIR] [--run-id ID] | regrade --pilot-root DIR');
+  const profileName = argument('--profile');
+  if (profileName && profileName !== 'directional') throw new Error(`Unknown profile: ${profileName}`);
+  const options = profileName === 'directional' ? directionalProfile() : {};
+  if (command === 'preflight') console.log(JSON.stringify(preflight(root, experimentId, options), null, 2));
+  else if (command === 'shakedown') console.log(JSON.stringify(await shakedown(root, experimentId, options), null, 2));
+  else if (command === 'run') console.log(JSON.stringify(await runAll(root, experimentId, {...options, runId: argument('--run-id')}), null, 2));
+  else if (command === 'summarize') console.log(JSON.stringify(summarize(root, experimentId, options), null, 2));
+  else throw new Error('Usage: preflight|shakedown|run|summarize --experiment ID [--root DIR] [--run-id ID] [--profile directional] | regrade --pilot-root DIR');
 }
 
 if (require.main === module) {
@@ -991,6 +1016,7 @@ module.exports = {
   buildReuseReceipts,
   buildThreeTierSchedule,
   compileTreatment,
+  directionalProfile,
   preflight,
   regradeCandidates,
   shakedown,

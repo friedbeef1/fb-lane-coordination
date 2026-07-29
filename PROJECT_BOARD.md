@@ -75,16 +75,17 @@
 *   **Scope**: Extend the real-work benchmark to six easy, six medium, and six
     difficult historical tasks, comparing Vanilla Codex with Efficient-Graph
     FB under equal public facts, model, execution limits, and hidden grading.
-    Reuse the six completed TASK-056 pairs and run only the twelve missing
-    paired tasks.
+    Preserve the complete registry and TASK-056 baseline, but use the approved
+    directional profile for current spend: one representative task per tier
+    and two arms, for six new runs.
 *   **Out of Scope**: Editing source repositories, selective reruns, rewriting
     TASK-056 evidence, plugin behavior changes, release, merge, publication, or
     deployment.
 *   **Goal Alignment Session**:
     *   **Objective**: Produce realistic tiered evidence for FB time, token, readiness, and acceptance tradeoffs without hiding partial readiness behind strict pass/fail totals.
-    *   **Key Results**: Eighteen traceable historical tasks; six tasks per tier; twenty-four new counted runs; immutable reuse receipts for TASK-056; tier-level wall time, tokens, strict acceptance, and mean readiness; zero source-repository writes.
+    *   **Key Results**: Eighteen traceable historical tasks remain available; the directional study runs one task per tier and arm; the excluded v1 pilot remains immutable; tier-level wall time, tokens, strict acceptance, and granular readiness are reported; zero source-repository writes.
     *   **Definition of Done**: Registry traceability, source/accepted grader proof, controller lifecycle, privacy, token ceiling, result recomputation, focused syntax, links, and whitespace pass; valid unfavorable outcomes remain recorded.
-    *   **Gate / Review Point**: One excluded shakedown must pass before paid comparative runs; the aggregate provider-token ceiling is 60,000,000; no release action follows automatically.
+    *   **Gate / Review Point**: One excluded shakedown must pass before six paid comparative runs; the directional provider-token ceiling is 30,000,000; no release action follows automatically.
     *   **Approval**: approved
     *   **Justification**: James approved a realistic easy/medium/difficult comparison and explicitly requested implementation.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-059.md); [plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md); [QA](docs/qa/TASK-059.md).

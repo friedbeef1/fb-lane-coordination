@@ -42,6 +42,24 @@ Build a three-tier extension of TASK-056:
 - strict acceptance remains visible alongside mean readiness and the proportion
   of outcomes at or above 80% readiness.
 
+## Approved protocol correction
+
+After the initial paid pilot exposed a four-check readiness scale that could
+only report 0%, 25%, 50%, 75%, or 100%, James approved a smaller directional
+simulation on 2026-07-29:
+
+- preserve the eight completed pilot candidates as excluded calibration
+  evidence;
+- use granular observable subchecks so 90–95% readiness is measurable without
+  weakening must-pass requirements;
+- give both arms identical public facts while presenting Vanilla as a flat
+  brief and Efficient-Graph FB as a structured dependency packet;
+- run one representative easy, medium, and difficult task per arm;
+- report the result as directional evidence, not a universal product claim.
+
+The six-run directional profile uses Unmirror intro preference persistence,
+MÉJA sync-warning presentation, and Unmirror iOS camera-crash prevention.
+
 ## Changelog
 
 Changelog expectation: not expected — this task records experimental evidence
@@ -57,4 +75,3 @@ and does not alter user-visible plugin behavior.
 ## Task Receipt
 
 Pending implementation and evidence.
-
