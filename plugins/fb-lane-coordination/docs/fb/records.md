@@ -34,6 +34,28 @@ archived. Archive files remain durable history; this changes the default read
 path, not the source of truth. Each file write is atomic, and the two-file
 archive transition is safe to retry after interruption.
 
+## Why compact context does not hide important work
+
+The active packet is a navigation layer, not a replacement for project truth.
+FB minimizes missed work through conservative mechanical rules:
+
+| Safeguard | Effect |
+|---|---|
+| Archive only explicit terminal statuses | `In Progress`, `Ready`, `Blocked`, `Inbox`, `Staging QA`, and unknown statuses remain in active context. |
+| Retain active scope, ownership, locks, and links | An agent can see what is happening, who owns it, which files are protected, and where authoritative detail lives. |
+| Prioritize critical states | In-progress, blocked, and ready work is included before lower-priority active rows. |
+| Keep the full board authoritative | Open it when the packet is missing, contradictory, truncated, or insufficient for the current decision. |
+| Scan handoffs through their own index and statuses | `$bfm` does not depend on the compact board packet alone when discovering actionable work. |
+| Preserve archives as Markdown | Compaction moves terminal history; it never deletes it. |
+| Retain three recent terminal rows | Agents keep a small amount of immediate completion context without loading the entire history. |
+| Report packet overflow | If the 16,000-character bound omits lower-priority active rows, the packet says so instead of pretending it is complete. |
+| Use retry-safe writes | An interrupted archive transition can be rerun without duplicating records or losing the authoritative board. |
+| Keep focused regression evidence | CLI and MCP context, active-state retention, overflow, threshold behavior, archival, and retry behavior remain mechanically tested. |
+
+If completed work becomes relevant again, Product/BFM reactivates it or links
+it from a current handoff. Do not keep every historical row in every agent
+prompt merely because it could conceivably matter later.
+
 When MCP `fb_project_context` is available and the current task and question
 are known, use its capped graph-directed packet before the broad route. Open
 only the packet's relevant cited sources. The graph is derived navigation;

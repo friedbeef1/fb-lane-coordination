@@ -14,6 +14,7 @@
 | `node tools/fb-package-sync.cjs --check` | Passed: 50 declared mirrors agree |
 | Root/package board-context contract | Passed: 16/16 |
 | Node syntax and `git diff --check` | Passed |
+| Compact-context documentation and anchors | Passed: canonical/package mirror and FAQ/harness links resolve to the safeguard section |
 
 ## Context measurement
 

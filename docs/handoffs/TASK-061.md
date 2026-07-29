@@ -52,8 +52,8 @@ Evidence Against Product OKR: A complicated archival service would cost more pro
   archival on completed-task closeout; canonical and packaged operating
   guidance.
 - Changed surfaces: root and packaged CLI/runtime, focused tests, managed
-  bootstrap route, record guidance, setup skill, examples, and package
-  manifest.
+  bootstrap route, harness overview, record guidance, public FAQ, setup skill,
+  examples, and package manifest.
 - Checks: 8/8 focused board-context tests and 70/70 affected CLI tests passed.
 - Evidence: [TASK-061 verification](../qa/TASK-061.md)
 - Repository state: isolated branch

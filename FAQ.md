@@ -46,6 +46,17 @@ FB keeps the candidate in **Checking**, diagnoses the evidence, and makes only
 scoped repairs within the declared loop budget. It does not silently change the
 approved outcome or weaken a valid test.
 
+## Can compact board context make FB miss important work?
+
+The compact packet is navigation, not a replacement for project truth. It
+keeps active scope, owners, locks, blockers, staging candidates, and evidence
+links. Only explicit terminal statuses are archived; unfamiliar statuses stay
+visible. `$bfm` still scans the handoff index and handoff statuses separately.
+If the packet reports omitted rows or is insufficient or contradictory, FB
+opens the authoritative full board. Archived history remains durable Markdown
+and is never deleted. See
+[the complete safeguard table](docs/fb/records.md#why-compact-context-does-not-hide-important-work).
+
 ## Can a sidechat hand work to any main task?
 
 No. A sidechat routes only to the parent task it was opened from. If that

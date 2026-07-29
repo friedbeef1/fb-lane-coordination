@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-061 | Staging QA | FB-Tech | Board efficiency | Keep agent orientation compact by loading active board context only and mechanically archiving terminal board history after a size threshold | `tools/fb-board-context.cjs tools/fb-board-context.test.cjs tools/fb-lane.cjs tools/fb-lane.test.cjs tools/fb-package-manifest.json docs/fb/records.md AGENTS.md .codex/rules.md templates/PROJECT_BOARD.md examples/my-app/AGENTS.md examples/my-app/.codex/rules.md skills/project-coordination-setup/SKILL.md PROJECT_BOARD.md docs/handoffs/TASK-061.md docs/qa/TASK-061.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-061.md) · [QA](docs/qa/TASK-061.md) |
+| TASK-061 | Staging QA | FB-Tech | Board efficiency | Keep agent orientation compact by loading active board context only and mechanically archiving terminal board history after a size threshold | `tools/fb-board-context.cjs tools/fb-board-context.test.cjs tools/fb-lane.cjs tools/fb-lane.test.cjs tools/fb-package-manifest.json docs/fb/README.md docs/fb/records.md FAQ.md AGENTS.md .codex/rules.md templates/PROJECT_BOARD.md examples/my-app/AGENTS.md examples/my-app/.codex/rules.md skills/project-coordination-setup/SKILL.md PROJECT_BOARD.md docs/handoffs/TASK-061.md docs/qa/TASK-061.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-061.md) · [QA](docs/qa/TASK-061.md) |
 | TASK-059 | In Progress | FB-Tech | Three-tier real-work benchmark | Compare Vanilla Codex with Efficient-Graph FB across six easy, six medium, and six difficult historical tasks while preserving TASK-056 as immutable evidence | `tools/fb-three-tier-benchmark.cjs tools/fb-three-tier-benchmark.test.cjs tools/fixtures/fb-three-tier-benchmark docs/benchmarks/difficulty-tiers docs/handoffs/TASK-059.md docs/qa/TASK-059.md PROJECT_BOARD.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-059.md); [Plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md) |
 | TASK-058 | In Progress | FB-Tech | Automatic worktree orchestration | Make `$bfm` create or reuse linked worktrees for every independent source-changing slice without user setup, while keeping planning-only and overlapping work lightweight or sequential | `docs/fb/workflow.md`, `README.md`, `skills/bfm/SKILL.md`, `skills/fb-lane-coordination/SKILL.md`, `tools/fb-automatic-worktrees.test.cjs`, `CHANGELOG.md`, `docs/handoffs/TASK-058.md`, `docs/qa/TASK-058.md` | [Handoff](docs/handoffs/TASK-058.md) |
 | TASK-057 | Done | FB-Product / BFM + FB-Tech | Harness reliability | Prevent incomplete OKR records from reaching release validation | Normalized handoff template, focused record validation, generated plugin mirrors, and TASK-057 evidence | [Handoff](docs/handoffs/TASK-057.md); [QA evidence](docs/qa/TASK-057.md); merged and published as `708593a` |
@@ -75,7 +75,8 @@
 *   **Area**: Board efficiency
 *   **Scope**: Give agents a bounded active-only board packet and mechanically
     archive terminal board rows and detail blocks only after the board crosses
-    a conservative size threshold.
+    a conservative size threshold; keep the active harness overview and FAQ
+    aligned with the safety and fallback behavior.
 *   **Out of Scope**: Replacing Markdown, adding a database or dashboard,
     deleting handoffs or Git history, weakening lock checks, changing release
     authority, or rewriting historical archive content.
