@@ -11,6 +11,57 @@ Preserve the baseline, require evidence for pairwise criteria and selected
 gates, and stop isolated configuration candidates at exact Product approval.
 Never self-promote configuration or consume **Push Live**.
 
+## First-run sidebar onboarding
+
+`$bfm` is the supported invocation. Treat an explicit `/bfm` from the user as
+intent to invoke this skill when possible; do not document or implement it as a
+second runtime command.
+
+After bootstrap, inspect the clone-local receipt with
+`node tools/fb-onboarding.cjs status`. Bootstrap already displayed the
+permission question once. Do not ask it again on a later `$bfm`.
+
+- On explicit **Yes**, record
+  `node tools/fb-onboarding.cjs permission granted`.
+- On explicit **No**, record
+  `node tools/fb-onboarding.cjs permission declined` and continue without
+  sidebar setup.
+- When permission is pending and the current message is not the answer, do not
+  infer consent or block ordinary `$bfm` work.
+- When permission is granted and `reconciledAt` is absent, use Codex task tools
+  only if they are available:
+  1. Call `list_projects` and select the exact current repository project.
+  2. Call `list_threads` using only arguments supported by the current Codex
+     app, then filter by the exact project ID or repository path. If a search
+     argument is rejected, retry without it. Page only while the tool exposes a
+     reliable continuation cursor. If the repository-scoped inventory is
+     truncated or cannot be proved complete, stop and use the manual fallback;
+     never guess that a workstream is missing.
+  3. Recognize exact current/legacy titles: Product/User or Product, Business,
+     Design, Tech or Technical, Discovery, and Bugs, with or without an `FB`
+     prefix. Do not treat a general task such as “Design homepage” as the
+     Design workstream.
+  4. Create only missing tasks with `create_thread`, using the exact project ID
+     and a local environment—not a worktree. Generate each initial prompt with
+     `node tools/fb-onboarding.cjs prompt <workstream> <repository-root>`, then
+     title it `FB · <workstream>` with `set_thread_title`.
+  5. Do not send follow-up work. Each created task acknowledges setup and then
+     remains idle until the user asks it a concrete question.
+  6. After all six are observed, record
+     `node tools/fb-onboarding.cjs reconcile product,business,design,tech,discovery,bugs`.
+
+The user’s explicit Yes authorizes these six user-owned Codex tasks; it does
+not authorize source work. If project/task tools are unavailable or a complete
+repository-scoped inventory cannot be established, say that automatic Codex
+task creation is unavailable in the current environment, create nothing, and
+provide paste-ready prompts for the known missing workstreams. If the inventory
+itself is incomplete, provide all six prompts and tell the user to create only
+those not already present. Generate prompts with
+`node tools/fb-onboarding.cjs prompt <workstream> <repository-root>`. Never
+claim sidebar tasks were created without tool results. A partial failure
+remains unreconciled; rerun detection later and create only what is still
+missing.
+
 After actionable workstream handoffs are ready, `$bfm` activates Product
 reconciliation and authorizes execution of already-approved ready scope. Read
 [the FB harness](../../docs/fb/README.md), then

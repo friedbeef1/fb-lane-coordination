@@ -3,6 +3,8 @@
   "tools/fb-lane.test.cjs",
   "tools/fb-board-context.cjs",
   "tools/fb-board-context.test.cjs",
+  "tools/fb-onboarding.cjs",
+  "tools/fb-onboarding.test.cjs",
   "tools/fb-six-workstreams.test.cjs",
   "tools/fb-six-skills.test.cjs",
   "tools/fb-session.cjs",

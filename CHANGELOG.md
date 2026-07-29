@@ -1,5 +1,31 @@
 # Changelog
 
+## Unreleased — first-run `$bfm` onboarding
+
+**What changed:** After repository bootstrap, FB now introduces its six
+workstreams and asks once for permission to create repository-scoped
+Product/User, Business, Design, Tech, Discovery, and Bugs Codex sidebar tasks.
+It recognizes current and legacy workstream titles, creates only missing tasks,
+and leaves every new task idle. Existing four-task projects add only Discovery
+and Bugs. `$bfm` remains the supported invocation while `/bfm` may be treated
+as user intent.
+
+**Why it matters:** A new or upgraded project can acquire durable workstream
+entry points without manual sidebar setup, duplicate tasks, automatic source
+work, or repeated permission prompts.
+
+**Compatibility:** Declining task setup does not disable FB. Environments
+without Codex task-management tools receive honest paste-ready manual prompts.
+Existing projects, handoffs, commands, worktrees, plugin identifiers, and
+**Push Live** authority remain unchanged.
+
+**Installation or upgrade:** No action until release. After publication,
+upgrade the `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, bootstrap or rerun bootstrap in the project,
+and start a new Codex task.
+
+**Changelog approval:** Pending James approval.
+
 ## Unreleased — automatic BFM worktrees
 
 **What changed:** After `$bfm` splits approved source work, FB now automatically

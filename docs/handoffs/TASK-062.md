@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-062
 lane: fb-product
-status: in-progress
+status: implemented
 approval: approved
 fb_harness: v3
 record_model: normalized-v1
@@ -42,7 +42,8 @@ tools are absent.
 
 ## Build Brief
 
-1. Add a clone-local, ignored onboarding receipt with one-time prompt state.
+1. Add a clone-local onboarding receipt in the Git common directory, shared by
+   linked worktrees, with ignored `.fb/onboarding.json` as the non-Git fallback.
 2. Add pure repository/task matching and missing-workstream planning.
 3. Make fresh bootstrap print the permission card once and reruns remain quiet.
 4. Teach BFM/setup skills to use Codex `list_projects`, `list_threads`,
@@ -56,7 +57,42 @@ Changelog expectation: required
 
 ## Task Receipt
 
-- Changelog: pending — user-facing wording must be drafted and approved.
+- **Approved brief:** Implement one-time, permission-gated, repository-scoped
+  onboarding for six idle Codex sidebar tasks.
+- **Decisions preserved:** `$bfm` is canonical; `/bfm` is user intent only;
+  existing four-task projects gain only Discovery and Bugs; no task starts
+  work merely because it was created.
+- **Changed surfaces:** Bootstrap runtime, onboarding state/planning module,
+  focused tests, BFM/setup skills, active setup/start/FAQ guidance, changelog,
+  and mechanically generated plugin mirrors.
+- **Checks:** Root/package onboarding 26/26; package parity 53/53; affected
+  syntax and whitespace passed. Earlier current-candidate compatibility checks
+  passed CLI 70/70, beginner 10/10, automatic-worktree 11/11, compact-board
+  8/8, and the six-skill contract.
+- **Failure and recovery:** The first safe-inventory assertion matched literal
+  spaces and failed on a Markdown line wrap. The assertion was made
+  whitespace-tolerant and only the failed root/package proof was rerun.
+- **Changelog:** pending approval — the proposed entry is
+  [Unreleased — first-run `$bfm` onboarding](../../CHANGELOG.md#unreleased--first-run-bfm-onboarding).
 - Review state: not reviewable
+- Verification: [TASK-062 QA](../qa/TASK-062.md)
 - External gates: no push, merge, plugin publication, installation, or
   deployment.
+
+## Brief Validation
+
+Status: pass
+
+- Bootstrap introduces FB and asks once: satisfied by the persisted onboarding
+  receipt and rerun fixture.
+- Six repository-scoped tasks with legacy/current detection: satisfied by
+  exact path/project-ID fixtures.
+- Only missing tasks: satisfied by four-task and six-task fixtures.
+- New tasks idle with distinct instructions: satisfied for all six prompts.
+- Honest unavailable/incomplete-inventory fallback: satisfied structurally and
+  through rendered manual prompts.
+- `$bfm` remains supported and `/bfm` remains intent only: satisfied.
+- Root/package alignment: 53 declared mirrors pass.
+
+Remaining closeout action: James approves or revises the changelog wording;
+then Product may record the decision and move the candidate to Ready to ship.

@@ -17,6 +17,25 @@ Each relevant workstream uses the same mini-loop: **Question → Investigate →
 Gather evidence → Recommend → Create ready handoff MD**. A workstream that is
 not relevant does no manufactured work. Record **None relevant** only when a six-workstream scan or report requires a disposition for every workstream.
 
+## First bootstrap
+
+After repository bootstrap, FB introduces itself and asks once for permission
+to create six repository-scoped Codex sidebar tasks. These are durable entry
+points for Product/User, Business, Design, Tech, Discovery, and Bugs—not six
+mandatory agents or approval gates.
+
+With permission, FB detects exact current and legacy workstream tasks and
+creates only missing ones. A legacy four-task project gains Discovery and Bugs;
+a current six-task project gains nothing. New tasks start idle with their
+workstream question and do no investigation, source editing, or handoff work
+until the user asks them something.
+
+If Codex does not expose project/task creation tools—or cannot obtain a
+complete repository-scoped task list—FB says so and provides paste-ready
+prompts for manual task creation. It never guesses that a task is missing or
+implies that sidebar tasks exist without tool evidence. Declining setup does
+not disable FB.
+
 ## The single public sequence
 
 1. FB starts in whichever workstream or workstreams match the question.
@@ -25,6 +44,10 @@ not relevant does no manufactured work. Record **None relevant** only when a six
 4. `$bfm` activates Product reconciliation. Product must scan all six workstreams, reconcile duplicates, conflicts, and dependencies, prioritize the ready scope, and create the consolidated Project Start Brief and Build Brief as the durable record before source execution.
 5. `$bfm` authorizes execution of already-approved ready scope. Product pauses for the user only when reconciliation reveals a changed decision, disputed priority, sensitive boundary, conflict, or unclear scope.
 6. BFM implements and verifies the reconciled scope, then stops at **Ready to ship**. Only **Push Live** authorizes release, merge, or deployment.
+
+`$bfm` remains the supported invocation. If a user types `/bfm`, FB may
+interpret that as intent to run `$bfm`; `/bfm` is not a separate installed
+command.
 
 ## Terms in plain language
 

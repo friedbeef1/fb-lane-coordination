@@ -52,7 +52,7 @@ fb_lane_tmp="$(mktemp -d)"
 trap 'rm -rf "$fb_lane_tmp"' EXIT
 curl -fsSL "$FB_LANE_ARCHIVE_URL" | tar -xz -C "$fb_lane_tmp" --strip-components=1
 mkdir -p tools docs/fb docs/evals
-cp "$fb_lane_tmp"/tools/fb-{lane,session,eval,efficiency,changelog-closeout,records,project-graph,control-loop}.cjs tools/
+cp "$fb_lane_tmp"/tools/fb-{lane,onboarding,session,eval,efficiency,changelog-closeout,records,project-graph,control-loop}.cjs tools/
 cp "$fb_lane_tmp"/docs/fb/{README,start,workflow,evidence,guardrails,sessions,evals,records,graph,control-loop}.md docs/fb/
 cp "$fb_lane_tmp"/docs/evals/{eval-record-template,agent-behavior-scorecard-template}.md docs/evals/
 node tools/fb-lane.cjs bootstrap
@@ -66,6 +66,16 @@ What bootstrap creates:
 - handoff routing index in `docs/handoffs/index.md`
 - the ten-page harness, including `docs/fb/sessions.md`, `docs/fb/evals.md`, `docs/fb/records.md`, `docs/fb/graph.md`, and `docs/fb/control-loop.md`
 - Codex-ready lane guidance
+- one clone-local onboarding receipt in the Git common directory, shared by
+  linked worktrees, or ignored `.fb/onboarding.json` for a non-Git project;
+  plus a one-time permission question for repository-scoped Product/User,
+  Business, Design, Tech, Discovery, and Bugs sidebar tasks
+
+If permission is granted and Codex exposes task tools, FB recognizes existing
+legacy/current workstream tasks and creates only missing ones. Existing
+four-task projects receive Discovery and Bugs only. New tasks remain idle. If
+task tools are unavailable, FB provides manual prompts instead of claiming
+success.
 
 ## Upgrade Existing Codex Plugin Install
 

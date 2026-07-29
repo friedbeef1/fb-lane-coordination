@@ -27,6 +27,7 @@ const {
 const { validateNormalizedRepository } = require('./fb-records.cjs');
 const { projectContextPacket } = require('./fb-project-graph.cjs');
 const { renderBoardContext, compactBoardFiles } = require('./fb-board-context.cjs');
+const { ensureOnboardingReceipt } = require('./fb-onboarding.cjs');
 const {
   classifyExecutionMode,
   renderQuickRecord,
@@ -3086,14 +3087,21 @@ function installFbHarnessPack(rootDir) {
   }
 }
 
-function ensureGraphIgnore(rootDir) {
+function ensureFbIgnoreRule(rootDir, rule) {
   const ignorePath = path.join(rootDir, '.gitignore');
-  const rule = '.fb/graph/';
   const existing = fs.existsSync(ignorePath) ? fs.readFileSync(ignorePath, 'utf8') : '';
   if (existing.split(/\r?\n/).some(line => line.trim() === rule)) return false;
   const separator = existing && !existing.endsWith('\n') ? '\n' : '';
   fs.writeFileSync(ignorePath, `${existing}${separator}${rule}\n`, 'utf8');
   return true;
+}
+
+function ensureGraphIgnore(rootDir) {
+  return ensureFbIgnoreRule(rootDir, '.fb/graph/');
+}
+
+function ensureOnboardingIgnore(rootDir) {
+  return ensureFbIgnoreRule(rootDir, '.fb/onboarding.json');
 }
 
 // Main execution parsing
@@ -3278,6 +3286,8 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   installFbHarnessPack(rootDir);
   console.log('📝 Installed docs/fb/ harness pack.');
   if (ensureGraphIgnore(rootDir)) console.log('📝 Ignored derived .fb/graph/ artifacts.');
+  if (ensureOnboardingIgnore(rootDir)) console.log('📝 Ignored clone-local .fb/onboarding.json receipt.');
+  const onboarding = ensureOnboardingReceipt(rootDir);
   const harnessRoute = fbHarnessRoute();
   if (!fs.existsSync(agentsPath)) {
     fs.writeFileSync(agentsPath, `# Agent & Thread Coordination Rules — ${projectName}\n\n${harnessRoute}\n`, 'utf8');
@@ -3378,6 +3388,11 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('======================================================================');
   console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');
+  if (onboarding.shouldPrompt) {
+    console.log('Meet FB — Focus Bridge. FB connects six planning and evidence workstreams to one `$bfm` delivery loop.');
+    console.log('May I create six repository-scoped sidebar tasks: Product/User, Business, Design, Tech, Discovery, and Bugs?');
+    console.log('Reply Yes or No. FB asks this setup question once, creates only missing legacy/current workstreams, and leaves every new task idle.\n');
+  }
 }
 
 function main() {

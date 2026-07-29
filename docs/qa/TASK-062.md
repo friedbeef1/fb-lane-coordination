@@ -1,0 +1,62 @@
+# TASK-062 verification
+
+Date: 2026-07-29
+Candidate: `tech/TASK-062-first-run-bfm-onboarding`
+
+## Outcome
+
+System verification: passed.
+
+The candidate implements one-time, permission-gated, repository-scoped
+six-workstream sidebar onboarding without creating any live Codex tasks during
+verification.
+
+## Focused checks
+
+| Proof | Result |
+|---|---|
+| Root and packaged onboarding behavior | 26/26 passed |
+| Legacy four-task migration | Product, Business, Design, and Tech produce only Discovery and Bugs as missing |
+| Current six-task idempotency | No missing tasks and no duplicate creation plan |
+| Repository isolation | Other-project tasks do not satisfy the current repository |
+| Codex project identity | Exact project IDs work when task summaries omit paths |
+| One-time permission | Receipt prompts once and persists the response |
+| Linked worktrees | One Git clone shares one receipt through the Git common directory |
+| Idle task instructions | Six distinct prompts prohibit investigation, edits, handoffs, and implementation until asked |
+| Incomplete task inventory | Automatic creation stops; FB never guesses that a task is missing |
+| Manual fallback | Paste-ready prompts are produced without claiming automatic creation |
+| Invocation | `$bfm` remains canonical; `/bfm` is recognized only as user intent |
+| Bootstrap rerun | The permission question appears on the first run and not the second |
+| Package generation | 53/53 declared mirrors aligned |
+| Node syntax | Root/package onboarding and bootstrap tools passed `node --check` |
+| Whitespace | `git diff --check` passed |
+
+## Commands
+
+```bash
+node --test tools/fb-onboarding.test.cjs \
+  plugins/fb-lane-coordination/tools/fb-onboarding.test.cjs
+node tools/fb-package-sync.cjs --check
+node --check tools/fb-onboarding.cjs
+node --check tools/fb-lane.cjs
+node --check plugins/fb-lane-coordination/tools/fb-onboarding.cjs
+node --check plugins/fb-lane-coordination/tools/fb-lane.cjs
+git diff --check
+```
+
+Earlier compatibility checks on the same candidate also passed the root CLI
+(70/70), beginner experience (10/10), six-skill contract, automatic-worktree
+(11/11), and compact-board (8/8) suites. Later changes were limited to
+onboarding inventory safety wording and its focused structural assertion, so
+those unrelated suites were not rerun.
+
+## Limits
+
+- No live sidebar tasks were created. Creation requires the user’s explicit
+  Yes after a project’s bootstrap prompt.
+- The Codex app’s task-list arguments can vary by build. The skill retries only
+  supported calls and falls back manually when it cannot prove a complete
+  repository-scoped inventory.
+- No push, merge, marketplace publication, plugin installation, or deployment
+  was performed.
+- The candidate remains **Checking** until the changelog entry is approved.
