@@ -1,0 +1,60 @@
+---
+type: fb-lane-handoff
+task: TASK-059
+lane: fb-product
+status: ready
+approval: approved
+fb_harness: v3
+record_model: normalized-v1
+---
+
+# TASK-059 — Three-Tier Real-Work FB Benchmark
+
+## Goal Alignment
+
+- **Objective:** Quantify where FB saves time and tokens across realistic task
+  difficulty without hiding partial readiness behind all-or-nothing acceptance.
+- **Key results:** Six easy, six medium, and six difficult traceable historical
+  tasks; Vanilla Codex and Efficient-Graph FB receive equal facts and limits;
+  TASK-056 remains immutable; only twelve missing pairs are run; results report
+  time, provider tokens, strict acceptance, and mean readiness by tier.
+- **Definition of done:** Registry and grader traceability, controller
+  lifecycle, privacy, token ceiling, result recomputation, links, syntax, and
+  whitespace pass. Valid unfavorable outcomes are preserved.
+- **Gate:** One excluded shakedown before paid comparative runs; 60,000,000
+  aggregate provider-token ceiling.
+- **Approval:** Approved by James.
+
+## Approved Build Brief
+
+Build a three-tier extension of TASK-056:
+
+- easy: six isolated or narrow historical tasks;
+- medium: six multi-surface or multi-workstream tasks;
+- difficult: six repair-heavy, sensitive, or deeply reconciled tasks;
+- arms: Vanilla Codex and Efficient-Graph FB;
+- model: `gpt-5.4`;
+- first pass: 20 minutes;
+- repair: one fresh-delta pass of at most 10 minutes;
+- reuse the six TASK-056 pairs through immutable receipts;
+- run only the twelve missing pairs, for 24 new counted runs;
+- source repositories remain read-only;
+- strict acceptance remains visible alongside mean readiness and the proportion
+  of outcomes at or above 80% readiness.
+
+## Changelog
+
+Changelog expectation: not expected — this task records experimental evidence
+and does not alter user-visible plugin behavior.
+
+## Boundaries
+
+- No selective reruns of unfavorable valid results.
+- No substitution for an untraceable historical task without Product approval.
+- No transcript or private-reasoning capture.
+- No plugin release, merge, publication, or deployment authority.
+
+## Task Receipt
+
+Pending implementation and evidence.
+
