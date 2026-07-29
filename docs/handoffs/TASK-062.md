@@ -70,7 +70,8 @@ Release build: `0.5.1-beta+codex.20260729135705`
 - **Checks:** Root/package onboarding 26/26; package parity 53/53; affected
   syntax and whitespace passed. Earlier current-candidate compatibility checks
   passed CLI 70/70, beginner 10/10, automatic-worktree 11/11, compact-board
-  8/8, and the six-skill contract.
+  8/8, and the six-skill contract. The complete release validator passed once
+  on clean release commit `0847f39`.
 - **Failure and recovery:** The first safe-inventory assertion matched literal
   spaces and failed on a Markdown line wrap. The assertion was made
   whitespace-tolerant and only the failed root/package proof was rerun.

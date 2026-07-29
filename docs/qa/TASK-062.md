@@ -2,6 +2,7 @@
 
 Date: 2026-07-29
 Candidate: `tech/TASK-062-first-run-bfm-onboarding`
+Release build: `0.5.1-beta+codex.20260729135705`
 
 ## Outcome
 
@@ -28,8 +29,10 @@ verification.
 | Invocation | `$bfm` remains canonical; `/bfm` is recognized only as user intent |
 | Bootstrap rerun | The permission question appears on the first run and not the second |
 | Package generation | 53/53 declared mirrors aligned |
+| Plugin metadata | Root/package 0.5.1-beta contracts passed |
 | Node syntax | Root/package onboarding and bootstrap tools passed `node --check` |
 | Whitespace | `git diff --check` passed |
+| Complete release validator | Passed once after **Push Live** authorization |
 
 ## Commands
 
@@ -50,6 +53,11 @@ Earlier compatibility checks on the same candidate also passed the root CLI
 onboarding inventory safety wording and its focused structural assertion, so
 those unrelated suites were not rerun.
 
+At the explicit release checkpoint, `node tools/fb-lane.validate.cjs` passed
+once on clean commit `0847f39`. It covered declared mirrors, plugin manifests,
+skill metadata, 70 CLI/bootstrap checks, session/eval and active documentation
+contracts, doctor, syntax, and whitespace. No second broad validator was run.
+
 ## Limits
 
 - No live sidebar tasks were created. Creation requires the user’s explicit
@@ -57,7 +65,7 @@ those unrelated suites were not rerun.
 - The Codex app’s task-list arguments can vary by build. The skill retries only
   supported calls and falls back manually when it cannot prove a complete
   repository-scoped inventory.
-- No push, merge, marketplace publication, plugin installation, or deployment
-  was performed.
+- At this checkpoint, no push, merge, marketplace publication, plugin
+  installation, or deployment had yet been performed.
 - James approved the changelog entry on 2026-07-29. The candidate is
   **Ready to ship**; **Push Live** remains the external delivery boundary.

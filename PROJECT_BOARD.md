@@ -72,7 +72,8 @@
 ### TASK-062 - First-run `$bfm` onboarding
 
 *   **Status**: Staging QA — Ready to ship; implementation, focused
-    verification, and changelog approval passed.
+    verification, changelog approval, and the single complete release
+    checkpoint passed.
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Bootstrap and Codex task onboarding
 *   **Scope**: Introduce FB after bootstrap, ask once for permission, identify
