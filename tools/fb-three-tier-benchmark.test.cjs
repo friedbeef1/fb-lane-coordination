@@ -202,3 +202,30 @@ test('six MÉJA historical fixtures reject their start trees and accept their re
     fs.rmSync(directory, {recursive: true, force: true});
   }
 });
+
+test('MÉJA auth-hardening grader rejects an AI dispatch reordered before authentication and rate limiting', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-three-tier-meja-auth-order-'));
+  try {
+    const task = loadTierRegistry().find(candidate => candidate.id === 'meja-auth-hardening');
+    archiveHistoricalTree(MEJA_SOURCE_REPO, task.acceptanceRefs.at(-1), directory);
+    const functionPath = path.join(directory, 'supabase', 'functions', 'meja-ai', 'index.ts');
+    const source = fs.readFileSync(functionPath, 'utf8');
+    fs.writeFileSync(functionPath, source.replace(
+      "  const action = body.action || 'topic_pair';",
+      "  const action = body.action || 'topic_pair';\n  if (action === 'topic_pair') return json(await topicPair(body.theme || 'public speaking'), origin);",
+    ));
+
+    const result = gradeHistoricalTree(task, directory);
+    assert.equal(result.pass, false);
+    assert.equal(result.criteria.find(criterion => criterion.id === 'auth-and-rate-limit-before-paid-ai').pass, false);
+  } finally {
+    fs.rmSync(directory, {recursive: true, force: true});
+  }
+});
+
+test('public task facts reject exact hidden grader answer literals', () => {
+  const publicFacts = loadTierRegistry().flatMap(task => Object.values(task.publicFacts || {}));
+  const publicText = JSON.stringify(publicFacts);
+  assert.doesNotMatch(publicText, /440ms/);
+  assert.doesNotMatch(publicText, /user_id filtering/);
+});
