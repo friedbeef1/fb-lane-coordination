@@ -16,10 +16,23 @@ it.** A short linked summary is allowed. A competing copy is not.
 | QA artifact | Command, candidate, worktree, environment, timestamps, exit status, counts, and bounded redacted output | Product decisions or board status |
 | Git | Source and commit history | Coordination interpretation |
 
-Read only what the current task needs: board active section → index → current
-handoff → relevant workstream card. Open historical records through links when
-the current task depends on them. A replacement decision records
+Read only what the current task needs. Start with
+`node tools/fb-lane.cjs status --context` or MCP
+`fb_lane_status({context:true})`, then follow its links to the index, current
+handoff, and relevant workstream card. The compact packet contains active work
+and locks, not completed history or detailed task blocks. Open the full board
+only when the packet is missing, contradictory, or insufficient. Open
+historical records through links when the current task depends on them. A
+replacement decision records
 `Supersedes: [previous decision](<path-or-url>)`.
+
+When the board exceeds 64 KiB, successful completed-task closeout
+mechanically retains the three most recent terminal rows and moves older
+terminal rows and matching detail blocks to monthly files under
+`docs/board/archive/`. Active, blocked, ready, and Staging QA rows are never
+archived. Archive files remain durable history; this changes the default read
+path, not the source of truth. Each file write is atomic, and the two-file
+archive transition is safe to retry after interruption.
 
 When MCP `fb_project_context` is available and the current task and question
 are known, use its capped graph-directed packet before the broad route. Open

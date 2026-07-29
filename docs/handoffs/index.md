@@ -12,6 +12,7 @@ Use this file as the first read for handoff discovery. `PROJECT_BOARD.md` remain
 
 | Task / Topic | Lane | Status | Depends / Blocks / Gate | Checks / Evidence | Detail |
 |---|---|---|---|---|---|
+| TASK-061 - Compact active board context | FB-Product / BFM + FB-Tech | Staging QA | Stack follows TASK-060 CLI correction; no release, publication, merge, or deployment | Focused RED/GREEN board packet, threshold archive, idempotency, package parity, syntax, and whitespace | [TASK-061.md](TASK-061.md) |
 | TASK-059 - Three-tier real-work benchmark | FB-Product / BFM + FB-Tech | Ready | Approved for isolated implementation; excluded shakedown before paid runs; 60M provider-token ceiling; no source-repository writes | Reuse six TASK-056 pairs and run twelve missing pairs across easy, medium, and difficult tiers | [TASK-059.md](TASK-059.md); [Plan](../superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md); [QA](../qa/TASK-059.md) |
 | TASK-058 - Automatic BFM worktree orchestration | FB-Product / BFM + FB-Tech | Ready | Approved for focused implementation; no merge, publication, installation, or deployment | Existing claim/quick primitives create linked worktrees; focused orchestration contract pending | [TASK-058.md](TASK-058.md) |
 | TASK-057 - Shift OKR validation left | FB-Product / BFM + FB-Tech | Done | Merged and published as `708593a`; active build installed | Root/package records 15/15; 48 mirrors; doctor Ready; installed cache and MCP route verified | [TASK-057.md](TASK-057.md); [QA](../qa/TASK-057.md) |

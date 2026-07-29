@@ -26,6 +26,7 @@ const {
 } = require('./fb-control-loop.cjs');
 const { validateNormalizedRepository } = require('./fb-records.cjs');
 const { projectContextPacket } = require('./fb-project-graph.cjs');
+const { renderBoardContext, compactBoardFiles } = require('./fb-board-context.cjs');
 const {
   classifyExecutionMode,
   renderQuickRecord,
@@ -1517,6 +1518,10 @@ function handleStatus(options = {}) {
     console.error('❌ Error: PROJECT_BOARD.md not found in this workspace.');
     process.exit(1);
   }
+  if (options.context) {
+    console.log(renderBoardContext(fs.readFileSync(boardPath, 'utf8')));
+    return;
+  }
   const { tasks } = parseBoard(boardPath);
   const rootDir = path.dirname(boardPath);
   const currentTaskPath = path.join(rootDir, '.codex', 'current_task.md');
@@ -2333,11 +2338,12 @@ function runTests(boardPath) {
   return true;
 }
 
-// Stage and commit the project board only if there are staged modifications
-function commitBoard(message) {
-  runGit('add PROJECT_BOARD.md');
+// Stage and commit the project board plus any exact archive files created by
+// mechanical compaction. Never stage the archive directory wholesale.
+function commitBoard(message, extraPaths = []) {
+  runGit(['add', 'PROJECT_BOARD.md', ...extraPaths]);
   try {
-    const staged = runGit('diff --cached --name-only PROJECT_BOARD.md');
+    const staged = runGit(['diff', '--cached', '--name-only', '--', 'PROJECT_BOARD.md', ...extraPaths]);
     if (staged.trim() !== '') {
       runGit(['commit', '-m', message]);
       return true;
@@ -2345,6 +2351,15 @@ function commitBoard(message) {
   } catch (err) {}
   console.log('ℹ️  Project board already up to date. No commit needed.');
   return false;
+}
+
+function completeBoardTask(boardPath, taskId, options = {}) {
+  updateBoardTask(boardPath, taskId, {
+    status: 'Done',
+    locks: '(None)',
+    lockedFiles: '(None)'
+  });
+  return compactBoardFiles(boardPath, options);
 }
 
 const NO_TESTS_SUBMIT_ERROR = 'Automated checks are required before Ready to ship; --no-tests cannot submit.';
@@ -2595,15 +2610,15 @@ function handleMerge(taskId) {
     process.exit(1);
   }
 
-  // Update board
-  updateBoardTask(boardPath, taskId, {
-    status: 'Done',
-    locks: '(None)',
-    lockedFiles: '(None)'
-  });
+  // Update the board and mechanically archive older terminal history only
+  // when the board exceeds the configured threshold.
+  const compaction = completeBoardTask(boardPath, taskId);
+  const archivePaths = compaction.archivePath
+    ? [path.relative(path.dirname(boardPath), compaction.archivePath)]
+    : [];
 
   // Commit board
-  commitBoard(`docs: complete ${taskId} and release locks`);
+  commitBoard(`docs: complete ${taskId} and release locks`, archivePaths);
 
   // Push main
   runGit('push origin main');
@@ -2694,11 +2709,12 @@ function handleMcpRequest(request) {
       tools: [
         {
           name: 'fb_lane_status',
-          description: 'Get the beginner project status card, with optional raw technical details.',
+          description: 'Get the beginner project status card, compact active-board context, or optional raw technical details.',
           inputSchema: {
             type: 'object',
             properties: {
               workspacePath: { type: 'string', description: 'Optional workspace/repo path to search for PROJECT_BOARD.md from.' },
+              context: { type: 'boolean', description: 'Show the bounded active-only board context used for agent orientation.' },
               details: { type: 'boolean', description: 'Show the raw technical workstream table.' }
             }
           }
@@ -2817,10 +2833,14 @@ function handleMcpRequest(request) {
           const { workspacePath, ...input } = toolArgs;
           message = JSON.stringify(routeArtifact(input));
         } else if (name === 'fb_lane_status') {
-          const { tasks } = parseBoard(boardPath);
-          message = toolArgs.details
-            ? renderTechnicalStatus(tasks, { format: 'mcp', workspaceRoot })
-            : renderBeginnerStatus(statusInputs(workspaceRoot, tasks));
+          if (toolArgs.context) {
+            message = renderBoardContext(fs.readFileSync(boardPath, 'utf8'));
+          } else {
+            const { tasks } = parseBoard(boardPath);
+            message = toolArgs.details
+              ? renderTechnicalStatus(tasks, { format: 'mcp', workspaceRoot })
+              : renderBeginnerStatus(statusInputs(workspaceRoot, tasks));
+          }
         } else if (name === 'fb_project_context') {
           const { taskId, question } = toolArgs;
           assertSafeTaskId(taskId);
@@ -2876,13 +2896,12 @@ function handleMcpRequest(request) {
           runGit('pull origin main');
           runGit(["merge", assertSafeBranchName(targetBranch)]);
 
-          updateBoardTask(boardPath, taskId, {
-            status: 'Done',
-            locks: '(None)',
-            lockedFiles: '(None)'
-          });
+          const compaction = completeBoardTask(boardPath, taskId);
+          const archivePaths = compaction.archivePath
+            ? [path.relative(path.dirname(boardPath), compaction.archivePath)]
+            : [];
 
-          commitBoard(`docs: complete ${taskId} and release locks`);
+          commitBoard(`docs: complete ${taskId} and release locks`, archivePaths);
           runGit('push origin main');
 
           try { runGit(["branch", "-d", assertSafeBranchName(targetBranch)]); } catch (e) {}
@@ -2930,9 +2949,12 @@ function fbHarnessRoute() {
   return `${FB_HARNESS_ROUTE_START}
 ## FB coordination route
 
-Read [the FB harness](docs/fb/README.md) after \`PROJECT_BOARD.md\`,
-\`docs/handoffs/index.md\`, and the linked handoff. Use the focused page that
-matches the task:
+Read [the FB harness](docs/fb/README.md) after using
+\`node tools/fb-lane.cjs status --context\` or
+\`fb_lane_status({context:true})\` for active work and locks. Then follow
+\`docs/handoffs/index.md\` and the linked handoff. Open the full
+\`PROJECT_BOARD.md\` only when the compact packet is insufficient or
+contradictory. Use the focused page that matches the task:
 
 Start in whichever workstream matches the question whenever planning or
 evidence is useful. Product/User is only for user and product questions, not
@@ -2942,8 +2964,9 @@ Product reconciles all six and records the consolidated Project Start Brief and
 Build Brief without a routine second approval; BFM then executes approved scope.
 
 For returning-project health, use \`$fb-lane status\` for the beginner card.
-For operational lock inspection, use CLI \`node tools/fb-lane.cjs status --details\`
-or MCP \`fb_lane_status({details:true})\`.
+For routine operational orientation, use CLI
+\`node tools/fb-lane.cjs status --context\` or MCP
+\`fb_lane_status({context:true})\`. Reserve \`--details\` for raw diagnostics.
 
 - First project, plan, lanes, or approval: [start.md](docs/fb/start.md)
 - Ownership, BFM execution, and closeout: [workflow.md](docs/fb/workflow.md)
@@ -3299,7 +3322,10 @@ function main() {
   } else if (command === 'mcp') {
     runMcpServer();
   } else if (command === 'status') {
-    handleStatus({ details: args.includes('--details') });
+    handleStatus({
+      details: args.includes('--details'),
+      context: args.includes('--context'),
+    });
   } else if (command === 'doctor') {
     handleDoctor();
   } else if (command === 'bootstrap') {
@@ -3354,7 +3380,7 @@ Usage:
   ${sessionUsage()}
   node tools/fb-lane.cjs bootstrap [--platform codex]   - Bootstrap project board, rules, tools, and folders
   node tools/fb-lane.cjs doctor                         - Check FB-Lane setup health without writing files
-  node tools/fb-lane.cjs status [--details]             - Print the beginner status card or raw technical table
+  node tools/fb-lane.cjs status [--details|--context]   - Print beginner status, raw technical details, or bounded active context
   node tools/fb-lane.cjs claim <id> <lane> [locks]      - Claim task in a linked worktree by default
   node tools/fb-lane.cjs claim ... --no-worktree        - Use the legacy single-checkout compatibility path
   node tools/fb-lane.cjs quick <lane> <locks> <desc> --approval-ref <reference> - Create an approved quick task in a linked worktree
@@ -3391,4 +3417,7 @@ module.exports = {
   TASK_ID_PATTERN,
   LANE_PATTERN,
   scanWorkstreamHandoffs,
+  renderBoardContext,
+  compactBoardFiles,
+  completeBoardTask,
 };

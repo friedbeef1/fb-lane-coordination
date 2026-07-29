@@ -919,14 +919,16 @@ function assertCodexBootstrap(args) {
       assert.match(source, /Test This Now and Verification Handoff: \[evidence\.md\]\(docs\/fb\/evidence\.md\)/, `${label} must map evidence and recovery work to evidence.md`);
       assert.match(source, /Sidechat-parent routing and recovery: \[guardrails\.md\]\(docs\/fb\/guardrails\.md\)/, `${label} must map sidechat-parent work to guardrails.md`);
       assert.match(source, /\[the project sidechat rule\]\(docs\/sidechat-parent-thread-routing\.md\)/, `${label} must retain the sidechat-parent route`);
-      const boardRead = source.indexOf('`PROJECT_BOARD.md`');
+      const contextRead = source.indexOf('status --context');
       const indexRead = source.indexOf('`docs/handoffs/index.md`');
       const handoffRead = source.indexOf('the linked handoff');
-      assert.ok(boardRead >= 0 && boardRead < indexRead && indexRead < handoffRead, `${label} must state the board → index → linked handoff read order`);
+      const boardFallback = source.indexOf('`PROJECT_BOARD.md`');
+      assert.ok(contextRead >= 0 && contextRead < indexRead && indexRead < handoffRead, `${label} must state the compact context → index → linked handoff read order`);
+      assert.ok(boardFallback > handoffRead, `${label} must keep the full board as a fallback after compact orientation`);
       assert.doesNotMatch(source, /## Project Start Brief|## Test This Now|### Verification Handoff/, `${label} must remain a thin route layer`);
       assertPublicRouteContract(label, source);
-      assert.match(source, /node tools\/fb-lane\.cjs status --details/, `${label} must opt into technical details for lock inspection`);
-      assert.match(source, /fb_lane_status\(\{details:true\}\)/, `${label} must request MCP details for lock inspection`);
+      assert.match(source, /node tools\/fb-lane\.cjs status --context/, `${label} must use bounded active context for routine orientation`);
+      assert.match(source, /fb_lane_status\(\{context:true\}\)/, `${label} must request bounded MCP context for routine orientation`);
       assert.match(source, /returning-project health[\s\S]*\$fb-lane status/i, `${label} must keep default status for returning health`);
     }
     assert.doesNotMatch(board + agents, /Mode Selection Trigger Rule|normal\/simple|FB light/i, 'generated coordination guidance must not expose internal mode routing');

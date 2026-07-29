@@ -34,6 +34,14 @@ orientation. For a known task and question, agents call MCP
 The graph is not a source of truth. Missing, stale, unhealthy, incomplete, or
 contradictory packets fall back to the board → index → handoff → card route.
 
+For routine session orientation, use CLI
+`node tools/fb-lane.cjs status --context` or MCP
+`fb_lane_status({context:true})`. It returns a bounded active-only board packet.
+Open the full board only when that packet is insufficient or contradictory.
+Completed-task closeout mechanically archives older terminal board history
+after the board exceeds 64 KiB, while retaining the three most recent terminal
+rows and every active or blocked row. This adds no user ceremony.
+
 - [First-project contract and approval boundary](../../docs/fb/start.md)
 - [Board/index/handoff/workstream roles and execution](../../docs/fb/workflow.md)
 - [Review and verification evidence](../../docs/fb/evidence.md)

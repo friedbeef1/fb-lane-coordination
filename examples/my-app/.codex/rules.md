@@ -4,7 +4,9 @@
 This project uses the FB-Lane Four-Lane Coordination Model.
 
 ### On every session start
-1. Read `PROJECT_BOARD.md` — check active tasks and file locks.
+1. Run `node tools/fb-lane.cjs status --context` — check active tasks and file
+   locks without loading completed history. Open `PROJECT_BOARD.md` only when
+   the compact packet is insufficient.
 2. Read `.codex/current_task.md` if it exists — it contains your task ID, branch, and locked files. Follow it exactly.
 3. Confirm your active branch matches the task. If not, stop and notify the user.
 4. Never modify files that are locked by another active task.
@@ -17,6 +19,7 @@ This project uses the FB-Lane Four-Lane Coordination Model.
 
 ### CLI commands (run from project root)
 - `node tools/fb-lane.cjs status` — view beginner-friendly returning-project health
+- `node tools/fb-lane.cjs status --context` or MCP `fb_lane_status({context:true})` — inspect bounded active work and locks
 - `node tools/fb-lane.cjs status --details` or MCP `fb_lane_status({details:true})` — inspect tasks and active locks
 - `node tools/fb-lane.cjs claim <id> <lane>` — claim task, checkout branch, lock files
 - `node tools/fb-lane.cjs submit <id>` — run tests, push branch, mark Staging QA
