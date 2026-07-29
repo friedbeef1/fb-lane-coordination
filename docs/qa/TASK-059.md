@@ -17,6 +17,7 @@ Status: complete
 | Controller | Equal arms, bounded repair, checkpoints, privacy, and 30M directional ceiling | Passed |
 | Comparative runs | Six directional runs after one excluded shakedown | Passed |
 | Results | Tier-level wall time, tokens, acceptance, readiness, and limitations | [Passed](../benchmarks/difficulty-tiers/TASK-059-directional-results.md) |
+| Production-adjacent follow-up | Web, Android, standalone, iOS simulator, and physical-iPhone target compilation for both arms | [Passed with real-camera gate remaining](../benchmarks/difficulty-tiers/TASK-059-production-adjacent-verification.md) |
 | Independent review | Arithmetic, treatment fairness, safety mutations, limits, and package parity | Approved |
 
 ## Directional result
@@ -28,8 +29,11 @@ Status: complete
 | Defined local outcomes | 3/3 | 3/3 | no difference |
 | Repair passes | 3 | 3 | no difference |
 
-The result is directional static/local evidence. It does not prove
-physical-device, provider-backed, visual, or production readiness.
+The original result remains directional evidence. Follow-up executable checks
+passed on Web, Android, standalone MÉJA, and iOS simulator surfaces, and both
+iOS candidates compile for the connected physical-iPhone target. A signed
+install and real-camera/permission smoke remain unverified, as do
+provider-backed, visual, store, and production readiness.
 
 ## External gates
 

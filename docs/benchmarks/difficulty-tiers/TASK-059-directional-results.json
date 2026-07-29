@@ -120,6 +120,36 @@
       "repairDifference": 0
     }
   },
+  "productionAdjacentVerification": {
+    "date": "2026-07-29",
+    "vanilla": {
+      "webTests": {
+        "passed": 32,
+        "failed": 0
+      },
+      "androidFocusedTest": "passed",
+      "mediumStandaloneVerifier": "passed-with-current-support-scripts",
+      "iosSimulatorTests": {
+        "passed": 15,
+        "failed": 0
+      },
+      "physicalIphoneTargetBuild": "passed-unsigned"
+    },
+    "efficientGraph": {
+      "webTests": {
+        "passed": 32,
+        "failed": 0
+      },
+      "androidFocusedTest": "passed",
+      "mediumStandaloneVerifier": "passed-with-current-support-scripts",
+      "iosSimulatorTests": {
+        "passed": 14,
+        "failed": 0
+      },
+      "physicalIphoneTargetBuild": "passed-unsigned"
+    },
+    "remainingGate": "signed physical-iPhone install and real camera/permission smoke"
+  },
   "evidenceHashes": {
     "declaration": "574cb774172dd5bb59df3bf99b48ddd6ee102ca773efeb595d98b39312ce9262",
     "shakedown": "3fec15297ab1492d812fd2d3b70b4fb91e68a5bc2bafd09150722485af0ddd53",

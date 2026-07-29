@@ -2,13 +2,20 @@
 type: fb-lane-handoff
 task: TASK-059
 lane: fb-product
-status: ready
+status: staging-qa
 approval: approved
 fb_harness: v3
 record_model: normalized-v1
 ---
 
 # TASK-059 — Three-Tier Real-Work FB Benchmark
+
+## Goal Alignment Session
+
+Product OKR: Reduce FB coordination and repair overhead while preserving or improving product readiness, safety, and explicit release control.
+Lane OKR Fit: aligned
+Mini-loop Evidence: Three equal-fact pairs measured raw time, provider tokens, and executable product outcomes across Easy, Medium, and Difficult historical work.
+Evidence Against Product OKR: Efficient Graph was slower on the Difficult task and did not reduce repair counts; only the aggregate token reduction is a strong directional signal.
 
 ## Goal Alignment
 
@@ -91,7 +98,8 @@ and does not alter user-visible plugin behavior.
   [TASK-059 directional results](../benchmarks/difficulty-tiers/TASK-059-directional-results.md).
 - **Checks:** Historical accepted/start proofs, unsafe mutations,
   equal-fact/different-structure contract, directional profile, privacy,
-  interrupted reset, package parity, syntax, links, and whitespace.
+  interrupted reset, package parity, syntax, links, whitespace, and the
+  [production-adjacent follow-up](../benchmarks/difficulty-tiers/TASK-059-production-adjacent-verification.md).
 - **Observed outcome:** Efficient Graph used 44.0% fewer raw provider tokens
   and 7.3% less wall time across three task pairs, with both arms passing all
   defined local outcomes. Graph was slower on the Difficult task.
@@ -99,8 +107,10 @@ and does not alter user-visible plugin behavior.
   regrading changed only interpretation, not candidates, time, or usage.
 - **Review state:** not reviewable — benchmark evidence has no runnable product
   candidate.
-- **Limits:** Three pairs; static/local grading; no physical-device,
-  provider-backed, visual, production, or human-attention measurement.
+- **Limits:** Three pairs. Web, Android, standalone, iOS simulator, and
+  unsigned physical-iPhone target compilation passed for both arms, but a
+  signed install and real-camera/permission smoke were not run. No
+  provider-backed, visual, store, production, or human-attention measurement.
 - **External gates:** No merge, push, plugin publication, installation,
   deployment, or release authorized.
 - **Repository state:** Source repositories remained read-only; only this FB
@@ -121,3 +131,5 @@ Status: pass
 - Readiness: all defined semantic subchecks passed; unsafe mutations still
   fail.
 - Honest limitations: recorded in the result report and QA artifact.
+- Executable follow-up: both arms passed the available production-adjacent
+  checks; the real-camera device gate remains explicit.

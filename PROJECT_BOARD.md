@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-059 | In Progress | FB-Tech | Three-tier real-work benchmark | Compare Vanilla Codex with Efficient-Graph FB across six easy, six medium, and six difficult historical tasks while preserving TASK-056 as immutable evidence | `tools/fb-three-tier-benchmark.cjs tools/fb-three-tier-benchmark.test.cjs tools/fixtures/fb-three-tier-benchmark docs/benchmarks/difficulty-tiers docs/handoffs/TASK-059.md docs/qa/TASK-059.md PROJECT_BOARD.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-059.md); [Plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md) |
+| TASK-059 | Staging QA | FB-Tech | Three-tier real-work benchmark | Compare Vanilla Codex with Efficient-Graph FB across six easy, six medium, and six difficult historical tasks while preserving TASK-056 as immutable evidence | `tools/fb-three-tier-benchmark.cjs tools/fb-three-tier-benchmark.test.cjs tools/fixtures/fb-three-tier-benchmark docs/benchmarks/difficulty-tiers docs/handoffs/TASK-059.md docs/qa/TASK-059.md PROJECT_BOARD.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-059.md); [Plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md) |
 | TASK-058 | In Progress | FB-Tech | Automatic worktree orchestration | Make `$bfm` create or reuse linked worktrees for every independent source-changing slice without user setup, while keeping planning-only and overlapping work lightweight or sequential | `docs/fb/workflow.md`, `README.md`, `skills/bfm/SKILL.md`, `skills/fb-lane-coordination/SKILL.md`, `tools/fb-automatic-worktrees.test.cjs`, `CHANGELOG.md`, `docs/handoffs/TASK-058.md`, `docs/qa/TASK-058.md` | [Handoff](docs/handoffs/TASK-058.md) |
 | TASK-057 | Done | FB-Product / BFM + FB-Tech | Harness reliability | Prevent incomplete OKR records from reaching release validation | Normalized handoff template, focused record validation, generated plugin mirrors, and TASK-057 evidence | [Handoff](docs/handoffs/TASK-057.md); [QA evidence](docs/qa/TASK-057.md); merged and published as `708593a` |
 | TASK-056 | Staging QA | FB-Product / BFM + FB-Tech | Prospective repair-efficiency benchmark | Twelve fresh runs completed: efficient Graph used 15.8% fewer tokens and 23.6% less wall time, with 3/6 accepted outcomes versus Vanilla's 1/6 | Isolated fixtures and benchmark evidence only; no source-repository, plugin-release, provider-write, production, or deployment change | [Handoff](docs/handoffs/TASK-056.md); [Result](docs/benchmarks/repair-efficiency/README.md); [QA](docs/qa/TASK-056.md) |
@@ -69,7 +69,7 @@
 
 ### TASK-059 - Three-Tier Real-Work FB Benchmark
 
-*   **Status**: Complete
+*   **Status**: Staging QA
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Benchmarking
 *   **Scope**: Extend the real-work benchmark to six easy, six medium, and six
@@ -91,6 +91,9 @@
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-059.md); [plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md); [QA](docs/qa/TASK-059.md).
     Directional results: [report](docs/benchmarks/difficulty-tiers/TASK-059-directional-results.md);
     [machine-readable evidence](docs/benchmarks/difficulty-tiers/TASK-059-directional-results.json).
+    Production-adjacent follow-up: [Web, Android, standalone, iOS simulator,
+    and physical-iPhone target evidence](docs/benchmarks/difficulty-tiers/TASK-059-production-adjacent-verification.md);
+    a signed real-camera/permission smoke remains outside the verified claim.
     Independent evidence review approved after direct dismissal and video-input
     omission mutations were added in `9d6b3aa`.
 

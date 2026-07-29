@@ -50,8 +50,13 @@ video-input checks.
 
 ## Limits
 
-- “100%” means all defined static/local requirements passed. It does not mean
-  physical-device, provider-backed, visual, or production readiness.
+- “100%” means all defined static/local requirements passed. Production-adjacent
+  follow-up subsequently passed focused Web and Android checks, the standalone
+  MÉJA verifier, native iOS simulator tests, and unsigned physical-iPhone target
+  builds for both arms. See the
+  [production-adjacent verification](TASK-059-production-adjacent-verification.md).
+- Real-camera use, signing, provider-backed behavior, visual quality, store
+  release, and production readiness remain unverified.
 - Three task pairs are directional evidence, not a universal percentage.
 - All runs used `gpt-5.4` and one bounded repair; other models and repositories
   may behave differently.
