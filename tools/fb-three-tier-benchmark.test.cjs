@@ -5,9 +5,16 @@ const os = require('node:os');
 const path = require('node:path');
 const {spawnSync} = require('node:child_process');
 const {
+  AGGREGATE_TOKEN_CEILING,
+  FIRST_PASS_TIMEOUT_MS,
+  REPAIR_TIMEOUT_MS,
   loadTierRegistry,
   buildReuseReceipts,
   buildThreeTierSchedule,
+  preflight,
+  shakedown,
+  runAll,
+  summarize,
 } = require('./fb-three-tier-benchmark.cjs');
 
 const IDS_BY_TIER = {
@@ -228,4 +235,280 @@ test('public task facts reject exact hidden grader answer literals', () => {
   const publicText = JSON.stringify(publicFacts);
   assert.doesNotMatch(publicText, /440ms/);
   assert.doesNotMatch(publicText, /user_id filtering/);
+});
+
+function git(directory, args) {
+  const result = spawnSync('git', ['-C', directory, ...args], {encoding: 'utf8'});
+  assert.equal(result.status, 0, result.stderr);
+  return result.stdout.trim();
+}
+
+function makeControllerFixture() {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-three-tier-controller-'));
+  const sourceRepo = path.join(directory, 'source');
+  fs.mkdirSync(sourceRepo);
+  git(sourceRepo, ['init', '-q']);
+  git(sourceRepo, ['config', 'user.email', 'benchmark@example.invalid']);
+  git(sourceRepo, ['config', 'user.name', 'Benchmark Test']);
+  fs.writeFileSync(path.join(sourceRepo, 'starting.txt'), 'start\n');
+  git(sourceRepo, ['add', 'starting.txt']);
+  git(sourceRepo, ['commit', '-qm', 'fixture']);
+  const sourceRef = git(sourceRepo, ['rev-parse', 'HEAD']);
+  const task = {
+    id: 'controller-fixture',
+    tier: 'easy',
+    project: 'Unmirror',
+    sourceRepo,
+    sourceRef,
+    acceptanceRefs: [sourceRef],
+    grader: 'controller-fixture',
+    publicFacts: {
+      objective: 'Create candidate.txt with the accepted result.',
+      relevantDecisions: ['Keep the source repository read-only.'],
+      acceptanceCriteria: ['candidate.txt contains accepted.'],
+      riskTriggers: [],
+    },
+  };
+  const fakeCodex = path.join(directory, 'fake-codex.cjs');
+  fs.writeFileSync(fakeCodex, `
+const fs = require('node:fs');
+const path = require('node:path');
+let prompt = '';
+process.stdin.on('data', chunk => { prompt += chunk; });
+process.stdin.on('end', () => {
+  if (/shakedown first pass/i.test(prompt)) fs.writeFileSync(path.join(process.cwd(), 'answer.txt'), 'DRAFT\\n');
+  else if (/fresh delta repair/i.test(prompt) && fs.existsSync(path.join(process.cwd(), 'answer.txt'))) fs.writeFileSync(path.join(process.cwd(), 'answer.txt'), 'READY\\n');
+  else if (/fresh delta repair/i.test(prompt)) fs.writeFileSync(path.join(process.cwd(), 'repaired.txt'), 'accepted\\n');
+  else fs.writeFileSync(path.join(process.cwd(), 'candidate.txt'), 'accepted\\n');
+  process.stdout.write(JSON.stringify({type:'thread.started',thread_id:'fake-thread'}) + '\\n');
+  if (process.env.FAKE_UNAUTHORITATIVE !== '1') {
+    process.stdout.write(JSON.stringify({type:'turn.completed',usage:{input_tokens:11,cached_input_tokens:2,output_tokens:7,total_tokens:18}}) + '\\n');
+  } else {
+    process.stdout.write(JSON.stringify({type:'turn.completed'}) + '\\n');
+  }
+});
+`);
+  return {
+    directory,
+    sourceRepo,
+    task,
+    fakeCodex,
+    root: path.join(directory, 'experiment'),
+    experimentId: 'fb-three-tier-test',
+  };
+}
+
+function controllerOptions(fixture, overrides = {}) {
+  return {
+    tasks: [fixture.task],
+    reuseReceipts: [],
+    command: process.execPath,
+    commandPrefix: [fixture.fakeCodex],
+    gradeCandidate(task, candidateDir) {
+      const first = path.join(candidateDir, 'candidate.txt');
+      const repaired = path.join(candidateDir, 'repaired.txt');
+      const pass = (fs.existsSync(first) && fs.readFileSync(first, 'utf8') === 'accepted\n') ||
+        (fs.existsSync(repaired) && fs.readFileSync(repaired, 'utf8') === 'accepted\n');
+      return {criteria: [{id: 'candidate', pass}], passed: pass ? 1 : 0, total: 1, readiness: pass ? 1 : 0, pass};
+    },
+    ...overrides,
+  };
+}
+
+test('controller preflight freezes equal treatment, limits, source status, and blocks spend before shakedown', async () => {
+  const fixture = makeControllerFixture();
+  try {
+    const options = controllerOptions(fixture);
+    const declaration = preflight(fixture.root, fixture.experimentId, options);
+    assert.equal(declaration.passed, true);
+    assert.equal(declaration.model, 'gpt-5.4');
+    assert.equal(declaration.firstPassTimeoutMs, 20 * 60 * 1000);
+    assert.equal(declaration.repairTimeoutMs, 10 * 60 * 1000);
+    assert.equal(FIRST_PASS_TIMEOUT_MS, 20 * 60 * 1000);
+    assert.equal(REPAIR_TIMEOUT_MS, 10 * 60 * 1000);
+    assert.equal(AGGREGATE_TOKEN_CEILING, 60_000_000);
+    assert.equal(declaration.schedule.length, 2);
+    assert.ok(declaration.sourceStatus[fixture.sourceRepo].sha256);
+    const treatments = declaration.schedule.map(row => JSON.parse(fs.readFileSync(
+      path.join(fixture.root, 'runs', row.runId, 'treatment.json'),
+      'utf8',
+    )));
+    assert.equal(treatments[0].publicFactsSha256, treatments[1].publicFactsSha256);
+    assert.deepEqual(new Set(treatments.map(row => row.model)), new Set(['gpt-5.4']));
+    assert.deepEqual(new Set(treatments.map(row => row.firstPassTimeoutMs)), new Set([FIRST_PASS_TIMEOUT_MS]));
+    await assert.rejects(runAll(fixture.root, fixture.experimentId, options), /excluded shakedown/i);
+    assert.equal(fs.existsSync(path.join(fixture.root, 'runs', declaration.schedule[0].runId, 'result.json')), false);
+  } finally {
+    fs.rmSync(fixture.directory, {recursive: true, force: true});
+  }
+});
+
+test('excluded fake-Codex shakedown gates resumable immutable counted checkpoints and one fresh-delta repair', async () => {
+  const fixture = makeControllerFixture();
+  try {
+    let grades = 0;
+    const options = controllerOptions(fixture, {
+      gradeCandidate(task, candidateDir) {
+        grades += 1;
+        const pass = fs.existsSync(path.join(candidateDir, 'repaired.txt'));
+        return {criteria: [{id: 'candidate', pass}], passed: pass ? 1 : 0, total: 1, readiness: pass ? 1 : 0, pass};
+      },
+    });
+    const declaration = preflight(fixture.root, fixture.experimentId, options);
+    const shake = await shakedown(fixture.root, fixture.experimentId, options);
+    assert.equal(shake.excluded, true);
+    assert.equal(shake.passed, true);
+    const firstRow = declaration.schedule[0];
+    const [first] = await runAll(fixture.root, fixture.experimentId, {...options, runId: firstRow.runId});
+    assert.equal(first.repair.contextMode, 'fresh-delta');
+    assert.equal(first.firstPass.timeoutMs, FIRST_PASS_TIMEOUT_MS);
+    assert.equal(first.repair.timeoutMs, REPAIR_TIMEOUT_MS);
+    assert.equal(first.firstPass.usage.authoritative, true);
+    assert.equal(first.repair.usage.authoritative, true);
+    const checkpointFile = path.join(fixture.root, 'runs', firstRow.runId, 'result.json');
+    const checkpoint = JSON.parse(fs.readFileSync(checkpointFile, 'utf8'));
+    assert.equal(checkpoint.result.runId, firstRow.runId);
+    assert.match(checkpoint.payloadSha256, /^[a-f0-9]{64}$/);
+    assert.equal(fs.readdirSync(path.dirname(checkpointFile)).some(name => name.endsWith('.tmp')), false);
+
+    const resumed = await runAll(fixture.root, fixture.experimentId, options);
+    assert.equal(resumed.length, 1);
+    await assert.rejects(runAll(fixture.root, fixture.experimentId, options), /schedule is complete/i);
+    await assert.rejects(
+      runAll(fixture.root, fixture.experimentId, {...options, runId: firstRow.runId}),
+      /already exists/i,
+    );
+    assert.ok(grades >= 4);
+  } finally {
+    fs.rmSync(fixture.directory, {recursive: true, force: true});
+  }
+});
+
+test('controller rejects privacy, source drift, unauthoritative usage, checkpoint mutation, and ceiling risk', async () => {
+  const privacyFixture = makeControllerFixture();
+  try {
+    privacyFixture.task.publicFacts.privateReasoning = 'must never enter evidence';
+    assert.throws(
+      () => preflight(privacyFixture.root, privacyFixture.experimentId, controllerOptions(privacyFixture)),
+      /privacy/i,
+    );
+  } finally {
+    fs.rmSync(privacyFixture.directory, {recursive: true, force: true});
+  }
+
+  const fixture = makeControllerFixture();
+  try {
+    const options = controllerOptions(fixture);
+    const declaration = preflight(fixture.root, fixture.experimentId, options);
+    await shakedown(fixture.root, fixture.experimentId, options);
+    fs.writeFileSync(path.join(fixture.sourceRepo, 'drift.txt'), 'changed\n');
+    await assert.rejects(runAll(fixture.root, fixture.experimentId, options), /source status changed/i);
+    fs.rmSync(path.join(fixture.sourceRepo, 'drift.txt'));
+
+    const firstRow = declaration.schedule[0];
+    await runAll(fixture.root, fixture.experimentId, {...options, runId: firstRow.runId});
+    const checkpointFile = path.join(fixture.root, 'runs', firstRow.runId, 'result.json');
+    const checkpoint = JSON.parse(fs.readFileSync(checkpointFile, 'utf8'));
+    checkpoint.result.finalGrade.readiness = 0.25;
+    fs.chmodSync(checkpointFile, 0o644);
+    fs.writeFileSync(checkpointFile, `${JSON.stringify(checkpoint, null, 2)}\n`);
+    await assert.rejects(runAll(fixture.root, fixture.experimentId, options), /checkpoint hash mismatch/i);
+  } finally {
+    fs.rmSync(fixture.directory, {recursive: true, force: true});
+  }
+
+  const usageFixture = makeControllerFixture();
+  try {
+    const options = controllerOptions(usageFixture, {env: {FAKE_UNAUTHORITATIVE: '1'}});
+    preflight(usageFixture.root, usageFixture.experimentId, options);
+    await assert.rejects(shakedown(usageFixture.root, usageFixture.experimentId, options), /authoritative usage/i);
+  } finally {
+    fs.rmSync(usageFixture.directory, {recursive: true, force: true});
+  }
+
+  const countedUsageFixture = makeControllerFixture();
+  try {
+    const options = controllerOptions(countedUsageFixture, {
+      gradeCandidate(task, candidateDir) {
+        const pass = fs.existsSync(path.join(candidateDir, 'repaired.txt'));
+        return {criteria: [{id: 'candidate', pass}], passed: pass ? 1 : 0, total: 1, readiness: pass ? 1 : 0, pass};
+      },
+    });
+    const declaration = preflight(countedUsageFixture.root, countedUsageFixture.experimentId, options);
+    await shakedown(countedUsageFixture.root, countedUsageFixture.experimentId, options);
+    const row = declaration.schedule[0];
+    await assert.rejects(
+      runAll(countedUsageFixture.root, countedUsageFixture.experimentId, {
+        ...options,
+        runId: row.runId,
+        env: {FAKE_UNAUTHORITATIVE: '1'},
+      }),
+      /authoritative provider usage/i,
+    );
+    assert.equal(
+      fs.existsSync(path.join(countedUsageFixture.root, 'runs', row.runId, 'fixture', 'repaired.txt')),
+      false,
+      'missing first-pass usage must block repair spend',
+    );
+  } finally {
+    fs.rmSync(countedUsageFixture.directory, {recursive: true, force: true});
+  }
+
+  const ceilingFixture = makeControllerFixture();
+  try {
+    const options = controllerOptions(ceilingFixture, {
+      aggregateTokenCeiling: 5_000_000,
+      maximumProviderTokensPerRun: 5_000_001,
+    });
+    preflight(ceilingFixture.root, ceilingFixture.experimentId, options);
+    await shakedown(ceilingFixture.root, ceilingFixture.experimentId, options);
+    await assert.rejects(runAll(ceilingFixture.root, ceilingFixture.experimentId, options), /token ceiling risk/i);
+  } finally {
+    fs.rmSync(ceilingFixture.directory, {recursive: true, force: true});
+  }
+});
+
+test('summary recomputes tier outcomes from immutable reuse receipts plus checkpoints', async () => {
+  const fixture = makeControllerFixture();
+  try {
+    const reuseReceipts = [{
+      originalResultHash: 'a'.repeat(64),
+      declarationHash: 'b'.repeat(64),
+      taskId: 'reused-easy',
+      arm: 'vanilla',
+      providerUsage: {inputTokens: 40, cachedInputTokens: 10, outputTokens: 10, totalTokens: 50, authoritative: true},
+      wallTimeMs: 100,
+      acceptance: false,
+      readiness: 0.75,
+    }, {
+      originalResultHash: 'a'.repeat(64),
+      declarationHash: 'b'.repeat(64),
+      taskId: 'reused-easy',
+      arm: 'efficient-graph',
+      providerUsage: {inputTokens: 30, cachedInputTokens: 10, outputTokens: 10, totalTokens: 40, authoritative: true},
+      wallTimeMs: 80,
+      acceptance: true,
+      readiness: 1,
+    }];
+    const tasks = [
+      {...fixture.task},
+      {id: 'reused-easy', tier: 'easy', project: 'MÉJA', reuse: 'TASK-056', sourceRef: '1234567', acceptanceRefs: ['1234568']},
+    ];
+    const options = controllerOptions(fixture, {tasks, reuseReceipts});
+    preflight(fixture.root, fixture.experimentId, options);
+    await shakedown(fixture.root, fixture.experimentId, options);
+    await runAll(fixture.root, fixture.experimentId, options);
+    const result = summarize(fixture.root, fixture.experimentId, options);
+    assert.equal(result.sample.reusedCountedRuns, 2);
+    assert.equal(result.sample.newCountedRuns, 2);
+    assert.equal(result.sample.totalCountedRuns, 4);
+    assert.equal(result.tiers.easy.arms.vanilla.outcomes, 2);
+    assert.equal(result.tiers.easy.arms.vanilla.strictAccepted, 1);
+    assert.equal(result.tiers.easy.arms.vanilla.meanReadiness, 0.875);
+    assert.equal(result.tiers.easy.arms.vanilla.atLeast80Proportion, 0.5);
+    assert.equal(result.tiers.easy.arms.vanilla.providerUsage.totalTokens, 68);
+    assert.equal(result.tiers.easy.arms['efficient-graph'].providerUsage.totalTokens, 58);
+  } finally {
+    fs.rmSync(fixture.directory, {recursive: true, force: true});
+  }
 });
