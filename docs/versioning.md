@@ -2,10 +2,10 @@
 
 ## Current Naming
 
-The current GitHub documentation line uses the FB 0.5.0-beta product name.
+The current GitHub documentation line uses the FB 0.5.1-beta product name.
 
 The Codex plugin manifest for this line is
-`0.5.0-beta+codex.20260728113402`. This is the active published marketplace
+`0.5.1-beta+codex.20260729135705`. This is the active published marketplace
 build.
 
 Codex is the only supported and released integration. Claude Code and
@@ -14,11 +14,12 @@ Antigravity are paused; contributors can use the
 
 ## Before And After
 
-| Area | v1: four-lane coordination plugin | Latest: FB 0.5.0-beta |
+| Area | v1: four-lane coordination plugin | Latest: FB 0.5.1-beta |
 |---|---|---|
 | Core idea | Split work across Product, Tech, Design, and Business lanes. | Keep goal, plans, evidence, board state, and repo truth aligned through a return loop. |
 | Product role | Sequence and review lane work. | Own goals, BFM execution launch, reconciliation, merge gates, and release decisions. |
 | Workstreams | Product, Tech, Design, and Business could drift from planning into implementation. | Product/User, Business, Design, Tech, Discovery, and Bugs follow evidence mini-loops; source changes happen through Product-launched BFM. |
+| First setup | Workstream sidebar tasks were created manually. | Bootstrap asks once for permission, adds only missing repository-scoped workstream tasks, and leaves them idle. |
 | Agent control | Agent workflows depended on task-specific orchestration. | An optional rules-first control loop preserves baselines, records flat clone-local evidence, compares named criteria, and keeps configuration candidates isolated behind Product approval. |
 | Goals | Lightweight goal alignment. | Approved OKRs with Definition of Done, gate, justification, and explicit approval. |
 | Handoffs | Detailed markdown handoffs. | `PROJECT_BOARD.md` is truth, `docs/handoffs/index.md` is routing, detailed handoffs are detail. |
@@ -31,7 +32,7 @@ Antigravity are paused; contributors can use the
 | Safe unblock | Blockers often became user prompts. | BFM recommends and executes safe unblock paths inside approved scope; hard gates still stop. |
 | Frontend planning | Visual decisions could stay in chat. | Frontend handoffs name `Visual Preview Decision` before source execution when visual uncertainty matters. |
 | Returning lanes | Re-read board and handoffs. | Workstream status cards show what Product/BFM already executed or deferred. |
-| Plugin builds | Build labels could look stale after docs changed. | The current published Codex build is `0.5.0-beta+codex.20260728113402`. |
+| Plugin builds | Build labels could look stale after docs changed. | The current published Codex build is `0.5.1-beta+codex.20260729135705`. |
 
 ## Practical Meaning
 

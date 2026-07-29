@@ -3,6 +3,7 @@
 * **Lane**: FB-Tech
 * **BFM Class**: Full BFM
 * **Feature Branch**: tech/TASK-062-first-run-bfm-onboarding
+* **Release Build**: `0.5.1-beta+codex.20260729135705`
 * **Locked Files**: `tools/fb-onboarding.cjs`,
   `tools/fb-onboarding.test.cjs`, `tools/fb-lane.cjs`,
   `tools/fb-package-manifest.json`, `skills/bfm/SKILL.md`,

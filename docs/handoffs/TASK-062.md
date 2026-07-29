@@ -54,6 +54,8 @@ tools are absent.
    and focused behavior tests.
 
 Changelog expectation: required
+Release checkpoint: requested by James through **Push Live** on 2026-07-29
+Release build: `0.5.1-beta+codex.20260729135705`
 
 ## Task Receipt
 
@@ -64,7 +66,7 @@ Changelog expectation: required
   work merely because it was created.
 - **Changed surfaces:** Bootstrap runtime, onboarding state/planning module,
   focused tests, BFM/setup skills, active setup/start/FAQ guidance, changelog,
-  and mechanically generated plugin mirrors.
+  release metadata, and mechanically generated plugin mirrors.
 - **Checks:** Root/package onboarding 26/26; package parity 53/53; affected
   syntax and whitespace passed. Earlier current-candidate compatibility checks
   passed CLI 70/70, beginner 10/10, automatic-worktree 11/11, compact-board
@@ -73,7 +75,7 @@ Changelog expectation: required
   spaces and failed on a Markdown line wrap. The assertion was made
   whitespace-tolerant and only the failed root/package proof was rerun.
 - **Changelog:** updated and approved —
-  [Unreleased — first-run `$bfm` onboarding](../../CHANGELOG.md#unreleased--first-run-bfm-onboarding).
+  [FB 0.5.1-beta](../../CHANGELOG.md#051-beta--2026-07-29).
 - Review state: not reviewable
 - Verification: [TASK-062 QA](../qa/TASK-062.md)
 - External gates: no push, merge, plugin publication, installation, or

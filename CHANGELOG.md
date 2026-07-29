@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased — first-run `$bfm` onboarding
+## 0.5.1-beta — 2026-07-29
+
+Build: `0.5.1-beta+codex.20260729135705`
 
 **What changed:** After repository bootstrap, FB now introduces its six
 workstreams and asks once for permission to create repository-scoped
