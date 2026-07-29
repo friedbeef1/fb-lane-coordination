@@ -52,6 +52,7 @@ const RECEIPTS = {
 };
 
 const UNMIRROR_SOURCE_REPO = '/Users/jamesyeang/Projects/mirrorcam';
+const MEJA_SOURCE_REPO = '/Users/jamesyeang/Documents/New project-recovered-20260723';
 const UNMIRROR_FIXTURES = {
   'unmirror-intro-persistence': {sourceRef: 'a8a6290', acceptanceRefs: ['f618561']},
   'unmirror-intro-polish': {sourceRef: 'a0e9702', acceptanceRefs: ['6c83c40']},
@@ -61,8 +62,17 @@ const UNMIRROR_FIXTURES = {
   'unmirror-ios-camera-crash': {sourceRef: 'bb6b276', acceptanceRefs: ['e548495']},
 };
 
-function archiveHistoricalTree(ref, directory) {
-  const archive = spawnSync('git', ['-C', UNMIRROR_SOURCE_REPO, 'archive', '--format=tar', ref], {
+const MEJA_FIXTURES = {
+  'meja-topic-flip': {sourceRef: '31ad03a', acceptanceRefs: ['fea1227']},
+  'meja-back-navigation': {sourceRef: 'fea1227', acceptanceRefs: ['2675a6c']},
+  'meja-first-timer-readiness': {sourceRef: 'b009d76', acceptanceRefs: ['e7fbe9d']},
+  'meja-home-scroll': {sourceRef: '37282fd', acceptanceRefs: ['21e36af']},
+  'meja-sync-warning': {sourceRef: '8082e42', acceptanceRefs: ['97a39ed']},
+  'meja-auth-hardening': {sourceRef: 'fea1227', acceptanceRefs: ['2675a6c']},
+};
+
+function archiveHistoricalTree(sourceRepo, ref, directory) {
+  const archive = spawnSync('git', ['-C', sourceRepo, 'archive', '--format=tar', ref], {
     encoding: null,
     maxBuffer: 100 * 1024 * 1024,
   });
@@ -157,8 +167,34 @@ test('six Unmirror historical fixtures reject their start trees and accept their
       const accepted = path.join(directory, `${id}-accepted`);
       fs.mkdirSync(start);
       fs.mkdirSync(accepted);
-      archiveHistoricalTree(task.sourceRef, start);
-      archiveHistoricalTree(task.acceptanceRefs.at(-1), accepted);
+      archiveHistoricalTree(UNMIRROR_SOURCE_REPO, task.sourceRef, start);
+      archiveHistoricalTree(UNMIRROR_SOURCE_REPO, task.acceptanceRefs.at(-1), accepted);
+      assert.equal(gradeHistoricalTree(task, start).pass, false, `${id} start unexpectedly passed`);
+      assert.equal(gradeHistoricalTree(task, accepted).pass, true, `${id} accepted state failed`);
+    }
+  } finally {
+    fs.rmSync(directory, {recursive: true, force: true});
+  }
+});
+
+test('six MÉJA historical fixtures reject their start trees and accept their recorded states without credentials', () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-three-tier-meja-'));
+  try {
+    const tasks = Object.fromEntries(loadTierRegistry().map(task => [task.id, task]));
+    for (const [id, expected] of Object.entries(MEJA_FIXTURES)) {
+      const task = tasks[id];
+      assert.equal(task.sourceRepo, MEJA_SOURCE_REPO, `${id} source repository`);
+      assert.equal(task.sourceRef, expected.sourceRef, `${id} source ref`);
+      assert.deepEqual(task.acceptanceRefs, expected.acceptanceRefs, `${id} accepted refs`);
+      assert.ok(task.publicFacts, `${id} public facts`);
+      assert.ok(task.grader, `${id} grader`);
+
+      const start = path.join(directory, `${id}-start`);
+      const accepted = path.join(directory, `${id}-accepted`);
+      fs.mkdirSync(start);
+      fs.mkdirSync(accepted);
+      archiveHistoricalTree(MEJA_SOURCE_REPO, task.sourceRef, start);
+      archiveHistoricalTree(MEJA_SOURCE_REPO, task.acceptanceRefs.at(-1), accepted);
       assert.equal(gradeHistoricalTree(task, start).pass, false, `${id} start unexpectedly passed`);
       assert.equal(gradeHistoricalTree(task, accepted).pass, true, `${id} accepted state failed`);
     }
