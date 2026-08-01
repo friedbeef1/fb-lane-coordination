@@ -32,7 +32,7 @@ Out of scope: Runtime permission automation, Codex host configuration, plugin pu
 Candidate: `codex/TASK-064-least-privilege-access`.
 Test plan: Run `node tools/fb-beginner-experience.test.cjs`, compare canonical/package files, and run `git diff --check`.
 Manual pass criteria: Guidance says approval-based access by default, never uses Full access as a convenience fix, and asks only for narrowly scoped escalation at real boundaries.
-Known limit: Integration waits for Product to reconcile the stale TASK-031 broad canonical/package-doc lock.
+Known limit: Plugin publication and installation remain separate release gates.
 
 ## Product/BFM Closeout
 
@@ -40,6 +40,6 @@ Status: Local Staging QA candidate.
 Actioned By: FB-Product / BFM.
 Result: Canonical and packaged plugin guardrails now contain the approved least-privilege contract.
 Evidence: Focused RED contract added before guidance; canonical and packaged GREEN passed 11/11; mirror parity and `git diff --check` passed. Doctor accepts TASK-064 and remains blocked only by unrelated pre-existing TASK-059 normalized-record drift.
-Remaining: Reconcile TASK-031 lock, integrate, and include in a future plugin release only through the normal release gate.
+Remaining: Integrate locally, then include in a future plugin release only through the normal release gate.
 Closeout Note: No Full access, publication, install, push, merge, or consumer-project change was performed.
 Loop Learning: Feedback captured: yes; repeated pattern: yes; tooling needed: none; Product approval needed: no for this candidate, yes for any release.
