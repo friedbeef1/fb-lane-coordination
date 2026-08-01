@@ -8,6 +8,8 @@ okr_fit: aligned
 
 # TASK-067 — Sidechat execution authority
 
+Release candidate: `0.5.4-beta+codex.20260801143809`
+
 ## Goal Alignment Session
 
 Product Goal: Keep execution authority predictable without adding ceremony to approved Product/BFM work.
@@ -47,13 +49,15 @@ one-use execution exception.
 ## Closeout
 
 - Review state: not reviewable
-- Changelog: not required — this Quick guidance candidate will be consolidated
-  into a future Product-approved plugin release entry if published.
+- Changelog: updated — [FB 0.5.4-beta](../../CHANGELOG.md#054-beta--2026-08-01)
+- Changelog approval: pending — Product must obtain James's approval of the
+  drafted entry before Ready to ship.
 - Verification: [TASK-067 QA](../qa/TASK-067.md)
-- External gates: merge, publication, marketplace upgrade, plugin reinstall,
-  and deployment are not authorized.
-- Remaining owner/action: Product/BFM decides whether to include this candidate
-  in a future release.
+- External gates: merge was requested; publication, marketplace upgrade, plugin
+  reinstall, and consumer-project refresh require release sequencing after the
+  changelog gate passes.
+- Remaining owner/action: Product/BFM presents the changelog entry for approval,
+  completes the release checkpoint, then performs the authorized integration.
 
 ## Loop Learning
 

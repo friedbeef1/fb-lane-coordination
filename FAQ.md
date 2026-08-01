@@ -1,6 +1,6 @@
 # FB FAQ
 
-This FAQ describes the current **FB 0.5.3-beta** six-workstream model.
+This FAQ describes the current **FB 0.5.4-beta** six-workstream model.
 
 ## What does FB stand for?
 

@@ -3,6 +3,16 @@
 Last Updated: 2026-08-01
 Lane: FB-Product
 
+## TASK-067 — Sidechat execution authority and FB 0.5.4-beta
+
+- Status: Staging QA; `0.5.4-beta+codex.20260801143809` is the current release
+  candidate and changelog approval is pending.
+- Outcome: Product/BFM parent work executes approved scope; workstream parents
+  plan and hand off; sidechat mutation requires a named, one-use exception.
+- Gate: James authorized push and merge. Changelog approval and the complete
+  release checkpoint precede marketplace upgrade and reinstall.
+- Link: [Handoff](../handoffs/TASK-067.md) and [QA](../qa/TASK-067.md).
+
 ## TASK-066 — Automatic local verification
 
 - Status: Done; `0.5.3-beta+codex.20260801141345` is published, installed, and

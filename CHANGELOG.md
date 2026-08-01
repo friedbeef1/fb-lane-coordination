@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.5.4-beta — 2026-08-01
+
+Build: `0.5.4-beta+codex.20260801143809`
+
+**What changed:** FB now defines execution authority by conversation context.
+Product/BFM parent tasks can execute approved work; workstream parent tasks
+plan and hand off; sidechats remain read-only unless the user explicitly
+confirms one named, one-use execution exception.
+
+**Why it matters:** Ordinary words such as `proceed`, `do it`, `merge it`, or
+`install it` can no longer be mistaken for sidechat mutation authority. This
+keeps execution in the intended Product/BFM task without slowing already
+approved parent-thread work.
+
+**Compatibility:** Existing commands, six workstreams, handoffs, projects,
+provider gates, file locks, and **Push Live** authority remain unchanged. This
+release adds guidance and deterministic structural coverage, not a new runtime
+permission subsystem.
+
+**Installation or upgrade:** Upgrade the `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, and start a new Codex task so the refreshed
+guardrails and skills are loaded.
+
+**Changelog approval:** Pending James's approval of this entry.
+
 ## 0.5.3-beta — 2026-08-01
 
 Build: `0.5.3-beta+codex.20260801141345`
