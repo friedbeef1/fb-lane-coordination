@@ -12,6 +12,7 @@ Use this file as the first read for handoff discovery. `PROJECT_BOARD.md` remain
 
 | Task / Topic | Lane | Status | Depends / Blocks / Gate | Checks / Evidence | Detail |
 |---|---|---|---|---|---|
+| TASK-066 - Automatic local verification | FB-Product / BFM | Staging QA | Local candidate complete; no merge, publication, installation, or cache refresh | RED/GREEN root/package skill contract, 53-mirror parity, doctor, and whitespace | [TASK-066.md](TASK-066.md); [QA](../qa/TASK-066.md) |
 | TASK-064 - Least-privilege workspace access | FB-Product / BFM | Done | Published on GitHub `main`; `0.5.2-beta+codex.20260801121142` installed and enabled | Focused canonical/package access contract, 53 mirrors, complete release validator, and installed-cache proof | [TASK-064.md](TASK-064.md); [QA](../qa/TASK-064.md) |
 | TASK-062 - First-run `$bfm` onboarding | FB-Product / BFM + FB-Tech | Done | Published on GitHub `main`; `0.5.1-beta+codex.20260729135705` installed and enabled | Root/package onboarding 26/26; 53 mirrors; metadata, complete validator, live skill/MCP, syntax, whitespace, and changelog approval passed | [TASK-062.md](TASK-062.md); [QA](../qa/TASK-062.md) |
 | TASK-061 - Compact active board context | FB-Product / BFM + FB-Tech | Staging QA | Stack follows TASK-060 CLI correction; no release, publication, merge, or deployment | Focused RED/GREEN board packet, threshold archive, idempotency, package parity, syntax, and whitespace | [TASK-061.md](TASK-061.md) |

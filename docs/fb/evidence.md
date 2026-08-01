@@ -87,6 +87,15 @@ review links, and says `Your input needed: none`. A handoff file is a Markdown
 artifact: it is not itself an owner transfer, review package, or release
 checkpoint.
 
+BFM runs every safe, locally executable verification check automatically before
+requesting user input. Do not ask the user to run a routine test or check that
+Codex can perform with the available repository, browser, simulator, build
+toolchain, or non-destructive deployment access. Record the command, result,
+environment, and recovery in the QA artifact. User action remains appropriate
+only for a physical device, unavailable credential or account access, payment
+or provider-state approval, destructive external change, subjective Product
+judgment, or explicit live release approval.
+
 ## Verification Handoff
 
 Before testing is handed to the user, add `## Verification Handoff` to the

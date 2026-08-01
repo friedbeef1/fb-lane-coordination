@@ -43,6 +43,26 @@ function assertProductEvidenceBoundary() {
   assert.match(skill, /no approved goal[\s\S]{0,80}block the task instead of inventing one/i);
 }
 
+function assertAutomaticLocalVerification() {
+  const bfm = read('plugins/fb-lane-coordination/skills/bfm/SKILL.md');
+  const evidence = read('plugins/fb-lane-coordination/docs/fb/evidence.md');
+  assert.match(
+    bfm,
+    /run every safe[\s\S]{0,100}locally executable[\s\S]{0,120}(?:test|check)[\s\S]{0,160}automatically/i,
+    'BFM must automatically run every safe locally executable check'
+  );
+  assert.match(
+    evidence,
+    /do not ask the user to run[\s\S]{0,100}routine[\s\S]{0,100}(?:test|check)/i,
+    'evidence guidance must forbid delegating routine checks to the user'
+  );
+  assert.match(
+    evidence,
+    /physical device[\s\S]{0,180}(?:credential|account)[\s\S]{0,180}(?:payment|provider)[\s\S]{0,180}subjective[\s\S]{0,180}(?:live|release) approval/i,
+    'the rule must retain genuine physical, access, sensitive, subjective, and release boundaries'
+  );
+}
+
 const SIX = /Product\/User[\s\S]*Business[\s\S]*Design[\s\S]*Tech[\s\S]*Discovery[\s\S]*Bugs/i;
 const MINI_LOOP = /mini-loop/i;
 const HANDOFF = /docs\/handoffs\/<TASK-ID>\.md|ready handoffs?/i;
@@ -84,5 +104,6 @@ function assertAlignedSkills() {
 assertDiscoverySkill();
 assertBugsSkill();
 assertProductEvidenceBoundary();
+assertAutomaticLocalVerification();
 assertAlignedSkills();
 console.log('six-workstream skill behavior contract passed');

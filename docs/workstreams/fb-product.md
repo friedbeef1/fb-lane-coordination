@@ -3,6 +3,16 @@
 Last Updated: 2026-08-01
 Lane: FB-Product
 
+## TASK-066 — Automatic local verification
+
+- Status: Staging QA in an isolated Product/BFM candidate.
+- Outcome: BFM runs every safe locally executable check itself and asks the
+  user only for physical-device, unavailable access, sensitive external-state,
+  subjective Product, or release-approval evidence.
+- Gate: Local candidate only; no merge, publication, installation, or cache
+  refresh.
+- Link: [Handoff](../handoffs/TASK-066.md).
+
 ## TASK-059 — Three-tier real-work benchmark
 
 - Status: Done; integrated and published with FB 0.5.2 without broadening the

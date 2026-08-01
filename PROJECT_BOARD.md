@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-066 | Staging QA | FB-Product / BFM | Verification autonomy | Require BFM to run every safe locally executable check itself and ask the user only for genuinely external or approval-gated evidence | `skills/bfm/SKILL.md docs/fb/evidence.md tools/fb-six-skills.test.cjs` plus generated package mirrors and TASK-066 records | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); local candidate only; no merge, publication, installation, or cache refresh |
 | TASK-064 | Done | FB-Product / BFM | Access guardrails + Plugin Release | Default FB to approval-based least privilege, forbid Full access as a prompt-avoidance shortcut, and separate host permission prompts from Product/BFM gates | None; published and installed | [Handoff](docs/handoffs/TASK-064.md); [QA](docs/qa/TASK-064.md); published build `0.5.2-beta+codex.20260801121142` |
 | TASK-062 | Done | FB-Tech | First-run onboarding | After bootstrap, ask once for permission to create missing repository-scoped Product/User, Business, Design, Tech, Discovery, and Bugs sidebar tasks, with honest manual fallback | `tools/fb-onboarding.cjs tools/fb-onboarding.test.cjs tools/fb-lane.cjs tools/fb-package-manifest.json skills/bfm/SKILL.md skills/project-coordination-setup/SKILL.md docs/fb/start.md docs/setup.md FAQ.md CHANGELOG.md PROJECT_BOARD.md docs/handoffs/TASK-062.md docs/qa/TASK-062.md docs/handoffs/index.md .codex/current_task.md` | [Handoff](docs/handoffs/TASK-062.md); [QA](docs/qa/TASK-062.md); published build `0.5.1-beta+codex.20260729135705` |
 | TASK-061 | Staging QA | FB-Tech | Board efficiency | Keep agent orientation compact by loading active board context only and mechanically archiving terminal board history after a size threshold | `tools/fb-board-context.cjs tools/fb-board-context.test.cjs tools/fb-lane.cjs tools/fb-lane.test.cjs tools/fb-package-manifest.json docs/fb/README.md docs/fb/records.md FAQ.md AGENTS.md .codex/rules.md templates/PROJECT_BOARD.md examples/my-app/AGENTS.md examples/my-app/.codex/rules.md skills/project-coordination-setup/SKILL.md PROJECT_BOARD.md docs/handoffs/TASK-061.md docs/qa/TASK-061.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-061.md) · [QA](docs/qa/TASK-061.md) |
@@ -69,6 +70,35 @@
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
 
 ---
+
+### TASK-066 - Automatic local verification
+
+*   **Status**: Staging QA
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Verification autonomy
+*   **Scope**: Make automatic execution the generic default for every safe,
+    locally executable test, build, lint, typecheck, simulator/browser smoke,
+    package consistency, Git, and deployment-source check available to BFM.
+*   **Out of Scope**: Physical-device actions, unavailable credentials or
+    accounts, payments, destructive/provider-state changes, subjective Product
+    judgment, live release approval, CI automation, or a new test runner.
+*   **Goal Alignment Session**:
+    *   **Objective**: Remove routine test work from the user while preserving
+        real human, external-access, and release boundaries.
+    *   **Key Results**: Generic BFM and evidence guidance require automatic
+        local verification, record results before asking for input, and name
+        the narrow categories that still require the user.
+    *   **Definition of Done**: The focused root/package skill contract fails
+        before the guidance, passes after it, package mirrors match, and the
+        isolated candidate is clean and committed.
+    *   **Gate / Review Point**: Focused skill contract, package parity,
+        syntax/whitespace, and doctor. Merge, publication, installation, and
+        active-cache refresh remain separate release gates.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly requested that all tests Codex can
+        perform be run automatically and that this become generic FB behavior.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-066.md) ·
+    [QA](docs/qa/TASK-066.md).
 
 ### TASK-064 - Least-Privilege Workspace Access
 

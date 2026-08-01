@@ -74,6 +74,16 @@ verification in a QA artifact, reuse checks only with a matching fingerprint,
 and use the compact BFM closeout shape. Select light or broader lane review from
 risk and overlap; the user does not choose the internal path.
 
+Run every safe, locally executable test or check automatically and record its
+result before asking the user for verification. This includes available unit,
+integration, end-to-end, build, lint, typecheck, package-parity, Git, browser,
+simulator, deployment-source, and non-destructive smoke checks that fit the
+approved scope and verification budget. Do not delegate routine checks or test
+recovery to the user. Ask only for evidence that Codex genuinely cannot provide:
+a physical-device action, unavailable credential or account access, payment or
+provider-state approval, subjective Product judgment, destructive action, or
+explicit live release approval.
+
 For each known task question, call MCP `fb_project_context` before broad
 orientation and open only its relevant cited sources. The graph routes to
 authoritative records; it is not a source of truth. Use the board → index →
