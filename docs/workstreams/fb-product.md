@@ -6,7 +6,7 @@ Lane: FB-Product
 ## TASK-067 — Sidechat execution authority and FB 0.5.4-beta
 
 - Status: Staging QA; `0.5.4-beta+codex.20260801143809` is the current release
-  candidate and changelog approval is pending.
+  candidate and its changelog wording is approved.
 - Outcome: Product/BFM parent work executes approved scope; workstream parents
   plan and hand off; sidechat mutation requires a named, one-use exception.
 - Gate: James authorized push and merge. Changelog approval and the complete

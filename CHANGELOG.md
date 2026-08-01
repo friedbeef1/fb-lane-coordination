@@ -23,7 +23,7 @@ permission subsystem.
 `fb-lane-coordination@fb-lane`, and start a new Codex task so the refreshed
 guardrails and skills are loaded.
 
-**Changelog approval:** Pending James's approval of this entry.
+**Changelog approval:** Approved by James on 2026-08-01.
 
 ## 0.5.3-beta — 2026-08-01
 

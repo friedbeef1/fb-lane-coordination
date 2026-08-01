@@ -50,14 +50,14 @@ one-use execution exception.
 
 - Review state: not reviewable
 - Changelog: updated — [FB 0.5.4-beta](../../CHANGELOG.md#054-beta--2026-08-01)
-- Changelog approval: pending — Product must obtain James's approval of the
-  drafted entry before Ready to ship.
+- Changelog approval: approved — James approved the drafted entry on
+  2026-08-01.
 - Verification: [TASK-067 QA](../qa/TASK-067.md)
 - External gates: merge was requested; publication, marketplace upgrade, plugin
   reinstall, and consumer-project refresh require release sequencing after the
   changelog gate passes.
-- Remaining owner/action: Product/BFM presents the changelog entry for approval,
-  completes the release checkpoint, then performs the authorized integration.
+- Remaining owner/action: Product/BFM completes the release checkpoint, then
+  performs the authorized integration and active-repository refresh.
 
 ## Loop Learning
 
