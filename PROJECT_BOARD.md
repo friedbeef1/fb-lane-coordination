@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-064 | Staging QA | FB-Product / BFM | Access guardrails | Default FB to approval-based least privilege, forbid Full access as a prompt-avoidance shortcut, and separate host permission prompts from Product/BFM gates | `docs/fb/guardrails.md plugins/fb-lane-coordination/docs/fb/guardrails.md tools/fb-beginner-experience.test.cjs plugins/fb-lane-coordination/tools/fb-beginner-experience.test.cjs` | [Handoff](docs/handoffs/TASK-064.md); local isolated candidate; integration waits for stale TASK-031 lock reconciliation; no publication or install |
 | TASK-062 | Done | FB-Tech | First-run onboarding | After bootstrap, ask once for permission to create missing repository-scoped Product/User, Business, Design, Tech, Discovery, and Bugs sidebar tasks, with honest manual fallback | `tools/fb-onboarding.cjs tools/fb-onboarding.test.cjs tools/fb-lane.cjs tools/fb-package-manifest.json skills/bfm/SKILL.md skills/project-coordination-setup/SKILL.md docs/fb/start.md docs/setup.md FAQ.md CHANGELOG.md PROJECT_BOARD.md docs/handoffs/TASK-062.md docs/qa/TASK-062.md docs/handoffs/index.md .codex/current_task.md` | [Handoff](docs/handoffs/TASK-062.md); [QA](docs/qa/TASK-062.md); published build `0.5.1-beta+codex.20260729135705` |
 | TASK-061 | Staging QA | FB-Tech | Board efficiency | Keep agent orientation compact by loading active board context only and mechanically archiving terminal board history after a size threshold | `tools/fb-board-context.cjs tools/fb-board-context.test.cjs tools/fb-lane.cjs tools/fb-lane.test.cjs tools/fb-package-manifest.json docs/fb/README.md docs/fb/records.md FAQ.md AGENTS.md .codex/rules.md templates/PROJECT_BOARD.md examples/my-app/AGENTS.md examples/my-app/.codex/rules.md skills/project-coordination-setup/SKILL.md PROJECT_BOARD.md docs/handoffs/TASK-061.md docs/qa/TASK-061.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-061.md) · [QA](docs/qa/TASK-061.md) |
 | TASK-059 | In Progress | FB-Tech | Three-tier real-work benchmark | Compare Vanilla Codex with Efficient-Graph FB across six easy, six medium, and six difficult historical tasks while preserving TASK-056 as immutable evidence | `tools/fb-three-tier-benchmark.cjs tools/fb-three-tier-benchmark.test.cjs tools/fixtures/fb-three-tier-benchmark docs/benchmarks/difficulty-tiers docs/handoffs/TASK-059.md docs/qa/TASK-059.md PROJECT_BOARD.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-059.md); [Plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md) |
@@ -28,7 +29,7 @@
 | TASK-049 | Done | FB-Product / BFM | Plugin Navigation | Integrate graph-directed targeted reading into the bundled Codex plugin, support repository-specific task IDs, and release `0.4.0-beta+codex.20260726101229` | `tools/fb-project-graph*`, MCP surface, release metadata, canonical/package graph guidance and skills | [Handoff](docs/handoffs/TASK-049.md); [QA](docs/qa/TASK-049.md); [PR #51](https://github.com/friedbeef1/fb-lane-coordination/pull/51); installed and enabled |
 | TASK-048 | Staging QA | FB-Product / BFM | Project Navigation | Evaluate graduated graph navigation and a minimal graph-first route without changing product-truth authority | `tools/fb-project-graph*`, `.fb/graph/`, TASK-048 experiment/QA/coordination records | [Handoff](docs/handoffs/TASK-048.md); [Results](docs/experiments/TASK-048-graduated-project-graph-pilot.md); [QA](docs/qa/TASK-048.md) |
 | TASK-047 | Staging QA | FB-Product / BFM | Harness Efficiency | Normalize durable evidence, add risk-triggered review and deterministic verification reuse, and reduce duplicated coordination context | `tools/fb-records.*`, validator/doctor integration, canonical/package harness and skills, templates, TASK-047 records | [Handoff](docs/handoffs/TASK-047.md); [Pilot](docs/experiments/TASK-047-real-task-pilot.md); [Plan](docs/superpowers/plans/2026-07-23-fb-durable-efficiency-evidence-normalization.md); [QA](docs/qa/TASK-047.md); focused local gate passed |
-| TASK-031 | In Progress | FB-Product / BFM | Closeout + Plugin Release | Require a Full BFM changelog decision before Ready to ship and rebuild FB as 0.3.1-beta | Closeout/session/runtime contracts, canonical/package docs and skills, release metadata and records | [Handoff](docs/handoffs/TASK-031.md); PR #48; `0.3.1-beta+codex.20260718021942`; Push Live remains separate |
+| TASK-031 | Done | FB-Product / BFM | Closeout + Plugin Release | Require a Full BFM changelog decision before Ready to ship and rebuild FB as 0.3.1-beta | None; implementation is on `main` and superseded by published FB 0.5.1 | [Handoff](docs/handoffs/TASK-031.md); historical PR #48; closeout reconciled by TASK-064 |
 | TASK-030 | Done | FB-Product / BFM | Codex Plugin Release | Release the Codex plugin as `0.3.0-beta`, align active metadata/prompts/docs with the six-workstream loop, and prove the packaged install | None | [Handoff](docs/handoffs/TASK-030.md); [PR #44](https://github.com/friedbeef1/fb-lane-coordination/pull/44) merged; `0.3.0-beta+codex.20260717150502` installed and enabled; GitHub readiness and live cache proof passed |
 | TASK-029 | Staging QA | FB-Product / BFM + six workstreams | Product Model | Expand FB to Product/User, Business, Design, Tech, Discovery, and Bugs; make `$bfm` reconcile all six ready-handoff sources and align the plugin and public story | Runtime/session/CLI/MCP, bootstrap, skills, canonical/package docs/tests, TASK-029 records | [Handoff](docs/handoffs/TASK-029.md); branch `codex/fb-six-workstreams`; root/package focused contracts, 25-mirror parity, syntax, and whitespace passed; Ready to ship; no release checkpoint |
 | TASK-028 | Staging QA | FB-Product / BFM + FB-Tech execution | Harness Efficiency | Revise the local harness to focused checks, immediate safety gates, and explicit Product-owned release checkpoints; retain the three-mode router, Quick Record, budgets, and generated mirrors | Canonical/package efficiency and documentation contracts, canonical harness and skills, board/handoff/index/current-task/Product card | [Handoff](docs/handoffs/TASK-028.md); [spec](docs/superpowers/specs/2026-07-17-fb-efficiency-correction-design.md); local candidate `284e465`; no release checkpoint requested; focused local QA only |
@@ -66,6 +67,44 @@
 | TASK-009 | Done | FB-Product | Documentation | Trim front page and move setup/platform details to focused docs | `README.md`, `docs/setup.md`, `platforms/codex/README.md`, `PROJECT_BOARD.md` | `codex/front-page-docs-trim` |
 | TASK-010 | Done | FB-Product | Coordination | Add lightweight goal alignment to FB-Lane handoffs and BFM sequencing | (None) | [PR #19](https://github.com/friedbeef1/fb-lane-coordination/pull/19) |
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
+
+---
+
+### TASK-064 - Least-Privilege Workspace Access
+
+*   **Status**: Staging QA (local isolated candidate)
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Access guardrails
+*   **Scope**: Default FB to approval-based least privilege, forbid Full access
+    as a routine prompt-avoidance shortcut, scope real escalations narrowly,
+    and preserve host permission prompts and Product/BFM gates as separate
+    boundaries.
+*   **Out of Scope**: Codex host configuration, runtime permission automation,
+    publication, marketplace installation, consumer-repository mutation, or
+    weakening an existing approval gate.
+*   **Goal Alignment Session**:
+    *   **Objective**: Keep FB autonomous inside approved scope without asking
+        users for unnecessary machine-wide access.
+    *   **Key Results**: Canonical and packaged guardrails default to
+        approval-based access, require authoritative-workspace verification,
+        reject Full access as a convenience fix, scope genuine escalation, and
+        preserve Product/BFM governance independently of host permissions.
+    *   **Definition of Done**: Focused root/package contract and mirror parity
+        pass; candidate is committed in an isolated worktree; release and
+        installation remain separate gates.
+    *   **Gate / Review Point**: Reconcile the stale TASK-031 broad
+        canonical/package-doc lock before integration. Any plugin publication
+        or installation needs the normal release approval.
+    *   **Approval**: approved
+    *   **Justification**: James explicitly asked for this guideline to be
+        placed inside the FB-Lane plugin.
+*   **Affected Screens / Locks**: Canonical/package guardrails and their focused
+    beginner-experience contract only.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-064.md); branch
+    `codex/TASK-064-least-privilege-access`.
+*   **Latest Update**: *2026-08-01*: Focused RED/GREEN passed in both canonical
+    and packaged contexts. Doctor now accepts TASK-064; unrelated pre-existing
+    TASK-059 normalized-record drift remains outside this task.
 
 ---
 
@@ -441,7 +480,7 @@
 ---
 
 ### TASK-031 - Full BFM Changelog Closeout and FB 0.3.1-beta Release
-*   **Status**: In Progress (release checkpoint at coordination correction)
+*   **Status**: Done (implementation is on `main`; superseded by published FB 0.5.1)
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Closeout + Codex Plugin Release
 *   **Scope**: Require a candidate-bound changelog decision before v3 Full BFM can close, submit, reuse verification, or pass a release checkpoint; rebuild active plugin surfaces as `0.3.1-beta+codex.20260718021942`.
@@ -453,9 +492,10 @@
     *   **Gate / Review Point**: Stop at Ready to ship. Only Push Live authorizes merge, GitHub marketplace upgrade, reinstall, and public installed-plugin verification.
     *   **Approval**: approved
     *   **Justification**: James explicitly approved the Full BFM changelog closeout and FB 0.3.1-beta release plan, including the separate Push Live boundary.
-*   **Affected Screens / Locks**: Closeout/session/runtime contracts, canonical/package docs and skills, fallback installation, release metadata, and TASK-031 coordination records.
+*   **Affected Screens / Locks**: None. Historical implementation surfaces are retained on `main`; the stale active lock is released.
 *   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-031.md); [PR #48](https://github.com/friedbeef1/fb-lane-coordination/pull/48); release build `0.3.1-beta+codex.20260718021942`.
 *   **Latest Update**: *2026-07-18*: The initial release validator exposed the manual fallback omission. Repair `1c17435` added `fb-changelog-closeout.cjs` to the documented archive fallback and its executable root/package regression. The final validator then reached doctor, which correctly found this detailed board OKR record missing. This coordination-only correction copies the already-approved goal record; no local validator pass is claimed and the full validator is not rerun in this correction.
+*   **Closeout Update**: *2026-08-01*: The implemented changelog-closeout behavior is already on `main` and included in later published releases through FB 0.5.1. TASK-064 reconciled this stale board state and released the obsolete broad documentation lock; no new publication or installation was performed.
 
 ---
 

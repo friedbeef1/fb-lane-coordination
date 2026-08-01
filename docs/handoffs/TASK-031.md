@@ -87,3 +87,13 @@ Next Product/BFM recovery action: If a focused gate fails, apply one consolidate
 - **Pass criteria:** Focused and release-checkpoint evidence pass for the exact candidate.
 - **Known limits:** Public installation happens only after Push Live.
 - **Failure-report format:** failing check, expected result, candidate commit, and observed output.
+
+## Product/BFM Closeout
+
+Status: Done.
+Actioned By: FB-Product / BFM during TASK-064 integration.
+Result: The implemented changelog-closeout behavior is already on `main` and is included in later published releases through FB 0.5.1.
+Evidence: Main contains the TASK-031 implementation commits and the published 0.5.1 release descends from them.
+Remaining: None for TASK-031. Any future plugin release remains its own approval gate.
+Closeout Note: The stale In Progress board/index/card state and broad documentation lock were released; no publication or installation occurred in this reconciliation.
+Loop Learning: Feedback captured: yes; repeated pattern: no; tooling needed: none; Product approval needed: no.

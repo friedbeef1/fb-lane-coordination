@@ -3,6 +3,16 @@
 Last Updated: 2026-07-29
 Lane: FB-Product
 
+## TASK-064 — Least-privilege workspace access
+
+- Status: Local Staging QA candidate.
+- Outcome: FB defaults to approval-based workspace access, never recommends
+  Full access merely to suppress prompts, scopes genuine escalations narrowly,
+  and keeps host permission prompts separate from Product/BFM approval gates.
+- Gate: Reconcile the stale TASK-031 canonical/package-doc lock before
+  integration. No publication, plugin install, or consumer-repository change.
+- Link: [Handoff](../handoffs/TASK-064.md).
+
 ## TASK-062 — First-run `$bfm` onboarding and FB 0.5.1-beta
 
 - Status: Done; published build installed and enabled.
@@ -75,10 +85,10 @@ Lane: FB-Product
 
 ## TASK-031 — Full BFM changelog closeout and FB 0.3.1-beta
 
-- Status: In Progress on PR #48.
+- Status: Done; implementation is on `main` and superseded by published FB 0.5.1.
 - Outcome target: v3 Full BFM closeout cannot reach Ready to ship without a candidate-matched changelog decision; Quick, Normal, and historical v2 work remain compatible.
 - Release candidate: `0.3.1-beta+codex.20260718021942`.
-- Release gate: stop at Ready to ship; only Push Live authorizes merge, marketplace upgrade, and installed-plugin verification.
+- Closeout: TASK-064 reconciled the stale active record and released its broad documentation lock. No new publication or installation occurred.
 
 ## TASK-030 — FB 0.3.0-beta release
 
