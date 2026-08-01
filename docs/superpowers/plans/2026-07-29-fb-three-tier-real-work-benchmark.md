@@ -41,8 +41,8 @@ Markdown reports, `node:test`.
 **Steps:**
 
 1. Write failing tests for exactly eighteen unique tasks, six per tier, equal
-   repository representation per tier, immutable source/acceptance refs, and
-   exact TASK-056 reuse receipts.
+   repository representation across the full study (nine tasks per repository),
+   immutable source/acceptance refs, and exact TASK-056 reuse receipts.
 2. Freeze these IDs:
    - easy: `unmirror-intro`, `unmirror-intro-persistence`, `meja-scroll`,
      `meja-topic-flip`, `meja-back-navigation`,

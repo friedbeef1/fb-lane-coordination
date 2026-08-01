@@ -3,6 +3,19 @@
 Last Updated: 2026-07-29
 Lane: FB-Product
 
+## TASK-059 — Three-tier real-work benchmark
+
+- Status: Integrated into the TASK-064 release candidate; Staging QA until the
+  approved release sequence reaches GitHub `main`.
+- Outcome: Across three directional pairs, Efficient Graph used 44.0% fewer
+  raw provider tokens and 7.3% less wall time with equal defined local
+  outcomes; Graph was slower on the Difficult task and did not reduce repairs.
+- Limits: Directional evidence only. Signed real-camera, provider-backed,
+  visual, store, production, and human-attention proof remain unverified.
+- Link: [Handoff](../handoffs/TASK-059.md),
+  [results](../benchmarks/difficulty-tiers/TASK-059-directional-results.md), and
+  [QA](../qa/TASK-059.md).
+
 ## TASK-064 — Least-privilege workspace access
 
 - Status: Local Staging QA candidate.

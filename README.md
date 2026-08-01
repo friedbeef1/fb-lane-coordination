@@ -34,6 +34,13 @@ This is directional evidence for that task mix, **not a universal claim** that
 FB always wins. See the [method, fixture-level results, cost estimate, and
 limits](docs/benchmarks/repair-efficiency/README.md).
 
+A later three-pair Easy/Medium/Difficult directional simulation isolated the
+context format: Efficient-Graph FB used **44.0% fewer raw provider tokens** and
+**7.3% less wall time** than equal-fact flat Vanilla briefs, with both arms
+passing every defined local outcome. The difficult Graph case was 18.2% slower,
+so the evidence supports token efficiency more strongly than universal speed.
+See the [measurements, calibration correction, and limits](docs/benchmarks/difficulty-tiers/TASK-059-directional-results.md).
+
 These are product-delivery and coordination gaps that can arise around ordinary
 Codex use, not defects in Codex itself.
 

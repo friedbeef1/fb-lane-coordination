@@ -42,3 +42,22 @@ Sensitive or cross-project corpora require explicit approval.
 The controlled TASK-048 experiment demonstrated that capped graph-directed
 targeted reading can reduce orientation context without reducing correctness.
 It does not establish a universal token or time saving.
+
+## Directional real-Codex evidence
+
+A later three-pair Easy/Medium/Difficult simulation gave Vanilla and
+Efficient-Graph FB identical public facts and one bounded repair:
+
+| Observed total | Vanilla | Efficient Graph | Graph difference |
+|---|---:|---:|---:|
+| Raw provider tokens | 3,384,809 | 1,894,419 | **44.0% fewer** |
+| Wall time | 13m 04s | 12m 07s | **7.3% less** |
+| Defined local outcomes passed | 3/3 | 3/3 | no difference |
+| Repair passes | 3 | 3 | no difference |
+
+Graph was faster on the Easy and Medium tasks but 18.2% slower on the Difficult
+native-iOS task. Treat this as directional support for selective-context token
+efficiency, not proof that Graph is always faster. The 100% result covers only
+the frozen static/local requirements; it excludes physical-device,
+provider-backed, visual, and production readiness. See the
+[full measurements, grader correction, and limitations](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/benchmarks/difficulty-tiers/TASK-059-directional-results.md).

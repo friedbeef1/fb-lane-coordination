@@ -1,0 +1,163 @@
+{
+  "experimentId": "fb-three-tier-059-v2-directional-20260729",
+  "status": "directional-complete",
+  "model": "gpt-5.4",
+  "interpretation": "Directional static/local simulation; not physical-device, provider-backed, or production readiness.",
+  "runs": [
+    {
+      "tier": "easy",
+      "task": "unmirror-intro-persistence",
+      "arm": "vanilla",
+      "wallTimeMs": 250307,
+      "providerTokens": 801742,
+      "inputTokens": 792286,
+      "cachedInputTokens": 686464,
+      "outputTokens": 9456,
+      "repairUsed": true,
+      "recordedReadinessPercent": 90,
+      "semanticReadinessPercent": 100,
+      "semanticPass": true
+    },
+    {
+      "tier": "easy",
+      "task": "unmirror-intro-persistence",
+      "arm": "efficient-graph",
+      "wallTimeMs": 201691,
+      "providerTokens": 570040,
+      "inputTokens": 562902,
+      "cachedInputTokens": 470272,
+      "outputTokens": 7138,
+      "repairUsed": true,
+      "recordedReadinessPercent": 90,
+      "semanticReadinessPercent": 100,
+      "semanticPass": true
+    },
+    {
+      "tier": "medium",
+      "task": "meja-sync-warning",
+      "arm": "vanilla",
+      "wallTimeMs": 291588,
+      "providerTokens": 988917,
+      "inputTokens": 978334,
+      "cachedInputTokens": 870784,
+      "outputTokens": 10583,
+      "repairUsed": true,
+      "recordedReadinessPercent": 42.86,
+      "semanticReadinessPercent": 100,
+      "semanticPass": true
+    },
+    {
+      "tier": "medium",
+      "task": "meja-sync-warning",
+      "arm": "efficient-graph",
+      "wallTimeMs": 239278,
+      "providerTokens": 682198,
+      "inputTokens": 673943,
+      "cachedInputTokens": 562432,
+      "outputTokens": 8255,
+      "repairUsed": true,
+      "recordedReadinessPercent": 42.86,
+      "semanticReadinessPercent": 100,
+      "semanticPass": true
+    },
+    {
+      "tier": "difficult",
+      "task": "unmirror-ios-camera-crash",
+      "arm": "vanilla",
+      "wallTimeMs": 241854,
+      "providerTokens": 1594150,
+      "inputTokens": 1587123,
+      "cachedInputTokens": 1267456,
+      "outputTokens": 7027,
+      "repairUsed": true,
+      "recordedReadinessPercent": 70,
+      "semanticReadinessPercent": 100,
+      "semanticPass": true
+    },
+    {
+      "tier": "difficult",
+      "task": "unmirror-ios-camera-crash",
+      "arm": "efficient-graph",
+      "wallTimeMs": 285825,
+      "providerTokens": 642181,
+      "inputTokens": 631857,
+      "cachedInputTokens": 524928,
+      "outputTokens": 10324,
+      "repairUsed": true,
+      "recordedReadinessPercent": 65,
+      "semanticReadinessPercent": 100,
+      "semanticPass": true
+    }
+  ],
+  "aggregate": {
+    "vanilla": {
+      "wallTimeMs": 783749,
+      "providerTokens": 3384809,
+      "inputTokens": 3357743,
+      "cachedInputTokens": 2824704,
+      "outputTokens": 27066,
+      "semanticReadinessPercent": 100,
+      "semanticAccepted": 3,
+      "repairs": 3
+    },
+    "efficientGraph": {
+      "wallTimeMs": 726794,
+      "providerTokens": 1894419,
+      "inputTokens": 1868702,
+      "cachedInputTokens": 1557632,
+      "outputTokens": 25717,
+      "semanticReadinessPercent": 100,
+      "semanticAccepted": 3,
+      "repairs": 3
+    },
+    "efficientGraphVersusVanilla": {
+      "wallTimeDifferenceMs": -56955,
+      "wallTimeDifferencePercent": -7.3,
+      "providerTokenDifference": -1490390,
+      "providerTokenDifferencePercent": -44,
+      "readinessPointDifference": 0,
+      "acceptedOutcomeDifference": 0,
+      "repairDifference": 0
+    }
+  },
+  "productionAdjacentVerification": {
+    "date": "2026-07-29",
+    "vanilla": {
+      "webTests": {
+        "passed": 32,
+        "failed": 0
+      },
+      "androidFocusedTest": "passed",
+      "mediumStandaloneVerifier": "passed-with-current-support-scripts",
+      "iosSimulatorTests": {
+        "passed": 15,
+        "failed": 0
+      },
+      "physicalIphoneTargetBuild": "passed-unsigned"
+    },
+    "efficientGraph": {
+      "webTests": {
+        "passed": 32,
+        "failed": 0
+      },
+      "androidFocusedTest": "passed",
+      "mediumStandaloneVerifier": "passed-with-current-support-scripts",
+      "iosSimulatorTests": {
+        "passed": 14,
+        "failed": 0
+      },
+      "physicalIphoneTargetBuild": "passed-unsigned"
+    },
+    "remainingGate": "signed physical-iPhone install and real camera/permission smoke"
+  },
+  "evidenceHashes": {
+    "declaration": "574cb774172dd5bb59df3bf99b48ddd6ee102ca773efeb595d98b39312ce9262",
+    "shakedown": "3fec15297ab1492d812fd2d3b70b4fb91e68a5bc2bafd09150722485af0ddd53",
+    "meja-sync-warning-efficient-graph": "4b10d33abe7f0b2e5eef1b92dfd9451bdc014842a9efceb48dcf6a87736e170e",
+    "meja-sync-warning-vanilla": "e88282fb44589e2272e7c454ea32b9a844888acfe8c0df0afed432d99bdfb64d",
+    "unmirror-intro-persistence-efficient-graph": "3ddc48ef63f3d8b45046c5c439f19d43db64b6aefcbfa0efaeca3efebb37748a",
+    "unmirror-intro-persistence-vanilla": "ea018ab0b0539e55e04add861bf3e8a596ee7465604b24402974af1c51309603",
+    "unmirror-ios-camera-crash-efficient-graph": "e731f859c730e13813fa8931ea2ceed1568741e2ce02e1be8973f897adf42195",
+    "unmirror-ios-camera-crash-vanilla": "5e6f943bbfb8a87b80f4deecf8f71da9b161d1c881797b6ed45389e29bd694c8"
+  }
+}

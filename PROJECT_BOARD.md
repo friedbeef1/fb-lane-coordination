@@ -16,7 +16,7 @@
 | TASK-064 | Staging QA | FB-Product / BFM | Access guardrails | Default FB to approval-based least privilege, forbid Full access as a prompt-avoidance shortcut, and separate host permission prompts from Product/BFM gates | `docs/fb/guardrails.md plugins/fb-lane-coordination/docs/fb/guardrails.md tools/fb-beginner-experience.test.cjs plugins/fb-lane-coordination/tools/fb-beginner-experience.test.cjs` | [Handoff](docs/handoffs/TASK-064.md); local isolated candidate; integration waits for stale TASK-031 lock reconciliation; no publication or install |
 | TASK-062 | Done | FB-Tech | First-run onboarding | After bootstrap, ask once for permission to create missing repository-scoped Product/User, Business, Design, Tech, Discovery, and Bugs sidebar tasks, with honest manual fallback | `tools/fb-onboarding.cjs tools/fb-onboarding.test.cjs tools/fb-lane.cjs tools/fb-package-manifest.json skills/bfm/SKILL.md skills/project-coordination-setup/SKILL.md docs/fb/start.md docs/setup.md FAQ.md CHANGELOG.md PROJECT_BOARD.md docs/handoffs/TASK-062.md docs/qa/TASK-062.md docs/handoffs/index.md .codex/current_task.md` | [Handoff](docs/handoffs/TASK-062.md); [QA](docs/qa/TASK-062.md); published build `0.5.1-beta+codex.20260729135705` |
 | TASK-061 | Staging QA | FB-Tech | Board efficiency | Keep agent orientation compact by loading active board context only and mechanically archiving terminal board history after a size threshold | `tools/fb-board-context.cjs tools/fb-board-context.test.cjs tools/fb-lane.cjs tools/fb-lane.test.cjs tools/fb-package-manifest.json docs/fb/README.md docs/fb/records.md FAQ.md AGENTS.md .codex/rules.md templates/PROJECT_BOARD.md examples/my-app/AGENTS.md examples/my-app/.codex/rules.md skills/project-coordination-setup/SKILL.md PROJECT_BOARD.md docs/handoffs/TASK-061.md docs/qa/TASK-061.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-061.md) · [QA](docs/qa/TASK-061.md) |
-| TASK-059 | In Progress | FB-Tech | Three-tier real-work benchmark | Compare Vanilla Codex with Efficient-Graph FB across six easy, six medium, and six difficult historical tasks while preserving TASK-056 as immutable evidence | `tools/fb-three-tier-benchmark.cjs tools/fb-three-tier-benchmark.test.cjs tools/fixtures/fb-three-tier-benchmark docs/benchmarks/difficulty-tiers docs/handoffs/TASK-059.md docs/qa/TASK-059.md PROJECT_BOARD.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-059.md); [Plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md) |
+| TASK-059 | Staging QA | FB-Tech | Three-tier real-work benchmark | Compare Vanilla Codex with Efficient-Graph FB across six easy, six medium, and six difficult historical tasks while preserving TASK-056 as immutable evidence | `tools/fb-three-tier-benchmark.cjs tools/fb-three-tier-benchmark.test.cjs tools/fixtures/fb-three-tier-benchmark docs/benchmarks/difficulty-tiers docs/handoffs/TASK-059.md docs/qa/TASK-059.md PROJECT_BOARD.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-059.md); [Plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md) |
 | TASK-058 | Staging QA | FB-Tech | Automatic worktree orchestration | Make `$bfm` create or reuse linked worktrees for every independent source-changing slice without user setup, while keeping planning-only and overlapping work lightweight or sequential | Canonical/package workflow and skills, README, focused contract, generated mirrors, changelog, and TASK-058 evidence | [Handoff](docs/handoffs/TASK-058.md); [QA](docs/qa/TASK-058.md); Ready to ship — **Push Live** required |
 | TASK-057 | Done | FB-Product / BFM + FB-Tech | Harness reliability | Prevent incomplete OKR records from reaching release validation | Normalized handoff template, focused record validation, generated plugin mirrors, and TASK-057 evidence | [Handoff](docs/handoffs/TASK-057.md); [QA evidence](docs/qa/TASK-057.md); merged and published as `708593a` |
 | TASK-056 | Staging QA | FB-Product / BFM + FB-Tech | Prospective repair-efficiency benchmark | Twelve fresh runs completed: efficient Graph used 15.8% fewer tokens and 23.6% less wall time, with 3/6 accepted outcomes versus Vanilla's 1/6 | Isolated fixtures and benchmark evidence only; no source-repository, plugin-release, provider-write, production, or deployment change | [Handoff](docs/handoffs/TASK-056.md); [Result](docs/benchmarks/repair-efficiency/README.md); [QA](docs/qa/TASK-056.md) |
@@ -176,25 +176,33 @@
 
 ### TASK-059 - Three-Tier Real-Work FB Benchmark
 
-*   **Status**: In Progress
+*   **Status**: Staging QA
 *   **Owner / Thread**: FB-Tech
 *   **Area**: Benchmarking
 *   **Scope**: Extend the real-work benchmark to six easy, six medium, and six
     difficult historical tasks, comparing Vanilla Codex with Efficient-Graph
     FB under equal public facts, model, execution limits, and hidden grading.
-    Reuse the six completed TASK-056 pairs and run only the twelve missing
-    paired tasks.
+    Preserve the complete registry and TASK-056 baseline, but use the approved
+    directional profile for current spend: one representative task per tier
+    and two arms, for six new runs.
 *   **Out of Scope**: Editing source repositories, selective reruns, rewriting
     TASK-056 evidence, plugin behavior changes, release, merge, publication, or
     deployment.
 *   **Goal Alignment Session**:
     *   **Objective**: Produce realistic tiered evidence for FB time, token, readiness, and acceptance tradeoffs without hiding partial readiness behind strict pass/fail totals.
-    *   **Key Results**: Eighteen traceable historical tasks; six tasks per tier; twenty-four new counted runs; immutable reuse receipts for TASK-056; tier-level wall time, tokens, strict acceptance, and mean readiness; zero source-repository writes.
+    *   **Key Results**: Eighteen traceable historical tasks remain available; the directional study runs one task per tier and arm; the excluded v1 pilot remains immutable; tier-level wall time, tokens, strict acceptance, and granular readiness are reported; zero source-repository writes.
     *   **Definition of Done**: Registry traceability, source/accepted grader proof, controller lifecycle, privacy, token ceiling, result recomputation, focused syntax, links, and whitespace pass; valid unfavorable outcomes remain recorded.
-    *   **Gate / Review Point**: One excluded shakedown must pass before paid comparative runs; the aggregate provider-token ceiling is 60,000,000; no release action follows automatically.
+    *   **Gate / Review Point**: One excluded shakedown must pass before six paid comparative runs; the directional provider-token ceiling is 30,000,000; no release action follows automatically.
     *   **Approval**: approved
     *   **Justification**: James approved a realistic easy/medium/difficult comparison and explicitly requested implementation.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-059.md); [plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md); [QA](docs/qa/TASK-059.md).
+    Directional results: [report](docs/benchmarks/difficulty-tiers/TASK-059-directional-results.md);
+    [machine-readable evidence](docs/benchmarks/difficulty-tiers/TASK-059-directional-results.json).
+    Production-adjacent follow-up: [Web, Android, standalone, iOS simulator,
+    and physical-iPhone target evidence](docs/benchmarks/difficulty-tiers/TASK-059-production-adjacent-verification.md);
+    a signed real-camera/permission smoke remains outside the verified claim.
+    Independent evidence review approved after direct dismissal and video-input
+    omission mutations were added in `9d6b3aa`.
 
 ### TASK-058 - Automatic BFM Worktree Orchestration
 
