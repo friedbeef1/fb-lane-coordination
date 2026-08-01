@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-067 | Staging QA | FB-Product / BFM | Conversation execution authority + Plugin Release | Make Product/BFM parent execution, workstream planning, and one-use sidechat exceptions explicit, then publish FB `0.5.4-beta+codex.20260801143809` after the release checkpoint | Canonical/package guardrails, Product/BFM and six workstream skills, metadata/docs, focused and release contracts, coordination records | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); changelog approved |
+| TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-064 | Done | FB-Product / BFM | Access guardrails + Plugin Release | Default FB to approval-based least privilege, forbid Full access as a prompt-avoidance shortcut, and separate host permission prompts from Product/BFM gates | None; published and installed | [Handoff](docs/handoffs/TASK-064.md); [QA](docs/qa/TASK-064.md); published build `0.5.2-beta+codex.20260801121142` |
 | TASK-062 | Done | FB-Tech | First-run onboarding | After bootstrap, ask once for permission to create missing repository-scoped Product/User, Business, Design, Tech, Discovery, and Bugs sidebar tasks, with honest manual fallback | `tools/fb-onboarding.cjs tools/fb-onboarding.test.cjs tools/fb-lane.cjs tools/fb-package-manifest.json skills/bfm/SKILL.md skills/project-coordination-setup/SKILL.md docs/fb/start.md docs/setup.md FAQ.md CHANGELOG.md PROJECT_BOARD.md docs/handoffs/TASK-062.md docs/qa/TASK-062.md docs/handoffs/index.md .codex/current_task.md` | [Handoff](docs/handoffs/TASK-062.md); [QA](docs/qa/TASK-062.md); published build `0.5.1-beta+codex.20260729135705` |
@@ -74,7 +74,8 @@
 
 ### TASK-067 - Sidechat execution authority
 
-*   **Status**: Staging QA — changelog approved; release checkpoint pending.
+*   **Status**: Done — published to GitHub `main`, marketplace upgraded, and
+    `0.5.4-beta+codex.20260801143809` installed and enabled.
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Conversation execution authority
 *   **Scope**: Define Product/BFM parent execution, workstream-parent planning,
@@ -90,13 +91,13 @@
     *   **Definition of Done**: Focused skill contract, 53-mirror parity,
         metadata, complete validator, doctor, syntax, links, whitespace,
         GitHub merge, marketplace upgrade, reinstall, and active guidance pass.
-    *   **Gate / Review Point**: Changelog wording approval precedes the release
-        checkpoint. James authorized push and merge on 2026-08-01.
+    *   **Gate / Review Point**: Complete. James approved the changelog, push,
+        merge, marketplace upgrade, and active-repository adoption on 2026-08-01.
     *   **Approval**: approved
     *   **Justification**: James supplied a ready Product/BFM handoff in this
         parent task and directed Product/BFM to implement the smallest solution.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-067.md) ·
-    [QA](docs/qa/TASK-067.md).
+    [QA](docs/qa/TASK-067.md) · [PR #53](https://github.com/friedbeef1/fb-lane-coordination/pull/53).
 
 ### TASK-066 - Automatic local verification
 

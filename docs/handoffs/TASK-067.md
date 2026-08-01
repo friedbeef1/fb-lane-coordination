@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-067
 lane: fb-product
-status: implemented
+status: done
 okr_fit: aligned
 ---
 
@@ -54,10 +54,23 @@ one-use execution exception.
   2026-08-01.
 - Verification: [TASK-067 QA](../qa/TASK-067.md)
 - External gates: merge was requested; publication, marketplace upgrade, plugin
-  reinstall, and consumer-project refresh require release sequencing after the
-  changelog gate passes.
-- Remaining owner/action: Product/BFM completes the release checkpoint, then
-  performs the authorized integration and active-repository refresh.
+  reinstall, and consumer-project refresh were completed through the global
+  plugin; dirty consumer worktrees were not rewritten.
+- Remaining owner/action: start a new Codex task in an active repository to
+  load the refreshed plugin snapshot.
+
+## Product/BFM Closeout
+
+Status: Done.
+Actioned By: FB-Product / BFM.
+Result: FB now enforces the conversation authority contract through canonical
+and packaged guidance.
+Evidence: The complete release validator and GitHub CI passed; PR #53 merged as
+`cfa1632`; the marketplace upgrade and reinstall succeeded; and the installed
+cache reports `0.5.4-beta+codex.20260801143809` with the new guardrail and skill
+references. See [TASK-067 QA](../qa/TASK-067.md).
+Remaining: Existing open Codex tasks retain their loaded snapshot; new tasks
+load FB 0.5.4. Active dirty repositories were inspected but not rewritten.
 
 ## Loop Learning
 

@@ -25,6 +25,11 @@ guardrails and skills are loaded.
 
 **Changelog approval:** Approved by James on 2026-08-01.
 
+**Release evidence:** PR #53 passed GitHub validation and merged as `cfa1632`.
+The `fb-lane` marketplace upgraded successfully, and Codex installed and
+enabled `0.5.4-beta+codex.20260801143809` with the canonical authority table,
+skill links, and bundled MCP server present.
+
 ## 0.5.3-beta — 2026-08-01
 
 Build: `0.5.3-beta+codex.20260801141345`
