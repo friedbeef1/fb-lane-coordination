@@ -14,6 +14,11 @@ Read [the FB harness](../../docs/fb/README.md) before acting, then read the
 board, index, linked handoff, and relevant workstream card. The harness owns
 the durable policy:
 
+Apply the canonical [execution authority by conversation
+context](../../docs/fb/guardrails.md#execution-authority-by-conversation-context)
+before any mutation. Product/BFM parent work may execute approved scope;
+workstream parents hand off; sidechats require a named, one-use exception.
+
 The public path starts in whichever of the six planning/evidence workstreams
 matches the question: Product/User (technical slug
 `product`), Business, Design, Tech, Discovery, and Bugs. Each relevant

@@ -10,6 +10,11 @@ Product/User. It is a planning/evidence workstream, not implementation. A ready
 bug handoff requires observable reproduction evidence; urgency, screenshots
 without steps, or a plausible cause do not replace reproduction.
 
+Follow the canonical [execution authority by conversation
+context](../../docs/fb/guardrails.md#execution-authority-by-conversation-context).
+Ordinary Bugs tasks plan and hand off; sidechat mutation requires a named,
+one-use exception.
+
 Use [records.md](../../docs/fb/records.md): defect scope and acceptance remain
 in the handoff, complete reproduction output remains in the QA artifact, and
 the Bugs card links to them without copying the evidence.

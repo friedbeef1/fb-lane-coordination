@@ -68,6 +68,11 @@ reconciliation and authorizes execution of already-approved ready scope. Read
 board truth, the handoff index, task-linked handoffs, and applicable workstream
 cards.
 
+Apply the canonical [execution authority by conversation
+context](../../docs/fb/guardrails.md#execution-authority-by-conversation-context).
+Product/BFM parent work may execute approved scope; a sidechat requires a named,
+one-use exception before mutation.
+
 Use the [durable records contract](../../docs/fb/records.md): read only the
 current linked context, keep each fact in one authoritative home, store full
 verification in a QA artifact, reuse checks only with a matching fingerprint,

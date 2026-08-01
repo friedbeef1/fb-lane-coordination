@@ -63,6 +63,39 @@ function assertAutomaticLocalVerification() {
   );
 }
 
+function assertConversationExecutionAuthority() {
+  const guardrails = read('plugins/fb-lane-coordination/docs/fb/guardrails.md');
+  const prose = guardrails.replace(/^>\s?/gm, '');
+  const flat = prose.replace(/\s+/g, ' ');
+  const heading = /## Execution authority by conversation context/i;
+  assert.match(guardrails, heading, 'guardrails must own the canonical conversation authority contract');
+
+  for (const row of [
+    /Product\/BFM parent thread\s*\|\s*Sequence and execute approved work/i,
+    /Workstream parent thread\s*\|\s*Planning and Product\/BFM handoff only/i,
+    /Side conversation\s*\|\s*Discussion and paste-ready parent handoff only/i,
+    /Confirmed one-off sidechat exception\s*\|\s*Execute only the explicitly confirmed task/i
+  ]) assert.match(guardrails, row);
+
+  for (const phrase of ['`Proceed`', '`do it`', '`merge it`', '`install it`']) assert.match(guardrails, new RegExp(phrase, 'i'));
+  assert.match(guardrails, /do not authorize sidechat[\s\S]{0,20}mutation/i);
+  assert.ok(flat.includes('This is a side conversation. Do you want me to execute [named scope] here as a one-off exception rather than hand it to the parent Product/BFM thread?'));
+  assert.ok(flat.includes('The exception is consumed after that task; a later sidechat task requires a new confirmation.'));
+  assert.ok(flat.includes('Read-only inspection, explanation, and paste-ready handoffs remain allowed.'));
+  for (const gate of ['live-release', 'provider-state', 'privacy', 'payment', 'destructive-operation', 'lock-conflict', 'physical-device']) {
+    assert.match(guardrails, new RegExp(gate, 'i'), `sidechat exceptions must preserve the ${gate} gate`);
+  }
+
+  for (const name of ['bfm', 'fb-product', 'fb-business', 'fb-design', 'fb-tech', 'fb-discovery', 'fb-bugs', 'fb-lane-coordination']) {
+    const skill = read(`plugins/fb-lane-coordination/skills/${name}/SKILL.md`);
+    assert.match(
+      skill,
+      /docs\/fb\/guardrails\.md#execution-authority-by-conversation-context/i,
+      `${name} must route execution authority to the canonical guardrails section`
+    );
+  }
+}
+
 const SIX = /Product\/User[\s\S]*Business[\s\S]*Design[\s\S]*Tech[\s\S]*Discovery[\s\S]*Bugs/i;
 const MINI_LOOP = /mini-loop/i;
 const HANDOFF = /docs\/handoffs\/<TASK-ID>\.md|ready handoffs?/i;
@@ -105,5 +138,6 @@ assertDiscoverySkill();
 assertBugsSkill();
 assertProductEvidenceBoundary();
 assertAutomaticLocalVerification();
+assertConversationExecutionAuthority();
 assertAlignedSkills();
 console.log('six-workstream skill behavior contract passed');

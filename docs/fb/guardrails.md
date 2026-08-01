@@ -113,6 +113,32 @@ requested action.
 
 ## Sidechats and recovery
 
+### Execution authority by conversation context
+
+| Context | Default authority |
+|---|---|
+| Product/BFM parent thread | Sequence and execute approved work |
+| Workstream parent thread | Planning and Product/BFM handoff only |
+| Side conversation | Discussion and paste-ready parent handoff only |
+| Confirmed one-off sidechat exception | Execute only the explicitly confirmed task |
+
+`Proceed`, `do it`, `merge it`, and `install it` do not authorize sidechat
+mutation. Before changing files, Git state, deployments, installations,
+provider state, or coordination records from a sidechat, ask:
+
+> This is a side conversation. Do you want me to execute [named scope] here as
+> a one-off exception rather than hand it to the parent Product/BFM thread?
+
+Do not mutate anything until the user explicitly confirms that named scope.
+The exception is consumed after that task; a later sidechat task requires a new
+confirmation. Read-only inspection, explanation, and paste-ready handoffs
+remain allowed.
+
+The exception never bypasses live-release, provider-state, privacy, payment,
+destructive-operation, lock-conflict, or physical-device gates. If fresh-task
+evidence shows this guidance repeatedly fails, Product may propose separate
+mechanical enforcement; this contract does not add runtime permission state.
+
 Sidechats are discussion/planning spaces. They hand off only to their
 originating parent main thread, never to a guessed destination. If the parent
 is unavailable, return the paste-ready handoff to the user. Product/BFM owns
