@@ -8,8 +8,8 @@ FB currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
 setup paths when you are not installing through the plugin flow.
 
-The current published release is **FB 0.5.1-beta** build
-`0.5.1-beta+codex.20260729135705`.
+The current release candidate is **FB 0.5.2-beta** build
+`0.5.2-beta+codex.20260801121142`.
 
 Projects that need the optional generic agent control loop declare it in the
 approved Build Brief. They may also provide repository-relative manifest paths:

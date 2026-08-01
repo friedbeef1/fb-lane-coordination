@@ -3,11 +3,12 @@
 * **Lane**: FB-Product / BFM
 * **Status**: Staging QA
 * **BFM Class**: Full BFM
-* **Feature Branch**: `codex/TASK-064-least-privilege-access`
-* **Locked Files**: `docs/fb/guardrails.md`,
-  `plugins/fb-lane-coordination/docs/fb/guardrails.md`,
-  `tools/fb-beginner-experience.test.cjs`, and
-  `plugins/fb-lane-coordination/tools/fb-beginner-experience.test.cjs`.
+* **Feature Branch**: `codex/TASK-059-integration`
+* **Release Build**: `0.5.2-beta+codex.20260801121142`
+* **Release Vehicle**: GitHub `main`, marketplace upgrade, reinstall, and
+  active-cache verification explicitly approved by James on 2026-08-01.
+* **Locked Files**: TASK-064 release metadata, changelog, public version
+  surfaces, manifests, verification records, and Product closeout records.
 
 ## Task Scope:
 Default FB to approval-based least-privilege workspace access while preserving

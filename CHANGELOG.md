@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.5.2-beta — 2026-08-01
+
+Build: `0.5.2-beta+codex.20260801121142`
+
+**What changed:** FB now defaults to approval-based, workspace-scoped access.
+It verifies the authoritative checkout before mutation, never recommends Full
+access merely to suppress routine prompts, and requests narrowly scoped
+escalation only when a required operation genuinely crosses the workspace,
+network, device, or provider boundary.
+
+**Why it matters:** Routine BFM work should produce fewer unnecessary access
+prompts without asking users to grant machine-wide access for convenience.
+Real security and release boundaries remain visible instead of being hidden by
+a broader permission setting.
+
+**Compatibility:** This changes guidance, not Codex host permissions. Existing
+projects, commands, worktrees, provider gates, Product/BFM approvals, file
+locks, and **Push Live** authority remain unchanged. The release also includes
+TASK-059's directional benchmark evidence; it does not publish a universal
+speed or token-saving claim.
+
+**Installation or upgrade:** Upgrade the `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, and start a new Codex task so the updated
+guardrails are loaded from the refreshed plugin cache.
+
+**Changelog approval:** Approved by James through the explicit 2026-08-01
+instruction to push, publish, reinstall, and verify this sequence.
+
 ## 0.5.1-beta — 2026-07-29
 
 Build: `0.5.1-beta+codex.20260729135705`

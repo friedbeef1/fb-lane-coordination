@@ -18,12 +18,12 @@ Lane: FB-Product
 
 ## TASK-064 — Least-privilege workspace access
 
-- Status: Local Staging QA candidate.
+- Status: Release checkpoint for `0.5.2-beta+codex.20260801121142`.
 - Outcome: FB defaults to approval-based workspace access, never recommends
   Full access merely to suppress prompts, scopes genuine escalations narrowly,
   and keeps host permission prompts separate from Product/BFM approval gates.
-- Gate: Reconcile the stale TASK-031 canonical/package-doc lock before
-  integration. No publication, plugin install, or consumer-repository change.
+- Gate: James approved push, publication, reinstall, and installed-cache
+  verification on 2026-08-01.
 - Link: [Handoff](../handoffs/TASK-064.md).
 
 ## TASK-062 — First-run `$bfm` onboarding and FB 0.5.1-beta

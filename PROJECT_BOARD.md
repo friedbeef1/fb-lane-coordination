@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-064 | Staging QA | FB-Product / BFM | Access guardrails | Default FB to approval-based least privilege, forbid Full access as a prompt-avoidance shortcut, and separate host permission prompts from Product/BFM gates | `docs/fb/guardrails.md plugins/fb-lane-coordination/docs/fb/guardrails.md tools/fb-beginner-experience.test.cjs plugins/fb-lane-coordination/tools/fb-beginner-experience.test.cjs` | [Handoff](docs/handoffs/TASK-064.md); local isolated candidate; integration waits for stale TASK-031 lock reconciliation; no publication or install |
+| TASK-064 | Staging QA | FB-Product / BFM | Access guardrails + Plugin Release | Default FB to approval-based least privilege, forbid Full access as a prompt-avoidance shortcut, and separate host permission prompts from Product/BFM gates | TASK-064 release metadata, changelog, public version surfaces, manifests, verification records, and Product closeout records | [Handoff](docs/handoffs/TASK-064.md); release candidate `0.5.2-beta+codex.20260801121142`; Push Live approved |
 | TASK-062 | Done | FB-Tech | First-run onboarding | After bootstrap, ask once for permission to create missing repository-scoped Product/User, Business, Design, Tech, Discovery, and Bugs sidebar tasks, with honest manual fallback | `tools/fb-onboarding.cjs tools/fb-onboarding.test.cjs tools/fb-lane.cjs tools/fb-package-manifest.json skills/bfm/SKILL.md skills/project-coordination-setup/SKILL.md docs/fb/start.md docs/setup.md FAQ.md CHANGELOG.md PROJECT_BOARD.md docs/handoffs/TASK-062.md docs/qa/TASK-062.md docs/handoffs/index.md .codex/current_task.md` | [Handoff](docs/handoffs/TASK-062.md); [QA](docs/qa/TASK-062.md); published build `0.5.1-beta+codex.20260729135705` |
 | TASK-061 | Staging QA | FB-Tech | Board efficiency | Keep agent orientation compact by loading active board context only and mechanically archiving terminal board history after a size threshold | `tools/fb-board-context.cjs tools/fb-board-context.test.cjs tools/fb-lane.cjs tools/fb-lane.test.cjs tools/fb-package-manifest.json docs/fb/README.md docs/fb/records.md FAQ.md AGENTS.md .codex/rules.md templates/PROJECT_BOARD.md examples/my-app/AGENTS.md examples/my-app/.codex/rules.md skills/project-coordination-setup/SKILL.md PROJECT_BOARD.md docs/handoffs/TASK-061.md docs/qa/TASK-061.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-061.md) · [QA](docs/qa/TASK-061.md) |
 | TASK-059 | Staging QA | FB-Tech | Three-tier real-work benchmark | Compare Vanilla Codex with Efficient-Graph FB across six easy, six medium, and six difficult historical tasks while preserving TASK-056 as immutable evidence | `tools/fb-three-tier-benchmark.cjs tools/fb-three-tier-benchmark.test.cjs tools/fixtures/fb-three-tier-benchmark docs/benchmarks/difficulty-tiers docs/handoffs/TASK-059.md docs/qa/TASK-059.md PROJECT_BOARD.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-059.md); [Plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md) |
@@ -72,7 +72,7 @@
 
 ### TASK-064 - Least-Privilege Workspace Access
 
-*   **Status**: Staging QA (local isolated candidate)
+*   **Status**: Staging QA (release candidate `0.5.2-beta+codex.20260801121142`)
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Access guardrails
 *   **Scope**: Default FB to approval-based least privilege, forbid Full access
@@ -89,22 +89,22 @@
         approval-based access, require authoritative-workspace verification,
         reject Full access as a convenience fix, scope genuine escalation, and
         preserve Product/BFM governance independently of host permissions.
-    *   **Definition of Done**: Focused root/package contract and mirror parity
-        pass; candidate is committed in an isolated worktree; release and
-        installation remain separate gates.
-    *   **Gate / Review Point**: Reconcile the stale TASK-031 broad
-        canonical/package-doc lock before integration. Any plugin publication
-        or installation needs the normal release approval.
+    *   **Definition of Done**: Focused root/package contract, package parity,
+        complete release validator, GitHub push, marketplace upgrade, reinstall,
+        and installed-cache wording/version checks pass.
+    *   **Gate / Review Point**: James explicitly approved push, publication,
+        reinstall, and verification on 2026-08-01.
     *   **Approval**: approved
     *   **Justification**: James explicitly asked for this guideline to be
         placed inside the FB-Lane plugin.
-*   **Affected Screens / Locks**: Canonical/package guardrails and their focused
-    beginner-experience contract only.
-*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-064.md); branch
-    `codex/TASK-064-least-privilege-access`.
+*   **Affected Screens / Locks**: Canonical/package guardrails, focused
+    beginner-experience contract, release metadata, changelog, active docs,
+    manifests, and TASK-064 release records.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-064.md); release build
+    `0.5.2-beta+codex.20260801121142`.
 *   **Latest Update**: *2026-08-01*: Focused RED/GREEN passed in both canonical
-    and packaged contexts. Doctor now accepts TASK-064; unrelated pre-existing
-    TASK-059 normalized-record drift remains outside this task.
+    and packaged contexts. TASK-059 was separately approved, integrated, and
+    repaired; doctor is Ready and the release checkpoint is in progress.
 
 ---
 
