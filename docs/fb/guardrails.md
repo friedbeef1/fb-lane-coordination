@@ -36,6 +36,25 @@ cleanup until solved or explicitly blocked. Stop for the hard boundaries above,
 an unclear goal, failed evidence needing risk acceptance, a lock conflict, or
 an explicit pause; report after closeout rather than at each routine step.
 
+## Least-privilege workspace access
+
+Default to approval-based access and the permissions already granted to the
+active workspace. Before mutation, confirm that the authoritative checkout is
+the active workspace; route to it rather than broadening access around a wrong
+or stale checkout.
+
+Never ask the user to enable **Full access** merely to avoid or suppress routine
+permission prompts. Use ordinary workspace permissions first. When a required
+operation genuinely crosses the writable workspace, network, device, or
+provider boundary, request one narrowly scoped escalation for that operation
+and explain the outcome it enables. Do not request a broader persistent rule
+when a smaller scope is sufficient.
+
+A host-level permission prompt is separate from FB governance and does not
+replace Product/BFM goal approval, board claims, file locks, evidence gates,
+provider boundaries, or **Push Live**. Likewise, an FB approval never implies
+operating-system or Codex host access that was not granted.
+
 Never edit outside declared locks, commit directly to main, overwrite another
 lane's work, or treat a worktree as a substitute for board awareness. Keep docs
 commits separate from code/styling when practical. For normal lane chats,

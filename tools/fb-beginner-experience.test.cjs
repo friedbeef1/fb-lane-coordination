@@ -107,6 +107,20 @@ test('external-only actions ask the user only for the exact manual boundary', ()
   assert.match(pause, /hide|hidden|omit/i);
 });
 
+test('workspace access defaults to least privilege without weakening FB approvals', () => {
+  for (const [label, relativePath] of [
+    ['canonical', 'docs/fb/guardrails.md'],
+    ['packaged', 'plugins/fb-lane-coordination/docs/fb/guardrails.md'],
+  ]) {
+    const guidance = section(read(relativePath), 'Least-privilege workspace access');
+    assert.match(guidance, /approval-based access/i, `${label} must default to approval-based access`);
+    assert.match(guidance, /authoritative checkout[\s\S]*active workspace/i, `${label} must verify the active workspace`);
+    assert.match(guidance, /never[\s\S]*Full access[\s\S]*(?:avoid|suppress)[\s\S]*(?:prompt|approval)/i, `${label} must not recommend Full access for convenience`);
+    assert.match(guidance, /narrowly scoped escalation/i, `${label} must scope genuine escalation`);
+    assert.match(guidance, /host(?:-level)? permission prompt[\s\S]*(?:separate|does not replace)[\s\S]*Product\/BFM/i, `${label} must preserve Product/BFM gates`);
+  }
+});
+
 test('active coordination, Product, BFM, lane, setup, and quickstart skills route pauses to guardrails', () => {
   const skills = [
     'skills/fb-lane-coordination/SKILL.md',

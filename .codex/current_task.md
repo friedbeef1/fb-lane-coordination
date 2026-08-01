@@ -1,16 +1,14 @@
 # Active Task Context
-* **Current Task**: TASK-062
-* **Lane**: FB-Tech
-* **Status**: Done
+* **Current Task**: TASK-064
+* **Lane**: FB-Product / BFM
+* **Status**: Staging QA
 * **BFM Class**: Full BFM
-* **Release Vehicle**: GitHub `main` merge `f3ed9a0`; marketplace published
-* **Release Build**: `0.5.1-beta+codex.20260729135705`
-* **Locked Files**: `tools/fb-onboarding.cjs`,
-  `tools/fb-onboarding.test.cjs`, `tools/fb-lane.cjs`,
-  `tools/fb-package-manifest.json`, `skills/bfm/SKILL.md`,
-  `skills/project-coordination-setup/SKILL.md`, `docs/fb/start.md`,
-  `docs/setup.md`, `FAQ.md`, `CHANGELOG.md`, and TASK-062 records.
+* **Feature Branch**: `codex/TASK-064-least-privilege-access`
+* **Locked Files**: `docs/fb/guardrails.md`,
+  `plugins/fb-lane-coordination/docs/fb/guardrails.md`,
+  `tools/fb-beginner-experience.test.cjs`, and
+  `plugins/fb-lane-coordination/tools/fb-beginner-experience.test.cjs`.
 
 ## Task Scope:
-Add one-time first-run permission and idempotent six-workstream Codex sidebar
-task onboarding after repository bootstrap.
+Default FB to approval-based least-privilege workspace access while preserving
+host permission prompts and Product/BFM approval gates as separate boundaries.
