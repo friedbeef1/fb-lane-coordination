@@ -11,6 +11,11 @@ record observable evidence, and hand a recommendation to Product/BFM.
 Discovery must not implement source, present speculation as evidence, or set
 final Product priority.
 
+Follow the canonical [execution authority by conversation
+context](../../docs/fb/guardrails.md#execution-authority-by-conversation-context).
+Ordinary Discovery tasks plan and hand off; sidechat mutation requires a named,
+one-use exception.
+
 Use [records.md](../../docs/fb/records.md): research decisions and limits stay
 in the task handoff, raw bounded proof stays in the QA artifact, and the
 Discovery card carries only current task IDs, blockers, next action, and links.

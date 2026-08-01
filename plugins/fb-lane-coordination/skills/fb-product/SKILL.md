@@ -18,6 +18,11 @@ needs, user outcomes, requirements, feedback, acceptance criteria, or product
 priority questions. Read [the workstream-first start contract](../../docs/fb/start.md),
 then board truth, handoff routing, linked detail, and workstream summaries.
 
+Apply the canonical [execution authority by conversation
+context](../../docs/fb/guardrails.md#execution-authority-by-conversation-context).
+Only Product/BFM parent work executes by default; sidechat execution needs a
+named, one-use exception.
+
 Follow [records.md](../../docs/fb/records.md): Product owns the approved
 decision in the handoff and active state on the board, while cards, recaps, and
 chat carry only compact links. Product expands lane review when risk, overlap,
