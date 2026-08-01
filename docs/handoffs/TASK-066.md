@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-066
 lane: fb-product
-status: in progress
+status: done
 okr_fit: aligned
 approval: approved
 fb_harness: v3
@@ -51,10 +51,10 @@ Changelog expectation: required — [FB 0.5.3-beta](../../CHANGELOG.md#053-beta-
 
 ## Product/BFM Closeout
 
-Status: In Progress — FB 0.5.3-beta release checkpoint.
+Status: Done.
 Actioned By: FB-Product / BFM.
 Result: BFM now runs every safe locally executable check automatically and asks the user only for physical-device, unavailable-access, sensitive external-state, subjective Product, destructive, or live-release evidence.
-Evidence: The focused skill contract failed before guidance, passed after the canonical update and package generation, and package parity/doctor/whitespace evidence is recorded in [TASK-066 QA](../qa/TASK-066.md).
-Remaining: Complete release validation, publish GitHub `main`, upgrade the marketplace, reinstall, and verify the active cache.
-Closeout Note: Push Live was explicitly approved on 2026-08-01. No unrelated consumer repository or provider state is in scope.
-Loop Learning: Repeated pattern: yes; tooling needed: guidance contract only; Product approval needed: only for later release.
+Evidence: The focused RED/GREEN contract, 53-mirror parity, complete release validator, and doctor passed. GitHub `main` reached `dfc37b9`; the marketplace was upgraded; Codex installed and enabled `0.5.3-beta+codex.20260801141345`; and the installed cache contains both automatic-verification rules. See [TASK-066 QA](../qa/TASK-066.md).
+Remaining: None. Start a new Codex task to load the refreshed plugin snapshot.
+Closeout Note: Push Live was explicitly approved on 2026-08-01. No unrelated consumer repository or provider state changed.
+Loop Learning: Repeated pattern: yes; tooling needed: guidance plus a structural contract; Product approval needed: only for release.

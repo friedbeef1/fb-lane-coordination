@@ -5,13 +5,13 @@ Lane: FB-Product
 
 ## TASK-066 — Automatic local verification
 
-- Status: In Progress at the explicitly approved FB 0.5.3-beta release checkpoint.
+- Status: Done; `0.5.3-beta+codex.20260801141345` is published, installed, and
+  enabled.
 - Outcome: BFM runs every safe locally executable check itself and asks the
   user only for physical-device, unavailable access, sensitive external-state,
   subjective Product, or release-approval evidence.
 - Gate: Complete release validation, GitHub `main`, marketplace upgrade,
-  reinstall, and active-cache verification for
-  `0.5.3-beta+codex.20260801141345`.
+  reinstall, and active-cache verification passed.
 - Link: [Handoff](../handoffs/TASK-066.md).
 
 ## TASK-059 — Three-tier real-work benchmark

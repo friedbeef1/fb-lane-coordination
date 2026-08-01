@@ -27,6 +27,11 @@ and evidence guidance is loaded.
 **Changelog approval:** Approved by James through the explicit 2026-08-01
 instruction to push the TASK-066 candidate live.
 
+**Release evidence:** GitHub `main` advanced through `dfc37b9`; the marketplace
+upgrade and reinstall succeeded; and Codex reports
+`0.5.3-beta+codex.20260801141345` installed and enabled with the new BFM and
+evidence wording present in the active cache.
+
 ## 0.5.2-beta — 2026-08-01
 
 Build: `0.5.2-beta+codex.20260801121142`

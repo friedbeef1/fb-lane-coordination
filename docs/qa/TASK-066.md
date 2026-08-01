@@ -18,7 +18,14 @@ The contract requires:
 - user input only for physical-device, unavailable-access, payment/provider,
   destructive, subjective Product, or live-release boundaries.
 
-## Remaining gate
+## Release evidence
 
-Local candidate only. Merge, publication, installation, and cache refresh need
-a later explicit Push Live approval.
+- James explicitly approved Push Live on 2026-08-01.
+- The complete `node tools/fb-lane.validate.cjs` release validator passed.
+- GitHub `main` advanced through release commit `dfc37b9`.
+- The marketplace upgrade and plugin reinstall succeeded.
+- Codex reports `fb-lane-coordination@fb-lane` installed and enabled as
+  `0.5.3-beta+codex.20260801141345`.
+- The installed cache contains the automatic local-verification rule in
+  `skills/bfm/SKILL.md` and the no-routine-user-test rule in
+  `docs/fb/evidence.md`.
