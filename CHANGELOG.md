@@ -28,6 +28,10 @@ guardrails are loaded from the refreshed plugin cache.
 **Changelog approval:** Approved by James through the explicit 2026-08-01
 instruction to push, publish, reinstall, and verify this sequence.
 
+**Release evidence:** Complete release validation passed at `ed1db13`; GitHub
+`main` was fast-forwarded, the marketplace upgraded, and the installed plugin
+reports `0.5.2-beta+codex.20260801121142` with the approved guardrail present.
+
 ## 0.5.1-beta — 2026-07-29
 
 Build: `0.5.1-beta+codex.20260729135705`

@@ -13,10 +13,10 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-064 | Staging QA | FB-Product / BFM | Access guardrails + Plugin Release | Default FB to approval-based least privilege, forbid Full access as a prompt-avoidance shortcut, and separate host permission prompts from Product/BFM gates | TASK-064 release metadata, changelog, public version surfaces, manifests, verification records, and Product closeout records | [Handoff](docs/handoffs/TASK-064.md); release candidate `0.5.2-beta+codex.20260801121142`; Push Live approved |
+| TASK-064 | Done | FB-Product / BFM | Access guardrails + Plugin Release | Default FB to approval-based least privilege, forbid Full access as a prompt-avoidance shortcut, and separate host permission prompts from Product/BFM gates | None; published and installed | [Handoff](docs/handoffs/TASK-064.md); [QA](docs/qa/TASK-064.md); published build `0.5.2-beta+codex.20260801121142` |
 | TASK-062 | Done | FB-Tech | First-run onboarding | After bootstrap, ask once for permission to create missing repository-scoped Product/User, Business, Design, Tech, Discovery, and Bugs sidebar tasks, with honest manual fallback | `tools/fb-onboarding.cjs tools/fb-onboarding.test.cjs tools/fb-lane.cjs tools/fb-package-manifest.json skills/bfm/SKILL.md skills/project-coordination-setup/SKILL.md docs/fb/start.md docs/setup.md FAQ.md CHANGELOG.md PROJECT_BOARD.md docs/handoffs/TASK-062.md docs/qa/TASK-062.md docs/handoffs/index.md .codex/current_task.md` | [Handoff](docs/handoffs/TASK-062.md); [QA](docs/qa/TASK-062.md); published build `0.5.1-beta+codex.20260729135705` |
 | TASK-061 | Staging QA | FB-Tech | Board efficiency | Keep agent orientation compact by loading active board context only and mechanically archiving terminal board history after a size threshold | `tools/fb-board-context.cjs tools/fb-board-context.test.cjs tools/fb-lane.cjs tools/fb-lane.test.cjs tools/fb-package-manifest.json docs/fb/README.md docs/fb/records.md FAQ.md AGENTS.md .codex/rules.md templates/PROJECT_BOARD.md examples/my-app/AGENTS.md examples/my-app/.codex/rules.md skills/project-coordination-setup/SKILL.md PROJECT_BOARD.md docs/handoffs/TASK-061.md docs/qa/TASK-061.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-061.md) · [QA](docs/qa/TASK-061.md) |
-| TASK-059 | Staging QA | FB-Tech | Three-tier real-work benchmark | Compare Vanilla Codex with Efficient-Graph FB across six easy, six medium, and six difficult historical tasks while preserving TASK-056 as immutable evidence | `tools/fb-three-tier-benchmark.cjs tools/fb-three-tier-benchmark.test.cjs tools/fixtures/fb-three-tier-benchmark docs/benchmarks/difficulty-tiers docs/handoffs/TASK-059.md docs/qa/TASK-059.md PROJECT_BOARD.md docs/handoffs/index.md` | [Handoff](docs/handoffs/TASK-059.md); [Plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md) |
+| TASK-059 | Done | FB-Tech | Three-tier real-work benchmark | Compare Vanilla Codex with Efficient-Graph FB across six easy, six medium, and six difficult historical tasks while preserving TASK-056 as immutable evidence | None; integrated and published without broadening its directional claim | [Handoff](docs/handoffs/TASK-059.md); [QA](docs/qa/TASK-059.md); [Plan](docs/superpowers/plans/2026-07-29-fb-three-tier-real-work-benchmark.md) |
 | TASK-058 | Staging QA | FB-Tech | Automatic worktree orchestration | Make `$bfm` create or reuse linked worktrees for every independent source-changing slice without user setup, while keeping planning-only and overlapping work lightweight or sequential | Canonical/package workflow and skills, README, focused contract, generated mirrors, changelog, and TASK-058 evidence | [Handoff](docs/handoffs/TASK-058.md); [QA](docs/qa/TASK-058.md); Ready to ship — **Push Live** required |
 | TASK-057 | Done | FB-Product / BFM + FB-Tech | Harness reliability | Prevent incomplete OKR records from reaching release validation | Normalized handoff template, focused record validation, generated plugin mirrors, and TASK-057 evidence | [Handoff](docs/handoffs/TASK-057.md); [QA evidence](docs/qa/TASK-057.md); merged and published as `708593a` |
 | TASK-056 | Staging QA | FB-Product / BFM + FB-Tech | Prospective repair-efficiency benchmark | Twelve fresh runs completed: efficient Graph used 15.8% fewer tokens and 23.6% less wall time, with 3/6 accepted outcomes versus Vanilla's 1/6 | Isolated fixtures and benchmark evidence only; no source-repository, plugin-release, provider-write, production, or deployment change | [Handoff](docs/handoffs/TASK-056.md); [Result](docs/benchmarks/repair-efficiency/README.md); [QA](docs/qa/TASK-056.md) |
@@ -72,7 +72,8 @@
 
 ### TASK-064 - Least-Privilege Workspace Access
 
-*   **Status**: Staging QA (release candidate `0.5.2-beta+codex.20260801121142`)
+*   **Status**: Done — published to GitHub `main`, marketplace upgraded, and
+    `0.5.2-beta+codex.20260801121142` installed and enabled.
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Access guardrails
 *   **Scope**: Default FB to approval-based least privilege, forbid Full access
@@ -102,9 +103,9 @@
     manifests, and TASK-064 release records.
 *   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-064.md); release build
     `0.5.2-beta+codex.20260801121142`.
-*   **Latest Update**: *2026-08-01*: Focused RED/GREEN passed in both canonical
-    and packaged contexts. TASK-059 was separately approved, integrated, and
-    repaired; doctor is Ready and the release checkpoint is in progress.
+*   **Latest Update**: *2026-08-01*: Complete release validation passed at
+    `ed1db13`; GitHub `main` was fast-forwarded, the marketplace was upgraded,
+    and the installed cache reports the exact release build and guardrail.
 
 ---
 

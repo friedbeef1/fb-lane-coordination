@@ -1,12 +1,12 @@
 # FB-Product Workstream Status
 
-Last Updated: 2026-07-29
+Last Updated: 2026-08-01
 Lane: FB-Product
 
 ## TASK-059 — Three-tier real-work benchmark
 
-- Status: Integrated into the TASK-064 release candidate; Staging QA until the
-  approved release sequence reaches GitHub `main`.
+- Status: Done; integrated and published with FB 0.5.2 without broadening the
+  directional claim.
 - Outcome: Across three directional pairs, Efficient Graph used 44.0% fewer
   raw provider tokens and 7.3% less wall time with equal defined local
   outcomes; Graph was slower on the Difficult task and did not reduce repairs.
@@ -18,13 +18,14 @@ Lane: FB-Product
 
 ## TASK-064 — Least-privilege workspace access
 
-- Status: Release checkpoint for `0.5.2-beta+codex.20260801121142`.
+- Status: Done; `0.5.2-beta+codex.20260801121142` is published, installed, and
+  enabled.
 - Outcome: FB defaults to approval-based workspace access, never recommends
   Full access merely to suppress prompts, scopes genuine escalations narrowly,
   and keeps host permission prompts separate from Product/BFM approval gates.
-- Gate: James approved push, publication, reinstall, and installed-cache
-  verification on 2026-08-01.
-- Link: [Handoff](../handoffs/TASK-064.md).
+- Evidence: complete validator passed at `ed1db13`; GitHub `main`, marketplace
+  upgrade, reinstall, exact active version, and installed wording passed.
+- Link: [Handoff](../handoffs/TASK-064.md) and [QA](../qa/TASK-064.md).
 
 ## TASK-062 — First-run `$bfm` onboarding and FB 0.5.1-beta
 

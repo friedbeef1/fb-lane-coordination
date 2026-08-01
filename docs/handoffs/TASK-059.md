@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-059
 lane: fb-product
-status: staging-qa
+status: done
 approval: approved
 fb_harness: v3
 record_model: normalized-v1
@@ -137,8 +137,7 @@ Status: pass
 
 ## Product/BFM Closeout
 
-Status: Integrated into the TASK-064 release candidate; Staging QA until the
-approved release sequence reaches GitHub `main`.
+Status: Done; integrated and published with FB 0.5.2.
 
 Actioned By: FB-Product / BFM on 2026-08-01.
 
@@ -150,12 +149,11 @@ Evidence: Focused benchmark suite passed 23/23 with one intentional skipped
 regrade; syntax and staged whitespace checks passed. Source repositories stayed
 read-only during the benchmark.
 
-Remaining: Complete the separately approved TASK-064 plugin release sequence.
-The signed real-camera device smoke remains a limitation of the benchmark, not
-a plugin release blocker.
+Remaining: The signed real-camera device smoke remains a limitation of the
+benchmark, not a plugin release blocker.
 
-Closeout Note: Integration was explicitly approved by James. No benchmark
-claim was broadened and no universal savings claim is published.
+Closeout Note: Integration and publication were explicitly approved by James.
+No benchmark claim was broadened and no universal savings claim is published.
 
 Loop Learning: Feedback captured: yes; repeated pattern: no; tooling needed:
 none; Product approval needed: no for integration, yes only for any future

@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-064
 lane: fb-product
-status: implemented
+status: done
 okr_fit: aligned
 approval: approved
 fb_harness: v3
@@ -87,10 +87,10 @@ Known limit: Plugin publication and installation remain separate release gates.
 
 ## Product/BFM Closeout
 
-Status: Local Staging QA candidate.
+Status: Done; published and installed.
 Actioned By: FB-Product / BFM.
-Result: Canonical and packaged plugin guardrails now contain the approved least-privilege contract.
-Evidence: Focused RED contract added before guidance; canonical and packaged GREEN passed 11/11; mirror parity and `git diff --check` passed. TASK-059 integration passes 23/23 with one intentional skip; doctor is Ready.
-Remaining: Complete the approved release checkpoint, GitHub push, marketplace upgrade, reinstall, and installed-cache verification.
-Closeout Note: No Full access, publication, install, push, merge, or consumer-project change was performed.
-Loop Learning: Feedback captured: yes; repeated pattern: yes; tooling needed: none; Product approval needed: no for this candidate, yes for any release.
+Result: Canonical and packaged plugin guardrails contain the approved least-privilege contract, published as `0.5.2-beta+codex.20260801121142`.
+Evidence: Canonical/package access tests passed 11/11; TASK-059 passed 23/23 with one intentional skip; 53 mirrors and the complete release validator passed at `ed1db13`; GitHub `main` was fast-forwarded; marketplace upgrade and reinstall succeeded; the active cache reports the exact build and wording. See [QA](../qa/TASK-064.md).
+Remaining: Start a fresh Codex task to load the refreshed skill instructions; the current task retains the skill snapshot loaded when it began.
+Closeout Note: Publication and installation used James's explicit approval. No Full access, consumer-project mutation, or Product/BFM gate weakening occurred.
+Loop Learning: Feedback captured: yes; repeated pattern: yes; tooling needed: no; Product approval needed: only for future release or policy changes.
