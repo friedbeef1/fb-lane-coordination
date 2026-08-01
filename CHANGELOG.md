@@ -1,5 +1,32 @@
 # Changelog
 
+## 0.5.3-beta — 2026-08-01
+
+Build: `0.5.3-beta+codex.20260801141345`
+
+**What changed:** BFM now runs every safe, locally executable verification
+check itself, including available tests, builds, linting, typechecks, package
+parity, Git checks, browser or simulator smoke, deployment-source checks, and
+non-destructive runtime smoke. Routine test recovery stays with BFM instead of
+being delegated to the user.
+
+**Why it matters:** Users can approve an outcome and receive verified evidence
+without being asked to perform checks Codex can already run. User input remains
+reserved for physical-device actions, unavailable credentials or accounts,
+payments and provider-state approval, destructive changes, subjective Product
+judgment, and explicit live release approval.
+
+**Compatibility:** This is a guidance and structural-contract update. Existing
+projects, commands, worktrees, verification budgets, security boundaries,
+provider gates, file locks, and **Push Live** authority remain unchanged.
+
+**Installation or upgrade:** Upgrade the `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, and start a new Codex task so the refreshed BFM
+and evidence guidance is loaded.
+
+**Changelog approval:** Approved by James through the explicit 2026-08-01
+instruction to push the TASK-066 candidate live.
+
 ## 0.5.2-beta — 2026-08-01
 
 Build: `0.5.2-beta+codex.20260801121142`

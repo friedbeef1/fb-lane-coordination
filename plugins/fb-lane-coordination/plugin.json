@@ -1,6 +1,6 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.5.2-beta+codex.20260801121142",
+  "version": "0.5.3-beta+codex.20260801141345",
   "description": "FB connects six product workstreams to a rules-first control loop, Product-led BFM delivery, automated verification, and explicit release approval.",
   "author": {
     "name": "FB Contributors",

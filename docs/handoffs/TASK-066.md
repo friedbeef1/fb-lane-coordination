@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-066
 lane: fb-product
-status: staging qa
+status: in progress
 okr_fit: aligned
 approval: approved
 fb_harness: v3
@@ -33,14 +33,15 @@ Evidence Against Product OKR: None identified.
 1. Add a focused failing structural contract for the automatic local-verification rule and its external-boundary exceptions.
 2. Add the minimal rule to canonical BFM and evidence guidance.
 3. Generate package mirrors and run the focused root/package contract, package parity, doctor, and whitespace checks.
+4. After James's explicit Push Live approval, prepare FB `0.5.3-beta+codex.20260801141345`, run the complete release validator, fast-forward GitHub `main`, upgrade the marketplace, reinstall, and verify the active cache.
 
-Changelog expectation: not expected — local process candidate only; no release authorized.
+Changelog expectation: required — [FB 0.5.3-beta](../../CHANGELOG.md#053-beta--2026-08-01), approved through James's explicit 2026-08-01 Push Live instruction.
 
 ## Task Receipt
 
 - Delivered: generic automatic-local-verification contract in canonical and packaged BFM/evidence guidance.
 - Changed surfaces: canonical/package BFM and evidence guidance, focused skill contract, and TASK-066 coordination records.
-- External gate: no merge, publication, installation, or cache refresh.
+- External gate: Push Live approved by James on 2026-08-01 for GitHub `main`, marketplace publication, reinstall, and active-cache verification.
 
 ## Verification Handoff
 
@@ -50,10 +51,10 @@ Changelog expectation: not expected — local process candidate only; no release
 
 ## Product/BFM Closeout
 
-Status: Staging QA (local isolated candidate).
+Status: In Progress — FB 0.5.3-beta release checkpoint.
 Actioned By: FB-Product / BFM.
 Result: BFM now runs every safe locally executable check automatically and asks the user only for physical-device, unavailable-access, sensitive external-state, subjective Product, destructive, or live-release evidence.
 Evidence: The focused skill contract failed before guidance, passed after the canonical update and package generation, and package parity/doctor/whitespace evidence is recorded in [TASK-066 QA](../qa/TASK-066.md).
-Remaining: Merge, publication, installation, and active-cache refresh require a later explicit Push Live approval.
-Closeout Note: The isolated candidate changes guidance and its focused structural contract only; no external or consumer state changed.
+Remaining: Complete release validation, publish GitHub `main`, upgrade the marketplace, reinstall, and verify the active cache.
+Closeout Note: Push Live was explicitly approved on 2026-08-01. No unrelated consumer repository or provider state is in scope.
 Loop Learning: Repeated pattern: yes; tooling needed: guidance contract only; Product approval needed: only for later release.
