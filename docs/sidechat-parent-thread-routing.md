@@ -20,6 +20,13 @@ A main thread accepts a sidechat handoff only when it is identified as that
 sidechat's parent. Any other main thread treats the material as ordinary
 user-provided context, not an owned continuation or instruction.
 
+Receiving a handoff is intake, not execution authority. The parent may
+reconcile and queue it, but it must not interrupt a different active task. An
+amendment may continue inside the current loop only when it names the same task
+and leaves the approved goal, scope, locks, safety gates, and release boundary
+unchanged. Otherwise it waits for the next sequencing pass or a new explicit
+user instruction in the receiving Product/BFM thread.
+
 ## Durable Decision Record
 
 This rule governs routing only. The existing Product/BFM rule remains: an

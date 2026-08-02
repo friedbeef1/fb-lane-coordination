@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-068 | Staging QA | FB-Product / BFM | Cross-thread notification intake | Prevent incoming cross-thread notifications from preempting active BFM work without receiving-thread authority | Canonical/package guardrails, BFM skill, routing guidance, focused contract; no runtime, consumer app, release, or provider changes | [Handoff](docs/handoffs/TASK-068.md); [QA](docs/qa/TASK-068.md) |
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-064 | Done | FB-Product / BFM | Access guardrails + Plugin Release | Default FB to approval-based least privilege, forbid Full access as a prompt-avoidance shortcut, and separate host permission prompts from Product/BFM gates | None; published and installed | [Handoff](docs/handoffs/TASK-064.md); [QA](docs/qa/TASK-064.md); published build `0.5.2-beta+codex.20260801121142` |
@@ -71,6 +72,34 @@
 | TASK-011 | Done | FB-Tech | Security | Harden fb-lane CLI against shell command injection | `tools/fb-lane.cjs`, `plugins/fb-lane-coordination/tools/fb-lane.cjs` | [PR #21](https://github.com/friedbeef1/fb-lane-coordination/pull/21) |
 
 ---
+
+### TASK-068 - Cross-thread notification intake gate
+
+*   **Status**: Staging QA — guidance and focused regression contract are
+    implemented locally; no plugin release or publication is approved.
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Cross-thread execution authority
+*   **Scope**: Treat notifications from another chat as intake-only delivery
+    receipts. Queue different task IDs; allow same-task amendments to continue
+    only when approved boundaries remain unchanged.
+*   **Out of Scope**: Runtime messaging machinery, consumer application source,
+    provider mutation, plugin publication, marketplace upgrade, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Prevent a newly delivered handoff from silently
+        interrupting and executing ahead of the active Product/BFM task.
+    *   **Key Results**: Canonical receive/reconcile/classify/queue rule,
+        explicit same-task exception, receiving-thread approval requirement,
+        and focused root/package regression assertions.
+    *   **Definition of Done**: Root/package focused contract and whitespace
+        checks pass; branch is preserved for Product review; active local cache
+        carries the corrected guidance without claiming a released version.
+    *   **Gate / Review Point**: Local Product review only. Merge, publication,
+        release, and marketplace installation remain separate approvals.
+    *   **Approval**: approved for local implementation by James on 2026-08-03.
+    *   **Justification**: A delivered Android amendment visibly began execution
+        immediately in the receiving BFM thread, reproducing the missing gate.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-068.md) ·
+    [QA](docs/qa/TASK-068.md).
 
 ### TASK-067 - Sidechat execution authority
 

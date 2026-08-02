@@ -1,7 +1,17 @@
 # FB-Product Workstream Status
 
-Last Updated: 2026-08-01
+Last Updated: 2026-08-03
 Lane: FB-Product
+
+## TASK-068 — Cross-thread notification intake gate
+
+- Status: Staging QA; local guidance candidate only.
+- Outcome: Notifications from another chat are intake-only. Different task IDs
+  queue behind active work; same-task amendments continue only when approved
+  goal, scope, locks, safety gates, and release boundary stay unchanged.
+- Gate: Focused root/package contract and whitespace checks; no merge, release,
+  publication, marketplace upgrade, or consumer deployment is approved.
+- Link: [Handoff](../handoffs/TASK-068.md) and [QA](../qa/TASK-068.md).
 
 ## TASK-067 — Sidechat execution authority and FB 0.5.4-beta
 

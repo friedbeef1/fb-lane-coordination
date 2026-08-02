@@ -65,6 +65,7 @@ function assertAutomaticLocalVerification() {
 
 function assertConversationExecutionAuthority() {
   const guardrails = read('plugins/fb-lane-coordination/docs/fb/guardrails.md');
+  const bfm = read('plugins/fb-lane-coordination/skills/bfm/SKILL.md');
   const prose = guardrails.replace(/^>\s?/gm, '');
   const flat = prose.replace(/\s+/g, ' ');
   const heading = /## Execution authority by conversation context/i;
@@ -85,6 +86,13 @@ function assertConversationExecutionAuthority() {
   for (const gate of ['live-release', 'provider-state', 'privacy', 'payment', 'destructive-operation', 'lock-conflict', 'physical-device']) {
     assert.match(guardrails, new RegExp(gate, 'i'), `sidechat exceptions must preserve the ${gate} gate`);
   }
+  assert.match(guardrails, /Cross-thread notification intake gate/i);
+  assert.match(guardrails, /delivery receipt only[\s\S]{0,160}does\s+not authorize Product\/BFM to execute/i);
+  assert.match(guardrails, /task ID differs from the active task/i);
+  assert.match(guardrails, /queue it for the next BFM\s+sequencing pass/i);
+  assert.match(guardrails, /Only a new explicit instruction from the user[\s\S]{0,120}execute a different notified task immediately/i);
+  assert.match(bfm, /intake-only delivery receipts[\s\S]{0,140}not execution authority/i);
+  assert.match(bfm, /different task ID[\s\S]{0,120}must not preempt the active task/i);
 
   for (const name of ['bfm', 'fb-product', 'fb-business', 'fb-design', 'fb-tech', 'fb-discovery', 'fb-bugs', 'fb-lane-coordination']) {
     const skill = read(`plugins/fb-lane-coordination/skills/${name}/SKILL.md`);
