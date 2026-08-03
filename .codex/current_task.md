@@ -1,19 +1,21 @@
 # Active Task Context
-* **Current Task**: TASK-067
+* **Current Task**: TASK-071
 * **Lane**: FB-Product / BFM
-* **Status**: Done
-* **BFM Class**: Full BFM release closeout
-* **Feature Branch**: `codex/TASK-067-sidechat-execution-authority`
-* **Release Candidate**: `0.5.4-beta+codex.20260801143809`
-* **Release Commit**: `cfa1632`
-* **Locked Files**: None.
+* **Status**: Ready — approved design awaiting written-spec review
+* **BFM Class**: Product planning
+* **Feature Branch**: `codex/TASK-071-cross-workstream-handoffs`
+* **Release Candidate**: None; design only
+* **Release Commit**: None
+* **Locked Files**: `docs/superpowers/specs/2026-08-03-workstream-to-workstream-handoffs-design.md`, `PROJECT_BOARD.md`, `.codex/current_task.md`.
 
 ## Task Scope
 
-Define conversation-specific execution authority and require an explicit,
-named, one-use exception before any sidechat mutation.
+Define explicit workstream-to-workstream planning handoffs that queue evidence
+for a named recipient and wait for user instruction before that recipient
+continues.
 
 ## Next Gate
 
-None. Start a new Codex task in each active repository to load the refreshed
-plugin snapshot; existing dirty repository files were not rewritten.
+James reviews the written design. After approval, Product writes the
+implementation plan. No source/plugin implementation or release action is
+authorized yet.
