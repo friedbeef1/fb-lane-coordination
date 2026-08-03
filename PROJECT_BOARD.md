@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-071 | Checking | FB-Product / BFM | Cross-workstream planning handoffs | Queue cross-workstream planning and keep routine circuit-breaker recovery with Product/BFM | `0.5.5-beta+codex.20260803212323`; release checkpoint passed; revised changelog approval pending | [Handoff](docs/handoffs/TASK-071.md); [QA](docs/qa/TASK-071.md) |
+| TASK-071 | Ready to ship | FB-Product / BFM | Cross-workstream planning handoffs | Queue cross-workstream planning and keep routine circuit-breaker recovery with Product/BFM | `0.5.5-beta+codex.20260803212323`; release checkpoint and revised changelog passed; **Push Live** required | [Handoff](docs/handoffs/TASK-071.md); [QA](docs/qa/TASK-071.md) |
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-064 | Done | FB-Product / BFM | Access guardrails + Plugin Release | Default FB to approval-based least privilege, forbid Full access as a prompt-avoidance shortcut, and separate host permission prompts from Product/BFM gates | None; published and installed | [Handoff](docs/handoffs/TASK-064.md); [QA](docs/qa/TASK-064.md); published build `0.5.2-beta+codex.20260801121142` |
@@ -75,7 +75,7 @@
 
 ### TASK-071 - Workstream-to-workstream queued handoffs
 
-*   **Status**: Checking — `0.5.5-beta+codex.20260803212323`; release checkpoint passed and revised changelog approval is pending.
+*   **Status**: Ready to ship — `0.5.5-beta+codex.20260803212323`; release checkpoint and revised changelog passed; **Push Live** required.
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Cross-workstream planning and evidence routing
 *   **Scope**: Let any main workstream queue a durable planning handoff for

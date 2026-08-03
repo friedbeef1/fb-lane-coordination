@@ -24,8 +24,8 @@ remain unchanged. Delivery still requires a separate Product-ready handoff.
 marketplace, reinstall `fb-lane-coordination@fb-lane`, and start a new Codex
 task so the updated routing guidance is loaded.
 
-**Changelog approval:** Pending James review after the Product-directed recovery
-addition. This candidate is not yet published.
+**Changelog approval:** Approved by James on 2026-08-04 after the
+Product-directed recovery addition. This candidate is not yet published.
 
 ## 0.5.4-beta — 2026-08-01
 

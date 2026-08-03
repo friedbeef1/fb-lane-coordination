@@ -54,25 +54,24 @@ enters `$bfm` directly.
 
 - Review state: not reviewable
 - Changelog: updated — [FB 0.5.5-beta](../../CHANGELOG.md#055-beta--2026-08-04)
-- Changelog approval: pending — Product-directed recovery wording was added
-  after the earlier approval and requires fresh review.
+- Changelog approval: approved — James approved the revised Product-directed
+  recovery wording on 2026-08-04.
 - Verification: [TASK-071 QA](../qa/TASK-071.md)
 - External gates: the complete release checkpoint passed. Push, PR, merge,
   marketplace publication, reinstall, and live-cache verification remain
   unauthorized until **Push Live**.
-- Remaining owner/action: James approves the revised changelog wording; after
-  **Ready to ship**, **Push Live** authorizes external delivery.
+- Remaining owner/action: James says **Push Live** to authorize external
+  delivery.
 
 ## Product/BFM Closeout
 
-Status: Checking — revised changelog approval needed.
+Status: Ready to ship — unreleased candidate.
 Actioned By: FB-Product / BFM.
 Result: Canonical runtime, skills, public guidance, and packaged mirrors now
 support passive workstream-to-workstream planning handoffs.
 Evidence: Focused root/package contracts and the complete final release
 validator passed; see [TASK-071 QA](../qa/TASK-071.md).
-Remaining: Revised changelog approval precedes **Ready to ship**; **Push Live**
-then precedes push, merge, publication, or reinstall.
+Remaining: **Push Live** precedes push, merge, publication, or reinstall.
 
 ## Loop Learning
 
