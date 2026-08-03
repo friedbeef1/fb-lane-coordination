@@ -57,21 +57,21 @@ enters `$bfm` directly.
 - Changelog approval: approved — James approved the revised Product-directed
   recovery wording on 2026-08-04.
 - Verification: [TASK-071 QA](../qa/TASK-071.md)
-- External gates: the complete release checkpoint passed. Push, PR, merge,
-  marketplace publication, reinstall, and live-cache verification remain
-  unauthorized until **Push Live**.
-- Remaining owner/action: James says **Push Live** to authorize external
-  delivery.
+- External delivery: PR #54 passed GitHub readiness and merged as `2c3dc4c`.
+  The marketplace was refreshed and the exact release build was installed,
+  enabled, and checked from its live cache.
+- Remaining owner/action: start a new Codex task to load the refreshed plugin.
 
 ## Product/BFM Closeout
 
-Status: Ready to ship — unreleased candidate.
+Status: Done — released and installed.
 Actioned By: FB-Product / BFM.
 Result: Canonical runtime, skills, public guidance, and packaged mirrors now
 support passive workstream-to-workstream planning handoffs.
-Evidence: Focused root/package contracts and the complete final release
-validator passed; see [TASK-071 QA](../qa/TASK-071.md).
-Remaining: **Push Live** precedes push, merge, publication, or reinstall.
+Evidence: Focused root/package contracts, the complete final release validator,
+GitHub readiness, merge, marketplace refresh, reinstall, and live-cache checks
+passed; see [TASK-071 QA](../qa/TASK-071.md).
+Remaining: Existing Codex tasks do not hot-reload; use a new task.
 
 ## Loop Learning
 

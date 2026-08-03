@@ -20,12 +20,13 @@ intent, weaken evidence, or cross a safety boundary.
 `$bfm`, sidechat parent routing, board ownership, and **Push Live** authority
 remain unchanged. Delivery still requires a separate Product-ready handoff.
 
-**Installation or upgrade:** After publication, upgrade the `fb-lane`
-marketplace, reinstall `fb-lane-coordination@fb-lane`, and start a new Codex
-task so the updated routing guidance is loaded.
+**Installation or upgrade:** Upgrade the `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, and start a new Codex task so the updated
+routing guidance is loaded.
 
 **Changelog approval:** Approved by James on 2026-08-04 after the
-Product-directed recovery addition. This candidate is not yet published.
+Product-directed recovery addition. PR #54 merged as `2c3dc4c`; the marketplace
+was refreshed and the exact build above was installed and enabled.
 
 ## 0.5.4-beta — 2026-08-01
 
