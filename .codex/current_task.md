@@ -1,12 +1,12 @@
 # Active Task Context
 * **Current Task**: TASK-071
 * **Lane**: FB-Product / BFM
-* **Status**: Ready to ship — release checkpoint and revised changelog passed
-* **BFM Class**: Full BFM release candidate
+* **Status**: Done — merged, published, installed, and enabled
+* **BFM Class**: Full BFM release closeout
 * **Feature Branch**: `codex/TASK-071-cross-workstream-handoffs`
 * **Release Candidate**: `0.5.5-beta+codex.20260803212323`
-* **Release Commit**: None
-* **Locked Files**: Cross-workstream validator/tests/template, CLI doctor/scanner, canonical/package harness and skills, public docs, release metadata, and TASK-071 records.
+* **Release Commit**: `2c3dc4c` (PR #54)
+* **Locked Files**: None.
 
 ## Task Scope
 
@@ -16,6 +16,4 @@ continues.
 
 ## Next Gate
 
-Automated checks passed. Optional GitHub review links require a push first.
-Say **Push Live** to authorize push, PR/merge, marketplace publication, and
-plugin reinstall.
+No TASK-071 gate remains. Start a new Codex task to load the refreshed plugin.

@@ -33,14 +33,16 @@
 | Exceptional final complete release pass | Passed | CLI 70/70, sessions 39/39, evals 18/18, beginner 11/11, efficiency 24/24, positioning, two-speed, 57-mirror parity, doctor Ready, and whitespace all passed. |
 | Product-directed recovery hardening | Passed | A RED/GREEN contract now requires canonical and packaged Product/BFM guidance to own one safe scope-preserving recovery; efficiency coverage is 25/25 in each context. |
 
-## Pending external evidence
+## External release evidence
 
-- GitHub readiness, marketplace publication, reinstall, and new-task smoke
-  remain behind **Push Live**.
+- PR #54 passed GitHub readiness and merged into `main` as `2c3dc4c`.
+- The `fb-lane` marketplace refreshed successfully.
+- Codex installed and enabled `0.5.5-beta+codex.20260803212323`.
+- All six workstream skills, Product/BFM guidance, queued-handoff wording, the
+  bundled MCP tool route, and Node syntax resolved from the installed cache.
 
 ## Limits
 
 - This guidance/runtime slice does not create or message Codex tasks itself.
 - Existing open Codex tasks do not hot-reload an updated plugin snapshot.
-- No push, merge, publication, install, deployment, or provider mutation has
-  been performed.
+- A new Codex task is required to load the refreshed plugin snapshot.
