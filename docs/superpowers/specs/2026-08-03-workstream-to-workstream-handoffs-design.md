@@ -1,7 +1,7 @@
 # Workstream-to-Workstream Queued Handoffs
 
-Date: 2026-08-03  
-Owner: Product / BFM  
+Date: 2026-08-03
+Owner: Product / BFM
 Status: Approved design; implementation not started
 
 ## Purpose
