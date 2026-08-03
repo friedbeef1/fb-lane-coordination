@@ -51,13 +51,13 @@ enters `$bfm` directly.
 
 - Review state: not reviewable
 - Changelog: updated — [FB 0.5.5-beta](../../CHANGELOG.md#055-beta--2026-08-04)
-- Changelog approval: pending — James must approve, revise, reject, or defer the
-  drafted entry before a release checkpoint can report **Ready to ship**.
+- Changelog approval: approved — James approved the drafted entry on
+  2026-08-04.
 - Verification: [TASK-071 QA](../qa/TASK-071.md)
 - External gates: release checkpoint, push, PR, merge, marketplace publication,
   reinstall, and live-cache verification remain unauthorized.
-- Remaining owner/action: Product presents the changelog draft and requests a
-  separate release-checkpoint decision.
+- Remaining owner/action: Product runs the approved release checkpoint and
+  records its result before any external delivery.
 
 ## Product/BFM Closeout
 
@@ -67,8 +67,8 @@ Result: Canonical runtime, skills, public guidance, and packaged mirrors now
 support passive workstream-to-workstream planning handoffs.
 Evidence: Focused root/package contracts, CLI regression, mechanical mirror
 generation, syntax, and whitespace are recorded in [TASK-071 QA](../qa/TASK-071.md).
-Remaining: Changelog approval and the one complete release checkpoint precede
-any push, merge, publication, or reinstall.
+Remaining: The one complete release checkpoint precedes any push, merge,
+publication, or reinstall.
 
 ## Loop Learning
 
