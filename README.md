@@ -4,8 +4,8 @@
 
 **AI Loop Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.5.4-beta**
-(`0.5.4-beta+codex.20260801143809`).
+Current Codex release candidate: **FB 0.5.5-beta**
+(`0.5.5-beta+codex.20260803212323`).
 
 **FB is a Codex plugin that connects six product workstreams in one continuous
 delivery loop. Each workstream investigates part of the problem; `$bfm` brings
@@ -133,6 +133,13 @@ Product reconciliation, repair, review, and release.
 
 A workstream with nothing useful does not invent work merely to participate;
 record **None relevant** only when a six-workstream scan/report requires it.
+
+Workstreams can also hand planning to each other when you ask. For example,
+Discovery can create a queued research handoff for Design. Design receives
+**“Discovery handoff queued for Design — planning only; waiting for you”** and
+does not start automatically. When you continue it, Design investigates and
+can later create a separate Product-ready handoff; the queued artifact itself
+never enters `$bfm`.
 
 When actionable ready handoffs exist, the user says `$bfm`. Product then scans
 all six, reconciles and prioritizes, creates the Project Start Brief plus Build

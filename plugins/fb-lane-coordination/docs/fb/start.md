@@ -49,6 +49,21 @@ not disable FB.
 interpret that as intent to run `$bfm`; `/bfm` is not a separate installed
 command.
 
+## Cross-workstream planning
+
+On an explicit request, one main workstream can send a focused question and
+evidence to another main workstream. For example, Discovery can queue research
+for Design. The durable artifact uses `type: fb-workstream-handoff` and
+`status: queued`; the receiving task shows:
+
+> Discovery handoff queued for Design — planning only; waiting for you. Open: [handoff link]
+
+The destination does not start automatically. It waits until the user says
+`Continue the queued Discovery handoff`, then performs planning and evidence
+work only. If the result should enter delivery, the destination creates a
+separate Product-ready handoff. `$bfm` ignores queued cross-workstream
+artifacts.
+
 ## Terms in plain language
 
 - **Workstream:** a focused planning and evidence view.

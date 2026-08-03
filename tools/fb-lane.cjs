@@ -25,6 +25,7 @@ const {
   collectControlLoopDoctorChecks,
 } = require('./fb-control-loop.cjs');
 const { validateNormalizedRepository } = require('./fb-records.cjs');
+const { validateWorkstreamHandoffDirectory } = require('./fb-workstream-handoff.cjs');
 const { projectContextPacket } = require('./fb-project-graph.cjs');
 const { renderBoardContext, compactBoardFiles } = require('./fb-board-context.cjs');
 const { ensureOnboardingReceipt } = require('./fb-onboarding.cjs');
@@ -762,6 +763,7 @@ function collectGoalAlignmentSessionWarnings(handoffsDir, tasks = []) {
     const taskId = entry.name.replace(/\.md$/, '');
     const handoffPath = path.join(handoffsDir, entry.name);
     const markdown = fs.readFileSync(handoffPath, 'utf8');
+    if (handoffFrontmatter(markdown)?.type === 'fb-workstream-handoff') continue;
     if (!/^##\s+Goal Alignment Session\b/m.test(markdown)) {
       warnings.missingSession.push(entry.name);
     }
@@ -1667,6 +1669,19 @@ function handleDoctor() {
 
     if (exists('docs/handoffs')) {
       add('ok', 'docs/handoffs', 'Lane handoff directory exists.');
+      const workstreamHandoffFindings = validateWorkstreamHandoffDirectory(path.join(rootDir, 'docs', 'handoffs'));
+      if (workstreamHandoffFindings.length > 0) {
+        add(
+          'warn',
+          'Workstream handoffs',
+          workstreamHandoffFindings
+            .map(finding => `${path.relative(rootDir, finding.file)} — ${finding.message}`)
+            .join('; '),
+          'Fix the directed handoff metadata and required evidence sections before asking the destination workstream to continue.'
+        );
+      } else {
+        add('ok', 'Workstream handoffs', 'Directed planning handoffs are valid or not present.');
+      }
       const handoffIndexWarning = collectHandoffIndexWarning(path.join(rootDir, 'docs', 'handoffs'));
       if (handoffIndexWarning && handoffIndexWarning.type === 'missing') {
         add(

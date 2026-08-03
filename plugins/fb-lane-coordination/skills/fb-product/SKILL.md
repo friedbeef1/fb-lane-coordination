@@ -5,6 +5,20 @@ description: Use when Product must scope, prioritize, reconcile lane handoffs, a
 
 # FB Product
 
+## Cross-workstream planning handoff
+
+On an explicit user request, a main workstream may route planning or evidence
+to another main workstream with a Markdown artifact containing
+`type: fb-workstream-handoff`, distinct `from_workstream` and `to_workstream`,
+and `status: queued`. Send this passive notice to the destination:
+`<Source> handoff queued for <Destination> — planning only; waiting for you. Open: <handoff link>`.
+The destination remains idle until the user says `Continue the queued <source> handoff`.
+It may then investigate and plan, but it does not execute source work. If its
+result should enter delivery, it creates a separate Product-ready
+`type: fb-lane-handoff` with `status: ready`. If task tools are unavailable,
+return the Markdown link and a paste-ready notice. A sidechat still routes only
+to its originating parent.
+
 Product may opt approved scope into the
 [generic control loop](../../docs/fb/control-loop.md) by naming capabilities,
 criteria, evidence, manifests, and gates in the Build Brief. Product alone may
@@ -46,6 +60,9 @@ pause only for a changed decision, disputed priority, sensitive boundary,
 conflict, or unclear scope. BFM stops at **Ready to ship**. Only an
 explicit **Push Live** authorizes merge or deployment.
 
+`$bfm` ignores every `fb-workstream-handoff`; only a separate Product-ready
+delivery handoff enters Product reconciliation.
+
 - [Workflow and BFM return loop](../../docs/fb/workflow.md)
 - [Review evidence and user test packet](../../docs/fb/evidence.md)
 - [Approval limits, recovery, and Loop Learning](../../docs/fb/guardrails.md)
@@ -71,6 +88,14 @@ Goal Alignment Session. Do not wait for `doctor` to discover a missing OKR. If
 there is no approved goal, block the task instead of inventing one.
 Product privately routes execution by risk, enforcing the
 canonical progress and resource stop predicates before any repeated iteration.
+Product direction is not automatically a user prompt. When a circuit breaker
+has a concrete cause and the correction stays inside approved scope without a
+changed user decision or safety/hard gate, Product owns one bounded
+Product-directed recovery: make one consolidated correction, run the focused
+proof, then the necessary final release pass if already authorized.
+Ask the user only for a changed product outcome, scope, or priority; weakened
+evidence; a safety or hard gate; no concrete progress; or failure of that one
+recovery.
 Product selects only relevant evals, records every authority decision, and
 provides explicit approval evidence before promotion to blocking or mechanical.
 Subjective product quality remains Product/user judgment, never an automated score.

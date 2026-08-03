@@ -449,6 +449,24 @@ test('release checkpoint lifecycle requires a Product-owned handoff and permits 
   ]) assert.match(verificationBudget(runtime, { repoRoot, finalRuntimeCheckpoint: true, releaseCheckpoint: checkpoint }).blockedReason, /repair batch|final pass|Product direction/i);
 });
 
+test('Product direction owns one bounded scope-preserving circuit-breaker recovery', () => {
+  const repoRoot = path.resolve(__dirname, '..');
+  for (const relative of [
+    'docs/fb/guardrails.md',
+    'docs/fb/workflow.md',
+    'skills/bfm/SKILL.md',
+    'skills/fb-product/SKILL.md',
+    'skills/fb-lane-coordination/SKILL.md',
+  ]) {
+    const content = fs.readFileSync(path.join(repoRoot, relative), 'utf8');
+    assert.match(content, /Product direction is not (?:automatically )?a user prompt/i, relative);
+    assert.match(content, /one\s+(?:bounded\s+)?Product-directed recovery/i, relative);
+    assert.match(content, /concrete cause[\s\S]{0,180}approved scope/i, relative);
+    assert.match(content, /focused\s+proof[\s\S]{0,180}(?:final|complete)\s+(?:release\s+)?(?:pass|checkpoint)/i, relative);
+    assert.match(content, /ask\s+the\s+user\s+only[\s\S]{0,240}(?:product outcome|scope|priority)[\s\S]{0,240}(?:safety|hard gate)/i, relative);
+  }
+});
+
 test('automated checks select deterministic coordination and project runtime commands', () => {
   const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-automated-checks-'));
   fs.writeFileSync(path.join(repoRoot, 'package.json'), JSON.stringify({ scripts: { test: 'node test.cjs' } }));

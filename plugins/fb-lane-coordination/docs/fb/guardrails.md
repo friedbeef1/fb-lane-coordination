@@ -71,6 +71,17 @@ feature branch, or close it and release locks when permanently rejected. Verify
 staging before requesting production promotion, and adapt to another lane’s
 change rather than reverting it.
 
+### Cross-workstream queue boundary
+
+An explicit user request may route a planning artifact between two different
+main workstreams. It uses `type: fb-workstream-handoff` and `status: queued`.
+The destination receives `<Source> handoff queued for <Destination> — planning only; waiting for you. Open: <handoff link>`
+and remains idle until the user explicitly continues it. Arrival never grants
+source, Git, board, provider, or release authority. The destination may produce
+planning and evidence; delivery requires a separate Product-ready handoff, and
+`$bfm` ignores the queued artifact. If task tools are unavailable, return a
+paste-ready notice. Sidechats remain parent-only.
+
 A project may define `hooks.preflight` in `.fb-lane.json`. FB runs it before
 claim or quick-task mutation and surfaces the exact project command on failure.
 The hook is optional and project-owned: FB assumes no global Node version,
@@ -179,6 +190,21 @@ The full validator is eligible only when a Product-owned handoff explicitly
 requests a release checkpoint. Integration, staging, owner transfer, review,
 or the existence of a handoff file do not request one. Preserve every sensitive
 trigger and its immediate safety/approval gate.
+
+### Product-directed circuit-breaker recovery
+
+Product direction is not automatically a user prompt. A circuit breaker stops
+automatic workers and repeated gates; it does not return routine recovery
+ownership to the user. Product/BFM may authorize one bounded Product-directed
+recovery when the failure has a concrete cause, the correction stays inside
+approved scope, and no user decision or safety/hard gate changes. Make one
+consolidated correction, run the focused proof, then run the necessary final
+release pass when that checkpoint was already approved.
+
+Ask the user only when recovery changes the product outcome, scope, or priority;
+weakens acceptance or evidence; crosses a safety or hard gate; has no concrete
+correction or material progress; or the one Product-directed recovery fails.
+There is at most one such recovery per checkpoint.
 
 The time limits apply per planned slice, not to the whole product outcome.
 Quick BFM is one slice: documentation/coordination normally targets 5 minutes,

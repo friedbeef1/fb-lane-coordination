@@ -18,6 +18,8 @@ Apply the canonical [execution authority by conversation
 context](../../docs/fb/guardrails.md#execution-authority-by-conversation-context)
 before any mutation. Product/BFM parent work may execute approved scope;
 workstream parents hand off; sidechats require a named, one-use exception.
+Sidechat routing remains restricted to the originating parent; when that route
+is unavailable, return a paste-ready handoff.
 
 The public path starts in whichever of the six planning/evidence workstreams
 matches the question: Product/User (technical slug
@@ -30,6 +32,13 @@ work or `None relevant` entry except in a six-workstream scan/report. After
 actionable handoffs are ready, `$bfm` activates Product reconciliation and
 execution of already-approved scope. Delivery stops at **Ready to
 ship**. Only **Push Live** authorizes merge or deployment.
+
+On an explicit user request, one main workstream may send a queued
+`fb-workstream-handoff` to another. The destination receives
+`<Source> handoff queued for <Destination> — planning only; waiting for you. Open: <handoff link>`
+and remains idle until the user asks it to continue. `$bfm` ignores
+`fb-workstream-handoff`; any resulting delivery recommendation must become a
+separate Product-ready `fb-lane-handoff`.
 
 Keep agent classification private: FB selects internal routing rather than
 asking users to choose a mode. The canonical workflow owns progress, resource, reviewer,
@@ -51,6 +60,14 @@ slice/branch/worktree mapping; it must not ask the user to organize worktrees.
 Planning-only work creates none.
 Focused checks prove slices; integration checks prove meaningful combinations;
 broad validation waits for a release checkpoint.
+Product direction is not automatically a user prompt. When a circuit breaker
+has a concrete cause and the correction stays inside approved scope without a
+changed user decision or safety/hard gate, Product/BFM owns one bounded
+Product-directed recovery: make one consolidated correction, run the focused
+proof, then the necessary final release pass if already authorized.
+Ask the user only for a changed product outcome, scope, or priority; weakened
+evidence; a safety or hard gate; no concrete progress; or failure of that one
+recovery.
 Follow [records.md](../../docs/fb/records.md) for one-fact-one-home ownership,
 risk-triggered review, deterministic verification reuse, event-driven health
 checks, compact closeout, and local efficiency metrics.
