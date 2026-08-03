@@ -1,10 +1,10 @@
 # Active Task Context
 * **Current Task**: TASK-071
 * **Lane**: FB-Product / BFM
-* **Status**: Ready — implementation plan prepared for inline execution
-* **BFM Class**: Product planning
+* **Status**: Checking — focused candidate prepared; changelog approval pending
+* **BFM Class**: Full BFM release candidate
 * **Feature Branch**: `codex/TASK-071-cross-workstream-handoffs`
-* **Release Candidate**: None; design only
+* **Release Candidate**: `0.5.5-beta+codex.20260803212323`
 * **Release Commit**: None
 * **Locked Files**: Cross-workstream validator/tests/template, CLI doctor/scanner, canonical/package harness and skills, public docs, release metadata, and TASK-071 records.
 
@@ -16,6 +16,6 @@ continues.
 
 ## Next Gate
 
-Execute the approved plan in focused RED/GREEN slices. Stop after the unreleased
-candidate and changelog draft; release checkpoint and **Push Live** remain
-separate Product gates.
+Review the 0.5.5 changelog draft. A separately approved release checkpoint must
+pass before **Ready to ship**; push, merge, marketplace publication, reinstall,
+and **Push Live** remain separate Product gates.

@@ -3,6 +3,16 @@
 Last Updated: 2026-08-01
 Lane: FB-Product
 
+## TASK-071 — Queued cross-workstream handoffs and FB 0.5.5-beta
+
+- Status: Checking; `0.5.5-beta+codex.20260803212323` is an unreleased local
+  candidate.
+- Outcome: Any main workstream can explicitly queue planning for another; the
+  destination waits for the user and `$bfm` ignores the planning artifact.
+- Gate: Changelog approval and an explicitly authorized release checkpoint are
+  pending. No push, merge, publication, reinstall, or deployment occurred.
+- Link: [Handoff](../handoffs/TASK-071.md) and [QA](../qa/TASK-071.md).
+
 ## TASK-067 — Sidechat execution authority and FB 0.5.4-beta
 
 - Status: Done; `0.5.4-beta+codex.20260801143809` is published, installed, and

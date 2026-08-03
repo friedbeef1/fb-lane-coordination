@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.5.5-beta — 2026-08-04
+
+Build: `0.5.5-beta+codex.20260803212323`
+
+**What changed:** FB workstreams can now send explicit, queued planning and
+evidence handoffs to another named workstream. The receiving task stays idle
+until the user asks it to continue, and `$bfm` ignores these planning artifacts.
+
+**Why it matters:** Useful research can move directly from Discovery to Design,
+or between any other pair of workstreams, without making Product a relay and
+without allowing handoff arrival to trigger unplanned work.
+
+**Compatibility:** Existing Product-ready handoffs, six-workstream projects,
+`$bfm`, sidechat parent routing, board ownership, and **Push Live** authority
+remain unchanged. Delivery still requires a separate Product-ready handoff.
+
+**Installation or upgrade:** After publication, upgrade the `fb-lane`
+marketplace, reinstall `fb-lane-coordination@fb-lane`, and start a new Codex
+task so the updated routing guidance is loaded.
+
+**Changelog approval:** Pending James review. This candidate is not published.
+
 ## 0.5.4-beta — 2026-08-01
 
 Build: `0.5.4-beta+codex.20260801143809`
