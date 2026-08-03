@@ -54,21 +54,21 @@ enters `$bfm` directly.
 - Changelog approval: approved — James approved the drafted entry on
   2026-08-04.
 - Verification: [TASK-071 QA](../qa/TASK-071.md)
-- External gates: release checkpoint, push, PR, merge, marketplace publication,
-  reinstall, and live-cache verification remain unauthorized.
-- Remaining owner/action: Product runs the approved release checkpoint and
-  records its result before any external delivery.
+- External gates: the complete release checkpoint passed. Push, PR, merge,
+  marketplace publication, reinstall, and live-cache verification remain
+  unauthorized until **Push Live**.
+- Remaining owner/action: James says **Push Live** to authorize external
+  delivery.
 
 ## Product/BFM Closeout
 
-Status: Checking — unreleased candidate.
+Status: Ready to ship — unreleased candidate.
 Actioned By: FB-Product / BFM.
 Result: Canonical runtime, skills, public guidance, and packaged mirrors now
 support passive workstream-to-workstream planning handoffs.
-Evidence: Focused root/package contracts, CLI regression, mechanical mirror
-generation, syntax, and whitespace are recorded in [TASK-071 QA](../qa/TASK-071.md).
-Remaining: The one complete release checkpoint precedes any push, merge,
-publication, or reinstall.
+Evidence: Focused root/package contracts and the complete final release
+validator passed; see [TASK-071 QA](../qa/TASK-071.md).
+Remaining: **Push Live** precedes push, merge, publication, or reinstall.
 
 ## Loop Learning
 

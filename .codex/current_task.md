@@ -1,7 +1,7 @@
 # Active Task Context
 * **Current Task**: TASK-071
 * **Lane**: FB-Product / BFM
-* **Status**: Checking — changelog approved; release checkpoint authorized
+* **Status**: Ready to ship — changelog and complete release checkpoint passed
 * **BFM Class**: Full BFM release candidate
 * **Feature Branch**: `codex/TASK-071-cross-workstream-handoffs`
 * **Release Candidate**: `0.5.5-beta+codex.20260803212323`
@@ -16,6 +16,6 @@ continues.
 
 ## Next Gate
 
-Run the one complete release checkpoint. If it passes, record **Ready to ship**;
-push, merge, marketplace publication, reinstall, and **Push Live** remain
-separate Product gates.
+Automated checks passed. Optional GitHub review links require a push first.
+Say **Push Live** to authorize push, PR/merge, marketplace publication, and
+plugin reinstall.

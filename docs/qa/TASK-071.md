@@ -22,10 +22,20 @@
 | `node tools/fb-lane.cjs doctor` after candidate commit | Passed — Ready | Handoff, workstream, OKR, package, session, eval, Git, and MCP checks all passed from a clean branch. |
 | Syntax and whitespace | Passed | New modules/tests parse and the candidate has no whitespace errors. |
 
-## Pending release evidence
+## Release-checkpoint recovery and final result
 
-- One complete release validator after explicit Product approval.
-- GitHub readiness, marketplace publication, reinstall, and new-task smoke.
+| Stage | Result | Evidence and action |
+|---|---|---|
+| Initial complete release pass | Failed | The documented archive fallback omitted `fb-workstream-handoff.cjs`, so copied `fb-lane.cjs` could not load. |
+| Consolidated runtime repair | Passed | The fallback and its fixture now copy the dependency; root and packaged eval suites passed 18/18. |
+| First post-repair complete pass | Failed | The new cross-workstream section mentioned `$bfm` before the canonical beginner sequence, violating the documented order. Automation stopped at the circuit breaker. |
+| Product-directed documentation correction | Passed | James authorized moving the section below the main sequence; root/package beginner tests passed 11/11 and routing guidance passed 4/4. |
+| Exceptional final complete release pass | Passed | CLI 70/70, sessions 39/39, evals 18/18, beginner 11/11, efficiency 24/24, positioning, two-speed, 57-mirror parity, doctor Ready, and whitespace all passed. |
+
+## Pending external evidence
+
+- GitHub readiness, marketplace publication, reinstall, and new-task smoke
+  remain behind **Push Live**.
 
 ## Limits
 
