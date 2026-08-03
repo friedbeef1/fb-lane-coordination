@@ -88,6 +88,14 @@ Goal Alignment Session. Do not wait for `doctor` to discover a missing OKR. If
 there is no approved goal, block the task instead of inventing one.
 Product privately routes execution by risk, enforcing the
 canonical progress and resource stop predicates before any repeated iteration.
+Product direction is not automatically a user prompt. When a circuit breaker
+has a concrete cause and the correction stays inside approved scope without a
+changed user decision or safety/hard gate, Product owns one bounded
+Product-directed recovery: make one consolidated correction, run the focused
+proof, then the necessary final release pass if already authorized.
+Ask the user only for a changed product outcome, scope, or priority; weakened
+evidence; a safety or hard gate; no concrete progress; or failure of that one
+recovery.
 Product selects only relevant evals, records every authority decision, and
 provides explicit approval evidence before promotion to blocking or mechanical.
 Subjective product quality remains Product/user judgment, never an automated score.

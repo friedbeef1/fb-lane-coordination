@@ -31,6 +31,7 @@
 | First post-repair complete pass | Failed | The new cross-workstream section mentioned `$bfm` before the canonical beginner sequence, violating the documented order. Automation stopped at the circuit breaker. |
 | Product-directed documentation correction | Passed | James authorized moving the section below the main sequence; root/package beginner tests passed 11/11 and routing guidance passed 4/4. |
 | Exceptional final complete release pass | Passed | CLI 70/70, sessions 39/39, evals 18/18, beginner 11/11, efficiency 24/24, positioning, two-speed, 57-mirror parity, doctor Ready, and whitespace all passed. |
+| Product-directed recovery hardening | Passed | A RED/GREEN contract now requires canonical and packaged Product/BFM guidance to own one safe scope-preserving recovery; efficiency coverage is 25/25 in each context. |
 
 ## Pending external evidence
 

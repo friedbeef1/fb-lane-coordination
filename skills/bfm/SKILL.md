@@ -201,6 +201,14 @@ and one concrete correction. Start a fresh repair worker rather than resuming
 accumulated conversation context, then rerun only the failed proof. If there is
 no concrete correction, no candidate change, or no readiness improvement, stop
 and classify it as a harness failure; do not broaden diagnosis automatically.
+Product direction is not automatically a user prompt. When a circuit breaker
+has a concrete cause and the correction stays inside approved scope without a
+changed user decision or safety/hard gate, Product/BFM owns one bounded
+Product-directed recovery: make one consolidated correction, run the focused
+proof, then the necessary final release pass if already authorized.
+Ask the user only for a changed product outcome, scope, or priority; weakened
+evidence; a safety or hard gate; no concrete progress; or failure of that one
+recovery.
 For durable work, promote the approved session in its linked worktree and keep
 the Task Receipt, Brief Validation, reciprocal links, verification checkpoint,
 Verification Handoff, and Test This Now aligned before submit or completed close.

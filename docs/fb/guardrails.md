@@ -191,6 +191,21 @@ requests a release checkpoint. Integration, staging, owner transfer, review,
 or the existence of a handoff file do not request one. Preserve every sensitive
 trigger and its immediate safety/approval gate.
 
+### Product-directed circuit-breaker recovery
+
+Product direction is not automatically a user prompt. A circuit breaker stops
+automatic workers and repeated gates; it does not return routine recovery
+ownership to the user. Product/BFM may authorize one bounded Product-directed
+recovery when the failure has a concrete cause, the correction stays inside
+approved scope, and no user decision or safety/hard gate changes. Make one
+consolidated correction, run the focused proof, then run the necessary final
+release pass when that checkpoint was already approved.
+
+Ask the user only when recovery changes the product outcome, scope, or priority;
+weakens acceptance or evidence; crosses a safety or hard gate; has no concrete
+correction or material progress; or the one Product-directed recovery fails.
+There is at most one such recovery per checkpoint.
+
 The time limits apply per planned slice, not to the whole product outcome.
 Quick BFM is one slice: documentation/coordination normally targets 5 minutes,
 two total iterations, or one consolidated repair; runtime/test normally targets

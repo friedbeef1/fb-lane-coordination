@@ -60,6 +60,14 @@ slice/branch/worktree mapping; it must not ask the user to organize worktrees.
 Planning-only work creates none.
 Focused checks prove slices; integration checks prove meaningful combinations;
 broad validation waits for a release checkpoint.
+Product direction is not automatically a user prompt. When a circuit breaker
+has a concrete cause and the correction stays inside approved scope without a
+changed user decision or safety/hard gate, Product/BFM owns one bounded
+Product-directed recovery: make one consolidated correction, run the focused
+proof, then the necessary final release pass if already authorized.
+Ask the user only for a changed product outcome, scope, or priority; weakened
+evidence; a safety or hard gate; no concrete progress; or failure of that one
+recovery.
 Follow [records.md](../../docs/fb/records.md) for one-fact-one-home ownership,
 risk-triggered review, deterministic verification reuse, event-driven health
 checks, compact closeout, and local efficiency metrics.

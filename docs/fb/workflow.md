@@ -242,6 +242,15 @@ before starting the worker. No candidate change or no readiness improvement is
 a harness failure and ends the repair path; it is not permission for broader
 rediscovery or another diagnosis loop.
 
+Product direction is not automatically a user prompt. After a circuit breaker,
+Product/BFM may own one bounded Product-directed recovery when there is a
+concrete cause, the correction remains inside approved scope, and no user
+decision or safety/hard gate changes. Apply one consolidated correction, run
+the focused proof, then the necessary final release pass if already
+authorized. Ask the user only if the recovery changes product outcome, scope,
+or priority; weakens evidence; crosses a safety or hard gate; lacks concrete
+progress; or that single Product-directed recovery fails.
+
 Run only the smallest focused proof after each slice. At an integration or
 release checkpoint, run only the proof appropriate to that boundary: an
 integration check when dependent slices are meaningfully combined, and broad

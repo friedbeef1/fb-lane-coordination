@@ -38,6 +38,9 @@ enters `$bfm` directly.
 - When Codex task tools are unavailable, FB returns a paste-ready notice.
 - No app-level routing, transcript capture, hosted service, or automatic task
   discovery was added.
+- A circuit breaker stops automatic workers, not Product/BFM ownership.
+  Product/BFM may direct one concrete, scope-preserving recovery without asking
+  the user again; material product decisions and safety gates still stop.
 
 ## Acceptance
 
