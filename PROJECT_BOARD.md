@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-071 | Ready | FB-Product / BFM | Cross-workstream planning handoffs | Let any main workstream queue evidence and a next planning question for another workstream without automatic execution; preserve Product/BFM-only `$bfm` | Design specification only; implementation locks assigned after plan approval | [Design](docs/superpowers/specs/2026-08-03-workstream-to-workstream-handoffs-design.md) |
+| TASK-071 | Ready | FB-Product / BFM | Cross-workstream planning handoffs | Let any main workstream queue evidence and a next planning question for another workstream without automatic execution; preserve Product/BFM-only `$bfm` | Contract module/tests, doctor/scanner, canonical/package skills and docs, release records; implementation not started | [Design](docs/superpowers/specs/2026-08-03-workstream-to-workstream-handoffs-design.md); [Plan](docs/superpowers/plans/2026-08-04-cross-workstream-handoffs.md) |
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-064 | Done | FB-Product / BFM | Access guardrails + Plugin Release | Default FB to approval-based least privilege, forbid Full access as a prompt-avoidance shortcut, and separate host permission prompts from Product/BFM gates | None; published and installed | [Handoff](docs/handoffs/TASK-064.md); [QA](docs/qa/TASK-064.md); published build `0.5.2-beta+codex.20260801121142` |
@@ -75,7 +75,7 @@
 
 ### TASK-071 - Workstream-to-workstream queued handoffs
 
-*   **Status**: Ready — approved design awaiting written-spec review.
+*   **Status**: Ready — design and implementation plan approved for inline execution.
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Cross-workstream planning and evidence routing
 *   **Scope**: Let any main workstream queue a durable planning handoff for
@@ -98,7 +98,7 @@
     *   **Approval**: approved
     *   **Justification**: James explicitly approved queue-and-wait behavior for
         workstream-to-workstream handoffs on 2026-08-03.
-*   **Links & Deliverables**: [design](docs/superpowers/specs/2026-08-03-workstream-to-workstream-handoffs-design.md).
+*   **Links & Deliverables**: [design](docs/superpowers/specs/2026-08-03-workstream-to-workstream-handoffs-design.md) · [plan](docs/superpowers/plans/2026-08-04-cross-workstream-handoffs.md).
 
 ### TASK-067 - Sidechat execution authority
 

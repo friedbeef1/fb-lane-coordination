@@ -1,12 +1,12 @@
 # Active Task Context
 * **Current Task**: TASK-071
 * **Lane**: FB-Product / BFM
-* **Status**: Ready — approved design awaiting written-spec review
+* **Status**: Ready — implementation plan prepared for inline execution
 * **BFM Class**: Product planning
 * **Feature Branch**: `codex/TASK-071-cross-workstream-handoffs`
 * **Release Candidate**: None; design only
 * **Release Commit**: None
-* **Locked Files**: `docs/superpowers/specs/2026-08-03-workstream-to-workstream-handoffs-design.md`, `PROJECT_BOARD.md`, `.codex/current_task.md`.
+* **Locked Files**: Cross-workstream validator/tests/template, CLI doctor/scanner, canonical/package harness and skills, public docs, release metadata, and TASK-071 records.
 
 ## Task Scope
 
@@ -16,6 +16,6 @@ continues.
 
 ## Next Gate
 
-James reviews the written design. After approval, Product writes the
-implementation plan. No source/plugin implementation or release action is
-authorized yet.
+Execute the approved plan in focused RED/GREEN slices. Stop after the unreleased
+candidate and changelog draft; release checkpoint and **Push Live** remain
+separate Product gates.
