@@ -5,6 +5,7 @@ const assert = require('node:assert');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 const test = require('node:test');
 
 const {
@@ -14,6 +15,7 @@ const {
   validateWorkstreamHandoffDirectory,
   renderQueuedNotice,
 } = require('./fb-workstream-handoff.cjs');
+const { scanWorkstreamHandoffs } = require('./fb-lane.cjs');
 
 function validHandoff(from = 'discovery', to = 'design', overrides = {}) {
   const values = {
@@ -119,5 +121,71 @@ test('directory validation reports only directed workstream artifacts', () => {
     assert.match(findings[0].message, /different workstreams/i);
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('BFM scanner ignores queued workstream handoffs', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-workstream-scan-'));
+  const directory = path.join(root, 'docs', 'handoffs');
+  fs.mkdirSync(directory, { recursive: true });
+  try {
+    fs.writeFileSync(path.join(directory, 'TASK-071-discovery-to-design.md'), validHandoff(), 'utf8');
+    fs.writeFileSync(path.join(directory, 'TASK-071-design-delivery.md'), `---
+type: fb-lane-handoff
+task: TASK-071
+lane: fb-design
+status: ready
+---
+# Product-ready Design delivery handoff
+`, 'utf8');
+    const before = fs.readFileSync(path.join(directory, 'TASK-071-discovery-to-design.md'), 'utf8');
+    const result = scanWorkstreamHandoffs(root);
+    assert.deepStrictEqual(result.selected, ['docs/handoffs/TASK-071-design-delivery.md']);
+    assert.strictEqual(
+      fs.readFileSync(path.join(directory, 'TASK-071-discovery-to-design.md'), 'utf8'),
+      before,
+      'scanning must not mutate the queued artifact',
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('doctor reports invalid workstream handoffs with an actionable file result', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-workstream-doctor-'));
+  const directory = path.join(root, 'docs', 'handoffs');
+  fs.mkdirSync(directory, { recursive: true });
+  try {
+    fs.writeFileSync(path.join(root, 'PROJECT_BOARD.md'), '# Project Board\n', 'utf8');
+    fs.writeFileSync(path.join(directory, 'invalid.md'), validHandoff('design', 'design'), 'utf8');
+    const result = spawnSync(process.execPath, [path.join(__dirname, 'fb-lane.cjs'), 'doctor'], {
+      cwd: root,
+      encoding: 'utf8',
+    });
+    const output = `${result.stdout}\n${result.stderr}`;
+    assert.match(output, /Workstream handoffs/i);
+    assert.match(output, /invalid\.md/i);
+    assert.match(output, /different workstreams/i);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('doctor validates directed artifacts without applying delivery-handoff OKR rules', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-workstream-doctor-valid-'));
+  const directory = path.join(root, 'docs', 'handoffs');
+  fs.mkdirSync(directory, { recursive: true });
+  try {
+    fs.writeFileSync(path.join(root, 'PROJECT_BOARD.md'), '# Project Board\n', 'utf8');
+    fs.writeFileSync(path.join(directory, 'TASK-071-discovery-to-design.md'), validHandoff(), 'utf8');
+    const result = spawnSync(process.execPath, [path.join(__dirname, 'fb-lane.cjs'), 'doctor'], {
+      cwd: root,
+      encoding: 'utf8',
+    });
+    const output = `${result.stdout}\n${result.stderr}`;
+    assert.match(output, /Workstream handoffs.*valid/i);
+    assert.doesNotMatch(output, /Missing Goal Alignment Session section in: TASK-071-discovery-to-design\.md/i);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
   }
 });
