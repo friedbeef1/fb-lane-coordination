@@ -19,6 +19,12 @@ For actionable findings say `Create a handoff MD for Product/BFM.` Then say
 all six, prioritizes, implements, tests, and stops at **Ready to ship**. Only
 **Push Live** authorizes merge or deployment.
 
+When you explicitly ask one workstream to continue another's research,
+Discovery can send a queued handoff to Design, for example. Design receives
+**“Discovery handoff queued for Design — planning only; waiting for you”** and
+does not start automatically. A later delivery recommendation uses a separate
+Product-ready handoff; `$bfm` ignores the queued planning artifact.
+
 When an automated proof fails, FB gives one fresh repair task only the failed
 criterion, changed files, relevant decisions, candidate reference, and concrete
 correction. It does not replay accumulated conversation history. Missing

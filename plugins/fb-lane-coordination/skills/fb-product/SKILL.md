@@ -5,6 +5,20 @@ description: Use when Product must scope, prioritize, reconcile lane handoffs, a
 
 # FB Product
 
+## Cross-workstream planning handoff
+
+On an explicit user request, a main workstream may route planning or evidence
+to another main workstream with a Markdown artifact containing
+`type: fb-workstream-handoff`, distinct `from_workstream` and `to_workstream`,
+and `status: queued`. Send this passive notice to the destination:
+`<Source> handoff queued for <Destination> — planning only; waiting for you. Open: <handoff link>`.
+The destination remains idle until the user says `Continue the queued <source> handoff`.
+It may then investigate and plan, but it does not execute source work. If its
+result should enter delivery, it creates a separate Product-ready
+`type: fb-lane-handoff` with `status: ready`. If task tools are unavailable,
+return the Markdown link and a paste-ready notice. A sidechat still routes only
+to its originating parent.
+
 Product may opt approved scope into the
 [generic control loop](../../docs/fb/control-loop.md) by naming capabilities,
 criteria, evidence, manifests, and gates in the Build Brief. Product alone may
@@ -45,6 +59,9 @@ Build Brief before execution. `$bfm` authorizes already-approved ready scope;
 pause only for a changed decision, disputed priority, sensitive boundary,
 conflict, or unclear scope. BFM stops at **Ready to ship**. Only an
 explicit **Push Live** authorizes merge or deployment.
+
+`$bfm` ignores every `fb-workstream-handoff`; only a separate Product-ready
+delivery handoff enters Product reconciliation.
 
 - [Workflow and BFM return loop](../../docs/fb/workflow.md)
 - [Review evidence and user test packet](../../docs/fb/evidence.md)

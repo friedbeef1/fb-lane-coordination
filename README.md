@@ -134,6 +134,13 @@ Product reconciliation, repair, review, and release.
 A workstream with nothing useful does not invent work merely to participate;
 record **None relevant** only when a six-workstream scan/report requires it.
 
+Workstreams can also hand planning to each other when you ask. For example,
+Discovery can create a queued research handoff for Design. Design receives
+**“Discovery handoff queued for Design — planning only; waiting for you”** and
+does not start automatically. When you continue it, Design investigates and
+can later create a separate Product-ready handoff; the queued artifact itself
+never enters `$bfm`.
+
 When actionable ready handoffs exist, the user says `$bfm`. Product then scans
 all six, reconciles and prioritizes, creates the Project Start Brief plus Build
 Brief, and BFM executes already-approved scope; see [the start

@@ -18,6 +18,22 @@ not additional workstreams or mandatory agents.
 - **All workstreams:** investigate and write plans/handoffs in ordinary chats; none starts source execution without Product-launched BFM.
 - **BFM execution workers:** may claim locked files, use an isolated branch/worktree, edit, verify, and submit only within an approved BFM run.
 
+## Workstream-to-workstream routing
+
+A main workstream may route a bounded planning question to a different main
+workstream only when the user explicitly asks. Record it as
+`type: fb-workstream-handoff` with `status: queued`, then give the destination
+the passive notice `<Source> handoff queued for <Destination> — planning only; waiting for you. Open: <handoff link>`.
+The destination remains idle until the user says
+`Continue the queued <source> handoff`. It may investigate, gather evidence,
+and recommend, but may not execute source. A delivery recommendation requires
+a separate Product-ready `fb-lane-handoff`. `$bfm` ignores every
+`fb-workstream-handoff` state.
+
+If Codex task tools are unavailable, return the Markdown file and paste-ready
+notice to the user. This main-workstream route does not weaken the sidechat
+rule: a sidechat can route only to its originating parent.
+
 The board is truth; the handoff index is routing; detailed handoffs are detail;
 workstream cards are compact revisit summaries. Awareness comes from the board
 and index, isolation from branches/worktrees, and integration from BFM.

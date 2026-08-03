@@ -71,6 +71,17 @@ feature branch, or close it and release locks when permanently rejected. Verify
 staging before requesting production promotion, and adapt to another lane’s
 change rather than reverting it.
 
+### Cross-workstream queue boundary
+
+An explicit user request may route a planning artifact between two different
+main workstreams. It uses `type: fb-workstream-handoff` and `status: queued`.
+The destination receives `<Source> handoff queued for <Destination> — planning only; waiting for you. Open: <handoff link>`
+and remains idle until the user explicitly continues it. Arrival never grants
+source, Git, board, provider, or release authority. The destination may produce
+planning and evidence; delivery requires a separate Product-ready handoff, and
+`$bfm` ignores the queued artifact. If task tools are unavailable, return a
+paste-ready notice. Sidechats remain parent-only.
+
 A project may define `hooks.preflight` in `.fb-lane.json`. FB runs it before
 claim or quick-task mutation and surfaces the exact project command on failure.
 The hook is optional and project-owned: FB assumes no global Node version,

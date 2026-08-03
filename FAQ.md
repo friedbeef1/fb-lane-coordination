@@ -25,6 +25,14 @@ isolated work can still use normal Codex without FB ceremony.
 No. Each workstream either contributes an actionable handoff or records **None
 relevant**. FB never manufactures work just to fill a lane.
 
+## Can one workstream hand planning to another?
+
+Yes, when you explicitly ask. Discovery can create a queued research handoff
+for Design, for example. Design is told the handoff is **planning only; waiting
+for you** and does not start automatically. After you continue it, Design may
+produce its own recommendation. Only a separate Product-ready handoff can enter
+`$bfm`.
+
 ## Will FB create the six Codex sidebar tasks for me?
 
 After repository bootstrap, FB asks once for permission. With Yes, it detects

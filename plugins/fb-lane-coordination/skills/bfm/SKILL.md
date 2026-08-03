@@ -11,6 +11,12 @@ Preserve the baseline, require evidence for pairwise criteria and selected
 gates, and stop isolated configuration candidates at exact Product approval.
 Never self-promote configuration or consume **Push Live**.
 
+Only the Product/BFM main task may continue with this skill. In any other main
+workstream, treat `$bfm` or `/bfm` as intent to open Product/BFM: create or
+update that workstream's Product handoff and redirect without onboarding,
+coordination-record mutation, or execution. In a sidechat, route only to the
+originating parent; if it cannot be reached, return a paste-ready handoff.
+
 ## First-run sidebar onboarding
 
 `$bfm` is the supported invocation. Treat an explicit `/bfm` from the user as
@@ -98,6 +104,8 @@ ambiguous, or contradictory.
 The one loop has six planning/evidence workstreams: Product/User (technical slug
 `product`), Business, Design, Tech, Discovery, and Bugs. Each workstream runs a
 mini-loop and records ready or blocked evidence in `docs/handoffs/<TASK-ID>.md`.
+`$bfm` ignores `fb-workstream-handoff` artifacts because they are queued
+planning requests, not Product delivery inputs.
 At intake, call the runtime's exported scanner semantics directly:
 
 ```js
