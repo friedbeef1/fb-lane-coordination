@@ -64,7 +64,9 @@ Release checkpoint: authorized after changelog approval
 - **External gates:** Final release validator is now authorized;
   publication, merge, marketplace upgrade, reinstall, and deployment remain
   unauthorized.
-- **Remaining owner/action:** Product/BFM runs the one release checkpoint.
+- **Remaining owner/action:** Product decides whether historical pre-v3 tasks
+  remain visible warnings outside release readiness or require evidence-led
+  retrofit; do not invent retrospective OKRs.
 
 ## Brief Validation
 
@@ -105,11 +107,26 @@ and fresh-task behavior are not claimed before their explicit gates.
   tests should verify its links and role boundary rather than require copied
   operating-manual prose.
 
+### Final release-checkpoint failure evidence
+
+- **Failure:** The permitted final full validator pass stopped at Doctor.
+- **Observed:** All runtime and focused suites passed. Doctor returned `Needs
+  attention` solely because 42 historical pre-v3 tasks lack modern board OKRs;
+  the validator requires the literal `FB-Lane doctor: Ready` result.
+- **Cause:** Release readiness treats a known historical-compatibility warning
+  as blocking even though the current v3 record contracts pass.
+- **Recovery attempted:** None after the final pass; the release circuit breaker
+  forbids a third automatic repair.
+- **Result:** Blocked pending Product classification direction.
+- **Reusable lesson:** Historical records should remain queryable and honest,
+  while readiness gates should distinguish prospective current violations from
+  non-retrofitted legacy warnings.
+
 ## Product/BFM Closeout
 
-Status: Checking — release checkpoint.
+Status: Blocked — historical pre-v3 OKR classification.
 Actioned By: FB-Product / BFM.
 Result: The local candidate keeps routine orientation current-state focused and
 preserves complete on-demand historical retrieval.
-Remaining: One release checkpoint, then separate **Push Live** authority for
-external delivery.
+Remaining: Product classification direction, a scoped proof, then a new
+explicit release checkpoint; **Push Live** remains separate.

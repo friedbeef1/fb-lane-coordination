@@ -137,4 +137,10 @@ Focused recovery evidence:
 - six-skill behavior: pass;
 - package parity and whitespace: pass.
 
-The permitted final full validator pass remains pending.
+The permitted final full validator pass ran after this repair. Every runtime,
+session, eval, onboarding, positioning, two-speed, and efficiency suite passed.
+Doctor then returned `Needs attention` because 42 historical pre-v3 tasks lack
+modern board OKRs; the validator requires the literal `Ready` result. No third
+automatic repair or validator pass was attempted. Product must decide whether
+that historical warning is informational for release readiness or requires an
+evidence-led retrofit. Retrospective OKRs must not be invented.
