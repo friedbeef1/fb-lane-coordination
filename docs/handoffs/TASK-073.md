@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-073
 lane: fb-product
-status: implemented
+status: done
 okr_fit: aligned
 approval: approved
 fb_harness: v3
@@ -44,9 +44,9 @@ now the `0.5.7-beta+codex.20260804131420` release candidate.
 - **Review state:** not reviewable.
 - **Changelog:** drafted — [FB 0.5.7-beta](../../CHANGELOG.md#057-beta--2026-08-04).
 - **Changelog approval:** approved by James on 2026-08-04.
-- **External gates:** **Push Live** before merge, marketplace publication,
-  reinstall, or active-install verification.
-- **Remaining owner/action:** James says **Push Live**.
+- **External gates:** Complete. James approved **Push Live**; PR #57 merged as
+  `c1e63f1`; marketplace upgrade, reinstall, and active verification passed.
+- **Remaining owner/action:** None. Start a new Codex task to load the release.
 
 ## Brief Validation
 
@@ -54,12 +54,12 @@ Status: pass
 
 - **Satisfied:** Results are distinct from eval definitions; repairs must be
   sufficient, causal, observable, regression-protected, and bounded.
-- **Missing:** None before **Ready to ship**.
-- **Next action:** Wait for **Push Live**.
+- **Missing:** None.
+- **Next action:** None.
 
 ## Product/BFM Closeout
 
-Status: Ready to ship — release checkpoint passed.
+Status: Done — published and installed.
 Actioned By: FB-Product / BFM one-off sidechat exception.
 Result: Documentation and plugin guidance now reject superficial repair loops.
-Remaining: **Push Live**.
+Remaining: None. Start a new Codex task to load the refreshed plugin.

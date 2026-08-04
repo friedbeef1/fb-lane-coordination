@@ -65,3 +65,20 @@ The single approved checkpoint passed without a repair loop:
 
 The candidate is **Ready to ship**. GitHub push, merge, marketplace publication,
 reinstall, and active-install verification require **Push Live**.
+
+## Live publication
+
+James approved **Push Live** on 2026-08-04.
+
+| Proof | Result |
+|---|---|
+| GitHub readiness | `validate` passed for PR #57 |
+| GitHub merge | PR #57 merged to `main` as `c1e63f1` |
+| Marketplace | `fb-lane` upgraded successfully |
+| Active plugin | installed and enabled as `0.5.7-beta+codex.20260804131420` |
+| Six workstream skills | Product/User, Business, Design, Tech, Discovery, and Bugs present |
+| Eval lifecycle | Evaluation Results and meaningful-repair guidance present in installed cache |
+| Bundled MCP | `cwd: "."`; `./tools/fb-lane.cjs mcp`; Node syntax passed |
+
+Publication is complete. A new Codex task is required to load the refreshed
+skills and MCP server.
