@@ -93,6 +93,28 @@ test('prospective normalized records pass with one linked authoritative home', (
   assert.deepStrictEqual(validateNormalizedRepository(fixture()), []);
 });
 
+test('normalized records accept approved goal alignment preserved in a board archive', () => {
+  const root = fixture();
+  const boardPath = path.join(root, 'PROJECT_BOARD.md');
+  const board = fs.readFileSync(boardPath, 'utf8');
+  const taskRow = board.match(/^\| TASK-100 \|.*$/m)[0];
+  const taskSection = board.slice(board.indexOf('### TASK-100'));
+  write(root, 'PROJECT_BOARD.md', `# Board
+
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+`);
+  write(root, 'docs/board/archive/2026-08.md', `# Board archive
+
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+${taskRow}
+
+${taskSection}`);
+
+  assert.deepStrictEqual(validateNormalizedRepository(root), []);
+});
+
 test('prospective normalized records reject missing handoff and approved board goal alignment early', () => {
   const findings = validateNormalizedRepository(fixture('TASK-100', { omitGoalAlignment: true }));
   const codes = findings.map(finding => finding.code);
