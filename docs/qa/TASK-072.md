@@ -115,7 +115,8 @@ orientation, and historical retrieval boundaries.
 ### Open release gate
 
 - Changelog approval: approved by James on 2026-08-04 — [0.5.6-beta entry](../../CHANGELOG.md#056-beta--2026-08-04).
-- The complete release validator is now authorized and will run once.
+- One new release checkpoint remains after the approved historical
+  compatibility repair.
 - Push, merge, marketplace publication, reinstall, and deployment remain
   unauthorized.
 
@@ -144,3 +145,25 @@ modern board OKRs; the validator requires the literal `Ready` result. No third
 automatic repair or validator pass was attempted. Product must decide whether
 that historical warning is informational for release readiness or requires an
 evidence-led retrofit. Retrospective OKRs must not be invented.
+
+### Historical compatibility repair
+
+James approved the prospective compatibility boundary on 2026-08-04. The
+collector now distinguishes current obligations from historical absence:
+
+| Proof | Result |
+|---|---|
+| Pre-v3 record without modern board OKRs | visible compatibility notice; non-blocking |
+| Pre-v3 task with terminal `Superseded` status | visible compatibility notice; non-blocking |
+| Active board task without approved OKRs | blocking warning |
+| `fb_harness: v3` or `record_model: normalized-v1` without approved OKRs | blocking warning |
+| Focused historical boundary regression | root/package pass, including superseded and active legacy cases |
+| Root CLI suite | 71/71 pass |
+| Packaged CLI suite | 71/71 pass |
+| Package mirrors | 58/58 synchronized |
+| Affected Node syntax | pass |
+| Whitespace | pass |
+
+This repair does not retrofit historical decisions or weaken prospective
+requirements. One new release checkpoint remains before the candidate can
+claim **Ready to ship**.

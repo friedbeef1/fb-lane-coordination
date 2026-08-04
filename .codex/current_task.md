@@ -1,7 +1,7 @@
 # Active Task Context
 * **Current Task**: TASK-072
 * **Lane**: FB-Product / BFM
-* **Status**: Blocked — historical pre-v3 OKR classification
+* **Status**: Checking — historical compatibility repair verified
 * **BFM Class**: Full BFM release candidate
 * **Feature Branch**: `codex/TASK-072-lifecycle-history`
 * **Release Candidate**: `0.5.6-beta+codex.20260804045203`
@@ -16,8 +16,8 @@ handoffs, QA evidence, changelog entries, and Git history.
 
 ## Next Gate
 
-The final release-validator pass completed every runtime and focused suite but
-rejected Doctor's known historical pre-v3 OKR warning because it requires the
-literal `Ready` result. Product must approve a scoped historical-classification
-repair or require historical retrofit. Do not invent retrospective OKRs. Merge,
-marketplace publication, reinstall, and deployment still require **Push Live**.
+James approved the historical compatibility repair. Focused root/package CLI,
+package parity, syntax, and whitespace checks pass: pre-v3 gaps remain visible
+notices while active and v3/normalized records still block. The next gate is one
+new explicitly approved release checkpoint. Merge, marketplace publication,
+reinstall, and deployment still require **Push Live**.

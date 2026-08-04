@@ -750,7 +750,8 @@ function collectGoalAlignmentSessionWarnings(handoffsDir, tasks = []) {
       missingProductOkrEvidence: [],
       missingBoardOkrs: [],
       unapprovedBoardOkrs: [],
-      unapprovedOkrChange: []
+      unapprovedOkrChange: [],
+      historicalCompatibilityNotices: []
     };
   }
 
@@ -762,7 +763,8 @@ function collectGoalAlignmentSessionWarnings(handoffsDir, tasks = []) {
     missingProductOkrEvidence: [],
     missingBoardOkrs: [],
     unapprovedBoardOkrs: [],
-    unapprovedOkrChange: []
+    unapprovedOkrChange: [],
+    historicalCompatibilityNotices: []
   };
 
   for (const entry of entries) {
@@ -772,24 +774,42 @@ function collectGoalAlignmentSessionWarnings(handoffsDir, tasks = []) {
     const taskId = entry.name.replace(/\.md$/, '');
     const handoffPath = path.join(handoffsDir, entry.name);
     const markdown = fs.readFileSync(handoffPath, 'utf8');
-    if (handoffFrontmatter(markdown)?.type === 'fb-workstream-handoff') continue;
-    if (!/^##\s+Goal Alignment Session\b/m.test(markdown)) {
+    const metadata = handoffFrontmatter(markdown);
+    if (metadata?.type === 'fb-workstream-handoff') continue;
+    const task = tasks.find(t => t.id === taskId);
+    const terminalTask = task && /^(?:done|rejected|closed|completed|deferred|superseded)$/i.test(String(task.status || '').trim());
+    const prospective = metadata?.record_model === 'normalized-v1'
+      || metadata?.fb_harness === 'v3'
+      || (task && !terminalTask);
+    const hasSession = /^##\s+Goal Alignment Session\b/m.test(markdown);
+    const hasOkrFit = /^Lane OKR Fit:\s*(aligned|suggest approach change|blocked by OKR ambiguity)\b/im.test(markdown);
+    const hasMiniLoopEvidence = /^Mini-loop Evidence:\s*\S/im.test(markdown);
+    const hasProductOkrEvidence = /^Evidence Against Product OKR:\s*\S/im.test(markdown);
+    const hasBoardSession = task?.details && /(?:\*\*Goal Alignment Session\*\*|##\s+Goal Alignment Session\b)/i.test(task.details.raw);
+    const hasApprovedBoardSession = hasBoardSession && hasApprovedGoalAlignmentSession(task.details.raw);
+
+    if (!prospective) {
+      if (!hasSession || !hasOkrFit || !hasMiniLoopEvidence || !hasProductOkrEvidence || !hasApprovedBoardSession || handoffImpliesOkrChange(markdown)) {
+        warnings.historicalCompatibilityNotices.push(taskId);
+      }
+      continue;
+    }
+    if (!hasSession) {
       warnings.missingSession.push(entry.name);
     }
-    if (!/^Lane OKR Fit:\s*(aligned|suggest approach change|blocked by OKR ambiguity)\b/im.test(markdown)) {
+    if (!hasOkrFit) {
       warnings.missingOkrFit.push(entry.name);
     }
-    if (!/^Mini-loop Evidence:\s*\S/im.test(markdown)) {
+    if (!hasMiniLoopEvidence) {
       warnings.missingMiniLoopEvidence.push(entry.name);
     }
-    if (!/^Evidence Against Product OKR:\s*\S/im.test(markdown)) {
+    if (!hasProductOkrEvidence) {
       warnings.missingProductOkrEvidence.push(entry.name);
     }
 
-    const task = tasks.find(t => t.id === taskId);
-    if (!task || !task.details || !/(?:\*\*Goal Alignment Session\*\*|##\s+Goal Alignment Session\b)/i.test(task.details.raw)) {
+    if (!hasBoardSession) {
       warnings.missingBoardOkrs.push(taskId);
-    } else if (!hasApprovedGoalAlignmentSession(task.details.raw)) {
+    } else if (!hasApprovedBoardSession) {
       warnings.unapprovedBoardOkrs.push(taskId);
     }
     if (handoffImpliesOkrChange(markdown) && (!task || !task.details || !boardRecordsApprovedOkrChange(task.details.raw))) {
@@ -1713,6 +1733,13 @@ function handleDoctor() {
         add('ok', 'Handoff index', 'Handoff lookup is present or not needed yet.');
       }
       const goalAlignmentSessionWarnings = collectGoalAlignmentSessionWarnings(path.join(rootDir, 'docs', 'handoffs'), parsedTasks);
+      if (goalAlignmentSessionWarnings.historicalCompatibilityNotices.length > 0) {
+        add(
+          'notice',
+          'Historical compatibility',
+          `Pre-v3 records remain searchable without retrospective retrofit: ${goalAlignmentSessionWarnings.historicalCompatibilityNotices.join(', ')}`
+        );
+      }
       if (goalAlignmentSessionWarnings.missingSession.length > 0) {
         add(
           'warn',
@@ -1770,7 +1797,7 @@ function handleDoctor() {
         );
       }
       if (goalAlignmentSessionWarnings.missingBoardOkrs.length === 0 && goalAlignmentSessionWarnings.unapprovedBoardOkrs.length === 0) {
-        add('ok', 'Goal Alignment Session OKRs', 'All non-quick handoff targets have approved board OKRs.');
+        add('ok', 'Goal Alignment Session OKRs', 'All prospective non-quick handoff targets have approved board OKRs.');
       }
       if (goalAlignmentSessionWarnings.unapprovedOkrChange.length > 0) {
         add(
@@ -1913,7 +1940,7 @@ function handleDoctor() {
   console.log(`\n🩺 FB-Lane doctor: ${status}`);
   console.log('='.repeat(80));
   for (const check of checks) {
-    const marker = check.level === 'ok' ? '✅' : check.level === 'warn' ? '⚠️ ' : '❌';
+    const marker = check.level === 'ok' ? '✅' : check.level === 'notice' ? 'ℹ️ ' : check.level === 'warn' ? '⚠️ ' : '❌';
     console.log(`${marker} ${check.label}: ${check.detail}`);
     if (check.fix) {
       console.log(`   Fix: ${check.fix}`);
@@ -3539,6 +3566,7 @@ module.exports = {
   LANE_PATTERN,
   scanWorkstreamHandoffs,
   collectLifecycleFindings,
+  collectGoalAlignmentSessionWarnings,
   renderBoardContext,
   compactBoardFiles,
   completeBoardTask,

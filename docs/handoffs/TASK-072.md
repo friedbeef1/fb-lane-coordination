@@ -64,9 +64,9 @@ Release checkpoint: authorized after changelog approval
 - **External gates:** Final release validator is now authorized;
   publication, merge, marketplace upgrade, reinstall, and deployment remain
   unauthorized.
-- **Remaining owner/action:** Product decides whether historical pre-v3 tasks
-  remain visible warnings outside release readiness or require evidence-led
-  retrofit; do not invent retrospective OKRs.
+- **Remaining owner/action:** Product runs one newly authorized release
+  checkpoint after the approved compatibility repair; do not invent
+  retrospective OKRs.
 
 ## Brief Validation
 
@@ -122,11 +122,21 @@ and fresh-task behavior are not claimed before their explicit gates.
   while readiness gates should distinguish prospective current violations from
   non-retrofitted legacy warnings.
 
+### Approved historical compatibility repair
+
+- **Decision:** James approved prospective enforcement with visible,
+  non-blocking notices for missing modern fields in pre-v3 historical records.
+- **Behavior:** Active board tasks and v3 or `normalized-v1` handoffs remain
+  blocking when required Goal Alignment or approved board OKRs are missing.
+- **Historical access:** Old records remain searchable and are never assigned
+  invented retrospective OKRs.
+- **Focused evidence:** Root and packaged CLI suites pass 71/71, all 58 package
+  mirrors agree, affected Node syntax passes, and whitespace passes.
+
 ## Product/BFM Closeout
 
-Status: Blocked — historical pre-v3 OKR classification.
+Status: Checking — historical compatibility repair verified.
 Actioned By: FB-Product / BFM.
 Result: The local candidate keeps routine orientation current-state focused and
 preserves complete on-demand historical retrieval.
-Remaining: Product classification direction, a scoped proof, then a new
-explicit release checkpoint; **Push Live** remains separate.
+Remaining: One new release checkpoint; **Push Live** remains separate.

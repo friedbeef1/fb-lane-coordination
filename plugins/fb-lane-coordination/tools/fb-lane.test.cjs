@@ -23,6 +23,7 @@ const {
   visibleStageFor,
   performAutomatedSubmission,
   resolveSubmissionSafetyGate,
+  collectGoalAlignmentSessionWarnings,
 } = require('./fb-lane.cjs');
 
 let passed = 0;
@@ -869,6 +870,40 @@ function completeReviewPacket(link) {
 function runDoctor(root) {
   return spawnSync('node', [cliPath, 'doctor'], { cwd: root, encoding: 'utf8' });
 }
+
+test('historical pre-v3 missing board OKRs are notices while prospective records remain blocking', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-historical-okr-'));
+  const handoffs = path.join(root, 'docs', 'handoffs');
+  fs.mkdirSync(handoffs, { recursive: true });
+  const alignment = `
+## Goal Alignment Session
+
+Lane OKR Fit: aligned
+Mini-loop Evidence: fixture evidence
+Evidence Against Product OKR: None identified
+`;
+  fs.writeFileSync(path.join(handoffs, 'TASK-OLD.md'), `# Historical task\n${alignment}`);
+  fs.writeFileSync(path.join(handoffs, 'TASK-SUPERSEDED.md'), `# Superseded historical task\n${alignment}`);
+  fs.writeFileSync(path.join(handoffs, 'TASK-ACTIVE-LEGACY.md'), `# Active legacy task\n${alignment}`);
+  fs.writeFileSync(path.join(handoffs, 'TASK-NEW.md'), `---
+type: fb-lane-handoff
+task: TASK-NEW
+record_model: normalized-v1
+fb_harness: v3
+---
+# Prospective task
+${alignment}`);
+  try {
+    const findings = collectGoalAlignmentSessionWarnings(handoffs, [
+      { id: 'TASK-SUPERSEDED', status: 'Superseded' },
+      { id: 'TASK-ACTIVE-LEGACY', status: 'In Progress' },
+    ]);
+    assert.deepStrictEqual(findings.historicalCompatibilityNotices, ['TASK-OLD', 'TASK-SUPERSEDED']);
+    assert.deepStrictEqual(findings.missingBoardOkrs, ['TASK-ACTIVE-LEGACY', 'TASK-NEW']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
 
 function assertCodexBootstrap(args) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-bootstrap-'));

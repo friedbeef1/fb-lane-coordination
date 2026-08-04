@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-072 | Staging QA | FB-Product / BFM | Lifecycle truth, historical retrieval, and FB 0.5.6-beta | Keep routine orientation current-state only while preserving complete on-demand history; prepare `0.5.6-beta+codex.20260804045203` | Active docs, Product/BFM/setup/coordination skills, package mirrors, release metadata, changelog; no runtime identifiers | [Handoff](docs/handoffs/TASK-072.md); [QA](docs/qa/TASK-072.md); Blocked — validator rejects historical pre-v3 OKR warning; Product classification decision needed |
+| TASK-072 | Staging QA | FB-Product / BFM | Lifecycle truth, historical retrieval, and FB 0.5.6-beta | Keep routine orientation current-state only while preserving complete on-demand history; prepare `0.5.6-beta+codex.20260804045203` | Active docs, Product/BFM/setup/coordination skills, package mirrors, release metadata, changelog; no runtime identifiers | [Handoff](docs/handoffs/TASK-072.md); [QA](docs/qa/TASK-072.md); Checking — approved historical compatibility repair is focused-green; one new release checkpoint remains |
 | TASK-071 | Done | FB-Product / BFM | Cross-workstream planning handoffs | Queue cross-workstream planning and keep routine circuit-breaker recovery with Product/BFM | Published and installed as `0.5.5-beta+codex.20260803212323` | [Handoff](docs/handoffs/TASK-071.md); [QA](docs/qa/TASK-071.md); PR #54 merged as `2c3dc4c` |
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
@@ -23,8 +23,8 @@
 
 ### TASK-072 - Lifecycle truth and historical retrieval
 
-*   **Status**: Blocked — release validator rejects historical pre-v3 OKR warning for
-    `0.5.6-beta+codex.20260804045203`.
+*   **Status**: Checking — approved historical compatibility repair is
+    focused-green for `0.5.6-beta+codex.20260804045203`.
 *   **Owner / Thread**: FB-Product / BFM.
 *   **Area**: Active-state orientation, lifecycle reconciliation, archived
     retrieval, and plugin release guidance.
@@ -45,8 +45,9 @@
         metadata, parity, syntax, link, and whitespace checks pass; changelog
         wording is approved; the one final release validator then passes.
     *   **Gate / Review Point**: James approved the drafted 0.5.6-beta
-        changelog on 2026-08-04. Product must now choose historical exemption or
-        evidence-led retrofit; invented retrospective OKRs are forbidden.
+        changelog and the historical compatibility repair on 2026-08-04.
+        One newly authorized release checkpoint remains; invented retrospective
+        OKRs are forbidden.
     *   **Approval**: approved.
     *   **Justification**: James explicitly approved execution of the lifecycle
         truth and historical retrieval plan in this Product/BFM parent task.
