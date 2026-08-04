@@ -15,7 +15,7 @@ not additional workstreams or mandatory agents.
 - **Business:** owns pricing/copy/onboarding/docs/help/marketing; it is read-only on application code and does not deploy.
 - **Discovery:** owns research, unknowns, experiments, competitor evidence, and feasibility evidence; it does not implement or set final priority.
 - **Bugs:** owns reproduction, severity, affected-user impact, regression evidence, and verification requirements; it does not quietly fix source.
-- **All workstreams:** investigate and write plans/handoffs in ordinary chats; none starts source execution without Product-launched BFM.
+- **All workstreams:** investigate and write plans/handoffs in ordinary chats; a handoff ready for Product intake is a candidate only, and none starts source execution without Product-launched BFM.
 - **BFM execution workers:** may claim locked files, use an isolated branch/worktree, edit, verify, and submit only within an approved BFM run.
 
 ## Workstream-to-workstream routing
@@ -75,11 +75,15 @@ Worker lanes return evidence against the existing goal; they do not create a
 new OKR for every task. `/goal` is only a Product/BFM shortcut into this same
 session. Quick `TASK-Q-*` work may skip this extra ceremony.
 
-After `$bfm`, Product records the consolidated Build Brief and carries forward
-or records the pre-`$bfm` ready-scope approval before source-changing work. This
-does not require a routine second approval; pause only for changed decisions,
-disputed priorities, sensitive boundaries, conflicts, or unclear scope. The
-Build Brief repeats the quality bar, selected eval IDs and authority,
+After `$bfm`, Product freezes intake and must disposition every candidate as
+**Include now**, **Blocked**, **Deferred**, **Duplicate**, **Rejected**, or
+**Superseded** before source execution. A handoff ready for Product intake is
+not approval or execution authority. A disposition does not auto-close a task;
+all genuinely nonterminal candidates remain visible in authoritative records.
+Product then records the consolidated Build Brief for the **Include now** scope.
+This does not require a routine second approval; pause only for changed
+decisions, disputed priorities, sensitive boundaries, conflicts, or unclear
+scope. The Build Brief repeats the quality bar, selected eval IDs and authority,
 mechanical versus judgment evidence, and remaining user judgment. See
 [evals.md](evals.md). Product defines concrete product scenarios with Good and
 Bad examples; reusable categories alone are not a test.
@@ -131,28 +135,36 @@ tiny copy, spacing, or single-control change. Attach a feasible material visual
 preview before BFM source execution; Product/BFM blocks or asks only when that
 material decision lacks a preview.
 
-## Before an approved BFM run
+## Before BFM source execution
 
 1. Read `AGENTS.md`, board, current-task record if present, the handoff index, then only linked handoffs.
 2. Show the target card: status, owner, scope, locks, blockers, gates, checks, links, intentional dirt, and approved goal.
-3. If approval is missing, stale, changed, or unclear, stop before claim, edit, deploy, or closeout.
-4. Scan the six workstreams in order: Product/User, Business, Design, Tech,
+3. Scan the six workstreams in order: Product/User, Business, Design, Tech,
    Discovery, Bugs. Each is linked to ready/blocked output or recorded as **None
-   relevant**. Include only valid `ready` handoffs; exclude implemented, done,
-   and deferred work; stop to reconcile duplicates or contradictions.
-5. Run a Story Split Pass before execution, like backlog grooming and sprint
+   relevant**. Include only valid `ready` handoffs as candidates; exclude
+   implemented, done, and deferred work; stop to reconcile duplicates or
+   contradictions.
+4. `$bfm` freezes intake. Product must disposition every candidate as **Include
+   now**, **Blocked**, **Deferred**, **Duplicate**, **Rejected**, or
+   **Superseded** before source execution. A ready candidate is not approval or
+   execution authority. Do not auto-close tasks: preserve all genuinely
+   nonterminal candidates in the board and handoff records.
+5. If the resulting **Include now** scope is missing, stale, changed, or
+   unclear approval, stop before claim, edit, deploy, or closeout. Product then
+   records the Project Start Brief and Build Brief that authorize BFM execution.
+6. Run a Story Split Pass before execution, like backlog grooming and sprint
    planning. Build the smallest useful dependency graph and split predictable
    work into independently finishable slices, normally 15 minutes or less
    (documentation-only slices may target 5). Each slice records its outcome,
    expected surfaces and locks, dependencies, completion criteria, smallest
    focused check, and safety triggers. Avoid slices that add ceremony without
    isolating dependency, risk, ownership, or verification.
-6. Mark independent, non-overlapping slices parallel-ready for agents or
+7. Mark independent, non-overlapping slices parallel-ready for agents or
    subagents. Keep dependent slices, shared-file edits, and unresolved decisions
    sequential. Split mixed risks, gates, review surfaces, blocked work, and
    ready work; otherwise say `No split needed`.
-7. Classify work as `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`. Recheck status immediately before a claim.
-8. Select only relevant eval IDs from [evals.md](evals.md), record their authority, and separate mechanical evidence from Product/user judgment.
+8. Classify work as `ready now`, `blocked by lock`, `blocked by dependency`, `needs Product decision`, `out of scope`, or `explicitly deferred`. Recheck status immediately before a claim.
+9. Select only relevant eval IDs from [evals.md](evals.md), record their authority, and separate mechanical evidence from Product/user judgment.
 
 ## Automatic implementation worktrees
 

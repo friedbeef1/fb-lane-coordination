@@ -34,6 +34,21 @@ archived. Archive files remain durable history; this changes the default read
 path, not the source of truth. Each file write is atomic, and the two-file
 archive transition is safe to retry after interruption.
 
+## Managed workstream projections
+
+Each workstream card has an explicit managed-summary block derived from current
+board lifecycle truth. It shows **Current**, **Next**, **Blocked**, **Recently
+delivered**, and **Historical lookup**. All nonterminal rows for that lane stay
+visible: Ready is Product intake, while Inbox, In Progress, Staging QA, unknown
+active states, and Blocked rows remain eligible rather than being hidden to
+reduce a metric. Recently delivered is capped at the three most recent terminal
+rows; cards link to the handoff index and board archives for on-demand history.
+
+FB refreshes only that managed block after claim, submission, terminal closeout,
+and bootstrap migration. It preserves every project-owned byte outside the
+markers. Read-only status and context calls never rewrite cards, boards, or
+historical records.
+
 ## Why compact context does not hide important work
 
 The active packet is a navigation layer, not a replacement for project truth.

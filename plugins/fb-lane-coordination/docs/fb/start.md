@@ -14,8 +14,11 @@ useful path; users do not choose an execution mode at intake.
 - **Bugs:** reproduction, severity, affected users, and regression evidence.
 
 Each relevant workstream uses the same mini-loop: **Question → Investigate →
-Gather evidence → Recommend → Create ready handoff MD**. A workstream that is
-not relevant does no manufactured work. Record **None relevant** only when a six-workstream scan or report requires a disposition for every workstream.
+Gather evidence → Recommend → Create a handoff ready for Product intake**. A
+ready handoff is a Product intake candidate, not approval or execution
+authority. A workstream that is not relevant does no manufactured work. Record
+**None relevant** only when a six-workstream scan or report requires a
+disposition for every workstream.
 
 ## First bootstrap
 
@@ -39,11 +42,11 @@ not disable FB.
 ## The single public sequence
 
 1. FB starts in whichever workstream or workstreams match the question.
-2. Each relevant workstream investigates and creates a ready handoff MD.
-3. When the actionable ready handoffs are assembled, the user says `$bfm`.
-4. `$bfm` activates Product reconciliation. Product must scan all six workstreams, reconcile duplicates, conflicts, and dependencies, prioritize the ready scope, and create the consolidated Project Start Brief and Build Brief as the durable record before source execution.
-5. `$bfm` authorizes execution of already-approved ready scope. Product pauses for the user only when reconciliation reveals a changed decision, disputed priority, sensitive boundary, conflict, or unclear scope.
-6. BFM implements and verifies the reconciled scope, then stops at **Ready to ship**. Only **Push Live** authorizes release, merge, or deployment.
+2. Each relevant workstream investigates and creates a handoff ready for Product intake.
+3. When the actionable handoffs are assembled, the user says `$bfm`.
+4. `$bfm` freezes intake: Product scans all six workstreams and must disposition every candidate as **Include now**, **Blocked**, **Deferred**, **Duplicate**, **Rejected**, or **Superseded** before source execution. A disposition does not auto-close a task; all genuinely nonterminal candidates remain visible in the board and handoff records.
+5. Product reconciles duplicates, conflicts, and dependencies, then prioritizes and sequences only **Include now** candidates. Product records the consolidated Project Start Brief and Build Brief; those records define the BFM execution scope.
+6. BFM implements and verifies that reconciled scope, then stops at **Ready to ship**. Only **Push Live** authorizes release, merge, or deployment.
 
 `$bfm` remains the supported invocation. If a user types `/bfm`, FB may
 interpret that as intent to run `$bfm`; `/bfm` is not a separate installed
@@ -74,8 +77,10 @@ artifacts.
 
 ## Project Start Brief
 
-During Product reconciliation after ready handoffs and `$bfm`, Product creates
-this visible seven-field brief together with the Build Brief:
+During Product reconciliation after handoffs ready for Product intake and
+`$bfm`, Product creates this visible seven-field brief together with the Build
+Brief. This happens after Product has dispositioned every candidate and before
+source execution:
 
 - **What you asked for:** <plain-language outcome>
 - **Your decisions:** <choices already made>

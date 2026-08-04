@@ -51,6 +51,14 @@ try {
       'docs/handoffs/02-discovery.md',
       'docs/handoffs/01-bugs.md',
     ],
+    candidates: [
+      'docs/handoffs/06-product.md',
+      'docs/handoffs/05-business.md',
+      'docs/handoffs/04-design.md',
+      'docs/handoffs/03-tech.md',
+      'docs/handoffs/02-discovery.md',
+      'docs/handoffs/01-bugs.md',
+    ],
   });
 
   const sparse = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-six-none-relevant-'));
@@ -107,11 +115,30 @@ try {
   try {
     fs.mkdirSync(path.join(boot, 'docs', 'workstreams'), { recursive: true });
     fs.writeFileSync(path.join(boot, 'docs', 'workstreams', 'fb-product.md'), 'PROJECT OWNED\n');
-    execFileSync('node', [cliPath, 'bootstrap'], { cwd: boot, stdio: 'ignore' });
-    assert.strictEqual(fs.readFileSync(path.join(boot, 'docs', 'workstreams', 'fb-product.md'), 'utf8'), 'PROJECT OWNED\n');
+    const bootstrapStdout = execFileSync('node', [cliPath, 'bootstrap'], { cwd: boot, encoding: 'utf8' });
+    const productCard = fs.readFileSync(path.join(boot, 'docs', 'workstreams', 'fb-product.md'), 'utf8');
+    const managedStart = '<!-- FB-LANE:WORKSTREAM-SUMMARY:START -->';
+    const managedEnd = '<!-- FB-LANE:WORKSTREAM-SUMMARY:END -->';
+    const managedStartIndex = productCard.indexOf(managedStart);
+    const managedEndIndex = productCard.indexOf(managedEnd, managedStartIndex + managedStart.length);
+    assert.strictEqual(productCard.slice(0, managedStartIndex), 'PROJECT OWNED\n', 'bootstrap must preserve project-owned card content byte-for-byte outside the managed block');
+    assert.strictEqual(productCard.split(managedStart).length - 1, 1, 'bootstrap must add exactly one managed-summary start marker');
+    assert.strictEqual(productCard.split(managedEnd).length - 1, 1, 'bootstrap must add exactly one managed-summary end marker');
+    assert.ok(managedStartIndex >= 0 && managedEndIndex > managedStartIndex, 'bootstrap must add a complete managed summary block');
+    const managedSummary = productCard.slice(managedStartIndex + managedStart.length, managedEndIndex);
+    assert.match(managedSummary, /## Next/, 'managed summary must include the Next section');
+    assert.match(managedSummary, /Product intake:/, 'managed summary must include the Product-intake state');
     for (const lane of ['product', 'business', 'design', 'tech', 'discovery', 'bugs']) {
       assert.ok(fs.existsSync(path.join(boot, 'docs', 'workstreams', `fb-${lane}.md`)), `bootstrap must provide ${lane} card`);
     }
+    for (const relative of ['AGENTS.md', 'PROJECT_BOARD.md']) {
+      const generated = fs.readFileSync(path.join(boot, relative), 'utf8');
+      assert.match(generated, /ready\s+for Product\s+intake/i, `${relative} must keep ready as Product intake`);
+      assert.match(generated, /disposition every candidate[\s\S]*before\s+source execution/i, `${relative} must require disposition before execution`);
+      assert.doesNotMatch(generated, /approval attaches to (?:that )?ready scope before `\$bfm`/i, `${relative} must not attach approval before $bfm`);
+    }
+    assert.match(bootstrapStdout, /ready for Product intake/i, 'Quick Start must identify ready handoffs as Product intake candidates');
+    assert.match(bootstrapStdout, /must disposition every candidate[\s\S]*before source execution/i, 'Quick Start must require Product disposition before execution');
   } finally {
     fs.rmSync(boot, { recursive: true, force: true });
   }
@@ -146,6 +173,24 @@ try {
   assert.match(guardrails, /Low-ceremony execution rule/);
   assert.match(guardrails, /one bounded candidate[\s\S]*complete candidate before review[\s\S]*(?:at most|exactly) one reviewer[\s\S]*one focused verification pass/i);
   assert.match(guardrails, /Report progress only when source, evidence, test state, blocker recovery, or an[\s\S]*approved decision materially changes/i);
+
+  const intakeGuidance = [
+    'docs/fb/start.md',
+    'docs/fb/workflow.md',
+    'docs/fb/full-loop.md',
+    'skills/bfm/SKILL.md',
+    'skills/fb-product/SKILL.md',
+  ];
+  const packageRoot = path.join(__dirname, '..', 'plugins', 'fb-lane-coordination');
+  const guidancePaths = fs.existsSync(packageRoot)
+    ? [...intakeGuidance, ...intakeGuidance.map(relative => `plugins/fb-lane-coordination/${relative}`)]
+    : intakeGuidance;
+  for (const relative of guidancePaths) {
+    const guidance = read(relative);
+    assert.match(guidance, /ready\s+for Product\s+intake/i, `${relative} must define ready as Product intake`);
+    assert.doesNotMatch(guidance, /already-approved ready scope/i, `${relative} must not grant approval from ready status`);
+    assert.match(guidance, /disposition every candidate[\s\S]*before\s+source execution/i, `${relative} must require Product disposition before execution`);
+  }
 } finally {
   fs.rmSync(root, { recursive: true, force: true });
 }

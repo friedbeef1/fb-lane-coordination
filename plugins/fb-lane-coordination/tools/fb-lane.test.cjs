@@ -67,7 +67,7 @@ assert.deepStrictEqual(
 function assertPublicRouteContract(label, source) {
   const renderedSource = source.replace(/\\`/g, '`');
   assert.match(renderedSource, /start in whichever workstream matches the question/i, `${label} must expose workstream-first intake`);
-  assert.match(renderedSource, /(?:ready handoffs?|handoffs for ready scope)[\s\S]*\$bfm[\s\S]*Product reconcile/i, `${label} must expose the handoff-to-reconciliation boundary`);
+  assert.match(renderedSource, /(?:handoffs? ready for Product\s+intake|ready handoffs?)[\s\S]*\$bfm[\s\S]*(?:Product\s+(?:freezes intake|scans|reconcile)|disposition every candidate)/i, `${label} must expose the handoff-to-reconciliation boundary`);
   assert.doesNotMatch(renderedSource, /\*\*(?:Simple task|Coordinated planning|Approved Build For Me)/i, `${label} must not expose mode choices`);
 }
 
@@ -77,7 +77,7 @@ function assertExactFirstProjectContract(label, source) {
   assert.ok(source.includes(`**Progress:** ${exactProgress}`), `${label} must preserve the approved progress wording`);
   assert.ok(source.includes(`**Blocked:** ${exactBlocked}`), `${label} must keep blocked work actionable`);
   assert.match(source, /## The single public sequence/);
-  assert.match(source, /ready handoffs[\s\S]*`\$bfm`[\s\S]*Product reconciliation[\s\S]*Project Start Brief and Build Brief[\s\S]*Ready to ship[\s\S]*Push Live/i);
+  assert.match(source, /handoff ready for Product intake[\s\S]*`\$bfm`[\s\S]*disposition every candidate[\s\S]*Project Start Brief and Build Brief[\s\S]*BFM implements and verifies[\s\S]*Ready to ship[\s\S]*Push Live/i);
 
   const brief = source.match(/## Project Start Brief\n([\s\S]*?)(?=\n## |\s*$)/);
   assert.ok(brief, `${label} must include Project Start Brief`);
@@ -932,13 +932,13 @@ function assertCodexBootstrap(args) {
       assert.match(source, /returning-project health[\s\S]*\$fb-lane status/i, `${label} must keep default status for returning health`);
     }
     assert.doesNotMatch(board + agents, /Mode Selection Trigger Rule|normal\/simple|FB light/i, 'generated coordination guidance must not expose internal mode routing');
-    assert.match(agents, /ready scope[\s\S]*approval attaches[\s\S]*before `\$bfm`[\s\S]*Project Start Brief[\s\S]*Build Brief/i, 'generated AGENTS must attach approval to ready scope before post-$bfm reconciliation briefs');
+    assert.match(agents, /handoffs ready for Product\s+intake[\s\S]*ready is neither approval nor execution authority[\s\S]*`\$bfm` freezes[\s\S]*disposition every candidate[\s\S]*Project Start Brief and Build Brief[\s\S]*BFM executes that approved scope/i, 'generated AGENTS must preserve Product intake, disposition, reconciliation briefs, and execution order');
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
     assert.match(output, /starts in whichever workstream matches the question/, 'bootstrap quick start must explain workstream-first intake');
-    assert.match(output, /Relevant workstreams investigate and create ready handoffs/, 'bootstrap quick start must explain relevant workstream output');
-    assert.match(output, /actionable handoffs are ready, say \$bfm[\s\S]*Product scans all six, reconciles and prioritizes/, 'bootstrap quick start must put Product reconciliation after ready handoffs and $bfm');
+    assert.match(output, /Relevant workstreams investigate and create handoffs ready for Product intake/, 'bootstrap quick start must explain relevant workstream output');
+    assert.match(output, /actionable handoffs are ready, say \$bfm[\s\S]*Product scans all six[\s\S]*disposition every candidate[\s\S]*Project Start Brief and Build Brief/, 'bootstrap quick start must preserve Product intake, disposition, and reconciliation after $bfm');
     assert.ok(!output.includes(exactBuildMessage), 'bootstrap completion must not announce that Build For Me execution is starting');
-    assert.match(output, /BFM executes approved scope/, 'bootstrap quick start must describe authorized execution');
+    assert.match(output, /BFM stops at Ready to ship[\s\S]*Push Live/, 'bootstrap quick start must preserve the execution-to-release boundary');
     assert.match(output, /Ready to ship[\s\S]*Push Live/, 'bootstrap quick start must preserve the release boundary');
     assert.match(output, /returning-project health/, 'bootstrap quick start must reserve status for returning-project health');
     assert.match(codexRules, /docs\/fb\/guardrails\.md/, 'Codex rules must route sidechat authority through the harness');

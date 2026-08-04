@@ -177,17 +177,18 @@ test('onboarding exposes one workstream-first path and reconciles only after $bf
   assert.match(start, /start in whichever of the six workstreams matches the question/i);
   assert.match(start, /Product\/User[^\n]*(?:only|when)[^\n]*(?:user needs|user outcomes|requirements|feedback|acceptance criteria|product priority)/i);
   assert.match(start, /not (?:the )?(?:universal )?coordinator at intake/i);
-  assert.match(start, /ready handoff MD/i);
+  assert.match(start, /ready for Product intake/i);
   assert.match(start, /None relevant[^\n]*only[^\n]*six-workstream (?:scan|report)/i);
-  assertOrdered(start, ['ready handoffs', '`$bfm`', 'Product reconciliation', 'Project Start Brief', 'Build Brief', 'Ready to ship', 'Push Live'], 'single public sequence');
+  assertOrdered(start, ['ready for Product intake', 'the user says `$bfm`', '`$bfm` freezes intake', 'disposition every candidate', 'Project Start Brief', 'Build Brief', 'Ready to ship', 'Push Live'], 'single public sequence');
 
   const brief = section(start, 'Project Start Brief');
   const visibleFields = [...brief.matchAll(/^- \*\*([^:*]+):\*\*/gm)].map(match => match[1]);
   assert.deepStrictEqual(visibleFields, startBriefFields, 'Product reconciliation must retain the seven-field visible brief');
-  assert.match(start, /scan all six/i);
+  assert.match(start, /scans? all six/i);
   assert.match(start, /duplicates[^\n]*conflicts[^\n]*dependencies/i);
-  assert.match(start, /authorizes execution of (?:the )?already-approved ready scope/i);
-  assert.match(start, /pauses?[^\n]*(?:changed decision|disputed priority|sensitive boundary|conflict|unclear scope)/i);
+  assert.match(start, /must disposition every candidate[\s\S]*before\s+source execution/i);
+  assert.doesNotMatch(start, /authorizes execution of (?:the )?already-approved ready scope/i);
+  assert.match(start, /asks? again[^\n]*(?:changed decision|disputed priority|sensitive boundary|conflict|unclear scope)/i);
 });
 
 test('Test This Now makes system verification primary and keeps review links optional when no input is needed', () => {

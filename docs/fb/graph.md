@@ -22,6 +22,21 @@ Do not load broad project history merely because it exists. Do not treat a
 graph label or relationship as approval, product truth, test evidence, or
 release authority.
 
+## Historical retrieval
+
+Historical work is excluded from routine context, not from investigation.
+
+Retrieve archived records progressively when the question names a referenced
+task, touches a shared surface, investigates a regression or conflicting
+decision, reuses evidence, checks release history, or follows an explicit user
+request. Cite the exact archive, handoff, QA artifact, or changelog entry that
+answers the question. Shared classification nodes such as workstreams are
+facets, not paths to unrelated sibling history.
+
+If graph evidence is missing, stale, ambiguous, or contradictory, use the
+authoritative route in order: `PROJECT_BOARD.md` → `docs/handoffs/index.md` →
+the exact handoff → Git history. The graph never supplies approval authority.
+
 ## Refresh and storage
 
 The context tool refreshes deterministic Level 1 relationships from normalized
