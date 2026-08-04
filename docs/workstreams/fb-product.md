@@ -5,7 +5,7 @@ Lane: FB-Product
 
 <!-- FB-LANE:WORKSTREAM-SUMMARY:START -->
 ## Current
-- **TASK-073** (Staging QA) — Prepare meaningful evaluation results and repair guidance as `0.5.7-beta+codex.20260804131420` — [Handoff](../handoffs/TASK-073.md); [QA](../qa/TASK-073.md); changelog approved; release checkpoint authorized
+- **TASK-073** (Staging QA) — Prepare meaningful evaluation results and repair guidance as `0.5.7-beta+codex.20260804131420` — [Handoff](../handoffs/TASK-073.md); [QA](../qa/TASK-073.md); Ready to ship; **Push Live** required
 
 ## Next
 - None ready for Product intake.

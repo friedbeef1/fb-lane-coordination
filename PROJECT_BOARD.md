@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-073 | Staging QA | FB-Product / BFM | Evaluation results, meaningful repair, and FB 0.5.7-beta | Show eval results clearly, reject superficial repair loops, and prepare `0.5.7-beta+codex.20260804131420` | Release metadata, active version docs, TASK-073 records, package mirrors, focused contracts | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); Checking — changelog approved; one release checkpoint authorized |
+| TASK-073 | Staging QA | FB-Product / BFM | Evaluation results, meaningful repair, and FB 0.5.7-beta | Show eval results clearly, reject superficial repair loops, and prepare `0.5.7-beta+codex.20260804131420` | Release metadata, active version docs, TASK-073 records, package mirrors, focused contracts | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); Ready to ship — changelog and release checkpoint passed; **Push Live** required |
 | TASK-072 | Done | FB-Product / BFM | Lifecycle truth, historical retrieval, and FB 0.5.6-beta | Keep routine orientation current-state only while preserving complete on-demand history; publish `0.5.6-beta+codex.20260804045203` | None; published and installed | [Handoff](docs/handoffs/TASK-072.md); [QA](docs/qa/TASK-072.md); [PR #56](https://github.com/friedbeef1/fb-lane-coordination/pull/56) merged as `894d4a1`; exact build installed and enabled |
 | TASK-071 | Done | FB-Product / BFM | Cross-workstream planning handoffs | Queue cross-workstream planning and keep routine circuit-breaker recovery with Product/BFM | Published and installed as `0.5.5-beta+codex.20260803212323` | [Handoff](docs/handoffs/TASK-071.md); [QA](docs/qa/TASK-071.md); PR #54 merged as `2c3dc4c` |
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
@@ -24,8 +24,8 @@
 
 ### TASK-073 - Evaluation results and meaningful repair
 
-*   **Status**: Checking — `0.5.7-beta+codex.20260804131420` candidate;
-    changelog approved and one release checkpoint authorized.
+*   **Status**: Ready to ship — `0.5.7-beta+codex.20260804131420`;
+    changelog and release checkpoint passed; **Push Live** required.
 *   **Owner / Thread**: FB-Product / BFM, named one-off sidechat exception.
 *   **Area**: Eval result visibility and repair quality.
 *   **Scope**: Distinguish eval definitions from evaluation results; add a
@@ -41,7 +41,7 @@
     *   **Definition of Done**: Focused root/package eval tests, 58-mirror
         parity, syntax, and whitespace pass.
     *   **Gate / Review Point**: James approved the exact 0.5.7-beta changelog
-        wording on 2026-08-04. One release checkpoint is authorized.
+        wording on 2026-08-04. The single release checkpoint passed.
     *   **Approval**: approved.
     *   **Justification**: James explicitly confirmed the named one-off
         sidechat documentation and plugin update.

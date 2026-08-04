@@ -1,7 +1,7 @@
 # Active Task Context
 * **Current Task**: TASK-073
 * **Lane**: FB-Product / BFM
-* **Status**: Checking — release checkpoint authorized
+* **Status**: Ready to ship — release checkpoint passed
 * **BFM Class**: Full BFM plugin release candidate
 * **Feature Branch**: `codex/TASK-073-release`
 * **Release Candidate**: `0.5.7-beta+codex.20260804131420`
@@ -16,6 +16,6 @@ repairs instead of cosmetic repair loops.
 ## Closeout
 
 Commit `d81df42` is integrated and packaged as the 0.5.7-beta release candidate.
-James approved the exact changelog wording. One release checkpoint is now
-authorized. Merge, marketplace publication, and reinstall still require
-**Push Live**.
+James approved the exact changelog wording and the single release checkpoint
+passed without repair. Merge, marketplace publication, reinstall, and active
+verification still require **Push Live**.

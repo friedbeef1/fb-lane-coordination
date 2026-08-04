@@ -46,3 +46,22 @@ metadata contracts, TASK-073 records, and generated mirrors are aligned.
 Changelog approval: approved by James on 2026-08-04. One complete release
 checkpoint is authorized. GitHub push, merge, marketplace publication,
 reinstall, and active-install verification have not run for 0.5.7-beta.
+
+## Final release checkpoint
+
+The single approved checkpoint passed without a repair loop:
+
+| Gate | Result |
+|---|---|
+| Root CLI | 72/72 pass |
+| Focused sessions | 39/39 pass |
+| Evals | 19/19 pass |
+| Beginner experience | 11/11 pass |
+| Efficiency | 25/25 pass |
+| Positioning and two-speed | pass |
+| Package mirrors | 58/58 pass |
+| Doctor | Ready |
+| Syntax and whitespace | pass |
+
+The candidate is **Ready to ship**. GitHub push, merge, marketplace publication,
+reinstall, and active-install verification require **Push Live**.
