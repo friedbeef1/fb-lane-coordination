@@ -114,8 +114,7 @@ orientation, and historical retrieval boundaries.
 
 ### Open release gate
 
-- Changelog approval: pending — [0.5.6-beta draft](../../CHANGELOG.md#056-beta--2026-08-04).
-- The complete release validator has intentionally not run. It becomes eligible
-  only after James approves or revises the changelog wording.
+- Changelog approval: approved by James on 2026-08-04 — [0.5.6-beta entry](../../CHANGELOG.md#056-beta--2026-08-04).
+- The complete release validator is now authorized and will run once.
 - Push, merge, marketplace publication, reinstall, and deployment remain
   unauthorized.

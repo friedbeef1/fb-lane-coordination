@@ -35,7 +35,7 @@ Evidence Against Product OKR: None identified.
   reinstall, or deployment.
 - **Success looks like:** Current orientation is small and truthful; completed
   evidence remains exactly retrievable; canonical and package guidance agree.
-- **Next action:** Obtain approval of the drafted changelog wording.
+- **Next action:** Run the approved release checkpoint.
 
 ## Build Brief
 
@@ -49,7 +49,7 @@ Evidence Against Product OKR: None identified.
    and mechanically generated package mirrors for FB 0.5.6-beta.
 
 Changelog expectation: required
-Release checkpoint: pending changelog approval
+Release checkpoint: authorized after changelog approval
 
 ## Task Receipt
 
@@ -59,24 +59,22 @@ Release checkpoint: pending changelog approval
   board archive and projections, active harness and skills, package mirrors,
   plugin metadata, release docs, and changelog.
 - **Changelog:** updated — [FB 0.5.6-beta](../../CHANGELOG.md#056-beta--2026-08-04).
-- **Changelog approval:** pending — James must approve the drafted wording.
+- **Changelog approval:** approved by James on 2026-08-04.
 - **Review state:** not reviewable.
-- **External gates:** Final release validator follows changelog approval;
+- **External gates:** Final release validator is now authorized;
   publication, merge, marketplace upgrade, reinstall, and deployment remain
   unauthorized.
-- **Remaining owner/action:** James approves or revises the changelog; then
-  Product/BFM runs the one release checkpoint.
+- **Remaining owner/action:** Product/BFM runs the one release checkpoint.
 
 ## Brief Validation
 
-Status: blocked
+Status: pass
 
 - **Satisfied:** Lifecycle reconciliation is evidence-led; active state stays
   visible; historical records remain exact and queryable; ready semantics and
   `$bfm` authority are explicit.
-- **Missing:** Explicit user approval of the 0.5.6-beta changelog wording,
-  followed by the final release validator.
-- **Next action:** Present the exact changelog entry to James for approval.
+- **Missing:** Final release-validator evidence before **Ready to ship**.
+- **Next action:** Run the one authorized release checkpoint.
 
 ## Verification Handoff
 
@@ -89,9 +87,9 @@ and fresh-task behavior are not claimed before their explicit gates.
 
 ## Product/BFM Closeout
 
-Status: Checking — changelog approval needed.
+Status: Checking — release checkpoint.
 Actioned By: FB-Product / BFM.
 Result: The local candidate keeps routine orientation current-state focused and
 preserves complete on-demand historical retrieval.
-Remaining: Changelog approval, one release checkpoint, then separate **Push
-Live** authority for external delivery.
+Remaining: One release checkpoint, then separate **Push Live** authority for
+external delivery.

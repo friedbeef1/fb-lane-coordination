@@ -27,8 +27,8 @@ routes and summaries; project-owned instructions remain untouched.
 routes need refreshing, and start a new Codex task so the updated skills and
 MCP server are loaded.
 
-**Changelog approval:** Pending — James must approve this wording before the
-release checkpoint can report **Ready to ship**.
+**Changelog approval:** Approved by James on 2026-08-04 before the release
+checkpoint.
 
 ## 0.5.5-beta — 2026-08-04
 
