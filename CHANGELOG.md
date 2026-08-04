@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.5.7-beta — 2026-08-04
+
+Build: `0.5.7-beta+codex.20260804131420`
+
+**What changed:** FB now separates eval definitions from candidate-specific
+evaluation results and presents selected outcomes through a compact table of
+result, evidence, authority, and delivery effect. BFM repair guidance now
+requires the smallest sufficient and causally relevant correction, an
+original-scenario rerun, focused regression proof, material improvement, and a
+stop after one no-progress cycle.
+
+**Why it matters:** Users and Product can see what was actually evaluated, what
+the evidence says, and how each result affects delivery. Failed checks can no
+longer be “repaired” through cosmetic changes that preserve the underlying
+failure or waste repeated iterations.
+
+**Compatibility:** Existing eval records, authority levels, six-workstream
+projects, commands, plugin and MCP identifiers, worktrees, and **Push Live**
+authority remain compatible. This release adds guidance and focused structural
+coverage; it does not add an autonomous judge, numeric scoring system, hosted
+service, or automatic eval promotion.
+
+**Installation or upgrade:** Upgrade the `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, and start a new Codex task so the updated eval
+and BFM guidance is loaded.
+
+**Changelog approval:** Pending James's approval before the release checkpoint.
+
 ## 0.5.6-beta — 2026-08-04
 
 Build: `0.5.6-beta+codex.20260804045203`

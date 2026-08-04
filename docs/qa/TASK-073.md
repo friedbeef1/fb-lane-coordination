@@ -33,3 +33,16 @@ deployment was run for this bounded follow-up.
   passed.
 - Release decision: defer version, changelog, marketplace publication, and
   reinstall to the next normal plugin release; do not mutate 0.5.6 in place.
+
+## FB 0.5.7-beta release slice
+
+Release candidate: `0.5.7-beta+codex.20260804131420`
+
+Product subsequently requested that TASK-073 proceed through the normal release
+sequence. The candidate uses a new version rather than mutating installed
+0.5.6. Active version documentation, both plugin manifests, focused release and
+metadata contracts, TASK-073 records, and generated mirrors are aligned.
+
+Changelog approval: pending. The complete release checkpoint, GitHub push,
+merge, marketplace publication, reinstall, and active-install verification have
+not run for 0.5.7-beta.

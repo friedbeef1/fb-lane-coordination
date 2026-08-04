@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-073
 lane: fb-product
-status: done
+status: implemented
 okr_fit: aligned
 approval: approved
 fb_harness: v3
@@ -10,6 +10,8 @@ record_model: normalized-v1
 ---
 
 # TASK-073 — Evaluation results and meaningful repair
+
+Release candidate: `0.5.7-beta+codex.20260804131420`
 
 ## Goal Alignment Session
 
@@ -31,9 +33,8 @@ Evidence Against Product OKR: None identified.
   regression proof, and material improvement.
 - Stop after one no-progress cycle; never weaken the eval or move the failure.
 
-Changelog expectation: not expected — this bounded guidance correction will be
-consolidated into the next plugin release entry rather than creating a new
-release/version by itself.
+Changelog expectation: required — this user-visible plugin-guidance change is
+now the `0.5.7-beta+codex.20260804131420` release candidate.
 
 ## Task Receipt
 
@@ -41,10 +42,11 @@ release/version by itself.
   contract, and mechanically generated plugin mirrors.
 - **Verification:** [TASK-073 QA](../qa/TASK-073.md).
 - **Review state:** not reviewable.
-- **External gates:** Source integration is complete. Publication, marketplace
-  upgrade, and reinstall remain deferred to the next normal plugin release.
-- **Remaining owner/action:** The next release consolidates this change into
-  its version and approved changelog.
+- **Changelog:** drafted — [FB 0.5.7-beta](../../CHANGELOG.md#057-beta--2026-08-04).
+- **Changelog approval:** pending James's exact wording approval.
+- **External gates:** Changelog approval, one release checkpoint, then **Push
+  Live** before merge, marketplace publication, or reinstall.
+- **Remaining owner/action:** James approves or revises the changelog wording.
 
 ## Brief Validation
 
@@ -52,12 +54,12 @@ Status: pass
 
 - **Satisfied:** Results are distinct from eval definitions; repairs must be
   sufficient, causal, observable, regression-protected, and bounded.
-- **Missing:** None for source integration.
-- **Next action:** Include TASK-073 in the next plugin release decision.
+- **Missing:** Changelog approval and final release-checkpoint evidence.
+- **Next action:** Approve the exact 0.5.7-beta changelog wording.
 
 ## Product/BFM Closeout
 
-Status: Done — integrated; release deferred.
+Status: Checking — changelog approval needed.
 Actioned By: FB-Product / BFM one-off sidechat exception.
 Result: Documentation and plugin guidance now reject superficial repair loops.
-Remaining: Next release owns version, changelog, publication, and reinstall.
+Remaining: Changelog approval, one release checkpoint, then **Push Live**.

@@ -4,8 +4,8 @@
 
 **AI Loop Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.5.6-beta**
-(`0.5.6-beta+codex.20260804045203`).
+Current Codex release candidate: **FB 0.5.7-beta**
+(`0.5.7-beta+codex.20260804131420`).
 
 **FB is a Codex plugin that connects six product workstreams in one continuous
 delivery loop. Each workstream investigates part of the problem; `$bfm` brings

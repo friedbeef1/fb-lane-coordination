@@ -2,10 +2,10 @@
 
 ## Current Naming
 
-The current GitHub documentation line uses the FB 0.5.6-beta product name.
+The current GitHub documentation line uses the FB 0.5.7-beta product name.
 
 The Codex plugin manifest for this line is
-`0.5.6-beta+codex.20260804045203`. This is the current release candidate.
+`0.5.7-beta+codex.20260804131420`. This is the current release candidate.
 
 Codex is the only supported and released integration. Claude Code and
 Antigravity are paused; contributors can use the
@@ -13,7 +13,7 @@ Antigravity are paused; contributors can use the
 
 ## Before And After
 
-| Area | v1: four-lane coordination plugin | Latest: FB 0.5.6-beta |
+| Area | v1: four-lane coordination plugin | Latest: FB 0.5.7-beta |
 |---|---|---|
 | Core idea | Split work across Product, Tech, Design, and Business lanes. | Keep goal, plans, evidence, board state, and repo truth aligned through a return loop. |
 | Product role | Sequence and review lane work. | Own goals, BFM execution launch, reconciliation, merge gates, and release decisions. |
@@ -32,7 +32,7 @@ Antigravity are paused; contributors can use the
 | Frontend planning | Visual decisions could stay in chat. | Frontend handoffs name `Visual Preview Decision` before source execution when visual uncertainty matters. |
 | Returning lanes | Re-read board and handoffs. | Workstream status cards show what Product/BFM already executed or deferred. |
 | Historical orientation | Completed narrative commonly remained in routine context. | Current packets and cards show genuine active state; archives, exact handoffs, QA, and Git remain searchable when needed. |
-| Plugin builds | Build labels could look stale after docs changed. | The current Codex release candidate is `0.5.6-beta+codex.20260804045203`. |
+| Plugin builds | Build labels could look stale after docs changed. | The current Codex release candidate is `0.5.7-beta+codex.20260804131420`. |
 
 ## Practical Meaning
 

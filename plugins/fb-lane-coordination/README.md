@@ -2,8 +2,8 @@
 
 This package is the supported Codex distribution for FB. It supplies the
 `fb-lane` coordination capability, BFM/Product/lane skills, and the reusable
-FB harness. The current release candidate is **FB 0.5.6-beta**
-`0.5.6-beta+codex.20260804045203`.
+FB harness. The current release candidate is **FB 0.5.7-beta**
+`0.5.7-beta+codex.20260804131420`.
 
 ## Install and start
 
