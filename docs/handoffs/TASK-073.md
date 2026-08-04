@@ -43,10 +43,10 @@ now the `0.5.7-beta+codex.20260804131420` release candidate.
 - **Verification:** [TASK-073 QA](../qa/TASK-073.md).
 - **Review state:** not reviewable.
 - **Changelog:** drafted — [FB 0.5.7-beta](../../CHANGELOG.md#057-beta--2026-08-04).
-- **Changelog approval:** pending James's exact wording approval.
-- **External gates:** Changelog approval, one release checkpoint, then **Push
-  Live** before merge, marketplace publication, or reinstall.
-- **Remaining owner/action:** James approves or revises the changelog wording.
+- **Changelog approval:** approved by James on 2026-08-04.
+- **External gates:** One release checkpoint, then **Push Live** before merge,
+  marketplace publication, or reinstall.
+- **Remaining owner/action:** Product runs the one authorized release checkpoint.
 
 ## Brief Validation
 
@@ -54,12 +54,12 @@ Status: pass
 
 - **Satisfied:** Results are distinct from eval definitions; repairs must be
   sufficient, causal, observable, regression-protected, and bounded.
-- **Missing:** Changelog approval and final release-checkpoint evidence.
-- **Next action:** Approve the exact 0.5.7-beta changelog wording.
+- **Missing:** Final release-checkpoint evidence.
+- **Next action:** Run the one authorized release checkpoint.
 
 ## Product/BFM Closeout
 
-Status: Checking — changelog approval needed.
+Status: Checking — release checkpoint authorized.
 Actioned By: FB-Product / BFM one-off sidechat exception.
 Result: Documentation and plugin guidance now reject superficial repair loops.
-Remaining: Changelog approval, one release checkpoint, then **Push Live**.
+Remaining: One release checkpoint, then **Push Live**.

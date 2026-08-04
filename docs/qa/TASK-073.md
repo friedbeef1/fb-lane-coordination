@@ -43,6 +43,6 @@ sequence. The candidate uses a new version rather than mutating installed
 0.5.6. Active version documentation, both plugin manifests, focused release and
 metadata contracts, TASK-073 records, and generated mirrors are aligned.
 
-Changelog approval: pending. The complete release checkpoint, GitHub push,
-merge, marketplace publication, reinstall, and active-install verification have
-not run for 0.5.7-beta.
+Changelog approval: approved by James on 2026-08-04. One complete release
+checkpoint is authorized. GitHub push, merge, marketplace publication,
+reinstall, and active-install verification have not run for 0.5.7-beta.

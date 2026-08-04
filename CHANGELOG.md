@@ -26,7 +26,8 @@ service, or automatic eval promotion.
 `fb-lane-coordination@fb-lane`, and start a new Codex task so the updated eval
 and BFM guidance is loaded.
 
-**Changelog approval:** Pending James's approval before the release checkpoint.
+**Changelog approval:** Approved by James on 2026-08-04 before the release
+checkpoint.
 
 ## 0.5.6-beta — 2026-08-04
 
