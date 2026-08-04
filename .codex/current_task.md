@@ -1,23 +1,20 @@
 # Active Task Context
-* **Current Task**: TASK-072
+* **Current Task**: TASK-073
 * **Lane**: FB-Product / BFM
-* **Status**: Done — published and installed
-* **BFM Class**: Full BFM release candidate
-* **Feature Branch**: `codex/TASK-072-lifecycle-history`
-* **Release Candidate**: `0.5.6-beta+codex.20260804045203`
-* **Locked Files**: Active FB docs and skills, package mirrors, release metadata,
-  TASK-072 board/handoff/QA records, and focused contracts.
+* **Status**: Done — integrated; release deferred
+* **BFM Class**: Bounded documentation and plugin-guidance integration
+* **Feature Branch**: `main`
+* **Release Candidate**: None; consolidate into the next plugin version.
+* **Locked Files**: None.
 
 ## Task Scope
 
-Keep routine orientation tied to genuine active lifecycle state while preserving
-complete historical retrieval through archives, the handoff index, exact
-handoffs, QA evidence, changelog entries, and Git history.
+Make evaluation results readable and require sufficient, causally relevant
+repairs instead of cosmetic repair loops.
 
 ## Closeout
 
-James approved **Push Live**. PR #56 merged to GitHub `main` as `894d4a1`, the
-`fb-lane` marketplace upgraded, and FB
-`0.5.6-beta+codex.20260804045203` is installed and enabled. Archived terminal
-gaps remain non-blocking and searchable; active records still enforce current
-requirements. Start a new Codex task to load the refreshed skills and MCP server.
+Commit `d81df42` is integrated into the authoritative checkout. Root/package
+eval contracts pass 19/19 and 58 mirrors agree. No immediate plugin publication
+or same-version reinstall is authorized or needed; TASK-073 is consolidated
+into the next normal plugin version and changelog decision.

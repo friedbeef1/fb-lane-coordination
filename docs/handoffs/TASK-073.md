@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-073
 lane: fb-product
-status: implemented
+status: done
 okr_fit: aligned
 approval: approved
 fb_harness: v3
@@ -41,10 +41,10 @@ release/version by itself.
   contract, and mechanically generated plugin mirrors.
 - **Verification:** [TASK-073 QA](../qa/TASK-073.md).
 - **Review state:** not reviewable.
-- **External gates:** Product integration into the authoritative branch; no
-  publication, marketplace upgrade, or reinstall is authorized by this task.
-- **Remaining owner/action:** Product integrates this isolated branch in the
-  next normal repository cycle.
+- **External gates:** Source integration is complete. Publication, marketplace
+  upgrade, and reinstall remain deferred to the next normal plugin release.
+- **Remaining owner/action:** The next release consolidates this change into
+  its version and approved changelog.
 
 ## Brief Validation
 
@@ -52,12 +52,12 @@ Status: pass
 
 - **Satisfied:** Results are distinct from eval definitions; repairs must be
   sufficient, causal, observable, regression-protected, and bounded.
-- **Missing:** Product integration into the authoritative branch.
-- **Next action:** Product reviews and integrates the isolated commit.
+- **Missing:** None for source integration.
+- **Next action:** Include TASK-073 in the next plugin release decision.
 
 ## Product/BFM Closeout
 
-Status: Staging QA — focused candidate complete.
+Status: Done — integrated; release deferred.
 Actioned By: FB-Product / BFM one-off sidechat exception.
 Result: Documentation and plugin guidance now reject superficial repair loops.
-Remaining: Product integration; no publication or reinstall is authorized.
+Remaining: Next release owns version, changelog, publication, and reinstall.

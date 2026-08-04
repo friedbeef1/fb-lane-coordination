@@ -23,3 +23,13 @@ scenario rerun; focused regression; material improvement; and no-progress stop.
 
 No broad validator, plugin publication, marketplace upgrade, reinstall, or
 deployment was run for this bounded follow-up.
+
+## Product integration
+
+- Commit `d81df42` was already based directly on authoritative `main` and
+  integrated without conflict or repair.
+- Root and packaged eval contracts passed 19/19 after integration.
+- All 58 declared package mirrors, changed JavaScript syntax, and whitespace
+  passed.
+- Release decision: defer version, changelog, marketplace publication, and
+  reinstall to the next normal plugin release; do not mutate 0.5.6 in place.
