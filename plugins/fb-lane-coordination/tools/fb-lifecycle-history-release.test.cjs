@@ -22,8 +22,8 @@ function json(relativePath) {
 const manifest = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.codex-plugin/plugin.json'), 'utf8'));
 assert.match(
   manifest.version,
-  /^0\.5\.6-beta\+codex\.\d{14}$/,
-  'release build must use the 0.5.6-beta UTC build form',
+  /^0\.5\.7-beta\+codex\.\d{14}$/,
+  'release build must use the 0.5.7-beta UTC build form',
 );
 assert.strictEqual(JSON.parse(fs.readFileSync(path.join(pluginRoot, 'plugin.json'), 'utf8')).version, manifest.version);
 
@@ -32,6 +32,7 @@ const activeGuidance = [
   'docs/fb/README.md',
   'docs/fb/start.md',
   'docs/fb/workflow.md',
+  'docs/fb/evals.md',
   'docs/fb/records.md',
   'docs/fb/graph.md',
   'skills/fb-lane-coordination/SKILL.md',
@@ -48,6 +49,11 @@ for (const phrase of [
   'archive',
   'exact handoff',
   'Git history',
+  'Evaluation results',
+  'sufficient and causally relevant',
+  'original failed scenario',
+  'focused regression',
+  'no-progress',
 ]) {
   assert.match(activeGuidance, new RegExp(phrase.replace('$', '\\$'), 'i'), `active guidance must retain ${phrase}`);
 }
@@ -63,16 +69,16 @@ assert.match(coordination, /on-demand historical retrieval/i, 'coordination must
 
 if (!packaged) {
   const changelog = read('CHANGELOG.md');
-  const release = changelog.match(/## 0\.5\.6-beta[\s\S]*?(?=\n## 0\.5\.5-beta)/)?.[0] || '';
+  const release = changelog.match(/## 0\.5\.7-beta[\s\S]*?(?=\n## 0\.5\.6-beta)/)?.[0] || '';
   for (const field of ['What changed', 'Why it matters', 'Compatibility', 'Installation or upgrade']) {
-    assert.match(release, new RegExp(`\\*\\*${field}:\\*\\*`), `0.5.6 changelog must include ${field}`);
+    assert.match(release, new RegExp(`\\*\\*${field}:\\*\\*`), `0.5.7 changelog must include ${field}`);
   }
-  assert.match(release, /active\s+state/i);
-  assert.match(release, /searchable on demand/i);
+  assert.match(release, /evaluation results/i);
+  assert.match(release, /superficial|cosmetic/i);
 
   for (const surface of ['README.md', 'FAQ.md', 'docs/setup.md', 'docs/versioning.md', 'platforms/codex/README.md']) {
-    assert.match(read(surface), /0\.5\.6-beta/, `${surface} must name 0.5.6-beta`);
+    assert.match(read(surface), /0\.5\.7-beta/, `${surface} must name 0.5.7-beta`);
   }
 }
 
-console.log(`FB lifecycle-history release contract passed for ${manifest.version}.`);
+console.log(`FB current release contract passed for ${manifest.version}.`);
