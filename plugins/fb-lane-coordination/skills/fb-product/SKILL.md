@@ -30,7 +30,8 @@ actionable workstream handoffs are ready and the user says `$bfm`. Product is
 not the universal coordinator at intake; Product/User is selected only for user
 needs, user outcomes, requirements, feedback, acceptance criteria, or product
 priority questions. Read [the workstream-first start contract](../../docs/fb/start.md),
-then board truth, handoff routing, linked detail, and workstream summaries.
+then bounded current board truth, handoff routing, linked detail, and current
+workstream summaries.
 
 Apply the canonical [execution authority by conversation
 context](../../docs/fb/guardrails.md#execution-authority-by-conversation-context).
@@ -49,15 +50,24 @@ authoritative records; it is not a source of truth. Use the board → index →
 handoff → card fallback when the packet says fallback or is incomplete,
 ambiguous, or contradictory.
 
+Routine orientation reads genuine active state. When a prior decision,
+regression, release, or user request makes completed work relevant, retrieve it
+on demand through the board archive, handoff index, exact handoff, QA artifact,
+changelog, and Git history. Historical availability never makes every completed
+record part of the default Product prompt.
+
 The one delivery loop has six planning/evidence workstreams in canonical order:
 Product/User (technical slug `product`), Business, Design, Tech, Discovery, and
 Bugs. Each runs its smallest real mini-loop, records evidence in
-`docs/handoffs/<TASK-ID>.md`, and marks it ready or blocked for BFM. After
-`$bfm`, Product scans all six, reconciles duplicates, conflicts, and
-dependencies, prioritizes, and creates the consolidated Project Start Brief and
-Build Brief before execution. `$bfm` authorizes already-approved ready scope;
-pause only for a changed decision, disputed priority, sensitive boundary,
-conflict, or unclear scope. BFM stops at **Ready to ship**. Only an
+`docs/handoffs/<TASK-ID>.md`, and marks it ready for Product intake or blocked.
+Ready status is not approval or execution authority. After `$bfm`, Product
+freezes intake and must disposition every candidate as **Include now**,
+**Blocked**, **Deferred**, **Duplicate**, **Rejected**, or **Superseded** before
+source execution. Product scans all six, reconciles duplicates, conflicts, and
+dependencies, prioritizes **Include now** candidates, and creates the
+consolidated Project Start Brief and Build Brief before BFM execution. Pause
+only for a changed decision, disputed priority, sensitive boundary, conflict,
+or unclear scope. BFM stops at **Ready to ship**. Only an
 explicit **Push Live** authorizes merge or deployment.
 
 `$bfm` ignores every `fb-workstream-handoff`; only a separate Product-ready
@@ -75,12 +85,13 @@ For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must
 judge it.
 
-Keep ordinary worker lanes plan-only. Pre-`$bfm` approval attaches to ready
-scope and handoffs. After invocation, Product records the consolidated Project
-Start Brief and Build Brief before BFM starts source-changing work, without a
-routine second approval; pause only for a changed decision, disputed priority,
-sensitive boundary, conflict, or unclear scope. Product closes only with aligned board,
-repository, evidence, and Git state. Product authors the semantic Brief
+Keep ordinary worker lanes plan-only. Ready handoffs are Product intake
+candidates, not approvals. After invocation, Product records each candidate's
+disposition and the consolidated Project Start Brief and Build Brief before BFM
+starts source-changing work, without a routine second approval; pause only for
+a changed decision, disputed priority, sensitive boundary, conflict, or unclear
+scope. Product closes only with aligned board, repository, evidence, and Git
+state. Product authors the semantic Brief
 Validation comparison; the CLI enforces complete actionable structure only.
 In the same update that creates a non-quick board task after reconciliation, Product
 must copy the reconciled Project/Build Brief goal into that task's complete board

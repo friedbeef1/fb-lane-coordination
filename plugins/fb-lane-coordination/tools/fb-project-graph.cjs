@@ -64,6 +64,7 @@ function sourceFiles(root) {
   walk('docs/handoffs');
   walk('docs/workstreams');
   walk('docs/qa');
+  walk('docs/board/archive');
   return [...new Set(files)].sort();
 }
 
@@ -97,6 +98,27 @@ function resolvedMarkdownTarget(root, source, target) {
   return relative;
 }
 
+function addBoardRows(root, markdown, source, nodes, edges) {
+  for (const row of boardRows(markdown)) {
+    const taskId = `task:${row.task}`;
+    addNode(nodes, { id: taskId, type: 'task', label: `${row.task} · ${row.status}`, source, status: 'confirmed' });
+    addEdge(edges, { from: 'project:root', to: taskId, type: 'contains', source, status: 'confirmed' });
+    for (const target of markdownLinks(row.line)) {
+      const relative = resolvedMarkdownTarget(root, source, target);
+      if (!relative || !fs.existsSync(path.join(root, relative))) continue;
+      if (relative.startsWith('docs/handoffs/')) {
+        const id = `handoff:${relative}`;
+        addNode(nodes, { id, type: 'handoff', label: path.basename(relative, '.md'), source: relative, status: 'confirmed' });
+        addEdge(edges, { from: taskId, to: id, type: 'documented-by', source, status: 'confirmed' });
+      } else if (relative.startsWith('docs/qa/')) {
+        const id = `qa:${relative}`;
+        addNode(nodes, { id, type: 'qa', label: path.basename(relative, '.md'), source: relative, status: 'confirmed' });
+        addEdge(edges, { from: taskId, to: id, type: 'verified-by', source, status: 'confirmed' });
+      }
+    }
+  }
+}
+
 function buildProjectGraph(root, options = {}) {
   const resolvedRoot = path.resolve(root);
   const files = sourceFiles(resolvedRoot);
@@ -108,23 +130,9 @@ function buildProjectGraph(root, options = {}) {
 
   const boardPath = path.join(resolvedRoot, 'PROJECT_BOARD.md');
   const board = fs.existsSync(boardPath) ? fs.readFileSync(boardPath, 'utf8') : '';
-  for (const row of boardRows(board)) {
-    const taskId = `task:${row.task}`;
-    addNode(nodes, { id: taskId, type: 'task', label: `${row.task} · ${row.status}`, source: 'PROJECT_BOARD.md', status: 'confirmed' });
-    addEdge(edges, { from: 'project:root', to: taskId, type: 'contains', source: 'PROJECT_BOARD.md', status: 'confirmed' });
-    for (const target of markdownLinks(row.line)) {
-      const relative = resolvedMarkdownTarget(resolvedRoot, 'PROJECT_BOARD.md', target);
-      if (!relative || !fs.existsSync(path.join(resolvedRoot, relative))) continue;
-      if (relative.startsWith('docs/handoffs/')) {
-        const id = `handoff:${relative}`;
-        addNode(nodes, { id, type: 'handoff', label: path.basename(relative, '.md'), source: relative, status: 'confirmed' });
-        addEdge(edges, { from: taskId, to: id, type: 'documented-by', source: 'PROJECT_BOARD.md', status: 'confirmed' });
-      } else if (relative.startsWith('docs/qa/')) {
-        const id = `qa:${relative}`;
-        addNode(nodes, { id, type: 'qa', label: path.basename(relative, '.md'), source: relative, status: 'confirmed' });
-        addEdge(edges, { from: taskId, to: id, type: 'verified-by', source: 'PROJECT_BOARD.md', status: 'confirmed' });
-      }
-    }
+  addBoardRows(resolvedRoot, board, 'PROJECT_BOARD.md', nodes, edges);
+  for (const relative of files.filter(file => file.startsWith('docs/board/archive/'))) {
+    addBoardRows(resolvedRoot, fs.readFileSync(path.join(resolvedRoot, relative), 'utf8'), relative, nodes, edges);
   }
 
   for (const relative of files.filter(file => file.startsWith('docs/handoffs/') && path.basename(file) !== 'index.md')) {
@@ -157,6 +165,12 @@ function buildProjectGraph(root, options = {}) {
         const dependencyId = `handoff:${resolved}`;
         addNode(nodes, { id: dependencyId, type: 'handoff', label: path.basename(resolved, '.md'), source: resolved, status: 'confirmed' });
         addEdge(edges, { from: handoffId, to: dependencyId, type: 'depends-on', source: relative, status: 'confirmed' });
+        const dependency = frontmatter(fs.readFileSync(path.join(resolvedRoot, resolved), 'utf8'));
+        if (SAFE_TASK_ID.test(dependency.task || '')) {
+          const dependencyTaskId = `task:${dependency.task}`;
+          addNode(nodes, { id: dependencyTaskId, type: 'task', label: dependency.task, source: 'PROJECT_BOARD.md', status: 'confirmed' });
+          addEdge(edges, { from: taskId, to: dependencyTaskId, type: 'depends-on', source: relative, status: 'confirmed' });
+        }
       } else if (resolved.endsWith('.md')) {
         const documentId = `document:${resolved}`;
         addNode(nodes, { id: documentId, type: 'document', label: path.basename(resolved, '.md'), source: resolved, status: 'confirmed' });
@@ -307,7 +321,9 @@ function queryProjectGraph(graph, query, options = {}) {
       for (let depth = 1; depth <= 2; depth += 1) {
         const next = [];
         for (const nodeId of frontier) {
+          if (nodes.get(nodeId)?.type === 'workstream') continue;
           for (const neighbor of adjacency.get(nodeId) || []) {
+            if (neighbor.edge.type === 'contains') continue;
             if (!scopedDistances.has(neighbor.nodeId)) {
               scopedDistances.set(neighbor.nodeId, depth);
               next.push(neighbor.nodeId);
@@ -334,6 +350,7 @@ function queryProjectGraph(graph, query, options = {}) {
   const direct = [...scores.entries()].sort((a, b) => b[1].score - a[1].score).slice(0, 8);
   for (const [nodeId, match] of direct) {
     for (const neighbor of adjacency.get(nodeId) || []) {
+      if (scopedDistances.size && !scopedDistances.has(neighbor.nodeId)) continue;
       const bonus = value.includes('verif') && neighbor.edge.type === 'verified-by' ? 50
         : value.includes('depend') && neighbor.edge.type === 'depends-on' ? 50
           : value.includes('decision') && neighbor.edge.type === 'supports' ? 40 : 10;
@@ -369,18 +386,60 @@ function resolveProjectContext(root, query) {
   return { route: 'normalized-record-fallback', results: queryProjectGraph(fallbackGraph, query), findings };
 }
 
+function resolveTaskHandoff(root, taskId) {
+  const index = 'docs/handoffs/index.md';
+  const board = 'PROJECT_BOARD.md';
+  const findLinkedHandoff = (source, markdown) => {
+    const line = String(markdown).split(/\r?\n/).find(candidate => candidate.toUpperCase().includes(taskId));
+    if (!line) return null;
+    for (const target of markdownLinks(line)) {
+      const relative = resolvedMarkdownTarget(root, source, target);
+      if (relative?.startsWith('docs/handoffs/') && fs.existsSync(path.join(root, relative))) return relative;
+    }
+    return null;
+  };
+
+  for (const source of [index, board]) {
+    const target = path.join(root, source);
+    if (!fs.existsSync(target)) continue;
+    const linked = findLinkedHandoff(source, fs.readFileSync(target, 'utf8'));
+    if (linked) return linked;
+  }
+  const conventional = `docs/handoffs/${taskId}.md`;
+  return fs.existsSync(path.join(root, conventional)) ? conventional : null;
+}
+
+function authoritativeFallback(root, taskId) {
+  const readableSources = ['PROJECT_BOARD.md', 'docs/handoffs/index.md'];
+  const handoff = SAFE_TASK_ID.test(taskId) ? resolveTaskHandoff(root, taskId) : null;
+  if (handoff) readableSources.push(handoff);
+  return {
+    citations: [...readableSources],
+    readableSources,
+    instructions: [
+      'Use the authoritative route in order: PROJECT_BOARD.md, then docs/handoffs/index.md.',
+      handoff
+        ? `Then read the exact handoff: ${handoff}.`
+        : 'Then resolve the exact handoff from the board or handoff index when one is available.',
+      'If the normalized records are insufficient, inspect Git history; Git history is an investigation step, not a Markdown source or citation.',
+    ],
+  };
+}
+
 function projectContextPacket(root, options = {}) {
   const taskId = String(options.taskId || '').toUpperCase();
   const question = String(options.question || '').trim();
   if (!SAFE_TASK_ID.test(taskId) || !question) {
+    const fallback = authoritativeFallback(root, taskId);
     return {
       route: 'normalized-record-fallback',
       taskId,
       question,
       reason: 'A safe task ID and concrete question are required.',
       facts: [],
-      citations: [],
-      readableSources: ['PROJECT_BOARD.md', 'docs/handoffs/index.md'],
+      citations: fallback.citations,
+      readableSources: fallback.readableSources,
+      instructions: fallback.instructions,
     };
   }
 
@@ -388,20 +447,23 @@ function projectContextPacket(root, options = {}) {
   try {
     refresh = refreshProjectGraph(root);
   } catch (error) {
+    const fallback = authoritativeFallback(root, taskId);
     return {
       route: 'normalized-record-fallback',
       taskId,
       question,
       reason: `Project graph could not be refreshed: ${error.message}`,
       facts: [],
-      citations: [],
-      readableSources: ['PROJECT_BOARD.md', 'docs/handoffs/index.md'],
+      citations: fallback.citations,
+      readableSources: fallback.readableSources,
+      instructions: fallback.instructions,
     };
   }
 
   const taskNode = refresh.graph.nodes.find(node => node.id === `task:${taskId}`);
   const validation = validateProjectGraph(root, refresh.graph);
   if (!taskNode || validation.length) {
+    const fallback = authoritativeFallback(root, taskId);
     return {
       route: 'normalized-record-fallback',
       taskId,
@@ -411,8 +473,9 @@ function projectContextPacket(root, options = {}) {
         : `${taskId} is not represented in the project graph; context is insufficient.`,
       findings: validation,
       facts: [],
-      citations: taskNode ? [taskNode.source] : [],
-      readableSources: ['PROJECT_BOARD.md', 'docs/handoffs/index.md'],
+      citations: fallback.citations,
+      readableSources: fallback.readableSources,
+      instructions: fallback.instructions,
       refresh: {
         changedSources: refresh.changedSources,
         removedSources: refresh.removedSources,
@@ -440,14 +503,16 @@ function projectContextPacket(root, options = {}) {
     .slice(0, 3);
 
   if (!readableSources.length) {
+    const fallback = authoritativeFallback(root, taskId);
     return {
       route: 'normalized-record-fallback',
       taskId,
       question,
       reason: 'Project graph results are insufficient for targeted reading.',
       facts: [],
-      citations: [taskNode.source],
-      readableSources: ['PROJECT_BOARD.md', 'docs/handoffs/index.md'],
+      citations: fallback.citations,
+      readableSources: fallback.readableSources,
+      instructions: fallback.instructions,
       refresh: {
         changedSources: refresh.changedSources,
         removedSources: refresh.removedSources,
@@ -472,7 +537,7 @@ function projectContextPacket(root, options = {}) {
     instructions: [
       'Read only the cited sources needed to answer the question.',
       'The graph routes to evidence; authoritative records remain source of truth.',
-      'If the packet is ambiguous, incomplete, or contradictory, use PROJECT_BOARD.md then docs/handoffs/index.md and report the fallback.',
+      'If the packet is ambiguous, incomplete, or contradictory, use PROJECT_BOARD.md, then docs/handoffs/index.md, the exact handoff, and Git history.',
     ],
     refresh: {
       changedSources: refresh.changedSources,

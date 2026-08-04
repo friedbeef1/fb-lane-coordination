@@ -1,6 +1,6 @@
 ---
 name: bfm
-description: Use when Product/Captain must sequence, execute, reconcile, or close approved FB handoffs.
+description: Use when Product/Captain must intake, sequence, execute, reconcile, or close FB handoffs.
 ---
 
 # BFM
@@ -68,11 +68,11 @@ claim sidebar tasks were created without tool results. A partial failure
 remains unreconciled; rerun detection later and create only what is still
 missing.
 
-After actionable workstream handoffs are ready, `$bfm` activates Product
-reconciliation and authorizes execution of already-approved ready scope. Read
-[the FB harness](../../docs/fb/README.md), then
-board truth, the handoff index, task-linked handoffs, and applicable workstream
-cards.
+After actionable workstream handoffs are ready for Product intake, `$bfm`
+activates Product reconciliation. It does not authorize execution from ready
+status. Read [the FB harness](../../docs/fb/README.md), then use bounded current
+board truth, the handoff index, task-linked handoffs, and applicable current
+workstream cards.
 
 Apply the canonical [execution authority by conversation
 context](../../docs/fb/guardrails.md#execution-authority-by-conversation-context).
@@ -101,6 +101,12 @@ authoritative records; it is not a source of truth. Use the board → index →
 handoff → card fallback when the packet says fallback or is incomplete,
 ambiguous, or contradictory.
 
+Routine BFM orientation reads genuine active state. Retrieve completed work on
+demand when a predecessor, regression, shared surface, release, conflict, or
+explicit user question requires it: follow the board archive, index, exact
+handoff, QA artifact, changelog, and Git history. Do not rehydrate unrelated
+completed narrative into every intake.
+
 The one loop has six planning/evidence workstreams: Product/User (technical slug
 `product`), Business, Design, Tech, Discovery, and Bugs. Each workstream runs a
 mini-loop and records ready or blocked evidence in `docs/handoffs/<TASK-ID>.md`.
@@ -113,8 +119,13 @@ const { scanWorkstreamHandoffs } = require('./tools/fb-lane.cjs');
 const scan = scanWorkstreamHandoffs(projectRoot);
 ```
 
-Use `scan.selected` in canonical order, report blocked entries, and record
-`None relevant` only when the six-workstream scan/report requires a disposition.
+Use `scan.candidates` in canonical order; `scan.selected` remains a
+compatibility alias. `$bfm` freezes intake, then Product must disposition every candidate as **Include now**, **Blocked**, **Deferred**, **Duplicate**,
+**Rejected**, or **Superseded** before source execution. A ready handoff is
+ready for Product intake, not approval or execution authority. A disposition
+does not auto-close a task: preserve all genuinely nonterminal visibility in
+the board and handoff records. Record `None relevant` only when the
+six-workstream scan/report requires a disposition.
 The scanner fails closed on Ready-like orphan or off-home handoffs listed by
 linked worktrees, `FB_HANDOFF_AUDIT_ROOTS`, or the clone-local
 `.git/fb-handoff-audit-roots` registry. Never report an empty Ready queue after
@@ -124,15 +135,16 @@ reconcile each artifact into its authoritative home.
 Planning work is not Ready when board, index, handoff, or workstream routing
 failed to persist. Record it as blocked with its recovery path instead.
 Stop on duplicate or contradictory ready-handoff errors. Product reconciles
-duplicates, conflicts, and dependencies, prioritizes, and creates the Project
-Start Brief plus Build Brief before execution. Pause only for a changed
-decision, disputed priority, sensitive boundary, conflict, or unclear scope.
-Do not duplicate scanner selection rules in the skill. Integrate only
-relevant ready work and stop at **Ready to ship**. Only **Push Live** authorizes
-merge or deployment.
+duplicates, conflicts, and dependencies, then prioritizes and sequences only
+**Include now** candidates. Product creates the Project Start Brief plus Build
+Brief before BFM execution. Pause only for a changed decision, disputed
+priority, sensitive boundary, conflict, or unclear scope. Do not duplicate
+scanner selection rules in the skill. Integrate only relevant **Include now**
+work and stop at **Ready to ship**. Only **Push Live** authorizes merge or
+deployment.
 
 - [Approval and first-project contract](../../docs/fb/start.md)
-- [Five-lane ledger, locks, sequencing, and return loop](../../docs/fb/workflow.md)
+- [Six-workstream ledger, locks, sequencing, and return loop](../../docs/fb/workflow.md)
 - [Test This Now, Verification Handoff, and evidence](../../docs/fb/evidence.md)
 - [Hard stops, recovery, sidechat routing, and escalation](../../docs/fb/guardrails.md)
 - [Session promotion, checkpoints, recall, review, and closeout](../../docs/fb/sessions.md)
@@ -144,14 +156,15 @@ For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must
 judge it.
 
-Stop before claim/edit/deploy/closeout when ready-scope approval or locks are
-unclear. Pre-`$bfm` approval attaches to the ready scope and handoffs. After
-`$bfm`, Product records the consolidated Project Start Brief and Build Brief;
+Stop before claim/edit/deploy/closeout when Product's **Include now** scope or
+locks are unclear. Ready status does not attach approval to a handoff. After
+`$bfm`, Product records the dispositioned Project Start Brief and Build Brief;
 do not require those briefs to preexist invocation or request routine second
 approval. Before source changes, require the board target's Goal Alignment
-Session to match the reconciled briefs. Never invent an OKR merely to clear the gate.
-Execute only ready, unlocked work in the approved scope; close only after the
-board, source, docs, evidence, and Git state agree or exceptions are explicit.
+Session to match the reconciled briefs. Never invent an OKR merely to clear the
+gate. Execute only **Include now**, unlocked work in the approved scope; close
+only after the board, source, docs, evidence, and Git state agree or exceptions
+are explicit.
 Apply private agent routing and the
 canonical progress, resource, reviewer, verification, and stop budgets. Reuse a matching
 linked worktree or place a new one under the primary checkout's `.worktrees`,

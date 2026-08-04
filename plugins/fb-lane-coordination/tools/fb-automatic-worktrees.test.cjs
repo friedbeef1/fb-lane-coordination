@@ -110,8 +110,7 @@ function assertAutomaticContract(base, label) {
     assert.match(source, /cleanup[\s\S]{0,240}dirty[\s\S]{0,160}owner[\s\S]{0,100}next action/i, `${label} must retain unsafe worktrees with ownership`);
   }
 
-  assert.match(coordination, /automatic worktree allocation/i, `${label} coordination must route to the canonical behavior`);
-  assert.match(coordination, /must not ask the user[\s\S]{0,120}worktree/i, `${label} coordination must retain user ownership boundary`);
+  assert.match(coordination, /workflow\.md[\s\S]{0,180}worktrees/i, `${label} coordination must route worktree behavior to the canonical workflow`);
 
   assert.match(cli, /worktree:\s*!noWorktree/, `${label} CLI claim must default to worktrees`);
   assert.match(cli, /resolveWorktreePlan\(records, branchName\)/, `${label} CLI must create or reuse from registered worktrees`);

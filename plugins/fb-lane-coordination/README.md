@@ -2,8 +2,8 @@
 
 This package is the supported Codex distribution for FB. It supplies the
 `fb-lane` coordination capability, BFM/Product/lane skills, and the reusable
-FB harness. The current release candidate is **FB 0.5.5-beta**
-`0.5.5-beta+codex.20260803212323`.
+FB harness. The current release candidate is **FB 0.5.6-beta**
+`0.5.6-beta+codex.20260804045203`.
 
 ## Install and start
 
@@ -15,9 +15,15 @@ codex plugin add fb-lane-coordination@fb-lane
 Open the project and say `Set up FB in this project.` Discuss questions in the
 relevant Product/User, Business, Design, Tech, Discovery, or Bugs workstreams.
 For actionable findings say `Create a handoff MD for Product/BFM.` Then say
-`$bfm`. After Product approval and explicit `$bfm`, Build For Me (BFM) scans
-all six, prioritizes, implements, tests, and stops at **Ready to ship**. Only
+`$bfm`. Ready handoffs are queued for Product intake, not executable scope.
+Explicit `$bfm` freezes the intake; Product dispositions every candidate,
+prioritizes the included scope, and records the Build Brief before BFM
+implements, tests, and stops at **Ready to ship**. Only
 **Push Live** authorizes merge or deployment.
+
+Routine orientation reads current board state and current workstream cards.
+Completed history remains searchable on demand through archives, the handoff
+index, exact handoffs, QA evidence, and Git history.
 
 When you explicitly ask one workstream to continue another's research,
 Discovery can send a queued handoff to Design, for example. Design receives

@@ -28,7 +28,7 @@ flowchart TB
     BG --> RH
 
     subgraph I["2. Handoff intake"]
-        RH["ready handoffs<br/>Eligible for BFM"]
+        RH["ready handoffs<br/>Product intake candidates"]
         BH["blocked handoffs<br/>Visible, not executed"]
         NR["None relevant<br/>No work manufactured"]
     end
@@ -37,7 +37,7 @@ flowchart TB
     BFM --> PR
     BH --> PR
     NR --> PR
-    PR["Product reconciles<br/>duplicates, conflicts, dependencies, and priority"]
+    PR["Product freezes intake and dispositions<br/>every candidate before source execution"]
     PR --> A{"Approved and clear?"}
     A -->|"Yes"| SP["Plan bounded slices<br/>outcome, locks, dependencies, proof"]
     A -->|"Changed decision, conflict, sensitive boundary, or unclear scope"| X["Paused<br/>Owner and next action"]
@@ -64,13 +64,18 @@ flowchart TB
     X --> N
 ```
 
-- Only valid `ready` handoffs enter execution. `blocked` work remains visible,
-  while **None relevant** prevents a workstream from inventing work.
-- After ready handoffs, `$bfm` activates Product reconciliation and execution
-  of already-approved ready scope. It plans the smallest useful dependency
-  graph up front: independent, non-overlapping slices may use parallel agents;
-  dependent, shared-file, or unresolved work remains sequential. Internal
-  routing remains private.
+- A `ready` handoff is ready for Product intake, not approval or execution
+  authority. `blocked` work remains visible, while **None relevant** prevents a
+  workstream from inventing work.
+- `$bfm` freezes intake. Product must disposition every candidate as **Include
+  now**, **Blocked**, **Deferred**, **Duplicate**, **Rejected**, or
+  **Superseded** before source execution. Product then reconciles duplicates,
+  conflicts, and dependencies, prioritizes and sequences only **Include now**
+  candidates, and records the Product plan plus Build Brief before BFM
+  execution. It plans the smallest useful dependency graph up front:
+  independent, non-overlapping slices may use parallel agents; dependent,
+  shared-file, or unresolved work remains sequential. Internal routing remains
+  private.
 - A substantial outcome may run for hours across bounded slices. FB uses focused
   proof per slice, integration checks at meaningful combinations, and broad
   validation only at a release checkpoint. Unexpected complexity resplits the

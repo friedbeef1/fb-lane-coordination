@@ -76,6 +76,46 @@ Use a deterministic project graph.
   return root;
 }
 
+function archivedHistoryFixture() {
+  const root = fixture();
+  fs.appendFileSync(path.join(root, 'docs/handoffs/TASK-100.md'), '\n## Prior work\n\n- [TASK-099 predecessor](TASK-099.md)\n');
+  write(root, 'docs/board/archive/2026-08.md', `# August 2026 archive
+
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+| TASK-099 | Done | FB-Product / BFM | Harness | Record the governing history | None | [Handoff](../../handoffs/TASK-099.md); [QA](../../qa/TASK-099.md) |
+| TASK-098 | Done | FB-Product / BFM | Unrelated | An unrelated completed task | None | [Handoff](../../handoffs/TASK-098.md) |
+`);
+  write(root, 'docs/handoffs/TASK-099.md', `---
+type: fb-lane-handoff
+task: TASK-099
+lane: fb-product
+status: done
+---
+
+# TASK-099
+
+## Approved Decision
+
+Keep predecessor decisions available for regression investigation.
+
+## Verification
+
+- [QA evidence](../qa/TASK-099.md)
+`);
+  write(root, 'docs/handoffs/TASK-098.md', `---
+type: fb-lane-handoff
+task: TASK-098
+lane: fb-product
+status: done
+---
+
+# TASK-098
+`);
+  write(root, 'docs/qa/TASK-099.md', '# TASK-099 QA\n');
+  return root;
+}
+
 test('builds a source-backed Level 1 graph without copying record prose', () => {
   const root = fixture();
   const graph = buildProjectGraph(root, { generatedAt: '2026-07-26T00:00:00.000Z' });
@@ -159,6 +199,57 @@ test('current-task query scopes generic questions to linked task documents witho
   assert.ok(results.some(result => result.source === 'docs/superpowers/specs/TASK-100-design.md'));
   assert.ok(results.every(result => !result.id.includes('TASK-999')));
   assert.ok(results.length <= 20);
+});
+
+test('retrieves archived history through its exact archive and handoff citations', () => {
+  const root = archivedHistoryFixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-04T00:00:00.000Z' });
+  const results = queryProjectGraph(graph, 'What decision governs TASK-099?');
+
+  assert.ok(graph.sourceFingerprint.sources.some(source => source.relativePath === 'docs/board/archive/2026-08.md'));
+  assert.ok(results.some(result => result.id === 'task:TASK-099' && result.source === 'docs/board/archive/2026-08.md'));
+  assert.ok(results.some(result => result.id === 'handoff:docs/handoffs/TASK-099.md'
+    && result.source === 'docs/handoffs/TASK-099.md'));
+  assert.ok(graph.edges.some(edge => edge.from === 'task:TASK-099'
+    && edge.to === 'handoff:docs/handoffs/TASK-099.md'
+    && edge.source === 'docs/board/archive/2026-08.md'));
+  assert.deepStrictEqual(validateProjectGraph(root, graph), []);
+});
+
+test('retrieves a linked archived predecessor for a prior-decision regression question', () => {
+  const root = archivedHistoryFixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-04T00:00:00.000Z' });
+  const results = queryProjectGraph(graph, 'What prior decision explains this regression?', { currentTask: 'TASK-100' });
+
+  assert.ok(results.some(result => result.id === 'task:TASK-099'
+    && result.source === 'docs/board/archive/2026-08.md'));
+});
+
+test('routine current-task context keeps a linked archived predecessor but excludes same-lane archived siblings', () => {
+  const root = archivedHistoryFixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-04T00:00:00.000Z' });
+  const results = queryProjectGraph(graph, 'What should I work on next?', { currentTask: 'TASK-100' });
+
+  assert.ok(results.some(result => result.id === 'task:TASK-099'));
+  assert.ok(!results.some(result => result.id === 'task:TASK-098'));
+});
+
+test('contradictory graph evidence falls back to the authoritative record route', () => {
+  const root = archivedHistoryFixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-04T00:00:00.000Z' });
+  graph.edges.push({
+    from: 'task:TASK-100',
+    to: 'task:TASK-404',
+    type: 'depends-on',
+    source: 'docs/handoffs/TASK-100.md',
+    status: 'confirmed',
+  });
+  writeProjectGraph(root, graph);
+
+  const context = resolveProjectContext(root, 'What prior decision explains TASK-100 regression?');
+  assert.strictEqual(context.route, 'normalized-record-fallback');
+  assert.ok(context.findings.some(finding => /endpoint is missing/i.test(finding)));
+  assert.ok(context.results.some(result => result.source === 'docs/board/archive/2026-08.md'));
 });
 
 test('missing, stale, or corrupt graph falls back to normalized FB records', () => {

@@ -27,7 +27,13 @@ const {
 const { validateNormalizedRepository } = require('./fb-records.cjs');
 const { validateWorkstreamHandoffDirectory } = require('./fb-workstream-handoff.cjs');
 const { projectContextPacket } = require('./fb-project-graph.cjs');
-const { renderBoardContext, compactBoardFiles } = require('./fb-board-context.cjs');
+const {
+  renderBoardContext,
+  compactBoardFiles,
+  collectLifecycleFindings,
+  renderWorkstreamSummary,
+  refreshManagedWorkstreamCard,
+} = require('./fb-board-context.cjs');
 const { ensureOnboardingReceipt } = require('./fb-onboarding.cjs');
 const {
   classifyExecutionMode,
@@ -586,32 +592,35 @@ function scanWorkstreamHandoffs(rootDir) {
     const result = workstreams[workstream];
     if (result.ready.length === 0 && result.blocked.length === 0) result.summary = 'None relevant';
   }
-  const selected = BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready);
-  assertNoOrphanReadyHandoffs(rootDir, selected);
-  return { workstreams, selected };
+  const candidates = BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready);
+  assertNoOrphanReadyHandoffs(rootDir, candidates);
+  return { workstreams, candidates, selected: candidates };
 }
 
 function workstreamStatusCardTemplate(laneName) {
   return `# ${laneName} Workstream Status
 
-Last Updated: Not yet updated
-Lane: ${laneName}
+This card is a managed current-state projection. PROJECT_BOARD.md remains the source of truth for status, owner, locks, approved goals, and sequencing; docs/handoffs/index.md remains the routing layer. Keep project-owned notes outside the managed block.
 
-## Current Summary
-No lane-specific execution summary has been recorded yet.
-
-## Already Executed By Product/BFM
-- None recorded.
-
-## Still Pending / Blocked
-- None recorded.
-
-## Evidence Links
-- PROJECT_BOARD.md
-- docs/handoffs/index.md
-
-This card is a revisit summary only. PROJECT_BOARD.md remains the source of truth for status, owner, locks, approved goals, and sequencing. docs/handoffs/index.md remains the routing layer. Do not add full OKRs, QA logs, plans, rationale, or implementation details here.
+<!-- FB-LANE:WORKSTREAM-SUMMARY:START -->
+<!-- FB-LANE:WORKSTREAM-SUMMARY:END -->
 `;
+}
+
+function refreshManagedWorkstreamCards(boardPath) {
+  const rootDir = path.dirname(boardPath);
+  const boardMarkdown = fs.readFileSync(boardPath, 'utf8');
+  const workstreamsDir = path.join(rootDir, 'docs', 'workstreams');
+  fs.mkdirSync(workstreamsDir, { recursive: true });
+  const changedPaths = [];
+  for (const [fileName, laneName] of WORKSTREAM_STATUS_CARDS) {
+    const cardPath = path.join(workstreamsDir, fileName);
+    if (!fs.existsSync(cardPath)) fs.writeFileSync(cardPath, workstreamStatusCardTemplate(laneName), 'utf8');
+    const before = fs.readFileSync(cardPath, 'utf8');
+    refreshManagedWorkstreamCard(cardPath, renderWorkstreamSummary(boardMarkdown, laneName));
+    if (fs.readFileSync(cardPath, 'utf8') !== before) changedPaths.push(path.relative(rootDir, cardPath));
+  }
+  return changedPaths;
 }
 
 function agentBehaviorScorecardTemplate() {
@@ -741,7 +750,8 @@ function collectGoalAlignmentSessionWarnings(handoffsDir, tasks = []) {
       missingProductOkrEvidence: [],
       missingBoardOkrs: [],
       unapprovedBoardOkrs: [],
-      unapprovedOkrChange: []
+      unapprovedOkrChange: [],
+      historicalCompatibilityNotices: []
     };
   }
 
@@ -753,7 +763,8 @@ function collectGoalAlignmentSessionWarnings(handoffsDir, tasks = []) {
     missingProductOkrEvidence: [],
     missingBoardOkrs: [],
     unapprovedBoardOkrs: [],
-    unapprovedOkrChange: []
+    unapprovedOkrChange: [],
+    historicalCompatibilityNotices: []
   };
 
   for (const entry of entries) {
@@ -763,24 +774,42 @@ function collectGoalAlignmentSessionWarnings(handoffsDir, tasks = []) {
     const taskId = entry.name.replace(/\.md$/, '');
     const handoffPath = path.join(handoffsDir, entry.name);
     const markdown = fs.readFileSync(handoffPath, 'utf8');
-    if (handoffFrontmatter(markdown)?.type === 'fb-workstream-handoff') continue;
-    if (!/^##\s+Goal Alignment Session\b/m.test(markdown)) {
+    const metadata = handoffFrontmatter(markdown);
+    if (metadata?.type === 'fb-workstream-handoff') continue;
+    const task = tasks.find(t => t.id === taskId);
+    const terminalTask = task && /^(?:done|rejected|closed|completed|deferred|superseded)$/i.test(String(task.status || '').trim());
+    const prospective = metadata?.record_model === 'normalized-v1'
+      || metadata?.fb_harness === 'v3'
+      || (task && !terminalTask);
+    const hasSession = /^##\s+Goal Alignment Session\b/m.test(markdown);
+    const hasOkrFit = /^Lane OKR Fit:\s*(aligned|suggest approach change|blocked by OKR ambiguity)\b/im.test(markdown);
+    const hasMiniLoopEvidence = /^Mini-loop Evidence:\s*\S/im.test(markdown);
+    const hasProductOkrEvidence = /^Evidence Against Product OKR:\s*\S/im.test(markdown);
+    const hasBoardSession = task?.details && /(?:\*\*Goal Alignment Session\*\*|##\s+Goal Alignment Session\b)/i.test(task.details.raw);
+    const hasApprovedBoardSession = hasBoardSession && hasApprovedGoalAlignmentSession(task.details.raw);
+
+    if (!prospective) {
+      if (!hasSession || !hasOkrFit || !hasMiniLoopEvidence || !hasProductOkrEvidence || !hasApprovedBoardSession || handoffImpliesOkrChange(markdown)) {
+        warnings.historicalCompatibilityNotices.push(taskId);
+      }
+      continue;
+    }
+    if (!hasSession) {
       warnings.missingSession.push(entry.name);
     }
-    if (!/^Lane OKR Fit:\s*(aligned|suggest approach change|blocked by OKR ambiguity)\b/im.test(markdown)) {
+    if (!hasOkrFit) {
       warnings.missingOkrFit.push(entry.name);
     }
-    if (!/^Mini-loop Evidence:\s*\S/im.test(markdown)) {
+    if (!hasMiniLoopEvidence) {
       warnings.missingMiniLoopEvidence.push(entry.name);
     }
-    if (!/^Evidence Against Product OKR:\s*\S/im.test(markdown)) {
+    if (!hasProductOkrEvidence) {
       warnings.missingProductOkrEvidence.push(entry.name);
     }
 
-    const task = tasks.find(t => t.id === taskId);
-    if (!task || !task.details || !/(?:\*\*Goal Alignment Session\*\*|##\s+Goal Alignment Session\b)/i.test(task.details.raw)) {
+    if (!hasBoardSession) {
       warnings.missingBoardOkrs.push(taskId);
-    } else if (!hasApprovedGoalAlignmentSession(task.details.raw)) {
+    } else if (!hasApprovedBoardSession) {
       warnings.unapprovedBoardOkrs.push(taskId);
     }
     if (handoffImpliesOkrChange(markdown) && (!task || !task.details || !boardRecordsApprovedOkrChange(task.details.raw))) {
@@ -1099,6 +1128,15 @@ function parseBoard(boardPath) {
   }
 
   return { content, tasks };
+}
+
+function collectArchivedBoardTasks(rootDir) {
+  const archiveDir = path.join(rootDir, 'docs', 'board', 'archive');
+  if (!fs.existsSync(archiveDir)) return [];
+  return fs.readdirSync(archiveDir, { withFileTypes: true })
+    .filter(entry => entry.isFile() && entry.name.endsWith('.md'))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .flatMap(entry => parseBoard(path.join(archiveDir, entry.name)).tasks);
 }
 
 function parseDetailLines(lines) {
@@ -1649,6 +1687,9 @@ function handleDoctor() {
           } else {
             add('ok', 'Active file locks', `${activeLocks.size} active file lock(s), no duplicate active claims.`);
           }
+          for (const finding of collectLifecycleFindings(fs.readFileSync(boardPath, 'utf8'), { rootDir })) {
+            add('warn', `Lifecycle ${finding.taskId}`, `${finding.code}: ${finding.message}`, finding.nextAction);
+          }
         }
       } catch (err) {
         add('fail', 'PROJECT_BOARD.md', `Could not parse board: ${err.message}`, 'Fix the board format or restore from git.');
@@ -1700,7 +1741,18 @@ function handleDoctor() {
       } else {
         add('ok', 'Handoff index', 'Handoff lookup is present or not needed yet.');
       }
-      const goalAlignmentSessionWarnings = collectGoalAlignmentSessionWarnings(path.join(rootDir, 'docs', 'handoffs'), parsedTasks);
+      const historicalTasks = collectArchivedBoardTasks(rootDir);
+      const goalAlignmentSessionWarnings = collectGoalAlignmentSessionWarnings(
+        path.join(rootDir, 'docs', 'handoffs'),
+        [...parsedTasks, ...historicalTasks]
+      );
+      if (goalAlignmentSessionWarnings.historicalCompatibilityNotices.length > 0) {
+        add(
+          'notice',
+          'Historical compatibility',
+          `Pre-v3 records remain searchable without retrospective retrofit: ${goalAlignmentSessionWarnings.historicalCompatibilityNotices.join(', ')}`
+        );
+      }
       if (goalAlignmentSessionWarnings.missingSession.length > 0) {
         add(
           'warn',
@@ -1758,7 +1810,7 @@ function handleDoctor() {
         );
       }
       if (goalAlignmentSessionWarnings.missingBoardOkrs.length === 0 && goalAlignmentSessionWarnings.unapprovedBoardOkrs.length === 0) {
-        add('ok', 'Goal Alignment Session OKRs', 'All non-quick handoff targets have approved board OKRs.');
+        add('ok', 'Goal Alignment Session OKRs', 'All prospective non-quick handoff targets have approved board OKRs.');
       }
       if (goalAlignmentSessionWarnings.unapprovedOkrChange.length > 0) {
         add(
@@ -1901,7 +1953,7 @@ function handleDoctor() {
   console.log(`\n🩺 FB-Lane doctor: ${status}`);
   console.log('='.repeat(80));
   for (const check of checks) {
-    const marker = check.level === 'ok' ? '✅' : check.level === 'warn' ? '⚠️ ' : '❌';
+    const marker = check.level === 'ok' ? '✅' : check.level === 'notice' ? 'ℹ️ ' : check.level === 'warn' ? '⚠️ ' : '❌';
     console.log(`${marker} ${check.label}: ${check.detail}`);
     if (check.fix) {
       console.log(`   Fix: ${check.fix}`);
@@ -2054,10 +2106,11 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
     locks: formattedLocks,
     lockedFiles: formattedLocks
   });
+  const refreshedCards = refreshManagedWorkstreamCards(boardPath);
 
   // Commit board separately. In worktree mode, carry the authoritative claim
   // commit into the execution branch so promotion sees the same board state.
-  const boardCommitted = commitBoard(`docs: claim ${taskId} and lock files`);
+  const boardCommitted = commitBoard(`docs: claim ${taskId} and lock files`, refreshedCards);
   if (worktreePath && boardCommitted && fs.realpathSync(worktreePath) !== fs.realpathSync(path.dirname(boardPath))) {
     const boardCommit = runGit('rev-parse HEAD');
     execFileSync('git', ['-C', worktreePath, 'cherry-pick', boardCommit], {
@@ -2426,7 +2479,8 @@ function completeBoardTask(boardPath, taskId, options = {}) {
     locks: '(None)',
     lockedFiles: '(None)'
   });
-  return compactBoardFiles(boardPath, options);
+  const compaction = compactBoardFiles(boardPath, options);
+  return { ...compaction, managedCardPaths: refreshManagedWorkstreamCards(boardPath) };
 }
 
 const NO_TESTS_SUBMIT_ERROR = 'Automated checks are required before Ready to ship; --no-tests cannot submit.';
@@ -2542,7 +2596,7 @@ function performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl =
     const updates = { status: 'Staging QA' };
     if (optionalReviewUrl) updates.stagingUrl = `[Optional Review Link](${optionalReviewUrl})`;
     updateBoardTask(boardPath, taskId, updates);
-    commitBoard(`docs: submit ${taskId} for staging qa`);
+    commitBoard(`docs: submit ${taskId} for staging qa`, refreshManagedWorkstreamCards(boardPath));
     runGit(['push', 'origin', 'HEAD']);
   });
   runHook('post-submit', boardPath);
@@ -2705,7 +2759,7 @@ function handleMerge(taskId) {
     : [];
 
   // Commit board
-  commitBoard(`docs: complete ${taskId} and release locks`, archivePaths);
+  commitBoard(`docs: complete ${taskId} and release locks`, [...archivePaths, ...compaction.managedCardPaths]);
 
   // Push main
   runGit('push origin main');
@@ -2989,7 +3043,7 @@ function handleMcpRequest(request) {
             ? [path.relative(path.dirname(boardPath), compaction.archivePath)]
             : [];
 
-          commitBoard(`docs: complete ${taskId} and release locks`, archivePaths);
+          commitBoard(`docs: complete ${taskId} and release locks`, [...archivePaths, ...compaction.managedCardPaths]);
           runGit('push origin main');
 
           try { runGit(["branch", "-d", assertSafeBranchName(targetBranch)]); } catch (e) {}
@@ -3046,10 +3100,12 @@ contradictory. Use the focused page that matches the task:
 
 Start in whichever workstream matches the question whenever planning or
 evidence is useful. Product/User is only for user and product questions, not
-universal intake. Relevant workstreams create handoffs for ready scope, and
-approval attaches to that scope before \`$bfm\`. After the user says \`$bfm\`,
-Product reconciles all six and records the consolidated Project Start Brief and
-Build Brief without a routine second approval; BFM then executes approved scope.
+universal intake. Relevant workstreams create handoffs ready for Product
+intake; ready is neither approval nor execution authority. \`$bfm\` freezes
+intake, and Product must disposition every candidate before source execution.
+Product then reconciles all six, prioritizes and sequences **Include now**
+candidates, and records the consolidated Project Start Brief and Build Brief;
+BFM executes that approved scope.
 
 For returning-project health, use \`$fb-lane status\` for the beginner card.
 For routine operational orientation, use CLI
@@ -3245,8 +3301,8 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 
 ### Workstream-first route
 - Start in whichever workstream matches the question whenever planning or evidence is useful. Product/User is selected only for user needs, outcomes, requirements, feedback, acceptance criteria, or product priorities; it is not universal intake.
-- Relevant workstreams investigate and create handoffs for ready scope. Approval attaches to that ready scope before \`$bfm\`.
-- After the user says \`$bfm\`, Product scans all six, reconciles duplicates, conflicts, dependencies, and priorities, then records the consolidated Project Start Brief and Build Brief without a routine second approval.
+- Relevant workstreams investigate and create handoffs ready for Product intake. Ready status is neither approval nor execution authority.
+- After the user says \`$bfm\`, Product freezes intake and must disposition every candidate before source execution. Product scans all six, reconciles duplicates, conflicts, dependencies, and priorities, then records the consolidated Project Start Brief and Build Brief for **Include now** candidates.
 - Pause only for a changed decision, disputed priority, sensitive boundary, conflict, or unclear scope. BFM executes and verifies approved scope, stops at Ready to ship, and reserves release for Push Live.
 
 ### Goal Alignment Session (non-trivial tasks only)
@@ -3355,6 +3411,7 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
       console.log(`📝 Created docs/workstreams/${fileName}`);
     }
   }
+  refreshManagedWorkstreamCards(boardPath);
 
   // 3d. Create optional Markdown eval scorecard template for Loop Learning.
   const evalsDir = path.join(rootDir, 'docs', 'evals');
@@ -3397,8 +3454,8 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('======================================================================');
   console.log('1. Describe your new project normally.');
   console.log('2. FB starts in whichever workstream matches the question; Product/User is only for user and product questions.');
-  console.log('3. Relevant workstreams investigate and create ready handoffs.');
-  console.log('4. When actionable handoffs are ready, say $bfm. Product scans all six, reconciles and prioritizes, then BFM executes approved scope.');
+  console.log('3. Relevant workstreams investigate and create handoffs ready for Product intake; ready is a candidate, not execution authority.');
+  console.log('4. When actionable handoffs are ready, say $bfm. $bfm freezes intake; Product scans all six and must disposition every candidate before source execution, then prioritizes and sequences Include now candidates into the Project Start Brief and Build Brief for BFM execution.');
   console.log('5. BFM stops at Ready to ship. Only Push Live authorizes release.');
   console.log('======================================================================');
   console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');
@@ -3521,6 +3578,9 @@ module.exports = {
   TASK_ID_PATTERN,
   LANE_PATTERN,
   scanWorkstreamHandoffs,
+  collectLifecycleFindings,
+  collectGoalAlignmentSessionWarnings,
+  collectArchivedBoardTasks,
   renderBoardContext,
   compactBoardFiles,
   completeBoardTask,

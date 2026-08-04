@@ -1,111 +1,65 @@
 ---
 name: fb-lane-coordination
-description: Coordinates board-aware FB tasks, handoffs, staging submissions, and Product/BFM integration.
+description: Use when an FB project needs board-aware routing, handoffs, current-state orientation, or Product/BFM integration.
 ---
 
 # FB task coordination
 
-When an approved Build Brief opts into the generic control loop, follow
-[control-loop.md](../../docs/fb/control-loop.md). Understand, route, produce,
-compare, QA, and diagnose are capabilities—not new workstreams or mandatory
-agents. Rules decide clear cases first; safety and Product authority still win.
+Read the [FB harness](../../docs/fb/README.md), then use
+`node tools/fb-lane.cjs status --context` (or MCP
+`fb_lane_status({context:true})`) for bounded current-state orientation. Follow
+its links to the handoff index, current handoff, and relevant workstream card.
+Open the full board only when that packet is incomplete or contradictory.
+Use `node tools/fb-lane.cjs status` for state during ordinary health checks.
 
-Read [the FB harness](../../docs/fb/README.md) before acting, then read the
-board, index, linked handoff, and relevant workstream card. The harness owns
-the durable policy:
+## Workstream and execution boundary
 
-Apply the canonical [execution authority by conversation
-context](../../docs/fb/guardrails.md#execution-authority-by-conversation-context)
-before any mutation. Product/BFM parent work may execute approved scope;
-workstream parents hand off; sidechats require a named, one-use exception.
-Sidechat routing remains restricted to the originating parent; when that route
-is unavailable, return a paste-ready handoff.
+Start planning or evidence in the matching workstream: Product/User, Business,
+Design, Tech, Discovery, or Bugs. Product/User is for user and product questions,
+not universal intake. Each relevant workstream runs its mini-loop and creates a
+blocked or ready handoff in `docs/handoffs/<TASK-ID>.md`. Ready means `ready for
+Product intake`: queued for Product review, **not approval or execution**.
 
-The public path starts in whichever of the six planning/evidence workstreams
-matches the question: Product/User (technical slug
-`product`), Business, Design, Tech, Discovery, and Bugs. Each relevant
-workstream runs a mini-loop and records a ready or blocked
-`docs/handoffs/<TASK-ID>.md`. Product/User applies only to user needs, outcomes,
-requirements, feedback, acceptance criteria, and product priorities; it is not
-the universal intake coordinator. Inactive workstreams need no manufactured
-work or `None relevant` entry except in a six-workstream scan/report. After
-actionable handoffs are ready, `$bfm` activates Product reconciliation and
-execution of already-approved scope. Delivery stops at **Ready to
-ship**. Only **Push Live** authorizes merge or deployment.
+Only `$bfm` in the Product/BFM parent task starts delivery. It freezes the
+intake snapshot, gives every candidate a disposition, reconciles conflicts and
+dependencies, prioritizes the included work, and records the consolidated
+Project Start Brief and Build Brief before source execution. BFM stops at
+**Ready to ship**. Only **Push Live** authorizes merge or deployment.
 
-On an explicit user request, one main workstream may send a queued
-`fb-workstream-handoff` to another. The destination receives
+An explicit workstream-to-workstream request creates a queued
+`fb-workstream-handoff`. The destination receives
 `<Source> handoff queued for <Destination> — planning only; waiting for you. Open: <handoff link>`
-and remains idle until the user asks it to continue. `$bfm` ignores
-`fb-workstream-handoff`; any resulting delivery recommendation must become a
-separate Product-ready `fb-lane-handoff`.
+and stays idle until the user continues it. `$bfm` ignores that artifact; a
+delivery recommendation needs a separate Product-ready `fb-lane-handoff`.
 
-Keep agent classification private: FB selects internal routing rather than
-asking users to choose a mode. The canonical workflow owns progress, resource, reviewer,
-verification, and stop budgets; do not reproduce or relax them here.
-Use focused checks by default. Only a Product-owned handoff that explicitly
-requests a release checkpoint makes a full validator eligible; sensitive work
-keeps its immediate safety/approval gate.
-Quick documentation and coordination work needs no independent reviewer after
-its focused checks pass. Quick runtime and test work requires exactly one;
-sensitive or ambiguous work remains Full BFM. Keep this routing private.
-Quick BFM is one bounded slice with one consolidated repair at most and the
-surface-specific 5- or 15-minute target in the canonical workflow. Full BFM may
-run for hours by planning many slices up front. Build their dependency graph,
-run independent non-overlapping slices through agents or subagents in parallel,
-and keep dependencies, shared files, and unresolved decisions sequential.
-Follow the canonical workflow's **automatic worktree allocation** contract for
-source-changing slices. BFM owns claim, create-or-reuse, and the visible
-slice/branch/worktree mapping; it must not ask the user to organize worktrees.
-Planning-only work creates none.
-Focused checks prove slices; integration checks prove meaningful combinations;
-broad validation waits for a release checkpoint.
-Product direction is not automatically a user prompt. When a circuit breaker
-has a concrete cause and the correction stays inside approved scope without a
-changed user decision or safety/hard gate, Product/BFM owns one bounded
-Product-directed recovery: make one consolidated correction, run the focused
-proof, then the necessary final release pass if already authorized.
-Ask the user only for a changed product outcome, scope, or priority; weakened
-evidence; a safety or hard gate; no concrete progress; or failure of that one
-recovery.
-Follow [records.md](../../docs/fb/records.md) for one-fact-one-home ownership,
-risk-triggered review, deterministic verification reuse, event-driven health
-checks, compact closeout, and local efficiency metrics.
-For a known task and concrete question, call MCP `fb_project_context` before
-broad orientation and open only the returned relevant cited sources. The graph
-routes to authoritative records; it is not a source of truth. If the tool
-returns fallback, or its packet is incomplete or contradictory, use the
-board → index → handoff → workstream-card route.
-For Full BFM, require the canonical Build Brief and Task Receipt changelog
-decision from `workflow.md` before Ready to ship. Quick and Normal work do not
-create automatic changelog noise.
-For a major user-visible release, Product drafts the entry and asks the user to
-approve its wording before **Ready to ship**. Record the explicit changelog
-approval in the Task Receipt; do not infer it from build approval or **Push
-Live**.
-Persist an unanswered request as `Changelog approval: pending` in the linked
-handoff and board gate. Every later documentation or plugin-guidance review
-must surface it again until the user approves, rejects, or explicitly defers
-it; never infer approval or silently clear the gate.
+## Context and history
 
-- [Workstream-first start and `$bfm` reconciliation](../../docs/fb/start.md)
-- [Source hierarchy, locks, BFM, and closeout](../../docs/fb/workflow.md)
-- [Test This Now and Verification Handoff](../../docs/fb/evidence.md)
-- [Hard stops, parent-only sidechats, recovery, and Loop Learning](../../docs/fb/guardrails.md)
-- [Durable sessions, checkpoints, recall, review, and closeout](../../docs/fb/sessions.md)
-- [Eval selection, authority, Quality Gaps, and revision closure](../../docs/fb/evals.md)
-- [Normalized records, risk review, verification reuse, and metrics](../../docs/fb/records.md)
+Routine reads use genuine active state, not completed narrative. For a known
+task and question, call MCP `fb_project_context` and open only its cited
+authoritative records. The graph is navigation, never a source of truth.
+
+For on-demand historical retrieval, follow the board archive, handoff index,
+exact handoff, QA artifact, changelog, and Git history as relevant. If graph
+results are missing, stale, incomplete, or contradictory, use the canonical
+board → index → exact handoff → workstream-card fallback. Completed history is
+excluded from routine context, not deleted or made inaccessible.
+
+## Shared policy
+
+- Follow [start.md](../../docs/fb/start.md) for first-project guidance and the workstream-to-`$bfm` sequence.
+- Apply [conversation execution authority](../../docs/fb/guardrails.md#execution-authority-by-conversation-context): Product/BFM parents may execute approved scope; workstream parents plan and hand off; sidechats need a named one-use exception and may route only to their originating parent.
+- Follow [workflow.md](../../docs/fb/workflow.md) for ownership, intake, locks, worktrees, private execution routing, budgets, changelog decisions, and closeout.
+- Follow [records.md](../../docs/fb/records.md) for one-fact-one-home records, verification reuse, compact cards, archive safety, and efficiency evidence.
+- Follow [evidence.md](../../docs/fb/evidence.md) for automatic checks, Verification Handoff, and Test This Now.
+- Follow [sessions.md](../../docs/fb/sessions.md), [evals.md](../../docs/fb/evals.md), and [control-loop.md](../../docs/fb/control-loop.md) only when those capabilities apply.
 
 For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must
 judge it.
 
-Use `node tools/fb-lane.cjs status` for state. Claims, submissions, merges, and
-source-changing work are BFM actions after Product clears the approval and lock
-gates. For a durable task, intake is read-only and Product/BFM promotes the
-approved session; submit and completed closeout require the reciprocal receipt,
-validation, verification, and Test This Now evidence. Keep technical command
-names unchanged; do not reproduce the manual here.
-Selected evals start from the approved Build Brief. Keep mechanical evidence
-separate from judgment, never weaken a quality target, and never self-promote
-authority.
+Use focused checks by default. Safety gates always win. A full validator is
+eligible only for an explicit Product-owned release checkpoint. For a major
+user-visible release, `Changelog approval: pending` remains a gate before
+**Ready to ship**. Every later documentation review resurfaces it until the user
+approves, rejects, or explicitly defers it; never silently clear it. Do not
+infer approval from build approval or **Push Live**.

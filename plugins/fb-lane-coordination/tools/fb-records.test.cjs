@@ -93,6 +93,28 @@ test('prospective normalized records pass with one linked authoritative home', (
   assert.deepStrictEqual(validateNormalizedRepository(fixture()), []);
 });
 
+test('normalized records accept approved goal alignment preserved in a board archive', () => {
+  const root = fixture();
+  const boardPath = path.join(root, 'PROJECT_BOARD.md');
+  const board = fs.readFileSync(boardPath, 'utf8');
+  const taskRow = board.match(/^\| TASK-100 \|.*$/m)[0];
+  const taskSection = board.slice(board.indexOf('### TASK-100'));
+  write(root, 'PROJECT_BOARD.md', `# Board
+
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+`);
+  write(root, 'docs/board/archive/2026-08.md', `# Board archive
+
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+${taskRow}
+
+${taskSection}`);
+
+  assert.deepStrictEqual(validateNormalizedRepository(root), []);
+});
+
 test('prospective normalized records reject missing handoff and approved board goal alignment early', () => {
   const findings = validateNormalizedRepository(fixture('TASK-100', { omitGoalAlignment: true }));
   const codes = findings.map(finding => finding.code);
@@ -282,16 +304,21 @@ test('the existing doctor consumes normalized repository findings', () => {
 test('canonical guidance and every installed operating skill route to the records contract', () => {
   const repo = path.resolve(__dirname, '..');
   const records = fs.readFileSync(path.join(repo, 'docs/fb/records.md'), 'utf8');
+  const normalizedRecords = records.replace(/\s+/g, ' ');
   for (const phrase of [
     'each important fact has one authoritative home',
     'record_model: normalized-v1',
+    'Historical compatibility',
+    'apply prospectively',
+    'never invent retrospective',
+    'remain searchable on demand',
     'Other lanes: no impact detected',
     'Verification reuse',
     'Event-driven health checks',
     'Full BFM closeout',
     '30–60% lower',
     'targets to test, not claims to publish',
-  ]) assert.match(records, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), phrase);
+  ]) assert.match(normalizedRecords, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), phrase);
 
   const packageContext = path.basename(path.dirname(repo)) === 'plugins';
   const packageRecords = packageContext

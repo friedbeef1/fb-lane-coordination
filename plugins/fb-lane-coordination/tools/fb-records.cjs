@@ -113,6 +113,8 @@ function validateNormalizedRepository(root) {
   const boardPath = path.join(root, 'PROJECT_BOARD.md');
   const boardMarkdown = fs.existsSync(boardPath) ? fs.readFileSync(boardPath, 'utf8') : '';
   const board = boardRows(boardMarkdown);
+  const boardGoalAlignmentSources = [boardMarkdown, ...markdownFiles(path.join(root, 'docs', 'board', 'archive'))
+    .map(file => fs.readFileSync(file, 'utf8'))];
   for (const handoff of handoffs) {
     const relative = path.relative(root, handoff.file);
     const task = handoff.meta.task;
@@ -126,7 +128,8 @@ function validateNormalizedRepository(root) {
     if (!/^TASK-Q-/i.test(String(task || '')) && !completeHandoffGoalAlignment(handoff.markdown)) {
       findings.push({ code: 'handoff-goal-alignment', file: relative, message: 'Non-quick normalized handoff requires the complete Goal Alignment Session contract.' });
     }
-    if (!/^TASK-Q-/i.test(String(task || '')) && !approvedBoardGoalAlignment(boardTaskSection(boardMarkdown, task))) {
+    if (!/^TASK-Q-/i.test(String(task || ''))
+      && !boardGoalAlignmentSources.some(markdown => approvedBoardGoalAlignment(boardTaskSection(markdown, task)))) {
       findings.push({ code: 'board-goal-alignment', file: 'PROJECT_BOARD.md', message: `${task} requires an approved complete board Goal Alignment Session.` });
     }
     const row = board.get(task);

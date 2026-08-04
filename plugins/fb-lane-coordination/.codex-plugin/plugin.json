@@ -1,6 +1,6 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.5.5-beta+codex.20260803212323",
+  "version": "0.5.6-beta+codex.20260804045203",
   "description": "FB connects six product workstreams to a rules-first control loop, Product-led BFM delivery, automated verification, and explicit release approval.",
   "author": {
     "name": "FB Contributors",
@@ -22,7 +22,7 @@
   "interface": {
     "displayName": "FB",
     "shortDescription": "Six workstreams, one evidence-driven control loop",
-    "longDescription": "FB connects six workstreams—Product/User, Business, Design, Tech, Discovery, and Bugs—to a rules-first control loop. After Product approval, $bfm scans ready handoffs, directs Codex implementation, compares candidates with baselines, runs automated checks and bounded repair, and stops at Ready to ship. Only Push Live authorizes merge or deployment.",
+    "longDescription": "FB connects six workstreams—Product/User, Business, Design, Tech, Discovery, and Bugs—to a rules-first delivery loop. Ready handoffs queue for Product intake. Only $bfm freezes and reconciles that intake, records the delivery plan, directs Codex implementation, runs automated checks and bounded repair, and stops at Ready to ship. Only Push Live authorizes merge or deployment.",
     "developerName": "FB Contributors",
     "category": "Developer Tools",
     "capabilities": [
@@ -34,10 +34,10 @@
     "privacyPolicyURL": "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
     "termsOfServiceURL": "https://docs.github.com/en/site-policy/github-terms/github-terms-of-service",
     "defaultPrompt": [
-      "Start here: use $fb-lane. When a task and question are known, call fb_project_context and open only its relevant cited authoritative records; use the normal board/index fallback when the packet is insufficient. Run doctor if setup looks incomplete, show current status and active locks, then ask what outcome I want to deliver.",
+      "Start here: use $fb-lane. Read bounded current status and current workstream cards first. When a task and question are known, call fb_project_context and open only its relevant cited authoritative records; retrieve completed history through archives, the handoff index, exact handoffs, QA evidence, and Git history only when needed. Run doctor if setup looks incomplete, show current status and active locks, then ask what outcome I want to deliver.",
       "Use $fb-lane to route questions through Product/User, Business, Design, Tech, Discovery, and Bugs. Each relevant workstream should investigate its question, gather evidence, recommend a path, and create a ready handoff MD file; record None relevant instead of inventing work.",
       "On an explicit user request, a main workstream may send a queued fb-workstream-handoff to another. Tell the destination: <Source> handoff queued for <Destination> — planning only; waiting for you. Open: <handoff link>. Keep it idle until the user continues it; any delivery result needs a separate Product-ready handoff. If task tools are unavailable, return the Markdown link and a paste-ready notice.",
-      "Run $bfm only in the Product/BFM main task after Product approval. Scan all six workstreams and ready handoffs, reconcile duplicates, contradictions, dependencies, locks, and the approved goal, then prioritize and direct Codex implementation.",
+      "Run $bfm only in the Product/BFM main task. A ready handoff is queued for Product intake, not approval or execution. $bfm scans all six workstreams, freezes the snapshot, dispositions every candidate, reconciles duplicates, contradictions, dependencies, locks, and the approved goal, then records the prioritized Build Brief before directing Codex implementation.",
       "When the approved Build Brief opts into the generic control loop, use deterministic routing before judgment, preserve the baseline, record flat clone-local evidence, compare named criteria, run distinct required gates, and keep configuration candidates isolated until exact Product approval.",
       "Own automated testing and bounded repair for the exact candidate. For Full BFM, verify the Build Brief and Task Receipt changelog decision before reporting Ready to ship. Then say exactly: Automated checks passed. Optional review links are available above. Say **Push Live** to deploy. Never merge or deploy before Push Live.",
       "Bootstrap this repo for Codex only, preserve the fb-lane-coordination IDs and MCP paths, and add any missing six-workstream guidance. Relay the one-time permission question for six repository-scoped sidebar tasks; after explicit Yes create only missing legacy/current workstreams, leave them idle, and use the honest manual fallback when Codex task inventory or creation is unavailable. Then run doctor and report whether FB is ready."

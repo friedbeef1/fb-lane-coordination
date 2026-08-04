@@ -23,6 +23,8 @@ const {
   visibleStageFor,
   performAutomatedSubmission,
   resolveSubmissionSafetyGate,
+  collectGoalAlignmentSessionWarnings,
+  collectArchivedBoardTasks,
 } = require('./fb-lane.cjs');
 
 let passed = 0;
@@ -67,7 +69,7 @@ assert.deepStrictEqual(
 function assertPublicRouteContract(label, source) {
   const renderedSource = source.replace(/\\`/g, '`');
   assert.match(renderedSource, /start in whichever workstream matches the question/i, `${label} must expose workstream-first intake`);
-  assert.match(renderedSource, /(?:ready handoffs?|handoffs for ready scope)[\s\S]*\$bfm[\s\S]*Product reconcile/i, `${label} must expose the handoff-to-reconciliation boundary`);
+  assert.match(renderedSource, /(?:handoffs? ready for Product\s+intake|ready handoffs?)[\s\S]*\$bfm[\s\S]*(?:Product\s+(?:freezes intake|scans|reconcile)|disposition every candidate)/i, `${label} must expose the handoff-to-reconciliation boundary`);
   assert.doesNotMatch(renderedSource, /\*\*(?:Simple task|Coordinated planning|Approved Build For Me)/i, `${label} must not expose mode choices`);
 }
 
@@ -77,7 +79,7 @@ function assertExactFirstProjectContract(label, source) {
   assert.ok(source.includes(`**Progress:** ${exactProgress}`), `${label} must preserve the approved progress wording`);
   assert.ok(source.includes(`**Blocked:** ${exactBlocked}`), `${label} must keep blocked work actionable`);
   assert.match(source, /## The single public sequence/);
-  assert.match(source, /ready handoffs[\s\S]*`\$bfm`[\s\S]*Product reconciliation[\s\S]*Project Start Brief and Build Brief[\s\S]*Ready to ship[\s\S]*Push Live/i);
+  assert.match(source, /handoff ready for Product intake[\s\S]*`\$bfm`[\s\S]*disposition every candidate[\s\S]*Project Start Brief and Build Brief[\s\S]*BFM implements and verifies[\s\S]*Ready to ship[\s\S]*Push Live/i);
 
   const brief = source.match(/## Project Start Brief\n([\s\S]*?)(?=\n## |\s*$)/);
   assert.ok(brief, `${label} must include Project Start Brief`);
@@ -870,6 +872,59 @@ function runDoctor(root) {
   return spawnSync('node', [cliPath, 'doctor'], { cwd: root, encoding: 'utf8' });
 }
 
+test('historical pre-v3 missing board OKRs are notices while prospective records remain blocking', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-historical-okr-'));
+  const handoffs = path.join(root, 'docs', 'handoffs');
+  fs.mkdirSync(handoffs, { recursive: true });
+  const alignment = `
+## Goal Alignment Session
+
+Lane OKR Fit: aligned
+Mini-loop Evidence: fixture evidence
+Evidence Against Product OKR: None identified
+`;
+  fs.writeFileSync(path.join(handoffs, 'TASK-OLD.md'), `# Historical task\n${alignment}`);
+  fs.writeFileSync(path.join(handoffs, 'TASK-SUPERSEDED.md'), `# Superseded historical task\n${alignment}`);
+  fs.writeFileSync(path.join(handoffs, 'TASK-ACTIVE-LEGACY.md'), `# Active legacy task\n${alignment}`);
+  fs.writeFileSync(path.join(handoffs, 'TASK-NEW.md'), `---
+type: fb-lane-handoff
+task: TASK-NEW
+record_model: normalized-v1
+fb_harness: v3
+---
+# Prospective task
+${alignment}`);
+  try {
+    const findings = collectGoalAlignmentSessionWarnings(handoffs, [
+      { id: 'TASK-SUPERSEDED', status: 'Superseded' },
+      { id: 'TASK-ACTIVE-LEGACY', status: 'In Progress' },
+    ]);
+    assert.deepStrictEqual(findings.historicalCompatibilityNotices, ['TASK-OLD', 'TASK-SUPERSEDED']);
+    assert.deepStrictEqual(findings.missingBoardOkrs, ['TASK-ACTIVE-LEGACY', 'TASK-NEW']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('archived terminal status remains available to historical compatibility checks', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-archived-status-'));
+  const archiveDir = path.join(root, 'docs', 'board', 'archive');
+  fs.mkdirSync(archiveDir, { recursive: true });
+  fs.writeFileSync(path.join(archiveDir, '2026-08.md'), `
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+| TASK-ARCHIVED-1 | Done | Product | History | Archived task | None | Handoff |
+`);
+  try {
+    assert.deepStrictEqual(
+      collectArchivedBoardTasks(root).map(task => [task.id, task.status]),
+      [['TASK-ARCHIVED-1', 'Done']]
+    );
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 function assertCodexBootstrap(args) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-bootstrap-'));
   try {
@@ -932,13 +987,13 @@ function assertCodexBootstrap(args) {
       assert.match(source, /returning-project health[\s\S]*\$fb-lane status/i, `${label} must keep default status for returning health`);
     }
     assert.doesNotMatch(board + agents, /Mode Selection Trigger Rule|normal\/simple|FB light/i, 'generated coordination guidance must not expose internal mode routing');
-    assert.match(agents, /ready scope[\s\S]*approval attaches[\s\S]*before `\$bfm`[\s\S]*Project Start Brief[\s\S]*Build Brief/i, 'generated AGENTS must attach approval to ready scope before post-$bfm reconciliation briefs');
+    assert.match(agents, /handoffs ready for Product\s+intake[\s\S]*ready is neither approval nor execution authority[\s\S]*`\$bfm` freezes[\s\S]*disposition every candidate[\s\S]*Project Start Brief and Build Brief[\s\S]*BFM executes that approved scope/i, 'generated AGENTS must preserve Product intake, disposition, reconciliation briefs, and execution order');
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
     assert.match(output, /starts in whichever workstream matches the question/, 'bootstrap quick start must explain workstream-first intake');
-    assert.match(output, /Relevant workstreams investigate and create ready handoffs/, 'bootstrap quick start must explain relevant workstream output');
-    assert.match(output, /actionable handoffs are ready, say \$bfm[\s\S]*Product scans all six, reconciles and prioritizes/, 'bootstrap quick start must put Product reconciliation after ready handoffs and $bfm');
+    assert.match(output, /Relevant workstreams investigate and create handoffs ready for Product intake/, 'bootstrap quick start must explain relevant workstream output');
+    assert.match(output, /actionable handoffs are ready, say \$bfm[\s\S]*Product scans all six[\s\S]*disposition every candidate[\s\S]*Project Start Brief and Build Brief/, 'bootstrap quick start must preserve Product intake, disposition, and reconciliation after $bfm');
     assert.ok(!output.includes(exactBuildMessage), 'bootstrap completion must not announce that Build For Me execution is starting');
-    assert.match(output, /BFM executes approved scope/, 'bootstrap quick start must describe authorized execution');
+    assert.match(output, /BFM stops at Ready to ship[\s\S]*Push Live/, 'bootstrap quick start must preserve the execution-to-release boundary');
     assert.match(output, /Ready to ship[\s\S]*Push Live/, 'bootstrap quick start must preserve the release boundary');
     assert.match(output, /returning-project health/, 'bootstrap quick start must reserve status for returning-project health');
     assert.match(codexRules, /docs\/fb\/guardrails\.md/, 'Codex rules must route sidechat authority through the harness');

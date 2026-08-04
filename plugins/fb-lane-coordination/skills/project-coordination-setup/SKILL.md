@@ -42,8 +42,10 @@ return paste-ready manual prompts; never simulate success. Bootstrap reruns do
 not repeat the question or overwrite the decision receipt.
 
 The installed [start.md](../../docs/fb/start.md) defines the single public
-workstream-first path. After relevant workstreams create ready handoffs, `$bfm`
-activates Product reconciliation and execution of approved scope.
+workstream-first path. Relevant workstreams create handoffs ready for Product
+intake; ready is queued for Product review, not approval or execution. Only
+`$bfm` freezes the intake, makes Product disposition and sequence every
+candidate, records the Build Brief, and starts execution of the included scope.
 
 The installed [graph.md](../../docs/fb/graph.md) defines graph-directed
 orientation. For a known task and question, agents call MCP
@@ -58,6 +60,10 @@ Open the full board only when that packet is insufficient or contradictory.
 Completed-task closeout mechanically archives older terminal board history
 after the board exceeds 64 KiB, while retaining the three most recent terminal
 rows and every active or blocked row. This adds no user ceremony.
+Completed history remains searchable on demand through the board archive,
+handoff index, exact handoff, QA artifacts, changelog, and Git history; setup
+must never restore old completed narrative to routine orientation merely to
+make it accessible.
 
 - [First-project contract and approval boundary](../../docs/fb/start.md)
 - [Board/index/handoff/workstream roles and execution](../../docs/fb/workflow.md)

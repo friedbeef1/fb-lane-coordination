@@ -34,6 +34,21 @@ archived. Archive files remain durable history; this changes the default read
 path, not the source of truth. Each file write is atomic, and the two-file
 archive transition is safe to retry after interruption.
 
+## Managed workstream projections
+
+Each workstream card has an explicit managed-summary block derived from current
+board lifecycle truth. It shows **Current**, **Next**, **Blocked**, **Recently
+delivered**, and **Historical lookup**. All nonterminal rows for that lane stay
+visible: Ready is Product intake, while Inbox, In Progress, Staging QA, unknown
+active states, and Blocked rows remain eligible rather than being hidden to
+reduce a metric. Recently delivered is capped at the three most recent terminal
+rows; cards link to the handoff index and board archives for on-demand history.
+
+FB refreshes only that managed block after claim, submission, terminal closeout,
+and bootstrap migration. It preserves every project-owned byte outside the
+markers. Read-only status and context calls never rewrite cards, boards, or
+historical records.
+
 ## Why compact context does not hide important work
 
 The active packet is a navigation layer, not a replacement for project truth.
@@ -62,6 +77,25 @@ only the packet's relevant cited sources. The graph is derived navigation;
 these authoritative records remain source of truth. If the packet is missing,
 stale, unhealthy, incomplete, or contradictory, fall back to the board → index
 → handoff → card route and report that fallback.
+
+## Historical compatibility
+
+FB's record requirements apply prospectively. A task created before a field or
+contract existed remains an honest historical record; FB must never invent
+retrospective decisions, approvals, OKRs, evidence, or verification merely to
+make old material resemble a current record.
+
+Historical gaps may be reported as notices so Product understands the evidence
+boundary. They should block current delivery only when the present task depends
+on the missing fact and cannot establish it from authoritative evidence. They
+must not silently become current decisions or automatically make every future
+release fail.
+
+The older records remain searchable on demand through board archives, the
+handoff index, exact handoffs, QA artifacts, changelog entries, and Git history.
+If an old task becomes active again, Product creates or updates a current record
+with evidence-led decisions and links back to the historical source. That is a
+new accountable decision—not a retrofit of the past.
 
 New records opt in with `record_model: normalized-v1`. Doctor checks their
 identity, approval state, board/handoff status consistency, completion links,

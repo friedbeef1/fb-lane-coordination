@@ -4,8 +4,8 @@
 
 **AI Loop Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.5.5-beta**
-(`0.5.5-beta+codex.20260803212323`).
+Current Codex release candidate: **FB 0.5.6-beta**
+(`0.5.6-beta+codex.20260804045203`).
 
 **FB is a Codex plugin that connects six product workstreams in one continuous
 delivery loop. Each workstream investigates part of the problem; `$bfm` brings
@@ -47,7 +47,7 @@ Codex use, not defects in Codex itself.
 | Codex issue | Codex problem solved by FB |
 |---|---|
 | Important decisions remain scattered across chats | FB turns actionable decisions and evidence into repository-local handoff MD files. |
-| Codex may start building before the goal and boundaries are clear | FB requires relevant workstream handoffs and approved ready scope before `$bfm`; Product records the consolidated Project Start Brief and Build Brief during reconciliation after invocation. |
+| Codex may start building before the goal and boundaries are clear | FB queues ready handoffs for Product intake; `$bfm` then freezes the intake, reconciles it, and records the consolidated Project Start Brief and Build Brief before execution. |
 | User evidence, decisions, and AI assumptions can become mixed together | Product/User records each category separately before implementation. |
 | Outputs from several Codex tasks must be combined manually | `$bfm` scans ready handoffs across all six workstreams, reconciles conflicts, and sequences the work. |
 | Failed checks can return responsibility to the user | FB runs automated checks and owns bounded diagnosis and repair. |
@@ -141,10 +141,18 @@ does not start automatically. When you continue it, Design investigates and
 can later create a separate Product-ready handoff; the queued artifact itself
 never enters `$bfm`.
 
-When actionable ready handoffs exist, the user says `$bfm`. Product then scans
-all six, reconciles and prioritizes, creates the Project Start Brief plus Build
-Brief, and BFM executes already-approved scope; see [the start
-contract](docs/fb/start.md).
+When actionable ready handoffs exist, the user says `$bfm`. Product then
+freezes an intake snapshot, dispositions every candidate, reconciles and
+prioritizes the included work, and creates the Project Start Brief plus Build
+Brief before BFM executes that consolidated scope; see [the start
+contract](docs/fb/start.md). A ready handoff is queued for Product intake, not
+approval or execution authority.
+
+Routine orientation reads genuine current state through the compact board
+packet and current workstream cards. Completed history is not discarded: when
+it matters, FB follows the archive, handoff index, exact handoff, QA evidence,
+and Git history on demand. See [durable records](docs/fb/records.md) and
+[graph-directed historical retrieval](docs/fb/graph.md#historical-retrieval).
 For substantial work, FB plans a dependency graph up front and breaks the
 outcome into small verifiable slices. After `$bfm`, FB automatically creates or
 reuses a linked worktree for every independent source-changing slice and can run
@@ -168,7 +176,7 @@ codex plugin add fb-lane-coordination@fb-lane
 1. Open your project in Codex and say: `Set up FB in this project.`
 2. Discuss your goal or question in the relevant workstream chats. This keeps different concerns clear without forcing every workstream to participate.
 3. When a discussion becomes actionable, say: `Create a handoff MD for Product/BFM.` This preserves the recommendation and evidence outside the chat.
-4. Say `$bfm`. Product scans all six workstreams, reconciles ready handoffs, prioritizes the sequence, and directs Codex implementation.
+4. Say `$bfm`. Product freezes the six-workstream intake, dispositions every candidate, reconciles conflicts, records one prioritized plan and Build Brief, and only then directs Codex implementation.
 5. FB runs automated checks and owns bounded repair. Review optional links only when useful.
 6. When FB reports **Ready to ship**, say **Push Live** to authorize merge and deployment.
 

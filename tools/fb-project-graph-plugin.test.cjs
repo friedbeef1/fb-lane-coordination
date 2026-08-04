@@ -110,6 +110,35 @@ test('unknown task returns the normal authoritative route instead of guessing', 
   ]);
 });
 
+test('insufficient graph evidence returns the ordered authoritative route for a known task', () => {
+  const root = fixture();
+  write(root, 'PROJECT_BOARD.md', `# Board
+
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+| TASK-200 | In Progress | FB-Tech | Navigation | Route focused context | none | None |
+`);
+  write(root, 'docs/handoffs/index.md', '# Index\n\n[TASK-200 record](TASK-200-record.md)\n');
+  write(root, 'docs/handoffs/TASK-200-record.md', '# TASK-200 record\n');
+  fs.unlinkSync(path.join(root, 'docs/handoffs/TASK-200.md'));
+
+  const packet = projectContextPacket(root, {
+    taskId: 'TASK-200',
+    question: 'What decision governs TASK-200?',
+  });
+
+  assert.strictEqual(packet.route, 'normalized-record-fallback');
+  assert.match(packet.reason, /insufficient/i);
+  assert.deepStrictEqual(packet.readableSources, [
+    'PROJECT_BOARD.md',
+    'docs/handoffs/index.md',
+    'docs/handoffs/TASK-200-record.md',
+  ]);
+  assert.deepStrictEqual(packet.citations, packet.readableSources);
+  assert.ok(packet.instructions.some(instruction => /Git history/i.test(instruction)));
+  assert.ok(!packet.readableSources.some(source => /git:/i.test(source)));
+});
+
 test('bundled MCP lists and serves the read-only project context tool', () => {
   const root = fixture();
   const requests = [
