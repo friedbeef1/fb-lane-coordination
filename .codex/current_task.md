@@ -17,7 +17,7 @@ handoffs, QA evidence, changelog entries, and Git history.
 ## Next Gate
 
 James approved the historical compatibility repair. Focused root/package CLI,
-package parity, syntax, and whitespace checks pass: pre-v3 gaps remain visible
-notices while active and v3/normalized records still block. The next gate is one
+package parity, syntax, and whitespace checks pass: archived terminal gaps
+remain visible notices while active records still block. The next gate is one
 new explicitly approved release checkpoint. Merge, marketplace publication,
 reinstall, and deployment still require **Push Live**.

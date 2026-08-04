@@ -158,12 +158,13 @@ collector now distinguishes current obligations from historical absence:
 | Active board task without approved OKRs | blocking warning |
 | `fb_harness: v3` or `record_model: normalized-v1` without approved OKRs | blocking warning |
 | Focused historical boundary regression | root/package pass, including superseded and active legacy cases |
-| Root CLI suite | 71/71 pass |
-| Packaged CLI suite | 71/71 pass |
+| Root CLI suite | 72/72 pass |
+| Packaged CLI suite | 72/72 pass |
 | Package mirrors | 58/58 synchronized |
 | Affected Node syntax | pass |
 | Whitespace | pass |
 
 This repair does not retrofit historical decisions or weaken prospective
-requirements. One new release checkpoint remains before the candidate can
-claim **Ready to ship**.
+requirements. Doctor now reports all prospective OKR checks green; its only
+pre-commit warning is the intentionally dirty candidate worktree. One new
+release checkpoint remains before the candidate can claim **Ready to ship**.

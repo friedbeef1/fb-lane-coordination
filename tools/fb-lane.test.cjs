@@ -24,6 +24,7 @@ const {
   performAutomatedSubmission,
   resolveSubmissionSafetyGate,
   collectGoalAlignmentSessionWarnings,
+  collectArchivedBoardTasks,
 } = require('./fb-lane.cjs');
 
 let passed = 0;
@@ -900,6 +901,25 @@ ${alignment}`);
     ]);
     assert.deepStrictEqual(findings.historicalCompatibilityNotices, ['TASK-OLD', 'TASK-SUPERSEDED']);
     assert.deepStrictEqual(findings.missingBoardOkrs, ['TASK-ACTIVE-LEGACY', 'TASK-NEW']);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('archived terminal status remains available to historical compatibility checks', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-lane-archived-status-'));
+  const archiveDir = path.join(root, 'docs', 'board', 'archive');
+  fs.mkdirSync(archiveDir, { recursive: true });
+  fs.writeFileSync(path.join(archiveDir, '2026-08.md'), `
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+| TASK-ARCHIVED-1 | Done | Product | History | Archived task | None | Handoff |
+`);
+  try {
+    assert.deepStrictEqual(
+      collectArchivedBoardTasks(root).map(task => [task.id, task.status]),
+      [['TASK-ARCHIVED-1', 'Done']]
+    );
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

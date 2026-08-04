@@ -125,12 +125,13 @@ and fresh-task behavior are not claimed before their explicit gates.
 ### Approved historical compatibility repair
 
 - **Decision:** James approved prospective enforcement with visible,
-  non-blocking notices for missing modern fields in pre-v3 historical records.
-- **Behavior:** Active board tasks and v3 or `normalized-v1` handoffs remain
-  blocking when required Goal Alignment or approved board OKRs are missing.
+  non-blocking notices for missing modern fields in terminal historical records.
+- **Behavior:** Active board tasks remain blocking when required Goal Alignment
+  or approved board OKRs are missing. Doctor resolves archived terminal status
+  from the durable board archive instead of mistaking archived work for current.
 - **Historical access:** Old records remain searchable and are never assigned
   invented retrospective OKRs.
-- **Focused evidence:** Root and packaged CLI suites pass 71/71, all 58 package
+- **Focused evidence:** Root and packaged CLI suites pass 72/72, all 58 package
   mirrors agree, affected Node syntax passes, and whitespace passes.
 
 ## Product/BFM Closeout

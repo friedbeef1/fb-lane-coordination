@@ -1130,6 +1130,15 @@ function parseBoard(boardPath) {
   return { content, tasks };
 }
 
+function collectArchivedBoardTasks(rootDir) {
+  const archiveDir = path.join(rootDir, 'docs', 'board', 'archive');
+  if (!fs.existsSync(archiveDir)) return [];
+  return fs.readdirSync(archiveDir, { withFileTypes: true })
+    .filter(entry => entry.isFile() && entry.name.endsWith('.md'))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .flatMap(entry => parseBoard(path.join(archiveDir, entry.name)).tasks);
+}
+
 function parseDetailLines(lines) {
   const detailStr = lines.join('\n');
   const statusMatch = detailStr.match(/\*\s+\*\*Status\*\*:\s*(.*)/i);
@@ -1732,7 +1741,11 @@ function handleDoctor() {
       } else {
         add('ok', 'Handoff index', 'Handoff lookup is present or not needed yet.');
       }
-      const goalAlignmentSessionWarnings = collectGoalAlignmentSessionWarnings(path.join(rootDir, 'docs', 'handoffs'), parsedTasks);
+      const historicalTasks = collectArchivedBoardTasks(rootDir);
+      const goalAlignmentSessionWarnings = collectGoalAlignmentSessionWarnings(
+        path.join(rootDir, 'docs', 'handoffs'),
+        [...parsedTasks, ...historicalTasks]
+      );
       if (goalAlignmentSessionWarnings.historicalCompatibilityNotices.length > 0) {
         add(
           'notice',
@@ -3567,6 +3580,7 @@ module.exports = {
   scanWorkstreamHandoffs,
   collectLifecycleFindings,
   collectGoalAlignmentSessionWarnings,
+  collectArchivedBoardTasks,
   renderBoardContext,
   compactBoardFiles,
   completeBoardTask,
