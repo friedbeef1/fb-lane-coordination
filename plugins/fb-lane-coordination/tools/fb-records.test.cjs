@@ -304,16 +304,21 @@ test('the existing doctor consumes normalized repository findings', () => {
 test('canonical guidance and every installed operating skill route to the records contract', () => {
   const repo = path.resolve(__dirname, '..');
   const records = fs.readFileSync(path.join(repo, 'docs/fb/records.md'), 'utf8');
+  const normalizedRecords = records.replace(/\s+/g, ' ');
   for (const phrase of [
     'each important fact has one authoritative home',
     'record_model: normalized-v1',
+    'Historical compatibility',
+    'apply prospectively',
+    'never invent retrospective',
+    'remain searchable on demand',
     'Other lanes: no impact detected',
     'Verification reuse',
     'Event-driven health checks',
     'Full BFM closeout',
     '30–60% lower',
     'targets to test, not claims to publish',
-  ]) assert.match(records, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), phrase);
+  ]) assert.match(normalizedRecords, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), phrase);
 
   const packageContext = path.basename(path.dirname(repo)) === 'plugins';
   const packageRecords = packageContext

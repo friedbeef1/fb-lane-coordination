@@ -78,6 +78,25 @@ these authoritative records remain source of truth. If the packet is missing,
 stale, unhealthy, incomplete, or contradictory, fall back to the board → index
 → handoff → card route and report that fallback.
 
+## Historical compatibility
+
+FB's record requirements apply prospectively. A task created before a field or
+contract existed remains an honest historical record; FB must never invent
+retrospective decisions, approvals, OKRs, evidence, or verification merely to
+make old material resemble a current record.
+
+Historical gaps may be reported as notices so Product understands the evidence
+boundary. They should block current delivery only when the present task depends
+on the missing fact and cannot establish it from authoritative evidence. They
+must not silently become current decisions or automatically make every future
+release fail.
+
+The older records remain searchable on demand through board archives, the
+handoff index, exact handoffs, QA artifacts, changelog entries, and Git history.
+If an old task becomes active again, Product creates or updates a current record
+with evidence-led decisions and links back to the historical source. That is a
+new accountable decision—not a retrofit of the past.
+
 New records opt in with `record_model: normalized-v1`. Doctor checks their
 identity, approval state, board/handoff status consistency, completion links,
 supersession links, and compact-card boundaries. Historical records remain
