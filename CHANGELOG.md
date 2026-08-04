@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.5.6-beta — 2026-08-04
+
+Build: `0.5.6-beta+codex.20260804045203`
+
+**What changed:** FB now keeps routine orientation focused on genuine active
+state. Current board packets and workstream cards show current, next, blocked,
+and recently delivered work, while older completed records move to durable
+monthly archives. Product also treats every `ready` workstream handoff as
+queued for intake: only `$bfm` freezes the snapshot, dispositions and
+prioritizes every candidate, records the consolidated Build Brief, and starts
+execution.
+
+**Why it matters:** Product/BFM can start with materially less repeated history
+without losing important context. Completed decisions, verification, and
+release evidence remain searchable on demand through the board archive,
+handoff index, exact handoff, QA artifact, changelog, and Git history.
+
+**Compatibility:** Existing six-workstream projects, historical handoffs,
+boards, archives, commands, plugin and MCP identifiers, worktrees, and **Push
+Live** authority remain compatible. Bootstrap reruns update only managed FB
+routes and summaries; project-owned instructions remain untouched.
+
+**Installation or upgrade:** Upgrade the `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, rerun `Set up FB in this project` where managed
+routes need refreshing, and start a new Codex task so the updated skills and
+MCP server are loaded.
+
+**Changelog approval:** Pending — James must approve this wording before the
+release checkpoint can report **Ready to ship**.
+
 ## 0.5.5-beta — 2026-08-04
 
 Build: `0.5.5-beta+codex.20260803212323`

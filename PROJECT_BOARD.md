@@ -13,10 +13,45 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-072 | Staging QA | FB-Product / BFM | Lifecycle truth, historical retrieval, and FB 0.5.6-beta | Keep routine orientation current-state only while preserving complete on-demand history; prepare `0.5.6-beta+codex.20260804045203` | Active docs, Product/BFM/setup/coordination skills, package mirrors, release metadata, changelog; no runtime identifiers | [Handoff](docs/handoffs/TASK-072.md); [QA](docs/qa/TASK-072.md); changelog approval pending |
 | TASK-071 | Done | FB-Product / BFM | Cross-workstream planning handoffs | Queue cross-workstream planning and keep routine circuit-breaker recovery with Product/BFM | Published and installed as `0.5.5-beta+codex.20260803212323` | [Handoff](docs/handoffs/TASK-071.md); [QA](docs/qa/TASK-071.md); PR #54 merged as `2c3dc4c` |
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-072 - Lifecycle truth and historical retrieval
+
+*   **Status**: Checking — changelog approval needed for
+    `0.5.6-beta+codex.20260804045203`.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Area**: Active-state orientation, lifecycle reconciliation, archived
+    retrieval, and plugin release guidance.
+*   **Scope**: Reconcile historical Staging QA truth; keep active board packets
+    and workstream cards compact; preserve exact archives, handoffs, QA, and Git
+    retrieval; align Product/BFM/setup/coordination guidance and release
+    metadata.
+*   **Out of Scope**: Technical identifier changes, automatic deletion,
+    publication, merge, marketplace upgrade, reinstall, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reduce routine orientation overhead without hiding or
+        weakening durable historical evidence.
+    *   **Key Results**: Zero unsupported lifecycle closure; current packets
+        contain genuine active state; all 21 reconciled tasks remain exactly
+        retrievable; ready remains Product intake rather than execution; root
+        and package guidance agree.
+    *   **Definition of Done**: Focused lifecycle, board, graph, onboarding,
+        metadata, parity, syntax, link, and whitespace checks pass; changelog
+        wording is approved; the one final release validator then passes.
+    *   **Gate / Review Point**: James approves the drafted 0.5.6-beta
+        changelog before the release checkpoint.
+    *   **Approval**: approved.
+    *   **Justification**: James explicitly approved execution of the lifecycle
+        truth and historical retrieval plan in this Product/BFM parent task.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-072.md) ·
+    [QA](docs/qa/TASK-072.md) ·
+    [changelog draft](CHANGELOG.md#056-beta--2026-08-04).
 
 ---
 

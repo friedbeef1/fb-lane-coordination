@@ -30,7 +30,8 @@ actionable workstream handoffs are ready and the user says `$bfm`. Product is
 not the universal coordinator at intake; Product/User is selected only for user
 needs, user outcomes, requirements, feedback, acceptance criteria, or product
 priority questions. Read [the workstream-first start contract](../../docs/fb/start.md),
-then board truth, handoff routing, linked detail, and workstream summaries.
+then bounded current board truth, handoff routing, linked detail, and current
+workstream summaries.
 
 Apply the canonical [execution authority by conversation
 context](../../docs/fb/guardrails.md#execution-authority-by-conversation-context).
@@ -48,6 +49,12 @@ broad orientation and open only its relevant cited sources. The graph routes to
 authoritative records; it is not a source of truth. Use the board → index →
 handoff → card fallback when the packet says fallback or is incomplete,
 ambiguous, or contradictory.
+
+Routine orientation reads genuine active state. When a prior decision,
+regression, release, or user request makes completed work relevant, retrieve it
+on demand through the board archive, handoff index, exact handoff, QA artifact,
+changelog, and Git history. Historical availability never makes every completed
+record part of the default Product prompt.
 
 The one delivery loop has six planning/evidence workstreams in canonical order:
 Product/User (technical slug `product`), Business, Design, Tech, Discovery, and

@@ -70,9 +70,9 @@ missing.
 
 After actionable workstream handoffs are ready for Product intake, `$bfm`
 activates Product reconciliation. It does not authorize execution from ready
-status. Read [the FB harness](../../docs/fb/README.md), then
-board truth, the handoff index, task-linked handoffs, and applicable workstream
-cards.
+status. Read [the FB harness](../../docs/fb/README.md), then use bounded current
+board truth, the handoff index, task-linked handoffs, and applicable current
+workstream cards.
 
 Apply the canonical [execution authority by conversation
 context](../../docs/fb/guardrails.md#execution-authority-by-conversation-context).
@@ -100,6 +100,12 @@ orientation and open only its relevant cited sources. The graph routes to
 authoritative records; it is not a source of truth. Use the board → index →
 handoff → card fallback when the packet says fallback or is incomplete,
 ambiguous, or contradictory.
+
+Routine BFM orientation reads genuine active state. Retrieve completed work on
+demand when a predecessor, regression, shared surface, release, conflict, or
+explicit user question requires it: follow the board archive, index, exact
+handoff, QA artifact, changelog, and Git history. Do not rehydrate unrelated
+completed narrative into every intake.
 
 The one loop has six planning/evidence workstreams: Product/User (technical slug
 `product`), Business, Design, Tech, Discovery, and Bugs. Each workstream runs a

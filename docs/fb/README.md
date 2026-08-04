@@ -30,7 +30,10 @@ Read the smallest relevant layer, in this order:
 6. These FB pages — reusable operating policy; they do not replace project facts.
 
 Completed board history is preserved in monthly Markdown archives after the
-board crosses its size threshold. See
+board crosses its size threshold. Routine orientation therefore reads genuine
+current state. When earlier work matters, follow the archive, index, exact
+handoff, QA artifact, and Git history through the
+[historical retrieval route](graph.md#historical-retrieval). See also
 [why compact context does not hide important work](records.md#why-compact-context-does-not-hide-important-work).
 
 `AGENTS.md` is a navigator into this pack. Project rules and task-specific
@@ -41,8 +44,10 @@ instructions take precedence when they are stricter.
 When planning or evidence is useful, start in whichever workstream matches the
 question. Product/User is selected only for user needs, outcomes, requirements,
 feedback, acceptance criteria, or product priorities. Relevant workstreams
-create ready handoffs. After those handoffs are ready, the user says `$bfm` to
-activate Product reconciliation and execution of approved scope. FB keeps its
+create handoffs ready for Product intake. Ready means queued for Product
+review, not approval or execution. Only `$bfm` freezes that intake, makes
+Product disposition and sequence every candidate, records the consolidated
+Build Brief, and then starts execution of the included scope. FB keeps its
 risk and execution classification internal; the user never chooses a mode.
 See [start.md](start.md) for the public sequence and [workflow.md](workflow.md)
 for internal execution budgets and stop predicates.

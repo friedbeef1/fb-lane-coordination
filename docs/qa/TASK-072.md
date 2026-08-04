@@ -75,3 +75,47 @@ alongside every archived task row and detail record.
   character active-context packet above.
 - `node tools/fb-lane.cjs doctor` completed successfully.
 - `git diff --check` completed successfully.
+
+## FB 0.5.6-beta release slice
+
+Release candidate: `0.5.6-beta+codex.20260804045203`
+
+### TDD evidence
+
+- The new lifecycle/history release contract failed first because the active
+  manifest still exposed `0.5.5-beta+codex.20260803212323`.
+- After canonical implementation, the root and packaged contracts both passed
+  for the exact 0.5.6-beta build.
+- Focused skill checks found two wording gaps introduced by the coordination
+  skill reduction: explicit source-of-truth language and the canonical beginner
+  pause-card route. One bounded wording repair restored both contracts without
+  re-expanding the operating manual.
+
+### Focused results
+
+| Proof | Result |
+|---|---|
+| Six-workstream runtime contract | pass |
+| Board context and lifecycle diagnostics | 12/12 pass |
+| Project graph and archived retrieval | 13/13 pass |
+| Packaged graph/MCP guidance | 7/7 pass after focused wording repair |
+| Beginner experience | 11/11 pass after focused wording repair |
+| Lifecycle/history release contract | root and package pass |
+| Plugin metadata contract | root and package pass |
+| Package mirrors | 58 declared mirrors synchronized |
+| Changed Markdown links and anchors | 23/23 files pass |
+| Affected JavaScript and JSON syntax | pass |
+| Whitespace | pass |
+| Doctor | exit 0; historical pre-v3 OKR warning remains, release worktree intentionally dirty before commit |
+
+The frequently loaded coordination skill fell from 915 to 472 words while
+retaining distinct workstream, `$bfm`, sidechat, safety, changelog, current
+orientation, and historical retrieval boundaries.
+
+### Open release gate
+
+- Changelog approval: pending — [0.5.6-beta draft](../../CHANGELOG.md#056-beta--2026-08-04).
+- The complete release validator has intentionally not run. It becomes eligible
+  only after James approves or revises the changelog wording.
+- Push, merge, marketplace publication, reinstall, and deployment remain
+  unauthorized.
