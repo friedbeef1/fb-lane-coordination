@@ -64,9 +64,8 @@ Release checkpoint: authorized after changelog approval
 - **External gates:** Final release validator is now authorized;
   publication, merge, marketplace upgrade, reinstall, and deployment remain
   unauthorized.
-- **Remaining owner/action:** Product runs one newly authorized release
-  checkpoint after the approved compatibility repair; do not invent
-  retrospective OKRs.
+- **Remaining owner/action:** James says **Push Live** to authorize merge,
+  marketplace publication, reinstall, and active-install verification.
 
 ## Brief Validation
 
@@ -75,8 +74,8 @@ Status: pass
 - **Satisfied:** Lifecycle reconciliation is evidence-led; active state stays
   visible; historical records remain exact and queryable; ready semantics and
   `$bfm` authority are explicit.
-- **Missing:** Final release-validator evidence before **Ready to ship**.
-- **Next action:** Run the one authorized release checkpoint.
+- **Missing:** None before **Ready to ship**.
+- **Next action:** Wait for **Push Live**.
 
 ## Verification Handoff
 
@@ -84,8 +83,20 @@ Candidate: `codex/TASK-072-lifecycle-history` at the committed release slice.
 System verification: focused lifecycle, board-context, project-graph,
 six-workstream, beginner-experience, metadata, package parity, syntax, link,
 and whitespace checks are recorded in [TASK-072 QA](../qa/TASK-072.md).
-Known limits: The complete release validator, publication, active installation,
-and fresh-task behavior are not claimed before their explicit gates.
+Known limits: Publication, active installation, and fresh-task behavior are not
+claimed before **Push Live**.
+
+### Final successful release checkpoint
+
+The one newly approved checkpoint passed without a repair loop:
+
+- root CLI: 72/72;
+- focused sessions: 39/39;
+- evals: 18/18;
+- beginner experience: 11/11;
+- efficiency: 25/25;
+- positioning and two-speed contracts: pass;
+- 58 package mirrors, Doctor, syntax, and whitespace: pass.
 
 ### Release checkpoint failure evidence
 
@@ -136,8 +147,8 @@ and fresh-task behavior are not claimed before their explicit gates.
 
 ## Product/BFM Closeout
 
-Status: Checking — historical compatibility repair verified.
+Status: Ready to ship — release checkpoint passed.
 Actioned By: FB-Product / BFM.
 Result: The local candidate keeps routine orientation current-state focused and
 preserves complete on-demand historical retrieval.
-Remaining: One new release checkpoint; **Push Live** remains separate.
+Remaining: **Push Live** remains the separate merge and publication authority.

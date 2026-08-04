@@ -165,6 +165,24 @@ collector now distinguishes current obligations from historical absence:
 | Whitespace | pass |
 
 This repair does not retrofit historical decisions or weaken prospective
-requirements. Doctor now reports all prospective OKR checks green; its only
-pre-commit warning is the intentionally dirty candidate worktree. One new
-release checkpoint remains before the candidate can claim **Ready to ship**.
+requirements. Doctor now reports all prospective OKR checks green.
+
+### Final release checkpoint
+
+James approved one new checkpoint on 2026-08-04. It passed without a repair
+loop:
+
+| Gate | Result |
+|---|---|
+| Root CLI | 72/72 pass |
+| Focused sessions | 39/39 pass |
+| Evals | 18/18 pass |
+| Beginner experience | 11/11 pass |
+| Efficiency | 25/25 pass |
+| Positioning and two-speed | pass |
+| Package mirrors | 58/58 pass |
+| Doctor | Ready |
+| Syntax and whitespace | pass |
+
+The candidate is **Ready to ship**. Merge, marketplace publication, reinstall,
+and active-install verification still require **Push Live**.

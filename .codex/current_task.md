@@ -1,7 +1,7 @@
 # Active Task Context
 * **Current Task**: TASK-072
 * **Lane**: FB-Product / BFM
-* **Status**: Checking — historical compatibility repair verified
+* **Status**: Ready to ship — release checkpoint passed
 * **BFM Class**: Full BFM release candidate
 * **Feature Branch**: `codex/TASK-072-lifecycle-history`
 * **Release Candidate**: `0.5.6-beta+codex.20260804045203`
@@ -16,8 +16,7 @@ handoffs, QA evidence, changelog entries, and Git history.
 
 ## Next Gate
 
-James approved the historical compatibility repair. Focused root/package CLI,
-package parity, syntax, and whitespace checks pass: archived terminal gaps
-remain visible notices while active records still block. The next gate is one
-new explicitly approved release checkpoint. Merge, marketplace publication,
-reinstall, and deployment still require **Push Live**.
+James approved the historical compatibility repair and the single release
+checkpoint passed. Archived terminal gaps remain non-blocking and searchable;
+active records still enforce current requirements. The only remaining gate is
+**Push Live** for merge, marketplace publication, reinstall, and deployment.
