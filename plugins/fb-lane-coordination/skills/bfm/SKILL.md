@@ -210,10 +210,15 @@ slice reveals unexpected complexity, keep completed slices and resplit only the
 remaining work.
 After a focused failure, create one fresh delta repair packet. Include the
 failed criterion and proof, changed files, candidate reference, relevant decisions,
-and one concrete correction. Start a fresh repair worker rather than resuming
+and one concrete correction. Require the smallest **sufficient and causally
+relevant** correction, not the smallest diff: it must address the diagnosed
+cause, pass the original failed scenario, add or pass a focused regression, and
+materially improve behavior or evidence without weakening the eval or moving
+the failure elsewhere. Start a fresh repair worker rather than resuming
 accumulated conversation context, then rerun only the failed proof. If there is
 no concrete correction, no candidate change, or no readiness improvement, stop
-and classify it as a harness failure; do not broaden diagnosis automatically.
+after one no-progress cycle and classify it as a harness failure; do not broaden
+diagnosis automatically.
 Product direction is not automatically a user prompt. When a circuit breaker
 has a concrete cause and the correction stays inside approved scope without a
 changed user decision or safety/hard gate, Product/BFM owns one bounded

@@ -13,11 +13,40 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-073 | Staging QA | FB-Product / BFM | Evaluation results and meaningful repair | Show objective/subjective eval results clearly and reject superficial repair loops | Eval guidance, BFM skill, generated plugin mirrors, focused eval contract | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); isolated candidate awaiting Product integration |
 | TASK-072 | Done | FB-Product / BFM | Lifecycle truth, historical retrieval, and FB 0.5.6-beta | Keep routine orientation current-state only while preserving complete on-demand history; publish `0.5.6-beta+codex.20260804045203` | None; published and installed | [Handoff](docs/handoffs/TASK-072.md); [QA](docs/qa/TASK-072.md); [PR #56](https://github.com/friedbeef1/fb-lane-coordination/pull/56) merged as `894d4a1`; exact build installed and enabled |
 | TASK-071 | Done | FB-Product / BFM | Cross-workstream planning handoffs | Queue cross-workstream planning and keep routine circuit-breaker recovery with Product/BFM | Published and installed as `0.5.5-beta+codex.20260803212323` | [Handoff](docs/handoffs/TASK-071.md); [QA](docs/qa/TASK-071.md); PR #54 merged as `2c3dc4c` |
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-073 - Evaluation results and meaningful repair
+
+*   **Status**: Staging QA — focused root/package eval contract passes; isolated
+    candidate awaits Product integration.
+*   **Owner / Thread**: FB-Product / BFM, named one-off sidechat exception.
+*   **Area**: Eval result visibility and repair quality.
+*   **Scope**: Distinguish eval definitions from evaluation results; add a
+    compact result table; require sufficient, causally relevant repairs,
+    original-scenario rerun, focused regression proof, and no-progress stop.
+*   **Out of Scope**: New semantic judge, numeric score, automatic eval
+    promotion, plugin version change, publication, merge, or reinstall.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make eval outcomes understandable while preventing
+        cosmetic repairs that merely circle a failed criterion.
+    *   **Key Results**: Root/package guidance agrees; selected results link to
+        evidence and delivery effect; superficial repairs fail the contract.
+    *   **Definition of Done**: Focused root/package eval tests, 58-mirror
+        parity, syntax, and whitespace pass.
+    *   **Gate / Review Point**: Product integrates this isolated candidate in
+        the next normal repository cycle.
+    *   **Approval**: approved.
+    *   **Justification**: James explicitly confirmed the named one-off
+        sidechat documentation and plugin update.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-073.md) ·
+    [QA](docs/qa/TASK-073.md).
 
 ---
 

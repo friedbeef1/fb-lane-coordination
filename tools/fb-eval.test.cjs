@@ -614,6 +614,25 @@ ${selected}`;
   }
 });
 
+test('eval guidance reports results clearly and requires meaningful repairs', () => {
+  const evalGuide = fs.readFileSync(path.join(containingRoot, 'docs', 'fb', 'evals.md'), 'utf8');
+  const bfmSkill = fs.readFileSync(path.join(containingRoot, 'skills', 'bfm', 'SKILL.md'), 'utf8');
+  assert.match(evalGuide, /^## Evaluation results$/m);
+  assert.match(evalGuide, /\| Eval \| (?:Kind|Judgment) \| Authority \| Result \| Evidence \| Effect \|/);
+  assert.match(evalGuide, /An \*\*eval\*\* is the measuring instrument/i);
+  assert.match(evalGuide, /An \*\*evaluation\*\* is the process/i);
+  assert.match(evalGuide, /smallest \*\*sufficient and causally\s+relevant\*\*\s+correction/i);
+  assert.match(evalGuide, /original\s+failed\s+scenario/i);
+  assert.match(evalGuide, /focused\s+regression/i);
+  assert.match(evalGuide, /material(?:ly)? (?:improv\w*|chang\w*)/i);
+  assert.match(evalGuide, /no-progress/i);
+  assert.match(evalGuide, /must not (?:weaken|move|displace)/i);
+  assert.match(bfmSkill, /smallest \*\*sufficient and causally\s+relevant\*\*\s+correction/i);
+  assert.match(bfmSkill, /original\s+failed\s+scenario/i);
+  assert.match(bfmSkill, /focused\s+regression/i);
+  assert.match(bfmSkill, /no-progress/i);
+});
+
 for (const [name, fn] of tests) {
   try {
     fn();

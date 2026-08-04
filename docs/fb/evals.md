@@ -63,6 +63,28 @@ nonblocking, requires an advisory fix or explanation, and blocks unresolved
 blocking or mechanical failures. Board, handoff, eval record, session recap,
 and Git must agree.
 
+## Evaluation results
+
+An **eval** is the measuring instrument: one named scenario, quality target,
+and pass condition. An **evaluation** is the process of selecting one or more
+evals, applying them to a candidate, examining their evidence, recording the
+results, and deciding what happens next.
+
+An eval definition is not a result. A result is candidate-specific and must
+link to evidence. Use this compact view in the Verification Handoff or Task
+Receipt when several selected evals need a readable summary; it links to the
+authoritative Eval Records rather than replacing them.
+
+| Eval | Kind | Authority | Result | Evidence | Effect |
+|---|---|---|---|---|---|
+| Direct review link | Objective | Mechanical | Pass | Linked QA check | Continue |
+| Required fields | Objective | Blocking | Fail | Validator output | Repair required |
+| Visual polish | Subjective | Advisory | Needs improvement | Linked screenshots | Product review |
+
+The flow is: `eval definition → candidate → result → evidence → delivery
+decision`. A result without evidence is only a claim; an eval without a result
+is only a definition.
+
 ## Failure and revision loop
 
 Before revision, classify the failure as `Build failure`, `Brief failure`,
@@ -80,9 +102,24 @@ Every Quality Gap field uses the same curated privacy boundary as its Eval
 Record. Never place secrets, credentials, tokens, private reasoning, chain of
 thought, or raw transcripts in gap descriptions or evidence requirements.
 
-BFM continues the scoped loop until pass or until scope, time, or direction
-requires a user decision. Close a prior failure only when the original scenario
-passes, is explicitly deferred, or is superseded by an approved brief revision.
+For a Build failure, make the smallest **sufficient and causally relevant**
+correction, not the smallest diff. Before editing, record the diagnosed cause,
+the concrete correction, and the expected observable change. The repair is
+meaningful only when it addresses that cause, materially improves source,
+behavior, evidence, blocker recovery, or an approved decision, passes the
+original failed scenario, and adds or passes a focused regression check. It
+must not weaken the eval, special-case only the fixture, move or displace the
+failure, or compromise the approved product outcome.
+
+Compare every repair candidate with the previous one. If the expected behavior
+and evidence did not materially change, record one no-progress cycle and stop;
+do not spend another iteration circling the same symptom. A passed original
+scenario plus focused regression evidence stops the loop immediately.
+
+BFM continues the bounded scoped loop until pass or until its repair budget,
+scope, time, no-progress rule, or direction requires a Product decision. Close
+a prior failure only when the original scenario passes, is explicitly deferred,
+or is superseded by an approved brief revision.
 The lifecycle is coherent only as `open` with a non-passing latest/rerun result,
 `passed` with latest/rerun pass, `deferred` with latest blocked/rerun deferred,
 or `superseded` with latest blocked/rerun superseded and an approved brief revision.
