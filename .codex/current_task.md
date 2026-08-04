@@ -1,7 +1,7 @@
 # Active Task Context
 * **Current Task**: TASK-072
 * **Lane**: FB-Product / BFM
-* **Status**: Ready to ship — release checkpoint passed
+* **Status**: Done — published and installed
 * **BFM Class**: Full BFM release candidate
 * **Feature Branch**: `codex/TASK-072-lifecycle-history`
 * **Release Candidate**: `0.5.6-beta+codex.20260804045203`
@@ -14,9 +14,10 @@ Keep routine orientation tied to genuine active lifecycle state while preserving
 complete historical retrieval through archives, the handoff index, exact
 handoffs, QA evidence, changelog entries, and Git history.
 
-## Next Gate
+## Closeout
 
-James approved the historical compatibility repair and the single release
-checkpoint passed. Archived terminal gaps remain non-blocking and searchable;
-active records still enforce current requirements. The only remaining gate is
-**Push Live** for merge, marketplace publication, reinstall, and deployment.
+James approved **Push Live**. PR #56 merged to GitHub `main` as `894d4a1`, the
+`fb-lane` marketplace upgraded, and FB
+`0.5.6-beta+codex.20260804045203` is installed and enabled. Archived terminal
+gaps remain non-blocking and searchable; active records still enforce current
+requirements. Start a new Codex task to load the refreshed skills and MCP server.

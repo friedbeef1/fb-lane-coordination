@@ -186,3 +186,20 @@ loop:
 
 The candidate is **Ready to ship**. Merge, marketplace publication, reinstall,
 and active-install verification still require **Push Live**.
+
+### Live publication
+
+James approved **Push Live** on 2026-08-04.
+
+| Proof | Result |
+|---|---|
+| GitHub readiness | `validate` passed for PR #56 |
+| GitHub merge | PR #56 merged to `main` as `894d4a1` |
+| Marketplace | `fb-lane` upgraded successfully |
+| Active plugin | `fb-lane-coordination@fb-lane` installed and enabled as `0.5.6-beta+codex.20260804045203` |
+| Six workstream skills | Product/User, Business, Design, Tech, Discovery, and Bugs present |
+| BFM installed guidance | Ready means Product intake; `$bfm` owns reconciliation |
+| Bundled MCP | `cwd: "."`; `./tools/fb-lane.cjs mcp`; Node syntax passed |
+
+Publication is complete. A new Codex task is required to load the refreshed
+skills and MCP server.

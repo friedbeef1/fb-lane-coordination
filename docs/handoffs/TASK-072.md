@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-072
 lane: fb-product
-status: implemented
+status: done
 okr_fit: aligned
 approval: approved
 fb_harness: v3
@@ -61,11 +61,11 @@ Release checkpoint: authorized after changelog approval
 - **Changelog:** updated — [FB 0.5.6-beta](../../CHANGELOG.md#056-beta--2026-08-04).
 - **Changelog approval:** approved by James on 2026-08-04.
 - **Review state:** not reviewable.
-- **External gates:** Final release validator is now authorized;
-  publication, merge, marketplace upgrade, reinstall, and deployment remain
-  unauthorized.
-- **Remaining owner/action:** James says **Push Live** to authorize merge,
-  marketplace publication, reinstall, and active-install verification.
+- **External gates:** Complete. James approved **Push Live**; PR #56 merged as
+  `894d4a1`; marketplace upgrade, reinstall, and active-install verification
+  passed.
+- **Remaining owner/action:** None. Start a new Codex task to load the refreshed
+  plugin.
 
 ## Brief Validation
 
@@ -74,8 +74,8 @@ Status: pass
 - **Satisfied:** Lifecycle reconciliation is evidence-led; active state stays
   visible; historical records remain exact and queryable; ready semantics and
   `$bfm` authority are explicit.
-- **Missing:** None before **Ready to ship**.
-- **Next action:** Wait for **Push Live**.
+- **Missing:** None.
+- **Next action:** None.
 
 ## Verification Handoff
 
@@ -83,8 +83,8 @@ Candidate: `codex/TASK-072-lifecycle-history` at the committed release slice.
 System verification: focused lifecycle, board-context, project-graph,
 six-workstream, beginner-experience, metadata, package parity, syntax, link,
 and whitespace checks are recorded in [TASK-072 QA](../qa/TASK-072.md).
-Known limits: Publication, active installation, and fresh-task behavior are not
-claimed before **Push Live**.
+Known limits: Fresh-task loading requires a new Codex task; this current task
+cannot reload its already-started plugin context.
 
 ### Final successful release checkpoint
 
@@ -147,8 +147,8 @@ The one newly approved checkpoint passed without a repair loop:
 
 ## Product/BFM Closeout
 
-Status: Ready to ship — release checkpoint passed.
+Status: Done — published and installed.
 Actioned By: FB-Product / BFM.
 Result: The local candidate keeps routine orientation current-state focused and
 preserves complete on-demand historical retrieval.
-Remaining: **Push Live** remains the separate merge and publication authority.
+Remaining: None. Start a new Codex task to load the refreshed plugin.
