@@ -39,7 +39,8 @@ function assertProductEvidenceBoundary() {
   assert.match(skill, /Actual user evidence requires observed or recorded user input/i);
   assert.match(skill, /never fabricate or impersonate user feedback/i);
   assert.match(skill, /same update that creates a non-quick board task after reconciliation[\s\S]{0,180}copy the reconciled Project\/Build Brief goal[\s\S]{0,180}complete board[\s\S]{0,40}Goal Alignment Session/i);
-  assert.match(skill, /Pre-`\$bfm` approval attaches to ready[\s\S]{0,80}scope and handoffs[\s\S]{0,180}without a[\s\S]{0,30}routine second approval/i);
+  assert.match(skill, /Ready handoffs are Product intake[\s\S]{0,80}not approvals/i);
+  assert.match(skill, /After invocation[\s\S]{0,240}without a routine second approval/i);
   assert.match(skill, /no approved goal[\s\S]{0,80}block the task instead of inventing one/i);
 }
 
@@ -128,9 +129,11 @@ function assertAlignedSkills() {
   assert.match(bfm, /routing[\s\S]{0,80}(fail|persist)/i);
   assert.match(bfm, /None\s+relevant/);
   assert.match(bfm, /duplicate|contradict/i);
-  assert.match(bfm, /Pre-`\$bfm` approval attaches to the ready scope and handoffs[\s\S]{0,220}do not require those briefs to preexist invocation/i);
+  assert.match(bfm, /ready for Product intake[\s\S]{0,120}not approval or execution authority/i);
+  assert.match(bfm, /After\s+`\$bfm`[\s\S]{0,120}Product records the dispositioned Project Start Brief and Build Brief/i);
+  assert.match(bfm, /do not require those briefs to preexist invocation or request routine\s+second\s+approval/i);
   assert.match(bfm, /Before source changes[\s\S]{0,120}Goal Alignment[\s\S]{0,40}Session to match the reconciled briefs/i);
-  assert.match(bfm, /Never invent an OKR merely to clear the gate/i);
+  assert.match(bfm, /Never invent an OKR merely to clear\s+the\s+gate/i);
   assert.doesNotMatch(bfm, /reimplement|re-implement/i);
 }
 

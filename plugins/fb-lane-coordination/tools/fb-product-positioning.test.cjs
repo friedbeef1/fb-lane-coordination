@@ -39,7 +39,7 @@ const deliveredPages = [
 
 const codexProblemRows = [
   '| Important decisions remain scattered across chats | FB turns actionable decisions and evidence into repository-local handoff MD files. |',
-  '| Codex may start building before the goal and boundaries are clear | FB requires relevant workstream handoffs and approved ready scope before `$bfm`; Product records the consolidated Project Start Brief and Build Brief during reconciliation after invocation. |',
+  '| Codex may start building before the goal and boundaries are clear | FB queues ready handoffs for Product intake; `$bfm` then freezes the intake, reconciles it, and records the consolidated Project Start Brief and Build Brief before execution. |',
   '| User evidence, decisions, and AI assumptions can become mixed together | Product/User records each category separately before implementation. |',
   '| Outputs from several Codex tasks must be combined manually | `$bfm` scans ready handoffs across all six workstreams, reconciles conflicts, and sequences the work. |',
   '| Failed checks can return responsibility to the user | FB runs automated checks and owns bounded diagnosis and repair. |',
@@ -230,12 +230,13 @@ assert.strictEqual(fullLoop, packagedFullLoop, 'full loop page must be mechanica
 
 for (const term of [
   'Product/User', 'Business', 'Design', 'Tech', 'Discovery', 'Bugs',
-  'ready', 'blocked', 'None relevant', 'User says $bfm', 'Product reconciles',
+  'ready', 'blocked', 'None relevant', 'User says $bfm',
   'BFM implements', 'Automated checks', 'Scoped repair',
   'Optional review links', 'Ready to ship', 'Push Live', 'Results and feedback',
 ]) {
   assert.match(fullLoop, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), `full loop page must show ${term}`);
 }
+assert.match(fullLoop, /Product\s+(?:then\s+)?reconciles/i, 'full loop page must show Product reconciliation');
 assert.doesNotMatch(fullLoop, /Quick BFM|Full BFM|Normal Codex/i, 'public full-loop diagram must not expose internal mode choices');
 
 for (const evidence of ['TASK-020.md', 'TASK-022.md', 'TASK-024.md', 'TASK-023-walkthroughs.md', 'TASK-026.md']) {

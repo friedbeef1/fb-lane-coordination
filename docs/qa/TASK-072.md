@@ -118,3 +118,23 @@ orientation, and historical retrieval boundaries.
 - The complete release validator is now authorized and will run once.
 - Push, merge, marketplace publication, reinstall, and deployment remain
   unauthorized.
+
+### Release-checkpoint repair
+
+The initial full pass stopped when the compact coordination skill no longer
+contained two direct navigation phrases and several legacy contracts still
+required duplicated or stale prose. One consolidated repair restored the
+`start.md` and default `status` routes, updated factual/structural assertions,
+kept ready handoffs as Product-intake candidates, and regenerated 58 mirrors.
+
+Focused recovery evidence:
+
+- root CLI contract: 70/70;
+- positioning: root/package pass;
+- efficiency: 25/25;
+- automatic worktrees: 11/11;
+- changelog closeout: root/package 13/13;
+- six-skill behavior: pass;
+- package parity and whitespace: pass.
+
+The permitted final full validator pass remains pending.

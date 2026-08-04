@@ -103,9 +103,9 @@ check('major-release guidance requires explicit user approval of drafted changel
     'skills/fb-lane-coordination/SKILL.md',
   ]) {
     const source = fs.readFileSync(path.join(surfaceRoot, relative), 'utf8');
-    assert.match(source, /major user-visible release/i);
+    assert.match(source, /major\s+user-visible release/i);
     assert.match(source, /changelog\s+approval/i);
-    assert.match(source, /before \*\*Ready to ship\*\*|cannot reach \*\*Ready to\s*ship\*\*|Checking — changelog approval needed/i);
+    assert.match(source, /before\s+\*\*Ready to ship\*\*|cannot reach \*\*Ready to\s*ship\*\*|Checking — changelog approval needed/i);
   }
   const handoff = fs.readFileSync(path.join(repoRoot, 'docs/handoffs/TASK-049.md'), 'utf8');
   assert.match(handoff, /Changelog approval:\s*approved — James, originating conversation, 2026-07-26/i);

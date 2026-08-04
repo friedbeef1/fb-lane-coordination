@@ -451,13 +451,13 @@ test('release checkpoint lifecycle requires a Product-owned handoff and permits 
 
 test('Product direction owns one bounded scope-preserving circuit-breaker recovery', () => {
   const repoRoot = path.resolve(__dirname, '..');
-  for (const relative of [
+  const detailedSurfaces = [
     'docs/fb/guardrails.md',
     'docs/fb/workflow.md',
     'skills/bfm/SKILL.md',
     'skills/fb-product/SKILL.md',
-    'skills/fb-lane-coordination/SKILL.md',
-  ]) {
+  ];
+  for (const relative of detailedSurfaces) {
     const content = fs.readFileSync(path.join(repoRoot, relative), 'utf8');
     assert.match(content, /Product direction is not (?:automatically )?a user prompt/i, relative);
     assert.match(content, /one\s+(?:bounded\s+)?Product-directed recovery/i, relative);
@@ -465,6 +465,9 @@ test('Product direction owns one bounded scope-preserving circuit-breaker recove
     assert.match(content, /focused\s+proof[\s\S]{0,180}(?:final|complete)\s+(?:release\s+)?(?:pass|checkpoint)/i, relative);
     assert.match(content, /ask\s+the\s+user\s+only[\s\S]{0,240}(?:product outcome|scope|priority)[\s\S]{0,240}(?:safety|hard gate)/i, relative);
   }
+  const coordination = fs.readFileSync(path.join(repoRoot, 'skills/fb-lane-coordination/SKILL.md'), 'utf8');
+  assert.match(coordination, /workflow\.md[\s\S]{0,180}(?:budgets|closeout)/i, 'coordination must route recovery detail to workflow');
+  assert.match(coordination, /guardrails\.md/i, 'coordination must route safety and recovery boundaries to guardrails');
 });
 
 test('automated checks select deterministic coordination and project runtime commands', () => {

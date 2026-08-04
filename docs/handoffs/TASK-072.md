@@ -85,6 +85,26 @@ and whitespace checks are recorded in [TASK-072 QA](../qa/TASK-072.md).
 Known limits: The complete release validator, publication, active installation,
 and fresh-task behavior are not claimed before their explicit gates.
 
+### Release checkpoint failure evidence
+
+- **Failure:** The initial full release-validator pass stopped in the root CLI
+  contract after coordination-skill compaction.
+- **Observed:** The compact skill omitted direct `start.md` and default `status`
+  routes; other focused contracts still expected stale wording or duplicated
+  workflow detail.
+- **Cause:** Canonical skill guidance was reduced correctly, but several legacy
+  assertions still tested exact duplicated prose instead of factual links and
+  structural behavior.
+- **Recovery attempted:** Restored the two concise navigation routes, retained
+  the ready-for-intake boundary, updated stale structural assertions, and
+  regenerated all declared package mirrors once for the consolidated repair.
+- **Result:** The failed CLI proof and directly affected positioning,
+  efficiency, worktree, changelog, and six-skill contracts pass; the final full
+  validator pass remains pending.
+- **Reusable lesson:** When a frequently loaded skill becomes a canonical route,
+  tests should verify its links and role boundary rather than require copied
+  operating-manual prose.
+
 ## Product/BFM Closeout
 
 Status: Checking — release checkpoint.

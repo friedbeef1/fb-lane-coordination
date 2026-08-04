@@ -10,14 +10,15 @@ Read the [FB harness](../../docs/fb/README.md), then use
 `fb_lane_status({context:true})`) for bounded current-state orientation. Follow
 its links to the handoff index, current handoff, and relevant workstream card.
 Open the full board only when that packet is incomplete or contradictory.
+Use `node tools/fb-lane.cjs status` for state during ordinary health checks.
 
 ## Workstream and execution boundary
 
 Start planning or evidence in the matching workstream: Product/User, Business,
 Design, Tech, Discovery, or Bugs. Product/User is for user and product questions,
-not universal intake. Each relevant workstream creates a blocked handoff or one
-`ready for Product intake`. Ready is queued for Product review, **not approval
-or execution**.
+not universal intake. Each relevant workstream runs its mini-loop and creates a
+blocked or ready handoff in `docs/handoffs/<TASK-ID>.md`. Ready means `ready for
+Product intake`: queued for Product review, **not approval or execution**.
 
 Only `$bfm` in the Product/BFM parent task starts delivery. It freezes the
 intake snapshot, gives every candidate a disposition, reconciles conflicts and
@@ -45,6 +46,7 @@ excluded from routine context, not deleted or made inaccessible.
 
 ## Shared policy
 
+- Follow [start.md](../../docs/fb/start.md) for first-project guidance and the workstream-to-`$bfm` sequence.
 - Apply [conversation execution authority](../../docs/fb/guardrails.md#execution-authority-by-conversation-context): Product/BFM parents may execute approved scope; workstream parents plan and hand off; sidechats need a named one-use exception and may route only to their originating parent.
 - Follow [workflow.md](../../docs/fb/workflow.md) for ownership, intake, locks, worktrees, private execution routing, budgets, changelog decisions, and closeout.
 - Follow [records.md](../../docs/fb/records.md) for one-fact-one-home records, verification reuse, compact cards, archive safety, and efficiency evidence.
@@ -57,6 +59,7 @@ judge it.
 
 Use focused checks by default. Safety gates always win. A full validator is
 eligible only for an explicit Product-owned release checkpoint. For a major
-user-visible release, keep `Changelog approval: pending` visible until the user
-approves, rejects, or defers the drafted wording. Do not infer approval from
-build approval or **Push Live**.
+user-visible release, `Changelog approval: pending` remains a gate before
+**Ready to ship**. Every later documentation review resurfaces it until the user
+approves, rejects, or explicitly defers it; never silently clear it. Do not
+infer approval from build approval or **Push Live**.
