@@ -5,7 +5,7 @@ Lane: FB-Product
 
 <!-- FB-LANE:WORKSTREAM-SUMMARY:START -->
 ## Current
-- **TASK-072** (Staging QA) — Keep routine orientation current-state only while preserving complete on-demand history; prepare `0.5.6-beta+codex.20260804045203` — [Handoff](../handoffs/TASK-072.md); [QA](../qa/TASK-072.md); changelog approval pending
+- **TASK-072** (Staging QA) — Keep routine orientation current-state only while preserving complete on-demand history; `0.5.6-beta+codex.20260804045203` is Ready to ship — [Handoff](../handoffs/TASK-072.md); [QA](../qa/TASK-072.md); changelog and release checkpoint passed; **Push Live** approved
 
 ## Next
 - None ready for Product intake.
