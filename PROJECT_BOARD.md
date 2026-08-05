@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-075 | Ready | FB-Product / BFM | User workstream and Product/BFM control centre | Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks | Onboarding runtime/tests; canonical skills/docs/templates/metadata; generated plugin mirrors; TASK-075 records | [Handoff](docs/handoffs/TASK-075.md); [QA](docs/qa/TASK-075.md); [Plan](docs/superpowers/plans/2026-08-05-user-product-bfm-control-centre.md) |
 | TASK-074 | Done | FB-Product / BFM | Graph Engineering positioning and FB 0.5.8-beta | Make Graph Engineering the headline product category, align the public story and packaged plugin, and preserve existing runtime contracts | None; published and installed | [Handoff](docs/handoffs/TASK-074.md); [QA](docs/qa/TASK-074.md); [PR #58](https://github.com/friedbeef1/fb-lane-coordination/pull/58) merged as `72bfab0`; exact build installed and enabled |
 | TASK-073 | Done | FB-Product / BFM | Evaluation results, meaningful repair, and FB 0.5.7-beta | Show eval results clearly, reject superficial repair loops, and publish `0.5.7-beta+codex.20260804131420` | None; published and installed | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); [PR #57](https://github.com/friedbeef1/fb-lane-coordination/pull/57) merged as `c1e63f1`; exact build installed and enabled |
 | TASK-072 | Done | FB-Product / BFM | Lifecycle truth, historical retrieval, and FB 0.5.6-beta | Keep routine orientation current-state only while preserving complete on-demand history; publish `0.5.6-beta+codex.20260804045203` | None; published and installed | [Handoff](docs/handoffs/TASK-072.md); [QA](docs/qa/TASK-072.md); [PR #56](https://github.com/friedbeef1/fb-lane-coordination/pull/56) merged as `894d4a1`; exact build installed and enabled |
@@ -20,6 +21,34 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-075 - User workstream and Product/BFM control centre
+
+*   **Status**: Ready — intake frozen; implementation branch pending.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Area**: Onboarding runtime, sidebar migration, skills, public and harness
+    documentation, plugin metadata, templates, contracts, and package mirrors.
+*   **Scope**: Establish User, Business, Design, Tech, Discovery, and Bugs as
+    evidence workstreams; establish Product/BFM as the control centre; converge
+    fresh and legacy projects on seven pinned repository-scoped tasks.
+*   **Out of Scope**: Consumer-repository mutation in this slice, app-level task
+    discovery, implicit execution, merge, publication, reinstall, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make ownership and navigation obvious without weakening
+        compatibility or release authority.
+    *   **Key Results**: Seven-task setup is repository-scoped and idempotent;
+        Product/User migrates to User; Product/BFM is unique; all observed tasks
+        are pinned or exact failures are reported; root/package guidance agrees.
+    *   **Definition of Done**: Focused runtime and structural contracts,
+        package parity, metadata, syntax, links, whitespace, doctor, changelog
+        approval, and one final release checkpoint pass.
+*   **Gate / Review Point**: James invoked `$bfm`; Product may implement the
+    frozen scope. Changelog approval and Push Live remain separate gates.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-075.md) ·
+    [QA](docs/qa/TASK-075.md) ·
+    [plan](docs/superpowers/plans/2026-08-05-user-product-bfm-control-centre.md).
 
 ---
 

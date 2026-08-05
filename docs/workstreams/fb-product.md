@@ -1,14 +1,16 @@
 # FB-Product Workstream Status
 
-Last Updated: 2026-08-04
+Last Updated: 2026-08-05
 Lane: FB-Product
 
 <!-- FB-LANE:WORKSTREAM-SUMMARY:START -->
 ## Current
-- None.
+- **TASK-075** (Ready) — Separate User evidence from the Product/BFM control
+  centre and converge onboarding on seven pinned tasks —
+  [Handoff](../handoffs/TASK-075.md); [QA](../qa/TASK-075.md)
 
 ## Next
-- None ready for Product intake.
+- Implement the frozen TASK-075 runtime and guidance slices.
 
 ## Blocked
 - None.
