@@ -22,8 +22,8 @@ function json(relativePath) {
 const manifest = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.codex-plugin/plugin.json'), 'utf8'));
 assert.match(
   manifest.version,
-  /^0\.5\.7-beta\+codex\.\d{14}$/,
-  'release build must use the 0.5.7-beta UTC build form',
+  /^0\.5\.8-beta\+codex\.\d{14}$/,
+  'release build must use the 0.5.8-beta UTC build form',
 );
 assert.strictEqual(JSON.parse(fs.readFileSync(path.join(pluginRoot, 'plugin.json'), 'utf8')).version, manifest.version);
 
@@ -69,15 +69,15 @@ assert.match(coordination, /on-demand historical retrieval/i, 'coordination must
 
 if (!packaged) {
   const changelog = read('CHANGELOG.md');
-  const release = changelog.match(/## 0\.5\.7-beta[\s\S]*?(?=\n## 0\.5\.6-beta)/)?.[0] || '';
+  const release = changelog.match(/## 0\.5\.8-beta[\s\S]*?(?=\n## 0\.5\.7-beta)/)?.[0] || '';
   for (const field of ['What changed', 'Why it matters', 'Compatibility', 'Installation or upgrade']) {
-    assert.match(release, new RegExp(`\\*\\*${field}:\\*\\*`), `0.5.7 changelog must include ${field}`);
+    assert.match(release, new RegExp(`\\*\\*${field}:\\*\\*`), `0.5.8 changelog must include ${field}`);
   }
-  assert.match(release, /evaluation results/i);
-  assert.match(release, /superficial|cosmetic/i);
+  assert.match(release, /Graph Engineering/i);
+  assert.match(release, /living product-delivery graph/i);
 
   for (const surface of ['README.md', 'FAQ.md', 'docs/setup.md', 'docs/versioning.md', 'platforms/codex/README.md']) {
-    assert.match(read(surface), /0\.5\.7-beta/, `${surface} must name 0.5.7-beta`);
+    assert.match(read(surface), /0\.5\.8-beta/, `${surface} must name 0.5.8-beta`);
   }
 }
 

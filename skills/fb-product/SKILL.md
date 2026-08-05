@@ -5,6 +5,11 @@ description: Use when Product must scope, prioritize, reconcile lane handoffs, a
 
 # FB Product
 
+Product stewards FB's product-delivery graph: the repository-local map of
+workstreams, decisions, evidence, dependencies, implementation, verification,
+and release state. Workstream loops create learning; `$bfm` lets Product
+reconcile and prioritize the graph before BFM executes it.
+
 ## Cross-workstream planning handoff
 
 On an explicit user request, a main workstream may route planning or evidence

@@ -1,13 +1,18 @@
-# FB Harness
+# FB Harness — Graph Engineering for Everyday People
 
-FB is a Codex plugin and repository-local product-delivery harness. Six
-workstreams run small evidence loops; `$bfm` consolidates their ready handoffs,
-directs implementation and automated checking, and stops at **Ready to ship**.
+FB is an open-source Codex plugin that turns scattered AI conversations into a
+living repository-local product-delivery graph. The graph connects workstreams,
+decisions, evidence, dependencies, implementation, verification, and release
+state. Six workstreams run focused learning loops inside it; `$bfm` navigates,
+reconciles, prioritizes, and executes the graph, then stops at **Ready to
+ship**. Only **Push Live** authorizes release.
+
+This graph is a delivery map, not a graph database, knowledge graph, or GraphQL
+requirement. See the [Full FB Graph Diagram](full-loop.md).
 
 Durable facts follow the [normalized records and efficient evidence contract](records.md):
 one authoritative home per fact, direct links elsewhere, deterministic
 verification reuse, and compact closeout.
-Only **Push Live** authorizes merge or deployment.
 
 For a known task and concrete question, agents first use
 `fb_project_context` as described in [graph.md](graph.md). A healthy graph

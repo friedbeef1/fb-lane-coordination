@@ -2,18 +2,31 @@
 
 [Overview](README.md) · [Agile Teams](docs/fb-for-agile-teams.md) · [Why FB](docs/why-fb.md) · [Full Loop](docs/fb/full-loop.md)
 
-**AI Loop Engineering for Everyday People**
+**Graph Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.5.7-beta**
-(`0.5.7-beta+codex.20260804131420`).
+Current Codex release candidate: **FB 0.5.8-beta**
+(`0.5.8-beta+codex.20260804153114`).
 
-**FB is a Codex plugin that connects six product workstreams in one continuous
-delivery loop. Each workstream investigates part of the problem; `$bfm` brings
-their ready recommendations together, prioritizes the work, directs Codex
-implementation, runs automated checks, and prepares the result for release.**
+**FB is an open-source Codex plugin that turns scattered AI conversations into
+a living product-delivery graph.** Six workstreams investigate different parts
+of the outcome. `$bfm` reconciles and prioritizes their ready recommendations,
+directs Codex implementation, runs automated checks, and prepares the result
+for release.
 
 FB means **Focus Bridge**: it bridges discussion, evidence, implementation, and
 delivery.
+
+## What is graph engineering?
+
+Graph engineering is the practical work of connecting the things a product
+needs to move safely: workstreams, user decisions, assumptions, evidence,
+dependencies, implementation, verification, and release state. It is a
+repository-local delivery map—not a graph database, knowledge graph, or
+GraphQL requirement.
+
+The **graph is the map**. Workstream loops are how evidence and decisions move
+and improve inside that map. **`$bfm` navigates and executes the graph. Push
+Live authorizes release.**
 
 FB 0.5 adds an optional repository-local
 [generic agent control loop](docs/fb/control-loop.md): deterministic routing,
@@ -71,7 +84,7 @@ Codex use, not defects in Codex itself.
 See the [Why FB evidence](docs/why-fb.md#pain-points-fb-is-designed-to-address)
 behind these problem mappings.
 
-## One big loop, six mini-loops
+## The product-delivery graph
 
 | Workstream | Its question |
 |---|---|
@@ -92,7 +105,8 @@ Question → Investigate → Gather evidence → Recommend → Create handoff MD
 
 ```mermaid
 flowchart TB
-    subgraph M["Six workstream mini-loops"]
+    G["Living product-delivery graph<br/>decisions · evidence · dependencies · verification"]
+    subgraph M["Six workstream learning loops"]
         direction LR
         PU["Product/User<br/>Question → Evidence<br/>→ Recommendation → Question"]
         BU["Business<br/>Question → Evidence<br/>→ Recommendation → Question"]
@@ -102,6 +116,12 @@ flowchart TB
         BG["Bugs<br/>Question → Evidence<br/>→ Recommendation → Question"]
     end
 
+    G --> PU
+    G --> BU
+    G --> DE
+    G --> TE
+    G --> DI
+    G --> BG
     PU --> H
     BU --> H
     DE --> H
@@ -119,6 +139,8 @@ flowchart TB
     F["Results and feedback"]
     N["New questions and results"]
     H --> B --> P --> C --> T --> S --> L --> D --> F
+    P --> G
+    T --> G
     F --> N
     N --> PU
     N --> BU
@@ -128,7 +150,7 @@ flowchart TB
     N --> BG
 ```
 
-[Full FB Loop Diagram](docs/fb/full-loop.md) — handoff states, post-`$bfm`
+[Full FB Graph Diagram](docs/fb/full-loop.md) — handoff states, post-`$bfm`
 Product reconciliation, repair, review, and release.
 
 A workstream with nothing useful does not invent work merely to participate;

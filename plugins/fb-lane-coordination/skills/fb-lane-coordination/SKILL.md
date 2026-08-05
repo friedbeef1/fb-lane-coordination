@@ -5,6 +5,13 @@ description: Use when an FB project needs board-aware routing, handoffs, current
 
 # FB task coordination
 
+FB is **Graph Engineering for Everyday People**: an open-source Codex plugin
+that turns scattered AI conversations into a living product-delivery graph.
+The graph is the map connecting workstreams, decisions, evidence, dependencies,
+implementation, verification, and release state. Workstream loops move and
+learn inside it; `$bfm` navigates and executes it; **Push Live** authorizes
+release.
+
 Read the [FB harness](../../docs/fb/README.md), then use
 `node tools/fb-lane.cjs status --context` (or MCP
 `fb_lane_status({context:true})`) for bounded current-state orientation. Follow

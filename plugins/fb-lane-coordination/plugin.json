@@ -1,7 +1,7 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.5.7-beta+codex.20260804131420",
-  "description": "FB connects six product workstreams to a rules-first control loop, Product-led BFM delivery, automated verification, and explicit release approval.",
+  "version": "0.5.8-beta+codex.20260804153114",
+  "description": "FB is an open-source Codex plugin for Graph Engineering: it turns scattered AI conversations into a living product-delivery graph.",
   "author": {
     "name": "FB Contributors",
     "url": "https://github.com/friedbeef1"

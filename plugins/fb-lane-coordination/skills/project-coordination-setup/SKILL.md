@@ -5,6 +5,11 @@ description: Use when bootstrapping an FB-coordinated project with board, handof
 
 # Set up an FB-coordinated project
 
+FB is **Graph Engineering for Everyday People**. Setup installs the
+repository-local product-delivery map that connects workstreams, decisions,
+evidence, dependencies, implementation, verification, and release state. It
+does not require a graph database, knowledge graph, or GraphQL.
+
 Bootstrap includes `docs/fb/control-loop.md`. Projects opt in through the Build
 Brief and may configure repository-relative `controlLoop.profileManifest` and
 `controlLoop.goldenManifest` paths in `.fb-lane.json`. Do not enable hosted
@@ -35,7 +40,8 @@ that question to the user exactly once:
 Do not create tasks before explicit Yes. After Yes, follow the first-run
 sidebar procedure in the BFM skill: use Codex project/task tools when available,
 recognize repository-scoped current and legacy titles, create only missing
-tasks, and leave them idle. Existing Product, Business, Design, and Tech
+tasks, automatically pin them in the sidebar, verify all six are pinned, and
+leave them idle. Existing Product, Business, Design, and Tech
 projects therefore gain only Discovery and Bugs. On No, record the decline and
 continue normally. When task tools are unavailable, state that limitation and
 return paste-ready manual prompts; never simulate success. Bootstrap reruns do

@@ -5,6 +5,11 @@ description: Use when Product/Captain must intake, sequence, execute, reconcile,
 
 # BFM
 
+BFM is the navigator and executor of FB's repository-local product-delivery
+graph. The graph is the map; workstream loops produce learning inside it; BFM
+reconciles, prioritizes, and executes the approved graph; **Push Live** remains
+the release boundary.
+
 If the Build Brief opts into the [generic control loop](../../docs/fb/control-loop.md),
 coordinate its capabilities inside the existing slice and repair budgets.
 Preserve the baseline, require evidence for pairwise criteria and selected
@@ -50,10 +55,14 @@ permission question once. Do not ask it again on a later `$bfm`.
   4. Create only missing tasks with `create_thread`, using the exact project ID
      and a local environment—not a worktree. Generate each initial prompt with
      `node tools/fb-onboarding.cjs prompt <workstream> <repository-root>`, then
-     title it `FB · <workstream>` with `set_thread_title`.
+     title it `FB · <workstream>` with `set_thread_title` and pin it with
+     `set_thread_pinned({ pinned: true })` so it is visible in the sidebar.
   5. Do not send follow-up work. Each created task acknowledges setup and then
      remains idle until the user asks it a concrete question.
-  6. After all six are observed, record
+  6. Re-list the exact repository tasks and verify all six titles are present
+     and pinned. A created but unpinned task is incomplete onboarding; pin that
+     existing task rather than creating a duplicate.
+  7. After all six are observed and pinned, record
      `node tools/fb-onboarding.cjs reconcile product,business,design,tech,discovery,bugs`.
 
 The user’s explicit Yes authorizes these six user-owned Codex tasks; it does
@@ -64,7 +73,7 @@ provide paste-ready prompts for the known missing workstreams. If the inventory
 itself is incomplete, provide all six prompts and tell the user to create only
 those not already present. Generate prompts with
 `node tools/fb-onboarding.cjs prompt <workstream> <repository-root>`. Never
-claim sidebar tasks were created without tool results. A partial failure
+claim sidebar tasks were created or pinned without tool results. A partial failure
 remains unreconciled; rerun detection later and create only what is still
 missing.
 

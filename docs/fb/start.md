@@ -29,7 +29,9 @@ mandatory agents or approval gates.
 
 With permission, FB detects exact current and legacy workstream tasks and
 creates only missing ones. A legacy four-task project gains Discovery and Bugs;
-a current six-task project gains nothing. New tasks start idle with their
+a current six-task project gains nothing. FB automatically pins all six exact
+workstream tasks so they remain visible in the sidebar; an existing unpinned
+workstream task is pinned rather than duplicated. New tasks start idle with their
 workstream question and do no investigation, source editing, or handoff work
 until the user asks them something.
 

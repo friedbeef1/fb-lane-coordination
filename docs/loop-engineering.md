@@ -1,8 +1,12 @@
-# Loop Engineering
+# Workstream loops inside Graph Engineering
 
-Loop Engineering is FB’s return discipline: do not close until the approved
-goal, work, evidence, board, and repository truth agree, or each disagreement
-is explicitly marked.
+**Graph Engineering** is FB's primary category: the graph is the map connecting
+workstreams, decisions, evidence, dependencies, implementation, verification,
+and release state. Workstream loops describe how work moves and learns inside
+that graph.
+
+FB's loop discipline is: do not close until the approved goal, work, evidence,
+board, and repository truth agree, or each disagreement is explicitly marked.
 
 The canonical operating manual is [the FB harness](fb/README.md):
 

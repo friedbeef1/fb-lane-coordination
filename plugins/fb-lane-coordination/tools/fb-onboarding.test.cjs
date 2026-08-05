@@ -244,3 +244,22 @@ test('fresh bootstrap prints the permission question once across reruns', () => 
     fs.rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('first-run guidance creates, pins, verifies, and only then reconciles workstream tasks', () => {
+  const containingRoot = path.resolve(__dirname, '..');
+  const packaged = path.basename(containingRoot) === 'fb-lane-coordination'
+    && path.basename(path.dirname(containingRoot)) === 'plugins';
+  const root = containingRoot;
+  const bfm = fs.readFileSync(path.join(root, 'skills/bfm/SKILL.md'), 'utf8');
+  const setup = fs.readFileSync(path.join(root, 'skills/project-coordination-setup/SKILL.md'), 'utf8');
+  const start = fs.readFileSync(path.join(root, 'docs/fb/start.md'), 'utf8');
+  const metadata = fs.readFileSync(path.join(root, packaged ? '.codex-plugin/plugin.json' : 'plugins/fb-lane-coordination/.codex-plugin/plugin.json'), 'utf8');
+  for (const [label, source] of [['BFM', bfm], ['setup', setup], ['start', start], ['metadata', metadata]]) {
+    assert.match(source, /pin/i, `${label} must require pinned workstream tasks`);
+    assert.match(source, /sidebar/i, `${label} must connect pinning to sidebar visibility`);
+  }
+  assert.match(bfm, /set_thread_pinned/);
+  assert.match(bfm, /verify all six[\s\S]*pinned/i);
+  assert.match(bfm, /unpinned[\s\S]*rather than creating a duplicate/i);
+  assert.ok(bfm.indexOf('verify all six') < bfm.indexOf('fb-onboarding.cjs reconcile'));
+});

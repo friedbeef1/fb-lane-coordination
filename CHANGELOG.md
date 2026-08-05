@@ -1,5 +1,39 @@
 # Changelog
 
+## 0.5.8-beta — 2026-08-04
+
+Build: `0.5.8-beta+codex.20260804153114`
+
+**What changed:** Graph Engineering is now FB's headline product category. The
+README, full graph diagram, public explanation, plugin guidance, marketplace
+copy, and metadata now describe FB as an open-source Codex plugin that turns
+scattered AI conversations into a living product-delivery graph. Workstream
+loops remain the way evidence and decisions move and improve inside that graph.
+The public explanation also maps FB to graph-based agent orchestration while
+plainly acknowledging that the terminology is not universally settled and can
+also refer to graph-database or knowledge-graph engineering. First-run FB setup
+now automatically pins all six exact workstream tasks after creation, verifies
+their sidebar state, and repairs an unpinned task without duplicating it.
+
+**Why it matters:** Everyday users can understand the whole system as one map:
+six workstreams contribute decisions and evidence, `$bfm` reconciles,
+prioritizes, and executes the graph, automated verification updates it, and
+**Push Live** remains the final release decision.
+
+**Compatibility:** Existing six-workstream projects, handoffs, graph runtime,
+commands, plugin and MCP identifiers, worktrees, verification rules, and
+**Push Live** authority remain unchanged. This is a positioning, documentation,
+and plugin-guidance release; it does not introduce a graph database, knowledge
+graph, GraphQL requirement, or new hosted dependency.
+
+**Installation or upgrade:** Upgrade the `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, rerun `Set up FB in this project` where managed
+guidance needs refreshing, and start a new Codex task so the updated Graph
+Engineering guidance is loaded.
+
+**Changelog approval:** Approved by James on 2026-08-05 before the release
+checkpoint.
+
 ## 0.5.7-beta — 2026-08-04
 
 Build: `0.5.7-beta+codex.20260804131420`

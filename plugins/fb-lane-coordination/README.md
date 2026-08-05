@@ -2,8 +2,10 @@
 
 This package is the supported Codex distribution for FB. It supplies the
 `fb-lane` coordination capability, BFM/Product/lane skills, and the reusable
-FB harness. The current release candidate is **FB 0.5.7-beta**
-`0.5.7-beta+codex.20260804131420`.
+FB harness. **FB — Graph Engineering for Everyday People** is an open-source
+Codex plugin that turns scattered AI conversations into a living
+product-delivery graph. The current release candidate is **FB 0.5.8-beta**
+`0.5.8-beta+codex.20260804153114`.
 
 ## Install and start
 
