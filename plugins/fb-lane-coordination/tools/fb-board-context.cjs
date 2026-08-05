@@ -55,7 +55,7 @@ function rowBelongsToLane(row, lane) {
   const normalized = normalizedLane(lane);
   if (!normalized) return false;
   const escaped = normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`(?:^|\\b)fb-${escaped}\\b`, 'i').test(String(row.owner || ''));
+  return new RegExp(`(?:^|\\b)fb(?:-|\\s+)${escaped}\\b`, 'i').test(String(row.owner || ''));
 }
 
 function rebaseMarkdownLinks(markdown, fromDir, toDir) {

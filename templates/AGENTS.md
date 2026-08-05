@@ -26,7 +26,8 @@ summaries. The reusable FB operating rules live in [docs/fb/](docs/fb/README.md)
 - Rules-first routing, pairwise QA, layered gates, and bounded configuration
   evolution: [control-loop.md](docs/fb/control-loop.md)
 
-Use normal work for simple single-thread tasks; use FB light for durable
-multi-thread coordination; escalate to Product/BFM for approval, sequencing,
-sensitive surfaces, release/staging decisions, core flows, or reconciled lane
-outputs. Project-specific instructions and stricter safety rules always win.
+FB has six evidence-producing workstreams—User, Business, Design, Tech,
+Discovery, and Bugs—plus one Product/BFM control centre and seven pinned
+repository-scoped Codex tasks. Start evidence work in the matching workstream.
+Run `$bfm` only in Product/BFM. Pinning never starts work. Project-specific
+instructions and stricter safety rules always win.

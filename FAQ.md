@@ -1,7 +1,8 @@
 # FB FAQ
 
-This FAQ describes the current **FB 0.5.8-beta** six-workstream Graph
-Engineering model.
+This FAQ describes the current **FB 0.5.9-beta** model: six evidence-producing
+workstreams plus one Product/BFM control centre and seven pinned
+repository-scoped Codex tasks.
 
 ## What does FB stand for?
 
@@ -34,12 +35,13 @@ for you** and does not start automatically. After you continue it, Design may
 produce its own recommendation. Only a separate Product-ready handoff can enter
 `$bfm`.
 
-## Will FB create the six Codex sidebar tasks for me?
+## Will FB create the seven Codex sidebar tasks for me?
 
 After repository bootstrap, FB asks once for permission. With Yes, it detects
 repository-scoped current and legacy workstream tasks and creates only what is
-missing. Existing Product, Business, Design, and Tech projects gain only
-Discovery and Bugs. New tasks remain idle until you ask them a question.
+missing. Product/User is treated as a legacy User title, while a lone legacy
+Product title maps to Product/BFM. Every new task remains idle until you ask it
+a question; pinning never starts work.
 
 If Codex cannot list or create tasks in the current environment, FB tells you
 and provides paste-ready prompts. It does not pretend the tasks were created.
@@ -50,7 +52,8 @@ Declining does not disable `$bfm`.
 Build For Me (BFM) begins only after Product approval and explicit `$bfm`; see
 [start and approval](docs/fb/start.md).
 
-Product scans Product/User, Business, Design, Tech, Discovery, and Bugs. It
+`$bfm` executes only in Product/BFM. The control centre scans User, Business,
+Design, Tech, Discovery, and Bugs. It
 includes valid `ready` handoffs, keeps blocked work visible, excludes completed
 or deferred work, reconciles conflicts, prioritizes the sequence, directs Codex
 implementation, and runs automated checks.

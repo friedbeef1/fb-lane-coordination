@@ -33,9 +33,10 @@ broad orientation. Open only its relevant cited authoritative records. The
 graph is not a source of truth; use the normal board → index → handoff → card
 fallback when the packet is insufficient or contradictory.
 
-When planning or evidence is useful, start in whichever workstream matches the
-question. Product/User is selected only for user-needs and product questions,
-not as a universal intake coordinator. Relevant workstreams create ready
-handoffs; after they are ready, `$bfm` activates Product reconciliation and
-execution of approved scope. Project-specific instructions and stricter safety
+FB has six evidence-producing workstreams—User, Business, Design, Tech,
+Discovery, and Bugs—plus one Product/BFM control centre and seven pinned
+repository-scoped Codex tasks. Start planning or evidence in the matching
+workstream. Relevant workstreams create ready handoffs; after they are ready,
+`$bfm` in Product/BFM activates reconciliation and execution of approved scope.
+Pinning never starts work. Project-specific instructions and stricter safety
 rules always win.

@@ -10,12 +10,13 @@ index, linked handoff, and relevant workstream card. Publicly, start in whicheve
 workstream matches the question; FB selects any internal routing without asking
 the user to choose a mode.
 
-The one loop has six planning/evidence workstreams: Product/User (technical slug
-`product`), Business, Design, Tech, Discovery, and Bugs. Each relevant
-workstream runs a mini-loop and records a ready or blocked
-`docs/handoffs/<TASK-ID>.md`. Product/User is used only for user/product
-questions, not universal intake. After ready handoffs, `$bfm` activates Product
-reconciliation and approved execution. Inactive workstreams receive `None
+The public model is six evidence-producing workstreams—User, Business, Design,
+Tech, Discovery, and Bugs—plus one Product/BFM control centre and seven pinned
+repository-scoped Codex tasks. Each relevant workstream runs a mini-loop and
+records a ready or blocked `docs/handoffs/<TASK-ID>.md`. Product/BFM is not
+universal intake. After ready handoffs, `$bfm` in Product/BFM activates
+reconciliation and approved execution. Pinning never starts work. Inactive
+workstreams receive `None
 relevant` only in a required six-workstream scan/report. BFM stops at **Ready to ship**. Only
 **Push Live** authorizes merge or deployment.
 

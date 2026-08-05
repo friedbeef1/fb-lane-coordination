@@ -5,7 +5,9 @@
 **FB — Graph Engineering for Everyday People.**
 
 FB is an open-source Codex plugin that turns scattered AI conversations into a
-living product-delivery graph. It is useful
+living product-delivery graph. Its public model is six evidence-producing
+workstreams plus one Product/BFM control centre and seven pinned
+repository-scoped Codex tasks. It is useful
 when the challenge is not only writing code, but preserving what the user
 approved, coordinating the work, checking product quality, and making the next
 review step obvious.
@@ -81,7 +83,7 @@ ordinary Codex use, not defects in Codex itself.
 |---|---|
 | Important decisions remain scattered across chats | FB turns actionable decisions and evidence into repository-local handoff MD files. |
 | Codex may start building before the goal and boundaries are clear | FB queues ready handoffs for Product intake; `$bfm` then freezes the intake, reconciles it, and records the consolidated Project Start Brief and Build Brief before execution. |
-| User evidence, decisions, and AI assumptions can become mixed together | Product/User records each category separately before implementation. |
+| User evidence, decisions, and AI assumptions can become mixed together | User records each category separately before implementation. |
 | Outputs from several Codex tasks must be combined manually | `$bfm` scans ready handoffs across all six workstreams, reconciles conflicts, and sequences the work. |
 | Failed checks can return responsibility to the user | FB runs automated checks and owns bounded diagnosis and repair. |
 | Progress and readiness can be difficult to interpret | FB reports Current, Next, Blocked, optional review links, and Ready to ship. |
@@ -107,7 +109,7 @@ For the longer human-team mapping, see [Agile Teams](https://github.com/friedbee
 | Git worktrees | Isolate branches and support parallel implementation. | Isolation does not determine what to build, resolve competing recommendations, or verify the product outcome. | FB connects worktree execution to approved priorities, coordinated implementation, and outcome verification. |
 | Kurrent Capacitor | Automatically captures, recalls, observes, and evaluates agent sessions. | Session intelligence alone does not define the approved product outcome or own delivery authority and closeout. | FB connects curated evidence to the brief, user decisions, execution authority, testing, and closeout. |
 | BMAD | Provides a broad role-based AI development methodology. | A broad methodology can require more process than a focused repository-local Codex delivery loop. | FB provides a smaller loop around ready handoffs, Codex implementation, automated verification, and explicit release approval. |
-| FB | Connects six product workstreams to Codex implementation, verification, and delivery. | — | — |
+| FB | Connects six evidence-producing workstreams through one Product/BFM control centre to Codex implementation, verification, and delivery. | — | — |
 
 References: [OpenAI Codex](https://openai.com/codex/), [Git
 worktree](https://git-scm.com/docs/git-worktree), [Kurrent
@@ -149,9 +151,9 @@ FB is fully open source, repository-local, and requires no FB-hosted service.
 ```mermaid
 flowchart TB
     G["Living product-delivery graph<br/>decisions · evidence · dependencies · verification"]
-    subgraph M["Six workstream learning loops"]
+    subgraph M["Six evidence-producing workstream loops"]
         direction LR
-        PU["Product/User<br/>Question → Evidence<br/>→ Recommendation → Question"]
+        US["User<br/>Question → Evidence<br/>→ Recommendation → Question"]
         BU["Business<br/>Question → Evidence<br/>→ Recommendation → Question"]
         DE["Design<br/>Question → Evidence<br/>→ Recommendation → Question"]
         TE["Tech<br/>Question → Evidence<br/>→ Recommendation → Question"]
@@ -159,20 +161,21 @@ flowchart TB
         BG["Bugs<br/>Question → Evidence<br/>→ Recommendation → Question"]
     end
 
-    G --> PU
+    PB["Product/BFM control centre<br/>reconcile · prioritize · execute · verify"]
+    G --> US
     G --> BU
     G --> DE
     G --> TE
     G --> DI
     G --> BG
-    PU --> H
+    US --> H
     BU --> H
     DE --> H
     TE --> H
     DI --> H
     BG --> H
     H["Ready handoff MD files"]
-    B["$bfm scans all six"]
+    B["$bfm in Product/BFM<br/>scans all six"]
     P["Prioritize and sequence"]
     C["Codex implements"]
     T["Automated testing and repair"]
@@ -181,11 +184,11 @@ flowchart TB
     D["Merge and deploy"]
     F["Results and feedback"]
     N["New questions and results"]
-    H --> B --> P --> C --> T --> S --> L --> D --> F
+    H --> B --> PB --> P --> C --> T --> S --> L --> D --> F
     P --> G
     T --> G
     F --> N
-    N --> PU
+    N --> US
     N --> BU
     N --> DE
     N --> TE
@@ -252,9 +255,9 @@ six-workstream disposition.
 ### Creator-commerce project
 
 A user says, “Build a place where creators sell digital templates.” Matching
-Business, Design, Tech, Discovery, Bugs, or Product/User workstreams investigate
+User, Business, Design, Tech, Discovery, or Bugs workstreams investigate
 the useful questions and queue ready handoffs for Product intake. The user says
-`$bfm`; Product freezes the intake, dispositions every candidate, reconciles
+`$bfm` in Product/BFM; the control centre freezes the intake, dispositions every candidate, reconciles
 dependencies and priorities, and records the consolidated Project Start Brief
 plus Build Brief before BFM executes and verifies the included scope. Routine
 reconciliation does not add a second approval wait.

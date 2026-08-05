@@ -68,7 +68,7 @@ const deliveredPages = [
 const codexProblemRows = [
   '| Important decisions remain scattered across chats | FB turns actionable decisions and evidence into repository-local handoff MD files. |',
   '| Codex may start building before the goal and boundaries are clear | FB queues ready handoffs for Product intake; `$bfm` then freezes the intake, reconciles it, and records the consolidated Project Start Brief and Build Brief before execution. |',
-  '| User evidence, decisions, and AI assumptions can become mixed together | Product/User records each category separately before implementation. |',
+  '| User evidence, decisions, and AI assumptions can become mixed together | User records each category separately before implementation. |',
   '| Outputs from several Codex tasks must be combined manually | `$bfm` scans ready handoffs across all six workstreams, reconciles conflicts, and sequences the work. |',
   '| Failed checks can return responsibility to the user | FB runs automated checks and owns bounded diagnosis and repair. |',
   '| Progress and readiness can be difficult to interpret | FB reports Current, Next, Blocked, optional review links, and Ready to ship. |',
@@ -182,7 +182,7 @@ const comparisonRows = [
   ['Git worktrees', 'Isolate branches and support parallel implementation.', 'Isolation does not determine what to build, resolve competing recommendations, or verify the product outcome.', 'FB connects worktree execution to approved priorities, coordinated implementation, and outcome verification.'],
   ['Kurrent Capacitor', 'Automatically captures, recalls, observes, and evaluates agent sessions.', 'Session intelligence alone does not define the approved product outcome or own delivery authority and closeout.', 'FB connects curated evidence to the brief, user decisions, execution authority, testing, and closeout.'],
   ['BMAD', 'Provides a broad role-based AI development methodology.', 'A broad methodology can require more process than a focused repository-local Codex delivery loop.', 'FB provides a smaller loop around ready handoffs, Codex implementation, automated verification, and explicit release approval.'],
-  ['FB', 'Connects six product workstreams to Codex implementation, verification, and delivery.', '—', '—'],
+  ['FB', 'Connects six evidence-producing workstreams through one Product/BFM control centre to Codex implementation, verification, and delivery.', '—', '—'],
 ];
 
 const exceptionalFitRows = [
@@ -257,14 +257,15 @@ assert.strictEqual((fullLoop.match(/```mermaid/g) || []).length, 1, 'full loop p
 assert.strictEqual(fullLoop, packagedFullLoop, 'full loop page must be mechanically mirrored');
 
 for (const term of [
-  'Product/User', 'Business', 'Design', 'Tech', 'Discovery', 'Bugs',
+  'User', 'Business', 'Design', 'Tech', 'Discovery', 'Bugs',
+  'Product/BFM control centre',
   'ready', 'blocked', 'None relevant', 'User says $bfm',
   'BFM implements', 'Automated checks', 'Scoped repair',
   'Optional review links', 'Ready to ship', 'Push Live', 'Results and feedback',
 ]) {
   assert.match(fullLoop, new RegExp(term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), `full loop page must show ${term}`);
 }
-assert.match(fullLoop, /Product\s+(?:then\s+)?reconciles/i, 'full loop page must show Product reconciliation');
+assert.match(fullLoop, /Product\/BFM[\s\S]{0,120}(?:freezes|reconciles)/i, 'full loop page must show Product/BFM reconciliation');
 assert.doesNotMatch(fullLoop, /Quick BFM|Full BFM|Normal Codex/i, 'public full-loop diagram must not expose internal mode choices');
 
 for (const evidence of ['TASK-020.md', 'TASK-022.md', 'TASK-024.md', 'TASK-023-walkthroughs.md', 'TASK-026.md']) {
@@ -356,17 +357,18 @@ for (const row of task026Rows) {
 function assertFbLoopDiagram(label, page) {
   const diagram = [...page.matchAll(/```mermaid\s*\n([\s\S]*?)```/g)][0]?.[1] || '';
   for (const [id, workstream] of [
-    ['PU', 'Product/User'], ['BU', 'Business'], ['DE', 'Design'],
+    ['US', 'User'], ['BU', 'Business'], ['DE', 'Design'],
     ['TE', 'Tech'], ['DI', 'Discovery'], ['BG', 'Bugs'],
   ]) {
     assert.match(diagram, new RegExp(`${id}\\["${workstream}<br\\/>Question → Evidence<br\\/>→ Recommendation → Question"\\]`), `${label} must show the ${workstream} mini-loop`);
     assert.match(diagram, new RegExp(`${id}\\s*-->\\s*H`), `${label} must feed ${workstream} into ready handoffs`);
     assert.match(diagram, new RegExp(`N\\s*-->\\s*${id}`), `${label} must return new questions to ${workstream}`);
   }
-  for (const step of ['Ready handoff MD files', '$bfm scans all six', 'Prioritize and sequence', 'Codex implements', 'Automated testing and repair', 'Ready to ship', 'Push Live', 'Results and feedback']) {
+  for (const step of ['Ready handoff MD files', 'Prioritize and sequence', 'Codex implements', 'Automated testing and repair', 'Ready to ship', 'Push Live', 'Results and feedback']) {
     assert.ok(diagram.includes(`"${step}"`), `${label} must contain ${step}`);
   }
-  assert.match(diagram, /H\s*-->\s*B\s*-->\s*P\s*-->\s*C\s*-->\s*T\s*-->\s*S\s*-->\s*L\s*-->\s*D\s*-->\s*F/, `${label} must show one closed BFM delivery sequence`);
+  assert.ok(diagram.includes('$bfm in Product/BFM<br/>scans all six'), `${label} must contain the Product/BFM-only $bfm scan`);
+  assert.match(diagram, /H\s*-->\s*B\s*-->\s*PB\s*-->\s*P\s*-->\s*C\s*-->\s*T\s*-->\s*S\s*-->\s*L\s*-->\s*D\s*-->\s*F/, `${label} must show one closed BFM delivery sequence through the Product/BFM control centre`);
   assert.match(diagram, /F\s*-->\s*N/, `${label} must return delivery results to the mini-loops`);
   assert.doesNotMatch(diagram, /Capacitor|worktree|Quick BFM|Full BFM|Safe fallback/i);
 }

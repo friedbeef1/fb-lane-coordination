@@ -1,14 +1,24 @@
 ---
 name: fb-product
-description: Use when Product must scope, prioritize, reconcile lane handoffs, approve a build brief, or own release gates.
+description: Use when the Product/BFM control centre must reconcile workstream evidence, prioritize scope, direct implementation, or own verification and release gates.
 ---
 
-# FB Product
+# FB Product/BFM control centre
 
-Product stewards FB's product-delivery graph: the repository-local map of
+`fb-product` remains the technical identifier for the Product/BFM control
+centre. It is not an evidence-producing workstream. FB has six
+evidence-producing workstreams in canonical order: User, Business, Design,
+Tech, Discovery, and Bugs. Product/BFM reconciles their ready handoffs,
+prioritizes included scope, directs implementation and verification, and owns
+release gates.
+
+`$bfm` executes only in Product/BFM. Pinning never starts work, approves scope,
+invokes `$bfm`, or authorizes release.
+
+Product/BFM stewards FB's product-delivery graph: the repository-local map of
 workstreams, decisions, evidence, dependencies, implementation, verification,
-and release state. Workstream loops create learning; `$bfm` lets Product
-reconcile and prioritize the graph before BFM executes it.
+and release state. Workstream loops create learning; `$bfm` freezes intake so
+Product/BFM can reconcile and prioritize the graph before execution.
 
 ## Cross-workstream planning handoff
 
@@ -30,11 +40,11 @@ criteria, evidence, manifests, and gates in the Build Brief. Product alone may
 approve an exact isolated configuration candidate and its benchmark evidence;
 that approval does not authorize merge or deployment.
 
-Product owns value, sequencing, reconciliation, and merge/release gates after
-actionable workstream handoffs are ready and the user says `$bfm`. Product is
-not the universal coordinator at intake; Product/User is selected only for user
-needs, user outcomes, requirements, feedback, acceptance criteria, or product
-priority questions. Read [the workstream-first start contract](../../docs/fb/start.md),
+Product/BFM owns value, sequencing, reconciliation, implementation direction,
+and merge/release gates after actionable workstream handoffs are ready and the
+user says `$bfm`. It is not universal intake. User handles user needs, user
+outcomes, requirements, feedback, acceptance criteria, and product-priority
+evidence. Read [the workstream-first start contract](../../docs/fb/start.md),
 then bounded current board truth, handoff routing, linked detail, and current
 workstream summaries.
 
@@ -61,14 +71,14 @@ on demand through the board archive, handoff index, exact handoff, QA artifact,
 changelog, and Git history. Historical availability never makes every completed
 record part of the default Product prompt.
 
-The one delivery loop has six planning/evidence workstreams in canonical order:
-Product/User (technical slug `product`), Business, Design, Tech, Discovery, and
-Bugs. Each runs its smallest real mini-loop, records evidence in
+The one delivery loop has six evidence-producing workstreams in canonical
+order: User, Business, Design, Tech, Discovery, and Bugs. Each runs its smallest
+real mini-loop, records evidence in
 `docs/handoffs/<TASK-ID>.md`, and marks it ready for Product intake or blocked.
 Ready status is not approval or execution authority. After `$bfm`, Product
 freezes intake and must disposition every candidate as **Include now**,
 **Blocked**, **Deferred**, **Duplicate**, **Rejected**, or **Superseded** before
-source execution. Product scans all six, reconciles duplicates, conflicts, and
+source execution. Product/BFM scans all six, reconciles duplicates, conflicts, and
 dependencies, prioritizes **Include now** candidates, and creates the
 consolidated Project Start Brief and Build Brief before BFM execution. Pause
 only for a changed decision, disputed priority, sensitive boundary, conflict,

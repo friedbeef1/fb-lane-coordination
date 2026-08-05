@@ -6,7 +6,7 @@ FB can add a repository-local control loop to an approved Build Brief:
 
 These stages are **capabilities, not mandatory agents**. One agent may perform
 several stages, or deterministic code may perform a stage without an agent.
-They augment Product/User, Business, Design, Tech, Discovery, and Bugs; they do
+They augment User, Business, Design, Tech, Discovery, and Bugs; they do
 not create new workstreams or change Product/BFM authority.
 
 ## Opt in through the Build Brief

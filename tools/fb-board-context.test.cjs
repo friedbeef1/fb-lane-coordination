@@ -104,6 +104,33 @@ test('managed workstream refresh preserves project-owned prose outside its expli
   }
 });
 
+test('Product/BFM status-card generation separates owner matching from control-centre display', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-product-card-'));
+  try {
+    const boardPath = path.join(root, 'PROJECT_BOARD.md');
+    fs.writeFileSync(boardPath, `# Project Board
+
+| ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
+|---|---|---|---|---|---|---|
+| TASK-075 | Staging QA | FB-Product / BFM | Control | Check the seven-role candidate | tools/** | [Handoff](docs/handoffs/TASK-075.md) |
+`);
+
+    assert.strictEqual(typeof lane.refreshManagedWorkstreamCards, 'function');
+    lane.refreshManagedWorkstreamCards(boardPath);
+
+    const product = fs.readFileSync(path.join(root, 'docs', 'workstreams', 'fb-product.md'), 'utf8');
+    assert.match(product, /^# FB-Product\/BFM Control Centre Status$/m);
+    assert.match(product, /\*\*TASK-075\*\* \(Staging QA\)/);
+    assert.match(product, /Check the seven-role candidate/);
+
+    const user = fs.readFileSync(path.join(root, 'docs', 'workstreams', 'fb-user.md'), 'utf8');
+    assert.match(user, /^# FB-User Workstream Status$/m);
+    assert.doesNotMatch(user, /TASK-075/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 function writeLifecycleHandoff(root, taskId, body) {
   const handoffs = path.join(root, 'docs', 'handoffs');
   fs.mkdirSync(handoffs, { recursive: true });

@@ -1,10 +1,10 @@
-# FB-Product Workstream Status
+# FB-Product/BFM Control Centre Status
 
 Last Updated: Not yet updated
-Lane: FB-Product
+Lane: FB-Product/BFM
 
 ## Current Summary
-No lane-specific execution summary has been recorded yet.
+No reconciliation or execution summary has been recorded yet.
 
 ## Already Executed By Product/BFM
 - None recorded.

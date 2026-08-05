@@ -8,8 +8,14 @@ const { execFileSync } = require('node:child_process');
 const WORKSTREAMS = Object.freeze([
   {
     key: 'product',
-    title: 'FB · Product/User',
-    aliases: ['product', 'product user', 'fb product', 'fb product user'],
+    title: 'FB · Product/BFM',
+    aliases: ['product', 'product bfm', 'fb product', 'fb product bfm'],
+    question: 'How should we coordinate delivery and release?',
+  },
+  {
+    key: 'user',
+    title: 'FB · User',
+    aliases: ['user', 'fb user', 'product user', 'fb product user'],
     question: 'What user outcome should we deliver?',
   },
   {
@@ -103,6 +109,117 @@ function planMissingWorkstreams(tasks, repositoryPath) {
   return WORKSTREAMS.filter(item => !found.has(item.key));
 }
 
+function taskId(task) {
+  return task && (task.id || task.taskId || task.threadId || task.task_id || task.thread_id);
+}
+
+function taskIsPinned(task) {
+  return Boolean(task && (task.pinned === true || task.isPinned === true));
+}
+
+function inventorySnapshot(inventory) {
+  if (Array.isArray(inventory)) {
+    return { tasks: inventory, complete: true, failures: [] };
+  }
+  const value = inventory && typeof inventory === 'object' ? inventory : {};
+  return {
+    tasks: Array.isArray(value.tasks) ? value.tasks : [],
+    complete: value.complete === true,
+    failures: Array.isArray(value.failures) ? value.failures : [],
+  };
+}
+
+function actionTaskId(task) {
+  const id = taskId(task);
+  return id === undefined || id === null ? undefined : String(id);
+}
+
+function needsTaskInventoryReconciliation(receipt) {
+  if (!receipt || receipt.permission !== 'granted') return false;
+  const observed = new Set(Array.isArray(receipt.workstreams) ? receipt.workstreams : []);
+  return WORKSTREAMS.some(workstream => !observed.has(workstream.key));
+}
+
+function planRepositoryTaskInventory(inventory, repositoryPath) {
+  const snapshot = inventorySnapshot(inventory);
+  if (!snapshot.complete) {
+    return {
+      complete: false,
+      failures: snapshot.failures.length > 0
+        ? snapshot.failures
+        : [{ operation: 'inventory', message: 'A complete task inventory is required before planning.' }],
+      actions: [],
+    };
+  }
+
+  const available = new Map();
+  for (const task of snapshot.tasks) {
+    if (!belongsToRepository(task, repositoryPath)) continue;
+    const workstream = recognizedWorkstream(taskTitle(task));
+    if (!workstream) continue;
+    const matches = available.get(workstream.key) || [];
+    matches.push(task);
+    available.set(workstream.key, matches);
+  }
+
+  const duplicateFailures = WORKSTREAMS.flatMap(workstream => {
+    const matches = available.get(workstream.key) || [];
+    if (matches.length < 2) return [];
+    const ids = matches.map(task => actionTaskId(task) || '(unknown)').sort().join(', ');
+    return [{
+      operation: 'inventory',
+      message: `Ambiguous ${workstream.title.replace(/^FB · /, '')} tasks: ${ids}.`,
+    }];
+  });
+  if (duplicateFailures.length > 0) {
+    return { complete: false, failures: duplicateFailures, actions: [] };
+  }
+
+  const missingTargetFailures = WORKSTREAMS.flatMap(workstream => {
+    const task = (available.get(workstream.key) || [])[0];
+    if (!task || actionTaskId(task)) return [];
+    const label = workstream.title.replace(/^FB · /, '');
+    const failures = [];
+    if (normalizeTitle(taskTitle(task)) !== normalizeTitle(workstream.title)) {
+      failures.push({
+        operation: 'inventory',
+        message: `Cannot rename ${label} without an executable task/thread ID.`,
+      });
+    }
+    if (!taskIsPinned(task)) {
+      failures.push({
+        operation: 'inventory',
+        message: `Cannot pin ${label} without an executable task/thread ID.`,
+      });
+    }
+    return failures;
+  });
+  if (missingTargetFailures.length > 0) {
+    return { complete: false, failures: missingTargetFailures, actions: [] };
+  }
+
+  const actions = [];
+  for (const workstream of WORKSTREAMS) {
+    const task = (available.get(workstream.key) || [])[0];
+    if (!task) {
+      actions.push({ type: 'create', workstream: workstream.key, title: workstream.title });
+      actions.push({ type: 'pin', workstream: workstream.key, after: `create:${workstream.key}` });
+      continue;
+    }
+
+    const id = actionTaskId(task);
+    actions.push({ type: 'reuse', workstream: workstream.key, ...(id ? { taskId: id } : {}) });
+    if (normalizeTitle(taskTitle(task)) !== normalizeTitle(workstream.title)) {
+      actions.push({ type: 'rename', workstream: workstream.key, ...(id ? { taskId: id } : {}), title: workstream.title });
+    }
+    if (!taskIsPinned(task)) {
+      actions.push({ type: 'pin', workstream: workstream.key, ...(id ? { taskId: id } : {}) });
+    }
+  }
+
+  return { complete: true, failures: [], actions };
+}
+
 function receiptPath(rootDir) {
   const requestedRoot = path.resolve(rootDir);
   const resolvedRoot = fs.realpathSync.native(requestedRoot);
@@ -183,7 +300,7 @@ function recordReconciliation(rootDir, workstreams, options = {}) {
   const observed = new Set(Array.isArray(workstreams) ? workstreams : []);
   const canonical = WORKSTREAMS.map(item => item.key);
   if (!canonical.every(key => observed.has(key))) {
-    throw new Error('Onboarding reconciliation requires all six workstreams.');
+    throw new Error('Onboarding reconciliation requires all seven roles.');
   }
   const now = options.now instanceof Date ? options.now : new Date();
   const state = {
@@ -201,6 +318,16 @@ function renderIdleTaskPrompt(workstream, options = {}) {
   }
   const repositoryName = options.repositoryName || path.basename(options.repositoryPath || process.cwd());
   const repositoryPath = path.resolve(options.repositoryPath || process.cwd());
+  if (workstream.key === 'product') {
+    return [
+      `You are the ${workstream.title} control centre for this repository.`,
+      `Repository: ${repositoryName} (${repositoryPath})`,
+      `Primary question: ${workstream.question}`,
+      '',
+      'Remain idle after acknowledging this setup until the user invokes `$bfm` in this task. Do not investigate, edit files, create a handoff, claim work, or start implementation before that invocation.',
+      'When invoked, reconcile ready evidence from User, Business, Design, Tech, Discovery, and Bugs; disposition and sequence the approved scope; direct execution and verification; stop at Ready to ship. Only Push Live authorizes release.',
+    ].join('\n');
+  }
   return [
     `You are the ${workstream.title} workstream for this repository.`,
     `Repository: ${repositoryName} (${repositoryPath})`,
@@ -241,6 +368,14 @@ function runCli(args) {
     process.stdout.write(`${JSON.stringify(state, null, 2)}\n`);
     return;
   }
+  if (command === 'needs-reconciliation') {
+    const rootDir = args[1] || process.cwd();
+    const state = readOnboardingReceipt(rootDir);
+    process.stdout.write(`${JSON.stringify({
+      needsReconciliation: needsTaskInventoryReconciliation(state),
+    }, null, 2)}\n`);
+    return;
+  }
   if (command === 'permission') {
     const permission = args[1];
     const rootDir = args[2] || process.cwd();
@@ -264,7 +399,7 @@ function runCli(args) {
     })}\n`);
     return;
   }
-  throw new Error('Usage: node tools/fb-onboarding.cjs status [root] | permission granted|declined [root] | reconcile product,business,design,tech,discovery,bugs [root] | prompt <workstream> [root]');
+  throw new Error('Usage: node tools/fb-onboarding.cjs status [root] | needs-reconciliation [root] | permission granted|declined [root] | reconcile product,user,business,design,tech,discovery,bugs [root] | prompt <workstream> [root]');
 }
 
 if (require.main === module) {
@@ -280,7 +415,9 @@ module.exports = {
   WORKSTREAMS,
   ensureOnboardingReceipt,
   isBfmIntent,
+  needsTaskInventoryReconciliation,
   planMissingWorkstreams,
+  planRepositoryTaskInventory,
   readOnboardingReceipt,
   recognizedWorkstream,
   recordPermission,

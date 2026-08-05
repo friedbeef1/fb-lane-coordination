@@ -9,12 +9,13 @@ not additional workstreams or mandatory agents.
 
 ## Ownership and durable records
 
-- **Product/User:** owns user outcomes, requirements, real feedback, priorities, acceptance criteria, reconciliation, and release gates. It labels inference as assumptions and never invents user evidence.
+- **User:** owns user outcomes, requirements, real feedback, priority evidence, and acceptance criteria. It labels inference as assumptions and never invents user evidence.
 - **Tech:** owns schemas, APIs, serverless/security/configuration, and tests; it does not make styling, layout, font, or appearance changes.
 - **Design:** owns CSS, tokens, assets, layout geometry, and visual viewports; it does not edit schemas, API routes, or backend logic.
 - **Business:** owns pricing/copy/onboarding/docs/help/marketing; it is read-only on application code and does not deploy.
 - **Discovery:** owns research, unknowns, experiments, competitor evidence, and feasibility evidence; it does not implement or set final priority.
 - **Bugs:** owns reproduction, severity, affected-user impact, regression evidence, and verification requirements; it does not quietly fix source.
+- **Product/BFM control centre:** owns reconciliation, sequencing, approved implementation, verification, and release gates. It is not an evidence-producing workstream.
 - **All workstreams:** investigate and write plans/handoffs in ordinary chats; a handoff ready for Product intake is a candidate only, and none starts source execution without Product-launched BFM.
 - **BFM execution workers:** may claim locked files, use an isolated branch/worktree, edit, verify, and submit only within an approved BFM run.
 
@@ -139,7 +140,7 @@ material decision lacks a preview.
 
 1. Read `AGENTS.md`, board, current-task record if present, the handoff index, then only linked handoffs.
 2. Show the target card: status, owner, scope, locks, blockers, gates, checks, links, intentional dirt, and approved goal.
-3. Scan the six workstreams in order: Product/User, Business, Design, Tech,
+3. Scan the six evidence-producing workstreams in order: User, Business, Design, Tech,
    Discovery, Bugs. Each is linked to ready/blocked output or recorded as **None
    relevant**. Include only valid `ready` handoffs as candidates; exclude
    implemented, done, and deferred work; stop to reconcile duplicates or

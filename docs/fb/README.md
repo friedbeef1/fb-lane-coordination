@@ -3,8 +3,10 @@
 FB is an open-source Codex plugin that turns scattered AI conversations into a
 living repository-local product-delivery graph. The graph connects workstreams,
 decisions, evidence, dependencies, implementation, verification, and release
-state. Six workstreams run focused learning loops inside it; `$bfm` navigates,
-reconciles, prioritizes, and executes the graph, then stops at **Ready to
+state. FB has six evidence-producing workstreams plus one Product/BFM control
+centre and seven pinned repository-scoped Codex tasks. The workstreams run
+focused learning loops; `$bfm` navigates, reconciles, prioritizes, and executes
+the graph from Product/BFM, then stops at **Ready to
 ship**. Only **Push Live** authorizes release.
 
 This graph is a delivery map, not a graph database, knowledge graph, or GraphQL
@@ -46,9 +48,9 @@ instructions take precedence when they are stricter.
 
 ## Start with the matching workstream
 
-When planning or evidence is useful, start in whichever workstream matches the
-question. Product/User is selected only for user needs, outcomes, requirements,
-feedback, acceptance criteria, or product priorities. Relevant workstreams
+When planning or evidence is useful, start in whichever evidence-producing
+workstream matches the question: User, Business, Design, Tech, Discovery, or
+Bugs. Product/BFM is the control centre, not universal intake. Relevant workstreams
 create handoffs ready for Product intake. Ready means queued for Product
 review, not approval or execution. Only `$bfm` freezes that intake, makes
 Product disposition and sequence every candidate, records the consolidated

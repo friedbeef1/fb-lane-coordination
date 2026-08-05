@@ -9,7 +9,7 @@ handoff and complete verification output belongs in a linked QA artifact.
 - `Ready`: Triaged tasks, fully scoped, ready to be claimed.
 - `In Progress`: Tasks currently being worked on by an owner.
 - `Staging QA`: Candidate awaiting verification. Record the actual local, sandbox, staging, or completed-build environment separately.
-- `Done`: Checked, verified, and merged to production by FB Product.
+- `Done`: Checked, verified, and merged to production by FB Product/BFM.
 
 ---
 
@@ -17,13 +17,13 @@ handoff and complete verification output belongs in a linked QA artifact.
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-001 | Ready | FB Product | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \| [PR #1](https://github.com/example/repo/pull/1) |
+| TASK-001 | Ready | FB Product/BFM | Setup | Bootstrap repository files | (None) | [Branch](https://github.com/example/repo/tree/main) \| [PR #1](https://github.com/example/repo/pull/1) |
 
 ---
 
 ### TASK-001 - Project Setup & Bootstrap
 *   **Status**: Ready
-*   **Owner / Thread**: FB Product
+*   **Owner / Thread**: FB Product/BFM
 *   **Area**: Setup
 *   **Scope**: Create initial files, initialize repository layout.
 *   **Out of Scope**: Writing application business logic.
