@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-075 | Ready | FB-Product / BFM | User workstream and Product/BFM control centre | Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks | Onboarding runtime/tests; canonical skills/docs/templates/metadata; generated plugin mirrors; TASK-075 records | [Handoff](docs/handoffs/TASK-075.md); [QA](docs/qa/TASK-075.md); [Plan](docs/superpowers/plans/2026-08-05-user-product-bfm-control-centre.md) |
+| TASK-075 | In Progress | FB-Fb-product | User workstream and Product/BFM control centre | Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks | `tools/fb-onboarding.cjs`, `tools/fb-onboarding.test.cjs`, `skills/`, `docs/fb/`, `README.md`, `CHANGELOG.md`, `plugins/fb-lane-coordination/`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-075.md`, `docs/qa/TASK-075.md` | [Handoff](docs/handoffs/TASK-075.md); [QA](docs/qa/TASK-075.md); [Plan](docs/superpowers/plans/2026-08-05-user-product-bfm-control-centre.md) |
 | TASK-074 | Done | FB-Product / BFM | Graph Engineering positioning and FB 0.5.8-beta | Make Graph Engineering the headline product category, align the public story and packaged plugin, and preserve existing runtime contracts | None; published and installed | [Handoff](docs/handoffs/TASK-074.md); [QA](docs/qa/TASK-074.md); [PR #58](https://github.com/friedbeef1/fb-lane-coordination/pull/58) merged as `72bfab0`; exact build installed and enabled |
 | TASK-073 | Done | FB-Product / BFM | Evaluation results, meaningful repair, and FB 0.5.7-beta | Show eval results clearly, reject superficial repair loops, and publish `0.5.7-beta+codex.20260804131420` | None; published and installed | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); [PR #57](https://github.com/friedbeef1/fb-lane-coordination/pull/57) merged as `c1e63f1`; exact build installed and enabled |
 | TASK-072 | Done | FB-Product / BFM | Lifecycle truth, historical retrieval, and FB 0.5.6-beta | Keep routine orientation current-state only while preserving complete on-demand history; publish `0.5.6-beta+codex.20260804045203` | None; published and installed | [Handoff](docs/handoffs/TASK-072.md); [QA](docs/qa/TASK-072.md); [PR #56](https://github.com/friedbeef1/fb-lane-coordination/pull/56) merged as `894d4a1`; exact build installed and enabled |
@@ -26,8 +26,8 @@
 
 ### TASK-075 - User workstream and Product/BFM control centre
 
-*   **Status**: Ready — intake frozen; implementation branch pending.
-*   **Owner / Thread**: FB-Product / BFM.
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Fb-product
 *   **Area**: Onboarding runtime, sidebar migration, skills, public and harness
     documentation, plugin metadata, templates, contracts, and package mirrors.
 *   **Scope**: Establish User, Business, Design, Tech, Discovery, and Bugs as

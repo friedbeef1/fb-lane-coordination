@@ -17,3 +17,20 @@ No lane-specific execution summary has been recorded yet.
 - docs/handoffs/index.md
 
 This card is a revisit summary only. PROJECT_BOARD.md remains the source of truth for status, owner, locks, approved goals, and sequencing. docs/handoffs/index.md remains the routing layer. Do not add full OKRs, QA logs, plans, rationale, or implementation details here.
+<!-- FB-LANE:WORKSTREAM-SUMMARY:START -->
+## Current
+- None.
+
+## Next
+- None ready for Product intake.
+
+## Blocked
+- None.
+
+## Recently delivered
+- None.
+
+## Historical lookup
+- [Handoff index](../handoffs/index.md)
+- [Board archives](../board/archive/)
+<!-- FB-LANE:WORKSTREAM-SUMMARY:END -->
