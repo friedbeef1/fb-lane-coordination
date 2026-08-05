@@ -97,26 +97,23 @@ onboarding, plugin skills, and upgrade behavior.
   dedicated User and Product/BFM skill/guidance model; public, setup, platform,
   template, prompt, metadata, version, release, and generated package surfaces.
 - **Verification:** [TASK-075 QA](../qa/TASK-075.md).
-- **Review state:** Checking — all functional suites reached by the approved
-  final pass were green; Doctor blocked only because the approved positioning
-  repair had not yet been committed. No additional pass is authorized.
+- **Review state:** completed build — clean release checkpoint passed; Ready to
+  ship.
 - **Changelog:** drafted — [FB 0.5.9-beta](../../CHANGELOG.md#059-beta--2026-08-05).
 - **Changelog approval:** approved by James on 2026-08-05.
-- **External gates:** Product direction for any further release-checkpoint run,
-  then Push Live only after a clean passing checkpoint.
-- **Remaining owner/action:** Product/BFM commits the approved positioning
-  repair and James decides whether to authorize one clean-worktree checkpoint.
+- **External gates:** Push Live.
+- **Remaining owner/action:** James says **Push Live** to authorize push, merge,
+  marketplace publication, reinstall, and active-install verification.
 
 ## Brief Validation
 
-Status: Checking
+Status: pass
 
 - **Satisfied:** The canonical candidate, generated package, active release
   records, compatibility boundary, and focused evidence are aligned.
-- **Missing:** A passing clean-worktree release checkpoint and Push Live.
-- **Next action:** Commit the approved positioning repair, then obtain explicit
-  Product direction before any further complete-validator run. Do not claim
-  Ready to ship unless it passes.
+- **Missing:** No candidate requirement; Push Live remains the external release
+  authorization.
+- **Next action:** Wait for **Push Live**.
 
 ## Failure Evidence
 
@@ -154,3 +151,9 @@ Final checkpoint observation: the specifically approved final pass cleared CLI
 two-speed, and efficiency 25/25. Doctor then blocked on the uncommitted approved
 positioning repair. Product classifies this as a release sequencing error, not
 a functional failure, and will not rerun without new explicit direction.
+
+Clean-worktree checkpoint result: after explicit Product approval, the
+committed candidate passed the complete validator. CLI 72/72, sessions 39/39,
+evals 19/19, beginner experience 11/11, positioning, two-speed, efficiency
+25/25, package parity, syntax, Doctor Ready, and committed-diff whitespace all
+passed. The candidate is Ready to ship.

@@ -1,7 +1,7 @@
 # TASK-075 QA — User workstream and Product/BFM control centre
 
 Date: 2026-08-05
-Status: Checking
+Status: Ready to ship
 Candidate: `fb-product/TASK-075-replace-product-user-with-user-add-the-product-bfm-control-centre-and-converge-onboarding-on-seven-pinned-repository-tasks`
 Release candidate: `0.5.9-beta+codex.20260805042523`
 Changelog approval: approved by James on 2026-08-05
@@ -18,7 +18,7 @@ Changelog approval: approved by James on 2026-08-05
 | Links, records, and doctor | pass; Doctor exits 0 with only expected dirty-worktree attention before commit |
 | Whitespace | `git diff --check` pass |
 | Changelog approval | approved by James on 2026-08-05 |
-| Release checkpoint | Checking — the approved final pass cleared every functional suite reached, then Doctor blocked because the approved positioning repair had not yet been committed; no further pass is authorized |
+| Release checkpoint | pass — clean committed candidate; CLI 72/72, sessions 39/39, evals 19/19, beginner 11/11, positioning, two-speed, efficiency 25/25, Doctor Ready, and whitespace pass |
 
 ## Bounded verification repairs
 
@@ -72,6 +72,12 @@ and efficiency 25/25. Doctor then stopped only on the clean-worktree gate
 because the approved positioning repair was still uncommitted. This was a
 release sequencing error, not a functional failure. The repair is now being
 committed; no additional complete pass is authorized automatically.
+
+James then approved one clean-worktree release checkpoint. The committed
+candidate passed the complete validator: CLI 72/72, sessions 39/39, evals
+19/19, beginner experience 11/11, positioning, two-speed, efficiency 25/25,
+Doctor Ready, package parity, syntax, and committed-diff whitespace. TASK-075 is
+Ready to ship; Push Live remains the only release authorization.
 
 No push, merge, marketplace publication, reinstall, or consumer-project rollout
 is authorized before the normal release boundary.
