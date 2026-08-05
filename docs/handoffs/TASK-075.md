@@ -97,12 +97,15 @@ onboarding, plugin skills, and upgrade behavior.
   dedicated User and Product/BFM skill/guidance model; public, setup, platform,
   template, prompt, metadata, version, release, and generated package surfaces.
 - **Verification:** [TASK-075 QA](../qa/TASK-075.md).
-- **Review state:** Checking — focused candidate evidence recorded; final
-  release checkpoint intentionally not run.
+- **Review state:** Checking — focused candidate evidence and both bounded
+  validator repairs are green; the circuit breaker requires Product approval
+  before one exceptional additional complete pass.
 - **Changelog:** drafted — [FB 0.5.9-beta](../../CHANGELOG.md#059-beta--2026-08-05).
 - **Changelog approval:** approved by James on 2026-08-05.
-- **External gates:** Final release checkpoint and Push Live.
-- **Remaining owner/action:** Product/BFM runs the one final release checkpoint.
+- **External gates:** Product approval for one exceptional additional release
+  checkpoint pass, then Push Live if it passes.
+- **Remaining owner/action:** James approves or declines one exceptional
+  additional complete-validator run.
 
 ## Brief Validation
 
@@ -110,9 +113,10 @@ Status: Checking
 
 - **Satisfied:** The canonical candidate, generated package, active release
   records, compatibility boundary, and focused evidence are aligned.
-- **Missing:** The final release checkpoint and Push Live.
-- **Next action:** Run the single final release checkpoint. Do not claim Ready
-  to ship unless it passes.
+- **Missing:** A passing complete release checkpoint and Push Live.
+- **Next action:** Obtain explicit Product direction before one exceptional
+  additional complete-validator run. Do not claim Ready to ship unless it
+  passes.
 
 ## Failure Evidence
 
@@ -130,3 +134,12 @@ Status: Checking
 - **Reusable lesson:** Structural wording contracts must move with intentional
   terminology changes; broad validation should identify drift without forcing
   product copy backwards.
+
+Second checkpoint observation: the permitted final pass found two more stale
+Product/User-era assertions in the beginner-experience suite. The canonical
+scenario and start guidance already implement conditional User selection,
+Product/BFM control-centre ownership, and matching-workstream intake. Product
+prepared the final focused contract repair. Root and packaged beginner suites
+now pass 11/11, declared mirrors are synchronized, and whitespace passes.
+Product will not run another complete validator without explicit direction
+because the release circuit breaker has fired.

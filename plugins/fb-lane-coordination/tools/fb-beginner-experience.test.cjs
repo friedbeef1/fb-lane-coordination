@@ -164,7 +164,8 @@ test('canonical eval catalog defines three complete beginner scenarios at shadow
   assert.match(catalog, /beginner updates[\s\S]*(?:judge|judgment)/i);
   const workstreamFirst = section(catalog, expectedScenarios[0], 3);
   assert.match(workstreamFirst, /one visible workstream-first route/i);
-  assert.match(workstreamFirst, /Product\/User[\s\S]*(?:only|conditional)/i);
+  assert.match(workstreamFirst, /conditional User selection/i);
+  assert.match(workstreamFirst, /Product\/BFM[\s\S]*control centre/i);
   assert.match(workstreamFirst, /ready handoffs[\s\S]*`\$bfm`[\s\S]*Product reconciliation[\s\S]*Project Start Brief[\s\S]*Build Brief/i);
   assert.doesNotMatch(workstreamFirst, /simple task|coordinated planning|Approved Build For Me|three visible responses|mode rationale|exact Build For Me transition/i);
   assert.doesNotMatch(catalog, /Authority:\s*(?:advisory|blocking|mechanical)/i);
@@ -174,12 +175,12 @@ test('onboarding exposes one workstream-first path and reconciles only after $bf
   const start = read('docs/fb/start.md');
   assert.doesNotMatch(start, /^## Choose the mode|^### (?:Simple task|Coordinated planning|Approved Build For Me)/m);
   assert.doesNotMatch(start, /Normal Codex|Quick BFM|Full BFM/);
-  assert.match(start, /start in whichever of the six workstreams matches the question/i);
-  assert.match(start, /Product\/User[^\n]*(?:only|when)[^\n]*(?:user needs|user outcomes|requirements|feedback|acceptance criteria|product priority)/i);
-  assert.match(start, /not (?:the )?(?:universal )?coordinator at intake/i);
+  assert.match(start, /six evidence-producing workstreams[\s\S]*start in the matching\s+workstream/i);
+  assert.match(start, /\*\*User:\*\*[^\n]*(?:user needs|user outcomes|requirements|feedback|acceptance criteria|product-priority)/i);
+  assert.match(start, /Product\/BFM[\s\S]*not a seventh evidence-producing workstream[\s\S]*universal intake coordinator/i);
   assert.match(start, /ready for Product intake/i);
   assert.match(start, /None relevant[^\n]*only[^\n]*six-workstream (?:scan|report)/i);
-  assertOrdered(start, ['ready for Product intake', 'the user says `$bfm`', '`$bfm` freezes intake', 'disposition every candidate', 'Project Start Brief', 'Build Brief', 'Ready to ship', 'Push Live'], 'single public sequence');
+  assertOrdered(start, ['ready for Product intake', 'the user says `$bfm`', 'It freezes intake', 'disposition every candidate', 'Project Start Brief', 'Build Brief', 'Ready to ship', 'Push Live'], 'single public sequence');
 
   const brief = section(start, 'Project Start Brief');
   const visibleFields = [...brief.matchAll(/^- \*\*([^:*]+):\*\*/gm)].map(match => match[1]);

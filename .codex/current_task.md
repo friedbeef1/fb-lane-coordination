@@ -1,7 +1,7 @@
 # Active Task Context
 * **Current Task**: TASK-075
 * **Lane**: FB-Product / BFM
-* **Status**: Checking — final release validator pending
+* **Status**: Checking — focused repairs green; exceptional additional release validator requires Product approval
 * **BFM Class**: Full BFM plugin release candidate
 * **Feature Branch**: `fb-product/TASK-075-replace-product-user-with-user-add-the-product-bfm-control-centre-and-converge-onboarding-on-seven-pinned-repository-tasks`
 * **Release Candidate**: `0.5.9-beta+codex.20260805042523`

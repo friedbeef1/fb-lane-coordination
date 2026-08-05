@@ -18,7 +18,7 @@ Changelog approval: approved by James on 2026-08-05
 | Links, records, and doctor | pass; Doctor exits 0 with only expected dirty-worktree attention before commit |
 | Whitespace | `git diff --check` pass |
 | Changelog approval | approved by James on 2026-08-05 |
-| Final release checkpoint | pending — single authorized complete validator pass |
+| Release checkpoint | Checking — two complete passes exposed stale structural assertions; both focused repairs are green, and the circuit breaker requires Product approval before one exceptional additional pass |
 
 ## Bounded verification repairs
 
@@ -46,6 +46,19 @@ permitted final complete pass.
 
 Focused recovery result: root regression suite passed 72/72, the package mirror
 was regenerated mechanically, and whitespace passed.
+
+The permitted final complete pass then reached the beginner-experience suite
+and stopped on two additional Product/User-era assertions. Both current
+scenarios already describe conditional User selection, the Product/BFM control
+centre, and matching workstream intake. Product classified this as the same
+stale-contract cause and prepared the second, final focused repair batch. The
+harness circuit breaker prevents another complete validator automatically;
+after the focused beginner proof passes, another full pass requires explicit
+Product direction.
+
+Focused recovery result: root beginner-experience suite passed 11/11, the
+packaged suite passed 11/11, 60 declared mirrors were regenerated, and
+whitespace passed. No third complete-validator run was attempted.
 
 No push, merge, marketplace publication, reinstall, or consumer-project rollout
 is authorized before the normal release boundary.
