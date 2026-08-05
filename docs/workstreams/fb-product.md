@@ -1,11 +1,11 @@
-# FB-Product Workstream Status
+# FB-Product/BFM Control Centre Status
 
 Last Updated: 2026-08-05
-Lane: FB-Product
+Lane: FB-Product/BFM
 
 <!-- FB-LANE:WORKSTREAM-SUMMARY:START -->
 ## Current
-- **TASK-075** (In Progress) — Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks — [Handoff](../handoffs/TASK-075.md); [QA](../qa/TASK-075.md); [Plan](../superpowers/plans/2026-08-05-user-product-bfm-control-centre.md)
+- **TASK-075** (Staging QA) — Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks — Checking — focused candidate green for `0.5.9-beta+codex.20260805042523`; Changelog approval: pending; final release validator not run; [Handoff](../handoffs/TASK-075.md); [QA](../qa/TASK-075.md)
 
 ## Next
 - None ready for Product intake.

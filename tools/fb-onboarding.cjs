@@ -134,6 +134,12 @@ function actionTaskId(task) {
   return id === undefined || id === null ? undefined : String(id);
 }
 
+function needsTaskInventoryReconciliation(receipt) {
+  if (!receipt || receipt.permission !== 'granted') return false;
+  const observed = new Set(Array.isArray(receipt.workstreams) ? receipt.workstreams : []);
+  return WORKSTREAMS.some(workstream => !observed.has(workstream.key));
+}
+
 function planRepositoryTaskInventory(inventory, repositoryPath) {
   const snapshot = inventorySnapshot(inventory);
   if (!snapshot.complete) {
@@ -167,6 +173,29 @@ function planRepositoryTaskInventory(inventory, repositoryPath) {
   });
   if (duplicateFailures.length > 0) {
     return { complete: false, failures: duplicateFailures, actions: [] };
+  }
+
+  const missingTargetFailures = WORKSTREAMS.flatMap(workstream => {
+    const task = (available.get(workstream.key) || [])[0];
+    if (!task || actionTaskId(task)) return [];
+    const label = workstream.title.replace(/^FB · /, '');
+    const failures = [];
+    if (normalizeTitle(taskTitle(task)) !== normalizeTitle(workstream.title)) {
+      failures.push({
+        operation: 'inventory',
+        message: `Cannot rename ${label} without an executable task/thread ID.`,
+      });
+    }
+    if (!taskIsPinned(task)) {
+      failures.push({
+        operation: 'inventory',
+        message: `Cannot pin ${label} without an executable task/thread ID.`,
+      });
+    }
+    return failures;
+  });
+  if (missingTargetFailures.length > 0) {
+    return { complete: false, failures: missingTargetFailures, actions: [] };
   }
 
   const actions = [];
@@ -339,6 +368,14 @@ function runCli(args) {
     process.stdout.write(`${JSON.stringify(state, null, 2)}\n`);
     return;
   }
+  if (command === 'needs-reconciliation') {
+    const rootDir = args[1] || process.cwd();
+    const state = readOnboardingReceipt(rootDir);
+    process.stdout.write(`${JSON.stringify({
+      needsReconciliation: needsTaskInventoryReconciliation(state),
+    }, null, 2)}\n`);
+    return;
+  }
   if (command === 'permission') {
     const permission = args[1];
     const rootDir = args[2] || process.cwd();
@@ -362,7 +399,7 @@ function runCli(args) {
     })}\n`);
     return;
   }
-  throw new Error('Usage: node tools/fb-onboarding.cjs status [root] | permission granted|declined [root] | reconcile product,user,business,design,tech,discovery,bugs [root] | prompt <workstream> [root]');
+  throw new Error('Usage: node tools/fb-onboarding.cjs status [root] | needs-reconciliation [root] | permission granted|declined [root] | reconcile product,user,business,design,tech,discovery,bugs [root] | prompt <workstream> [root]');
 }
 
 if (require.main === module) {
@@ -378,6 +415,7 @@ module.exports = {
   WORKSTREAMS,
   ensureOnboardingReceipt,
   isBfmIntent,
+  needsTaskInventoryReconciliation,
   planMissingWorkstreams,
   planRepositoryTaskInventory,
   readOnboardingReceipt,

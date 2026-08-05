@@ -42,7 +42,11 @@ permission question once. Do not ask it again on a later `$bfm`.
   sidebar setup.
 - When permission is pending and the current message is not the answer, do not
   infer consent or block ordinary `$bfm` work.
-- When permission is granted and `reconciledAt` is absent, use Codex task tools
+- Whenever permission is granted, run
+  `node tools/fb-onboarding.cjs needs-reconciliation`. It decides from the
+  canonical seven roles recorded in `workstreams`; an existing `reconciledAt`
+  never overrides a missing role.
+- When that helper reports `needsReconciliation: true`, use Codex task tools
   only if they are available:
   1. Call `list_projects` and select the exact current repository project.
   2. Call `list_threads` using only arguments supported by the current Codex

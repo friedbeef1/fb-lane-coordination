@@ -43,6 +43,9 @@ for (const name of ['fb-user', 'fb-business', 'fb-design', 'fb-tech', 'fb-discov
 const bfm = read('skills/bfm/SKILL.md');
 assert.match(bfm, /Only the Product\/BFM main task may continue/);
 assert.match(bfm, /planRepositoryTaskInventory/);
+assert.match(bfm, /needs-reconciliation/i);
+assert.match(bfm, /canonical seven roles/i);
+assert.doesNotMatch(bfm, /permission is granted and `reconciledAt` is absent/i);
 assert.match(bfm, /product,\s*user,\s*business,\s*design,\s*tech,\s*discovery,\s*bugs/i);
 assert.match(bfm, /seven[\s\S]{0,100}(?:tasks|titles)[\s\S]{0,100}pinned/i);
 assert.match(bfm, /pinning never starts work/i);
@@ -106,6 +109,11 @@ try {
   for (const lane of ['product', 'user', 'business', 'design', 'tech', 'discovery', 'bugs']) {
     assert.ok(fs.existsSync(path.join(fixture, 'docs', 'workstreams', `fb-${lane}.md`)), `bootstrap must create the ${lane} status card`);
   }
+  const productCard = fs.readFileSync(path.join(fixture, 'docs', 'workstreams', 'fb-product.md'), 'utf8');
+  assert.match(productCard, /^# FB-Product\/BFM Control Centre Status$/m);
+  assert.match(productCard, /TASK-001/, 'Product/BFM card must project its generated board task');
+  const userCard = fs.readFileSync(path.join(fixture, 'docs', 'workstreams', 'fb-user.md'), 'utf8');
+  assert.match(userCard, /^# FB-User Workstream Status$/m);
   const board = fs.readFileSync(path.join(fixture, 'PROJECT_BOARD.md'), 'utf8');
   assert.match(board, /`Done`:[^\n]*FB Product\/BFM/i);
   assert.match(board, /\| TASK-001 \| Ready \| FB Product\/BFM \|/);

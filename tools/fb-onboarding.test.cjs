@@ -115,6 +115,45 @@ test('legacy six-role receipts remain readable until seven-role reconciliation r
   }
 });
 
+test('legacy reconciled receipts still run the seven-role reconciliation cycle', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-legacy-cycle-'));
+  const tool = path.join(__dirname, 'fb-onboarding.cjs');
+  try {
+    const receipt = {
+      schemaVersion: 1,
+      repositoryPath: root,
+      permission: 'granted',
+      promptedAt: '2026-07-29T10:00:00.000Z',
+      workstreams: ['product', 'business', 'design', 'tech', 'discovery', 'bugs'],
+      reconciledAt: '2026-07-29T13:00:00.000Z',
+    };
+    fs.mkdirSync(path.join(root, '.fb'), { recursive: true });
+    fs.writeFileSync(path.join(root, '.fb', 'onboarding.json'), `${JSON.stringify(receipt)}\n`);
+
+    const before = spawnSync(process.execPath, [tool, 'needs-reconciliation', root], {
+      encoding: 'utf8',
+    });
+    assert.strictEqual(before.status, 0, before.stderr);
+    assert.deepStrictEqual(JSON.parse(before.stdout), { needsReconciliation: true });
+
+    const reconciled = spawnSync(process.execPath, [
+      tool,
+      'reconcile',
+      'product,user,business,design,tech,discovery,bugs',
+      root,
+    ], { encoding: 'utf8' });
+    assert.strictEqual(reconciled.status, 0, reconciled.stderr);
+
+    const after = spawnSync(process.execPath, [tool, 'needs-reconciliation', root], {
+      encoding: 'utf8',
+    });
+    assert.strictEqual(after.status, 0, after.stderr);
+    assert.deepStrictEqual(JSON.parse(after.stdout), { needsReconciliation: false });
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test('one clone shares the permission receipt across linked worktrees', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-git-'));
   const linked = `${root}-linked`;
@@ -251,6 +290,28 @@ test('repository inventory planning blocks duplicate roles and unproven object i
   }]);
 });
 
+test('repository inventory planning fails closed when rename or pin targets lack IDs', () => {
+  const renameWithoutId = onboarding.planRepositoryTaskInventory([
+    { title: 'Product', projectPath: REPO, pinned: true },
+  ], REPO);
+  assert.strictEqual(renameWithoutId.complete, false);
+  assert.deepStrictEqual(renameWithoutId.actions, []);
+  assert.deepStrictEqual(renameWithoutId.failures, [{
+    operation: 'inventory',
+    message: 'Cannot rename Product/BFM without an executable task/thread ID.',
+  }]);
+
+  const pinWithoutId = onboarding.planRepositoryTaskInventory([
+    { title: 'FB · User', projectPath: REPO, pinned: false },
+  ], REPO);
+  assert.strictEqual(pinWithoutId.complete, false);
+  assert.deepStrictEqual(pinWithoutId.actions, []);
+  assert.deepStrictEqual(pinWithoutId.failures, [{
+    operation: 'inventory',
+    message: 'Cannot pin User without an executable task/thread ID.',
+  }]);
+});
+
 test('repository inventory planning is deterministic across repeated complete inventories', () => {
   const tasks = onboarding.WORKSTREAMS.map((workstream, index) => ({
     id: `task-${index}`,
@@ -315,6 +376,9 @@ test('manual fallback is honest and paste-ready for only missing workstreams', (
 
 test('BFM fails safely when Codex cannot prove a complete repository task inventory', () => {
   const skill = fs.readFileSync(path.join(__dirname, '..', 'skills', 'bfm', 'SKILL.md'), 'utf8');
+  assert.match(skill, /needs-reconciliation/i);
+  assert.match(skill, /canonical seven roles/i);
+  assert.doesNotMatch(skill, /permission is granted and `reconciledAt` is absent/i);
   assert.match(skill, /exact project ID or repository path/i);
   assert.match(skill, /search\s+argument is rejected, retry without it/i);
   assert.match(skill, /inventory is\s+truncated or cannot be proved complete/i);

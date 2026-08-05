@@ -446,13 +446,13 @@ Do not retrofit old handoffs unless Product/BFM is already touching them.
 }
 
 const WORKSTREAM_STATUS_CARDS = [
-  ['fb-product.md', 'FB-Product/BFM'],
-  ['fb-user.md', 'FB-User'],
-  ['fb-tech.md', 'FB-Tech'],
-  ['fb-design.md', 'FB-Design'],
-  ['fb-business.md', 'FB-Business'],
-  ['fb-discovery.md', 'FB-Discovery'],
-  ['fb-bugs.md', 'FB-Bugs']
+  { fileName: 'fb-product.md', ownerLane: 'Product', displayTitle: 'FB-Product/BFM Control Centre' },
+  { fileName: 'fb-user.md', ownerLane: 'User', displayTitle: 'FB-User Workstream' },
+  { fileName: 'fb-tech.md', ownerLane: 'Tech', displayTitle: 'FB-Tech Workstream' },
+  { fileName: 'fb-design.md', ownerLane: 'Design', displayTitle: 'FB-Design Workstream' },
+  { fileName: 'fb-business.md', ownerLane: 'Business', displayTitle: 'FB-Business Workstream' },
+  { fileName: 'fb-discovery.md', ownerLane: 'Discovery', displayTitle: 'FB-Discovery Workstream' },
+  { fileName: 'fb-bugs.md', ownerLane: 'Bugs', displayTitle: 'FB-Bugs Workstream' }
 ];
 
 const BFM_WORKSTREAMS = ['product', 'business', 'design', 'tech', 'discovery', 'bugs'];
@@ -605,8 +605,8 @@ function scanWorkstreamHandoffs(rootDir) {
   return { workstreams, candidates, selected: candidates };
 }
 
-function workstreamStatusCardTemplate(laneName) {
-  return `# ${laneName} Workstream Status
+function workstreamStatusCardTemplate(displayTitle) {
+  return `# ${displayTitle} Status
 
 This card is a managed current-state projection. PROJECT_BOARD.md remains the source of truth for status, owner, locks, approved goals, and sequencing; docs/handoffs/index.md remains the routing layer. Keep project-owned notes outside the managed block.
 
@@ -621,11 +621,14 @@ function refreshManagedWorkstreamCards(boardPath) {
   const workstreamsDir = path.join(rootDir, 'docs', 'workstreams');
   fs.mkdirSync(workstreamsDir, { recursive: true });
   const changedPaths = [];
-  for (const [fileName, laneName] of WORKSTREAM_STATUS_CARDS) {
+  for (const { fileName, ownerLane, displayTitle } of WORKSTREAM_STATUS_CARDS) {
     const cardPath = path.join(workstreamsDir, fileName);
-    if (!fs.existsSync(cardPath)) fs.writeFileSync(cardPath, workstreamStatusCardTemplate(laneName), 'utf8');
+    if (!fs.existsSync(cardPath)) fs.writeFileSync(cardPath, workstreamStatusCardTemplate(displayTitle), 'utf8');
     const before = fs.readFileSync(cardPath, 'utf8');
-    refreshManagedWorkstreamCard(cardPath, renderWorkstreamSummary(boardMarkdown, laneName));
+    refreshManagedWorkstreamCard(cardPath, renderWorkstreamSummary(boardMarkdown, ownerLane, {
+      sourceDir: rootDir,
+      targetDir: workstreamsDir,
+    }));
     if (fs.readFileSync(cardPath, 'utf8') !== before) changedPaths.push(path.relative(rootDir, cardPath));
   }
   return changedPaths;
@@ -3414,10 +3417,10 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   } else {
     console.log('ℹ️  docs/workstreams/ already exists, skipping.');
   }
-  for (const [fileName, laneName] of WORKSTREAM_STATUS_CARDS) {
+  for (const { fileName, displayTitle } of WORKSTREAM_STATUS_CARDS) {
     const cardPath = path.join(workstreamsDir, fileName);
     if (!fs.existsSync(cardPath)) {
-      fs.writeFileSync(cardPath, workstreamStatusCardTemplate(laneName), 'utf8');
+      fs.writeFileSync(cardPath, workstreamStatusCardTemplate(displayTitle), 'utf8');
       console.log(`📝 Created docs/workstreams/${fileName}`);
     }
   }
@@ -3594,4 +3597,5 @@ module.exports = {
   renderBoardContext,
   compactBoardFiles,
   completeBoardTask,
+  refreshManagedWorkstreamCards,
 };
