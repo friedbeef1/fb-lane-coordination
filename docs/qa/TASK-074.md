@@ -21,5 +21,13 @@ Release candidate: `0.5.8-beta+codex.20260804153114`
 | Changelog approval | approved by James on 2026-08-05 |
 | Final release checkpoint | authorized; pending execution |
 
+## Initial release-checkpoint failure
+
+All completed suites passed before Doctor stopped on one deterministic record
+conflict: TASK-074 was `Staging QA` on the board but `ready` in handoff
+frontmatter. Product applied one consolidated coordination-only repair by
+changing the handoff to `implemented`. No product source, criteria, tests, or
+release authority changed.
+
 No push, merge, marketplace publication, reinstall, or deployment is authorized
 before **Push Live**.

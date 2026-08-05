@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-074
 lane: fb-product
-status: ready
+status: implemented
 okr_fit: aligned
 approval: approved
 fb_harness: v3
@@ -115,3 +115,16 @@ Status: pass
 - **Missing:** No implementation criterion. Changelog and release approvals are
   external gates.
 - **Next action:** Run one release checkpoint.
+
+## Failure Evidence
+
+- **Failure:** Initial release checkpoint stopped at normalized-record Doctor.
+- **Observed:** Board status was `Staging QA` while handoff frontmatter remained
+  `ready`.
+- **Cause:** The handoff was moved back to `ready` during candidate preparation
+  even though implementation and focused verification were complete.
+- **Recovery attempted:** Align handoff status to `implemented` without changing
+  source, product scope, evidence, or release authority.
+- **Result:** Pending focused Doctor rerun and the permitted final checkpoint.
+- **Reusable lesson:** Candidate state transitions must update board and handoff
+  status together before the release checkpoint.
