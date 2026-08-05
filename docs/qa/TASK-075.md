@@ -33,5 +33,19 @@ not repeat the approval and justification already recorded in the handoff. The
 board now carries those authoritative fields; Doctor exits 0 and reports only
 the expected uncommitted-candidate attention.
 
+## Initial release-checkpoint failure
+
+The single initial complete validator reached the root CLI regression suite and
+stopped on one stale structural assertion requiring the old phrase “start in
+whichever workstream.” The shipped runtime and generated guidance already use
+the approved, more precise phrase “start in whichever evidence-producing
+workstream.” Product classified this as a test-contract failure, not missing
+behavior. The one consolidated release repair updates that assertion, mirrors
+it mechanically, and reruns only the failed regression proof before the
+permitted final complete pass.
+
+Focused recovery result: root regression suite passed 72/72, the package mirror
+was regenerated mechanically, and whitespace passed.
+
 No push, merge, marketplace publication, reinstall, or consumer-project rollout
 is authorized before the normal release boundary.

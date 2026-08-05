@@ -68,7 +68,7 @@ assert.deepStrictEqual(
 
 function assertPublicRouteContract(label, source) {
   const renderedSource = source.replace(/\\`/g, '`');
-  assert.match(renderedSource, /start in whichever workstream matches the question/i, `${label} must expose workstream-first intake`);
+  assert.match(renderedSource, /start in whichever evidence-producing workstream matches the question/i, `${label} must expose workstream-first intake`);
   assert.match(renderedSource, /(?:handoffs? ready for Product\s+intake|ready handoffs?)[\s\S]*\$bfm[\s\S]*(?:Product\s+(?:freezes intake|scans|reconcile)|disposition every candidate)/i, `${label} must expose the handoff-to-reconciliation boundary`);
   assert.doesNotMatch(renderedSource, /\*\*(?:Simple task|Coordinated planning|Approved Build For Me)/i, `${label} must not expose mode choices`);
 }

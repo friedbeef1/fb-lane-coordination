@@ -113,3 +113,20 @@ Status: Checking
 - **Missing:** The final release checkpoint and Push Live.
 - **Next action:** Run the single final release checkpoint. Do not claim Ready
   to ship unless it passes.
+
+## Failure Evidence
+
+- **Failure:** Initial complete release validator stopped in the root CLI suite.
+- **Observed:** One assertion required the superseded exact phrase “start in
+  whichever workstream.”
+- **Cause:** The product guidance intentionally changed to the more precise
+  “start in whichever evidence-producing workstream,” but this legacy assertion
+  was not updated with the rest of the contract.
+- **Recovery attempted:** Update only the stale assertion, regenerate its
+  package mirror, rerun the failed regression proof, then use the one permitted
+  final complete validator pass.
+- **Result:** Root regression proof passed 72/72; the generated package mirror
+  is synchronized for the final complete pass.
+- **Reusable lesson:** Structural wording contracts must move with intentional
+  terminology changes; broad validation should identify drift without forcing
+  product copy backwards.
