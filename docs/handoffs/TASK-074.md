@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-074
 lane: fb-product
-status: implemented
+status: done
 okr_fit: aligned
 approval: approved
 fb_harness: v3
@@ -102,9 +102,9 @@ release becomes `0.5.8-beta+codex.20260804153114`.
 - **Review state:** not reviewable.
 - **Changelog:** drafted — [FB 0.5.8-beta](../../CHANGELOG.md#058-beta--2026-08-04).
 - **Changelog approval:** approved by James on 2026-08-05.
-- **External gates:** **Push Live** only.
-- **Remaining owner/action:** James says **Push Live** to authorize GitHub push,
-  merge, marketplace publication, and reinstall.
+- **External gates:** Complete. James approved **Push Live**; PR #58 merged as
+  `72bfab0`; marketplace upgrade, reinstall, and active verification passed.
+- **Remaining owner/action:** None. Start a new Codex task to load the release.
 
 ## Brief Validation
 
@@ -115,7 +115,7 @@ Status: pass
   agree; focused checks pass; runtime contracts and identifiers remain intact.
 - **Missing:** No implementation criterion. Changelog and release approvals are
   external gates.
-- **Next action:** Await **Push Live**.
+- **Next action:** None.
 
 ## Failure Evidence
 
@@ -132,10 +132,9 @@ Status: pass
 
 ## Product/BFM Closeout
 
-Status: Ready to ship — final release checkpoint passed.
+Status: Done — published and installed.
 Actioned By: FB-Product / BFM.
 Result: FB `0.5.8-beta+codex.20260804153114` makes Graph Engineering the
 headline, explains its industry context and no-database boundary, and
 automatically pins verified first-run workstream tasks.
-Remaining: **Push Live** authorizes GitHub integration, marketplace publication,
-and reinstall.
+Remaining: None. Start a new Codex task to load the refreshed plugin.

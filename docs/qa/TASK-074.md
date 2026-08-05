@@ -46,5 +46,21 @@ release authority changed.
 The candidate is **Ready to ship**. GitHub push, merge, marketplace publication,
 reinstall, and active-install verification require **Push Live**.
 
+## Live publication
+
+James approved **Push Live** on 2026-08-05.
+
+| Proof | Result |
+|---|---|
+| GitHub readiness | `validate` passed for PR #58 |
+| GitHub merge | PR #58 merged to `main` as `72bfab0` |
+| Marketplace and plugin | `fb-lane` refreshed; `0.5.8-beta+codex.20260804153114` installed and enabled |
+| Six workstream tasks | Product/User, Business, Design, Tech, Discovery, and Bugs verified pinned and idle |
+| Installed guidance | Graph Engineering, industry context, and auto-pin contract present |
+| Bundled MCP | `cwd: "."`; `./tools/fb-lane.cjs mcp`; Node syntax passed |
+
+Publication is complete. A new Codex task is required to load the refreshed
+skills and MCP server.
+
 No push, merge, marketplace publication, reinstall, or deployment is authorized
 before **Push Live**.

@@ -34,6 +34,9 @@ Engineering guidance is loaded.
 **Changelog approval:** Approved by James on 2026-08-05 before the release
 checkpoint.
 
+**Publication:** PR #58 merged as `72bfab0`; the marketplace was refreshed and
+the exact build above was installed and enabled on 2026-08-05.
+
 ## 0.5.7-beta — 2026-08-04
 
 Build: `0.5.7-beta+codex.20260804131420`
