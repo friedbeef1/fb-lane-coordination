@@ -4,7 +4,7 @@ Date: 2026-08-05
 Status: Checking
 Candidate: `fb-product/TASK-075-replace-product-user-with-user-add-the-product-bfm-control-centre-and-converge-onboarding-on-seven-pinned-repository-tasks`
 Release candidate: `0.5.9-beta+codex.20260805042523`
-Changelog approval: pending
+Changelog approval: approved by James on 2026-08-05
 
 ## Focused evidence
 
@@ -17,8 +17,8 @@ Changelog approval: pending
 | Syntax and JSON | 10/10 changed JavaScript files pass `node --check`; 3/3 JSON files parse |
 | Links, records, and doctor | pass; Doctor exits 0 with only expected dirty-worktree attention before commit |
 | Whitespace | `git diff --check` pass |
-| Changelog approval | pending |
-| Final release checkpoint | not run — waits for changelog approval; candidate is not Ready to ship |
+| Changelog approval | approved by James on 2026-08-05 |
+| Final release checkpoint | pending — single authorized complete validator pass |
 
 ## Bounded verification repairs
 

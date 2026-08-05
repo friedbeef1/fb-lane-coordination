@@ -13,7 +13,7 @@ record_model: normalized-v1
 
 Release candidate: `0.5.9-beta+codex.20260805042523`
 Candidate state: Checking — not Ready to ship.
-Changelog approval: pending.
+Changelog approval: approved by James on 2026-08-05.
 
 ## Intake Snapshot
 
@@ -100,10 +100,9 @@ onboarding, plugin skills, and upgrade behavior.
 - **Review state:** Checking — focused candidate evidence recorded; final
   release checkpoint intentionally not run.
 - **Changelog:** drafted — [FB 0.5.9-beta](../../CHANGELOG.md#059-beta--2026-08-05).
-- **Changelog approval:** pending.
-- **External gates:** Changelog approval, release checkpoint, and Push Live.
-- **Remaining owner/action:** James approves or revises the exact changelog;
-  Product/BFM then runs the one final release checkpoint.
+- **Changelog approval:** approved by James on 2026-08-05.
+- **External gates:** Final release checkpoint and Push Live.
+- **Remaining owner/action:** Product/BFM runs the one final release checkpoint.
 
 ## Brief Validation
 
@@ -111,6 +110,6 @@ Status: Checking
 
 - **Satisfied:** The canonical candidate, generated package, active release
   records, compatibility boundary, and focused evidence are aligned.
-- **Missing:** Changelog approval, the final release checkpoint, and Push Live.
-- **Next action:** Obtain changelog approval before running the final release
-  checkpoint. Do not claim Ready to ship.
+- **Missing:** The final release checkpoint and Push Live.
+- **Next action:** Run the single final release checkpoint. Do not claim Ready
+  to ship unless it passes.
