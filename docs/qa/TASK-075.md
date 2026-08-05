@@ -1,7 +1,7 @@
 # TASK-075 QA — User workstream and Product/BFM control centre
 
 Date: 2026-08-05
-Status: Ready to ship
+Status: Done — published and installed
 Candidate: `fb-product/TASK-075-replace-product-user-with-user-add-the-product-bfm-control-centre-and-converge-onboarding-on-seven-pinned-repository-tasks`
 Release candidate: `0.5.9-beta+codex.20260805042523`
 Changelog approval: approved by James on 2026-08-05
@@ -79,5 +79,18 @@ candidate passed the complete validator: CLI 72/72, sessions 39/39, evals
 Doctor Ready, package parity, syntax, and committed-diff whitespace. TASK-075 is
 Ready to ship; Push Live remains the only release authorization.
 
-No push, merge, marketplace publication, reinstall, or consumer-project rollout
-is authorized before the normal release boundary.
+## Live publication
+
+| Proof | Result |
+|---|---|
+| GitHub readiness | `validate` passed for PR #59 in 42 seconds |
+| GitHub merge | PR #59 merged to `main` as `3e7f31c` |
+| Marketplace refresh | `fb-lane` upgraded with no errors |
+| Installed plugin | `fb-lane-coordination@fb-lane` installed and enabled at `0.5.9-beta+codex.20260805042523` |
+| Installed roles | dedicated User and Product/BFM skills plus Business, Design, Tech, Discovery, and Bugs present |
+| Installed onboarding | seven pinned repository-scoped tasks and Product/BFM-only `$bfm` wording verified |
+| Bundled MCP | `cwd: "."`; `./tools/fb-lane.cjs mcp`; both JavaScript entry points pass syntax |
+
+Publication is complete. A new Codex task is required to load the refreshed
+skills and MCP server. Consumer repositories remain unchanged until FB setup is
+rerun in each repository.

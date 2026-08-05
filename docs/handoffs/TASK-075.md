@@ -12,7 +12,7 @@ record_model: normalized-v1
 # TASK-075 — User workstream and Product/BFM control centre
 
 Release candidate: `0.5.9-beta+codex.20260805042523`
-Candidate state: Checking — not Ready to ship.
+Candidate state: Done — published and installed.
 Changelog approval: approved by James on 2026-08-05.
 
 ## Intake Snapshot
@@ -101,9 +101,9 @@ onboarding, plugin skills, and upgrade behavior.
   ship.
 - **Changelog:** drafted — [FB 0.5.9-beta](../../CHANGELOG.md#059-beta--2026-08-05).
 - **Changelog approval:** approved by James on 2026-08-05.
-- **External gates:** Push Live.
-- **Remaining owner/action:** James says **Push Live** to authorize push, merge,
-  marketplace publication, reinstall, and active-install verification.
+- **External gates:** Complete. James approved **Push Live**; PR #59 merged as
+  `3e7f31c`; marketplace upgrade, reinstall, and active verification passed.
+- **Remaining owner/action:** None. Start a new Codex task to load the release.
 
 ## Brief Validation
 
@@ -111,9 +111,8 @@ Status: pass
 
 - **Satisfied:** The canonical candidate, generated package, active release
   records, compatibility boundary, and focused evidence are aligned.
-- **Missing:** No candidate requirement; Push Live remains the external release
-  authorization.
-- **Next action:** Wait for **Push Live**.
+- **Missing:** None.
+- **Next action:** Start a new Codex task to load the refreshed plugin.
 
 ## Failure Evidence
 
@@ -157,3 +156,11 @@ committed candidate passed the complete validator. CLI 72/72, sessions 39/39,
 evals 19/19, beginner experience 11/11, positioning, two-speed, efficiency
 25/25, package parity, syntax, Doctor Ready, and committed-diff whitespace all
 passed. The candidate is Ready to ship.
+
+Live publication result: James approved **Push Live**. PR #59 passed GitHub
+validation and merged to `main` as `3e7f31c`. The `fb-lane` marketplace
+refreshed without errors; Codex installed and enabled
+`0.5.9-beta+codex.20260805042523`. The installed User, Product/BFM, BFM, and
+setup skills contain the seven-task contract, and the bundled MCP server
+resolves `cwd: "."` with `./tools/fb-lane.cjs mcp`; both bundled JavaScript
+entry points pass syntax checks.

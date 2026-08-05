@@ -26,8 +26,8 @@
 
 ### TASK-075 - User workstream and Product/BFM control centre
 
-*   **Status**: Ready to ship — `0.5.9-beta+codex.20260805042523`; changelog
-    approved and clean release checkpoint passed; **Push Live** required.
+*   **Status**: Done — `0.5.9-beta+codex.20260805042523` published, installed,
+    and enabled.
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Onboarding runtime, sidebar migration, skills, public and harness
     documentation, plugin metadata, templates, contracts, and package mirrors.
@@ -48,10 +48,10 @@
     *   **Approval**: approved.
     *   **Justification**: James invoked `$bfm` after directing implementation
         of the frozen TASK-075 scope in Product/BFM.
-*   **Gate / Review Point**: James invoked `$bfm`, approved the exact
-    0.5.9-beta changelog, and approved the clean-worktree release checkpoint on
-    2026-08-05. The complete validator and Doctor Ready passed. **Push Live**
-    remains the only release authorization.
+*   **Gate / Review Point**: Complete. James approved the changelog, clean
+    release checkpoint, and **Push Live**. PR #59 passed GitHub readiness and
+    merged as `3e7f31c`; marketplace upgrade, reinstall, and active verification
+    passed.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-075.md) ·
     [QA](docs/qa/TASK-075.md) ·
     [plan](docs/superpowers/plans/2026-08-05-user-product-bfm-control-centre.md).
