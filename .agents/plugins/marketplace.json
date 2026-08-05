@@ -1,7 +1,8 @@
 {
   "name": "fb-lane",
   "interface": {
-    "displayName": "FB"
+    "displayName": "FB",
+    "tagline": "Graph Engineering for Everyday People"
   },
   "plugins": [
     {

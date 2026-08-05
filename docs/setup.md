@@ -1,15 +1,15 @@
 # Codex Setup
 
 This page is tactical. For the operating model behind these commands, read
-[Loop Engineering](loop-engineering.md). For version naming and the v1-to-latest
+[Graph Engineering and its workstream loops](loop-engineering.md). For version naming and the v1-to-latest
 before/after, read [FB Versions](versioning.md).
 
 FB currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
 setup paths when you are not installing through the plugin flow.
 
-The current release candidate is **FB 0.5.7-beta** build
-`0.5.7-beta+codex.20260804131420`.
+The current release candidate is **FB 0.5.8-beta** build
+`0.5.8-beta+codex.20260804153114`.
 
 Projects that need the optional generic agent control loop declare it in the
 approved Build Brief. They may also provide repository-relative manifest paths:
@@ -75,7 +75,9 @@ If permission is granted and Codex exposes task tools, FB recognizes existing
 legacy/current workstream tasks and creates only missing ones. Existing
 four-task projects receive Discovery and Bugs only. New tasks remain idle. If
 task tools are unavailable, FB provides manual prompts instead of claiming
-success.
+success. FB titles and automatically pins every exact workstream task, then
+re-lists the repository inventory before recording reconciliation. An existing
+unpinned task is pinned, never duplicated.
 
 ## Upgrade Existing Codex Plugin Install
 

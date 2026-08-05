@@ -5,7 +5,9 @@ Lane: FB-Product
 
 <!-- FB-LANE:WORKSTREAM-SUMMARY:START -->
 ## Current
-- None.
+- **TASK-074** (Staging QA) — Graph Engineering positioning and FB
+  `0.5.8-beta+codex.20260804153114` — [Handoff](../handoffs/TASK-074.md);
+  [QA](../qa/TASK-074.md); changelog approved, release checkpoint authorized
 
 ## Next
 - None ready for Product intake.

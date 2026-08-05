@@ -24,6 +24,34 @@ const agileTeams = read('docs/fb-for-agile-teams.md');
 const compact = canonical.replace(/\s+/g, ' ');
 const changelog = read('CHANGELOG.md');
 
+for (const [label, page] of [
+  ['README', rootReadme],
+  ['Why FB', canonical],
+  ['packaged Why FB', packaged],
+  ['harness overview', harnessReadme],
+  ['Full Graph', fullLoop],
+]) {
+  assert.match(page, /Graph Engineering/i, `${label} must name Graph Engineering`);
+  assert.match(page, /graph is the map|delivery map|product-delivery graph/i, `${label} must explain the graph as the map`);
+}
+assert.match(rootReadme, /Graph Engineering for Everyday People/);
+assert.match(rootReadme, /open-source Codex plugin[\s\S]{0,120}living product-delivery graph/i);
+assert.match(canonical, /(?:not|does not require)[\s\S]{0,30}(?:a )?graph database[\s\S]{0,100}GraphQL/i);
+assert.match(fullLoop, /workstream loops[\s\S]{0,160}\$bfm[\s\S]{0,160}Push Live/i);
+assert.match(canonical, /^## How this relates to industry usage$/m);
+assert.match(canonical, /ambiguous phrase/i);
+assert.match(canonical, /LangGraph documents nodes, shared state, and routing edges/);
+assert.match(canonical, /Microsoft Agent Framework describes graph-based workflows/);
+for (const mapping of [
+  '| Nodes | Six workstreams, Product/BFM, implementation slices, and verification steps |',
+  '| Edges | Handoffs, dependencies, sequencing, routing, and escalation |',
+  '| Shared state | Decisions, evidence, board records, handoffs, QA, and Git |',
+  '| Loops | Workstream learning loops and bounded repair loops |',
+  '| Navigator and executor | Product/BFM through `$bfm` |',
+  '| Release boundary | **Push Live** |',
+]) assert.ok(canonical.includes(mapping), `Why FB must map industry graph concept: ${mapping}`);
+assert.match(canonical, /not[\s\S]{0,50}one settled industry definition/i);
+
 const deliveredPages = [
   {
     label: 'canonical positioning page',
@@ -125,7 +153,7 @@ for (const evidence of ['TASK-020.md', 'TASK-022.md', 'TASK-024.md', 'TASK-023-w
 }
 
 assert.match(rootReadme, /Problems FB solves[\s\S]*\[Why FB evidence\]\(docs\/why-fb\.md#pain-points-fb-is-designed-to-address\)/, 'README problem tables must route to Why FB evidence');
-assert.match(rootReadme, /One big loop, six mini-loops[\s\S]*\[Agile Teams\]\(docs\/fb-for-agile-teams\.md\)[\s\S]*\[Full FB Loop Diagram\]\(docs\/fb\/full-loop\.md\)/, 'README loop must route to Agile Teams and Full Loop');
+assert.match(rootReadme, /The product-delivery graph[\s\S]*\[Agile Teams\]\(docs\/fb-for-agile-teams\.md\)[\s\S]*\[Full FB Graph Diagram\]\(docs\/fb\/full-loop\.md\)/, 'README graph must route to Agile Teams and Full Graph');
 assert.match(agileTeams, /The short version[\s\S]*\[Full Loop\]\(fb\/full-loop\.md\)/, 'Agile diagram must route to Full Loop');
 assert.match(agileTeams, /FB and familiar agile-team work[\s\S]*\[Why FB comparison\]\(why-fb\.md#comparison\)/, 'Agile mapping must route to Why FB comparison');
 assert.match(agileTeams, /What happens in a real example[\s\S]*\[Why FB examples\]\(why-fb\.md#concrete-examples\)/, 'Agile example must route to Why FB examples');
@@ -222,9 +250,9 @@ assert.match(rootReadme, /\| Git worktrees \|/);
 assert.match(rootReadme, /\| (?:\*\*)?FB(?:\*\*)? \|[^\n]+\| — \|/);
 assert.doesNotMatch(rootReadme, /GitHub Spec Kit|Better choice when/i);
 assert.strictEqual((rootReadme.match(/```mermaid/g) || []).length, 1, 'README must contain one FB-only Mermaid diagram');
-assert.match(rootReadme, /\[Full FB Loop Diagram\]\(docs\/fb\/full-loop\.md\)/, 'README must link directly to the full diagram');
-assert.match(canonical, /\[Full FB Loop Diagram\]\(fb\/full-loop\.md\)/, 'Why FB must link directly to the full diagram');
-assert.match(harnessReadme, /\[Full FB Loop Diagram\]\(full-loop\.md\)/, 'harness navigation must link directly to the full diagram');
+assert.match(rootReadme, /\[Full FB Graph Diagram\]\(docs\/fb\/full-loop\.md\)/, 'README must link directly to the full diagram');
+assert.match(canonical, /\[Full FB Graph Diagram\]\(fb\/full-loop\.md\)/, 'Why FB must link directly to the full diagram');
+assert.match(harnessReadme, /\[Full FB Graph Diagram\]\(full-loop\.md\)/, 'harness navigation must link directly to the full diagram');
 assert.strictEqual((fullLoop.match(/```mermaid/g) || []).length, 1, 'full loop page must contain one rendered Mermaid diagram');
 assert.strictEqual(fullLoop, packagedFullLoop, 'full loop page must be mechanically mirrored');
 

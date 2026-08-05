@@ -1,22 +1,24 @@
 # Active Task Context
-* **Current Task**: TASK-073
+* **Current Task**: TASK-074
 * **Lane**: FB-Product / BFM
-* **Status**: Done — published and installed
+* **Status**: Staging QA — changelog approved; release checkpoint authorized
 * **BFM Class**: Full BFM plugin release candidate
-* **Feature Branch**: `codex/TASK-073-release`
-* **Release Candidate**: `0.5.7-beta+codex.20260804131420`
-* **Locked Files**: Release metadata, active version documentation, TASK-073
-  records, generated plugin mirrors, and focused release contracts.
+* **Feature Branch**: `codex/TASK-074-graph-positioning`
+* **Release Candidate**: `0.5.8-beta+codex.20260804153114`
+* **Locked Files**: Public positioning docs, plugin metadata and guidance,
+  active version records, TASK-074 records, generated plugin mirrors, and
+  focused positioning/release contracts.
 
 ## Task Scope
 
-Make evaluation results readable and require sufficient, causally relevant
-repairs instead of cosmetic repair loops.
+Make Graph Engineering the primary FB category while preserving Loop
+Engineering as behavior inside the graph and keeping runtime contracts intact.
 
 ## Closeout
 
-Commit `d81df42` is integrated and packaged as the 0.5.7-beta release candidate.
-James approved **Push Live**. PR #57 merged to GitHub `main` as `c1e63f1`, the
-`fb-lane` marketplace upgraded, and FB
-`0.5.7-beta+codex.20260804131420` is installed and enabled. Start a new Codex
-task to load the refreshed eval and BFM guidance.
+Product froze the sole incoming Graph Engineering handoff, recorded all six
+workstream dispositions, and completed one consolidated 0.5.8-beta candidate.
+Focused root/package positioning, metadata, release-family, onboarding,
+58-mirror parity, JSON, syntax, links, and whitespace checks pass. James
+approved the changelog on 2026-08-05; the one release checkpoint is authorized.
+**Push Live** remains required before merge and publication.

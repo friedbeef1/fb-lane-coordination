@@ -1,16 +1,20 @@
-# Full FB Loop Diagram
+# Full FB Graph Diagram
 
 [Overview](../../README.md) · [Agile Teams](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/fb-for-agile-teams.md) · [Why FB](../why-fb.md) · [Full Loop](full-loop.md)
 
-This is the complete operating view of FB. The root README keeps a simpler
-picture; this page shows how evidence becomes approved work, how BFM chooses an
-execution path, and how delivery results restart the six workstream loops.
+This is the complete operating view of FB's **Graph Engineering** system. The graph
+is the map connecting decisions, evidence, dependencies, implementation,
+verification, and release state. Workstream loops show how work learns and
+moves inside that map; `$bfm` navigates and executes it, while **Push Live**
+authorizes release. This is not a graph database, knowledge graph, or GraphQL
+architecture.
 The [workflow](workflow.md) defines the detailed execution and return-loop
 contract.
 
 ```mermaid
 flowchart TB
-    subgraph W["1. Six workstream mini-loops"]
+    G["Living product-delivery graph<br/>decisions · evidence · dependencies · implementation · verification"]
+    subgraph W["1. Six workstream learning loops"]
         direction LR
         PU["Product/User<br/>Question → Evidence → Recommend → Question"]
         BU["Business<br/>Question → Evidence → Recommend → Question"]
@@ -20,6 +24,12 @@ flowchart TB
         BG["Bugs<br/>Question → Evidence → Recommend → Question"]
     end
 
+    G --> PU
+    G --> BU
+    G --> DE
+    G --> TE
+    G --> DI
+    G --> BG
     PU --> RH
     BU --> RH
     DE --> RH
@@ -37,7 +47,8 @@ flowchart TB
     BFM --> PR
     BH --> PR
     NR --> PR
-    PR["Product freezes intake and dispositions<br/>every candidate before source execution"]
+    PR["Product freezes, reconciles, and prioritizes<br/>the graph before source execution"]
+    PR --> G
     PR --> A{"Approved and clear?"}
     A -->|"Yes"| SP["Plan bounded slices<br/>outcome, locks, dependencies, proof"]
     A -->|"Changed decision, conflict, sensitive boundary, or unclear scope"| X["Paused<br/>Owner and next action"]
@@ -48,6 +59,7 @@ flowchart TB
     C --> V["Automated checks<br/>focused per slice, integration at boundaries"]
     V -->|"Focused failure evidence"| R["Scoped repair"]
     R --> C
+    V --> G
     V -->|"Required checks pass"| O["Optional review links<br/>Your input needed: none, unless stated"]
     O --> S["Ready to ship"]
     S --> L{"Push Live?"}

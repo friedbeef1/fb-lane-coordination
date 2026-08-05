@@ -13,12 +13,48 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-074 | Staging QA | FB-Product / BFM | Graph Engineering positioning and FB 0.5.8-beta | Make Graph Engineering the headline product category, align the public story and packaged plugin, and preserve existing runtime contracts | Public positioning docs, plugin metadata/guidance, version records, generated mirrors, focused positioning/release contracts | Changelog approved 2026-08-05; release checkpoint authorized; [Handoff](docs/handoffs/TASK-074.md); [QA](docs/qa/TASK-074.md) |
 | TASK-073 | Done | FB-Product / BFM | Evaluation results, meaningful repair, and FB 0.5.7-beta | Show eval results clearly, reject superficial repair loops, and publish `0.5.7-beta+codex.20260804131420` | None; published and installed | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); [PR #57](https://github.com/friedbeef1/fb-lane-coordination/pull/57) merged as `c1e63f1`; exact build installed and enabled |
 | TASK-072 | Done | FB-Product / BFM | Lifecycle truth, historical retrieval, and FB 0.5.6-beta | Keep routine orientation current-state only while preserving complete on-demand history; publish `0.5.6-beta+codex.20260804045203` | None; published and installed | [Handoff](docs/handoffs/TASK-072.md); [QA](docs/qa/TASK-072.md); [PR #56](https://github.com/friedbeef1/fb-lane-coordination/pull/56) merged as `894d4a1`; exact build installed and enabled |
 | TASK-071 | Done | FB-Product / BFM | Cross-workstream planning handoffs | Queue cross-workstream planning and keep routine circuit-breaker recovery with Product/BFM | Published and installed as `0.5.5-beta+codex.20260803212323` | [Handoff](docs/handoffs/TASK-071.md); [QA](docs/qa/TASK-071.md); PR #54 merged as `2c3dc4c` |
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-074 - Graph Engineering positioning
+
+*   **Status**: Staging QA — focused candidate green; changelog approved;
+    release checkpoint authorized.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Area**: Public product category, explanation, diagram, plugin guidance,
+    marketplace copy, metadata, versioning, and structural contracts.
+*   **Scope**: Make **Graph Engineering for Everyday People** the headline;
+    explain graph as the delivery map and loops as movement inside it; preserve
+    `$bfm` navigation/execution and **Push Live** release authority; package as
+    `0.5.8-beta+codex.20260804153114`.
+*   **Out of Scope**: Runtime behavior changes, graph database or GraphQL
+    concepts, technical identifier migration, consumer-repository changes,
+    merge, marketplace publication, reinstall, or deployment before approval.
+*   **Goal Alignment Session**:
+    *   **Objective**: Give FB a clear, understandable category that accurately
+        describes how it connects scattered conversations to product delivery.
+    *   **Key Results**: Graph Engineering is the primary active tagline; one
+        accessible explanation and primary diagram tell the same story; plugin
+        and public metadata agree; historical facts and runtime contracts remain
+        unchanged.
+    *   **Definition of Done**: Focused positioning, metadata, release, package
+        parity, link, syntax, and whitespace checks pass; James approves the
+        changelog; one final release checkpoint then passes.
+    *   **Gate / Review Point**: Stop for exact changelog approval before the
+        release checkpoint, and stop again at **Ready to ship** for **Push Live**.
+    *   **Approval**: approved through `$bfm` intake of James's ready Product
+        positioning handoff.
+    *   **Justification**: Product reconciled the sole incoming handoff and
+        selected one bounded release slice with no competing work.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-074.md) ·
+    [QA](docs/qa/TASK-074.md).
 
 ---
 

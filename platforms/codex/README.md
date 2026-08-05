@@ -1,10 +1,11 @@
 # FB for Codex
 
-FB is the supported Codex distribution for **FB 0.5.7-beta: AI Loop Engineering
+FB is the supported Codex distribution for **FB 0.5.8-beta: Graph Engineering
 for Everyday People**. The current release candidate is
-`0.5.7-beta+codex.20260804131420`. Codex provides threads, skills, and
-worktrees; FB adds workstream-led investigation and handoffs, followed by
-post-`$bfm` Product reconciliation and evidence-backed closeout.
+`0.5.8-beta+codex.20260804153114`. FB is an open-source Codex plugin that turns
+scattered AI conversations into a living product-delivery graph. Codex provides
+threads, skills, and worktrees; FB connects their decisions, evidence,
+dependencies, implementation, verification, and release state.
 
 ## Start
 

@@ -2,10 +2,53 @@
 
 [Overview](../README.md) · [Agile Teams](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/fb-for-agile-teams.md) · [Why FB](why-fb.md) · [Full Loop](fb/full-loop.md)
 
-**FB is the product-delivery layer around software execution.** It is useful
+**FB — Graph Engineering for Everyday People.**
+
+FB is an open-source Codex plugin that turns scattered AI conversations into a
+living product-delivery graph. It is useful
 when the challenge is not only writing code, but preserving what the user
 approved, coordinating the work, checking product quality, and making the next
 review step obvious.
+
+## What is graph engineering?
+
+Graph engineering connects workstreams, decisions, assumptions, evidence,
+dependencies, implementation, verification, and release state into one
+repository-local delivery map. It does not require a graph database, knowledge
+graph, or GraphQL. The **graph is the map**; workstream loops are how work learns
+and moves inside it; **`$bfm` navigates and executes it**; **Push Live** remains
+the release boundary.
+
+## How this relates to industry usage
+
+“Graph engineering” is an ambiguous phrase. In established data practice it
+can refer to graph databases or knowledge graphs. In current AI-agent tooling,
+the underlying graph model is also used for orchestration: specialized agents
+and deterministic steps become nodes or executors; edges control routing and
+dependencies; state moves between steps; and branches, parallel paths,
+checkpoints, human gates, and loops control execution. For example,
+[LangGraph documents nodes, shared state, and routing edges](https://docs.langchain.com/oss/python/langgraph/graph-api),
+while [Microsoft Agent Framework describes graph-based workflows](https://learn.microsoft.com/en-us/agent-framework/workflows/)
+that connect agents and functions through executors, edges, routing,
+checkpointing, parallel paths, and human-in-the-loop control.
+
+FB fits that broader graph-based orchestration model, but applies it to
+repository-local product delivery rather than requiring a graph runtime or
+database:
+
+| General graph-based orchestration concept | FB implementation |
+|---|---|
+| Nodes | Six workstreams, Product/BFM, implementation slices, and verification steps |
+| Edges | Handoffs, dependencies, sequencing, routing, and escalation |
+| Shared state | Decisions, evidence, board records, handoffs, QA, and Git |
+| Loops | Workstream learning loops and bounded repair loops |
+| Navigator and executor | Product/BFM through `$bfm` |
+| Release boundary | **Push Live** |
+
+FB uses **Graph Engineering** as an accessible product-delivery category, not
+as a claim that the phrase has one settled industry definition. Its graph is a
+derived delivery map over durable repository records; a graph database remains
+optional and unnecessary.
 
 > Codex executes software work.
 > Capacitor is a session-intelligence platform.
@@ -101,11 +144,12 @@ A team can use BMAD to produce a formal PRD, Capacitor to preserve detailed sess
 
 FB is fully open source, repository-local, and requires no FB-hosted service.
 
-## Loop engineering in one picture
+## Graph engineering in one picture
 
 ```mermaid
 flowchart TB
-    subgraph M["Six workstream mini-loops"]
+    G["Living product-delivery graph<br/>decisions · evidence · dependencies · verification"]
+    subgraph M["Six workstream learning loops"]
         direction LR
         PU["Product/User<br/>Question → Evidence<br/>→ Recommendation → Question"]
         BU["Business<br/>Question → Evidence<br/>→ Recommendation → Question"]
@@ -115,6 +159,12 @@ flowchart TB
         BG["Bugs<br/>Question → Evidence<br/>→ Recommendation → Question"]
     end
 
+    G --> PU
+    G --> BU
+    G --> DE
+    G --> TE
+    G --> DI
+    G --> BG
     PU --> H
     BU --> H
     DE --> H
@@ -132,6 +182,8 @@ flowchart TB
     F["Results and feedback"]
     N["New questions and results"]
     H --> B --> P --> C --> T --> S --> L --> D --> F
+    P --> G
+    T --> G
     F --> N
     N --> PU
     N --> BU
@@ -141,7 +193,7 @@ flowchart TB
     N --> BG
 ```
 
-For the complete operating view, open the [Full FB Loop Diagram](fb/full-loop.md).
+For the complete operating view, open the [Full FB Graph Diagram](fb/full-loop.md).
 
 ## The honest overlap
 
