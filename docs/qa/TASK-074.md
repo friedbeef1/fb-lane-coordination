@@ -19,7 +19,7 @@ Release candidate: `0.5.8-beta+codex.20260804153114`
 | Doctor structure | pass; expected dirty-worktree warning remains until candidate commit |
 | Links and whitespace | pass |
 | Changelog approval | approved by James on 2026-08-05 |
-| Final release checkpoint | authorized; pending execution |
+| Final release checkpoint | pass after one bounded status-record repair |
 
 ## Initial release-checkpoint failure
 
@@ -28,6 +28,23 @@ conflict: TASK-074 was `Staging QA` on the board but `ready` in handoff
 frontmatter. Product applied one consolidated coordination-only repair by
 changing the handoff to `implemented`. No product source, criteria, tests, or
 release authority changed.
+
+## Final release checkpoint
+
+| Gate | Result |
+|---|---|
+| Root CLI | 72/72 pass |
+| Focused sessions | 39/39 pass |
+| Evals | 19/19 pass |
+| Beginner experience | 11/11 pass |
+| Efficiency | 25/25 pass |
+| Product positioning and two-speed | pass |
+| Package mirrors | 58/58 pass |
+| Doctor | Ready |
+| Syntax and whitespace | pass |
+
+The candidate is **Ready to ship**. GitHub push, merge, marketplace publication,
+reinstall, and active-install verification require **Push Live**.
 
 No push, merge, marketplace publication, reinstall, or deployment is authorized
 before **Push Live**.

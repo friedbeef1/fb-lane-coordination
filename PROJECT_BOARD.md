@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-074 | Staging QA | FB-Product / BFM | Graph Engineering positioning and FB 0.5.8-beta | Make Graph Engineering the headline product category, align the public story and packaged plugin, and preserve existing runtime contracts | Public positioning docs, plugin metadata/guidance, version records, generated mirrors, focused positioning/release contracts | Changelog approved 2026-08-05; release checkpoint authorized; [Handoff](docs/handoffs/TASK-074.md); [QA](docs/qa/TASK-074.md) |
+| TASK-074 | Staging QA | FB-Product / BFM | Graph Engineering positioning and FB 0.5.8-beta | Make Graph Engineering the headline product category, align the public story and packaged plugin, and preserve existing runtime contracts | Public positioning docs, plugin metadata/guidance, version records, generated mirrors, focused positioning/release contracts | **Ready to ship** — changelog approved and final release checkpoint passed; **Push Live** required; [Handoff](docs/handoffs/TASK-074.md); [QA](docs/qa/TASK-074.md) |
 | TASK-073 | Done | FB-Product / BFM | Evaluation results, meaningful repair, and FB 0.5.7-beta | Show eval results clearly, reject superficial repair loops, and publish `0.5.7-beta+codex.20260804131420` | None; published and installed | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); [PR #57](https://github.com/friedbeef1/fb-lane-coordination/pull/57) merged as `c1e63f1`; exact build installed and enabled |
 | TASK-072 | Done | FB-Product / BFM | Lifecycle truth, historical retrieval, and FB 0.5.6-beta | Keep routine orientation current-state only while preserving complete on-demand history; publish `0.5.6-beta+codex.20260804045203` | None; published and installed | [Handoff](docs/handoffs/TASK-072.md); [QA](docs/qa/TASK-072.md); [PR #56](https://github.com/friedbeef1/fb-lane-coordination/pull/56) merged as `894d4a1`; exact build installed and enabled |
 | TASK-071 | Done | FB-Product / BFM | Cross-workstream planning handoffs | Queue cross-workstream planning and keep routine circuit-breaker recovery with Product/BFM | Published and installed as `0.5.5-beta+codex.20260803212323` | [Handoff](docs/handoffs/TASK-071.md); [QA](docs/qa/TASK-071.md); PR #54 merged as `2c3dc4c` |
@@ -25,8 +25,8 @@
 
 ### TASK-074 - Graph Engineering positioning
 
-*   **Status**: Staging QA — focused candidate green; changelog approved;
-    release checkpoint authorized.
+*   **Status**: Ready to ship — changelog approved and final release checkpoint
+    passed; **Push Live** required.
 *   **Owner / Thread**: FB-Product / BFM.
 *   **Area**: Public product category, explanation, diagram, plugin guidance,
     marketplace copy, metadata, versioning, and structural contracts.

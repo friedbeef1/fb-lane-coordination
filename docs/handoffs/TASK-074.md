@@ -102,8 +102,9 @@ release becomes `0.5.8-beta+codex.20260804153114`.
 - **Review state:** not reviewable.
 - **Changelog:** drafted — [FB 0.5.8-beta](../../CHANGELOG.md#058-beta--2026-08-04).
 - **Changelog approval:** approved by James on 2026-08-05.
-- **External gates:** Release checkpoint and **Push Live**.
-- **Remaining owner/action:** Product/BFM runs the one final release checkpoint.
+- **External gates:** **Push Live** only.
+- **Remaining owner/action:** James says **Push Live** to authorize GitHub push,
+  merge, marketplace publication, and reinstall.
 
 ## Brief Validation
 
@@ -114,7 +115,7 @@ Status: pass
   agree; focused checks pass; runtime contracts and identifiers remain intact.
 - **Missing:** No implementation criterion. Changelog and release approvals are
   external gates.
-- **Next action:** Run one release checkpoint.
+- **Next action:** Await **Push Live**.
 
 ## Failure Evidence
 
@@ -125,6 +126,16 @@ Status: pass
   even though implementation and focused verification were complete.
 - **Recovery attempted:** Align handoff status to `implemented` without changing
   source, product scope, evidence, or release authority.
-- **Result:** Pending focused Doctor rerun and the permitted final checkpoint.
+- **Result:** Doctor returned Ready and the permitted final checkpoint passed.
 - **Reusable lesson:** Candidate state transitions must update board and handoff
   status together before the release checkpoint.
+
+## Product/BFM Closeout
+
+Status: Ready to ship — final release checkpoint passed.
+Actioned By: FB-Product / BFM.
+Result: FB `0.5.8-beta+codex.20260804153114` makes Graph Engineering the
+headline, explains its industry context and no-database boundary, and
+automatically pins verified first-run workstream tasks.
+Remaining: **Push Live** authorizes GitHub integration, marketplace publication,
+and reinstall.
