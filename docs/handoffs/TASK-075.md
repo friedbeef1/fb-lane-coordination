@@ -97,15 +97,15 @@ onboarding, plugin skills, and upgrade behavior.
   dedicated User and Product/BFM skill/guidance model; public, setup, platform,
   template, prompt, metadata, version, release, and generated package surfaces.
 - **Verification:** [TASK-075 QA](../qa/TASK-075.md).
-- **Review state:** Checking — focused candidate evidence and both bounded
-  validator repairs are green; the circuit breaker requires Product approval
-  before one exceptional additional complete pass.
+- **Review state:** Checking — all functional suites reached by the approved
+  final pass were green; Doctor blocked only because the approved positioning
+  repair had not yet been committed. No additional pass is authorized.
 - **Changelog:** drafted — [FB 0.5.9-beta](../../CHANGELOG.md#059-beta--2026-08-05).
 - **Changelog approval:** approved by James on 2026-08-05.
-- **External gates:** Product approval for one exceptional additional release
-  checkpoint pass, then Push Live if it passes.
-- **Remaining owner/action:** James approves or declines one exceptional
-  additional complete-validator run.
+- **External gates:** Product direction for any further release-checkpoint run,
+  then Push Live only after a clean passing checkpoint.
+- **Remaining owner/action:** Product/BFM commits the approved positioning
+  repair and James decides whether to authorize one clean-worktree checkpoint.
 
 ## Brief Validation
 
@@ -113,10 +113,10 @@ Status: Checking
 
 - **Satisfied:** The canonical candidate, generated package, active release
   records, compatibility boundary, and focused evidence are aligned.
-- **Missing:** A passing complete release checkpoint and Push Live.
-- **Next action:** Obtain explicit Product direction before one exceptional
-  additional complete-validator run. Do not claim Ready to ship unless it
-  passes.
+- **Missing:** A passing clean-worktree release checkpoint and Push Live.
+- **Next action:** Commit the approved positioning repair, then obtain explicit
+  Product direction before any further complete-validator run. Do not claim
+  Ready to ship unless it passes.
 
 ## Failure Evidence
 
@@ -143,3 +143,14 @@ prepared the final focused contract repair. Root and packaged beginner suites
 now pass 11/11, declared mirrors are synchronized, and whitespace passes.
 Product will not run another complete validator without explicit direction
 because the release circuit breaker has fired.
+
+Third checkpoint observation: the approved exceptional pass found the remaining
+Product/User-era literals in the positioning contract. The canonical public
+surfaces already used User plus Product/BFM. The consolidated root/package
+positioning repair passed and all 60 declared mirrors agree.
+
+Final checkpoint observation: the specifically approved final pass cleared CLI
+72/72, sessions 39/39, evals 19/19, beginner experience 11/11, positioning,
+two-speed, and efficiency 25/25. Doctor then blocked on the uncommitted approved
+positioning repair. Product classifies this as a release sequencing error, not
+a functional failure, and will not rerun without new explicit direction.

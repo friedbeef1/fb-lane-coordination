@@ -18,7 +18,7 @@ Changelog approval: approved by James on 2026-08-05
 | Links, records, and doctor | pass; Doctor exits 0 with only expected dirty-worktree attention before commit |
 | Whitespace | `git diff --check` pass |
 | Changelog approval | approved by James on 2026-08-05 |
-| Release checkpoint | Checking — two complete passes exposed stale structural assertions; both focused repairs are green, and the circuit breaker requires Product approval before one exceptional additional pass |
+| Release checkpoint | Checking — the approved final pass cleared every functional suite reached, then Doctor blocked because the approved positioning repair had not yet been committed; no further pass is authorized |
 
 ## Bounded verification repairs
 
@@ -59,6 +59,19 @@ Product direction.
 Focused recovery result: root beginner-experience suite passed 11/11, the
 packaged suite passed 11/11, 60 declared mirrors were regenerated, and
 whitespace passed. No third complete-validator run was attempted.
+
+James then approved an exceptional additional checkpoint. It exposed remaining
+Product/User-era literals in the positioning contract while the canonical
+README, Why FB page, and graph diagrams already used User plus the Product/BFM
+control centre. The consolidated positioning repair passed in root and package
+contexts and regenerated all 60 declared mirrors.
+
+James approved one final complete validator. That run passed CLI 72/72,
+sessions 39/39, evals 19/19, beginner experience 11/11, positioning, two-speed,
+and efficiency 25/25. Doctor then stopped only on the clean-worktree gate
+because the approved positioning repair was still uncommitted. This was a
+release sequencing error, not a functional failure. The repair is now being
+committed; no additional complete pass is authorized automatically.
 
 No push, merge, marketplace publication, reinstall, or consumer-project rollout
 is authorized before the normal release boundary.
