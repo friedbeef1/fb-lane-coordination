@@ -279,7 +279,15 @@ test('new task prompts remain idle and carry distinct workstream instructions', 
   }
   assert.strictEqual(new Set(prompts).size, 7);
   assert.match(prompts[0], /coordinate delivery/i);
+  assert.match(prompts[0], /Product\/BFM control centre/i);
+  assert.match(prompts[0], /reconcil(?:e|iation)/i);
+  assert.match(prompts[0], /execut(?:e|ion)/i);
+  assert.match(prompts[0], /verification|verify/i);
+  assert.match(prompts[0], /remain idle[\s\S]*until[\s\S]*\$bfm/i);
+  assert.doesNotMatch(prompts[0], /planning and evidence task|create a repository-local handoff/i);
   assert.match(prompts[1], /user outcome/i);
+  assert.match(prompts[1], /planning and evidence task/i);
+  assert.match(prompts[1], /create a repository-local handoff/i);
   assert.match(prompts[2], /commercial/i);
   assert.match(prompts[3], /experience/i);
   assert.match(prompts[4], /safely and reliably/i);

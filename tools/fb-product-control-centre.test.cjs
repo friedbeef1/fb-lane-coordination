@@ -50,6 +50,10 @@ assert.match(setup, publicModelPattern());
 assert.match(setup, /Product\/User[\s\S]{0,100}legacy[\s\S]{0,100}User/i);
 assert.match(setup, /lone[\s\S]{0,80}Product[\s\S]{0,80}Product\/BFM/i);
 
+const normalizedHandoff = read('templates/docs/handoffs/normalized-handoff-template.md');
+assert.match(normalizedHandoff, /^lane:\s*fb-user$/m, 'new normalized evidence handoffs must default to User');
+assert.doesNotMatch(normalizedHandoff, /^lane:\s*fb-product$/m, 'new normalized evidence must not default to the Product/BFM control-centre identifier');
+
 for (const relative of [
   'README.md',
   'docs/fb/README.md',
@@ -98,6 +102,15 @@ try {
   for (const lane of ['product', 'user', 'business', 'design', 'tech', 'discovery', 'bugs']) {
     assert.ok(fs.existsSync(path.join(fixture, 'docs', 'workstreams', `fb-${lane}.md`)), `bootstrap must create the ${lane} status card`);
   }
+  const board = fs.readFileSync(path.join(fixture, 'PROJECT_BOARD.md'), 'utf8');
+  assert.match(board, /`Done`:[^\n]*FB Product\/BFM/i);
+  assert.match(board, /\| TASK-001 \| Ready \| FB Product\/BFM \|/);
+  assert.match(board, /\*\*Owner \/ Thread\*\*:\s*FB Product\/BFM/i);
+  assert.match(board, /Product\/BFM control centre/i);
+  assert.doesNotMatch(board, /FB-Product(?!\/BFM)/, 'generated board must not emit the retired standalone Product owner');
+  const index = fs.readFileSync(path.join(fixture, 'docs/handoffs/index.md'), 'utf8');
+  assert.match(index, /\| TASK-001 - Project setup \| Product\/BFM control centre \|/);
+  assert.doesNotMatch(index, /FB-Product(?!\/BFM)/, 'generated index must not emit the retired standalone Product lane');
 } finally {
   fs.rmSync(fixture, { recursive: true, force: true });
 }

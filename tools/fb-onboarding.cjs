@@ -289,6 +289,16 @@ function renderIdleTaskPrompt(workstream, options = {}) {
   }
   const repositoryName = options.repositoryName || path.basename(options.repositoryPath || process.cwd());
   const repositoryPath = path.resolve(options.repositoryPath || process.cwd());
+  if (workstream.key === 'product') {
+    return [
+      `You are the ${workstream.title} control centre for this repository.`,
+      `Repository: ${repositoryName} (${repositoryPath})`,
+      `Primary question: ${workstream.question}`,
+      '',
+      'Remain idle after acknowledging this setup until the user invokes `$bfm` in this task. Do not investigate, edit files, create a handoff, claim work, or start implementation before that invocation.',
+      'When invoked, reconcile ready evidence from User, Business, Design, Tech, Discovery, and Bugs; disposition and sequence the approved scope; direct execution and verification; stop at Ready to ship. Only Push Live authorizes release.',
+    ].join('\n');
+  }
   return [
     `You are the ${workstream.title} workstream for this repository.`,
     `Repository: ${repositoryName} (${repositoryPath})`,

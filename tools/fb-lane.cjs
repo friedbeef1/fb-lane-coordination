@@ -417,7 +417,7 @@ Use this file as the first read for handoff discovery. \`PROJECT_BOARD.md\` rema
 
 | Task / Topic | Lane | Status | Depends / Blocks / Gate | Checks / Evidence | Detail |
 |---|---|---|---|---|---|
-| TASK-001 - Project setup | FB-Product | Ready | Product bootstrap gate | Doctor after bootstrap | See \`PROJECT_BOARD.md\` |
+| TASK-001 - Project setup | Product/BFM control centre | Ready | Product/BFM bootstrap gate | Doctor after bootstrap | See \`PROJECT_BOARD.md\` |
 
 ## Historical Evidence
 
@@ -1691,7 +1691,7 @@ function handleDoctor() {
             }
           }
           if (duplicateLocks.length > 0) {
-            add('fail', 'Active file locks', `Duplicate active locks: ${duplicateLocks.join(', ')}`, 'Ask FB-Product to split, serialize, or release one claim.');
+            add('fail', 'Active file locks', `Duplicate active locks: ${duplicateLocks.join(', ')}`, 'Ask Product/BFM to split, serialize, or release one claim.');
           } else {
             add('ok', 'Active file locks', `${activeLocks.size} active file lock(s), no duplicate active claims.`);
           }
@@ -2044,7 +2044,7 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
   let worktreePath = null;
   let worktreeReused = false;
   if (options.worktree) {
-    // Worktree mode: leave the primary checkout (FB-Product) where it is so the board stays
+    // Worktree mode: leave the primary checkout (Product/BFM) where it is so the board stays
     // authoritative here, and give this execution worker its own directory on its own branch off main.
     const records = parseWorktreePorcelain(runGit(['worktree', 'list', '--porcelain']));
     const plan = resolveWorktreePlan(records, branchName);
@@ -3265,7 +3265,7 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 - \`Ready\`: Triaged tasks, fully scoped, ready to be claimed.
 - \`In Progress\`: Tasks currently being worked on by an owner.
 - \`Staging QA\`: Candidate awaiting verification. Record the actual local, sandbox, staging, or completed-build environment separately.
-- \`Done\`: Checked, verified, and merged to production by FB-Product.
+- \`Done\`: Checked, verified, and merged to production by FB Product/BFM.
 
 ---
 
@@ -3273,23 +3273,23 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-001 | Ready | FB-Product | Setup | Bootstrap repository files | (None) | [Branch](${repoUrl}/tree/main) \\| [PR #1](${repoUrl}/pull/1) |
+| TASK-001 | Ready | FB Product/BFM | Setup | Bootstrap repository files | (None) | [Branch](${repoUrl}/tree/main) \\| [PR #1](${repoUrl}/pull/1) |
 
 ---
 
 ### TASK-001 - Project Setup & Bootstrap
 *   **Status**: Ready
-*   **Owner / Thread**: FB-Product
+*   **Owner / Thread**: FB Product/BFM
 *   **Area**: Setup
 *   **Scope**: Create initial files, initialize repository layout.
 *   **Out of Scope**: Writing application business logic.
 *   **Goal Alignment Session**:
-    *   **Objective**: Give Product one ready-to-run FB workspace bootstrap with approved OKRs, generated coordination files, basic commands, and clear next-step guidance.
+    *   **Objective**: Give the Product/BFM control centre one ready-to-run FB workspace bootstrap with approved OKRs, generated coordination files, basic commands, and clear next-step guidance.
     *   **Key Results**:
         *   Board, rules, CLI, and handoff folder exist.
         *   \`doctor\` reports no blocking setup errors.
     *   **Definition of Done**: A new contributor can bootstrap the repo, find lane rules, and start the first scoped task without guessing the coordination flow.
-    *   **Gate / Review Point**: Product confirms the generated files are coherent enough to move from setup into the first non-trivial task.
+    *   **Gate / Review Point**: Product/BFM confirms the generated files are coherent enough to move from setup into the first non-trivial task.
     *   **Approval**: approved
     *   **Justification**: Setup work needs a small approved Product/workstream OKR so future lanes can see the expected coordination baseline.
 *   **Affected Screens / Locks**:

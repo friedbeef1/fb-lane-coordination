@@ -9,7 +9,7 @@ handoff and complete verification output belongs in a linked QA artifact.
 - `Ready`: Triaged tasks, fully scoped, ready to be claimed.
 - `In Progress`: Tasks currently being worked on by an owner.
 - `Staging QA`: Candidate awaiting verification. Record the actual local, sandbox, staging, or completed-build environment separately.
-- `Done`: Checked, verified, and merged to production by FB Product.
+- `Done`: Checked, verified, and merged to production by FB Product/BFM.
 
 ---
 
