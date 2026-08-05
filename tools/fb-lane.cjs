@@ -435,7 +435,7 @@ For new handoffs, add a short frontmatter block when useful:
 ---
 type: fb-lane-handoff
 task: TASK-...
-lane: fb-product | fb-tech | fb-design | fb-business | fb-discovery | fb-bugs
+lane: fb-user | fb-product | fb-tech | fb-design | fb-business | fb-discovery | fb-bugs
 status: ready | actioned | implemented | blocked | deferred | done
 okr_fit: aligned | suggest approach change | blocked by OKR ambiguity
 ---
@@ -446,7 +446,8 @@ Do not retrofit old handoffs unless Product/BFM is already touching them.
 }
 
 const WORKSTREAM_STATUS_CARDS = [
-  ['fb-product.md', 'FB-Product'],
+  ['fb-product.md', 'FB-Product/BFM'],
+  ['fb-user.md', 'FB-User'],
   ['fb-tech.md', 'FB-Tech'],
   ['fb-design.md', 'FB-Design'],
   ['fb-business.md', 'FB-Business'],
@@ -455,6 +456,13 @@ const WORKSTREAM_STATUS_CARDS = [
 ];
 
 const BFM_WORKSTREAMS = ['product', 'business', 'design', 'tech', 'discovery', 'bugs'];
+
+function scannerWorkstream(lane) {
+  const normalized = String(lane || '').replace(/^fb-/, '').toLowerCase();
+  // Preserve the historical `product` scanner slot and `fb-product` handoffs;
+  // new evidence is written by the dedicated User workstream.
+  return normalized === 'user' ? 'product' : normalized;
+}
 
 function handoffFrontmatter(markdown) {
   const match = String(markdown).match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/);
@@ -575,7 +583,7 @@ function scanWorkstreamHandoffs(rootDir) {
     const relative = `docs/handoffs/${file}`;
     const metadata = handoffFrontmatter(fs.readFileSync(path.join(handoffsDir, file), 'utf8'));
     if (!metadata || metadata.type !== 'fb-lane-handoff') continue;
-    const workstream = String(metadata.lane || '').replace(/^fb-/, '').toLowerCase();
+    const workstream = scannerWorkstream(metadata.lane);
     if (!BFM_WORKSTREAMS.includes(workstream)) continue;
     const status = String(metadata.status || '').toLowerCase();
     if (status === 'blocked') workstreams[workstream].blocked.push(relative);
@@ -3098,12 +3106,13 @@ Read [the FB harness](docs/fb/README.md) after using
 \`PROJECT_BOARD.md\` only when the compact packet is insufficient or
 contradictory. Use the focused page that matches the task:
 
-Start in whichever workstream matches the question whenever planning or
-evidence is useful. Product/User is only for user and product questions, not
-universal intake. Relevant workstreams create handoffs ready for Product
+Start in whichever evidence-producing workstream matches the question whenever
+planning or evidence is useful: User, Business, Design, Tech, Discovery, or
+Bugs. Product/BFM is the control centre, not universal intake. Relevant
+workstreams create handoffs ready for Product
 intake; ready is neither approval nor execution authority. \`$bfm\` freezes
 intake, and Product must disposition every candidate before source execution.
-Product then reconciles all six, prioritizes and sequences **Include now**
+Product/BFM then reconciles all six, prioritizes and sequences **Include now**
 candidates, and records the consolidated Project Start Brief and Build Brief;
 BFM executes that approved scope.
 
@@ -3300,9 +3309,10 @@ When a sidechat prepares work for Product/BFM, use this output shape:
     *   *2026-06-15*: Scoped task and marked ready for execution.
 
 ### Workstream-first route
-- Start in whichever workstream matches the question whenever planning or evidence is useful. Product/User is selected only for user needs, outcomes, requirements, feedback, acceptance criteria, or product priorities; it is not universal intake.
+- Start in whichever evidence-producing workstream matches the question whenever planning or evidence is useful. User is selected for user needs, outcomes, requirements, feedback, acceptance criteria, or product priorities; Product/BFM is the control centre, not universal intake.
 - Relevant workstreams investigate and create handoffs ready for Product intake. Ready status is neither approval nor execution authority.
-- After the user says \`$bfm\`, Product freezes intake and must disposition every candidate before source execution. Product scans all six, reconciles duplicates, conflicts, dependencies, and priorities, then records the consolidated Project Start Brief and Build Brief for **Include now** candidates.
+- After the user says \`$bfm\` in Product/BFM, Product/BFM freezes intake and must disposition every candidate before source execution. It scans all six evidence-producing workstreams, reconciles duplicates, conflicts, dependencies, and priorities, then records the consolidated Project Start Brief and Build Brief for **Include now** candidates.
+- Pinning never starts work, approves scope, invokes \`$bfm\`, or authorizes release.
 - Pause only for a changed decision, disputed priority, sensitive boundary, conflict, or unclear scope. BFM executes and verifies approved scope, stops at Ready to ship, and reserves release for Push Live.
 
 ### Goal Alignment Session (non-trivial tasks only)
@@ -3453,17 +3463,17 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('🚀 QUICK START GUIDE: HOW TO USE FB RIGHT AWAY');
   console.log('======================================================================');
   console.log('1. Describe your new project normally.');
-  console.log('2. FB starts in whichever workstream matches the question; Product/User is only for user and product questions.');
+  console.log('2. FB starts in whichever evidence-producing workstream matches the question: User, Business, Design, Tech, Discovery, or Bugs. Product/BFM is the control centre.');
   console.log('3. Relevant workstreams investigate and create handoffs ready for Product intake; ready is a candidate, not execution authority.');
-  console.log('4. When actionable handoffs are ready, say $bfm. $bfm freezes intake; Product scans all six and must disposition every candidate before source execution, then prioritizes and sequences Include now candidates into the Project Start Brief and Build Brief for BFM execution.');
+  console.log('4. When actionable handoffs are ready, say $bfm in Product/BFM. $bfm freezes intake; Product/BFM scans all six and must disposition every candidate before source execution, then prioritizes and sequences Include now candidates into the Project Start Brief and Build Brief for BFM execution.');
   console.log('5. BFM stops at Ready to ship. Only Push Live authorizes release.');
   console.log('======================================================================');
   console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');
   if (onboarding.shouldPrompt) {
-    console.log('Meet FB — Focus Bridge. FB connects six planning and evidence workstreams to one `$bfm` delivery loop.');
-    console.log('May I create six repository-scoped sidebar tasks: Product/User, Business, Design, Tech, Discovery, and Bugs?');
-    console.log('Reply Yes or No. FB asks this setup question once, creates only missing legacy/current workstreams, and leaves every new task idle.\n');
+    console.log('Meet FB — Focus Bridge. FB has six evidence-producing workstreams plus one Product/BFM control centre and seven pinned repository-scoped Codex tasks.');
+    console.log('May I create seven repository-scoped sidebar tasks: Product/BFM, User, Business, Design, Tech, Discovery, and Bugs?');
+    console.log('Reply Yes or No. FB asks this setup question once, creates only missing legacy/current tasks, and leaves every new task idle. Pinning never starts work.\n');
   }
 }
 

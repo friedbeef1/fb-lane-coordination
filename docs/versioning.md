@@ -16,10 +16,10 @@ Antigravity are paused; contributors can use the
 
 | Area | v1: four-lane coordination plugin | Latest: FB 0.5.8-beta |
 |---|---|---|
-| Core idea | Split work across Product, Tech, Design, and Business lanes. | Use Graph Engineering to connect six workstreams, decisions, evidence, dependencies, implementation, verification, and release state. |
-| Product role | Sequence and review lane work. | Own goals, BFM execution launch, reconciliation, merge gates, and release decisions. |
-| Workstreams | Product, Tech, Design, and Business could drift from planning into implementation. | Product/User, Business, Design, Tech, Discovery, and Bugs follow evidence mini-loops; source changes happen through Product-launched BFM. |
-| First setup | Workstream sidebar tasks were created manually. | Bootstrap asks once for permission, adds only missing repository-scoped workstream tasks, and leaves them idle. |
+| Core idea | Split work across Product, Tech, Design, and Business lanes. | Use Graph Engineering to connect six evidence-producing workstreams through one Product/BFM control centre. |
+| Product role | Sequence and review lane work. | Product/BFM owns goals, BFM execution launch, reconciliation, merge gates, and release decisions. |
+| Workstreams | Product, Tech, Design, and Business could drift from planning into implementation. | User, Business, Design, Tech, Discovery, and Bugs follow evidence mini-loops; source changes happen through Product/BFM. |
+| First setup | Workstream sidebar tasks were created manually. | Bootstrap asks once for permission, adds only missing repository-scoped tasks, pins all seven, and leaves them idle. |
 | Agent control | Agent workflows depended on task-specific orchestration. | An optional rules-first control loop preserves baselines, records flat clone-local evidence, compares named criteria, and keeps configuration candidates isolated behind Product approval. |
 | Goals | Lightweight goal alignment. | Approved OKRs with Definition of Done, gate, justification, and explicit approval. |
 | Handoffs | Detailed markdown handoffs. | `PROJECT_BOARD.md` is truth, `docs/handoffs/index.md` is routing, detailed handoffs are detail. |

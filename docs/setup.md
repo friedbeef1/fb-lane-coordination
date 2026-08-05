@@ -24,7 +24,7 @@ approved Build Brief. They may also provide repository-relative manifest paths:
 }
 ```
 
-Omitting this block preserves the normal six-workstream workflow. FB selects
+Omitting this block preserves the normal six-evidence-workstream workflow. FB selects
 internal execution treatment; users do not choose Normal, Quick, or Full BFM.
 
 ## AI-Powered Bootstrap
@@ -68,16 +68,17 @@ What bootstrap creates:
 - Codex-ready lane guidance
 - one clone-local onboarding receipt in the Git common directory, shared by
   linked worktrees, or ignored `.fb/onboarding.json` for a non-Git project;
-  plus a one-time permission question for repository-scoped Product/User,
-  Business, Design, Tech, Discovery, and Bugs sidebar tasks
+  plus a one-time permission question for seven repository-scoped Product/BFM,
+  User, Business, Design, Tech, Discovery, and Bugs sidebar tasks
 
 If permission is granted and Codex exposes task tools, FB recognizes existing
-legacy/current workstream tasks and creates only missing ones. Existing
-four-task projects receive Discovery and Bugs only. New tasks remain idle. If
+legacy/current tasks and creates only missing ones. Product/User is a legacy
+User title; a lone Product title maps to Product/BFM. New tasks remain idle. If
 task tools are unavailable, FB provides manual prompts instead of claiming
 success. FB titles and automatically pins every exact workstream task, then
 re-lists the repository inventory before recording reconciliation. An existing
 unpinned task is pinned, never duplicated.
+Pinning never starts work, approves scope, invokes `$bfm`, or authorizes release.
 
 ## Upgrade Existing Codex Plugin Install
 

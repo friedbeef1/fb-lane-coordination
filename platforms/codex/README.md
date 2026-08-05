@@ -6,6 +6,8 @@ for Everyday People**. The current release candidate is
 scattered AI conversations into a living product-delivery graph. Codex provides
 threads, skills, and worktrees; FB connects their decisions, evidence,
 dependencies, implementation, verification, and release state.
+The public model is six evidence-producing workstreams plus one Product/BFM
+control centre and seven pinned repository-scoped Codex tasks.
 
 ## Start
 
@@ -17,10 +19,10 @@ dependencies, implementation, verification, and release state.
    ```
 
 2. Open the project and say `Set up FB in this project.`
-3. Discuss questions in the relevant Product/User, Business, Design, Tech,
+3. Discuss questions in the relevant User, Business, Design, Tech,
    Discovery, or Bugs workstreams.
 4. For actionable findings say `Create a handoff MD for Product/BFM.`
-5. After actionable handoffs are ready, say `$bfm`. Product scans all six,
+5. After actionable handoffs are ready, say `$bfm` in Product/BFM. The control centre scans all six,
    reconciles and prioritizes, creates the durable briefs, and BFM implements,
    tests, and stops at
    **Ready to ship**. Say **Push Live** only when you want merge and deployment.

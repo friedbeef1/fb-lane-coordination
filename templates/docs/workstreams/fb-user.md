@@ -1,12 +1,12 @@
-# FB-Product/BFM Control Centre Status
+# FB-User Workstream Status
 
 Last Updated: Not yet updated
-Lane: FB-Product/BFM
+Lane: FB-User
 
 ## Current Summary
-No reconciliation or execution summary has been recorded yet.
+No User evidence summary has been recorded yet.
 
-## Already Executed By Product/BFM
+## Already Reconciled By Product/BFM
 - None recorded.
 
 ## Still Pending / Blocked

@@ -311,7 +311,7 @@ test('BFM fails safely when Codex cannot prove a complete repository task invent
   assert.match(skill, /search\s+argument is rejected, retry without it/i);
   assert.match(skill, /inventory is\s+truncated or cannot be proved complete/i);
   assert.match(skill, /never guess that a workstream is missing/i);
-  assert.match(skill, /provide all six prompts/i);
+  assert.match(skill, /provide all seven prompts/i);
 });
 
 test('CLI emits canonical idle prompts and rejects unknown workstreams', () => {
@@ -353,8 +353,8 @@ test('fresh bootstrap prints the permission question once across reruns', () => 
     });
     assert.strictEqual(first.status, 0, first.stderr);
     assert.strictEqual(second.status, 0, second.stderr);
-    assert.match(first.stdout, /Meet FB[\s\S]*May I create six repository-scoped sidebar tasks/i);
-    assert.doesNotMatch(second.stdout, /May I create six repository-scoped sidebar tasks/i);
+    assert.match(first.stdout, /Meet FB[\s\S]*May I create seven repository-scoped sidebar tasks/i);
+    assert.doesNotMatch(second.stdout, /May I create seven repository-scoped sidebar tasks/i);
     assert.match(fs.readFileSync(path.join(root, '.gitignore'), 'utf8'), /^\.fb\/onboarding\.json$/m);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
@@ -375,7 +375,7 @@ test('first-run guidance creates, pins, verifies, and only then reconciles works
     assert.match(source, /sidebar/i, `${label} must connect pinning to sidebar visibility`);
   }
   assert.match(bfm, /set_thread_pinned/);
-  assert.match(bfm, /verify all six[\s\S]*pinned/i);
-  assert.match(bfm, /unpinned[\s\S]*rather than creating a duplicate/i);
-  assert.ok(bfm.indexOf('verify all six') < bfm.indexOf('fb-onboarding.cjs reconcile'));
+  assert.match(bfm, /verify all seven[\s\S]*pinned/i);
+  assert.match(bfm, /unpinned[\s\S]*rather\s+than creating a duplicate/i);
+  assert.ok(bfm.indexOf('verify all seven') < bfm.indexOf('fb-onboarding.cjs reconcile'));
 });

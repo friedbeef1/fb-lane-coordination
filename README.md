@@ -8,8 +8,9 @@ Current Codex release candidate: **FB 0.5.8-beta**
 (`0.5.8-beta+codex.20260804153114`).
 
 **FB is an open-source Codex plugin that turns scattered AI conversations into
-a living product-delivery graph.** Six workstreams investigate different parts
-of the outcome. `$bfm` reconciles and prioritizes their ready recommendations,
+a living product-delivery graph.** It has six evidence-producing workstreams
+plus one Product/BFM control centre and seven pinned repository-scoped Codex
+tasks. `$bfm` reconciles and prioritizes ready recommendations in Product/BFM,
 directs Codex implementation, runs automated checks, and prepares the result
 for release.
 
@@ -61,7 +62,7 @@ Codex use, not defects in Codex itself.
 |---|---|
 | Important decisions remain scattered across chats | FB turns actionable decisions and evidence into repository-local handoff MD files. |
 | Codex may start building before the goal and boundaries are clear | FB queues ready handoffs for Product intake; `$bfm` then freezes the intake, reconciles it, and records the consolidated Project Start Brief and Build Brief before execution. |
-| User evidence, decisions, and AI assumptions can become mixed together | Product/User records each category separately before implementation. |
+| User evidence, decisions, and AI assumptions can become mixed together | User records each category separately before implementation. |
 | Outputs from several Codex tasks must be combined manually | `$bfm` scans ready handoffs across all six workstreams, reconciles conflicts, and sequences the work. |
 | Failed checks can return responsibility to the user | FB runs automated checks and owns bounded diagnosis and repair. |
 | Progress and readiness can be difficult to interpret | FB reports Current, Next, Blocked, optional review links, and Ready to ship. |
@@ -72,7 +73,7 @@ Codex use, not defects in Codex itself.
 | Common problem | What FB does |
 |---|---|
 | Product decisions are scattered across chats | Actionable findings become durable handoff MD files. |
-| User evidence and assumptions get mixed together | Product/User labels evidence, decisions, and assumptions separately. |
+| User evidence and assumptions get mixed together | User labels evidence, decisions, and assumptions separately. |
 | Teams build before resolving important unknowns | Discovery investigates uncertainty before implementation. |
 | Bug reports lack reproduction or severity | Bugs turns reports into observable, prioritized evidence. |
 | Business, design, and technical advice conflicts | Product reconciles it during `$bfm`. |
@@ -88,7 +89,7 @@ behind these problem mappings.
 
 | Workstream | Its question |
 |---|---|
-| Product/User | What user outcome should we deliver? |
+| User | What user outcome should we deliver? |
 | Business | Should and how can this succeed commercially? |
 | Design | How should the experience work and feel? |
 | Tech | How can this be built safely and reliably? |
@@ -106,9 +107,9 @@ Question → Investigate → Gather evidence → Recommend → Create handoff MD
 ```mermaid
 flowchart TB
     G["Living product-delivery graph<br/>decisions · evidence · dependencies · verification"]
-    subgraph M["Six workstream learning loops"]
+    subgraph M["Six evidence-producing workstream loops"]
         direction LR
-        PU["Product/User<br/>Question → Evidence<br/>→ Recommendation → Question"]
+        US["User<br/>Question → Evidence<br/>→ Recommendation → Question"]
         BU["Business<br/>Question → Evidence<br/>→ Recommendation → Question"]
         DE["Design<br/>Question → Evidence<br/>→ Recommendation → Question"]
         TE["Tech<br/>Question → Evidence<br/>→ Recommendation → Question"]
@@ -116,20 +117,21 @@ flowchart TB
         BG["Bugs<br/>Question → Evidence<br/>→ Recommendation → Question"]
     end
 
-    G --> PU
+    PB["Product/BFM control centre<br/>reconcile · prioritize · execute · verify"]
+    G --> US
     G --> BU
     G --> DE
     G --> TE
     G --> DI
     G --> BG
-    PU --> H
+    US --> H
     BU --> H
     DE --> H
     TE --> H
     DI --> H
     BG --> H
     H["Ready handoff MD files"]
-    B["$bfm scans all six"]
+    B["$bfm in Product/BFM<br/>scans all six"]
     P["Prioritize and sequence"]
     C["Codex implements"]
     T["Automated testing and repair"]
@@ -138,11 +140,11 @@ flowchart TB
     D["Merge and deploy"]
     F["Results and feedback"]
     N["New questions and results"]
-    H --> B --> P --> C --> T --> S --> L --> D --> F
+    H --> B --> PB --> P --> C --> T --> S --> L --> D --> F
     P --> G
     T --> G
     F --> N
-    N --> PU
+    N --> US
     N --> BU
     N --> DE
     N --> TE
@@ -163,7 +165,8 @@ does not start automatically. When you continue it, Design investigates and
 can later create a separate Product-ready handoff; the queued artifact itself
 never enters `$bfm`.
 
-When actionable ready handoffs exist, the user says `$bfm`. Product then
+When actionable ready handoffs exist, the user says `$bfm` in Product/BFM. The
+control centre then
 freezes an intake snapshot, dispositions every candidate, reconciles and
 prioritizes the included work, and creates the Project Start Brief plus Build
 Brief before BFM executes that consolidated scope; see [the start
@@ -198,7 +201,7 @@ codex plugin add fb-lane-coordination@fb-lane
 1. Open your project in Codex and say: `Set up FB in this project.`
 2. Discuss your goal or question in the relevant workstream chats. This keeps different concerns clear without forcing every workstream to participate.
 3. When a discussion becomes actionable, say: `Create a handoff MD for Product/BFM.` This preserves the recommendation and evidence outside the chat.
-4. Say `$bfm`. Product freezes the six-workstream intake, dispositions every candidate, reconciles conflicts, records one prioritized plan and Build Brief, and only then directs Codex implementation.
+4. Say `$bfm` in Product/BFM. The control centre freezes the six-workstream intake, dispositions every candidate, reconciles conflicts, records one prioritized plan and Build Brief, and only then directs Codex implementation.
 5. FB runs automated checks and owns bounded repair. Review optional links only when useful.
 6. When FB reports **Ready to ship**, say **Push Live** to authorize merge and deployment.
 
@@ -210,7 +213,7 @@ codex plugin add fb-lane-coordination@fb-lane
 | Git worktrees | Isolate branches and support parallel implementation. | Isolation does not determine what to build, resolve competing recommendations, or verify the product outcome. | FB connects worktree execution to approved priorities, coordinated implementation, and outcome verification. |
 | Kurrent Capacitor | Automatically captures, recalls, observes, and evaluates agent sessions. | Session intelligence alone does not define the approved product outcome or own delivery authority and closeout. | FB connects curated evidence to the brief, user decisions, execution authority, testing, and closeout. |
 | BMAD | Provides a broad role-based AI development methodology. | A broad methodology can require more process than a focused repository-local Codex delivery loop. | FB provides a smaller loop around ready handoffs, Codex implementation, automated verification, and explicit release approval. |
-| FB | Connects six product workstreams to Codex implementation, verification, and delivery. | — | — |
+| FB | Connects six evidence-producing workstreams through one Product/BFM control centre to Codex implementation, verification, and delivery. | — | — |
 
 References: [OpenAI Codex](https://openai.com/codex/), [Git
 worktree](https://git-scm.com/docs/git-worktree), [Kurrent

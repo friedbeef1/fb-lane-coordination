@@ -1,19 +1,22 @@
 # Start an FB objective
 
-Describe the objective or question. Whenever planning or evidence would help,
-start in whichever of the six workstreams matches the question. FB selects the
-useful path; users do not choose an execution mode at intake.
+Describe the objective or question. FB has six evidence-producing workstreams
+plus one Product/BFM control centre and seven pinned repository-scoped Codex
+tasks. Whenever planning or evidence would help, start in the matching
+workstream. Users do not choose an execution mode at intake.
 
-## The six workstreams
+## The six evidence-producing workstreams
 
-- **Product/User:** selected only for user needs, user outcomes, requirements, feedback, acceptance criteria, or product priority questions. It is not the universal coordinator at intake.
+- **User:** user needs, user outcomes, requirements, observed or recorded feedback, acceptance criteria, and product-priority evidence.
 - **Business:** market, positioning, pricing, distribution, and commercial risks.
 - **Design:** flows, interaction, accessibility, information design, and visual quality.
 - **Tech:** architecture, feasibility, security, performance, and integrations.
 - **Discovery:** unknowns, research, experiments, and decision-changing evidence.
 - **Bugs:** reproduction, severity, affected users, and regression evidence.
 
-Each relevant workstream uses the same mini-loop: **Question → Investigate →
+Product/BFM is the control centre, not a seventh evidence-producing workstream
+or universal intake coordinator. Each relevant workstream uses the same
+mini-loop: **Question → Investigate →
 Gather evidence → Recommend → Create a handoff ready for Product intake**. A
 ready handoff is a Product intake candidate, not approval or execution
 authority. A workstream that is not relevant does no manufactured work. Record
@@ -23,15 +26,16 @@ disposition for every workstream.
 ## First bootstrap
 
 After repository bootstrap, FB introduces itself and asks once for permission
-to create six repository-scoped Codex sidebar tasks. These are durable entry
-points for Product/User, Business, Design, Tech, Discovery, and Bugs—not six
-mandatory agents or approval gates.
+to create seven repository-scoped Codex sidebar tasks. These are durable entry
+points for Product/BFM, User, Business, Design, Tech, Discovery, and Bugs—not
+mandatory agents, approval gates, or automatic starts.
 
 With permission, FB detects exact current and legacy workstream tasks and
-creates only missing ones. A legacy four-task project gains Discovery and Bugs;
-a current six-task project gains nothing. FB automatically pins all six exact
-workstream tasks so they remain visible in the sidebar; an existing unpinned
-workstream task is pinned rather than duplicated. New tasks start idle with their
+creates only missing ones. Product/User is a legacy User title; a lone legacy
+Product title maps to Product/BFM. FB automatically pins all seven exact tasks
+so they remain visible in the sidebar; an existing unpinned task is pinned
+rather than duplicated. Pinning never starts work, approves scope, invokes
+`$bfm`, or authorizes release. New tasks start idle with their
 workstream question and do no investigation, source editing, or handoff work
 until the user asks them something.
 
@@ -46,8 +50,8 @@ not disable FB.
 1. FB starts in whichever workstream or workstreams match the question.
 2. Each relevant workstream investigates and creates a handoff ready for Product intake.
 3. When the actionable handoffs are assembled, the user says `$bfm`.
-4. `$bfm` freezes intake: Product scans all six workstreams and must disposition every candidate as **Include now**, **Blocked**, **Deferred**, **Duplicate**, **Rejected**, or **Superseded** before source execution. A disposition does not auto-close a task; all genuinely nonterminal candidates remain visible in the board and handoff records.
-5. Product reconciles duplicates, conflicts, and dependencies, then prioritizes and sequences only **Include now** candidates. Product records the consolidated Project Start Brief and Build Brief; those records define the BFM execution scope.
+4. `$bfm` executes only in Product/BFM. It freezes intake: Product/BFM scans all six evidence-producing workstreams and must disposition every candidate as **Include now**, **Blocked**, **Deferred**, **Duplicate**, **Rejected**, or **Superseded** before source execution. A disposition does not auto-close a task; all genuinely nonterminal candidates remain visible in the board and handoff records.
+5. Product/BFM reconciles duplicates, conflicts, and dependencies, then prioritizes and sequences only **Include now** candidates. Product/BFM records the consolidated Project Start Brief and Build Brief; those records define the BFM execution scope.
 6. BFM implements and verifies that reconciled scope, then stops at **Ready to ship**. Only **Push Live** authorizes release, merge, or deployment.
 
 `$bfm` remains the supported invocation. If a user types `/bfm`, FB may
