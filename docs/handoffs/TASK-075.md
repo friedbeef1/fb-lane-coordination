@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-075
 lane: fb-product
-status: ready
+status: implemented
 okr_fit: aligned
 approval: approved
 fb_harness: v3
@@ -11,11 +11,15 @@ record_model: normalized-v1
 
 # TASK-075 — User workstream and Product/BFM control centre
 
+Release candidate: `0.5.9-beta+codex.20260805042523`
+Candidate state: Checking — not Ready to ship.
+Changelog approval: pending.
+
 ## Intake Snapshot
 
 | Workstream | Ready inputs | Disposition |
 |---|---:|---|
-| Product/User | 1 | Include now — separate User evidence from Product/BFM control |
+| User | 1 | Include now — separate User evidence from Product/BFM control |
 | Business | None | None relevant |
 | Design | None | None relevant |
 | Tech | None | None relevant |
@@ -89,19 +93,24 @@ onboarding, plugin skills, and upgrade behavior.
 
 ## Task Receipt
 
-- **Changed surfaces:** pending.
+- **Changed surfaces:** seven-role onboarding planner and focused tests;
+  dedicated User and Product/BFM skill/guidance model; public, setup, platform,
+  template, prompt, metadata, version, release, and generated package surfaces.
 - **Verification:** [TASK-075 QA](../qa/TASK-075.md).
-- **Review state:** not reviewable.
-- **Changelog:** pending Product wording approval.
+- **Review state:** Checking — focused candidate evidence recorded; final
+  release checkpoint intentionally not run.
+- **Changelog:** drafted — [FB 0.5.9-beta](../../CHANGELOG.md#059-beta--2026-08-05).
+- **Changelog approval:** pending.
 - **External gates:** Changelog approval, release checkpoint, and Push Live.
-- **Remaining owner/action:** Product/BFM implements and verifies the candidate.
+- **Remaining owner/action:** James approves or revises the exact changelog;
+  Product/BFM then runs the one final release checkpoint.
 
 ## Brief Validation
 
-Status: blocked
+Status: Checking
 
-- **Satisfied:** User decision, scope, compatibility boundary, and execution
-  authority are explicit.
-- **Missing:** Implementation, focused evidence, changelog approval, release
-  checkpoint, and Push Live.
-- **Next action:** Implement TASK-075 in the isolated candidate branch.
+- **Satisfied:** The canonical candidate, generated package, active release
+  records, compatibility boundary, and focused evidence are aligned.
+- **Missing:** Changelog approval, the final release checkpoint, and Push Live.
+- **Next action:** Obtain changelog approval before running the final release
+  checkpoint. Do not claim Ready to ship.

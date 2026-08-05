@@ -22,6 +22,9 @@ update that workstream's Product handoff and redirect without onboarding,
 coordination-record mutation, or execution. In a sidechat, route only to the
 originating parent; if it cannot be reached, return a paste-ready handoff.
 
+`$bfm` executes only in Product/BFM. Pinning never starts work, approves scope,
+invokes `$bfm`, or authorizes release.
+
 ## First-run sidebar onboarding
 
 `$bfm` is the supported invocation. Treat an explicit `/bfm` from the user as
@@ -48,29 +51,38 @@ permission question once. Do not ask it again on a later `$bfm`.
      reliable continuation cursor. If the repository-scoped inventory is
      truncated or cannot be proved complete, stop and use the manual fallback;
      never guess that a workstream is missing.
-  3. Recognize exact current/legacy titles: Product/User or Product, Business,
-     Design, Tech or Technical, Discovery, and Bugs, with or without an `FB`
-     prefix. Do not treat a general task such as “Design homepage” as the
-     Design workstream.
-  4. Create only missing tasks with `create_thread`, using the exact project ID
-     and a local environment—not a worktree. Generate each initial prompt with
-     `node tools/fb-onboarding.cjs prompt <workstream> <repository-root>`, then
-     title it `FB · <workstream>` with `set_thread_title` and pin it with
-     `set_thread_pinned({ pinned: true })` so it is visible in the sidebar.
-  5. Do not send follow-up work. Each created task acknowledges setup and then
-     remains idle until the user asks it a concrete question.
-  6. Re-list the exact repository tasks and verify all six titles are present
-     and pinned. A created but unpinned task is incomplete onboarding; pin that
-     existing task rather than creating a duplicate.
-  7. After all six are observed and pinned, record
-     `node tools/fb-onboarding.cjs reconcile product,business,design,tech,discovery,bugs`.
+  3. Pass the complete repository-scoped inventory to the exported
+     `planRepositoryTaskInventory(inventory, repository)` contract in
+     `tools/fb-onboarding.cjs`. Its canonical keys are `product` (Product/BFM),
+     then `user`, `business`, `design`, `tech`, `discovery`, and `bugs`.
+     Product/User is a legacy User title; a lone legacy Product title maps to
+     Product/BFM. Tech or Technical remains compatible. Do not treat a general
+     task such as “Design homepage” as the Design workstream.
+  4. If the planner returns `complete: false`, perform no create, rename, or pin
+     actions. Report every discovery/planning failure and use the manual
+     fallback. Otherwise execute only its deterministic actions: reuse exact
+     matches; rename legacy titles with `set_thread_title`; create only missing
+     tasks with `create_thread` in the exact project and a local environment,
+     not a worktree; then pin each action target with
+     `set_thread_pinned({ pinned: true })`.
+  5. Generate every created task's initial prompt with
+     `node tools/fb-onboarding.cjs prompt <workstream> <repository-root>`. Do
+     not send follow-up work. Each created task acknowledges setup and remains
+     idle until the user asks it a concrete question.
+  6. Re-list the exact repository tasks, run the planner again on the complete
+     inventory, and verify all seven titles are present and pinned. A created
+     but unpinned task is incomplete onboarding; pin that existing task rather
+     than creating a duplicate. A partial rename, creation, or pin failure
+     remains unreconciled and must be reported honestly.
+  7. After all seven are observed and pinned, record
+     `node tools/fb-onboarding.cjs reconcile product,user,business,design,tech,discovery,bugs`.
 
-The user’s explicit Yes authorizes these six user-owned Codex tasks; it does
+The user’s explicit Yes authorizes these seven user-owned Codex tasks; it does
 not authorize source work. If project/task tools are unavailable or a complete
 repository-scoped inventory cannot be established, say that automatic Codex
 task creation is unavailable in the current environment, create nothing, and
 provide paste-ready prompts for the known missing workstreams. If the inventory
-itself is incomplete, provide all six prompts and tell the user to create only
+itself is incomplete, provide all seven prompts and tell the user to create only
 those not already present. Generate prompts with
 `node tools/fb-onboarding.cjs prompt <workstream> <repository-root>`. Never
 claim sidebar tasks were created or pinned without tool results. A partial failure
@@ -116,8 +128,9 @@ explicit user question requires it: follow the board archive, index, exact
 handoff, QA artifact, changelog, and Git history. Do not rehydrate unrelated
 completed narrative into every intake.
 
-The one loop has six planning/evidence workstreams: Product/User (technical slug
-`product`), Business, Design, Tech, Discovery, and Bugs. Each workstream runs a
+The one loop has six evidence-producing workstreams in canonical order: User,
+Business, Design, Tech, Discovery, and Bugs, plus one Product/BFM control
+centre. Each evidence-producing workstream runs a
 mini-loop and records ready or blocked evidence in `docs/handoffs/<TASK-ID>.md`.
 `$bfm` ignores `fb-workstream-handoff` artifacts because they are queued
 planning requests, not Product delivery inputs.

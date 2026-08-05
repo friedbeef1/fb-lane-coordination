@@ -1,6 +1,6 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.5.8-beta+codex.20260804153114",
+  "version": "0.5.9-beta+codex.20260805042523",
   "description": "FB is an open-source Codex plugin for Graph Engineering with six evidence-producing workstreams plus one Product/BFM control centre and seven pinned repository-scoped Codex tasks.",
   "author": {
     "name": "FB Contributors",

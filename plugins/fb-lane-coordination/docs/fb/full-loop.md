@@ -14,9 +14,9 @@ contract.
 ```mermaid
 flowchart TB
     G["Living product-delivery graph<br/>decisions · evidence · dependencies · implementation · verification"]
-    subgraph W["1. Six workstream learning loops"]
+    subgraph W["1. Six evidence-producing workstream loops"]
         direction LR
-        PU["Product/User<br/>Question → Evidence → Recommend → Question"]
+        US["User<br/>Question → Evidence → Recommend → Question"]
         BU["Business<br/>Question → Evidence → Recommend → Question"]
         DE["Design<br/>Question → Evidence → Recommend → Question"]
         TE["Tech<br/>Question → Evidence → Recommend → Question"]
@@ -24,13 +24,14 @@ flowchart TB
         BG["Bugs<br/>Question → Evidence → Recommend → Question"]
     end
 
-    G --> PU
+    PB["Product/BFM control centre<br/>reconcile · prioritize · execute · verify"]
+    G --> US
     G --> BU
     G --> DE
     G --> TE
     G --> DI
     G --> BG
-    PU --> RH
+    US --> RH
     BU --> RH
     DE --> RH
     TE --> RH
@@ -43,11 +44,13 @@ flowchart TB
         NR["None relevant<br/>No work manufactured"]
     end
 
-    RH --> BFM["User says $bfm"]
+    RH --> BFM["User says $bfm in Product/BFM"]
     BFM --> PR
     BH --> PR
     NR --> PR
-    PR["Product freezes, reconciles, and prioritizes<br/>the graph before source execution"]
+    PR["Product/BFM freezes, reconciles, and prioritizes<br/>the graph before source execution"]
+    PR --> PB
+    PB --> G
     PR --> G
     PR --> A{"Approved and clear?"}
     A -->|"Yes"| SP["Plan bounded slices<br/>outcome, locks, dependencies, proof"]
@@ -67,7 +70,7 @@ flowchart TB
     L -->|"Approved"| D["Merge and deploy"]
     D --> Z["Results and feedback"]
     Z --> N["New questions, opportunities, and defects"]
-    N --> PU
+    N --> US
     N --> BU
     N --> DE
     N --> TE

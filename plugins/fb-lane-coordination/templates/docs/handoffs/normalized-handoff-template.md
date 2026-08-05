@@ -1,7 +1,7 @@
 ---
 type: fb-lane-handoff
 task: TASK-...
-lane: fb-product
+lane: fb-user
 status: ready
 approval: pending
 record_model: normalized-v1

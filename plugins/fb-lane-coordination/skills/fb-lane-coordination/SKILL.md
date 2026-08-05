@@ -21,9 +21,11 @@ Use `node tools/fb-lane.cjs status` for state during ordinary health checks.
 
 ## Workstream and execution boundary
 
-Start planning or evidence in the matching workstream: Product/User, Business,
-Design, Tech, Discovery, or Bugs. Product/User is for user and product questions,
-not universal intake. Each relevant workstream runs its mini-loop and creates a
+Start planning or evidence in the matching evidence-producing workstream:
+User, Business, Design, Tech, Discovery, or Bugs. User is for user needs,
+outcomes, requirements, feedback, acceptance criteria, and priority evidence;
+Product/BFM is the control centre, not universal intake. Each relevant
+workstream runs its mini-loop and creates a
 blocked or ready handoff in `docs/handoffs/<TASK-ID>.md`. Ready means `ready for
 Product intake`: queued for Product review, **not approval or execution**.
 
@@ -32,6 +34,10 @@ intake snapshot, gives every candidate a disposition, reconciles conflicts and
 dependencies, prioritizes the included work, and records the consolidated
 Project Start Brief and Build Brief before source execution. BFM stops at
 **Ready to ship**. Only **Push Live** authorizes merge or deployment.
+
+The public model is six evidence-producing workstreams plus one Product/BFM
+control centre and seven pinned repository-scoped Codex tasks. Pinning never
+starts work. `$bfm` executes only in Product/BFM.
 
 An explicit workstream-to-workstream request creates a queued
 `fb-workstream-handoff`. The destination receives

@@ -4,8 +4,10 @@ This package is the supported Codex distribution for FB. It supplies the
 `fb-lane` coordination capability, BFM/Product/lane skills, and the reusable
 FB harness. **FB — Graph Engineering for Everyday People** is an open-source
 Codex plugin that turns scattered AI conversations into a living
-product-delivery graph. The current release candidate is **FB 0.5.8-beta**
-`0.5.8-beta+codex.20260804153114`.
+product-delivery graph. It has six evidence-producing workstreams plus one
+Product/BFM control centre and seven pinned repository-scoped Codex tasks. The
+current release candidate is **FB 0.5.9-beta**
+`0.5.9-beta+codex.20260805042523`.
 
 ## Install and start
 
@@ -15,7 +17,7 @@ codex plugin add fb-lane-coordination@fb-lane
 ```
 
 Open the project and say `Set up FB in this project.` Discuss questions in the
-relevant Product/User, Business, Design, Tech, Discovery, or Bugs workstreams.
+relevant User, Business, Design, Tech, Discovery, or Bugs workstreams.
 For actionable findings say `Create a handoff MD for Product/BFM.` Then say
 `$bfm`. Ready handoffs are queued for Product intake, not executable scope.
 Explicit `$bfm` freezes the intake; Product dispositions every candidate,

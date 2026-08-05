@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.5.9-beta — 2026-08-05
+
+Build: `0.5.9-beta+codex.20260805042523`
+
+**What changed:** FB now separates the User evidence workstream from the
+Product/BFM control centre. Onboarding converges fresh and legacy projects on
+seven pinned repository-scoped Codex tasks: Product/BFM, User, Business,
+Design, Tech, Discovery, and Bugs. It deterministically reuses or renames
+unambiguous legacy tasks, creates only missing tasks, and verifies every pin
+before reconciliation. The plugin adds the dedicated User skill and aligns the
+public model, setup guidance, templates, prompts, and package contracts.
+
+**Why it matters:** User needs, outcomes, requirements, feedback, and acceptance
+criteria now have one clear evidence owner, while Product/BFM has one clear
+place to reconcile, prioritize, execute, and verify delivery. Fresh and
+existing projects reach the same sidebar model without duplicate tasks, and
+pinning never starts work.
+
+**Compatibility:** The `product` runtime key, `fb-product` technical identifier,
+legacy `fb-product` handoffs, and schema-v1 onboarding receipts remain
+compatible. Product/User maps to User, while a lone legacy Product task maps to
+Product/BFM. Existing commands, plugin and MCP identifiers, release authority,
+and **Push Live** boundary remain unchanged; the upgrade does not mutate
+consumer repositories automatically.
+
+**Installation or upgrade:** Upgrade the `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, rerun `Set up FB in this project` to refresh
+managed guidance and reconcile the seven repository tasks, then start a new
+Codex task so the updated User and Product/BFM roles are loaded.
+
 ## 0.5.8-beta — 2026-08-04
 
 Build: `0.5.8-beta+codex.20260804153114`

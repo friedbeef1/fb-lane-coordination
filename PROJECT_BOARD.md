@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-075 | In Progress | FB-Fb-product | User workstream and Product/BFM control centre | Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks | `tools/fb-onboarding.cjs`, `tools/fb-onboarding.test.cjs`, `skills/`, `docs/fb/`, `README.md`, `CHANGELOG.md`, `plugins/fb-lane-coordination/`, `PROJECT_BOARD.md`, `docs/handoffs/TASK-075.md`, `docs/qa/TASK-075.md` | [Handoff](docs/handoffs/TASK-075.md); [QA](docs/qa/TASK-075.md); [Plan](docs/superpowers/plans/2026-08-05-user-product-bfm-control-centre.md) |
+| TASK-075 | Staging QA | FB-Product / BFM | User workstream and Product/BFM control centre; FB 0.5.9-beta | Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks | Canonical candidate, generated package mirrors, version/metadata contracts, and release records | Checking — focused candidate green for `0.5.9-beta+codex.20260805042523`; Changelog approval: pending; final release validator not run; [Handoff](docs/handoffs/TASK-075.md); [QA](docs/qa/TASK-075.md) |
 | TASK-074 | Done | FB-Product / BFM | Graph Engineering positioning and FB 0.5.8-beta | Make Graph Engineering the headline product category, align the public story and packaged plugin, and preserve existing runtime contracts | None; published and installed | [Handoff](docs/handoffs/TASK-074.md); [QA](docs/qa/TASK-074.md); [PR #58](https://github.com/friedbeef1/fb-lane-coordination/pull/58) merged as `72bfab0`; exact build installed and enabled |
 | TASK-073 | Done | FB-Product / BFM | Evaluation results, meaningful repair, and FB 0.5.7-beta | Show eval results clearly, reject superficial repair loops, and publish `0.5.7-beta+codex.20260804131420` | None; published and installed | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); [PR #57](https://github.com/friedbeef1/fb-lane-coordination/pull/57) merged as `c1e63f1`; exact build installed and enabled |
 | TASK-072 | Done | FB-Product / BFM | Lifecycle truth, historical retrieval, and FB 0.5.6-beta | Keep routine orientation current-state only while preserving complete on-demand history; publish `0.5.6-beta+codex.20260804045203` | None; published and installed | [Handoff](docs/handoffs/TASK-072.md); [QA](docs/qa/TASK-072.md); [PR #56](https://github.com/friedbeef1/fb-lane-coordination/pull/56) merged as `894d4a1`; exact build installed and enabled |
@@ -26,8 +26,9 @@
 
 ### TASK-075 - User workstream and Product/BFM control centre
 
-*   **Status**: In Progress
-*   **Owner / Thread**: FB-Fb-product
+*   **Status**: Checking — `0.5.9-beta+codex.20260805042523` focused candidate
+    checks passed; changelog approval is pending; not Ready to ship.
+*   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Onboarding runtime, sidebar migration, skills, public and harness
     documentation, plugin metadata, templates, contracts, and package mirrors.
 *   **Scope**: Establish User, Business, Design, Tech, Discovery, and Bugs as
@@ -44,8 +45,12 @@
     *   **Definition of Done**: Focused runtime and structural contracts,
         package parity, metadata, syntax, links, whitespace, doctor, changelog
         approval, and one final release checkpoint pass.
+    *   **Approval**: approved.
+    *   **Justification**: James invoked `$bfm` after directing implementation
+        of the frozen TASK-075 scope in Product/BFM.
 *   **Gate / Review Point**: James invoked `$bfm`; Product may implement the
-    frozen scope. Changelog approval and Push Live remain separate gates.
+    frozen scope. Changelog approval: pending. The final release checkpoint
+    waits for that approval; **Push Live** remains a later separate gate.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-075.md) ·
     [QA](docs/qa/TASK-075.md) ·
     [plan](docs/superpowers/plans/2026-08-05-user-product-bfm-control-centre.md).
