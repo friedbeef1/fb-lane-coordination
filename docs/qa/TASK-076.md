@@ -17,7 +17,8 @@ Changelog approval: pending James's approval
 | Package parity | Pass — 62 declared mirrors synchronized and checked |
 | Metadata and release contracts | root/package pass for `0.5.10-beta+codex.20260806151502` |
 | Syntax and JSON | Pass — both shortcut contracts parse; metadata contracts parse both manifests |
-| Links, records, and doctor | Pass — normalized records and links valid; only expected dirty-candidate attention before commit |
+| Links and normalized records | Pass |
+| Clean-worktree doctor | Ready after candidate commit `be1e354` |
 | Whitespace | Pass — `git diff --check` |
 | Release checkpoint | Not run — requires changelog approval and explicit Product release-checkpoint approval |
 
