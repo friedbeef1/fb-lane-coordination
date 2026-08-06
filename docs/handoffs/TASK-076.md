@@ -12,7 +12,7 @@ record_model: normalized-v1
 # TASK-076 — Exact FB setup shortcut
 
 Release candidate: `0.5.10-beta+codex.20260806151502`
-Candidate state: Checking — focused implementation verification in progress.
+Candidate state: Ready to ship — complete release checkpoint passed.
 Changelog approval: approved by James on 2026-08-06.
 
 ## Intake Snapshot
@@ -93,19 +93,36 @@ changes the primary installation-to-setup workflow.
 - **Changed surfaces:** setup skill, active setup guidance, package manifest,
   generated plugin mirrors, metadata/default prompt, version and changelog.
 - **Verification:** [TASK-076 QA](../qa/TASK-076.md).
-- **Review state:** not reviewable — focused verification is still running.
+- **Review state:** not reviewable — this plugin-skill change has no app runtime
+  preview; automated package and release verification is complete.
 - **Changelog:** drafted — [FB 0.5.10-beta](../../CHANGELOG.md#0510-beta--2026-08-06).
 - **Changelog approval:** approved by James on 2026-08-06.
-- **External gates:** Release checkpoint, GitHub integration, marketplace
-  publication, and reinstall remain unapproved.
-- **Remaining owner/action:** Product/BFM requests one clean release checkpoint.
+- **External gates:** **Push Live**, GitHub integration, marketplace publication,
+  and reinstall remain unapproved.
+- **Remaining owner/action:** James says **Push Live** to authorize GitHub push,
+  merge, marketplace publication, reinstall, and live verification.
 
 ## Brief Validation
 
-Status: blocked
+Status: pass
 
 - **Satisfied:** Approved scope, interface decision, compatibility boundary,
   focused validation evidence, release boundary, and changelog approval are
-  recorded.
-- **Missing:** One clean release checkpoint.
-- **Next action:** Request explicit Product approval for the release checkpoint.
+  recorded; the single clean release checkpoint passed.
+- **Missing:** None for the candidate. External release remains separately
+  gated by **Push Live**.
+- **Next action:** Wait for explicit **Push Live** authorization.
+
+## Verification Handoff
+
+- **Candidate:** `codex/TASK-076-fb-setup-shortcut` at `4cd9acd` before this
+  coordination-only closeout.
+- **Complete release checkpoint:** passed once through
+  `node tools/fb-lane.validate.cjs`.
+- **Results:** CLI 72/72; sessions 39/39; evals 19/19; beginner 11/11;
+  positioning, two-speed, and efficiency 25/25; 62 package mirrors; Doctor
+  Ready; syntax, metadata, JSON, and committed-diff whitespace pass.
+- **System verification:** passed.
+- **Optional review links:** local candidate records are linked from this
+  handoff; a GitHub review link is not available until release is authorized.
+- **Your input needed:** **Push Live** only if you want publication.

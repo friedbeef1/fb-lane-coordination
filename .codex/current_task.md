@@ -2,7 +2,7 @@
 
 * **Current Task**: TASK-076
 * **Lane**: FB-Product / BFM
-* **Status**: Checking — focused shortcut contract green; release evidence in progress
+* **Status**: Ready to ship — complete release checkpoint passed
 * **BFM Class**: Full BFM plugin interface release candidate
 * **Feature Branch**: `codex/TASK-076-fb-setup-shortcut`
 * **Release Candidate**: `0.5.10-beta+codex.20260806151502`
@@ -19,5 +19,6 @@ existing canonical setup skill and natural-language fallback.
 
 James approved the dedicated thin-skill approach. The RED proof failed on the
 missing skill, the canonical implementation and generated package contract are
-green. James approved the 0.5.10-beta changelog on 2026-08-06. One clean
-release checkpoint remains pending; GitHub and publication are not authorized.
+green. James approved the 0.5.10-beta changelog and one clean release checkpoint
+on 2026-08-06. The complete validator passed without repair. GitHub push,
+merge, marketplace publication, and reinstall remain gated by **Push Live**.
