@@ -27,8 +27,8 @@
 
 ### TASK-076 - Exact FB setup shortcut
 
-*   **Status**: Checking — focused candidate is green; changelog approval and
-    release checkpoint remain pending.
+*   **Status**: Checking — focused candidate is green and the changelog is
+    approved; one clean release checkpoint remains pending.
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Setup skill, active setup documentation, plugin metadata,
     versioning, focused contracts, and generated package mirrors.
@@ -48,7 +48,7 @@
     *   **Approval**: approved.
     *   **Justification**: James approved the dedicated thin-skill approach and
         asked Product/BFM to implement it in this task.
-*   **Gate / Review Point**: Approve the drafted 0.5.10-beta changelog, then
+*   **Gate / Review Point**: Changelog approved by James on 2026-08-06;
     authorize one clean release checkpoint before **Push Live**.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-076.md) ·
     [QA](docs/qa/TASK-076.md) ·

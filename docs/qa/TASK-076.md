@@ -4,7 +4,7 @@ Date: 2026-08-06
 Status: Checking
 Candidate: `codex/TASK-076-fb-setup-shortcut`
 Release candidate: `0.5.10-beta+codex.20260806151502`
-Changelog approval: pending James's approval
+Changelog approval: approved by James on 2026-08-06
 
 ## Focused evidence
 
@@ -20,7 +20,8 @@ Changelog approval: pending James's approval
 | Links and normalized records | Pass |
 | Clean-worktree doctor | Ready after candidate commit `be1e354` |
 | Whitespace | Pass — `git diff --check` |
-| Release checkpoint | Not run — requires changelog approval and explicit Product release-checkpoint approval |
+| Changelog approval | Approved by James on 2026-08-06 |
+| Release checkpoint | Not run — requires explicit Product release-checkpoint approval |
 
 ## Bounded verification note
 

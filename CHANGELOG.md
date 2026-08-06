@@ -26,7 +26,8 @@ separate installed command.
 `fb-lane-coordination@fb-lane`, start a new Codex task, open the target project,
 and invoke `$fb-setup`.
 
-**Changelog approval:** Pending James's approval before the release checkpoint.
+**Changelog approval:** Approved by James on 2026-08-06 before the release
+checkpoint.
 
 ## 0.5.9-beta — 2026-08-05
 

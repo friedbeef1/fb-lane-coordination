@@ -19,5 +19,5 @@ existing canonical setup skill and natural-language fallback.
 
 James approved the dedicated thin-skill approach. The RED proof failed on the
 missing skill, the canonical implementation and generated package contract are
-green, and focused release evidence is in progress. Changelog approval and the
-release checkpoint remain pending.
+green. James approved the 0.5.10-beta changelog on 2026-08-06. One clean
+release checkpoint remains pending; GitHub and publication are not authorized.

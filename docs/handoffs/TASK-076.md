@@ -13,7 +13,7 @@ record_model: normalized-v1
 
 Release candidate: `0.5.10-beta+codex.20260806151502`
 Candidate state: Checking — focused implementation verification in progress.
-Changelog approval: pending James's approval.
+Changelog approval: approved by James on 2026-08-06.
 
 ## Intake Snapshot
 
@@ -95,18 +95,17 @@ changes the primary installation-to-setup workflow.
 - **Verification:** [TASK-076 QA](../qa/TASK-076.md).
 - **Review state:** not reviewable — focused verification is still running.
 - **Changelog:** drafted — [FB 0.5.10-beta](../../CHANGELOG.md#0510-beta--2026-08-06).
-- **Changelog approval:** pending James's approval.
+- **Changelog approval:** approved by James on 2026-08-06.
 - **External gates:** Release checkpoint, GitHub integration, marketplace
   publication, and reinstall remain unapproved.
-- **Remaining owner/action:** Product/BFM completes focused validation, then
-  asks James to approve the changelog wording.
+- **Remaining owner/action:** Product/BFM requests one clean release checkpoint.
 
 ## Brief Validation
 
 Status: blocked
 
 - **Satisfied:** Approved scope, interface decision, compatibility boundary,
-  and release boundary are recorded.
-- **Missing:** Focused validation evidence and changelog approval.
-- **Next action:** Complete focused checks and present the exact changelog entry
-  to James for approval.
+  focused validation evidence, release boundary, and changelog approval are
+  recorded.
+- **Missing:** One clean release checkpoint.
+- **Next action:** Request explicit Product approval for the release checkpoint.
