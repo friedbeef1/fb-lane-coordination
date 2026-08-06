@@ -13,7 +13,7 @@ const repoRoot = isPackagedCopy ? null : containingRoot;
 const pluginRoot = isPackagedCopy
   ? containingRoot
   : path.join(repoRoot, 'plugins', 'fb-lane-coordination');
-const versionPattern = /^0\.5\.9-beta\+codex\.\d{14}$/;
+const versionPattern = /^0\.5\.10-beta\+codex\.\d{14}$/;
 const publicModel = 'six evidence-producing workstreams plus one Product/BFM control centre and seven pinned repository-scoped Codex tasks';
 
 function read(root, relativePath) {
@@ -32,7 +32,7 @@ function validatePluginPackage(root) {
   const legacyManifest = json(root, 'plugin.json');
   const codexManifest = json(root, '.codex-plugin/plugin.json');
 
-  assert.match(codexManifest.version, versionPattern, 'Codex manifest must use the 0.5.9-beta UTC build ID');
+  assert.match(codexManifest.version, versionPattern, 'Codex manifest must use the 0.5.10-beta UTC build ID');
   assert.strictEqual(legacyManifest.version, codexManifest.version, 'both plugin manifests must expose the same build ID');
   assert.strictEqual(codexManifest.name, 'fb-lane-coordination');
   assert.strictEqual(legacyManifest.name, 'fb-lane-coordination');
@@ -57,6 +57,8 @@ function validatePluginPackage(root) {
   assert.match(prompts, /Product\/BFM is the control centre, not an evidence-producing workstream/i);
   assert.match(prompts, /scan(?:s)? all six evidence-producing workstreams/i);
   assert.match(prompts, /pinning never starts work/i);
+  assert.match(prompts, /use \$fb-setup/i);
+  assert.match(prompts, /canonical project-coordination-setup workflow/i);
   assert.match(prompts, /Automated checks passed\. Optional review links are available above\.[\s\S]*Say \*\*Push Live\*\* to deploy\./i);
   assert.doesNotMatch(prompts, /split this work across Product, Tech, Design, and Business/i, 'stale four-workstream prompt must not return');
   assertExactBuild('packaged README.md', read(root, 'README.md'), codexManifest.version);
@@ -76,14 +78,14 @@ if (!isPackagedCopy) {
     'CHANGELOG.md',
     'PROJECT_BOARD.md',
     'docs/handoffs/index.md',
-    'docs/handoffs/TASK-075.md',
+    'docs/handoffs/TASK-076.md',
     'docs/setup.md',
     'docs/versioning.md',
     'platforms/codex/README.md',
   ]) {
     assertExactBuild(activeSurface, read(repoRoot, activeSurface), version);
   }
-  assert.match(read(repoRoot, 'FAQ.md'), /0\.5\.9-beta/, 'FAQ.md intentionally names the release family');
+  assert.match(read(repoRoot, 'FAQ.md'), /0\.5\.10-beta/, 'FAQ.md intentionally names the release family');
   assert.match(read(repoRoot, 'docs/setup.md'), /codex plugin marketplace upgrade fb-lane/);
   assert.match(read(repoRoot, 'docs/setup.md'), /codex plugin add fb-lane-coordination@fb-lane/);
   assert.match(read(repoRoot, 'docs/setup.md'), /new Codex thread/i);
@@ -94,7 +96,7 @@ try {
   fs.mkdirSync(path.join(fixtureRoot, '.codex-plugin'), { recursive: true });
   fs.copyFileSync(path.join(pluginRoot, 'plugin.json'), path.join(fixtureRoot, 'plugin.json'));
   fs.copyFileSync(path.join(pluginRoot, '.codex-plugin', 'plugin.json'), path.join(fixtureRoot, '.codex-plugin', 'plugin.json'));
-  fs.writeFileSync(path.join(fixtureRoot, 'README.md'), read(pluginRoot, 'README.md').replace(version, '0.5.9-beta+codex.19990101000000'));
+  fs.writeFileSync(path.join(fixtureRoot, 'README.md'), read(pluginRoot, 'README.md').replace(version, '0.5.10-beta+codex.19990101000000'));
   assert.throws(
     () => validatePluginPackage(fixtureRoot),
     /packaged README\.md must expose exact build/,

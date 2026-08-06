@@ -2,11 +2,11 @@
 
 ## Current Naming
 
-The current GitHub documentation line uses the FB 0.5.9-beta product name and
+The current GitHub documentation line uses the FB 0.5.10-beta product name and
 the tagline **Graph Engineering for Everyday People**.
 
 The Codex plugin manifest for this line is
-`0.5.9-beta+codex.20260805042523`. This is the current release candidate.
+`0.5.10-beta+codex.20260806151502`. This is the current release candidate.
 
 Codex is the only supported and released integration. Claude Code and
 Antigravity are paused; contributors can use the
@@ -14,7 +14,7 @@ Antigravity are paused; contributors can use the
 
 ## Before And After
 
-| Area | v1: four-lane coordination plugin | Latest: FB 0.5.9-beta |
+| Area | v1: four-lane coordination plugin | Latest: FB 0.5.10-beta |
 |---|---|---|
 | Core idea | Split work across Product, Tech, Design, and Business lanes. | Use Graph Engineering to connect six evidence-producing workstreams through one Product/BFM control centre. |
 | Product role | Sequence and review lane work. | Product/BFM owns goals, BFM execution launch, reconciliation, merge gates, and release decisions. |
@@ -33,7 +33,7 @@ Antigravity are paused; contributors can use the
 | Frontend planning | Visual decisions could stay in chat. | Frontend handoffs name `Visual Preview Decision` before source execution when visual uncertainty matters. |
 | Returning lanes | Re-read board and handoffs. | Workstream status cards show what Product/BFM already executed or deferred. |
 | Historical orientation | Completed narrative commonly remained in routine context. | Current packets and cards show genuine active state; archives, exact handoffs, QA, and Git remain searchable when needed. |
-| Plugin builds | Build labels could look stale after docs changed. | The current Codex release candidate is `0.5.9-beta+codex.20260805042523`. |
+| Plugin builds | Build labels could look stale after docs changed. | The current Codex release candidate is `0.5.10-beta+codex.20260806151502`. |
 
 ## Practical Meaning
 

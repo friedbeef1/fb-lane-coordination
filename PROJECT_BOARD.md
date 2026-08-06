@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-076 | In Progress | FB-Product / BFM | Exact FB setup invocation | Add `$fb-setup` as the primary setup skill while retaining the canonical long-form skill and natural-language fallback | `skills/fb-setup/SKILL.md`, active setup docs, focused contract, plugin mirrors, version/changelog | [Design](docs/superpowers/specs/2026-08-06-fb-setup-shortcut-design.md) |
+| TASK-076 | Checking | FB-Product / BFM | Exact FB setup invocation and FB 0.5.10-beta | Add `$fb-setup` as the primary setup skill while retaining the canonical long-form skill and natural-language fallback | `skills/fb-setup/SKILL.md`, active setup docs, focused contract, plugin mirrors, version/changelog | Candidate `0.5.10-beta+codex.20260806151502`; [Design](docs/superpowers/specs/2026-08-06-fb-setup-shortcut-design.md); [Handoff](docs/handoffs/TASK-076.md); [QA](docs/qa/TASK-076.md) |
 | TASK-075 | Staging QA | FB-Product / BFM | User workstream and Product/BFM control centre; FB 0.5.9-beta | Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks | Canonical candidate, generated package mirrors, version/metadata contracts, and release records | Checking — focused candidate green for `0.5.9-beta+codex.20260805042523`; changelog approved by James on 2026-08-05; final release validator pending; [Handoff](docs/handoffs/TASK-075.md); [QA](docs/qa/TASK-075.md) |
 | TASK-074 | Done | FB-Product / BFM | Graph Engineering positioning and FB 0.5.8-beta | Make Graph Engineering the headline product category, align the public story and packaged plugin, and preserve existing runtime contracts | None; published and installed | [Handoff](docs/handoffs/TASK-074.md); [QA](docs/qa/TASK-074.md); [PR #58](https://github.com/friedbeef1/fb-lane-coordination/pull/58) merged as `72bfab0`; exact build installed and enabled |
 | TASK-073 | Done | FB-Product / BFM | Evaluation results, meaningful repair, and FB 0.5.7-beta | Show eval results clearly, reject superficial repair loops, and publish `0.5.7-beta+codex.20260804131420` | None; published and installed | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); [PR #57](https://github.com/friedbeef1/fb-lane-coordination/pull/57) merged as `c1e63f1`; exact build installed and enabled |
@@ -22,6 +22,37 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-076 - Exact FB setup shortcut
+
+*   **Status**: Checking — focused candidate is green; changelog approval and
+    release checkpoint remain pending.
+*   **Owner / Thread**: FB-Product / BFM
+*   **Area**: Setup skill, active setup documentation, plugin metadata,
+    versioning, focused contracts, and generated package mirrors.
+*   **Scope**: Add `$fb-setup` as the exact primary invocation while delegating
+    all behavior to the canonical setup workflow and preserving compatibility.
+*   **Out of Scope**: New CLI or slash commands, setup-policy redesign,
+    consumer-repository mutation, merge, publication, reinstall, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make FB setup short, exact, and difficult to
+        misinterpret without creating a second onboarding system.
+    *   **Key Results**: `$fb-setup` exists as a thin canonical skill; active
+        root and package guidance leads with it; long-form and natural-language
+        fallbacks remain; root/package and metadata contracts pass.
+    *   **Definition of Done**: Focused shortcut, skill, package, metadata,
+        beginner, link, syntax, whitespace, doctor, changelog approval, and one
+        final release checkpoint pass.
+    *   **Approval**: approved.
+    *   **Justification**: James approved the dedicated thin-skill approach and
+        asked Product/BFM to implement it in this task.
+*   **Gate / Review Point**: Approve the drafted 0.5.10-beta changelog, then
+    authorize one clean release checkpoint before **Push Live**.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-076.md) ·
+    [QA](docs/qa/TASK-076.md) ·
+    [design](docs/superpowers/specs/2026-08-06-fb-setup-shortcut-design.md).
 
 ---
 

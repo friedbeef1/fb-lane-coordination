@@ -1,8 +1,8 @@
 # FB for Codex
 
-FB is the supported Codex distribution for **FB 0.5.9-beta: Graph Engineering
+FB is the supported Codex distribution for **FB 0.5.10-beta: Graph Engineering
 for Everyday People**. The current release candidate is
-`0.5.9-beta+codex.20260805042523`. FB is an open-source Codex plugin that turns
+`0.5.10-beta+codex.20260806151502`. FB is an open-source Codex plugin that turns
 scattered AI conversations into a living product-delivery graph. Codex provides
 threads, skills, and worktrees; FB connects their decisions, evidence,
 dependencies, implementation, verification, and release state.
@@ -18,7 +18,8 @@ control centre and seven pinned repository-scoped Codex tasks.
    codex plugin add fb-lane-coordination@fb-lane
    ```
 
-2. Open the project and say `Set up FB in this project.`
+2. Open the project and invoke `$fb-setup`. It bootstraps FB and reconciles the
+   seven pinned repository tasks without duplicating existing setup.
 3. Discuss questions in the relevant User, Business, Design, Tech,
    Discovery, or Bugs workstreams.
 4. For actionable findings say `Create a handoff MD for Product/BFM.`

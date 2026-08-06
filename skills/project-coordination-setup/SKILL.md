@@ -5,6 +5,10 @@ description: Use when bootstrapping an FB-coordinated project with board, handof
 
 # Set up an FB-coordinated project
 
+`$fb-setup` is the primary public invocation for this canonical setup workflow.
+Natural-language setup requests and the long-form skill invocation remain
+compatible fallbacks.
+
 FB is **Graph Engineering for Everyday People**. Setup installs the
 repository-local product-delivery map that connects workstreams, decisions,
 evidence, dependencies, implementation, verification, and release state. It

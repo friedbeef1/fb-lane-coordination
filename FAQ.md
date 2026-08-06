@@ -1,6 +1,6 @@
 # FB FAQ
 
-This FAQ describes the current **FB 0.5.9-beta** model: six evidence-producing
+This FAQ describes the current **FB 0.5.10-beta** model: six evidence-producing
 workstreams plus one Product/BFM control centre and seven pinned
 repository-scoped Codex tasks.
 
@@ -37,7 +37,8 @@ produce its own recommendation. Only a separate Product-ready handoff can enter
 
 ## Will FB create the seven Codex sidebar tasks for me?
 
-After repository bootstrap, FB asks once for permission. With Yes, it detects
+Yes. Open the project and invoke `$fb-setup`. After repository bootstrap, FB
+asks once for permission. With Yes, it detects
 repository-scoped current and legacy workstream tasks and creates only what is
 missing. Product/User is treated as a legacy User title, while a lone legacy
 Product title maps to Product/BFM. Every new task remains idle until you ask it

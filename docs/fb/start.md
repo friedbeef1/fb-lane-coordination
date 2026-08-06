@@ -25,7 +25,8 @@ disposition for every workstream.
 
 ## First bootstrap
 
-After repository bootstrap, FB introduces itself and asks once for permission
+Invoke `$fb-setup` once after installing the plugin. It runs the canonical
+repository bootstrap, then FB introduces itself and asks once for permission
 to create seven repository-scoped Codex sidebar tasks. These are durable entry
 points for Product/BFM, User, Business, Design, Tech, Discovery, and Bugs—not
 mandatory agents, approval gates, or automatic starts.

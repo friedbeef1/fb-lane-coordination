@@ -4,8 +4,8 @@
 
 **Graph Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.5.9-beta**
-(`0.5.9-beta+codex.20260805042523`).
+Current Codex release candidate: **FB 0.5.10-beta**
+(`0.5.10-beta+codex.20260806151502`).
 
 **FB is an open-source Codex plugin that turns scattered AI conversations into
 a living product-delivery graph.** It has six evidence-producing workstreams
@@ -198,7 +198,9 @@ codex plugin add fb-lane-coordination@fb-lane
 
 ## Use FB
 
-1. Open your project in Codex and say: `Set up FB in this project.`
+1. Open your project in Codex and invoke `$fb-setup`. It bootstraps FB and
+   reconciles the seven pinned repository tasks without duplicating existing
+   setup.
 2. Discuss your goal or question in the relevant workstream chats. This keeps different concerns clear without forcing every workstream to participate.
 3. When a discussion becomes actionable, say: `Create a handoff MD for Product/BFM.` This preserves the recommendation and evidence outside the chat.
 4. Say `$bfm` in Product/BFM. The control centre freezes the six-workstream intake, dispositions every candidate, reconciles conflicts, records one prioritized plan and Build Brief, and only then directs Codex implementation.
