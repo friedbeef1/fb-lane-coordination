@@ -90,3 +90,51 @@ package mirrors, aligned broader guidance and release records, package/consumer
 evidence, and the next truthful local candidate. Publication, install/cache
 replacement, merge, push, deployment, actual checkout retirement, and
 **Push Live** remain separately gated.
+
+## Review fix round 1/5
+
+Status: PASS.
+
+The review identified four trust-boundary gaps and this round closes them:
+
+- The canonical skill now calls `list_threads` with its supported
+  `{"limit":100}` argument only, then filters the returned inventory by the
+  verified project ID and, whenever exposed, the canonical repository path.
+  Contradictory, truncated, or otherwise incomplete identity evidence fails
+  closed before mutation.
+- Planning and reconciliation require both a nonempty verified project ID and
+  canonical repository root through explicit CLI flags. The pure planner and
+  direct verified-receipt API enforce the same two-part identity boundary.
+- The normalized, deterministic, privacy-safe `attemptedActions` ledger is
+  required for strict reconciliation, preserves failed and unknown attempts,
+  and is written into the receipt with a SHA-256 integrity binding.
+- The focused native contract now checks the supported native call shape,
+  one-sided and whitespace-only identity rejection, partial-action ledger
+  preservation, privacy-field rejection, receipt persistence, and hash
+  determinism.
+
+Additional RED evidence:
+
+```text
+AssertionError: setup must show the supported list_threads argument object
+```
+
+After the first repair, the existing focused onboarding suite exposed stale
+one-sided identity fixtures (16 passed, 10 failed). Those fixtures were updated
+to exercise the required two-part identity without weakening assertions.
+Self-review then added a final RED proving a whitespace-only `--project-id`
+still exited successfully; shared identity validation closed both that CLI path
+and the direct receipt-write bypass.
+
+Final focused verification:
+
+- `node tools/fb-setup-native-onboarding.test.cjs` — passed (1 contract).
+- `node tools/fb-onboarding.test.cjs` — passed (26/26).
+- `quick_validate.py skills/project-coordination-setup` — `Skill is valid!`.
+- `node --check` for all three changed CJS files — passed.
+- Changed skill relative-link check — 11/11 valid.
+- `git diff --check` — passed.
+
+No mirror generation, package synchronization, broad suite, release action,
+publication, install/cache replacement, merge, push, deployment, provider
+mutation, or **Push Live** action was performed.

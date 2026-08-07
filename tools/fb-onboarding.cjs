@@ -3,6 +3,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const { execFileSync } = require('node:child_process');
 
 const WORKSTREAMS = Object.freeze([
@@ -87,11 +88,11 @@ function belongsToRepository(task, repository) {
     : (repository || {});
   const expectedProjectId = identity.projectId;
   const observedProjectId = taskProjectId(task);
-  if (expectedProjectId) return observedProjectId === expectedProjectId;
-  return sameRepository(
-    taskRepositoryPath(task),
-    identity.repositoryPath || identity.projectPath || identity.path,
-  );
+  const expectedPath = identity.repositoryPath || identity.projectPath || identity.path;
+  const observedPath = taskRepositoryPath(task);
+  if (expectedProjectId && observedProjectId !== expectedProjectId) return false;
+  if (expectedPath && observedPath && !sameRepository(observedPath, expectedPath)) return false;
+  return Boolean(expectedProjectId ? observedProjectId === expectedProjectId : sameRepository(observedPath, expectedPath));
 }
 
 function recognizedWorkstream(title) {
@@ -117,7 +118,72 @@ function taskIsPinned(task) {
   return Boolean(task && (task.pinned === true || task.isPinned === true));
 }
 
-function inventorySnapshot(inventory) {
+function normalizeAttemptedActions(value, options = {}) {
+  if (value === undefined) {
+    if (options.required) throw new Error('Strict onboarding reconciliation requires an attemptedActions array, including [] when no native mutation was needed.');
+    return undefined;
+  }
+  if (!Array.isArray(value)) {
+    throw new Error('attemptedActions must be a privacy-safe array.');
+  }
+  const allowedFields = new Set(['sequence', 'action', 'workstream', 'outcome', 'taskId']);
+  const allowedActions = new Set(['create', 'rename', 'pin']);
+  const allowedOutcomes = new Set(['succeeded', 'failed', 'unknown']);
+  const workstreams = new Set(WORKSTREAMS.map(item => item.key));
+  return value.map((entry, index) => {
+    if (!entry || Array.isArray(entry) || typeof entry !== 'object') {
+      throw new Error(`attemptedActions[${index}] must be a privacy-safe object.`);
+    }
+    const unsupported = Object.keys(entry).filter(key => !allowedFields.has(key));
+    if (unsupported.length > 0) {
+      throw new Error(`attemptedActions[${index}] has unsupported privacy-safe ledger field(s): ${unsupported.join(', ')}.`);
+    }
+    if (entry.sequence !== index + 1) {
+      throw new Error(`attemptedActions[${index}].sequence must be ${index + 1}.`);
+    }
+    if (!allowedActions.has(entry.action)) {
+      throw new Error(`attemptedActions[${index}].action must be create, rename, or pin.`);
+    }
+    if (!workstreams.has(entry.workstream)) {
+      throw new Error(`attemptedActions[${index}].workstream is not one of the seven canonical roles.`);
+    }
+    if (!allowedOutcomes.has(entry.outcome)) {
+      throw new Error(`attemptedActions[${index}].outcome must be succeeded, failed, or unknown.`);
+    }
+    const taskId = entry.taskId === undefined ? undefined : String(entry.taskId).trim();
+    if (taskId !== undefined && (!taskId || taskId.length > 512 || /[\u0000-\u001f\u007f]/.test(taskId))) {
+      throw new Error(`attemptedActions[${index}].taskId must be a nonempty privacy-safe identifier.`);
+    }
+    if ((entry.action !== 'create' || entry.outcome === 'succeeded') && !taskId) {
+      throw new Error(`attemptedActions[${index}] requires a taskId for this action outcome.`);
+    }
+    return {
+      sequence: entry.sequence,
+      action: entry.action,
+      workstream: entry.workstream,
+      outcome: entry.outcome,
+      ...(taskId ? { taskId } : {}),
+    };
+  });
+}
+
+function attemptedActionsHash(actions) {
+  return crypto.createHash('sha256').update(JSON.stringify(actions)).digest('hex');
+}
+
+function verifiedRepositoryIdentity(repository) {
+  const projectId = String(repository?.projectId || '').trim();
+  const rawRepositoryPath = repository?.repositoryPath || repository?.projectPath || repository?.path;
+  if (!projectId || !String(rawRepositoryPath || '').trim()) {
+    throw new Error('Both a nonempty verified project ID and canonical repository path are required before task mutation or reconciliation.');
+  }
+  return {
+    projectId,
+    repositoryPath: path.resolve(String(rawRepositoryPath).trim()),
+  };
+}
+
+function inventorySnapshot(inventory, options = {}) {
   if (Array.isArray(inventory)) {
     return {
       tasks: inventory,
@@ -130,6 +196,9 @@ function inventorySnapshot(inventory) {
     tasks: Array.isArray(value.tasks) ? value.tasks : [],
     complete: value.complete === true,
     failures: Array.isArray(value.failures) ? value.failures : [],
+    attemptedActions: normalizeAttemptedActions(value.attemptedActions, {
+      required: options.requireAttemptedActions === true,
+    }),
   };
 }
 
@@ -146,14 +215,15 @@ function needsTaskInventoryReconciliation(receipt) {
 
 function planRepositoryTaskInventory(inventory, repositoryPath) {
   const snapshot = inventorySnapshot(inventory);
-  const repository = typeof repositoryPath === 'string'
-    ? { repositoryPath }
-    : (repositoryPath || {});
-  if (!String(repository.projectId || '').trim()
-    && !String(repository.repositoryPath || repository.projectPath || repository.path || '').trim()) {
+  let repository;
+  try {
+    repository = verifiedRepositoryIdentity(
+      typeof repositoryPath === 'string' ? { repositoryPath } : repositoryPath,
+    );
+  } catch (error) {
     return {
       complete: false,
-      failures: [{ operation: 'project', message: 'A verified project ID or canonical repository path is required before task mutation.' }],
+      failures: [{ operation: 'project', message: error.message }],
       actions: [],
     };
   }
@@ -169,7 +239,7 @@ function planRepositoryTaskInventory(inventory, repositoryPath) {
 
   const available = new Map();
   for (const task of snapshot.tasks) {
-    if (!belongsToRepository(task, repositoryPath)) continue;
+    if (!belongsToRepository(task, repository)) continue;
     const workstream = recognizedWorkstream(taskTitle(task));
     if (!workstream) continue;
     const matches = available.get(workstream.key) || [];
@@ -235,7 +305,7 @@ function planRepositoryTaskInventory(inventory, repositoryPath) {
   return { complete: true, failures: [], actions };
 }
 
-function verifyRepositoryTaskInventory(inventory, repository) {
+function verifyRepositoryTaskInventory(inventory, repository, options = {}) {
   const plan = planRepositoryTaskInventory(inventory, repository);
   if (!plan.complete) return { complete: false, failures: plan.failures, taskBindings: {} };
 
@@ -252,7 +322,7 @@ function verifyRepositoryTaskInventory(inventory, repository) {
     };
   }
 
-  const snapshot = inventorySnapshot(inventory);
+  const snapshot = inventorySnapshot(inventory, options);
   const taskBindings = {};
   for (const workstream of WORKSTREAMS) {
     const task = snapshot.tasks.find(candidate => (
@@ -277,7 +347,12 @@ function verifyRepositoryTaskInventory(inventory, repository) {
       pinned: true,
     };
   }
-  return { complete: true, failures: [], taskBindings };
+  return {
+    complete: true,
+    failures: [],
+    taskBindings,
+    ...(snapshot.attemptedActions !== undefined ? { attemptedActions: snapshot.attemptedActions } : {}),
+  };
 }
 
 function fallbackRoleAction(workstream, inventory, repository, executed = []) {
@@ -323,6 +398,7 @@ function reconciliationFailure(failures, repository, options = {}, context = {})
 }
 
 function recordVerifiedReconciliation(rootDir, verification, repository, options = {}) {
+  const identity = verifiedRepositoryIdentity(repository);
   const current = readOnboardingReceipt(rootDir);
   if (!current || current.permission !== 'granted') {
     throw new Error('Explicit onboarding permission must be granted before reconciliation.');
@@ -330,13 +406,16 @@ function recordVerifiedReconciliation(rootDir, verification, repository, options
   if (!verification?.complete || Object.keys(verification.taskBindings || {}).length !== WORKSTREAMS.length) {
     throw new Error('Onboarding reconciliation requires confirmed exact titles, task IDs, and pinned state for all seven roles.');
   }
+  const attemptedActions = normalizeAttemptedActions(verification.attemptedActions, { required: true });
   const now = options.now instanceof Date ? options.now : new Date();
   const state = {
     ...current,
-    repositoryPath: path.resolve(repository?.repositoryPath || repository?.projectPath || repository?.path || rootDir),
-    ...(repository?.projectId ? { projectId: String(repository.projectId) } : {}),
+    repositoryPath: identity.repositoryPath,
+    projectId: identity.projectId,
     workstreams: WORKSTREAMS.map(item => item.key),
     taskBindings: verification.taskBindings,
+    attemptedActions,
+    attemptedActionsHash: attemptedActionsHash(attemptedActions),
     reconciledAt: now.toISOString(),
   };
   atomicWriteJson(receiptPath(rootDir), state);
@@ -423,12 +502,34 @@ function recordReconciliation(rootDir, inventory, options = {}) {
     repositoryPath: rootDir,
     ...(options.projectId ? { projectId: options.projectId } : {}),
   };
-  const verification = verifyRepositoryTaskInventory(inventory, repository);
+  const verification = verifyRepositoryTaskInventory(inventory, repository, {
+    requireAttemptedActions: true,
+  });
   if (!verification.complete) {
     const detail = verification.failures.map(failure => failure.message).join('; ');
     throw new Error(`Onboarding reconciliation requires all seven exact-project tasks pinned: ${detail}`);
   }
   return recordVerifiedReconciliation(rootDir, verification, repository, options);
+}
+
+function requiredRepositoryFlags(args) {
+  const values = {};
+  for (let index = 0; index < args.length; index += 2) {
+    const flag = args[index];
+    const value = args[index + 1];
+    if (!['--repository-root', '--project-id'].includes(flag) || !String(value || '').trim()) {
+      throw new Error('Onboarding plan and reconcile require --repository-root <canonical-root> and --project-id <verified-project-id>.');
+    }
+    if (values[flag]) throw new Error(`Duplicate onboarding identity flag: ${flag}.`);
+    values[flag] = value;
+  }
+  if (!String(values['--repository-root'] || '').trim() || !String(values['--project-id'] || '').trim()) {
+    throw new Error('Onboarding plan and reconcile require --repository-root <canonical-root> and --project-id <verified-project-id>.');
+  }
+  return verifiedRepositoryIdentity({
+    repositoryPath: values['--repository-root'],
+    projectId: values['--project-id'],
+  });
 }
 
 function renderIdleTaskPrompt(workstream, options = {}) {
@@ -508,30 +609,24 @@ function runCli(args) {
   }
   if (command === 'reconcile') {
     const inventoryPath = path.resolve(args[1] || '');
-    const rootDir = args[2] || process.cwd();
     if (!args[1] || !fs.existsSync(inventoryPath)) {
       throw new Error('Reconciliation requires a JSON file containing a complete exact-project pinned task inventory.');
     }
+    const repository = requiredRepositoryFlags(args.slice(2));
+    const rootDir = repository.repositoryPath;
     const inventory = JSON.parse(fs.readFileSync(inventoryPath, 'utf8'));
     process.stdout.write(`${JSON.stringify(recordReconciliation(rootDir, inventory, {
-      repository: {
-        repositoryPath: rootDir,
-        ...(args[3] ? { projectId: args[3] } : {}),
-      },
+      repository,
     }), null, 2)}\n`);
     return;
   }
   if (command === 'plan') {
     const inventoryPath = path.resolve(args[1] || '');
-    const rootDir = path.resolve(args[2] || process.cwd());
     if (!args[1] || !fs.existsSync(inventoryPath)) {
       throw new Error('Planning requires a JSON file containing a proven-complete exact-project task inventory.');
     }
+    const repository = requiredRepositoryFlags(args.slice(2));
     const inventory = JSON.parse(fs.readFileSync(inventoryPath, 'utf8'));
-    const repository = {
-      repositoryPath: rootDir,
-      ...(args[3] ? { projectId: args[3] } : {}),
-    };
     const plan = planRepositoryTaskInventory(inventory, repository);
     const result = plan.complete
       ? { ...plan, nativeActionsRequired: plan.actions.some(action => action.type !== 'reuse') }
@@ -550,7 +645,7 @@ function runCli(args) {
     })}\n`);
     return;
   }
-  throw new Error('Usage: node tools/fb-onboarding.cjs status [root] | needs-reconciliation [root] | permission granted|declined [root] | plan <complete-inventory.json> [root] [project-id] | reconcile <complete-inventory.json> [root] [project-id] | prompt <workstream> [root]');
+  throw new Error('Usage: node tools/fb-onboarding.cjs status [root] | needs-reconciliation [root] | permission granted|declined [root] | plan <complete-inventory.json> --repository-root <canonical-root> --project-id <verified-project-id> | reconcile <complete-inventory.json> --repository-root <canonical-root> --project-id <verified-project-id> | prompt <workstream> [root]');
 }
 
 if (require.main === module) {
@@ -567,6 +662,7 @@ module.exports = {
   ensureOnboardingReceipt,
   isBfmIntent,
   needsTaskInventoryReconciliation,
+  normalizeAttemptedActions,
   planMissingWorkstreams,
   planRepositoryTaskInventory,
   readOnboardingReceipt,

@@ -16,10 +16,12 @@ try {
 }
 
 const REPO = '/work/projects/mirrorcam';
+const REPOSITORY = { projectId: 'project-mirrorcam', repositoryPath: REPO };
 
-function completeInventory(repository = { projectId: 'project-mirrorcam', repositoryPath: REPO }) {
+function completeInventory(repository = REPOSITORY) {
   return {
     complete: true,
+    attemptedActions: [],
     tasks: onboarding.WORKSTREAMS.map((workstream, index) => ({
       id: `task-${index}`,
       title: workstream.title,
@@ -172,14 +174,24 @@ test('legacy reconciled receipts still run the seven-role reconciliation cycle',
     const inventoryPath = path.join(root, 'task-inventory.json');
     fs.writeFileSync(inventoryPath, `${JSON.stringify({
       complete: true,
+      attemptedActions: [],
       tasks: onboarding.WORKSTREAMS.map((workstream, index) => ({
         id: `task-${index}`,
         title: workstream.title,
+        projectId: 'project-legacy',
         projectPath: root,
         pinned: true,
       })),
     })}\n`);
-    const reconciled = spawnSync(process.execPath, [tool, 'reconcile', inventoryPath, root], {
+    const reconciled = spawnSync(process.execPath, [
+      tool,
+      'reconcile',
+      inventoryPath,
+      '--repository-root',
+      root,
+      '--project-id',
+      'project-legacy',
+    ], {
       encoding: 'utf8',
     });
     assert.strictEqual(reconciled.status, 0, reconciled.stderr);
@@ -234,16 +246,25 @@ test('reconciliation completes only after all seven roles are observed', () => {
     ), /complete.*inventory|exact.*pinned/i);
     const inventory = {
       complete: true,
+      attemptedActions: [],
       tasks: onboarding.WORKSTREAMS.map((workstream, index) => ({
         id: `task-${index}`,
         title: workstream.title,
+        projectId: 'project-reconcile',
         projectPath: root,
         pinned: index !== 6,
       })),
     };
-    assert.throws(() => onboarding.recordReconciliation(root, inventory), /all seven|pinned/i);
+    const reconciliationOptions = {
+      repository: { projectId: 'project-reconcile', repositoryPath: root },
+    };
+    assert.throws(
+      () => onboarding.recordReconciliation(root, inventory, reconciliationOptions),
+      /all seven|pinned/i,
+    );
     inventory.tasks[6].pinned = true;
     const state = onboarding.recordReconciliation(root, inventory, {
+      ...reconciliationOptions,
       now: new Date('2026-07-29T13:00:00Z'),
     });
     assert.strictEqual(state.reconciledAt, '2026-07-29T13:00:00.000Z');
@@ -264,7 +285,7 @@ test('reconciliation completes only after all seven roles are observed', () => {
 
 test('repository inventory planning creates and pins all seven roles without mutation', () => {
   assert.strictEqual(typeof onboarding.planRepositoryTaskInventory, 'function');
-  const plan = onboarding.planRepositoryTaskInventory({ complete: true, tasks: [] }, REPO);
+  const plan = onboarding.planRepositoryTaskInventory({ complete: true, tasks: [] }, REPOSITORY);
   assert.strictEqual(plan.complete, true);
   assert.deepStrictEqual(
     plan.actions.map(action => [action.type, action.workstream]),
@@ -282,15 +303,15 @@ test('repository inventory planning creates and pins all seven roles without mut
 
 test('repository inventory planning migrates legacy titles and preserves pinned tasks', () => {
   const tasks = [
-    { id: 'legacy-product-user', title: 'FB · Product/User', projectPath: REPO, pinned: false },
-    { id: 'legacy-product', title: 'Product', projectPath: REPO, pinned: true },
-    { id: 'business', title: 'FB · Business', projectPath: REPO, pinned: true },
-    { id: 'design', title: 'FB · Design', projectPath: REPO, pinned: true },
-    { id: 'tech', title: 'FB · Tech', projectPath: REPO, pinned: true },
-    { id: 'discovery', title: 'FB · Discovery', projectPath: REPO, pinned: true },
-    { id: 'bugs', title: 'FB · Bugs', projectPath: REPO, pinned: true },
+    { id: 'legacy-product-user', title: 'FB · Product/User', projectId: REPOSITORY.projectId, projectPath: REPO, pinned: false },
+    { id: 'legacy-product', title: 'Product', projectId: REPOSITORY.projectId, projectPath: REPO, pinned: true },
+    { id: 'business', title: 'FB · Business', projectId: REPOSITORY.projectId, projectPath: REPO, pinned: true },
+    { id: 'design', title: 'FB · Design', projectId: REPOSITORY.projectId, projectPath: REPO, pinned: true },
+    { id: 'tech', title: 'FB · Tech', projectId: REPOSITORY.projectId, projectPath: REPO, pinned: true },
+    { id: 'discovery', title: 'FB · Discovery', projectId: REPOSITORY.projectId, projectPath: REPO, pinned: true },
+    { id: 'bugs', title: 'FB · Bugs', projectId: REPOSITORY.projectId, projectPath: REPO, pinned: true },
   ];
-  const plan = onboarding.planRepositoryTaskInventory({ complete: true, tasks }, REPO);
+  const plan = onboarding.planRepositoryTaskInventory({ complete: true, tasks }, REPOSITORY);
   assert.deepStrictEqual(
     plan.actions.map(action => [action.type, action.workstream, action.taskId || null]),
     [
@@ -313,7 +334,7 @@ test('repository inventory planning never creates tasks from a partial or foreig
     tasks: [{ id: 'foreign-user', title: 'FB · User', projectPath: '/work/projects/another-app', pinned: true }],
     complete: false,
     failures: [{ operation: 'list', message: 'page two unavailable' }],
-  }, REPO);
+  }, REPOSITORY);
   assert.strictEqual(partial.complete, false);
   assert.deepStrictEqual(partial.actions, []);
   assert.deepStrictEqual(partial.failures, [{ operation: 'list', message: 'page two unavailable' }]);
@@ -323,10 +344,10 @@ test('repository inventory planning blocks duplicate roles and unproven object i
   const duplicate = onboarding.planRepositoryTaskInventory({
     complete: true,
     tasks: [
-      { id: 'legacy-product', title: 'Product', projectPath: REPO, pinned: false },
-      { id: 'canonical-product', title: 'FB · Product/BFM', projectPath: REPO, pinned: true },
+      { id: 'legacy-product', title: 'Product', projectId: REPOSITORY.projectId, projectPath: REPO, pinned: false },
+      { id: 'canonical-product', title: 'FB · Product/BFM', projectId: REPOSITORY.projectId, projectPath: REPO, pinned: true },
     ],
-  }, REPO);
+  }, REPOSITORY);
   assert.strictEqual(duplicate.complete, false);
   assert.deepStrictEqual(duplicate.actions, []);
   assert.deepStrictEqual(duplicate.failures, [{
@@ -334,7 +355,7 @@ test('repository inventory planning blocks duplicate roles and unproven object i
     message: 'Ambiguous Product/BFM tasks: canonical-product, legacy-product.',
   }]);
 
-  const unproven = onboarding.planRepositoryTaskInventory({ tasks: [] }, REPO);
+  const unproven = onboarding.planRepositoryTaskInventory({ tasks: [] }, REPOSITORY);
   assert.strictEqual(unproven.complete, false);
   assert.deepStrictEqual(unproven.actions, []);
   assert.deepStrictEqual(unproven.failures, [{
@@ -346,8 +367,8 @@ test('repository inventory planning blocks duplicate roles and unproven object i
 test('repository inventory planning fails closed when rename or pin targets lack IDs', () => {
   const renameWithoutId = onboarding.planRepositoryTaskInventory({
     complete: true,
-    tasks: [{ title: 'Product', projectPath: REPO, pinned: true }],
-  }, REPO);
+    tasks: [{ title: 'Product', projectId: REPOSITORY.projectId, projectPath: REPO, pinned: true }],
+  }, REPOSITORY);
   assert.strictEqual(renameWithoutId.complete, false);
   assert.deepStrictEqual(renameWithoutId.actions, []);
   assert.deepStrictEqual(renameWithoutId.failures, [{
@@ -357,8 +378,8 @@ test('repository inventory planning fails closed when rename or pin targets lack
 
   const pinWithoutId = onboarding.planRepositoryTaskInventory({
     complete: true,
-    tasks: [{ title: 'FB · User', projectPath: REPO, pinned: false }],
-  }, REPO);
+    tasks: [{ title: 'FB · User', projectId: REPOSITORY.projectId, projectPath: REPO, pinned: false }],
+  }, REPOSITORY);
   assert.strictEqual(pinWithoutId.complete, false);
   assert.deepStrictEqual(pinWithoutId.actions, []);
   assert.deepStrictEqual(pinWithoutId.failures, [{
@@ -371,12 +392,13 @@ test('repository inventory planning is deterministic across repeated complete in
   const tasks = onboarding.WORKSTREAMS.map((workstream, index) => ({
     id: `task-${index}`,
     title: workstream.title,
+    projectId: REPOSITORY.projectId,
     projectPath: REPO,
     pinned: true,
   }));
   const inventory = { complete: true, tasks };
-  const first = onboarding.planRepositoryTaskInventory(inventory, REPO);
-  const second = onboarding.planRepositoryTaskInventory(inventory, REPO);
+  const first = onboarding.planRepositoryTaskInventory(inventory, REPOSITORY);
+  const second = onboarding.planRepositoryTaskInventory(inventory, REPOSITORY);
   assert.deepStrictEqual(first, second);
   assert.deepStrictEqual(first.actions.map(action => action.type), Array(7).fill('reuse'));
 });
@@ -407,7 +429,9 @@ test('CLI plan exposes deterministic native create rename pin actions without mu
       path.join(__dirname, 'fb-onboarding.cjs'),
       'plan',
       inventoryPath,
+      '--repository-root',
       root,
+      '--project-id',
       'project-cli',
     ], { encoding: 'utf8' });
     assert.strictEqual(result.status, 0, result.stderr);
@@ -440,7 +464,9 @@ test('a partial pin failure remains unreconciled and cannot write a success rece
       path.join(__dirname, 'fb-onboarding.cjs'),
       'reconcile',
       inventoryPath,
+      '--repository-root',
       root,
+      '--project-id',
       repository.projectId,
     ], { encoding: 'utf8' });
     assert.notStrictEqual(result.status, 0);

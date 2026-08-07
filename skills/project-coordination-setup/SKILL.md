@@ -55,19 +55,29 @@ inventory files; it does not call the sidebar or Codex-native task controls.
    exact project ID whose canonical repository path identifies that root. If
    the project is absent, ambiguous, or path identity disagrees, stop without
    mutation and give the role-specific manual fallback.
-2. Call `list_threads` with that exact project ID, using only arguments the
-   current Codex app supports. Follow reliable continuation cursors until the
-   exact-project inventory is proven complete. Save a temporary JSON object
-   with `complete: true` and those tasks. An array, truncated page, search-only
-   result, or mixed-project inventory is incomplete and must not be mutated.
+2. Call `list_threads({"limit":100})`; `limit` is its only currently supported
+   argument, so never pass `projectId`, repository path, search, or invented
+   pagination arguments. Filter the returned entries afterward by the already
+   verified exact project ID and, whenever an entry exposes repository identity,
+   the canonical repository path. Exclude entries with another project ID; if
+   an entry claims the target project ID but exposes a contradictory path, the
+   response reaches its limit, or returned metadata cannot prove exact-project
+   identity and completeness, stop to the role-specific manual fallback. Save
+   only a proven-complete filtered JSON object with `complete: true` and tasks.
+   An array, truncated result, or mixed/unknown-project inventory must not be
+   mutated.
 3. Run
-   `node tools/fb-onboarding.cjs plan <initial-inventory.json> <canonical-root> <project-id>`.
+   `node tools/fb-onboarding.cjs plan <initial-inventory.json> --repository-root <canonical-root> --project-id <project-id>`.
    Stop on `complete: false`. Execute only the deterministic action objects
    returned by this plan. `reuse` means no native action and must never mutate
    a task. This makes reruns idempotent: re-list a complete inventory, plan
    again, and create only roles still missing.
-4. Before each non-`reuse` native tool call, append its role, action, target ID
-   when known, and `attempted` status to an attempted action ledger. Then use
+4. Before each non-`reuse` native tool call, append one privacy-safe ledger row
+   with contiguous `sequence`, `action` (`create`, `rename`, or `pin`), canonical
+   `workstream`, and `outcome`; update `outcome` to `succeeded`, `failed`, or
+   `unknown` after the call and add only the returned `taskId` when available.
+   Never put prompts, titles, provider responses, error messages, or timestamps
+   in `attemptedActions`. Then use
    the real Codex controls: `create_thread` for `create`, `set_thread_title`
    for `rename`, and `set_thread_pinned({ pinned: true })` for `pin`. A created
    task uses the exact project, a local environment rather than a worktree, and
@@ -76,8 +86,8 @@ inventory files; it does not call the sidebar or Codex-native task controls.
    action title when `create_thread` supports it. After a created task returns
    an ID, confirm its title; if it is not exact, record another attempted call
    and use `set_thread_title` with the plan action's title before the planned
-   pin. Record the returned task ID and result or failure after each native tool
-   call.
+   pin. Retain failed and unknown rows honestly across any later rerun; never
+   discard partial-failure history from `attemptedActions`.
 5. On any unavailable control, rejected call, missing created-task ID, or other
    partial failure, stop immediately. Keep onboarding unreconciled, report the
    complete attempted action ledger, and emit the role-specific manual
@@ -85,11 +95,12 @@ inventory files; it does not call the sidebar or Codex-native task controls.
    to locate and verify that task; never create or recreate a duplicate.
 6. After every planned action succeeds, Re-list the exact project through
    `list_threads` and again prove the inventory complete. Save the final JSON
-   inventory with the attempted action ledger. It must show all seven roles—
+   inventory with the normalized field `attemptedActions` (use `[]` when the
+   plan needed no native mutation). It must show all seven roles—
    Product/BFM, User, Business, Design, Tech, Discovery, and Bugs—with exact
    titles, executable task IDs, and pinned state.
 7. Only then run
-   `node tools/fb-onboarding.cjs reconcile <final-inventory.json> <canonical-root> <project-id>`.
+   `node tools/fb-onboarding.cjs reconcile <final-inventory.json> --repository-root <canonical-root> --project-id <project-id>`.
    This strict route verifies the final inventory and writes the clone-local
    receipt. A failed reconcile remains unreconciled and must be reported with
    the attempted action ledger; never translate an attempted call into success.
