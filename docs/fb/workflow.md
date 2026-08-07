@@ -24,11 +24,12 @@ not additional workstreams or mandatory agents.
 Product/BFM executes only from the active canonical checkout. Before claim,
 source mutation, or execution routing, the runtime freezes and renders one
 complete intake ledger. It covers canonical handoffs, linked worktrees,
-registered audit and quarantined former roots, board/index routes, all seven
-workstream cards, active locks, approval gates, external blockers, lifecycle
-state, unresolved drift, and exact-project task rebind. User, Business, Design,
-Tech, Discovery, and Bugs remain visible in canonical order; Product/BFM is
-shown separately as the control centre. Every candidate receives exactly one
+registered audit and quarantined former roots, board/index routes, all six
+workstream cards plus one Product/BFM control-centre card, active locks,
+approval gates, external blockers, lifecycle state, unresolved drift, and
+exact-project task rebind. User, Business, Design, Tech, Discovery, and Bugs
+remain visible in canonical order; Product/BFM is shown separately as the
+control centre. Every candidate receives exactly one
 allowed disposition or the execution gate stays closed.
 
 Missing roots, inaccessible authoritative records, same-path content or routing

@@ -65,8 +65,10 @@
 
 ### TASK-076 - Exact FB setup shortcut
 
-*   **Status**: Ready to ship — standing delegation and the complete release
-    checkpoint passed on candidate commit `0b8039f`; **Push Live** is required.
+*   **Status**: Superseded — the 0.5.10 candidate and its release checkpoint
+    were absorbed into the combined 0.5.11 reliability candidate. Its
+    historical handoff and QA remain factual; it is no longer an active
+    **Ready to ship** route.
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Setup skill, active setup documentation, plugin metadata,
     versioning, focused contracts, and generated package mirrors.
@@ -87,9 +89,10 @@
     *   **Approval**: approved.
     *   **Justification**: James approved the dedicated thin-skill approach and
         asked Product/BFM to implement it in this task.
-*   **Gate / Review Point**: Product/BFM standing delegation covers routine
-    changelog and one release checkpoint. Material decisions, sensitive gates,
-    and **Push Live** remain with James.
+*   **Gate / Review Point**: Superseded by
+    `TASK-FB-PRODUCT-BFM-RELIABILITY-20260807`; use that candidate's pending
+    release state. Material decisions, sensitive gates, and **Push Live**
+    remain with James.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-076.md) ·
     [QA](docs/qa/TASK-076.md) ·
     [design](docs/superpowers/specs/2026-08-06-fb-setup-shortcut-design.md).

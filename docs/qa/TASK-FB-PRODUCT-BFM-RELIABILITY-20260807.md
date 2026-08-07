@@ -86,3 +86,18 @@ checkpoint, but publication, installation/cache replacement, merge, retirement,
 deployment, and **Push Live** remain outside this task. The currently installed
 rollback build remains `0.5.9-beta+codex.20260805042523` until a separately
 approved release changes that state.
+
+## Focused review repair
+
+The review repair closed four consistency findings without changing the
+candidate's pending release boundary: the current handoff is now implemented,
+TASK-076 is superseded in current routing records, `$bfm` documentation now
+places Product reconciliation and the recorded Build Brief before source
+execution, and the intake description now counts six workstream cards plus one
+Product/BFM control-centre card. Historical TASK-076 handoff and QA evidence
+remain unchanged.
+
+Focused rerun evidence: root and packaged intake-ledger tests passed 10/10
+each; root and packaged lifecycle/release contracts passed; package-sync tests
+passed 10/10; all 65 declared mirrors matched; 178 changed-document links and
+anchors resolved; and `git diff --check` passed.

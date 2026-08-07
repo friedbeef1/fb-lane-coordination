@@ -64,8 +64,12 @@ until fresh evidence and explicit retirement approval.
 
 ## What happens when I say `$bfm`?
 
-Build For Me (BFM) begins only after Product approval and explicit `$bfm`; see
-[start and approval](docs/fb/start.md).
+Build For Me (BFM) begins when Product/BFM receives explicit `$bfm`; see
+[start and approval](docs/fb/start.md). Product first freezes intake, reconciles
+every candidate, records the included scope and consolidated Build Brief, and
+only then begins source execution. That sequence does not require a routine
+second approval; Product pauses for changed user decisions, disputed
+priorities, sensitive boundaries, conflicts, or unclear scope.
 
 `$bfm` executes only in Product/BFM. The control centre scans User, Business,
 Design, Tech, Discovery, and Bugs. It

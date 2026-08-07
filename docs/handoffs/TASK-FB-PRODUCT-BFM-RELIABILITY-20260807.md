@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-FB-PRODUCT-BFM-RELIABILITY-20260807
 lane: fb-product
-status: ready
+status: implemented
 approval: approved
 okr_fit: aligned
 fb_harness: v3
