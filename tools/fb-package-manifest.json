@@ -1,6 +1,7 @@
 [
   "tools/fb-lane.cjs",
   "tools/fb-lane.test.cjs",
+  "tools/fb-checkout-migration.test.cjs",
   "tools/fb-board-context.cjs",
   "tools/fb-board-context.test.cjs",
   "tools/fb-workstream-handoff.cjs",

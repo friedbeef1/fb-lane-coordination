@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { execSync, execFileSync } = require('child_process');
 const readline = require('readline');
 const {
@@ -116,6 +117,147 @@ function resolveWorkspaceStart(options = {}) {
     process.env.INIT_CWD ||
     process.cwd();
   return path.resolve(expandHome(candidate));
+}
+
+const CHECKOUT_MIGRATION_MANIFEST = 'fb-checkout-migration.json';
+const CHECKOUT_STATES = new Set(['active', 'quarantined', 'retirement-pending', 'retired']);
+const TASK_REBIND_STATES = new Set(['awaiting-task-rebind', 'complete']);
+
+function pathIdentity(candidate) {
+  const absolute = path.resolve(expandHome(candidate));
+  try {
+    return fs.realpathSync(absolute);
+  } catch {
+    return absolute;
+  }
+}
+
+function gitCommonDirectory(rootDir) {
+  try {
+    const common = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+      cwd: rootDir,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    return path.resolve(rootDir, common);
+  } catch {
+    return path.join(rootDir, '.git');
+  }
+}
+
+function checkoutMigrationManifestPath(rootDir) {
+  const configured = String(process.env.FB_CHECKOUT_MIGRATION_MANIFEST || '').trim();
+  return configured
+    ? path.resolve(expandHome(configured))
+    : path.join(gitCommonDirectory(rootDir), CHECKOUT_MIGRATION_MANIFEST);
+}
+
+function loadCheckoutMigrationManifest(rootDir) {
+  const manifestPath = checkoutMigrationManifestPath(rootDir);
+  if (!fs.existsSync(manifestPath)) return null;
+  let manifest;
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  } catch (error) {
+    throw new Error(`FB_CHECKOUT_MANIFEST_INVALID: ${manifestPath}: ${error.message}`);
+  }
+  if (!manifest || manifest.version !== 1 || !manifest.canonicalPath || !manifest.checkouts) {
+    throw new Error(`FB_CHECKOUT_MANIFEST_INVALID: ${manifestPath} requires version, canonicalPath, and checkouts.`);
+  }
+  const checkouts = {};
+  for (const [checkoutPath, record] of Object.entries(manifest.checkouts)) {
+    const state = String(record?.state || '');
+    if (!CHECKOUT_STATES.has(state)) {
+      throw new Error(`FB_CHECKOUT_MANIFEST_INVALID: unsupported checkout state ${JSON.stringify(state)} for ${checkoutPath}.`);
+    }
+    checkouts[pathIdentity(checkoutPath)] = { ...record, state };
+  }
+  const canonicalPath = pathIdentity(manifest.canonicalPath);
+  const active = Object.entries(checkouts).filter(([, record]) => record.state === 'active');
+  if (active.length !== 1 || active[0][0] !== canonicalPath) {
+    throw new Error('FB_CHECKOUT_MANIFEST_INVALID: exactly one active checkout must match canonicalPath.');
+  }
+  const taskRebind = {
+    status: String(manifest.taskRebind?.status || 'complete'),
+    pending: Array.isArray(manifest.taskRebind?.pending)
+      ? [...new Set(manifest.taskRebind.pending.map(String))]
+      : [],
+  };
+  if (!TASK_REBIND_STATES.has(taskRebind.status)) {
+    throw new Error(`FB_CHECKOUT_MANIFEST_INVALID: unsupported task-rebind state ${JSON.stringify(taskRebind.status)}.`);
+  }
+  if (taskRebind.status === 'complete' && taskRebind.pending.length > 0) {
+    throw new Error(`TASK_REBIND_PENDING: cannot close task rebind while pending tasks remain: ${taskRebind.pending.join(', ')}.`);
+  }
+  if (taskRebind.status !== 'complete' && Object.values(checkouts).some(record => record.state === 'retired')) {
+    throw new Error('TASK_REBIND_PENDING: a checkout cannot be retired before task rebind is complete.');
+  }
+  return {
+    ...manifest,
+    manifestPath,
+    canonicalPath,
+    checkouts,
+    taskRebind,
+    routingReceipts: manifest.routingReceipts && typeof manifest.routingReceipts === 'object'
+      ? manifest.routingReceipts
+      : {},
+    unresolvedDrift: Array.isArray(manifest.unresolvedDrift) ? manifest.unresolvedDrift : [],
+  };
+}
+
+function checkoutMigrationSnapshot(rootDir) {
+  const currentPath = pathIdentity(rootDir);
+  const manifest = loadCheckoutMigrationManifest(rootDir);
+  if (!manifest) {
+    return {
+      managed: false,
+      currentPath,
+      canonicalPath: currentPath,
+      state: 'unmanaged',
+      unresolvedDrift: 0,
+      taskRebind: { status: 'not-configured', pending: [] },
+      routingReceipts: {},
+    };
+  }
+  return {
+    managed: true,
+    manifestPath: manifest.manifestPath,
+    currentPath,
+    canonicalPath: manifest.canonicalPath,
+    state: manifest.checkouts[currentPath]?.state || 'unregistered',
+    unresolvedDrift: manifest.unresolvedDrift.length,
+    taskRebind: manifest.taskRebind,
+    routingReceipts: manifest.routingReceipts,
+  };
+}
+
+function isCanonicalCheckout(snapshot) {
+  return !snapshot.managed
+    || (snapshot.currentPath === snapshot.canonicalPath && snapshot.state === 'active');
+}
+
+function checkoutMigrationStatusLines(snapshot) {
+  return [
+    `Checkout current path: ${snapshot.currentPath}`,
+    `Checkout canonical path: ${snapshot.canonicalPath}`,
+    `Checkout state: ${snapshot.state}`,
+    `Unresolved handoff drift: ${snapshot.unresolvedDrift}`,
+    `Task rebind: ${snapshot.taskRebind.status} (${snapshot.taskRebind.pending.length} pending)`,
+  ];
+}
+
+function assertCanonicalCheckout(rootDir, operation = 'mutation') {
+  const snapshot = checkoutMigrationSnapshot(rootDir);
+  if (!isCanonicalCheckout(snapshot)) {
+    const error = new Error(
+      `FB_CHECKOUT_NOT_CANONICAL: refusing ${operation} from ${snapshot.currentPath}; `
+      + `canonical checkout is ${snapshot.canonicalPath} (${snapshot.state}).`
+    );
+    error.code = 'FB_CHECKOUT_NOT_CANONICAL';
+    error.snapshot = snapshot;
+    throw error;
+  }
+  return snapshot;
 }
 
 // Find PROJECT_BOARD.md by searching upward
@@ -490,8 +632,8 @@ function readyLikeHandoffStatus(markdown) {
 }
 
 function handoffAuditRoots(rootDir) {
-  let linked = [rootDir];
-  let gitDirectory = path.join(rootDir, '.git');
+  let linked = [pathIdentity(rootDir)];
+  let gitDirectory = gitCommonDirectory(rootDir);
   try {
     linked = execFileSync('git', ['worktree', 'list', '--porcelain'], {
       cwd: rootDir,
@@ -523,12 +665,109 @@ function handoffAuditRoots(rootDir) {
     .map(value => value.trim())
     .filter(Boolean);
   return [...new Set([...linked, ...configured, ...environment].map(value =>
-    path.resolve(rootDir, value)
+    pathIdentity(path.resolve(rootDir, value))
   ))];
 }
 
+function handoffDigest(contents) {
+  return crypto.createHash('sha256').update(contents).digest('hex');
+}
+
+function handoffAuditRecords(rootDir) {
+  const records = new Map();
+  const errors = [];
+  for (const root of handoffAuditRoots(rootDir)) {
+    const directory = path.join(root, 'docs', 'handoffs');
+    if (!fs.existsSync(directory)) continue;
+    let names;
+    try {
+      names = fs.readdirSync(directory)
+        .filter(name => name.endsWith('.md') && name !== 'index.md')
+        .sort();
+    } catch (error) {
+      errors.push(`${directory} (${error.code || 'READ_ERROR'})`);
+      continue;
+    }
+    for (const name of names) {
+      const relative = `docs/handoffs/${name}`;
+      const absolute = path.join(directory, name);
+      try {
+        const contents = fs.readFileSync(absolute);
+        const markdown = contents.toString('utf8');
+        const metadata = handoffFrontmatter(markdown) || {};
+        const record = {
+          root,
+          relative,
+          sha256: handoffDigest(contents),
+          task: String(metadata.task || ''),
+          status: String(metadata.status || readyLikeHandoffStatus(markdown) || ''),
+          readyStatus: readyLikeHandoffStatus(markdown),
+        };
+        if (!records.has(relative)) records.set(relative, []);
+        records.get(relative).push(record);
+      } catch (error) {
+        errors.push(`${absolute} (${error.code || 'READ_ERROR'})`);
+      }
+    }
+  }
+  return { records, errors };
+}
+
+function validRoutingReceipt(receipt, canonical) {
+  return receipt
+    && typeof receipt.disposition === 'string'
+    && receipt.disposition.trim() !== ''
+    && receipt.canonicalSha256 === canonical.sha256;
+}
+
+function assertNoHandoffContentDrift(rootDir) {
+  const canonicalRoot = pathIdentity(rootDir);
+  const snapshot = checkoutMigrationSnapshot(rootDir);
+  const { records, errors } = handoffAuditRecords(rootDir);
+  if (errors.length > 0) {
+    throw new Error(`READINESS_AUDIT_INCOMPLETE: handoff sources were unreadable: ${errors.join('; ')}`);
+  }
+  const findings = [];
+  for (const [relative, candidates] of records) {
+    const canonical = candidates.find(record => record.root === canonicalRoot);
+    const external = candidates.filter(record => record.root !== canonicalRoot);
+    if (external.length === 0) continue;
+    if (!canonical) {
+      // Keep the established Ready orphan error and its deterministic ordering.
+      if (external.some(record => record.readyStatus)) continue;
+      for (const record of external) {
+        findings.push(
+          `${relative} canonical=missing source=${record.root} sha256=${record.sha256} `
+          + `task=${record.task || '(missing)'} status=${record.status || '(missing)'}`
+        );
+      }
+      continue;
+    }
+    for (const record of external) {
+      const differs = canonical.sha256 !== record.sha256
+        || canonical.task !== record.task
+        || canonical.status !== record.status;
+      if (!differs) continue;
+      const receipt = snapshot.routingReceipts[relative];
+      if (validRoutingReceipt(receipt, canonical)) continue;
+      findings.push(
+        `${relative} canonical=${canonical.root} sha256=${canonical.sha256} `
+        + `task=${canonical.task || '(missing)'} status=${canonical.status || '(missing)'}; `
+        + `source=${record.root} sha256=${record.sha256} `
+        + `task=${record.task || '(missing)'} status=${record.status || '(missing)'}`
+      );
+    }
+  }
+  if (findings.length > 0) {
+    throw new Error(
+      `HANDOFF_CONTENT_DRIFT: same-path or undispositioned handoff content requires reconciliation: ${findings.join('; ')}`
+    );
+  }
+}
+
 function assertNoOrphanReadyHandoffs(rootDir, selected) {
-  const primary = path.resolve(rootDir);
+  assertNoHandoffContentDrift(rootDir);
+  const primary = pathIdentity(rootDir);
   const canonical = new Set();
   const selectedCanonical = new Set(selected);
   const ready = [];
@@ -1621,18 +1860,30 @@ function handleStatus(options = {}) {
     console.error('❌ Error: PROJECT_BOARD.md not found in this workspace.');
     process.exit(1);
   }
+  const rootDir = path.dirname(boardPath);
+  let migration;
+  try {
+    migration = checkoutMigrationSnapshot(rootDir);
+  } catch (error) {
+    console.error(`❌ Error: ${error.message}`);
+    process.exit(1);
+  }
   if (options.context) {
     console.log(renderBoardContext(fs.readFileSync(boardPath, 'utf8')));
+    if (migration.managed) console.log(`\n${checkoutMigrationStatusLines(migration).join('\n')}`);
+    if (!isCanonicalCheckout(migration)) {
+      console.error(`❌ Error: FB_CHECKOUT_NOT_CANONICAL: canonical checkout is ${migration.canonicalPath}.`);
+      process.exit(1);
+    }
     return;
   }
   const { tasks } = parseBoard(boardPath);
-  const rootDir = path.dirname(boardPath);
   const currentTaskPath = path.join(rootDir, '.codex', 'current_task.md');
   const current = fs.existsSync(currentTaskPath) ? parseCurrentTask(fs.readFileSync(currentTaskPath, 'utf8')) : null;
   const quickPath = current && current.id.startsWith('TASK-Q-') ? findQuickRecord(rootDir, current.id) : null;
   if (quickPath && !options.details) {
     const quick = parseQuickRecord(fs.readFileSync(quickPath, 'utf8'));
-    console.log([
+    const lines = [
       'FB status',
       `Current objective: ${quick.scope || quick.taskId}`,
       'Working mode: Quick BFM',
@@ -1642,12 +1893,25 @@ function handleStatus(options = {}) {
       'Your input: None required.',
       `Next action / owner: ${quick.owner || 'Product'} / ${quick.status === 'complete' ? 'review the result' : 'run the focused verification plan'}.`,
       `Test / review link: docs/handoffs/${quick.taskId}.md`,
-    ].join('\n'));
+    ];
+    if (migration.managed) lines.push(...checkoutMigrationStatusLines(migration));
+    console.log(lines.join('\n'));
+    if (!isCanonicalCheckout(migration)) {
+      console.error(`❌ Error: FB_CHECKOUT_NOT_CANONICAL: canonical checkout is ${migration.canonicalPath}.`);
+      process.exit(1);
+    }
     return;
   }
-  console.log(options.details
+  const rendered = options.details
     ? `\n${renderTechnicalStatus(tasks)}\n`
-    : renderBeginnerStatus(statusInputs(rootDir, tasks)));
+    : renderBeginnerStatus(statusInputs(rootDir, tasks));
+  console.log(migration.managed
+    ? `${rendered}\n${checkoutMigrationStatusLines(migration).join('\n')}`
+    : rendered);
+  if (!isCanonicalCheckout(migration)) {
+    console.error(`❌ Error: FB_CHECKOUT_NOT_CANONICAL: canonical checkout is ${migration.canonicalPath}.`);
+    process.exit(1);
+  }
 }
 
 function handleDoctor() {
@@ -3483,6 +3747,17 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
 function main() {
   const args = process.argv.slice(2);
   const command = args[0] ? args[0].toLowerCase() : '';
+  const guardedMutations = new Set(['bootstrap', 'claim', 'quick', 'submit', 'merge']);
+  if (guardedMutations.has(command)) {
+    const boardPath = findBoardPath();
+    const rootDir = boardPath ? path.dirname(boardPath) : process.cwd();
+    try {
+      assertCanonicalCheckout(rootDir, `${command} mutation`);
+    } catch (error) {
+      console.error(`❌ Error: ${error.message}`);
+      process.exit(1);
+    }
+  }
 
   if (command === 'session') {
     try {
@@ -3588,6 +3863,9 @@ module.exports = {
   selectTaskBranch,
   removeMergedWorktree,
   renderQueueSummary,
+  checkoutMigrationSnapshot,
+  assertCanonicalCheckout,
+  assertNoHandoffContentDrift,
   TASK_ID_PATTERN,
   LANE_PATTERN,
   scanWorkstreamHandoffs,

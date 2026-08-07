@@ -15,6 +15,7 @@
 |---|---|---|---|---|---|---|
 | TASK-FB-PRODUCT-BFM-RELIABILITY-20260807 | In Progress | FB-Product / BFM | Canonical-project and complete-intake reliability | Integrate the verified checkout guard with FB 0.5.10; enforce exact-project seven-role onboarding, fail-closed complete intake, visible BFM ledger, and transactional migration | `tools/`, Product/BFM/setup skills, `docs/fb/`, package mirrors, focused contracts, release records | Existing guard commits `e4715d1` and `5b4a226`; [Handoff](docs/handoffs/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md) |
 | TASK-076 | Staging QA | FB-Product / BFM | Exact FB setup invocation, delegated internal approvals, and FB 0.5.10-beta | Add `$fb-setup`; let Product/BFM approve routine changelog wording and one release checkpoint without user prompts; preserve material, sensitive, and **Push Live** gates | Setup and Product/BFM skills, active docs, focused contracts, plugin mirrors, version/changelog | Candidate preserved at `0b8039f`; release checkpoint superseded by the combined reliability candidate; [Handoff](docs/handoffs/TASK-076.md); [QA](docs/qa/TASK-076.md) |
+| TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807 | Staging QA | FB-Product / BFM | Checkout migration reliability | Detect same-path handoff drift, model checkout lifecycle, block noncanonical writes, and expose pending task rebind | `tools/fb-lane.cjs`, focused tests, package mirror, docs/handoff/QA; local candidate only, no publication/install/cache replacement | Local candidate verified; [Handoff](docs/handoffs/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md); [QA](docs/qa/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md) |
 | TASK-075 | Staging QA | FB-Product / BFM | User workstream and Product/BFM control centre; FB 0.5.9-beta | Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks | Canonical candidate, generated package mirrors, version/metadata contracts, and release records | Checking — focused candidate green for `0.5.9-beta+codex.20260805042523`; changelog approved by James on 2026-08-05; final release validator pending; [Handoff](docs/handoffs/TASK-075.md); [QA](docs/qa/TASK-075.md) |
 | TASK-074 | Done | FB-Product / BFM | Graph Engineering positioning and FB 0.5.8-beta | Make Graph Engineering the headline product category, align the public story and packaged plugin, and preserve existing runtime contracts | None; published and installed | [Handoff](docs/handoffs/TASK-074.md); [QA](docs/qa/TASK-074.md); [PR #58](https://github.com/friedbeef1/fb-lane-coordination/pull/58) merged as `72bfab0`; exact build installed and enabled |
 | TASK-073 | Done | FB-Product / BFM | Evaluation results, meaningful repair, and FB 0.5.7-beta | Show eval results clearly, reject superficial repair loops, and publish `0.5.7-beta+codex.20260804131420` | None; published and installed | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); [PR #57](https://github.com/friedbeef1/fb-lane-coordination/pull/57) merged as `c1e63f1`; exact build installed and enabled |
@@ -90,6 +91,37 @@
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-076.md) ·
     [QA](docs/qa/TASK-076.md) ·
     [design](docs/superpowers/specs/2026-08-06-fb-setup-shortcut-design.md).
+
+---
+
+### TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807 - Checkout migration guard
+
+*   **Status**: Staging QA - local candidate verified; not published or installed.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Area**: Checkout migration reliability and BFM handoff intake.
+*   **Scope**: Detect same-relative-path handoff drift by SHA-256 and metadata;
+    model explicit machine-local checkout lifecycle; block status and write
+    preparation outside the canonical checkout; keep task rebind visibly open
+    until every pending task has moved.
+*   **Out of Scope**: Publication, installation, active-cache replacement,
+    merge, consumer-repository mutation, checkout deletion, or implicit
+    retirement.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make checkout migration content-safe, visible,
+        reversible, and impossible to close before task rebind.
+    *   **Key Results**: Same-path drift fails closed; noncanonical writes fail
+        before mutation; lifecycle and task-rebind state are visible; existing
+        orphan detection and BFM ordering remain intact.
+    *   **Definition of Done**: Focused and full runtime tests, syntax, package
+        parity, doctor, whitespace, and a clean local commit pass.
+    *   **Gate / Review Point**: Local verified candidate only. Publication,
+        installation, cache replacement, merge, and retirement require explicit
+        James approval.
+    *   **Approval**: approved.
+    *   **Justification**: James explicitly directed implementation in this
+        clean checkout on 2026-08-07.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md) ·
+    [QA](docs/qa/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md).
 
 ---
 
