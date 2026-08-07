@@ -396,6 +396,13 @@ function inspectMigrationRoot(rootPath) {
     }
   };
   const branch = git(['branch', '--show-current']) || `detached:${git(['rev-parse', 'HEAD'])}`;
+  let head = null;
+  try {
+    head = git(['rev-parse', '--verify', 'HEAD^{commit}']);
+  } catch (error) {
+    if (!/needed a single revision|unknown revision|bad revision|ambiguous argument/i.test(error.message)) throw error;
+  }
+  const tree = head ? git(['rev-parse', 'HEAD^{tree}']) : null;
   const worktrees = parseWorktreePorcelain(git(['worktree', 'list', '--porcelain']));
   const dirt = git(['status', '--porcelain', '--untracked-files=all'])
     .split(/\r?\n/)
@@ -457,7 +464,7 @@ function inspectMigrationRoot(rootPath) {
       throw new Error(`MIGRATION_ROOT_INVENTORY_INCOMPLETE: ${absolute}: ${error.message}`);
     }
   }
-  return { path: root, branch, worktrees, dirt, handoffs, routing };
+  return { path: root, branch, head, tree, worktrees, dirt, handoffs, routing };
 }
 
 function migrationDifferenceId(rootPath, kind, relative = '', canonicalValue, formerValue) {
@@ -483,6 +490,8 @@ function discoverMigrationDifferences(roots) {
   };
   for (const former of roots.slice(1)) {
     add(former, 'branch', '', canonical.branch, former.branch);
+    add(former, 'head', '', canonical.head, former.head);
+    add(former, 'tree', '', canonical.tree, former.tree);
     add(former, 'worktrees', '', canonical.worktrees, former.worktrees);
     add(former, 'dirt', '', canonical.dirt, former.dirt);
     for (const relative of [...new Set([
@@ -501,6 +510,47 @@ function discoverMigrationDifferences(roots) {
   return differences.sort((left, right) => left.id.localeCompare(right.id));
 }
 
+function migrationRootEvidence(root) {
+  return {
+    branch: root.branch,
+    head: root.head,
+    tree: root.tree,
+    worktrees: root.worktrees,
+    dirt: root.dirt,
+    handoffs: root.handoffs,
+    routing: root.routing,
+  };
+}
+
+function canonicalMigrationRepository(canonicalPath, repository = {}) {
+  const value = typeof repository === 'string'
+    ? { repositoryPath: repository }
+    : (repository || {});
+  const suppliedPath = value.repositoryPath || value.projectPath || value.path || canonicalPath;
+  const repositoryPath = pathIdentity(suppliedPath);
+  let repositoryRoot;
+  try {
+    repositoryRoot = pathIdentity(execFileSync('git', ['rev-parse', '--show-toplevel'], {
+      cwd: canonicalPath,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim());
+  } catch (error) {
+    const stderr = error.stderr ? String(error.stderr).trim() : '';
+    throw new Error(`MIGRATION_PROJECT_MISMATCH: canonical repository identity is unavailable: ${stderr || error.message}`);
+  }
+  if (repositoryPath !== canonicalPath || repositoryRoot !== canonicalPath) {
+    throw new Error(
+      `MIGRATION_PROJECT_MISMATCH: canonical repository identity must resolve exactly to ${canonicalPath}; `
+      + `received ${repositoryPath} with Git root ${repositoryRoot}.`
+    );
+  }
+  return {
+    repositoryPath: canonicalPath,
+    ...(value.projectId ? { projectId: String(value.projectId) } : {}),
+  };
+}
+
 function inventoryCheckoutMigration(options = {}) {
   const canonicalPath = pathIdentity(options.canonicalPath || '');
   const formerPaths = [...new Set((options.formerPaths || []).map(pathIdentity))]
@@ -508,9 +558,7 @@ function inventoryCheckoutMigration(options = {}) {
     .sort();
   if (!options.canonicalPath) throw new Error('MIGRATION_CANONICAL_REQUIRED: canonicalPath is required.');
 
-  const repository = typeof options.repository === 'string'
-    ? { repositoryPath: options.repository }
-    : (options.repository || { repositoryPath: canonicalPath });
+  const repository = canonicalMigrationRepository(canonicalPath, options.repository);
   const taskInventory = options.taskInventory || { complete: false, tasks: [] };
   const taskPlan = planRepositoryTaskInventory(taskInventory, repository);
   const verification = verifyRepositoryTaskInventory(taskInventory, repository);
@@ -537,10 +585,7 @@ function inventoryCheckoutMigration(options = {}) {
 
   return {
     version: 1,
-    repository: {
-      repositoryPath: path.resolve(repository.repositoryPath || repository.projectPath || canonicalPath),
-      ...(repository.projectId ? { projectId: String(repository.projectId) } : {}),
-    },
+    repository,
     canonicalPath,
     roots,
     differences,
@@ -562,6 +607,7 @@ function commitCheckoutMigration(inventory, options = {}) {
     throw new Error('FB_CHECKOUT_MANIFEST_INVALID: a complete migration inventory is required.');
   }
   const canonicalPath = pathIdentity(inventory.canonicalPath);
+  const repository = canonicalMigrationRepository(canonicalPath, inventory.repository);
   const roots = inventory.roots.map(record => inspectMigrationRoot(record.path));
   if (roots.filter(record => record.path === canonicalPath).length !== 1) {
     throw new Error('FB_CHECKOUT_MANIFEST_INVALID: the migration inventory must contain exactly one canonical root.');
@@ -580,14 +626,12 @@ function commitCheckoutMigration(inventory, options = {}) {
   for (const root of roots) {
     checkouts[root.path] = {
       state: root.path === canonicalPath ? 'active' : 'quarantined',
-      branch: root.branch,
-      worktrees: root.worktrees,
-      dirt: root.dirt,
+      ...migrationRootEvidence(root),
     };
   }
   const manifest = {
     version: 1,
-    repository: inventory.repository,
+    repository,
     canonicalPath,
     checkouts,
     differences,
@@ -608,13 +652,14 @@ function recordCheckoutTaskRebind(rootDir, taskInventory, repository, options = 
   }
   const expectedRepository = migration.repository || {};
   const observedRepository = typeof repository === 'string' ? { repositoryPath: repository } : (repository || {});
+  const expectedPath = pathIdentity(expectedRepository.repositoryPath || '');
+  const observedPathValue = observedRepository.repositoryPath || observedRepository.projectPath || observedRepository.path || '';
   const projectMismatch = expectedRepository.projectId
     ? String(observedRepository.projectId || '') !== String(expectedRepository.projectId)
     : false;
-  const pathMismatch = expectedRepository.repositoryPath
-    ? pathIdentity(observedRepository.repositoryPath || '') !== pathIdentity(expectedRepository.repositoryPath)
-    : false;
-  if (projectMismatch || pathMismatch || (!observedRepository.projectId && !observedRepository.repositoryPath)) {
+  const pathMismatch = expectedPath !== migration.canonicalPath
+    || pathIdentity(observedPathValue) !== migration.canonicalPath;
+  if (projectMismatch || pathMismatch || (!observedRepository.projectId && !observedPathValue)) {
     throw new Error('MIGRATION_PROJECT_MISMATCH: task rebind inventory must match the migration repository identity.');
   }
   const verification = verifyRepositoryTaskInventory(taskInventory, repository);
@@ -654,6 +699,24 @@ function advanceCheckoutRetirement(rootDir, formerPath, options = {}) {
   const current = migration.checkouts[former];
   if (!current || former === migration.canonicalPath) {
     throw new Error(`FB_CHECKOUT_MANIFEST_INVALID: ${former} is not a registered former checkout.`);
+  }
+  const staleEvidence = [];
+  for (const [checkoutPath, recorded] of Object.entries(migration.checkouts)) {
+    if (recorded.state === 'retired') continue;
+    const observed = inspectMigrationRoot(checkoutPath);
+    const expectedEvidence = migrationRootEvidence(recorded);
+    const observedEvidence = migrationRootEvidence(observed);
+    for (const kind of Object.keys(observedEvidence)) {
+      if (JSON.stringify(expectedEvidence[kind]) !== JSON.stringify(observedEvidence[kind])) {
+        staleEvidence.push(`${checkoutPath} ${kind}`);
+      }
+    }
+  }
+  if (staleEvidence.length > 0) {
+    throw new Error(
+      `RETIREMENT_EVIDENCE_STALE: checkout evidence changed after migration commit: ${staleEvidence.join('; ')}. `
+      + 'Re-inventory and disposition every fresh difference before retirement.'
+    );
   }
   const targetState = String(options.targetState || 'retirement-pending');
   const allowed = (

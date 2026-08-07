@@ -46,6 +46,15 @@ function makeRepo(prefix = 'fb-checkout-canonical-') {
   return root;
 }
 
+function commitAll(root, message) {
+  execFileSync('git', ['add', '--all'], { cwd: root, stdio: 'ignore' });
+  execFileSync('git', [
+    '-c', 'user.name=FB Migration Test',
+    '-c', 'user.email=fb-migration@example.invalid',
+    'commit', '-q', '-m', message,
+  ], { cwd: root, stdio: 'ignore' });
+}
+
 function gitDirectory(root) {
   return path.resolve(root, execFileSync('git', ['rev-parse', '--git-common-dir'], {
     cwd: root,
@@ -311,6 +320,112 @@ test('configured inaccessible audit roots fail readiness instead of being skippe
 });
 
 console.log('checkout migration lifecycle');
+test('clean same-branch committed divergence requires HEAD and tree dispositions', () => {
+  const canonical = makeRepo();
+  const former = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-former-committed-'));
+  try {
+    commitAll(canonical, 'canonical base');
+    fs.rmSync(former, { recursive: true, force: true });
+    execFileSync('git', ['clone', '-q', canonical, former], { stdio: 'ignore' });
+    fs.writeFileSync(path.join(former, 'COMMITTED.txt'), 'former committed content\n');
+    commitAll(former, 'former divergence');
+
+    const taskInventory = {
+      complete: true,
+      tasks: require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
+        id: `task-${index}`,
+        title: workstream.title,
+        projectId: 'project-fixture',
+        pinned: true,
+      })),
+    };
+    const inventory = inventoryCheckoutMigration({
+      canonicalPath: canonical,
+      formerPaths: [former],
+      repository: { projectId: 'project-fixture', repositoryPath: canonical },
+      taskInventory,
+    });
+
+    assert.strictEqual(inventory.roots[0].branch, inventory.roots[1].branch);
+    assert.deepStrictEqual(inventory.roots[0].dirt, []);
+    assert.deepStrictEqual(inventory.roots[1].dirt, []);
+    assert.match(inventory.roots[0].head, /^[0-9a-f]{40,64}$/);
+    assert.match(inventory.roots[0].tree, /^[0-9a-f]{40,64}$/);
+    assert.ok(inventory.differences.some(difference => difference.kind === 'head'));
+    assert.ok(inventory.differences.some(difference => difference.kind === 'tree'));
+    assert.ok(inventory.differences.filter(difference => ['head', 'tree'].includes(difference.kind))
+      .every(difference => !difference.disposition));
+  } finally {
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(former, { recursive: true, force: true });
+  }
+});
+
+test('migration inventory rejects a repository identity from another canonical root', () => {
+  const canonical = makeRepo();
+  const foreign = makeRepo('fb-checkout-foreign-repository-');
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-registry-'));
+  try {
+    const taskInventory = {
+      complete: true,
+      tasks: require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
+        id: `task-${index}`,
+        title: workstream.title,
+        projectId: 'project-fixture',
+        pinned: true,
+      })),
+    };
+    assert.throws(() => inventoryCheckoutMigration({
+      canonicalPath: canonical,
+      repository: { projectId: 'project-fixture', repositoryPath: foreign },
+      taskInventory,
+    }), /MIGRATION_PROJECT_MISMATCH|canonical repository/i);
+
+    const validInventory = inventoryCheckoutMigration({
+      canonicalPath: canonical,
+      repository: { projectId: 'project-fixture', repositoryPath: canonical },
+      taskInventory,
+    });
+    assert.throws(() => commitCheckoutMigration({
+      ...validInventory,
+      repository: { projectId: 'project-fixture', repositoryPath: foreign },
+    }, { registryDir: registry }), /MIGRATION_PROJECT_MISMATCH|canonical repository/i);
+  } finally {
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(foreign, { recursive: true, force: true });
+    fs.rmSync(registry, { recursive: true, force: true });
+  }
+});
+
+test('task rebind rejects a manifest whose repository path is not the canonical root', () => {
+  const canonical = makeRepo();
+  const foreign = makeRepo('fb-checkout-foreign-rebind-');
+  try {
+    writeManifest(canonical, activeManifest(canonical, {
+      repository: { projectId: 'project-fixture', repositoryPath: foreign },
+      taskRebind: {
+        status: 'awaiting-task-rebind',
+        pending: require('./fb-onboarding.cjs').WORKSTREAMS.map(workstream => workstream.key),
+      },
+    }));
+    const taskInventory = {
+      complete: true,
+      tasks: require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
+        id: `task-${index}`,
+        title: workstream.title,
+        projectId: 'project-fixture',
+        pinned: true,
+      })),
+    };
+    assert.throws(() => recordCheckoutTaskRebind(canonical, taskInventory, {
+      projectId: 'project-fixture', repositoryPath: foreign,
+    }), /MIGRATION_PROJECT_MISMATCH|canonical repository/i);
+  } finally {
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(foreign, { recursive: true, force: true });
+  }
+});
+
 test('migration inventory discovers branches, worktrees, dirt, handoffs, and routing differences itself', () => {
   const canonical = makeRepo();
   const former = makeRepo('fb-checkout-former-inventory-');
@@ -575,6 +690,47 @@ test('retirement derives unresolved drift from recorded difference evidence', ()
   } finally {
     fs.rmSync(canonical, { recursive: true, force: true });
     fs.rmSync(former, { recursive: true, force: true });
+  }
+});
+
+test('retirement rejects committed root drift introduced after migration commit', () => {
+  const canonical = makeRepo();
+  const former = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-former-retirement-drift-'));
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-registry-'));
+  const previousRegistry = process.env.FB_CHECKOUT_MIGRATION_REGISTRY;
+  try {
+    process.env.FB_CHECKOUT_MIGRATION_REGISTRY = registry;
+    commitAll(canonical, 'canonical base');
+    fs.rmSync(former, { recursive: true, force: true });
+    execFileSync('git', ['clone', '-q', canonical, former], { stdio: 'ignore' });
+    const tasks = require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
+      id: `task-${index}`,
+      title: workstream.title,
+      projectId: 'project-fixture',
+      pinned: true,
+    }));
+    const inventory = dispositionedMigration({
+      canonicalPath: canonical,
+      formerPaths: [former],
+      repository: { projectId: 'project-fixture', repositoryPath: canonical },
+      taskInventory: { complete: true, tasks },
+    });
+    commitCheckoutMigration(inventory, { registryDir: registry });
+
+    fs.writeFileSync(path.join(former, 'AFTER-MIGRATION.txt'), 'new committed evidence\n');
+    commitAll(former, 'post-migration drift');
+    assert.throws(() => advanceCheckoutRetirement(canonical, former, {
+      targetState: 'retirement-pending',
+      approvalRef: 'APPROVED-RETIRE',
+      registryDir: registry,
+    }), /RETIREMENT_EVIDENCE_STALE|MIGRATION_DIFFERENCE_UNDISPOSITIONED/);
+    assert.strictEqual(checkoutMigrationSnapshot(former).state, 'quarantined');
+  } finally {
+    if (previousRegistry === undefined) delete process.env.FB_CHECKOUT_MIGRATION_REGISTRY;
+    else process.env.FB_CHECKOUT_MIGRATION_REGISTRY = previousRegistry;
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(former, { recursive: true, force: true });
+    fs.rmSync(registry, { recursive: true, force: true });
   }
 });
 
