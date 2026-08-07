@@ -15,42 +15,53 @@ consumer rollout.
 
 ## Red-Green Evidence
 
-The first focused run failed because same-relative-path content was treated as
-reconciled by filename alone and produced `READINESS_FALSE_NEGATIVE` instead of
-`HANDOFF_CONTENT_DRIFT`. After implementation, 13 focused checks passed.
+The repair red run failed because a receipt bound only to the canonical digest
+continued authorizing drift after the off-home source changed. After the repair,
+20 focused checks passed.
 
 Covered behavior:
 
 - SHA-256 plus task/status drift evidence for the same relative handoff path.
-- Canonical-hash-bound dispositions and stale receipt rejection.
+- Canonical plus exact source-root/digest-set receipts; later off-home changes
+  reopen `HANDOFF_CONTENT_DRIFT`.
 - Unique Ready orphan detection and workstream ordering remain unchanged.
-- Unique non-ready and unreadable off-home content fail closed.
+- Unique non-ready and unreadable off-home content fail closed; configured
+  missing and inaccessible audit roots fail `READINESS_AUDIT_INCOMPLETE`.
 - `active`, `quarantined`, `retirement-pending`, and `retired` remain distinct.
 - Task rebind cannot close, and retirement cannot complete, while tasks remain.
-- Status exposes current path, canonical path, lifecycle, unresolved drift, and
-  task-rebind state.
+- CLI and MCP status expose current path, canonical path, lifecycle, unresolved
+  drift, and task-rebind state; both fail on a noncanonical checkout.
 - Quarantined checkout status fails `FB_CHECKOUT_NOT_CANONICAL` after showing
   diagnostics.
-- Claim, bootstrap, and quick handoff paths fail before board, context, or
-  handoff mutation outside the canonical checkout.
+- CLI claim/bootstrap/quick/submit/merge, MCP record/claim/submit/merge, and
+  session promote/checkpoint/close fail before mutation outside canonical.
+- Read-only session status remains available.
+
+## Machine-Local Manifest Discovery
+
+Discovery is explicit and host-local, in this order:
+
+1. `FB_CHECKOUT_MIGRATION_MANIFEST` selects one manifest directly.
+2. The checkout Git common directory may contain `fb-checkout-migration.json`.
+3. `FB_CHECKOUT_MIGRATION_REGISTRY`, or the default
+   `~/.codex/fb-lane/checkout-migrations`, is scanned for JSON manifests that
+   explicitly register the current checkout path.
+
+Multiple matching registered manifests fail invalid. Registry and manifest
+paths remain outside tracked repository content, so host paths are not committed.
 
 ## Verification
 
 | Command | Result |
 |---|---|
-| `node tools/fb-checkout-migration.test.cjs` | 13/13 pass |
+| `node tools/fb-checkout-migration.test.cjs` | 20/20 pass |
 | `node tools/fb-lane.test.cjs` | 72/72 pass |
+| `node tools/fb-session.test.cjs` | 39/39 pass |
 | `node tools/fb-package-sync.test.cjs` | 10/10 pass |
 | `node tools/fb-package-sync.cjs --check` | 61 mirrors pass |
 | `node --check tools/fb-lane.cjs` | pass |
 | `node --check plugins/fb-lane-coordination/tools/fb-lane.cjs` | pass |
-| `node tools/fb-lane.validate.cjs` | Runtime suites pass; pre-commit run stopped only at normalized task-record and dirty-worktree doctor gates, addressed in this closeout commit |
-| `git diff --check` | pass after task-context EOF cleanup |
-
-The full validator's completed runtime suites were CLI 72/72, migration 13/13,
-sessions 39/39, evals 19/19, beginner 11/11, positioning pass, two-speed pass,
-and efficiency 25/25. The clean committed-candidate rerun is the final local
-gate.
+| `git diff --check` | pass |
 
 ## Existing Baseline Note
 
@@ -61,7 +72,7 @@ terminology. This task does not alter that unrelated release-candidate contract.
 
 ## Privacy And Release
 
-The manifest is machine-local under the Git common directory and is not added
-to the package or repository. No consumer checkout was touched. No network,
-publication, installation, cache replacement, merge, push, or release action
-occurred.
+Manifests remain machine-local under the Git common directory or explicit local
+registry and are not added to the package or repository. No consumer checkout
+was touched. No network, publication, installation, cache replacement, merge,
+push, or release action occurred.

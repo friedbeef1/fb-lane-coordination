@@ -70,12 +70,29 @@ function activeManifest(root, overrides = {}) {
   };
 }
 
-function runCli(root, args) {
+function runCli(root, args, env = {}) {
   return spawnSync(process.execPath, [cliPath, ...args], {
     cwd: root,
     encoding: 'utf8',
-    env: { ...process.env, NO_COLOR: '1' },
+    env: { ...process.env, NO_COLOR: '1', ...env },
   });
+}
+
+function mcpRequest(root, name, args = {}, env = {}) {
+  const result = spawnSync(process.execPath, [cliPath, 'mcp'], {
+    cwd: root,
+    encoding: 'utf8',
+    env: { ...process.env, NO_COLOR: '1', ...env },
+    input: `${JSON.stringify({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'tools/call',
+      params: { name, arguments: { workspacePath: root, ...args } },
+    })}\n`,
+  });
+  const line = result.stdout.split(/\r?\n/).find(value => value.trim().startsWith('{'));
+  assert.ok(line, result.stderr || result.stdout);
+  return JSON.parse(line);
 }
 
 console.log('checkout migration drift');
@@ -123,6 +140,10 @@ test('hash-bound disposition accepts known drift and preserves canonical ready o
       routingReceipts: {
         'docs/handoffs/02-design.md': {
           canonicalSha256: sha256(canonicalContents),
+          sources: [{
+            root: oldRoot,
+            sha256: sha256(handoff('TASK-DESIGN', 'fb-design', 'ready', 'Old body.')),
+          }],
           disposition: 'canonical-content-retained',
         },
       },
@@ -213,6 +234,69 @@ test('a stale routing receipt does not authorize changed canonical content', () 
   }
 });
 
+test('a routing receipt is invalidated when an off-home source changes later', () => {
+  const canonical = makeRepo();
+  const oldRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-old-'));
+  try {
+    fs.mkdirSync(path.join(oldRoot, 'docs', 'handoffs'), { recursive: true });
+    const canonicalContents = handoff('TASK-DRIFT', 'fb-tech', 'ready', 'Canonical source.');
+    const oldContents = handoff('TASK-DRIFT', 'fb-tech', 'ready', 'Reviewed old source.');
+    fs.writeFileSync(path.join(canonical, 'docs', 'handoffs', 'TASK-DRIFT.md'), canonicalContents);
+    fs.writeFileSync(path.join(oldRoot, 'docs', 'handoffs', 'TASK-DRIFT.md'), oldContents);
+    fs.writeFileSync(path.join(gitDirectory(canonical), 'fb-handoff-audit-roots'), `${oldRoot}\n`);
+    writeManifest(canonical, activeManifest(canonical, {
+      routingReceipts: {
+        'docs/handoffs/TASK-DRIFT.md': {
+          canonicalSha256: sha256(canonicalContents),
+          sources: [{ root: oldRoot, sha256: sha256(oldContents) }],
+          disposition: 'canonical-content-retained',
+        },
+      },
+    }));
+    assert.doesNotThrow(() => scanWorkstreamHandoffs(canonical));
+
+    fs.writeFileSync(
+      path.join(oldRoot, 'docs', 'handoffs', 'TASK-DRIFT.md'),
+      handoff('TASK-DRIFT', 'fb-tech', 'ready', 'Changed after review.')
+    );
+    assert.throws(() => scanWorkstreamHandoffs(canonical), /HANDOFF_CONTENT_DRIFT/);
+  } finally {
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(oldRoot, { recursive: true, force: true });
+  }
+});
+
+test('configured missing audit roots fail readiness instead of being skipped', () => {
+  const canonical = makeRepo();
+  const missing = path.join(canonical, 'missing-former-root');
+  try {
+    fs.writeFileSync(path.join(gitDirectory(canonical), 'fb-handoff-audit-roots'), `${missing}\n`);
+    writeManifest(canonical, activeManifest(canonical));
+    assert.throws(
+      () => scanWorkstreamHandoffs(canonical),
+      /READINESS_AUDIT_INCOMPLETE[\s\S]*missing-former-root/
+    );
+  } finally {
+    fs.rmSync(canonical, { recursive: true, force: true });
+  }
+});
+
+test('configured inaccessible audit roots fail readiness instead of being skipped', () => {
+  const canonical = makeRepo();
+  const notDirectory = path.join(canonical, 'former-root-file');
+  try {
+    fs.writeFileSync(notDirectory, 'not a checkout\n');
+    fs.writeFileSync(path.join(gitDirectory(canonical), 'fb-handoff-audit-roots'), `${notDirectory}\n`);
+    writeManifest(canonical, activeManifest(canonical));
+    assert.throws(
+      () => scanWorkstreamHandoffs(canonical),
+      /READINESS_AUDIT_INCOMPLETE[\s\S]*former-root-file/
+    );
+  } finally {
+    fs.rmSync(canonical, { recursive: true, force: true });
+  }
+});
+
 console.log('checkout migration lifecycle');
 test('snapshot reports active checkout, canonical path, drift count, and awaiting task rebind', () => {
   const root = makeRepo();
@@ -272,6 +356,34 @@ test('snapshot preserves every explicit checkout lifecycle state', () => {
     fs.rmSync(quarantined, { recursive: true, force: true });
     fs.rmSync(pending, { recursive: true, force: true });
     fs.rmSync(retired, { recursive: true, force: true });
+  }
+});
+
+test('an independent former clone discovers a registered machine-local manifest and fails closed', () => {
+  const canonical = makeRepo();
+  const former = makeRepo('fb-checkout-former-clone-');
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-registry-'));
+  try {
+    fs.writeFileSync(
+      path.join(registry, 'migration.json'),
+      `${JSON.stringify(activeManifest(canonical, {
+        checkouts: {
+          [canonical]: { state: 'active' },
+          [former]: { state: 'quarantined' },
+        },
+      }), null, 2)}\n`
+    );
+    const result = runCli(former, ['status', '--details'], {
+      FB_CHECKOUT_MIGRATION_REGISTRY: registry,
+    });
+    assert.strictEqual(result.status, 1, result.stdout || result.stderr);
+    assert.match(`${result.stdout}\n${result.stderr}`, /FB_CHECKOUT_NOT_CANONICAL/);
+    assert.match(result.stdout, /Checkout state: quarantined/);
+    assert.strictEqual(fs.existsSync(path.join(former, '.git', 'fb-checkout-migration.json')), false);
+  } finally {
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(former, { recursive: true, force: true });
+    fs.rmSync(registry, { recursive: true, force: true });
   }
 });
 
@@ -376,6 +488,111 @@ test('bootstrap and quick handoff writes are rejected before mutation outside ca
       fs.rmSync(root, { recursive: true, force: true });
       fs.rmSync(canonical, { recursive: true, force: true });
     }
+  }
+});
+
+test('MCP status exposes checkout lifecycle and fails closed outside canonical', () => {
+  const root = makeRepo();
+  const canonical = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-active-'));
+  try {
+    writeManifest(root, activeManifest(root));
+    const active = mcpRequest(root, 'fb_lane_status', { details: true });
+    assert.match(active.result.content[0].text, /Checkout current path:/);
+    assert.match(active.result.content[0].text, /Checkout canonical path:/);
+    assert.match(active.result.content[0].text, /Checkout state: active/);
+
+    writeManifest(root, activeManifest(canonical, {
+      checkouts: {
+        [canonical]: { state: 'active' },
+        [root]: { state: 'quarantined' },
+      },
+    }));
+    const response = mcpRequest(root, 'fb_lane_status', { details: true });
+    assert.match(response.error.message, /FB_CHECKOUT_NOT_CANONICAL/);
+    assert.match(response.error.message, /Checkout current path:/);
+    assert.match(response.error.message, /Checkout canonical path:/);
+    assert.match(response.error.message, /Checkout state: quarantined/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(canonical, { recursive: true, force: true });
+  }
+});
+
+test('MCP mutations assert canonical state before any write', () => {
+  const event = {
+    schemaVersion: 'fb-stage-event-v1',
+    eventId: 'migration-guard-event',
+    timestamp: '2026-08-07T00:00:00.000Z',
+    runId: 'migration-guard-run',
+    sessionId: 'migration-guard-session',
+    taskId: 'TASK-001',
+    stage: 'route',
+    capability: 'migration-guard',
+    attempt: 1,
+    decision: 'process',
+    result: 'passed',
+    artifactRef: 'docs/handoffs/TASK-001.md',
+    baselineRef: 'docs/handoffs/TASK-001.md',
+    candidateRef: null,
+    criteriaIds: [],
+    reason: 'Guard MCP writes.',
+    nextAction: 'Use the canonical checkout.',
+  };
+  for (const [name, args] of [
+    ['fb_control_event_record', event],
+    ['fb_lane_claim', { taskId: 'TASK-001', lane: 'Product', lockedFiles: '(None)' }],
+    ['fb_lane_submit', { taskId: 'TASK-001' }],
+    ['fb_lane_merge', { taskId: 'TASK-001' }],
+  ]) {
+    const root = makeRepo();
+    const canonical = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-active-'));
+    try {
+      const originalBoard = fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8');
+      writeManifest(root, activeManifest(canonical, {
+        checkouts: {
+          [canonical]: { state: 'active' },
+          [root]: { state: 'quarantined' },
+        },
+      }));
+      const response = mcpRequest(root, name, args);
+      assert.match(response.error.message, /FB_CHECKOUT_NOT_CANONICAL/, name);
+      assert.strictEqual(fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8'), originalBoard, name);
+      assert.strictEqual(fs.existsSync(path.join(gitDirectory(root), 'fb-stage-events')), false, name);
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+      fs.rmSync(canonical, { recursive: true, force: true });
+    }
+  }
+});
+
+test('mutating session subcommands are guarded while read-only session status remains available', () => {
+  const root = makeRepo();
+  const canonical = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-active-'));
+  try {
+    writeManifest(root, activeManifest(canonical, {
+      checkouts: {
+        [canonical]: { state: 'active' },
+        [root]: { state: 'quarantined' },
+      },
+    }));
+    for (const args of [
+      ['session', 'promote', 'TASK-001', 'product', '--mode', 'planning', '--session-id', 'guarded-session'],
+      ['session', 'checkpoint', '--reason', 'decision', '--session-id', 'guarded-session'],
+      ['session', 'close', '--outcome', 'blocked', '--session-id', 'guarded-session'],
+    ]) {
+      const result = runCli(root, args);
+      assert.strictEqual(result.status, 1, result.stdout || result.stderr);
+      assert.match(`${result.stdout}\n${result.stderr}`, /FB_CHECKOUT_NOT_CANONICAL/);
+    }
+    const status = runCli(root, ['session', 'status', '--all'], {
+      CODEX_THREAD_ID: '',
+      FB_SESSION_ID: '',
+    });
+    assert.strictEqual(status.status, 0, status.stdout || status.stderr);
+    assert.doesNotMatch(`${status.stdout}\n${status.stderr}`, /FB_CHECKOUT_NOT_CANONICAL/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(canonical, { recursive: true, force: true });
   }
 });
 

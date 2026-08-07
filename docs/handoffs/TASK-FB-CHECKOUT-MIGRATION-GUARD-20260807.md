@@ -16,10 +16,10 @@ status: actioned
 - **Approval:** approved.
 - **Justification:** James approved the Unmirror recovery and generic FB-Lane correction on 2026-08-07.
 - **Lane OKR Fit:** aligned.
-- **Mini-loop Evidence:** The focused red run reproduced filename-only intake,
-  then 13 migration checks passed across SHA drift, unreadable and unique
-  sources, lifecycle states, task rebind, status visibility, and pre-mutation
-  guards.
+- **Mini-loop Evidence:** The review repair red run reproduced canonical-only
+  receipt authorization after an off-home source changed. The repaired focused
+  suite passes 20/20 across drift, audit completeness, lifecycle discovery,
+  MCP visibility/mutations, and session guards.
 - **Evidence Against Product OKR:** None identified.
 
 ## Build Brief
@@ -36,17 +36,19 @@ status: actioned
 - **Status:** Actioned - local candidate verified and committed; publication is
   not authorized.
 - **Actioned By:** Product/BFM.
-- **Result:** Added raw SHA-256 plus task/status drift detection, hash-bound
-  routing receipts, machine-local lifecycle/rebind validation, visible checkout
-  status, and fail-closed guards before bootstrap, claim, quick handoff, submit,
-  and merge mutations. Root and generated package runtimes are byte-aligned.
+- **Result:** Routing receipts now bind the canonical digest and exact source
+  root/digest set. Configured missing or inaccessible audit roots fail closed.
+  Independent former clones discover registered manifests from machine-local
+  storage. MCP status exposes lifecycle and rejects noncanonical use, while all
+  MCP writes plus session promote/checkpoint/close are guarded before mutation.
+  Root and generated package runtimes are byte-aligned.
 - **Evidence:** [QA](../qa/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md);
-  focused migration checks 13/13; CLI regression 72/72; sessions 39/39; evals
-  19/19; beginner 11/11; efficiency 25/25; package sync 61/61; syntax passed.
+  focused migration checks 20/20; CLI regression 72/72; sessions 39/39;
+  package tests 10/10; package sync 61/61; syntax passed.
 - **Remaining:** Explicit Product approval is required before publication,
   installation, active-cache replacement, merge, consumer rollout, or checkout
   retirement.
 - **Closeout Note:** The branch is a local candidate only and was not pushed.
-- **Loop Learning:** Checkout migration is complete only when content hashes,
-  filesystem lifecycle, and visible task rebind agree; matching filenames are
-  insufficient.
+- **Loop Learning:** Checkout migration authority must be discoverable across
+  independent clones, and a routing receipt is valid only for the exact
+  canonical and off-home content set that Product reviewed.

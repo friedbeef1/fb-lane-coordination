@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
 const { execSync, execFileSync } = require('child_process');
@@ -122,6 +123,12 @@ function resolveWorkspaceStart(options = {}) {
 const CHECKOUT_MIGRATION_MANIFEST = 'fb-checkout-migration.json';
 const CHECKOUT_STATES = new Set(['active', 'quarantined', 'retirement-pending', 'retired']);
 const TASK_REBIND_STATES = new Set(['awaiting-task-rebind', 'complete']);
+const MCP_MUTATIONS = new Set([
+  'fb_control_event_record',
+  'fb_lane_claim',
+  'fb_lane_submit',
+  'fb_lane_merge',
+]);
 
 function pathIdentity(candidate) {
   const absolute = path.resolve(expandHome(candidate));
@@ -147,9 +154,36 @@ function gitCommonDirectory(rootDir) {
 
 function checkoutMigrationManifestPath(rootDir) {
   const configured = String(process.env.FB_CHECKOUT_MIGRATION_MANIFEST || '').trim();
-  return configured
-    ? path.resolve(expandHome(configured))
-    : path.join(gitCommonDirectory(rootDir), CHECKOUT_MIGRATION_MANIFEST);
+  if (configured) return path.resolve(expandHome(configured));
+
+  const checkoutLocal = path.join(gitCommonDirectory(rootDir), CHECKOUT_MIGRATION_MANIFEST);
+  if (fs.existsSync(checkoutLocal)) return checkoutLocal;
+
+  const registry = String(process.env.FB_CHECKOUT_MIGRATION_REGISTRY || '').trim()
+    || path.join(process.env.HOME || os.homedir(), '.codex', 'fb-lane', 'checkout-migrations');
+  if (!fs.existsSync(registry)) return checkoutLocal;
+
+  const currentPath = pathIdentity(rootDir);
+  const matches = [];
+  for (const name of fs.readdirSync(registry).filter(value => value.endsWith('.json')).sort()) {
+    const candidate = path.join(registry, name);
+    let registered;
+    try {
+      registered = JSON.parse(fs.readFileSync(candidate, 'utf8'));
+    } catch {
+      continue;
+    }
+    const checkoutPaths = registered && registered.checkouts && typeof registered.checkouts === 'object'
+      ? Object.keys(registered.checkouts).map(pathIdentity)
+      : [];
+    if (checkoutPaths.includes(currentPath)) matches.push(candidate);
+  }
+  if (matches.length > 1) {
+    throw new Error(
+      `FB_CHECKOUT_MANIFEST_INVALID: multiple machine-local manifests register ${currentPath}: ${matches.join(', ')}.`
+    );
+  }
+  return matches[0] || checkoutLocal;
 }
 
 function loadCheckoutMigrationManifest(rootDir) {
@@ -664,9 +698,20 @@ function handoffAuditRoots(rootDir) {
     .split(path.delimiter)
     .map(value => value.trim())
     .filter(Boolean);
-  return [...new Set([...linked, ...configured, ...environment].map(value =>
-    pathIdentity(path.resolve(rootDir, value))
-  ))];
+  const configuredRoots = [...configured, ...environment].map(value => path.resolve(rootDir, value));
+  const errors = [];
+  for (const root of configuredRoots) {
+    try {
+      if (!fs.statSync(root).isDirectory()) throw Object.assign(new Error('not a directory'), { code: 'ENOTDIR' });
+      fs.accessSync(root, fs.constants.R_OK | fs.constants.X_OK);
+    } catch (error) {
+      errors.push(`${root} (${error.code || 'ACCESS_ERROR'})`);
+    }
+  }
+  if (errors.length > 0) {
+    throw new Error(`READINESS_AUDIT_INCOMPLETE: configured audit roots were missing or inaccessible: ${errors.join('; ')}`);
+  }
+  return [...new Set([...linked, ...configuredRoots].map(value => pathIdentity(value)))];
 }
 
 function handoffDigest(contents) {
@@ -713,11 +758,22 @@ function handoffAuditRecords(rootDir) {
   return { records, errors };
 }
 
-function validRoutingReceipt(receipt, canonical) {
-  return receipt
+function validRoutingReceipt(receipt, canonical, sources) {
+  if (!(receipt
     && typeof receipt.disposition === 'string'
     && receipt.disposition.trim() !== ''
-    && receipt.canonicalSha256 === canonical.sha256;
+    && receipt.canonicalSha256 === canonical.sha256
+    && Array.isArray(receipt.sources))) return false;
+  const expected = sources
+    .map(record => `${pathIdentity(record.root)}\0${record.sha256}`)
+    .sort();
+  const recorded = receipt.sources
+    .filter(record => record && typeof record.root === 'string' && typeof record.sha256 === 'string')
+    .map(record => `${pathIdentity(record.root)}\0${record.sha256}`)
+    .sort();
+  return recorded.length === receipt.sources.length
+    && recorded.length === expected.length
+    && recorded.every((value, index) => value === expected[index]);
 }
 
 function assertNoHandoffContentDrift(rootDir) {
@@ -749,7 +805,7 @@ function assertNoHandoffContentDrift(rootDir) {
         || canonical.status !== record.status;
       if (!differs) continue;
       const receipt = snapshot.routingReceipts[relative];
-      if (validRoutingReceipt(receipt, canonical)) continue;
+      if (validRoutingReceipt(receipt, canonical, external)) continue;
       findings.push(
         `${relative} canonical=${canonical.root} sha256=${canonical.sha256} `
         + `task=${canonical.task || '(missing)'} status=${canonical.status || '(missing)'}; `
@@ -3238,6 +3294,9 @@ function handleMcpRequest(request) {
       process.chdir(workspaceRoot);
 
       try {
+        if (MCP_MUTATIONS.has(name)) {
+          assertCanonicalCheckout(workspaceRoot, `${name} MCP mutation`);
+        }
         if (name === 'fb_control_event_validate') {
           const { workspacePath, ...event } = toolArgs;
           structuredContent = validateMcpStageEvent(event);
@@ -3250,6 +3309,11 @@ function handleMcpRequest(request) {
           const { workspacePath, ...input } = toolArgs;
           message = JSON.stringify(routeArtifact(input));
         } else if (name === 'fb_lane_status') {
+          const migration = checkoutMigrationSnapshot(workspaceRoot);
+          const lifecycle = migration.managed ? checkoutMigrationStatusLines(migration).join('\n') : '';
+          if (!isCanonicalCheckout(migration)) {
+            throw new Error(`${lifecycle}\nFB_CHECKOUT_NOT_CANONICAL: canonical checkout is ${migration.canonicalPath}.`);
+          }
           if (toolArgs.context) {
             message = renderBoardContext(fs.readFileSync(boardPath, 'utf8'));
           } else {
@@ -3258,6 +3322,7 @@ function handleMcpRequest(request) {
               ? renderTechnicalStatus(tasks, { format: 'mcp', workspaceRoot })
               : renderBeginnerStatus(statusInputs(workspaceRoot, tasks));
           }
+          if (lifecycle) message = `${message}\n${lifecycle}`;
         } else if (name === 'fb_project_context') {
           const { taskId, question } = toolArgs;
           assertSafeTaskId(taskId);
@@ -3748,11 +3813,14 @@ function main() {
   const args = process.argv.slice(2);
   const command = args[0] ? args[0].toLowerCase() : '';
   const guardedMutations = new Set(['bootstrap', 'claim', 'quick', 'submit', 'merge']);
-  if (guardedMutations.has(command)) {
+  const sessionMutation = command === 'session'
+    && new Set(['promote', 'checkpoint', 'close']).has(String(args[1] || '').toLowerCase());
+  if (guardedMutations.has(command) || sessionMutation) {
     const boardPath = findBoardPath();
     const rootDir = boardPath ? path.dirname(boardPath) : process.cwd();
     try {
-      assertCanonicalCheckout(rootDir, `${command} mutation`);
+      const operation = sessionMutation ? `session ${args[1]} mutation` : `${command} mutation`;
+      assertCanonicalCheckout(rootDir, operation);
     } catch (error) {
       console.error(`❌ Error: ${error.message}`);
       process.exit(1);
