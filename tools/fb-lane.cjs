@@ -632,6 +632,24 @@ const WORKSTREAM_STATUS_CARDS = [
 ];
 
 const BFM_WORKSTREAMS = ['product', 'business', 'design', 'tech', 'discovery', 'bugs'];
+const BFM_INTAKE_ROLES = ['User', 'Business', 'Design', 'Tech', 'Discovery', 'Bugs', 'Product/BFM'];
+const BFM_EVIDENCE_ROLE_FILES = new Map([
+  ['User', 'fb-user.md'],
+  ['Business', 'fb-business.md'],
+  ['Design', 'fb-design.md'],
+  ['Tech', 'fb-tech.md'],
+  ['Discovery', 'fb-discovery.md'],
+  ['Bugs', 'fb-bugs.md'],
+  ['Product/BFM', 'fb-product.md'],
+]);
+const BFM_DISPOSITIONS = new Set([
+  'Include now',
+  'Blocked',
+  'Deferred',
+  'Duplicate',
+  'Rejected',
+  'Superseded',
+]);
 
 function scannerWorkstream(lane) {
   const normalized = String(lane || '').replace(/^fb-/, '').toLowerCase();
@@ -898,6 +916,323 @@ function scanWorkstreamHandoffs(rootDir) {
   const candidates = BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready);
   assertNoOrphanReadyHandoffs(rootDir, candidates);
   return { workstreams, candidates, selected: candidates };
+}
+
+function bfmEvidenceRole(lane) {
+  return new Map([
+    ['fb-user', 'User'],
+    ['fb-business', 'Business'],
+    ['fb-design', 'Design'],
+    ['fb-tech', 'Tech'],
+    ['fb-discovery', 'Discovery'],
+    ['fb-bugs', 'Bugs'],
+  ]).get(String(lane || '').trim().toLowerCase()) || '';
+}
+
+function commaSeparatedMetadata(value) {
+  return [...new Set(String(value || '')
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean))];
+}
+
+function normalizedBoardLocks(value) {
+  const source = String(value || '').trim();
+  if (!source || /^(?:\(none\)|none)$/i.test(source)) return [];
+  return [...new Set(source
+    .split(',')
+    .map(item => item.replace(/`/g, '').trim())
+    .filter(Boolean))].sort();
+}
+
+function readBfmIntakeFile(rootDir, relative, missing) {
+  const absolute = path.join(rootDir, relative);
+  try {
+    if (!fs.statSync(absolute).isFile()) throw Object.assign(new Error('not a file'), { code: 'ENOTFILE' });
+    return fs.readFileSync(absolute, 'utf8');
+  } catch (error) {
+    missing.push(`${relative} (${error.code || 'READ_ERROR'})`);
+    return '';
+  }
+}
+
+function bfmRoutingDigest(parts) {
+  const hash = crypto.createHash('sha256');
+  for (const [label, contents] of parts) hash.update(`${label}\0${contents}\0`);
+  return hash.digest('hex');
+}
+
+function assertNoContradictoryCanonicalHandoffs(rootDir) {
+  const directory = path.join(rootDir, 'docs', 'handoffs');
+  const byTask = new Map();
+  for (const file of fs.readdirSync(directory).filter(name => name.endsWith('.md') && name !== 'index.md').sort()) {
+    const relative = `docs/handoffs/${file}`;
+    const source = fs.readFileSync(path.join(directory, file), 'utf8');
+    const metadata = handoffFrontmatter(source);
+    if (!metadata || metadata.type !== 'fb-lane-handoff') continue;
+    const task = String(metadata.task || '').trim();
+    if (!task) continue;
+    if (!byTask.has(task)) byTask.set(task, []);
+    byTask.get(task).push({ relative, status: String(metadata.status || '').trim().toLowerCase() });
+  }
+  const findings = [...byTask.entries()]
+    .filter(([, records]) => records.length > 1 && records.some(record => record.status === 'ready'))
+    .map(([task, records]) => `${task}: ${records.map(record => `${record.relative} (${record.status || 'missing status'})`).join(', ')}`);
+  if (findings.length > 0) {
+    throw new Error(`BFM_INTAKE_CONTRADICTION: duplicate Ready task records require reconciliation: ${findings.join('; ')}.`);
+  }
+}
+
+function activeBoardLocks(tasks) {
+  const locks = new Map();
+  for (const task of tasks.filter(item => normalizedStatus(item.status) === 'in progress')) {
+    for (const lock of normalizedBoardLocks(task.locks)) {
+      if (!locks.has(lock)) locks.set(lock, []);
+      locks.get(lock).push(task.id);
+    }
+  }
+  return [...locks.entries()]
+    .map(([lockPath, taskIds]) => ({ path: lockPath, tasks: [...new Set(taskIds)].sort() }))
+    .sort((a, b) => a.path.localeCompare(b.path));
+}
+
+function recommendedBfmExecution(candidates) {
+  const include = candidates.filter(candidate => candidate.disposition === 'Include now');
+  const includedTasks = new Set(include.map(candidate => candidate.task));
+  const roleRank = new Map(BFM_INTAKE_ROLES.map((role, index) => [role, index]));
+  const byTask = new Map(include.map(candidate => [candidate.task, candidate]));
+  const remaining = new Set(include.map(candidate => candidate.task));
+  const order = [];
+
+  while (remaining.size > 0) {
+    const ready = [...remaining]
+      .filter(task => byTask.get(task).dependencies.every(dependency => !includedTasks.has(dependency) || !remaining.has(dependency)))
+      .sort((left, right) => {
+        const roleDifference = roleRank.get(byTask.get(left).role) - roleRank.get(byTask.get(right).role);
+        return roleDifference || left.localeCompare(right);
+      });
+    if (ready.length === 0) {
+      throw new Error(`BFM_DEPENDENCY_CONFLICT: dependency cycle among Include now candidates: ${[...remaining].sort().join(', ')}.`);
+    }
+    for (const task of ready) {
+      order.push(task);
+      remaining.delete(task);
+    }
+  }
+
+  const waveByTask = new Map();
+  const waves = [];
+  for (const task of order) {
+    const candidate = byTask.get(task);
+    const dependencyFloor = candidate.dependencies
+      .filter(dependency => waveByTask.has(dependency))
+      .reduce((floor, dependency) => Math.max(floor, waveByTask.get(dependency) + 1), 0);
+    let waveIndex = dependencyFloor;
+    while (true) {
+      const wave = waves[waveIndex] || [];
+      const occupied = new Set(wave.flatMap(other => byTask.get(other).locks));
+      if (candidate.locks.every(lock => !occupied.has(lock))) break;
+      waveIndex += 1;
+    }
+    if (!waves[waveIndex]) waves[waveIndex] = [];
+    waves[waveIndex].push(task);
+    waveByTask.set(task, waveIndex);
+  }
+  return { order, waves: waves.filter(Boolean) };
+}
+
+function freezeBfmIntake(rootDir, options = {}) {
+  const canonicalRoot = pathIdentity(rootDir);
+  const migration = assertCanonicalCheckout(canonicalRoot, 'BFM intake freeze');
+  if (migration.unresolvedDrift > 0) {
+    throw new Error(`HANDOFF_CONTENT_DRIFT: ${migration.unresolvedDrift} unresolved migration drift record(s) block BFM intake.`);
+  }
+
+  // This is the canonical scanner. It performs linked-worktree/former-root
+  // discovery, source-bound receipt validation, and Ready false-negative
+  // detection before the routing inventory below is trusted.
+  const scan = scanWorkstreamHandoffs(canonicalRoot);
+  assertNoContradictoryCanonicalHandoffs(canonicalRoot);
+  const missing = [];
+  const boardSource = readBfmIntakeFile(canonicalRoot, 'PROJECT_BOARD.md', missing);
+  const indexSource = readBfmIntakeFile(canonicalRoot, 'docs/handoffs/index.md', missing);
+  const cardSources = new Map();
+  for (const role of BFM_INTAKE_ROLES) {
+    const relative = `docs/workstreams/${BFM_EVIDENCE_ROLE_FILES.get(role)}`;
+    cardSources.set(role, readBfmIntakeFile(canonicalRoot, relative, missing));
+  }
+  if (missing.length > 0) {
+    const missingRoles = BFM_INTAKE_ROLES.filter(role => !cardSources.get(role));
+    const error = new Error(`BFM_INTAKE_INCOMPLETE: missing or unreadable authoritative inventory: ${missing.join('; ')}${missingRoles.length ? `; roles: ${missingRoles.join(', ')}` : ''}.`);
+    error.missingRoles = missingRoles;
+    throw error;
+  }
+
+  let boardTasks;
+  try {
+    boardTasks = parseBoard(path.join(canonicalRoot, 'PROJECT_BOARD.md')).tasks;
+  } catch (error) {
+    throw new Error(`BFM_INTAKE_INCOMPLETE: PROJECT_BOARD.md could not be parsed: ${error.message}`);
+  }
+  const tasksById = new Map();
+  for (const task of boardTasks) {
+    if (!tasksById.has(task.id)) tasksById.set(task.id, []);
+    tasksById.get(task.id).push(task);
+  }
+
+  const candidates = [];
+  const routeErrors = [];
+  for (const relative of scan.candidates) {
+    const handoffSource = readBfmIntakeFile(canonicalRoot, relative, routeErrors);
+    const metadata = handoffFrontmatter(handoffSource) || {};
+    const task = String(metadata.task || '').trim();
+    const role = bfmEvidenceRole(metadata.lane);
+    if (!role) {
+      routeErrors.push(`${relative} uses ${metadata.lane || '(missing lane)'}; Product/BFM is a control centre, not an evidence role`);
+      continue;
+    }
+    const boardMatches = tasksById.get(task) || [];
+    const fileName = path.basename(relative);
+    const cardSource = cardSources.get(role);
+    if (boardMatches.length !== 1) routeErrors.push(`${relative} task ${task} has ${boardMatches.length} PROJECT_BOARD.md routes`);
+    if (!indexSource.includes(task) || !indexSource.includes(fileName)) routeErrors.push(`${relative} task ${task} is not routed by docs/handoffs/index.md`);
+    if (!cardSource.includes(task)) routeErrors.push(`${relative} task ${task} is not routed by the ${role} workstream card`);
+    const boardTask = boardMatches[0] || { locks: '(None)', status: '' };
+    candidates.push({
+      relative,
+      task,
+      role,
+      status: String(metadata.status || ''),
+      sha256: handoffDigest(Buffer.from(handoffSource)),
+      routingSha256: bfmRoutingDigest([
+        ['handoff', handoffSource],
+        ['board', boardSource],
+        ['index', indexSource],
+        [`card:${role}`, cardSource],
+      ]),
+      dependencies: commaSeparatedMetadata(metadata.depends_on),
+      approvalGate: String(metadata.approval_gate || '').trim(),
+      externalBlocker: String(metadata.external_blocker || '').trim(),
+      locks: normalizedBoardLocks(boardTask.locks),
+      boardStatus: boardTask.status,
+    });
+  }
+  if (routeErrors.length > 0) {
+    throw new Error(`BFM_INTAKE_INCOMPLETE: authoritative routing is incomplete or contradictory: ${routeErrors.join('; ')}.`);
+  }
+
+  const dispositions = options.dispositions && typeof options.dispositions === 'object'
+    ? options.dispositions
+    : {};
+  const candidateTasks = new Set(candidates.map(candidate => candidate.task));
+  const dispositionErrors = [];
+  for (const candidate of candidates) {
+    const value = dispositions[candidate.task];
+    if (!BFM_DISPOSITIONS.has(value)) dispositionErrors.push(candidate.task);
+    else candidate.disposition = value;
+  }
+  const extras = Object.keys(dispositions).filter(task => !candidateTasks.has(task));
+  if (dispositionErrors.length > 0 || extras.length > 0) {
+    throw new Error(
+      `BFM_DISPOSITION_INCOMPLETE: every frozen candidate needs exactly one allowed disposition; `
+      + `invalid or missing: ${dispositionErrors.join(', ') || '(none)'}; unexpected: ${extras.join(', ') || '(none)'}.`
+    );
+  }
+
+  const activeLocks = activeBoardLocks(boardTasks);
+  const includedTasks = new Set(candidates.filter(candidate => candidate.disposition === 'Include now').map(candidate => candidate.task));
+  const approvalGates = candidates
+    .flatMap(candidate => {
+      const boardTask = tasksById.get(candidate.task)?.[0];
+      const boardApproval = String(boardTask?.details?.approval || '').trim();
+      const gates = candidate.approvalGate ? [candidate.approvalGate] : [];
+      if (boardApproval && !/^(?:approved|none|not required)(?:\b|\s|—|-|:)/i.test(boardApproval)) gates.push(boardApproval);
+      return [...new Set(gates)].map(gate => ({ task: candidate.task, gate }));
+    });
+  const externalBlockers = candidates
+    .flatMap(candidate => {
+      const boardTask = tasksById.get(candidate.task)?.[0];
+      const boardBlocker = String(boardTask?.details?.blockers || '').trim();
+      const blockers = candidate.externalBlocker ? [candidate.externalBlocker] : [];
+      if (boardBlocker && !/^(?:\(none\)|none)(?:\b|\s|—|-|:)/i.test(boardBlocker)) blockers.push(boardBlocker);
+      return [...new Set(blockers)].map(blocker => ({ task: candidate.task, blocker }));
+    });
+  for (const candidate of candidates.filter(item => item.disposition === 'Include now')) {
+    for (const dependency of candidate.dependencies) {
+      if (includedTasks.has(dependency)) continue;
+      const boardDependency = tasksById.get(dependency)?.[0];
+      if (boardDependency && normalizedStatus(boardDependency.status) === 'done') continue;
+      externalBlockers.push({ task: candidate.task, blocker: `Dependency ${dependency} is not an Include now or Done task` });
+    }
+    for (const lock of candidate.locks) {
+      const outsideOwners = (activeLocks.find(item => item.path === lock)?.tasks || [])
+        .filter(task => task !== candidate.task && !includedTasks.has(task));
+      for (const owner of outsideOwners) {
+        externalBlockers.push({ task: candidate.task, blocker: `Lock ${lock} is active in ${owner}` });
+      }
+    }
+  }
+  const uniqueBlockers = [...new Map(externalBlockers.map(item => [`${item.task}\0${item.blocker}`, item])).values()];
+  const recommendation = recommendedBfmExecution(candidates);
+  const includeCount = candidates.filter(candidate => candidate.disposition === 'Include now').length;
+  const roles = BFM_INTAKE_ROLES.map(role => {
+    if (role === 'Product/BFM') {
+      return { role, candidateCount: 0, summary: 'Control centre — not an evidence workstream', candidates: [] };
+    }
+    const roleCandidates = candidates.filter(candidate => candidate.role === role);
+    return {
+      role,
+      candidateCount: roleCandidates.length,
+      summary: roleCandidates.length === 0
+        ? 'None relevant'
+        : roleCandidates.map(candidate => `${candidate.task}: ${candidate.disposition}`).join('; '),
+      candidates: roleCandidates.map(candidate => candidate.task),
+    };
+  });
+
+  return {
+    canonicalCheckout: migration.canonicalPath,
+    lifecycleState: migration.state,
+    unresolvedDrift: migration.unresolvedDrift,
+    taskRebind: migration.taskRebind,
+    activeLocks,
+    missingRoles: [],
+    approvalGates,
+    externalBlockers: uniqueBlockers,
+    recommendedOrder: recommendation.order,
+    recommendedWaves: recommendation.waves,
+    emptyQueueProven: candidates.length === 0,
+    executionAllowed: includeCount > 0
+      && migration.taskRebind.pending.length === 0
+      && migration.taskRebind.status !== 'awaiting-task-rebind'
+      && approvalGates.length === 0
+      && uniqueBlockers.length === 0,
+    roles,
+    candidates,
+  };
+}
+
+function renderBfmIntakeLedger(ledger) {
+  if (!ledger || !Array.isArray(ledger.roles)) throw new Error('A frozen BFM intake ledger is required.');
+  const lines = [
+    'BFM intake ledger',
+    `Canonical checkout: ${ledger.canonicalCheckout}`,
+    `Lifecycle state: ${ledger.lifecycleState}`,
+    `Unresolved drift: ${ledger.unresolvedDrift}`,
+    `Task rebind: ${ledger.taskRebind.status} (${ledger.taskRebind.pending.length} pending)`,
+    `Active locks: ${ledger.activeLocks.length ? ledger.activeLocks.map(lock => `${lock.path} [${lock.tasks.join(', ')}]`).join('; ') : 'None'}`,
+    `Missing roles: ${ledger.missingRoles.length ? ledger.missingRoles.join(', ') : 'None'}`,
+  ];
+  for (const role of ledger.roles) lines.push(`${role.role}: ${role.candidateCount} candidate(s) — ${role.summary}`);
+  lines.push(`Approval gates: ${ledger.approvalGates.length ? ledger.approvalGates.map(item => `${item.task}: ${item.gate}`).join('; ') : 'None'}`);
+  lines.push(`External blockers: ${ledger.externalBlockers.length ? ledger.externalBlockers.map(item => `${item.task}: ${item.blocker}`).join('; ') : 'None'}`);
+  lines.push(`Recommended order: ${ledger.recommendedOrder.length ? ledger.recommendedOrder.join(' -> ') : 'None'}`);
+  lines.push(`Empty queue proof: ${ledger.emptyQueueProven ? 'complete' : 'not empty'}`);
+  const executionGate = ledger.executionAllowed
+    ? 'open for Include now scope'
+    : (ledger.recommendedOrder.length === 0 ? 'no Include now scope' : 'blocked');
+  lines.push(`Execution gate: ${executionGate}`);
+  return lines.join('\n');
 }
 
 function workstreamStatusCardTemplate(displayTitle) {
@@ -3937,6 +4272,8 @@ module.exports = {
   TASK_ID_PATTERN,
   LANE_PATTERN,
   scanWorkstreamHandoffs,
+  freezeBfmIntake,
+  renderBfmIntakeLedger,
   collectLifecycleFindings,
   collectGoalAlignmentSessionWarnings,
   collectArchivedBoardTasks,
