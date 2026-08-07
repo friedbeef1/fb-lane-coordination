@@ -2,7 +2,7 @@
 
 ## 0.5.10-beta — 2026-08-06
 
-Build: `0.5.10-beta+codex.20260806151502`
+Build: `0.5.10-beta+codex.20260807084627`
 
 **What changed:** FB now has a first-class `$fb-setup` plugin skill. It delegates
 to the existing canonical setup workflow, bootstraps the repository
@@ -13,21 +13,25 @@ uses the same exact invocation.
 **Why it matters:** Starting FB no longer depends on a natural-language phrase
 that can be interpreted inconsistently. `$fb-setup` gives new and returning
 users one short, predictable entry point while preserving the full setup,
-migration, pinning, idle-task, and honest-fallback safeguards.
+migration, pinning, idle-task, and honest-fallback safeguards. Product/BFM now
+also approves candidate-faithful changelog wording and authorizes one release
+checkpoint without repeatedly returning routine internal gates to the user.
 
 **Compatibility:** The long-form
 `$fb-lane-coordination:project-coordination-setup` skill and the natural request
 `Set up FB in this project.` remain supported fallbacks. Existing projects,
 onboarding receipts, seven-task reconciliation, `$bfm`, plugin and MCP
-identifiers, and **Push Live** authority remain unchanged. `/fb-setup` is not a
+identifiers, and **Push Live** authority remain unchanged. Material product
+decisions and sensitive gates still require the user. `/fb-setup` is not a
 separate installed command.
 
 **Installation or upgrade:** Upgrade the `fb-lane` marketplace, reinstall
 `fb-lane-coordination@fb-lane`, start a new Codex task, open the target project,
 and invoke `$fb-setup`.
 
-**Changelog approval:** Approved by James on 2026-08-06 before the release
-checkpoint.
+**Changelog approval:** Approved — Product/BFM standing delegation; Reference:
+TASK-076, 2026-08-07. James approved the earlier draft on 2026-08-06 and then
+requested this delegated-approval addition before release.
 
 ## 0.5.9-beta — 2026-08-05
 

@@ -9,7 +9,7 @@ FB currently supports Codex only. Start with the
 setup paths when you are not installing through the plugin flow.
 
 The current release candidate is **FB 0.5.10-beta** build
-`0.5.10-beta+codex.20260806151502`.
+`0.5.10-beta+codex.20260807084627`.
 
 ## Set up the current project
 

@@ -227,6 +227,17 @@ evidence, reclassify Full BFM, or mark a genuine Product/external blocker. It
 does not automatically add another reviewer, worker, durable record, or broad
 gate.
 
+### Standing delegated approvals
+
+Under the user's standing delegation, Product/BFM approves a candidate-faithful
+changelog and authorizes one initial release checkpoint without a user prompt
+after focused checks and candidate-bound changelog verification pass. Product/BFM
+records both approvals with the handoff, candidate, and date. Ask the user only
+for a changed user or product decision, material scope or priority change,
+weakened evidence, or a sensitive gate. **Push Live** remains the only merge,
+publication, installation, and deployment authorization. The standing
+delegation does not weaken the repair budget or permit repeated broad gates.
+
 Package mirrors are generated only after the complete canonical candidate and
 its required review pass. They come from canonical root sources declared in
 `tools/fb-package-manifest.json`. Use `node tools/fb-package-sync.cjs --write`

@@ -99,8 +99,11 @@ board/index/session record for Quick BFM; its single Quick Record and local
 Efficiency Receipt are the durable boundary.
 
 The harness distinguishes focused checks, immediate safety gates, and release
-checkpoints. A full validator needs an explicit Product-owned release-checkpoint
-request; a Markdown handoff artifact or review transfer alone is not one.
+checkpoints. A full validator needs a Product-owned release-checkpoint request;
+under [standing delegated approvals](../../docs/fb/workflow.md#standing-delegated-approvals),
+Product/BFM creates that request without a user prompt after focused evidence
+and candidate-bound changelog verification pass. A Markdown handoff artifact or
+review transfer alone is not a request.
 Its generated Quick Records state whether review is required: documentation and
 coordination use zero reviewers after focused checks pass, runtime and test use
 exactly one, and records without the field retain the legacy one-reviewer rule.

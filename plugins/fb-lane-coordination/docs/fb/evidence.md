@@ -117,15 +117,11 @@ against the exact candidate commit. A missing, stale, unresolved, or
 candidate-mismatched decision cannot be reused and cannot reach **Ready to
 ship**.
 
-For a major user-visible release, the candidate-bound evidence also links the
-user's explicit changelog approval. Missing approval keeps the candidate at
-`Checking — changelog approval needed`; release approval does not substitute
-for approval of the changelog wording.
-
-An unanswered request is durable pending evidence, not rejection or approval.
-Record it in the Task Receipt and board gate. Every later documentation review
-must show the pending changelog approval and direct entry link again until the
-user approves, rejects, or explicitly defers it; never silently clear it.
+Use the [standing delegated approvals](workflow.md#standing-delegated-approvals)
+contract. Candidate-bound evidence records Product/BFM's changelog approval and
+single release-checkpoint authorization without a user prompt. Ask the user
+only when the wording exposes a changed user or product decision, material
+scope, or sensitive gate. **Push Live** remains separate release evidence.
 
 ## Quality and cleanup
 

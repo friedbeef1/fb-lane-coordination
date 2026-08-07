@@ -1,6 +1,6 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.5.10-beta+codex.20260806151502",
+  "version": "0.5.10-beta+codex.20260807084627",
   "description": "FB is an open-source Codex plugin for Graph Engineering: it turns scattered AI conversations into a living product-delivery graph.",
   "author": {
     "name": "FB Contributors",
@@ -40,7 +40,7 @@
       "On an explicit user request, a main workstream may send a queued fb-workstream-handoff to another. Tell the destination: <Source> handoff queued for <Destination> — planning only; waiting for you. Open: <handoff link>. Keep it idle until the user continues it; any delivery result needs a separate Product-ready handoff. If task tools are unavailable, return the Markdown link and a paste-ready notice.",
       "Run $bfm only in the Product/BFM main task. A ready handoff is queued for Product intake, not approval or execution. $bfm scans all six evidence-producing workstreams, freezes the snapshot, dispositions every candidate, reconciles duplicates, contradictions, dependencies, locks, and the approved goal, then records the prioritized Build Brief before directing Codex implementation.",
       "When the approved Build Brief opts into the generic control loop, use deterministic routing before judgment, preserve the baseline, record flat clone-local evidence, compare named criteria, run distinct required gates, and keep configuration candidates isolated until exact Product approval.",
-      "Own automated testing and bounded repair for the exact candidate. For Full BFM, verify the Build Brief and Task Receipt changelog decision before reporting Ready to ship. Then say exactly: Automated checks passed. Optional review links are available above. Say **Push Live** to deploy. Never merge or deploy before Push Live.",
+      "Own automated testing and bounded repair for the exact candidate. For Full BFM, use Product/BFM standing delegation to approve candidate-faithful changelog wording and authorize one release checkpoint without a user prompt. Ask only for changed product decisions, material scope, sensitive gates, or **Push Live**. Verify the Build Brief and Task Receipt changelog decision before reporting Ready to ship. Then say exactly: Automated checks passed. Optional review links are available above. Say **Push Live** to deploy. Never merge or deploy before Push Live.",
       "When setup is requested, use $fb-setup. It delegates to the canonical project-coordination-setup workflow for Codex only, preserves the fb-lane-coordination IDs and MCP paths, and uses six evidence-producing workstreams plus one Product/BFM control centre and seven pinned repository-scoped Codex tasks. Relay the one-time permission question for FB · Product/BFM, FB · User, FB · Business, FB · Design, FB · Tech, FB · Discovery, and FB · Bugs. After explicit Yes, use planRepositoryTaskInventory to reuse and rename legacy tasks, create only missing tasks, pin all seven exact sidebar tasks, verify them from a complete repository-scoped inventory, and leave them idle. Product/User is a legacy User title; a lone legacy Product title maps to Product/BFM. Pinning never starts work. Use the honest manual fallback when Codex task inventory or creation is unavailable. Then run doctor and report whether FB is ready."
     ],
     "brandColor": "#0F766E"

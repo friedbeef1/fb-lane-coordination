@@ -112,23 +112,28 @@ record, candidate range, link, fields, and agreement. Historical v2 handoffs,
 Quick BFM, and Normal Codex are exempt. Meaningful Quick changes may be
 consolidated into the next Full BFM or release entry.
 
-For a **major user-visible release**, Product drafts the changelog entry and
-asks the user to approve it before **Ready to ship**. Do not assume that build
-approval or **Push Live** also approves the changelog wording. Record
-`Changelog approval: approved — <user/reference/date>` in the Task Receipt.
-Until that approval exists, status remains
-`Checking — changelog approval needed`. Minor entries consolidated into a later
-major release do not require a separate interruption; internal-only work keeps
-the concrete not-required path above.
+### Standing delegated approvals
 
-If the user does not approve, record
-`Changelog approval: pending — <entry link and date>` in the Task Receipt and
-keep the affected release gate open. At the start and closeout of every later
-documentation, README, plugin-guidance, or changelog review, Product scans
-active handoffs for that pending field and surfaces it again with the entry
-link. Continue until the user approves, rejects, or explicitly defers it. A
-pending approval does not block unrelated documentation work, but it cannot be
-silently dropped or treated as approval.
+The user's standing delegation lets Product/BFM approve routine internal
+release gates. When a changelog entry faithfully describes the approved
+candidate and introduces no changed user or product decision, Product/BFM
+approves the changelog without a user prompt and records
+`Changelog approval: approved — Product/BFM standing delegation; Reference: <handoff/commit/date>`.
+
+After focused checks and candidate-bound changelog verification pass,
+Product/BFM also authorizes one initial release checkpoint without a user
+prompt. The existing one-repair and no-progress circuit breakers still apply.
+This delegation never authorizes a changed product outcome, material scope or
+priority decision, weakened evidence, privacy/auth/payment/provider/destructive
+operation, or other sensitive gate. Ask the user only for that concrete
+decision. **Push Live** remains the only merge, publication, installation, and
+deployment authorization.
+
+For a historical `Changelog approval: pending` record, Product/BFM either
+resolves it under this standing delegation when it is candidate-faithful or
+converts it into the exact material-decision or sensitive gate that genuinely
+needs the user. Do not repeatedly resurface a routine wording approval in later
+documentation reviews.
 
 For a user-visible UI plan, record `browser screenshot/mockup`, `imagegen
 asset/style option`, or `skip with reason`. Skip only for non-visual work or a

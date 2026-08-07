@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-076 | Staging QA | FB-Product / BFM | Exact FB setup invocation and FB 0.5.10-beta | Add `$fb-setup` as the primary setup skill while retaining the canonical long-form skill and natural-language fallback | `skills/fb-setup/SKILL.md`, active setup docs, focused contract, plugin mirrors, version/changelog | Ready to ship — `0.5.10-beta+codex.20260806151502`; complete release checkpoint passed; **Push Live** required; [Handoff](docs/handoffs/TASK-076.md); [QA](docs/qa/TASK-076.md) |
+| TASK-076 | Checking | FB-Product / BFM | Exact FB setup invocation, delegated internal approvals, and FB 0.5.10-beta | Add `$fb-setup`; let Product/BFM approve routine changelog wording and one release checkpoint without user prompts; preserve material, sensitive, and **Push Live** gates | Setup and Product/BFM skills, active docs, focused contracts, plugin mirrors, version/changelog | Candidate `0.5.10-beta+codex.20260807084627`; focused revalidation in progress; [Handoff](docs/handoffs/TASK-076.md); [QA](docs/qa/TASK-076.md) |
 | TASK-075 | Staging QA | FB-Product / BFM | User workstream and Product/BFM control centre; FB 0.5.9-beta | Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks | Canonical candidate, generated package mirrors, version/metadata contracts, and release records | Checking — focused candidate green for `0.5.9-beta+codex.20260805042523`; changelog approved by James on 2026-08-05; final release validator pending; [Handoff](docs/handoffs/TASK-075.md); [QA](docs/qa/TASK-075.md) |
 | TASK-074 | Done | FB-Product / BFM | Graph Engineering positioning and FB 0.5.8-beta | Make Graph Engineering the headline product category, align the public story and packaged plugin, and preserve existing runtime contracts | None; published and installed | [Handoff](docs/handoffs/TASK-074.md); [QA](docs/qa/TASK-074.md); [PR #58](https://github.com/friedbeef1/fb-lane-coordination/pull/58) merged as `72bfab0`; exact build installed and enabled |
 | TASK-073 | Done | FB-Product / BFM | Evaluation results, meaningful repair, and FB 0.5.7-beta | Show eval results clearly, reject superficial repair loops, and publish `0.5.7-beta+codex.20260804131420` | None; published and installed | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); [PR #57](https://github.com/friedbeef1/fb-lane-coordination/pull/57) merged as `c1e63f1`; exact build installed and enabled |
@@ -27,13 +27,14 @@
 
 ### TASK-076 - Exact FB setup shortcut
 
-*   **Status**: Ready to ship — focused evidence and the single clean release
-    checkpoint passed; **Push Live** remains required.
+*   **Status**: Checking — James added delegated internal approval to the
+    candidate before release; focused revalidation is in progress.
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Setup skill, active setup documentation, plugin metadata,
     versioning, focused contracts, and generated package mirrors.
-*   **Scope**: Add `$fb-setup` as the exact primary invocation while delegating
-    all behavior to the canonical setup workflow and preserving compatibility.
+*   **Scope**: Add `$fb-setup` as the exact primary invocation; let Product/BFM
+    approve routine candidate-faithful changelog wording and one release
+    checkpoint without user prompts; preserve compatibility and external gates.
 *   **Out of Scope**: New CLI or slash commands, setup-policy redesign,
     consumer-repository mutation, merge, publication, reinstall, or deployment.
 *   **Goal Alignment Session**:
@@ -48,8 +49,9 @@
     *   **Approval**: approved.
     *   **Justification**: James approved the dedicated thin-skill approach and
         asked Product/BFM to implement it in this task.
-*   **Gate / Review Point**: Changelog approved by James on 2026-08-06 and the
-    clean release checkpoint passed. **Push Live** remains the release gate.
+*   **Gate / Review Point**: Product/BFM standing delegation covers routine
+    changelog and one release checkpoint. Material decisions, sensitive gates,
+    and **Push Live** remain with James.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-076.md) ·
     [QA](docs/qa/TASK-076.md) ·
     [design](docs/superpowers/specs/2026-08-06-fb-setup-shortcut-design.md).

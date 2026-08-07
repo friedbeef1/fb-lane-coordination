@@ -135,12 +135,9 @@ a user-facing changelog entry. Before **Ready to ship**, confirm the Task
 Receipt has the matching canonical decision and that any required linked entry
 describes what changed, why it matters, compatibility, and upgrade action. See
 `workflow.md`; Quick and Normal work are exempt.
-For a major user-visible release, draft the entry, show it to the user, and ask
-for explicit changelog approval before **Ready to ship**. Record that approval
-in the Task Receipt. Do not treat build approval or **Push Live** as approval of
-the changelog wording.
-If the user does not answer, record the changelog approval as pending in the
-handoff and board gate. At every later documentation or plugin-guidance review,
-surface the pending entry again until the user approves, rejects, or explicitly
-defers it. Do not block unrelated docs, infer approval, or silently clear the
-pending gate.
+Follow [standing delegated approvals](../../docs/fb/workflow.md#standing-delegated-approvals).
+Product/BFM approves candidate-faithful changelog wording and authorizes one
+initial release checkpoint without a user prompt. Ask the user only for a
+changed user or product decision, material scope or priority change, weakened
+evidence, or a sensitive gate. **Push Live** remains the external release
+authorization.

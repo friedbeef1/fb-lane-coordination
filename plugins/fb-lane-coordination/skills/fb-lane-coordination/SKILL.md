@@ -70,9 +70,10 @@ For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must
 judge it.
 
-Use focused checks by default. Safety gates always win. A full validator is
-eligible only for an explicit Product-owned release checkpoint. For a major
-user-visible release, `Changelog approval: pending` remains a gate before
-**Ready to ship**. Every later documentation review resurfaces it until the user
-approves, rejects, or explicitly defers it; never silently clear it. Do not
-infer approval from build approval or **Push Live**.
+Use focused checks by default. Safety gates always win. Follow
+[standing delegated approvals](../../docs/fb/workflow.md#standing-delegated-approvals):
+Product/BFM approves candidate-faithful changelog wording and authorizes one
+initial release checkpoint without a user prompt. Ask the user only for a
+changed user or product decision, material scope or priority change, weakened
+evidence, or a sensitive gate. **Push Live** remains the external release
+authorization.

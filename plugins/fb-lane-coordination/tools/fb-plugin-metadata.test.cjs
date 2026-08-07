@@ -59,6 +59,8 @@ function validatePluginPackage(root) {
   assert.match(prompts, /pinning never starts work/i);
   assert.match(prompts, /use \$fb-setup/i);
   assert.match(prompts, /canonical project-coordination-setup workflow/i);
+  assert.match(prompts, /standing delegation[\s\S]*without a user prompt/i);
+  assert.match(prompts, /changed product decisions[\s\S]*material scope[\s\S]*sensitive gates[\s\S]*Push Live/i);
   assert.match(prompts, /Automated checks passed\. Optional review links are available above\.[\s\S]*Say \*\*Push Live\*\* to deploy\./i);
   assert.doesNotMatch(prompts, /split this work across Product, Tech, Design, and Business/i, 'stale four-workstream prompt must not return');
   assertExactBuild('packaged README.md', read(root, 'README.md'), codexManifest.version);

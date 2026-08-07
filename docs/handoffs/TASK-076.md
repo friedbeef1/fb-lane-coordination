@@ -11,9 +11,10 @@ record_model: normalized-v1
 
 # TASK-076 — Exact FB setup shortcut
 
-Release candidate: `0.5.10-beta+codex.20260806151502`
-Candidate state: Ready to ship — complete release checkpoint passed.
-Changelog approval: approved by James on 2026-08-06.
+Release candidate: `0.5.10-beta+codex.20260807084627`
+Candidate state: Checking — delegated-approval update under focused verification.
+Changelog approval: approved — Product/BFM standing delegation; Reference:
+TASK-076, 2026-08-07.
 
 ## Intake Snapshot
 
@@ -55,6 +56,10 @@ on ambiguous natural-language wording.
 - Use `$fb-setup` as the primary invocation.
 - Keep existing setup behavior rather than creating a separate onboarding path.
 - Update the plugin and active documentation.
+- Product/BFM approves routine candidate-faithful changelog wording and one
+  release checkpoint without asking the user.
+- Changed product decisions, material scope, sensitive gates, and **Push Live**
+  remain user-owned.
 
 ### Assumptions to confirm
 
@@ -83,7 +88,9 @@ and skill validation remain green.
 4. Retain and document the long-form and natural-language fallbacks.
 5. Add one focused root/package structural contract and generate mirrors once.
 6. Version the user-visible plugin interface as FB 0.5.10-beta.
-7. Stop for changelog approval before the release checkpoint.
+7. Apply the standing delegation to changelog approval and one final-candidate
+   release checkpoint; stop only at **Push Live** unless a retained user gate is
+   triggered.
 
 Changelog expectation: required — this adds a user-visible plugin skill and
 changes the primary installation-to-setup workflow.
@@ -96,33 +103,32 @@ changes the primary installation-to-setup workflow.
 - **Review state:** not reviewable — this plugin-skill change has no app runtime
   preview; automated package and release verification is complete.
 - **Changelog:** drafted — [FB 0.5.10-beta](../../CHANGELOG.md#0510-beta--2026-08-06).
-- **Changelog approval:** approved by James on 2026-08-06.
-- **External gates:** **Push Live**, GitHub integration, marketplace publication,
-  and reinstall remain unapproved.
-- **Remaining owner/action:** James says **Push Live** to authorize GitHub push,
-  merge, marketplace publication, reinstall, and live verification.
+- **Changelog approval:** approved — Product/BFM standing delegation;
+  Reference: TASK-076, 2026-08-07.
+- **External gates:** Final-candidate verification is in progress. **Push Live**,
+  GitHub integration, marketplace publication, and reinstall remain unapproved.
+- **Remaining owner/action:** Product/BFM completes focused verification,
+  automatically authorizes one final-candidate release checkpoint, and stops at
+  **Push Live**.
 
 ## Brief Validation
 
-Status: pass
+Status: blocked
 
-- **Satisfied:** Approved scope, interface decision, compatibility boundary,
-  focused validation evidence, release boundary, and changelog approval are
-  recorded; the single clean release checkpoint passed.
-- **Missing:** None for the candidate. External release remains separately
-  gated by **Push Live**.
-- **Next action:** Wait for explicit **Push Live** authorization.
+- **Satisfied:** Approved scope, setup interface, delegated-approval boundary,
+  compatibility, changelog decision, and release authority are recorded.
+- **Missing:** Focused verification and one final-candidate release checkpoint.
+- **Next action:** Product/BFM completes both without another routine user
+  approval, then waits for **Push Live**.
 
 ## Verification Handoff
 
-- **Candidate:** `codex/TASK-076-fb-setup-shortcut` at `4cd9acd` before this
-  coordination-only closeout.
-- **Complete release checkpoint:** passed once through
-  `node tools/fb-lane.validate.cjs`.
-- **Results:** CLI 72/72; sessions 39/39; evals 19/19; beginner 11/11;
-  positioning, two-speed, and efficiency 25/25; 62 package mirrors; Doctor
-  Ready; syntax, metadata, JSON, and committed-diff whitespace pass.
-- **System verification:** passed.
+- **Candidate:** `codex/TASK-076-fb-setup-shortcut`; final commit pending.
+- **Prior checkpoint:** passed for the pre-delegation candidate and preserved as
+  historical evidence; not reused for the changed final candidate.
+- **System verification:** focused final-candidate proof passed; the automatic
+  release checkpoint remains.
 - **Optional review links:** local candidate records are linked from this
   handoff; a GitHub review link is not available until release is authorized.
-- **Your input needed:** **Push Live** only if you want publication.
+- **Your input needed:** none unless a retained material or sensitive gate is
+  discovered; otherwise the next prompt is **Push Live**.

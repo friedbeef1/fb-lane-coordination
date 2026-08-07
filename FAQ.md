@@ -67,6 +67,14 @@ but `/bfm` is not a separate installed command.
 No. `$bfm` stops at **Ready to ship**. Only **Push Live** authorizes merge or
 deployment.
 
+## Why does FB not ask me to approve every release step?
+
+Product/BFM has standing delegation to approve candidate-faithful changelog
+wording and authorize one release checkpoint without a user prompt. It asks you
+only for a changed user or product decision, material scope or priority, a
+sensitive gate, or **Push Live**. Push Live remains the only authorization for
+merge, publication, installation, or deployment.
+
 ## What if automated checks fail?
 
 FB keeps the candidate in **Checking**, diagnoses the evidence, and makes only

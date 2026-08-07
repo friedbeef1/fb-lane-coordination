@@ -260,15 +260,12 @@ For a v3 Full BFM run, also keep the Build Brief changelog expectation, matching
 Task Receipt decision, candidate-bound entry evidence, and release-checkpoint
 verification aligned. Do not report **Ready to ship** while that gate is
 missing. Quick and Normal work remain exempt.
-For a major user-visible release, Product must show the drafted entry to the
-user and record explicit changelog approval before **Ready to ship**. Keep the
-candidate at `Checking — changelog approval needed` until then; build approval
-and **Push Live** do not substitute for this wording approval.
-An unanswered request becomes a durable `Changelog approval: pending` gate.
-Every later documentation or plugin-guidance review must surface it again with
-the entry link until the user approves, rejects, or explicitly defers it.
-Unrelated documentation may continue, but never silently clear the affected
-release gate.
+Follow [standing delegated approvals](../../docs/fb/workflow.md#standing-delegated-approvals).
+Product/BFM approves candidate-faithful changelog wording and authorizes one
+initial release checkpoint without a user prompt after focused checks pass.
+Ask the user only for a changed user or product decision, material scope or
+priority change, weakened evidence, or a sensitive gate. **Push Live** remains
+the external release authorization.
 Classify failures before revision, keep insufficient products at the exact
 Checking quality-gap state, and close selected evals only with fresh rerun and
 regression evidence. Never weaken a target or change authority automatically.

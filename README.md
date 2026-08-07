@@ -5,7 +5,7 @@
 **Graph Engineering for Everyday People**
 
 Current Codex release candidate: **FB 0.5.10-beta**
-(`0.5.10-beta+codex.20260806151502`).
+(`0.5.10-beta+codex.20260807084627`).
 
 **FB is an open-source Codex plugin that turns scattered AI conversations into
 a living product-delivery graph.** It has six evidence-producing workstreams
@@ -206,6 +206,11 @@ codex plugin add fb-lane-coordination@fb-lane
 4. Say `$bfm` in Product/BFM. The control centre freezes the six-workstream intake, dispositions every candidate, reconciles conflicts, records one prioritized plan and Build Brief, and only then directs Codex implementation.
 5. FB runs automated checks and owns bounded repair. Review optional links only when useful.
 6. When FB reports **Ready to ship**, say **Push Live** to authorize merge and deployment.
+
+Product/BFM handles routine internal closeout decisions—including faithful
+changelog wording and one release checkpoint—without asking you. You are
+interrupted only for a changed product decision, material scope, a sensitive
+gate, or **Push Live**.
 
 ## Comparison
 

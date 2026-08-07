@@ -7,7 +7,7 @@ Codex plugin that turns scattered AI conversations into a living
 product-delivery graph. It has six evidence-producing workstreams plus one
 Product/BFM control centre and seven pinned repository-scoped Codex tasks. The
 current release candidate is **FB 0.5.10-beta**
-`0.5.10-beta+codex.20260806151502`.
+`0.5.10-beta+codex.20260807084627`.
 
 ## Install and start
 
@@ -25,6 +25,10 @@ Explicit `$bfm` freezes the intake; Product dispositions every candidate,
 prioritizes the included scope, and records the Build Brief before BFM
 implements, tests, and stops at **Ready to ship**. Only
 **Push Live** authorizes merge or deployment.
+
+Product/BFM uses standing delegation for candidate-faithful changelog wording
+and one release checkpoint without a user prompt. It asks only for changed
+product decisions, material scope, sensitive gates, or **Push Live**.
 
 Routine orientation reads current board state and current workstream cards.
 Completed history remains searchable on demand through archives, the handoff

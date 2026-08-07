@@ -2,7 +2,7 @@
 
 FB is the supported Codex distribution for **FB 0.5.10-beta: Graph Engineering
 for Everyday People**. The current release candidate is
-`0.5.10-beta+codex.20260806151502`. FB is an open-source Codex plugin that turns
+`0.5.10-beta+codex.20260807084627`. FB is an open-source Codex plugin that turns
 scattered AI conversations into a living product-delivery graph. Codex provides
 threads, skills, and worktrees; FB connects their decisions, evidence,
 dependencies, implementation, verification, and release state.
@@ -27,6 +27,10 @@ control centre and seven pinned repository-scoped Codex tasks.
    reconciles and prioritizes, creates the durable briefs, and BFM implements,
    tests, and stops at
    **Ready to ship**. Say **Push Live** only when you want merge and deployment.
+
+Product/BFM approves routine candidate-faithful changelog wording and one
+release checkpoint without a user prompt. It interrupts you only for a changed
+product decision, material scope, a sensitive gate, or **Push Live**.
 
 ## Operating routes
 
