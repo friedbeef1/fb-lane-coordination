@@ -264,7 +264,7 @@ test('reconciliation completes only after all seven roles are observed', () => {
 
 test('repository inventory planning creates and pins all seven roles without mutation', () => {
   assert.strictEqual(typeof onboarding.planRepositoryTaskInventory, 'function');
-  const plan = onboarding.planRepositoryTaskInventory([], REPO);
+  const plan = onboarding.planRepositoryTaskInventory({ complete: true, tasks: [] }, REPO);
   assert.strictEqual(plan.complete, true);
   assert.deepStrictEqual(
     plan.actions.map(action => [action.type, action.workstream]),
@@ -290,7 +290,7 @@ test('repository inventory planning migrates legacy titles and preserves pinned 
     { id: 'discovery', title: 'FB · Discovery', projectPath: REPO, pinned: true },
     { id: 'bugs', title: 'FB · Bugs', projectPath: REPO, pinned: true },
   ];
-  const plan = onboarding.planRepositoryTaskInventory(tasks, REPO);
+  const plan = onboarding.planRepositoryTaskInventory({ complete: true, tasks }, REPO);
   assert.deepStrictEqual(
     plan.actions.map(action => [action.type, action.workstream, action.taskId || null]),
     [
@@ -320,10 +320,13 @@ test('repository inventory planning never creates tasks from a partial or foreig
 });
 
 test('repository inventory planning blocks duplicate roles and unproven object inventories', () => {
-  const duplicate = onboarding.planRepositoryTaskInventory([
-    { id: 'legacy-product', title: 'Product', projectPath: REPO, pinned: false },
-    { id: 'canonical-product', title: 'FB · Product/BFM', projectPath: REPO, pinned: true },
-  ], REPO);
+  const duplicate = onboarding.planRepositoryTaskInventory({
+    complete: true,
+    tasks: [
+      { id: 'legacy-product', title: 'Product', projectPath: REPO, pinned: false },
+      { id: 'canonical-product', title: 'FB · Product/BFM', projectPath: REPO, pinned: true },
+    ],
+  }, REPO);
   assert.strictEqual(duplicate.complete, false);
   assert.deepStrictEqual(duplicate.actions, []);
   assert.deepStrictEqual(duplicate.failures, [{
@@ -341,9 +344,10 @@ test('repository inventory planning blocks duplicate roles and unproven object i
 });
 
 test('repository inventory planning fails closed when rename or pin targets lack IDs', () => {
-  const renameWithoutId = onboarding.planRepositoryTaskInventory([
-    { title: 'Product', projectPath: REPO, pinned: true },
-  ], REPO);
+  const renameWithoutId = onboarding.planRepositoryTaskInventory({
+    complete: true,
+    tasks: [{ title: 'Product', projectPath: REPO, pinned: true }],
+  }, REPO);
   assert.strictEqual(renameWithoutId.complete, false);
   assert.deepStrictEqual(renameWithoutId.actions, []);
   assert.deepStrictEqual(renameWithoutId.failures, [{
@@ -351,9 +355,10 @@ test('repository inventory planning fails closed when rename or pin targets lack
     message: 'Cannot rename Product/BFM without an executable task/thread ID.',
   }]);
 
-  const pinWithoutId = onboarding.planRepositoryTaskInventory([
-    { title: 'FB · User', projectPath: REPO, pinned: false },
-  ], REPO);
+  const pinWithoutId = onboarding.planRepositoryTaskInventory({
+    complete: true,
+    tasks: [{ title: 'FB · User', projectPath: REPO, pinned: false }],
+  }, REPO);
   assert.strictEqual(pinWithoutId.complete, false);
   assert.deepStrictEqual(pinWithoutId.actions, []);
   assert.deepStrictEqual(pinWithoutId.failures, [{
@@ -369,8 +374,9 @@ test('repository inventory planning is deterministic across repeated complete in
     projectPath: REPO,
     pinned: true,
   }));
-  const first = onboarding.planRepositoryTaskInventory(tasks, REPO);
-  const second = onboarding.planRepositoryTaskInventory(tasks, REPO);
+  const inventory = { complete: true, tasks };
+  const first = onboarding.planRepositoryTaskInventory(inventory, REPO);
+  const second = onboarding.planRepositoryTaskInventory(inventory, REPO);
   assert.deepStrictEqual(first, second);
   assert.deepStrictEqual(first.actions.map(action => action.type), Array(7).fill('reuse'));
 });
@@ -416,8 +422,83 @@ test('partial task inventory performs no mutation and returns all seven paste-re
   assert.strictEqual(result.reconciled, false);
   assert.deepStrictEqual(mutations, []);
   assert.match(result.manualFallback, /continuation cursor unavailable/);
-  for (const workstream of onboarding.WORKSTREAMS) {
-    assert.match(result.manualFallback, new RegExp(`Create ${workstream.title.replace(/^FB · /, '').replace('/', '\\/')}`));
+  assert.match(result.manualFallback, /Verify existing Product\/BFM in a complete inventory/);
+  assert.match(result.manualFallback, /Verify existing User in a complete inventory/);
+  assert.match(result.manualFallback, /Check for Design; create only if absent/);
+  assert.doesNotMatch(result.manualFallback, /### Create Product\/BFM/);
+});
+
+test('mutating reconciliation rejects raw arrays and missing project identity before controls run', () => {
+  const mutations = [];
+  const controls = {
+    createTask: () => mutations.push('create'),
+    renameTask: () => mutations.push('rename'),
+    pinTask: () => mutations.push('pin'),
+    listTasks: () => completeInventory(),
+  };
+  const raw = onboarding.reconcileRepositoryTaskInventory({
+    inventory: completeInventory().tasks,
+    repository: { projectId: 'project-mirrorcam', repositoryPath: REPO },
+    controls,
+  });
+  const unidentified = onboarding.reconcileRepositoryTaskInventory({
+    inventory: completeInventory(),
+    repository: {},
+    controls,
+  });
+  assert.strictEqual(raw.complete, false);
+  assert.strictEqual(unidentified.complete, false);
+  assert.deepStrictEqual(mutations, []);
+  assert.match(raw.failures[0].message, /explicitly complete inventory object/i);
+  assert.match(unidentified.failures[0].message, /project ID|repository path/i);
+});
+
+test('a create result without an ID records the mutation and warns against duplicate creation', () => {
+  const repository = { projectId: 'project-mirrorcam', repositoryPath: REPO };
+  const inventory = completeInventory(repository);
+  inventory.tasks = inventory.tasks.slice(1);
+  const result = onboarding.reconcileRepositoryTaskInventory({
+    inventory,
+    repository,
+    controls: { createTask: () => ({ title: 'FB · Product/BFM' }) },
+  });
+  assert.strictEqual(result.complete, false);
+  assert.deepStrictEqual(result.actions.map(action => [action.type, action.workstream, action.taskId || null]), [
+    ['create', 'product', null],
+  ]);
+  assert.match(result.manualFallback, /Verify newly created Product\/BFM.*do not create a duplicate/is);
+  assert.doesNotMatch(result.manualFallback, /### Create Product\/BFM/);
+});
+
+test('CLI plan exposes deterministic native create rename pin actions without mutating tasks', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-plan-cli-'));
+  try {
+    const inventoryPath = path.join(root, 'inventory.json');
+    const inventory = completeInventory({ projectId: 'project-cli', repositoryPath: root });
+    inventory.tasks[0].title = 'Product';
+    inventory.tasks[1].pinned = false;
+    inventory.tasks.pop();
+    fs.writeFileSync(inventoryPath, `${JSON.stringify(inventory)}\n`);
+    const result = spawnSync(process.execPath, [
+      path.join(__dirname, 'fb-onboarding.cjs'),
+      'plan',
+      inventoryPath,
+      root,
+      'project-cli',
+    ], { encoding: 'utf8' });
+    assert.strictEqual(result.status, 0, result.stderr);
+    const planned = JSON.parse(result.stdout);
+    assert.deepStrictEqual(planned.actions.filter(action => action.type !== 'reuse').map(action => [
+      action.type, action.workstream,
+    ]), [
+      ['rename', 'product'],
+      ['pin', 'user'],
+      ['create', 'bugs'],
+      ['pin', 'bugs'],
+    ]);
+    assert.strictEqual(planned.nativeActionsRequired, true);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
   }
 });
 

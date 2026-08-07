@@ -74,6 +74,15 @@ function activeManifest(root, overrides = {}) {
   };
 }
 
+function dispositionedMigration(options) {
+  const draft = inventoryCheckoutMigration(options);
+  const dispositions = Object.fromEntries(draft.differences.map(difference => [
+    difference.id,
+    'reviewed-and-preserved',
+  ]));
+  return inventoryCheckoutMigration({ ...options, dispositions });
+}
+
 function runCli(root, args, env = {}) {
   return spawnSync(process.execPath, [cliPath, ...args], {
     cwd: root,
@@ -302,11 +311,13 @@ test('configured inaccessible audit roots fail readiness instead of being skippe
 });
 
 console.log('checkout migration lifecycle');
-test('migration inventory captures branches, worktrees, dirt, task records, and dispositions every difference', () => {
+test('migration inventory discovers branches, worktrees, dirt, handoffs, and routing differences itself', () => {
   const canonical = makeRepo();
   const former = makeRepo('fb-checkout-former-inventory-');
   try {
     fs.writeFileSync(path.join(former, 'UNTRACKED.txt'), 'preserve me\n');
+    fs.writeFileSync(path.join(canonical, 'docs', 'handoffs', 'TASK-X.md'), handoff('TASK-X', 'fb-design', 'ready', 'Canonical.'));
+    fs.writeFileSync(path.join(former, 'docs', 'handoffs', 'TASK-X.md'), handoff('TASK-X', 'fb-design', 'ready', 'Former.'));
     const taskInventory = {
       complete: true,
       tasks: require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
@@ -316,33 +327,36 @@ test('migration inventory captures branches, worktrees, dirt, task records, and 
         pinned: true,
       })),
     };
-    assert.throws(() => inventoryCheckoutMigration({
+    const draft = inventoryCheckoutMigration({
       canonicalPath: canonical,
       formerPaths: [former],
       repository: { projectId: 'project-fixture', repositoryPath: canonical },
       taskInventory,
-      differences: [{ id: 'handoff:TASK-X', kind: 'handoff-content' }],
-      dispositions: {},
-    }), /MIGRATION_DIFFERENCE_UNDISPOSITIONED/);
+      differences: [],
+      unresolvedDrift: [],
+    });
+    assert.ok(draft.differences.some(difference => difference.kind === 'worktrees'));
+    assert.ok(draft.differences.some(difference => difference.kind === 'dirt'));
+    assert.ok(draft.differences.some(difference => difference.kind === 'handoff'));
+    assert.ok(draft.unresolvedDrift.length >= 3);
 
-    const inventory = inventoryCheckoutMigration({
+    const inventory = dispositionedMigration({
       canonicalPath: canonical,
       formerPaths: [former],
       repository: { projectId: 'project-fixture', repositoryPath: canonical },
       taskInventory,
-      differences: [{ id: 'handoff:TASK-X', kind: 'handoff-content' }],
-      dispositions: { 'handoff:TASK-X': 'canonical-content-retained' },
+      differences: [{ id: 'forged', kind: 'ignored' }],
+      unresolvedDrift: [],
+      dispositions: Object.fromEntries(draft.differences.map(difference => [difference.id, 'reviewed-and-preserved'])),
     });
     assert.strictEqual(inventory.roots.length, 2);
     assert.strictEqual(inventory.roots[0].path, fs.realpathSync(canonical));
     assert.ok(Array.isArray(inventory.roots[0].worktrees));
     assert.match(inventory.roots[1].dirt.join('\n'), /UNTRACKED\.txt/);
     assert.strictEqual(inventory.taskRecords.length, 7);
-    assert.deepStrictEqual(inventory.differences[0], {
-      id: 'handoff:TASK-X',
-      kind: 'handoff-content',
-      disposition: 'canonical-content-retained',
-    });
+    assert.strictEqual(inventory.unresolvedDrift.length, 0);
+    assert.ok(inventory.differences.every(difference => difference.disposition === 'reviewed-and-preserved'));
+    assert.ok(inventory.differences.every(difference => difference.id !== 'forged'));
   } finally {
     fs.rmSync(canonical, { recursive: true, force: true });
     fs.rmSync(former, { recursive: true, force: true });
@@ -365,7 +379,7 @@ test('migration commit records one active canonical root, quarantines former roo
         pinned: true,
       })),
     };
-    const inventory = inventoryCheckoutMigration({
+    const inventory = dispositionedMigration({
       canonicalPath: canonical,
       formerPaths: [former],
       repository: { projectId: 'project-fixture', repositoryPath: canonical },
@@ -388,6 +402,33 @@ test('migration commit records one active canonical root, quarantines former roo
   }
 });
 
+test('a disposition is invalidated when discovered evidence changes before commit', () => {
+  const canonical = makeRepo();
+  const former = makeRepo('fb-checkout-former-stale-disposition-');
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-registry-'));
+  try {
+    const tasks = require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
+      id: `task-${index}`,
+      title: workstream.title,
+      projectId: 'project-fixture',
+      pinned: true,
+    }));
+    fs.writeFileSync(path.join(former, 'DIRT.txt'), 'first\n');
+    const inventory = dispositionedMigration({
+      canonicalPath: canonical,
+      formerPaths: [former],
+      repository: { projectId: 'project-fixture', repositoryPath: canonical },
+      taskInventory: { complete: true, tasks },
+    });
+    fs.writeFileSync(path.join(former, 'DIRT.txt'), 'second\n');
+    assert.throws(() => commitCheckoutMigration(inventory, { registryDir: registry }), /MIGRATION_DIFFERENCE_UNDISPOSITIONED/);
+  } finally {
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(former, { recursive: true, force: true });
+    fs.rmSync(registry, { recursive: true, force: true });
+  }
+});
+
 test('a registry write failure leaves no checkout-local migration manifest behind', () => {
   const canonical = makeRepo();
   const former = makeRepo('fb-checkout-former-transaction-');
@@ -400,7 +441,7 @@ test('a registry write failure leaves no checkout-local migration manifest behin
       projectId: 'project-fixture',
       pinned: true,
     }));
-    const inventory = inventoryCheckoutMigration({
+    const inventory = dispositionedMigration({
       canonicalPath: canonical,
       formerPaths: [former],
       repository: { projectId: 'project-fixture', repositoryPath: canonical },
@@ -432,7 +473,7 @@ test('pending task rebind closes only with a complete exact-project pinned inven
       projectId: 'project-fixture',
       pinned: true,
     }));
-    const inventory = inventoryCheckoutMigration({
+    const inventory = dispositionedMigration({
       canonicalPath: canonical,
       formerPaths: [former],
       repository: { projectId: 'project-fixture', repositoryPath: canonical },
@@ -440,6 +481,10 @@ test('pending task rebind closes only with a complete exact-project pinned inven
     });
     commitCheckoutMigration(inventory, { registryDir: registry });
     assert.strictEqual(checkoutMigrationSnapshot(canonical).taskRebind.status, 'awaiting-task-rebind');
+    assert.throws(() => recordCheckoutTaskRebind(former, {
+      complete: true,
+      tasks: partialTasks,
+    }, { projectId: 'project-fixture', repositoryPath: canonical }, { registryDir: registry }), /FB_CHECKOUT_NOT_CANONICAL/);
     assert.throws(() => recordCheckoutTaskRebind(canonical, {
       complete: true,
       tasks: partialTasks,
@@ -451,6 +496,9 @@ test('pending task rebind closes only with a complete exact-project pinned inven
       projectId: 'project-fixture',
       pinned: true,
     }));
+    assert.throws(() => recordCheckoutTaskRebind(canonical, { complete: true, tasks: completeTasks }, {
+      projectId: 'project-other', repositoryPath: canonical,
+    }, { registryDir: registry }), /MIGRATION_PROJECT_MISMATCH/);
     recordCheckoutTaskRebind(canonical, { complete: true, tasks: completeTasks }, {
       projectId: 'project-fixture', repositoryPath: canonical,
     }, { registryDir: registry });
@@ -478,7 +526,7 @@ test('retirement requires explicit approval and a two-step lifecycle transition'
       projectId: 'project-fixture',
       pinned: true,
     }));
-    const inventory = inventoryCheckoutMigration({
+    const inventory = dispositionedMigration({
       canonicalPath: canonical,
       formerPaths: [former],
       repository: { projectId: 'project-fixture', repositoryPath: canonical },
@@ -505,6 +553,63 @@ test('retirement requires explicit approval and a two-step lifecycle transition'
     fs.rmSync(canonical, { recursive: true, force: true });
     fs.rmSync(former, { recursive: true, force: true });
     fs.rmSync(registry, { recursive: true, force: true });
+  }
+});
+
+test('retirement derives unresolved drift from recorded difference evidence', () => {
+  const canonical = makeRepo();
+  const former = makeRepo('fb-checkout-former-derived-drift-');
+  try {
+    writeManifest(canonical, activeManifest(canonical, {
+      checkouts: {
+        [canonical]: { state: 'active' },
+        [former]: { state: 'quarantined' },
+      },
+      differences: [{ id: 'actual:handoff', kind: 'handoff' }],
+      unresolvedDrift: [],
+    }));
+    assert.throws(() => advanceCheckoutRetirement(canonical, former, {
+      targetState: 'retirement-pending',
+      approvalRef: 'APPROVED-RETIRE',
+    }), /HANDOFF_CONTENT_DRIFT/);
+  } finally {
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(former, { recursive: true, force: true });
+  }
+});
+
+test('CLI and MCP migration inventory routes use discovered transactional evidence', () => {
+  const canonical = makeRepo();
+  const former = makeRepo('fb-checkout-former-cli-mcp-');
+  const requestPath = path.join(canonical, 'migration-request.json');
+  try {
+    fs.writeFileSync(path.join(former, 'DIRT.txt'), 'preserve\n');
+    const tasks = require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
+      id: `task-${index}`,
+      title: workstream.title,
+      projectId: 'project-fixture',
+      pinned: true,
+    }));
+    const request = {
+      canonicalPath: canonical,
+      formerPaths: [former],
+      repository: { projectId: 'project-fixture', repositoryPath: canonical },
+      taskInventory: { complete: true, tasks },
+      differences: [],
+      unresolvedDrift: [],
+    };
+    fs.writeFileSync(requestPath, `${JSON.stringify(request)}\n`);
+    const cli = runCli(canonical, ['migration', 'inventory', requestPath]);
+    assert.strictEqual(cli.status, 0, cli.stderr);
+    const cliInventory = JSON.parse(cli.stdout);
+    assert.ok(cliInventory.differences.some(difference => difference.kind === 'dirt'));
+
+    const mcp = mcpRequest(canonical, 'fb_checkout_migration_inventory', request);
+    const mcpInventory = JSON.parse(mcp.result.content[0].text);
+    assert.deepStrictEqual(mcpInventory.differences, cliInventory.differences);
+  } finally {
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(former, { recursive: true, force: true });
   }
 });
 

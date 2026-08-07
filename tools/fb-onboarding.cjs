@@ -119,7 +119,11 @@ function taskIsPinned(task) {
 
 function inventorySnapshot(inventory) {
   if (Array.isArray(inventory)) {
-    return { tasks: inventory, complete: true, failures: [] };
+    return {
+      tasks: inventory,
+      complete: false,
+      failures: [{ operation: 'inventory', message: 'An explicitly complete inventory object is required; raw task arrays are unproven.' }],
+    };
   }
   const value = inventory && typeof inventory === 'object' ? inventory : {};
   return {
@@ -142,6 +146,17 @@ function needsTaskInventoryReconciliation(receipt) {
 
 function planRepositoryTaskInventory(inventory, repositoryPath) {
   const snapshot = inventorySnapshot(inventory);
+  const repository = typeof repositoryPath === 'string'
+    ? { repositoryPath }
+    : (repositoryPath || {});
+  if (!String(repository.projectId || '').trim()
+    && !String(repository.repositoryPath || repository.projectPath || repository.path || '').trim()) {
+    return {
+      complete: false,
+      failures: [{ operation: 'project', message: 'A verified project ID or canonical repository path is required before task mutation.' }],
+      actions: [],
+    };
+  }
   if (!snapshot.complete) {
     return {
       complete: false,
@@ -265,7 +280,26 @@ function verifyRepositoryTaskInventory(inventory, repository) {
   return { complete: true, failures: [], taskBindings };
 }
 
-function reconciliationFailure(failures, repository, options = {}) {
+function fallbackRoleAction(workstream, inventory, repository, executed = []) {
+  const label = workstream.title.replace(/^FB · /, '');
+  if (executed.some(action => action.type === 'create' && action.workstream === workstream.key)) {
+    return `Verify newly created ${label}, capture its task ID, and pin it; do not create a duplicate`;
+  }
+  const tasks = inventorySnapshot(inventory).tasks.filter(task => (
+    belongsToRepository(task, repository)
+    && recognizedWorkstream(taskTitle(task))?.key === workstream.key
+  ));
+  if (tasks.length > 1) return `Resolve ambiguous ${label} tasks before renaming, pinning, or creating anything`;
+  if (tasks.length === 0) return `Check for ${label}; create only if absent`;
+  const task = tasks[0];
+  if (normalizeTitle(taskTitle(task)) !== normalizeTitle(workstream.title)) {
+    return `Rename existing ${label} task to ${workstream.title}`;
+  }
+  if (!taskIsPinned(task)) return `Pin existing ${label} task`;
+  return `Verify existing ${label} in a complete inventory`;
+}
+
+function reconciliationFailure(failures, repository, options = {}, context = {}) {
   const messages = Array.isArray(failures) && failures.length > 0
     ? failures
     : [{ operation: 'reconciliation', message: 'Complete exact-project task state could not be proved.' }];
@@ -273,6 +307,10 @@ function reconciliationFailure(failures, repository, options = {}) {
   const prompts = renderManualFallback(WORKSTREAMS, {
     repositoryName: options.repositoryName,
     repositoryPath: repository?.repositoryPath || repository?.projectPath || repository?.path,
+    roleActions: Object.fromEntries(WORKSTREAMS.map(workstream => [
+      workstream.key,
+      fallbackRoleAction(workstream, context.inventory, repository, context.actions),
+    ])),
   });
   return {
     complete: false,
@@ -329,7 +367,7 @@ function reconcileRepositoryTaskInventory(options = {}) {
   }
 
   const plan = planRepositoryTaskInventory(inventory, repository);
-  if (!plan.complete) return reconciliationFailure(plan.failures, repository, options);
+  if (!plan.complete) return reconciliationFailure(plan.failures, repository, options, { inventory });
 
   const createdTaskIds = new Map();
   const executed = [];
@@ -351,9 +389,9 @@ function reconcileRepositoryTaskInventory(options = {}) {
           repository,
         });
         const createdId = actionTaskId(created);
+        executed.push({ ...action, ...(createdId ? { taskId: createdId } : {}) });
         if (!createdId) throw new Error(`Codex create control returned no task/thread ID for ${action.workstream}.`);
         createdTaskIds.set(action.workstream, createdId);
-        executed.push({ ...action, taskId: createdId });
         continue;
       }
 
@@ -377,7 +415,7 @@ function reconcileRepositoryTaskInventory(options = {}) {
       ...reconciliationFailure([{
         operation: executed.length > 0 ? 'partial-reconciliation' : 'reconciliation',
         message: error.message,
-      }], repository, options),
+      }], repository, options, { inventory, actions: executed }),
       actions: executed,
     };
   }
@@ -387,7 +425,7 @@ function reconcileRepositoryTaskInventory(options = {}) {
       ...reconciliationFailure([{
         operation: 'verification',
         message: 'Codex task inventory cannot be re-listed to confirm all seven titles and pins.',
-      }], repository, options),
+      }], repository, options, { inventory, actions: executed }),
       actions: executed,
     };
   }
@@ -397,14 +435,14 @@ function reconcileRepositoryTaskInventory(options = {}) {
     finalInventory = controls.listTasks(repository);
   } catch (error) {
     return {
-      ...reconciliationFailure([{ operation: 'verification', message: error.message }], repository, options),
+      ...reconciliationFailure([{ operation: 'verification', message: error.message }], repository, options, { inventory, actions: executed }),
       actions: executed,
     };
   }
   const verification = verifyRepositoryTaskInventory(finalInventory, repository);
   if (!verification.complete) {
     return {
-      ...reconciliationFailure(verification.failures, repository, options),
+      ...reconciliationFailure(verification.failures, repository, options, { inventory: finalInventory, actions: executed }),
       actions: executed,
     };
   }
@@ -538,13 +576,18 @@ function renderIdleTaskPrompt(workstream, options = {}) {
 
 function renderManualFallback(missing, options = {}) {
   const workstreams = Array.isArray(missing) ? missing : WORKSTREAMS;
-  const lines = [
-    'Codex task creation is not available in this environment, so FB did not pretend to create sidebar tasks.',
-    'Create only the missing tasks shown below, then paste the matching prompt into each one:',
-    '',
-  ];
+  const roleActions = options.roleActions && typeof options.roleActions === 'object'
+    ? options.roleActions
+    : null;
+  const lines = roleActions
+    ? ['Automatic Codex task reconciliation did not complete. Follow each exact remaining action, then use the prompt only for a newly created task:', '']
+    : [
+      'Codex task creation is not available in this environment, so FB did not pretend to create sidebar tasks.',
+      'Create only the missing tasks shown below, then paste the matching prompt into each one:',
+      '',
+    ];
   for (const workstream of workstreams) {
-    lines.push(`### Create ${workstream.title.replace(/^FB · /, '')}`);
+    lines.push(`### ${roleActions?.[workstream.key] || `Create ${workstream.title.replace(/^FB · /, '')}`}`);
     lines.push('');
     lines.push('```text');
     lines.push(renderIdleTaskPrompt(workstream, options));
@@ -595,6 +638,24 @@ function runCli(args) {
     }), null, 2)}\n`);
     return;
   }
+  if (command === 'plan') {
+    const inventoryPath = path.resolve(args[1] || '');
+    const rootDir = path.resolve(args[2] || process.cwd());
+    if (!args[1] || !fs.existsSync(inventoryPath)) {
+      throw new Error('Planning requires a JSON file containing a proven-complete exact-project task inventory.');
+    }
+    const inventory = JSON.parse(fs.readFileSync(inventoryPath, 'utf8'));
+    const repository = {
+      repositoryPath: rootDir,
+      ...(args[3] ? { projectId: args[3] } : {}),
+    };
+    const plan = planRepositoryTaskInventory(inventory, repository);
+    const result = plan.complete
+      ? { ...plan, nativeActionsRequired: plan.actions.some(action => action.type !== 'reuse') }
+      : { ...reconciliationFailure(plan.failures, repository, {}, { inventory }), nativeActionsRequired: false };
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
   if (command === 'prompt') {
     const key = args[1];
     const rootDir = path.resolve(args[2] || process.cwd());
@@ -606,7 +667,7 @@ function runCli(args) {
     })}\n`);
     return;
   }
-  throw new Error('Usage: node tools/fb-onboarding.cjs status [root] | needs-reconciliation [root] | permission granted|declined [root] | reconcile <complete-inventory.json> [root] [project-id] | prompt <workstream> [root]');
+  throw new Error('Usage: node tools/fb-onboarding.cjs status [root] | needs-reconciliation [root] | permission granted|declined [root] | plan <complete-inventory.json> [root] [project-id] | reconcile <complete-inventory.json> [root] [project-id] | prompt <workstream> [root]');
 }
 
 if (require.main === module) {

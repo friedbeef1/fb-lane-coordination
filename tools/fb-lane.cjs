@@ -129,6 +129,8 @@ const CHECKOUT_MIGRATION_MANIFEST = 'fb-checkout-migration.json';
 const CHECKOUT_STATES = new Set(['active', 'quarantined', 'retirement-pending', 'retired']);
 const TASK_REBIND_STATES = new Set(['awaiting-task-rebind', 'complete']);
 const MCP_MUTATIONS = new Set([
+  'fb_checkout_migration_commit',
+  'fb_checkout_migration_rebind',
   'fb_control_event_record',
   'fb_lane_claim',
   'fb_lane_submit',
@@ -231,6 +233,10 @@ function loadCheckoutMigrationManifest(rootDir) {
   if (taskRebind.status !== 'complete' && Object.values(checkouts).some(record => record.state === 'retired')) {
     throw new Error('TASK_REBIND_PENDING: a checkout cannot be retired before task rebind is complete.');
   }
+  const hasDifferenceEvidence = Array.isArray(manifest.differences);
+  const unresolvedDrift = hasDifferenceEvidence
+    ? manifest.differences.filter(difference => !String(difference?.disposition || '').trim())
+    : (Array.isArray(manifest.unresolvedDrift) ? manifest.unresolvedDrift : []);
   return {
     ...manifest,
     manifestPath,
@@ -240,7 +246,8 @@ function loadCheckoutMigrationManifest(rootDir) {
     routingReceipts: manifest.routingReceipts && typeof manifest.routingReceipts === 'object'
       ? manifest.routingReceipts
       : {},
-    unresolvedDrift: Array.isArray(manifest.unresolvedDrift) ? manifest.unresolvedDrift : [],
+    differences: hasDifferenceEvidence ? manifest.differences : [],
+    unresolvedDrift,
   };
 }
 
@@ -392,8 +399,106 @@ function inspectMigrationRoot(rootPath) {
   const worktrees = parseWorktreePorcelain(git(['worktree', 'list', '--porcelain']));
   const dirt = git(['status', '--porcelain', '--untracked-files=all'])
     .split(/\r?\n/)
-    .filter(Boolean);
-  return { path: root, branch, worktrees, dirt };
+    .filter(Boolean)
+    .map(statusLine => {
+      const displayed = statusLine.slice(3);
+      const relative = displayed.includes(' -> ') ? displayed.split(' -> ').at(-1) : displayed;
+      const absolute = path.join(root, relative.replace(/^"|"$/g, ''));
+      try {
+        const stat = fs.statSync(absolute);
+        return stat.isFile()
+          ? `${statusLine} sha256=${handoffDigest(fs.readFileSync(absolute))}`
+          : `${statusLine} type=${stat.isDirectory() ? 'directory' : 'other'}`;
+      } catch (error) {
+        if (error.code === 'ENOENT') return `${statusLine} missing=true`;
+        throw new Error(`MIGRATION_ROOT_INVENTORY_INCOMPLETE: ${absolute}: ${error.message}`);
+      }
+    });
+  const handoffs = {};
+  const handoffDirectory = path.join(root, 'docs', 'handoffs');
+  if (fs.existsSync(handoffDirectory)) {
+    let names;
+    try {
+      names = fs.readdirSync(handoffDirectory)
+        .filter(name => name.endsWith('.md') && name !== 'index.md')
+        .sort();
+    } catch (error) {
+      throw new Error(`MIGRATION_ROOT_INVENTORY_INCOMPLETE: ${handoffDirectory}: ${error.message}`);
+    }
+    for (const name of names) {
+      const relative = `docs/handoffs/${name}`;
+      try {
+        const contents = fs.readFileSync(path.join(root, relative));
+        const metadata = handoffFrontmatter(contents.toString('utf8')) || {};
+        handoffs[relative] = {
+          sha256: handoffDigest(contents),
+          task: String(metadata.task || ''),
+          status: String(metadata.status || ''),
+        };
+      } catch (error) {
+        throw new Error(`MIGRATION_ROOT_INVENTORY_INCOMPLETE: ${root}/${relative}: ${error.message}`);
+      }
+    }
+  }
+
+  const routing = {};
+  const routingSurfaces = [
+    'PROJECT_BOARD.md',
+    'docs/handoffs/index.md',
+    ...[...BFM_EVIDENCE_ROLE_FILES.values()].map(fileName => `docs/workstreams/${fileName}`),
+  ];
+  for (const relative of routingSurfaces) {
+    const absolute = path.join(root, relative);
+    try {
+      routing[relative] = fs.existsSync(absolute)
+        ? { sha256: handoffDigest(fs.readFileSync(absolute)) }
+        : { missing: true };
+    } catch (error) {
+      throw new Error(`MIGRATION_ROOT_INVENTORY_INCOMPLETE: ${absolute}: ${error.message}`);
+    }
+  }
+  return { path: root, branch, worktrees, dirt, handoffs, routing };
+}
+
+function migrationDifferenceId(rootPath, kind, relative = '', canonicalValue, formerValue) {
+  const suffix = crypto.createHash('sha256')
+    .update(`${pathIdentity(rootPath)}\0${kind}\0${relative}\0${JSON.stringify(canonicalValue)}\0${JSON.stringify(formerValue)}`)
+    .digest('hex')
+    .slice(0, 16);
+  return `migration:${kind}:${suffix}`;
+}
+
+function discoverMigrationDifferences(roots) {
+  const canonical = roots[0];
+  const differences = [];
+  const add = (former, kind, relative, canonicalValue, formerValue) => {
+    if (JSON.stringify(canonicalValue) === JSON.stringify(formerValue)) return;
+    differences.push({
+      id: migrationDifferenceId(former.path, kind, relative, canonicalValue, formerValue),
+      kind,
+      ...(relative ? { relative } : {}),
+      canonical: { root: canonical.path, value: canonicalValue },
+      source: { root: former.path, value: formerValue },
+    });
+  };
+  for (const former of roots.slice(1)) {
+    add(former, 'branch', '', canonical.branch, former.branch);
+    add(former, 'worktrees', '', canonical.worktrees, former.worktrees);
+    add(former, 'dirt', '', canonical.dirt, former.dirt);
+    for (const relative of [...new Set([
+      ...Object.keys(canonical.handoffs || {}),
+      ...Object.keys(former.handoffs || {}),
+    ])].sort()) {
+      add(former, 'handoff', relative, canonical.handoffs?.[relative] || { missing: true }, former.handoffs?.[relative] || { missing: true });
+    }
+    for (const relative of [...new Set([
+      ...Object.keys(canonical.routing || {}),
+      ...Object.keys(former.routing || {}),
+    ])].sort()) {
+      add(former, 'task-routing', relative, canonical.routing?.[relative] || { missing: true }, former.routing?.[relative] || { missing: true });
+    }
+  }
+  return differences.sort((left, right) => left.id.localeCompare(right.id));
 }
 
 function inventoryCheckoutMigration(options = {}) {
@@ -402,20 +507,6 @@ function inventoryCheckoutMigration(options = {}) {
     .filter(candidate => candidate !== canonicalPath)
     .sort();
   if (!options.canonicalPath) throw new Error('MIGRATION_CANONICAL_REQUIRED: canonicalPath is required.');
-
-  const differenceIds = new Set();
-  const differences = (options.differences || []).map(difference => {
-    const id = String(difference?.id || '').trim();
-    if (!id || differenceIds.has(id)) {
-      throw new Error(`MIGRATION_DIFFERENCE_INVALID: every difference needs one unique ID; received ${JSON.stringify(id)}.`);
-    }
-    differenceIds.add(id);
-    const disposition = options.dispositions && options.dispositions[id];
-    if (!String(disposition || '').trim()) {
-      throw new Error(`MIGRATION_DIFFERENCE_UNDISPOSITIONED: ${id}.`);
-    }
-    return { ...difference, id, disposition: String(disposition) };
-  });
 
   const repository = typeof options.repository === 'string'
     ? { repositoryPath: options.repository }
@@ -435,6 +526,15 @@ function inventoryCheckoutMigration(options = {}) {
       .map(workstream => workstream.key)
       .filter(key => !taskRecords.some(record => record.workstream === key));
 
+  const roots = [canonicalPath, ...formerPaths].map(inspectMigrationRoot);
+  const differences = discoverMigrationDifferences(roots).map(difference => ({
+    ...difference,
+    ...(String(options.dispositions?.[difference.id] || '').trim()
+      ? { disposition: String(options.dispositions[difference.id]).trim() }
+      : {}),
+  }));
+  const unresolvedDrift = differences.filter(difference => !difference.disposition);
+
   return {
     version: 1,
     repository: {
@@ -442,7 +542,7 @@ function inventoryCheckoutMigration(options = {}) {
       ...(repository.projectId ? { projectId: String(repository.projectId) } : {}),
     },
     canonicalPath,
-    roots: [canonicalPath, ...formerPaths].map(inspectMigrationRoot),
+    roots,
     differences,
     taskRecords,
     taskBindings: verification.complete ? verification.taskBindings : {},
@@ -453,7 +553,7 @@ function inventoryCheckoutMigration(options = {}) {
     routingReceipts: options.routingReceipts && typeof options.routingReceipts === 'object'
       ? options.routingReceipts
       : {},
-    unresolvedDrift: Array.isArray(options.unresolvedDrift) ? options.unresolvedDrift : [],
+    unresolvedDrift,
   };
 }
 
@@ -462,11 +562,18 @@ function commitCheckoutMigration(inventory, options = {}) {
     throw new Error('FB_CHECKOUT_MANIFEST_INVALID: a complete migration inventory is required.');
   }
   const canonicalPath = pathIdentity(inventory.canonicalPath);
-  const roots = inventory.roots.map(record => ({ ...record, path: pathIdentity(record.path) }));
+  const roots = inventory.roots.map(record => inspectMigrationRoot(record.path));
   if (roots.filter(record => record.path === canonicalPath).length !== 1) {
     throw new Error('FB_CHECKOUT_MANIFEST_INVALID: the migration inventory must contain exactly one canonical root.');
   }
-  if ((inventory.differences || []).some(difference => !String(difference.disposition || '').trim())) {
+  const suppliedDisposition = new Map((inventory.differences || []).map(difference => [difference.id, difference.disposition]));
+  const differences = discoverMigrationDifferences(roots).map(difference => ({
+    ...difference,
+    ...(String(suppliedDisposition.get(difference.id) || '').trim()
+      ? { disposition: String(suppliedDisposition.get(difference.id)).trim() }
+      : {}),
+  }));
+  if (differences.some(difference => !String(difference.disposition || '').trim())) {
     throw new Error('MIGRATION_DIFFERENCE_UNDISPOSITIONED: every recorded difference requires a disposition.');
   }
   const checkouts = {};
@@ -483,12 +590,12 @@ function commitCheckoutMigration(inventory, options = {}) {
     repository: inventory.repository,
     canonicalPath,
     checkouts,
-    differences: inventory.differences || [],
+    differences,
     taskRecords: inventory.taskRecords || [],
     taskBindings: inventory.taskBindings || {},
     taskRebind: inventory.taskRebind || { status: 'awaiting-task-rebind', pending: ONBOARDING_WORKSTREAMS.map(item => item.key) },
     routingReceipts: inventory.routingReceipts || {},
-    unresolvedDrift: inventory.unresolvedDrift || [],
+    unresolvedDrift: [],
   };
   return writeCheckoutMigrationManifest(manifest, options);
 }
@@ -496,6 +603,20 @@ function commitCheckoutMigration(inventory, options = {}) {
 function recordCheckoutTaskRebind(rootDir, taskInventory, repository, options = {}) {
   const migration = loadCheckoutMigrationManifest(rootDir);
   if (!migration) throw new Error('TASK_REBIND_PENDING: no checkout migration manifest is registered.');
+  if (pathIdentity(rootDir) !== migration.canonicalPath) {
+    throw new Error(`FB_CHECKOUT_NOT_CANONICAL: task rebind may be completed only from ${migration.canonicalPath}.`);
+  }
+  const expectedRepository = migration.repository || {};
+  const observedRepository = typeof repository === 'string' ? { repositoryPath: repository } : (repository || {});
+  const projectMismatch = expectedRepository.projectId
+    ? String(observedRepository.projectId || '') !== String(expectedRepository.projectId)
+    : false;
+  const pathMismatch = expectedRepository.repositoryPath
+    ? pathIdentity(observedRepository.repositoryPath || '') !== pathIdentity(expectedRepository.repositoryPath)
+    : false;
+  if (projectMismatch || pathMismatch || (!observedRepository.projectId && !observedRepository.repositoryPath)) {
+    throw new Error('MIGRATION_PROJECT_MISMATCH: task rebind inventory must match the migration repository identity.');
+  }
   const verification = verifyRepositoryTaskInventory(taskInventory, repository);
   if (!verification.complete) {
     const detail = verification.failures.map(failure => failure.message).join('; ');
@@ -3965,6 +4086,51 @@ function handleMcpRequest(request) {
           }
         },
         {
+          name: 'fb_checkout_migration_inventory',
+          description: 'Discover checkout roots, branches, worktrees, dirt, handoff drift, task-routing drift, and exact-project task rebind state without writing migration state.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              canonicalPath: { type: 'string' },
+              formerPaths: { type: 'array', items: { type: 'string' } },
+              repository: { type: 'object' },
+              taskInventory: { type: 'object' },
+              dispositions: { type: 'object' },
+              workspacePath: { type: 'string' }
+            },
+            required: ['canonicalPath', 'formerPaths', 'repository', 'taskInventory']
+          }
+        },
+        {
+          name: 'fb_checkout_migration_commit',
+          description: 'Re-discover and atomically record one canonical checkout plus quarantined former roots only after every discovered difference is dispositioned.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              canonicalPath: { type: 'string' },
+              formerPaths: { type: 'array', items: { type: 'string' } },
+              repository: { type: 'object' },
+              taskInventory: { type: 'object' },
+              dispositions: { type: 'object' },
+              workspacePath: { type: 'string' }
+            },
+            required: ['canonicalPath', 'formerPaths', 'repository', 'taskInventory', 'dispositions']
+          }
+        },
+        {
+          name: 'fb_checkout_migration_rebind',
+          description: 'Complete migration task rebind from the canonical checkout using a complete pinned inventory for the exact migration project.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              repository: { type: 'object' },
+              taskInventory: { type: 'object' },
+              workspacePath: { type: 'string' }
+            },
+            required: ['repository', 'taskInventory']
+          }
+        },
+        {
           name: 'fb_project_context',
           description: 'Return a compact, source-cited context packet for one task question. Uses the project graph for targeted reading and falls back to the authoritative board/index route when needed.',
           inputSchema: {
@@ -4095,6 +4261,19 @@ function handleMcpRequest(request) {
               : renderBeginnerStatus(statusInputs(workspaceRoot, tasks));
           }
           if (lifecycle) message = `${message}\n${lifecycle}`;
+        } else if (name === 'fb_checkout_migration_inventory') {
+          const { workspacePath, ...request } = toolArgs;
+          message = JSON.stringify(inventoryCheckoutMigration(request), null, 2);
+        } else if (name === 'fb_checkout_migration_commit') {
+          const { workspacePath, ...request } = toolArgs;
+          const inventory = inventoryCheckoutMigration(request);
+          message = JSON.stringify(commitCheckoutMigration(inventory), null, 2);
+        } else if (name === 'fb_checkout_migration_rebind') {
+          message = JSON.stringify(recordCheckoutTaskRebind(
+            workspaceRoot,
+            toolArgs.taskInventory,
+            toolArgs.repository,
+          ), null, 2);
         } else if (name === 'fb_project_context') {
           const { taskId, question } = toolArgs;
           assertSafeTaskId(taskId);
@@ -4581,17 +4760,51 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   }
 }
 
+function handleMigrationCommand(args = []) {
+  const operation = String(args[0] || '').toLowerCase();
+  if (operation === 'inventory' || operation === 'commit') {
+    const requestPath = path.resolve(args[1] || '');
+    if (!args[1] || !fs.existsSync(requestPath)) {
+      throw new Error(`Usage: node tools/fb-lane.cjs migration ${operation} <request.json>`);
+    }
+    const request = JSON.parse(fs.readFileSync(requestPath, 'utf8'));
+    const inventory = inventoryCheckoutMigration(request);
+    const result = operation === 'inventory' ? inventory : commitCheckoutMigration(inventory, request);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
+  if (operation === 'rebind') {
+    const inventoryPath = path.resolve(args[1] || '');
+    const rootDir = path.resolve(args[2] || process.cwd());
+    if (!args[1] || !fs.existsSync(inventoryPath)) {
+      throw new Error('Usage: node tools/fb-lane.cjs migration rebind <complete-inventory.json> [root] [project-id]');
+    }
+    const taskInventory = JSON.parse(fs.readFileSync(inventoryPath, 'utf8'));
+    const repository = {
+      repositoryPath: rootDir,
+      ...(args[3] ? { projectId: args[3] } : {}),
+    };
+    process.stdout.write(`${JSON.stringify(recordCheckoutTaskRebind(rootDir, taskInventory, repository), null, 2)}\n`);
+    return;
+  }
+  throw new Error('Usage: node tools/fb-lane.cjs migration inventory|commit <request.json> | migration rebind <complete-inventory.json> [root] [project-id]');
+}
+
 function main() {
   const args = process.argv.slice(2);
   const command = args[0] ? args[0].toLowerCase() : '';
   const guardedMutations = new Set(['bootstrap', 'claim', 'quick', 'submit', 'merge']);
   const sessionMutation = command === 'session'
     && new Set(['promote', 'checkpoint', 'close']).has(String(args[1] || '').toLowerCase());
-  if (guardedMutations.has(command) || sessionMutation) {
+  const migrationMutation = command === 'migration'
+    && new Set(['commit', 'rebind']).has(String(args[1] || '').toLowerCase());
+  if (guardedMutations.has(command) || sessionMutation || migrationMutation) {
     const boardPath = findBoardPath();
     const rootDir = boardPath ? path.dirname(boardPath) : process.cwd();
     try {
-      const operation = sessionMutation ? `session ${args[1]} mutation` : `${command} mutation`;
+      const operation = sessionMutation
+        ? `session ${args[1]} mutation`
+        : migrationMutation ? `migration ${args[1]} mutation` : `${command} mutation`;
       assertCanonicalCheckout(rootDir, operation);
     } catch (error) {
       console.error(`❌ Error: ${error.message}`);
@@ -4617,6 +4830,13 @@ function main() {
     handleDoctor();
   } else if (command === 'bootstrap') {
     handleBootstrap(args.slice(1));
+  } else if (command === 'migration') {
+    try {
+      handleMigrationCommand(args.slice(1));
+    } catch (error) {
+      console.error(`❌ Error: ${error.message}`);
+      process.exit(1);
+    }
   } else if (command === 'claim') {
     const rest = args.slice(1);
     const noWorktree = rest.includes('--no-worktree');
@@ -4668,6 +4888,8 @@ Usage:
   node tools/fb-lane.cjs bootstrap [--platform codex]   - Bootstrap project board, rules, tools, and folders
   node tools/fb-lane.cjs doctor                         - Check FB-Lane setup health without writing files
   node tools/fb-lane.cjs status [--details|--context]   - Print beginner status, raw technical details, or bounded active context
+  node tools/fb-lane.cjs migration inventory|commit <request.json> - Discover or atomically record checkout migration state
+  node tools/fb-lane.cjs migration rebind <inventory.json> [root] [project-id] - Complete exact-project task rebind
   node tools/fb-lane.cjs claim <id> <lane> [locks]      - Claim task in a linked worktree by default
   node tools/fb-lane.cjs claim ... --no-worktree        - Use the legacy single-checkout compatibility path
   node tools/fb-lane.cjs quick <lane> <locks> <desc> --approval-ref <reference> - Create an approved quick task in a linked worktree
