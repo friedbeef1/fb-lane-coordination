@@ -67,3 +67,18 @@ normalizes and validates repository identity again inside migration commit.
 Task 4 is complete locally. Native sidebar onboarding remains Task 5. Package
 generation, publication, installation/cache replacement, merge, actual checkout
 retirement, deployment, and Push Live remain separately gated.
+
+## Review fix round 1/5
+
+Independent review found that task rebind compared a manifest and supplied
+repository path to each other without resolving the manifest's `canonicalPath`
+through Git. Matching values that both named a subdirectory inside the same
+repository could therefore complete rebind even though Git's canonical
+top-level was the parent directory.
+
+Focused RED added a same-repository subdirectory manifest and supplied identity;
+the rebind incorrectly completed. The repair now runs both the stored migration
+identity and the supplied rebind identity through `canonicalMigrationRepository`
+and verifies task inventory against the normalized canonical identity. Focused
+GREEN is 33/33 migration checks; both amended CommonJS syntax checks and
+whitespace validation pass. No broader suite or external action was run.

@@ -650,19 +650,20 @@ function recordCheckoutTaskRebind(rootDir, taskInventory, repository, options = 
   if (pathIdentity(rootDir) !== migration.canonicalPath) {
     throw new Error(`FB_CHECKOUT_NOT_CANONICAL: task rebind may be completed only from ${migration.canonicalPath}.`);
   }
-  const expectedRepository = migration.repository || {};
-  const observedRepository = typeof repository === 'string' ? { repositoryPath: repository } : (repository || {});
-  const expectedPath = pathIdentity(expectedRepository.repositoryPath || '');
-  const observedPathValue = observedRepository.repositoryPath || observedRepository.projectPath || observedRepository.path || '';
+  const suppliedRepository = typeof repository === 'string' ? { repositoryPath: repository } : (repository || {});
+  const suppliedPath = suppliedRepository.repositoryPath || suppliedRepository.projectPath || suppliedRepository.path || '';
+  if (!suppliedRepository.projectId && !suppliedPath) {
+    throw new Error('MIGRATION_PROJECT_MISMATCH: task rebind inventory must match the migration repository identity.');
+  }
+  const expectedRepository = canonicalMigrationRepository(migration.canonicalPath, migration.repository);
+  const observedRepository = canonicalMigrationRepository(migration.canonicalPath, suppliedRepository);
   const projectMismatch = expectedRepository.projectId
     ? String(observedRepository.projectId || '') !== String(expectedRepository.projectId)
     : false;
-  const pathMismatch = expectedPath !== migration.canonicalPath
-    || pathIdentity(observedPathValue) !== migration.canonicalPath;
-  if (projectMismatch || pathMismatch || (!observedRepository.projectId && !observedPathValue)) {
+  if (projectMismatch) {
     throw new Error('MIGRATION_PROJECT_MISMATCH: task rebind inventory must match the migration repository identity.');
   }
-  const verification = verifyRepositoryTaskInventory(taskInventory, repository);
+  const verification = verifyRepositoryTaskInventory(taskInventory, observedRepository);
   if (!verification.complete) {
     const detail = verification.failures.map(failure => failure.message).join('; ');
     throw new Error(`TASK_REBIND_PENDING: ${detail || 'all seven exact-project tasks must be visible and pinned.'}`);

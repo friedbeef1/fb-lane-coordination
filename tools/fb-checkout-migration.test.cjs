@@ -426,6 +426,38 @@ test('task rebind rejects a manifest whose repository path is not the canonical 
   }
 });
 
+test('task rebind rejects a canonical identity that resolves to a same-repository subdirectory', () => {
+  const repositoryRoot = makeRepo();
+  const canonicalSubdirectory = path.join(repositoryRoot, 'nested-canonical');
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-registry-'));
+  try {
+    fs.mkdirSync(canonicalSubdirectory);
+    writeManifest(repositoryRoot, activeManifest(canonicalSubdirectory, {
+      repository: { projectId: 'project-fixture', repositoryPath: canonicalSubdirectory },
+      taskRebind: {
+        status: 'awaiting-task-rebind',
+        pending: require('./fb-onboarding.cjs').WORKSTREAMS.map(workstream => workstream.key),
+      },
+    }));
+    const taskInventory = {
+      complete: true,
+      tasks: require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
+        id: `task-${index}`,
+        title: workstream.title,
+        projectId: 'project-fixture',
+        pinned: true,
+      })),
+    };
+
+    assert.throws(() => recordCheckoutTaskRebind(canonicalSubdirectory, taskInventory, {
+      projectId: 'project-fixture', repositoryPath: canonicalSubdirectory,
+    }, { registryDir: registry }), /MIGRATION_PROJECT_MISMATCH|canonical repository/i);
+  } finally {
+    fs.rmSync(repositoryRoot, { recursive: true, force: true });
+    fs.rmSync(registry, { recursive: true, force: true });
+  }
+});
+
 test('migration inventory discovers branches, worktrees, dirt, handoffs, and routing differences itself', () => {
   const canonical = makeRepo();
   const former = makeRepo('fb-checkout-former-inventory-');
