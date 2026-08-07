@@ -1,5 +1,77 @@
 # Changelog
 
+## 0.5.11-beta — 2026-08-07
+
+Build: `0.5.11-beta+codex.20260807112648`
+
+**What changed:** FB now requires the active canonical checkout before setup or
+BFM mutation, renders a complete intake ledger across the six evidence
+workstreams plus the separate Product/BFM control centre, and fails closed on
+missing, unreadable, drifting, hidden, or contradictory intake. Exact-project
+setup reconciles Product/BFM, User, Business, Design, Tech, Discovery, and Bugs
+only from a proven-complete inventory. Checkout moves use transactional migration:
+every discovered difference is dispositioned, one canonical root is
+recorded atomically, former roots are quarantined, and all seven pinned tasks
+are rebound before retirement is eligible.
+
+**Why it matters:** Product/BFM can no longer silently execute from the wrong
+project, lose a ready handoff behind same-path or routing drift, or call a
+partial sidebar rebind complete. The ledger makes `None relevant`, candidate
+dispositions, locks, blockers, lifecycle state, and recommended order visible
+before execution, while former checkouts remain recoverable as rollback
+evidence.
+
+**Compatibility:** `$fb-setup`, `$bfm`, the six evidence workstreams, the
+Product/BFM control centre, technical identifiers, existing commands, MCP
+routes, onboarding receipts, and repository-owned coordination records remain
+compatible. The previously installed
+`0.5.9-beta+codex.20260805042523` stays available as rollback because this local
+candidate is not installed or published. Product/BFM standing delegation covers
+candidate-faithful changelog wording and one release checkpoint; only **Push
+Live** authorizes merge, publication, installation, or deployment.
+
+**Installation or upgrade:** After explicit **Push Live**, upgrade the `fb-lane`
+marketplace, reinstall `fb-lane-coordination@fb-lane`, start a new Codex task,
+open the exact target project, and invoke `$fb-setup`. Do not retire a former
+checkout until migration evidence is fresh and retirement is separately
+approved.
+
+**Changelog approval:** Approved — Product/BFM standing delegation; Reference:
+TASK-FB-PRODUCT-BFM-RELIABILITY-20260807, local candidate review on 2026-08-07.
+
+## 0.5.10-beta — 2026-08-06
+
+Build: `0.5.10-beta+codex.20260807084627`
+
+**What changed:** FB now has a first-class `$fb-setup` plugin skill. It delegates
+to the existing canonical setup workflow, bootstraps the repository
+idempotently, and reconciles the seven Product/BFM and workstream sidebar tasks
+without creating a second onboarding system. Active setup documentation now
+uses the same exact invocation.
+
+**Why it matters:** Starting FB no longer depends on a natural-language phrase
+that can be interpreted inconsistently. `$fb-setup` gives new and returning
+users one short, predictable entry point while preserving the full setup,
+migration, pinning, idle-task, and honest-fallback safeguards. Product/BFM now
+also approves candidate-faithful changelog wording and authorizes one release
+checkpoint without repeatedly returning routine internal gates to the user.
+
+**Compatibility:** The long-form
+`$fb-lane-coordination:project-coordination-setup` skill and the natural request
+`Set up FB in this project.` remain supported fallbacks. Existing projects,
+onboarding receipts, seven-task reconciliation, `$bfm`, plugin and MCP
+identifiers, and **Push Live** authority remain unchanged. Material product
+decisions and sensitive gates still require the user. `/fb-setup` is not a
+separate installed command.
+
+**Installation or upgrade:** Upgrade the `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, start a new Codex task, open the target project,
+and invoke `$fb-setup`.
+
+**Changelog approval:** Approved — Product/BFM standing delegation; Reference:
+TASK-076, 2026-08-07. James approved the earlier draft on 2026-08-06 and then
+requested this delegated-approval addition before release.
+
 ## 0.5.9-beta — 2026-08-05
 
 Build: `0.5.9-beta+codex.20260805042523`

@@ -20,6 +20,25 @@ workstreams, decisions, evidence, dependencies, implementation, verification,
 and release state. Workstream loops create learning; `$bfm` freezes intake so
 Product/BFM can reconcile and prioritize the graph before execution.
 
+Product/BFM operates only from the active canonical checkout. Before execution,
+the runtime freezes a complete intake ledger across all six evidence
+workstreams, linked worktrees, every non-retired manifest checkout plus explicit audit roots,
+board/index routing, workstream cards, locks, approval gates, external blockers,
+and task-rebind state. It also verifies the existing clone-local onboarding
+receipt against the exact project, canonical path, and all seven pinned task
+bindings. Missing, pending, declined, partial, stale, unreadable, drifting, or
+contradictory evidence fails closed. Compatible `lane: fb-product` handoffs are
+shown as Product/BFM control-centre inputs, not a seventh evidence workstream.
+Blocked inputs remain counted and linked but excluded from execution.
+Product/BFM uses that runtime ledger and does not recreate its scanner rules in
+guidance.
+
+When a project moves between checkouts, Product/BFM owns the transactional migration:
+inventory and disposition every discovered difference, atomically
+record one canonical root, keep former roots quarantined and recoverable, rebind
+the exact seven pinned tasks, and require fresh evidence plus explicit approval
+before retirement.
+
 ## Cross-workstream planning handoff
 
 On an explicit user request, a main workstream may route planning or evidence
@@ -135,12 +154,9 @@ a user-facing changelog entry. Before **Ready to ship**, confirm the Task
 Receipt has the matching canonical decision and that any required linked entry
 describes what changed, why it matters, compatibility, and upgrade action. See
 `workflow.md`; Quick and Normal work are exempt.
-For a major user-visible release, draft the entry, show it to the user, and ask
-for explicit changelog approval before **Ready to ship**. Record that approval
-in the Task Receipt. Do not treat build approval or **Push Live** as approval of
-the changelog wording.
-If the user does not answer, record the changelog approval as pending in the
-handoff and board gate. At every later documentation or plugin-guidance review,
-surface the pending entry again until the user approves, rejects, or explicitly
-defers it. Do not block unrelated docs, infer approval, or silently clear the
-pending gate.
+Follow [standing delegated approvals](../../docs/fb/workflow.md#standing-delegated-approvals).
+Product/BFM approves candidate-faithful changelog wording and authorizes one
+initial release checkpoint without a user prompt. Ask the user only for a
+changed user or product decision, material scope or priority change, weakened
+evidence, or a sensitive gate. **Push Live** remains the external release
+authorization.

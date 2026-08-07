@@ -89,6 +89,7 @@ for (const dir of ['skills', 'plugins/fb-lane-coordination/skills']) {
 }
 
 run('regression tests', 'node', ['tools/fb-lane.test.cjs']);
+run('checkout migration guard tests', 'node', ['tools/fb-checkout-migration.test.cjs']);
 run('focused session tests', 'node', ['tools/fb-session.test.cjs']);
 run('focused eval tests', 'node', ['tools/fb-eval.test.cjs']);
 run('focused beginner-experience smoke', 'node', ['tools/fb-beginner-experience.test.cjs']);

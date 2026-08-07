@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
+const crypto = require('crypto');
 const { execSync, execFileSync } = require('child_process');
 const readline = require('readline');
 const {
@@ -34,7 +36,13 @@ const {
   renderWorkstreamSummary,
   refreshManagedWorkstreamCard,
 } = require('./fb-board-context.cjs');
-const { ensureOnboardingReceipt } = require('./fb-onboarding.cjs');
+const {
+  WORKSTREAMS: ONBOARDING_WORKSTREAMS,
+  ensureOnboardingReceipt,
+  planRepositoryTaskInventory,
+  readOnboardingReceipt,
+  verifyRepositoryTaskInventory,
+} = require('./fb-onboarding.cjs');
 const {
   classifyExecutionMode,
   renderQuickRecord,
@@ -116,6 +124,630 @@ function resolveWorkspaceStart(options = {}) {
     process.env.INIT_CWD ||
     process.cwd();
   return path.resolve(expandHome(candidate));
+}
+
+const CHECKOUT_MIGRATION_MANIFEST = 'fb-checkout-migration.json';
+const CHECKOUT_STATES = new Set(['active', 'quarantined', 'retirement-pending', 'retired']);
+const TASK_REBIND_STATES = new Set(['awaiting-task-rebind', 'complete']);
+const MCP_MUTATIONS = new Set([
+  'fb_checkout_migration_commit',
+  'fb_checkout_migration_rebind',
+  'fb_control_event_record',
+  'fb_lane_claim',
+  'fb_lane_submit',
+  'fb_lane_merge',
+]);
+
+function pathIdentity(candidate) {
+  const absolute = path.resolve(expandHome(candidate));
+  try {
+    return fs.realpathSync(absolute);
+  } catch {
+    return absolute;
+  }
+}
+
+function gitCommonDirectory(rootDir) {
+  try {
+    const common = execFileSync('git', ['rev-parse', '--git-common-dir'], {
+      cwd: rootDir,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    return path.resolve(rootDir, common);
+  } catch {
+    return path.join(rootDir, '.git');
+  }
+}
+
+function checkoutMigrationManifestPath(rootDir) {
+  const configured = String(process.env.FB_CHECKOUT_MIGRATION_MANIFEST || '').trim();
+  if (configured) return path.resolve(expandHome(configured));
+
+  const checkoutLocal = path.join(gitCommonDirectory(rootDir), CHECKOUT_MIGRATION_MANIFEST);
+  if (fs.existsSync(checkoutLocal)) return checkoutLocal;
+
+  const registry = String(process.env.FB_CHECKOUT_MIGRATION_REGISTRY || '').trim()
+    || path.join(process.env.HOME || os.homedir(), '.codex', 'fb-lane', 'checkout-migrations');
+  if (!fs.existsSync(registry)) return checkoutLocal;
+
+  const currentPath = pathIdentity(rootDir);
+  const matches = [];
+  for (const name of fs.readdirSync(registry).filter(value => value.endsWith('.json')).sort()) {
+    const candidate = path.join(registry, name);
+    let registered;
+    try {
+      registered = JSON.parse(fs.readFileSync(candidate, 'utf8'));
+    } catch {
+      continue;
+    }
+    const checkoutPaths = registered && registered.checkouts && typeof registered.checkouts === 'object'
+      ? Object.keys(registered.checkouts).map(pathIdentity)
+      : [];
+    if (checkoutPaths.includes(currentPath)) matches.push(candidate);
+  }
+  if (matches.length > 1) {
+    throw new Error(
+      `FB_CHECKOUT_MANIFEST_INVALID: multiple machine-local manifests register ${currentPath}: ${matches.join(', ')}.`
+    );
+  }
+  return matches[0] || checkoutLocal;
+}
+
+function loadCheckoutMigrationManifest(rootDir) {
+  const manifestPath = checkoutMigrationManifestPath(rootDir);
+  if (!fs.existsSync(manifestPath)) return null;
+  let manifest;
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  } catch (error) {
+    throw new Error(`FB_CHECKOUT_MANIFEST_INVALID: ${manifestPath}: ${error.message}`);
+  }
+  if (!manifest || manifest.version !== 1 || !manifest.canonicalPath || !manifest.checkouts) {
+    throw new Error(`FB_CHECKOUT_MANIFEST_INVALID: ${manifestPath} requires version, canonicalPath, and checkouts.`);
+  }
+  const checkouts = {};
+  for (const [checkoutPath, record] of Object.entries(manifest.checkouts)) {
+    const state = String(record?.state || '');
+    if (!CHECKOUT_STATES.has(state)) {
+      throw new Error(`FB_CHECKOUT_MANIFEST_INVALID: unsupported checkout state ${JSON.stringify(state)} for ${checkoutPath}.`);
+    }
+    checkouts[pathIdentity(checkoutPath)] = { ...record, state };
+  }
+  const canonicalPath = pathIdentity(manifest.canonicalPath);
+  const active = Object.entries(checkouts).filter(([, record]) => record.state === 'active');
+  if (active.length !== 1 || active[0][0] !== canonicalPath) {
+    throw new Error('FB_CHECKOUT_MANIFEST_INVALID: exactly one active checkout must match canonicalPath.');
+  }
+  const repository = canonicalMigrationRepository(canonicalPath, manifest.repository);
+  const taskRebind = {
+    status: String(manifest.taskRebind?.status || 'complete'),
+    pending: Array.isArray(manifest.taskRebind?.pending)
+      ? [...new Set(manifest.taskRebind.pending.map(String))]
+      : [],
+  };
+  if (!TASK_REBIND_STATES.has(taskRebind.status)) {
+    throw new Error(`FB_CHECKOUT_MANIFEST_INVALID: unsupported task-rebind state ${JSON.stringify(taskRebind.status)}.`);
+  }
+  if (taskRebind.status === 'complete' && taskRebind.pending.length > 0) {
+    throw new Error(`TASK_REBIND_PENDING: cannot close task rebind while pending tasks remain: ${taskRebind.pending.join(', ')}.`);
+  }
+  if (taskRebind.status !== 'complete' && Object.values(checkouts).some(record => record.state === 'retired')) {
+    throw new Error('TASK_REBIND_PENDING: a checkout cannot be retired before task rebind is complete.');
+  }
+  const hasDifferenceEvidence = Array.isArray(manifest.differences);
+  const unresolvedDrift = hasDifferenceEvidence
+    ? manifest.differences.filter(difference => !String(difference?.disposition || '').trim())
+    : (Array.isArray(manifest.unresolvedDrift) ? manifest.unresolvedDrift : []);
+  return {
+    ...manifest,
+    manifestPath,
+    canonicalPath,
+    repository,
+    checkouts,
+    taskRebind,
+    routingReceipts: manifest.routingReceipts && typeof manifest.routingReceipts === 'object'
+      ? manifest.routingReceipts
+      : {},
+    differences: hasDifferenceEvidence ? manifest.differences : [],
+    unresolvedDrift,
+  };
+}
+
+function checkoutMigrationSnapshot(rootDir) {
+  const currentPath = pathIdentity(rootDir);
+  const manifest = loadCheckoutMigrationManifest(rootDir);
+  if (!manifest) {
+    return {
+      managed: false,
+      currentPath,
+      canonicalPath: currentPath,
+      repository: { repositoryPath: currentPath },
+      state: 'unmanaged',
+      unresolvedDrift: 0,
+      taskRebind: { status: 'not-configured', pending: [] },
+      taskBindings: {},
+      routingReceipts: {},
+    };
+  }
+  return {
+    managed: true,
+    manifestPath: manifest.manifestPath,
+    currentPath,
+    canonicalPath: manifest.canonicalPath,
+    repository: manifest.repository,
+    state: manifest.checkouts[currentPath]?.state || 'unregistered',
+    unresolvedDrift: manifest.unresolvedDrift.length,
+    taskRebind: manifest.taskRebind,
+    taskBindings: manifest.taskBindings && typeof manifest.taskBindings === 'object'
+      ? manifest.taskBindings
+      : {},
+    routingReceipts: manifest.routingReceipts,
+  };
+}
+
+function isCanonicalCheckout(snapshot) {
+  return !snapshot.managed
+    || (snapshot.currentPath === snapshot.canonicalPath && snapshot.state === 'active');
+}
+
+function checkoutMigrationStatusLines(snapshot) {
+  return [
+    `Checkout current path: ${snapshot.currentPath}`,
+    `Checkout canonical path: ${snapshot.canonicalPath}`,
+    `Checkout state: ${snapshot.state}`,
+    `Unresolved handoff drift: ${snapshot.unresolvedDrift}`,
+    `Task rebind: ${snapshot.taskRebind.status} (${snapshot.taskRebind.pending.length} pending)`,
+  ];
+}
+
+function assertCanonicalCheckout(rootDir, operation = 'mutation') {
+  const snapshot = checkoutMigrationSnapshot(rootDir);
+  if (!isCanonicalCheckout(snapshot)) {
+    const error = new Error(
+      `FB_CHECKOUT_NOT_CANONICAL: refusing ${operation} from ${snapshot.currentPath}; `
+      + `canonical checkout is ${snapshot.canonicalPath} (${snapshot.state}).`
+    );
+    error.code = 'FB_CHECKOUT_NOT_CANONICAL';
+    error.snapshot = snapshot;
+    throw error;
+  }
+  return snapshot;
+}
+
+function atomicWriteJson(filePath, value) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  const temporary = path.join(
+    path.dirname(filePath),
+    `.${path.basename(filePath)}.${process.pid}.${Date.now()}.tmp`,
+  );
+  try {
+    fs.writeFileSync(temporary, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 });
+    fs.renameSync(temporary, filePath);
+  } finally {
+    try {
+      fs.unlinkSync(temporary);
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+  }
+}
+
+function migrationRegistryDirectory(options = {}) {
+  const configured = String(
+    options.registryDir
+    || process.env.FB_CHECKOUT_MIGRATION_REGISTRY
+    || '',
+  ).trim();
+  return path.resolve(expandHome(configured || path.join(
+    process.env.HOME || os.homedir(),
+    '.codex',
+    'fb-lane',
+    'checkout-migrations',
+  )));
+}
+
+function migrationRegistryFile(canonicalPath, options = {}) {
+  const identity = crypto.createHash('sha256').update(pathIdentity(canonicalPath)).digest('hex');
+  return path.join(migrationRegistryDirectory(options), `${identity}.json`);
+}
+
+function writeCheckoutMigrationManifest(manifest, options = {}) {
+  const canonicalPath = pathIdentity(manifest.canonicalPath);
+  const value = { ...manifest, canonicalPath };
+  const checkoutLocal = path.join(gitCommonDirectory(canonicalPath), CHECKOUT_MIGRATION_MANIFEST);
+  const registryFile = migrationRegistryFile(canonicalPath, options);
+  const previous = new Map([checkoutLocal, registryFile].map(filePath => [
+    filePath,
+    fs.existsSync(filePath) ? fs.readFileSync(filePath) : null,
+  ]));
+  try {
+    atomicWriteJson(registryFile, value);
+    atomicWriteJson(checkoutLocal, value);
+  } catch (error) {
+    const rollbackFailures = [];
+    for (const [filePath, contents] of previous) {
+      try {
+        if (contents === null) fs.rmSync(filePath, { force: true });
+        else atomicWriteJson(filePath, JSON.parse(contents.toString('utf8')));
+      } catch (rollbackError) {
+        rollbackFailures.push(`${filePath}: ${rollbackError.message}`);
+      }
+    }
+    if (rollbackFailures.length > 0) {
+      throw new Error(`${error.message}; MIGRATION_ROLLBACK_INCOMPLETE: ${rollbackFailures.join('; ')}`);
+    }
+    throw error;
+  }
+  return { manifest: value, manifestPath: checkoutLocal, registryPath: registryFile };
+}
+
+function inspectMigrationRoot(rootPath) {
+  const root = pathIdentity(rootPath);
+  let stat;
+  try {
+    stat = fs.statSync(root);
+  } catch (error) {
+    throw new Error(`MIGRATION_ROOT_INACCESSIBLE: ${root}: ${error.message}`);
+  }
+  if (!stat.isDirectory()) throw new Error(`MIGRATION_ROOT_INACCESSIBLE: ${root} is not a directory.`);
+
+  const git = args => {
+    try {
+      return execFileSync('git', args, {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      }).trim();
+    } catch (error) {
+      const stderr = error.stderr ? String(error.stderr).trim() : '';
+      throw new Error(`MIGRATION_ROOT_INVENTORY_INCOMPLETE: ${root}: ${stderr || error.message}`);
+    }
+  };
+  const branch = git(['branch', '--show-current']) || `detached:${git(['rev-parse', 'HEAD'])}`;
+  let head = null;
+  try {
+    head = git(['rev-parse', '--verify', 'HEAD^{commit}']);
+  } catch (error) {
+    if (!/needed a single revision|unknown revision|bad revision|ambiguous argument/i.test(error.message)) throw error;
+  }
+  const tree = head ? git(['rev-parse', 'HEAD^{tree}']) : null;
+  const worktrees = parseWorktreePorcelain(git(['worktree', 'list', '--porcelain']));
+  const dirt = git(['status', '--porcelain', '--untracked-files=all'])
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .map(statusLine => {
+      const displayed = statusLine.slice(3);
+      const relative = displayed.includes(' -> ') ? displayed.split(' -> ').at(-1) : displayed;
+      const absolute = path.join(root, relative.replace(/^"|"$/g, ''));
+      try {
+        const stat = fs.statSync(absolute);
+        return stat.isFile()
+          ? `${statusLine} sha256=${handoffDigest(fs.readFileSync(absolute))}`
+          : `${statusLine} type=${stat.isDirectory() ? 'directory' : 'other'}`;
+      } catch (error) {
+        if (error.code === 'ENOENT') return `${statusLine} missing=true`;
+        throw new Error(`MIGRATION_ROOT_INVENTORY_INCOMPLETE: ${absolute}: ${error.message}`);
+      }
+    });
+  const handoffs = {};
+  const handoffDirectory = path.join(root, 'docs', 'handoffs');
+  if (fs.existsSync(handoffDirectory)) {
+    let names;
+    try {
+      names = fs.readdirSync(handoffDirectory)
+        .filter(name => name.endsWith('.md') && name !== 'index.md')
+        .sort();
+    } catch (error) {
+      throw new Error(`MIGRATION_ROOT_INVENTORY_INCOMPLETE: ${handoffDirectory}: ${error.message}`);
+    }
+    for (const name of names) {
+      const relative = `docs/handoffs/${name}`;
+      try {
+        const contents = fs.readFileSync(path.join(root, relative));
+        const metadata = handoffFrontmatter(contents.toString('utf8')) || {};
+        handoffs[relative] = {
+          sha256: handoffDigest(contents),
+          task: String(metadata.task || ''),
+          status: String(metadata.status || ''),
+        };
+      } catch (error) {
+        throw new Error(`MIGRATION_ROOT_INVENTORY_INCOMPLETE: ${root}/${relative}: ${error.message}`);
+      }
+    }
+  }
+
+  const routing = {};
+  const routingSurfaces = [
+    'PROJECT_BOARD.md',
+    'docs/handoffs/index.md',
+    ...[...BFM_EVIDENCE_ROLE_FILES.values()].map(fileName => `docs/workstreams/${fileName}`),
+  ];
+  for (const relative of routingSurfaces) {
+    const absolute = path.join(root, relative);
+    try {
+      routing[relative] = fs.existsSync(absolute)
+        ? { sha256: handoffDigest(fs.readFileSync(absolute)) }
+        : { missing: true };
+    } catch (error) {
+      throw new Error(`MIGRATION_ROOT_INVENTORY_INCOMPLETE: ${absolute}: ${error.message}`);
+    }
+  }
+  return { path: root, branch, head, tree, worktrees, dirt, handoffs, routing };
+}
+
+function migrationDifferenceId(rootPath, kind, relative = '', canonicalValue, formerValue) {
+  const suffix = crypto.createHash('sha256')
+    .update(`${pathIdentity(rootPath)}\0${kind}\0${relative}\0${JSON.stringify(canonicalValue)}\0${JSON.stringify(formerValue)}`)
+    .digest('hex')
+    .slice(0, 16);
+  return `migration:${kind}:${suffix}`;
+}
+
+function discoverMigrationDifferences(roots) {
+  const canonical = roots[0];
+  const differences = [];
+  const add = (former, kind, relative, canonicalValue, formerValue) => {
+    if (JSON.stringify(canonicalValue) === JSON.stringify(formerValue)) return;
+    differences.push({
+      id: migrationDifferenceId(former.path, kind, relative, canonicalValue, formerValue),
+      kind,
+      ...(relative ? { relative } : {}),
+      canonical: { root: canonical.path, value: canonicalValue },
+      source: { root: former.path, value: formerValue },
+    });
+  };
+  for (const former of roots.slice(1)) {
+    add(former, 'branch', '', canonical.branch, former.branch);
+    add(former, 'head', '', canonical.head, former.head);
+    add(former, 'tree', '', canonical.tree, former.tree);
+    add(former, 'worktrees', '', canonical.worktrees, former.worktrees);
+    add(former, 'dirt', '', canonical.dirt, former.dirt);
+    for (const relative of [...new Set([
+      ...Object.keys(canonical.handoffs || {}),
+      ...Object.keys(former.handoffs || {}),
+    ])].sort()) {
+      add(former, 'handoff', relative, canonical.handoffs?.[relative] || { missing: true }, former.handoffs?.[relative] || { missing: true });
+    }
+    for (const relative of [...new Set([
+      ...Object.keys(canonical.routing || {}),
+      ...Object.keys(former.routing || {}),
+    ])].sort()) {
+      add(former, 'task-routing', relative, canonical.routing?.[relative] || { missing: true }, former.routing?.[relative] || { missing: true });
+    }
+  }
+  return differences.sort((left, right) => left.id.localeCompare(right.id));
+}
+
+function migrationRootEvidence(root) {
+  return {
+    branch: root.branch,
+    head: root.head,
+    tree: root.tree,
+    worktrees: root.worktrees,
+    dirt: root.dirt,
+    handoffs: root.handoffs,
+    routing: root.routing,
+  };
+}
+
+function canonicalMigrationRepository(canonicalPath, repository = {}) {
+  const value = typeof repository === 'string'
+    ? { repositoryPath: repository }
+    : (repository || {});
+  const suppliedPath = value.repositoryPath || value.projectPath || value.path || canonicalPath;
+  const repositoryPath = pathIdentity(suppliedPath);
+  let repositoryRoot;
+  try {
+    repositoryRoot = pathIdentity(execFileSync('git', ['rev-parse', '--show-toplevel'], {
+      cwd: canonicalPath,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim());
+  } catch (error) {
+    const stderr = error.stderr ? String(error.stderr).trim() : '';
+    throw new Error(`MIGRATION_PROJECT_MISMATCH: canonical repository identity is unavailable: ${stderr || error.message}`);
+  }
+  if (repositoryPath !== canonicalPath || repositoryRoot !== canonicalPath) {
+    throw new Error(
+      `MIGRATION_PROJECT_MISMATCH: canonical repository identity must resolve exactly to ${canonicalPath}; `
+      + `received ${repositoryPath} with Git root ${repositoryRoot}.`
+    );
+  }
+  return {
+    repositoryPath: canonicalPath,
+    ...(value.projectId ? { projectId: String(value.projectId) } : {}),
+  };
+}
+
+function inventoryCheckoutMigration(options = {}) {
+  const canonicalPath = pathIdentity(options.canonicalPath || '');
+  const formerPaths = [...new Set((options.formerPaths || []).map(pathIdentity))]
+    .filter(candidate => candidate !== canonicalPath)
+    .sort();
+  if (!options.canonicalPath) throw new Error('MIGRATION_CANONICAL_REQUIRED: canonicalPath is required.');
+
+  const repository = canonicalMigrationRepository(canonicalPath, options.repository);
+  const taskInventory = options.taskInventory || { complete: false, tasks: [] };
+  const taskPlan = planRepositoryTaskInventory(taskInventory, repository);
+  const verification = verifyRepositoryTaskInventory(taskInventory, repository);
+  const taskRecords = taskPlan.complete
+    ? taskPlan.actions.filter(action => action.type === 'reuse').map(action => ({
+      workstream: action.workstream,
+      taskId: action.taskId,
+    }))
+    : [];
+  const pending = verification.complete
+    ? []
+    : ONBOARDING_WORKSTREAMS
+      .map(workstream => workstream.key)
+      .filter(key => !taskRecords.some(record => record.workstream === key));
+
+  const roots = [canonicalPath, ...formerPaths].map(inspectMigrationRoot);
+  const differences = discoverMigrationDifferences(roots).map(difference => ({
+    ...difference,
+    ...(String(options.dispositions?.[difference.id] || '').trim()
+      ? { disposition: String(options.dispositions[difference.id]).trim() }
+      : {}),
+  }));
+  const unresolvedDrift = differences.filter(difference => !difference.disposition);
+
+  return {
+    version: 1,
+    repository,
+    canonicalPath,
+    roots,
+    differences,
+    taskRecords,
+    taskBindings: verification.complete ? verification.taskBindings : {},
+    taskRebind: {
+      status: verification.complete ? 'complete' : 'awaiting-task-rebind',
+      pending,
+    },
+    routingReceipts: options.routingReceipts && typeof options.routingReceipts === 'object'
+      ? options.routingReceipts
+      : {},
+    unresolvedDrift,
+  };
+}
+
+function commitCheckoutMigration(inventory, options = {}) {
+  if (!inventory || inventory.version !== 1 || !inventory.canonicalPath || !Array.isArray(inventory.roots)) {
+    throw new Error('FB_CHECKOUT_MANIFEST_INVALID: a complete migration inventory is required.');
+  }
+  const canonicalPath = pathIdentity(inventory.canonicalPath);
+  const repository = canonicalMigrationRepository(canonicalPath, inventory.repository);
+  const roots = inventory.roots.map(record => inspectMigrationRoot(record.path));
+  if (roots.filter(record => record.path === canonicalPath).length !== 1) {
+    throw new Error('FB_CHECKOUT_MANIFEST_INVALID: the migration inventory must contain exactly one canonical root.');
+  }
+  const suppliedDisposition = new Map((inventory.differences || []).map(difference => [difference.id, difference.disposition]));
+  const differences = discoverMigrationDifferences(roots).map(difference => ({
+    ...difference,
+    ...(String(suppliedDisposition.get(difference.id) || '').trim()
+      ? { disposition: String(suppliedDisposition.get(difference.id)).trim() }
+      : {}),
+  }));
+  if (differences.some(difference => !String(difference.disposition || '').trim())) {
+    throw new Error('MIGRATION_DIFFERENCE_UNDISPOSITIONED: every recorded difference requires a disposition.');
+  }
+  const checkouts = {};
+  for (const root of roots) {
+    checkouts[root.path] = {
+      state: root.path === canonicalPath ? 'active' : 'quarantined',
+      ...migrationRootEvidence(root),
+    };
+  }
+  const manifest = {
+    version: 1,
+    repository,
+    canonicalPath,
+    checkouts,
+    differences,
+    taskRecords: inventory.taskRecords || [],
+    taskBindings: inventory.taskBindings || {},
+    taskRebind: inventory.taskRebind || { status: 'awaiting-task-rebind', pending: ONBOARDING_WORKSTREAMS.map(item => item.key) },
+    routingReceipts: inventory.routingReceipts || {},
+    unresolvedDrift: [],
+  };
+  return writeCheckoutMigrationManifest(manifest, options);
+}
+
+function recordCheckoutTaskRebind(rootDir, taskInventory, repository, options = {}) {
+  const migration = loadCheckoutMigrationManifest(rootDir);
+  if (!migration) throw new Error('TASK_REBIND_PENDING: no checkout migration manifest is registered.');
+  if (pathIdentity(rootDir) !== migration.canonicalPath) {
+    throw new Error(`FB_CHECKOUT_NOT_CANONICAL: task rebind may be completed only from ${migration.canonicalPath}.`);
+  }
+  const suppliedRepository = typeof repository === 'string' ? { repositoryPath: repository } : (repository || {});
+  const suppliedPath = suppliedRepository.repositoryPath || suppliedRepository.projectPath || suppliedRepository.path || '';
+  if (!suppliedRepository.projectId && !suppliedPath) {
+    throw new Error('MIGRATION_PROJECT_MISMATCH: task rebind inventory must match the migration repository identity.');
+  }
+  const expectedRepository = canonicalMigrationRepository(migration.canonicalPath, migration.repository);
+  const observedRepository = canonicalMigrationRepository(migration.canonicalPath, suppliedRepository);
+  const projectMismatch = expectedRepository.projectId
+    ? String(observedRepository.projectId || '') !== String(expectedRepository.projectId)
+    : false;
+  if (projectMismatch) {
+    throw new Error('MIGRATION_PROJECT_MISMATCH: task rebind inventory must match the migration repository identity.');
+  }
+  const verification = verifyRepositoryTaskInventory(taskInventory, observedRepository);
+  if (!verification.complete) {
+    const detail = verification.failures.map(failure => failure.message).join('; ');
+    throw new Error(`TASK_REBIND_PENDING: ${detail || 'all seven exact-project tasks must be visible and pinned.'}`);
+  }
+  const manifest = {
+    ...migration,
+    manifestPath: undefined,
+    taskBindings: verification.taskBindings,
+    taskRecords: Object.entries(verification.taskBindings).map(([workstream, binding]) => ({
+      workstream,
+      taskId: binding.taskId,
+    })),
+    taskRebind: { status: 'complete', pending: [] },
+  };
+  delete manifest.manifestPath;
+  return writeCheckoutMigrationManifest(manifest, options);
+}
+
+function advanceCheckoutRetirement(rootDir, formerPath, options = {}) {
+  const approvalRef = String(options.approvalRef || '').trim();
+  if (!approvalRef) throw new Error('RETIREMENT_APPROVAL_REQUIRED: explicit approval is required before checkout retirement.');
+  const migration = loadCheckoutMigrationManifest(rootDir);
+  if (!migration) throw new Error('FB_CHECKOUT_MANIFEST_INVALID: no checkout migration manifest is registered.');
+  if (pathIdentity(rootDir) !== migration.canonicalPath) {
+    throw new Error(`FB_CHECKOUT_NOT_CANONICAL: retirement state may be changed only from ${migration.canonicalPath}.`);
+  }
+  if (migration.taskRebind.status !== 'complete' || migration.taskRebind.pending.length > 0) {
+    throw new Error('TASK_REBIND_PENDING: checkout retirement requires complete task rebind.');
+  }
+  if (migration.unresolvedDrift.length > 0) {
+    throw new Error('HANDOFF_CONTENT_DRIFT: checkout retirement requires every difference to be dispositioned.');
+  }
+  const former = pathIdentity(formerPath);
+  const current = migration.checkouts[former];
+  if (!current || former === migration.canonicalPath) {
+    throw new Error(`FB_CHECKOUT_MANIFEST_INVALID: ${former} is not a registered former checkout.`);
+  }
+  const staleEvidence = [];
+  for (const [checkoutPath, recorded] of Object.entries(migration.checkouts)) {
+    if (recorded.state === 'retired') continue;
+    const observed = inspectMigrationRoot(checkoutPath);
+    const expectedEvidence = migrationRootEvidence(recorded);
+    const observedEvidence = migrationRootEvidence(observed);
+    for (const kind of Object.keys(observedEvidence)) {
+      if (JSON.stringify(expectedEvidence[kind]) !== JSON.stringify(observedEvidence[kind])) {
+        staleEvidence.push(`${checkoutPath} ${kind}`);
+      }
+    }
+  }
+  if (staleEvidence.length > 0) {
+    throw new Error(
+      `RETIREMENT_EVIDENCE_STALE: checkout evidence changed after migration commit: ${staleEvidence.join('; ')}. `
+      + 'Re-inventory and disposition every fresh difference before retirement.'
+    );
+  }
+  const targetState = String(options.targetState || 'retirement-pending');
+  const allowed = (
+    (current.state === 'quarantined' && targetState === 'retirement-pending')
+    || (current.state === 'retirement-pending' && targetState === 'retired')
+    || current.state === targetState
+  );
+  if (!allowed) {
+    throw new Error(`FB_CHECKOUT_MANIFEST_INVALID: ${current.state} must transition through retirement-pending before ${targetState}.`);
+  }
+  const manifest = { ...migration };
+  delete manifest.manifestPath;
+  manifest.checkouts = {
+    ...migration.checkouts,
+    [former]: {
+      ...current,
+      state: targetState,
+      retirementApprovalRef: approvalRef,
+    },
+  };
+  return writeCheckoutMigrationManifest(manifest, options);
 }
 
 // Find PROJECT_BOARD.md by searching upward
@@ -456,6 +1088,24 @@ const WORKSTREAM_STATUS_CARDS = [
 ];
 
 const BFM_WORKSTREAMS = ['product', 'business', 'design', 'tech', 'discovery', 'bugs'];
+const BFM_INTAKE_ROLES = ['User', 'Business', 'Design', 'Tech', 'Discovery', 'Bugs', 'Product/BFM'];
+const BFM_EVIDENCE_ROLE_FILES = new Map([
+  ['User', 'fb-user.md'],
+  ['Business', 'fb-business.md'],
+  ['Design', 'fb-design.md'],
+  ['Tech', 'fb-tech.md'],
+  ['Discovery', 'fb-discovery.md'],
+  ['Bugs', 'fb-bugs.md'],
+  ['Product/BFM', 'fb-product.md'],
+]);
+const BFM_DISPOSITIONS = new Set([
+  'Include now',
+  'Blocked',
+  'Deferred',
+  'Duplicate',
+  'Rejected',
+  'Superseded',
+]);
 
 function scannerWorkstream(lane) {
   const normalized = String(lane || '').replace(/^fb-/, '').toLowerCase();
@@ -490,8 +1140,8 @@ function readyLikeHandoffStatus(markdown) {
 }
 
 function handoffAuditRoots(rootDir) {
-  let linked = [rootDir];
-  let gitDirectory = path.join(rootDir, '.git');
+  let linked = [pathIdentity(rootDir)];
+  let gitDirectory = gitCommonDirectory(rootDir);
   try {
     linked = execFileSync('git', ['worktree', 'list', '--porcelain'], {
       cwd: rootDir,
@@ -522,13 +1172,139 @@ function handoffAuditRoots(rootDir) {
     .split(path.delimiter)
     .map(value => value.trim())
     .filter(Boolean);
-  return [...new Set([...linked, ...configured, ...environment].map(value =>
-    path.resolve(rootDir, value)
-  ))];
+  const migration = loadCheckoutMigrationManifest(rootDir);
+  const registered = migration
+    ? Object.entries(migration.checkouts)
+      .filter(([, record]) => record.state !== 'retired')
+      .map(([checkoutPath]) => checkoutPath)
+    : [];
+  const configuredRoots = [...configured, ...environment, ...registered]
+    .map(value => path.resolve(rootDir, value));
+  const errors = [];
+  for (const root of configuredRoots) {
+    try {
+      if (!fs.statSync(root).isDirectory()) throw Object.assign(new Error('not a directory'), { code: 'ENOTDIR' });
+      fs.accessSync(root, fs.constants.R_OK | fs.constants.X_OK);
+    } catch (error) {
+      errors.push(`${root} (${error.code || 'ACCESS_ERROR'})`);
+    }
+  }
+  if (errors.length > 0) {
+    throw new Error(`READINESS_AUDIT_INCOMPLETE: configured audit roots were missing or inaccessible: ${errors.join('; ')}`);
+  }
+  return [...new Set([...linked, ...configuredRoots].map(value => pathIdentity(value)))];
+}
+
+function handoffDigest(contents) {
+  return crypto.createHash('sha256').update(contents).digest('hex');
+}
+
+function handoffAuditRecords(rootDir) {
+  const records = new Map();
+  const errors = [];
+  for (const root of handoffAuditRoots(rootDir)) {
+    const directory = path.join(root, 'docs', 'handoffs');
+    if (!fs.existsSync(directory)) continue;
+    let names;
+    try {
+      names = fs.readdirSync(directory)
+        .filter(name => name.endsWith('.md') && name !== 'index.md')
+        .sort();
+    } catch (error) {
+      errors.push(`${directory} (${error.code || 'READ_ERROR'})`);
+      continue;
+    }
+    for (const name of names) {
+      const relative = `docs/handoffs/${name}`;
+      const absolute = path.join(directory, name);
+      try {
+        const contents = fs.readFileSync(absolute);
+        const markdown = contents.toString('utf8');
+        const metadata = handoffFrontmatter(markdown) || {};
+        const record = {
+          root,
+          relative,
+          sha256: handoffDigest(contents),
+          task: String(metadata.task || ''),
+          status: String(metadata.status || readyLikeHandoffStatus(markdown) || ''),
+          readyStatus: readyLikeHandoffStatus(markdown),
+        };
+        if (!records.has(relative)) records.set(relative, []);
+        records.get(relative).push(record);
+      } catch (error) {
+        errors.push(`${absolute} (${error.code || 'READ_ERROR'})`);
+      }
+    }
+  }
+  return { records, errors };
+}
+
+function validRoutingReceipt(receipt, canonical, sources) {
+  if (!(receipt
+    && typeof receipt.disposition === 'string'
+    && receipt.disposition.trim() !== ''
+    && receipt.canonicalSha256 === canonical.sha256
+    && Array.isArray(receipt.sources))) return false;
+  const expected = sources
+    .map(record => `${pathIdentity(record.root)}\0${record.sha256}`)
+    .sort();
+  const recorded = receipt.sources
+    .filter(record => record && typeof record.root === 'string' && typeof record.sha256 === 'string')
+    .map(record => `${pathIdentity(record.root)}\0${record.sha256}`)
+    .sort();
+  return recorded.length === receipt.sources.length
+    && recorded.length === expected.length
+    && recorded.every((value, index) => value === expected[index]);
+}
+
+function assertNoHandoffContentDrift(rootDir) {
+  const canonicalRoot = pathIdentity(rootDir);
+  const snapshot = checkoutMigrationSnapshot(rootDir);
+  const { records, errors } = handoffAuditRecords(rootDir);
+  if (errors.length > 0) {
+    throw new Error(`READINESS_AUDIT_INCOMPLETE: handoff sources were unreadable: ${errors.join('; ')}`);
+  }
+  const findings = [];
+  for (const [relative, candidates] of records) {
+    const canonical = candidates.find(record => record.root === canonicalRoot);
+    const external = candidates.filter(record => record.root !== canonicalRoot);
+    if (external.length === 0) continue;
+    if (!canonical) {
+      // Keep the established Ready orphan error and its deterministic ordering.
+      if (external.some(record => record.readyStatus)) continue;
+      for (const record of external) {
+        findings.push(
+          `${relative} canonical=missing source=${record.root} sha256=${record.sha256} `
+          + `task=${record.task || '(missing)'} status=${record.status || '(missing)'}`
+        );
+      }
+      continue;
+    }
+    for (const record of external) {
+      const differs = canonical.sha256 !== record.sha256
+        || canonical.task !== record.task
+        || canonical.status !== record.status;
+      if (!differs) continue;
+      const receipt = snapshot.routingReceipts[relative];
+      if (validRoutingReceipt(receipt, canonical, external)) continue;
+      findings.push(
+        `${relative} canonical=${canonical.root} sha256=${canonical.sha256} `
+        + `task=${canonical.task || '(missing)'} status=${canonical.status || '(missing)'}; `
+        + `source=${record.root} sha256=${record.sha256} `
+        + `task=${record.task || '(missing)'} status=${record.status || '(missing)'}`
+      );
+    }
+  }
+  if (findings.length > 0) {
+    throw new Error(
+      `HANDOFF_CONTENT_DRIFT: same-path or undispositioned handoff content requires reconciliation: ${findings.join('; ')}`
+    );
+  }
 }
 
 function assertNoOrphanReadyHandoffs(rootDir, selected) {
-  const primary = path.resolve(rootDir);
+  assertNoHandoffContentDrift(rootDir);
+  const primary = pathIdentity(rootDir);
   const canonical = new Set();
   const selectedCanonical = new Set(selected);
   const ready = [];
@@ -576,6 +1352,7 @@ function scanWorkstreamHandoffs(rootDir) {
   const handoffsDir = path.join(rootDir, 'docs', 'handoffs');
   const workstreams = Object.fromEntries(BFM_WORKSTREAMS.map(workstream => [workstream, { ready: [], blocked: [] }]));
   const selectedByTask = new Map();
+  const blockedCandidates = [];
   const files = fs.existsSync(handoffsDir)
     ? fs.readdirSync(handoffsDir).filter(file => file.endsWith('.md') && file !== 'index.md').sort()
     : [];
@@ -586,7 +1363,14 @@ function scanWorkstreamHandoffs(rootDir) {
     const workstream = scannerWorkstream(metadata.lane);
     if (!BFM_WORKSTREAMS.includes(workstream)) continue;
     const status = String(metadata.status || '').toLowerCase();
-    if (status === 'blocked') workstreams[workstream].blocked.push(relative);
+    if (status === 'blocked') {
+      workstreams[workstream].blocked.push(relative);
+      blockedCandidates.push({
+        relative,
+        task: String(metadata.task || '').trim(),
+        role: bfmEvidenceRole(metadata.lane),
+      });
+    }
     if (status !== 'ready') continue;
     const task = String(metadata.task || '').trim();
     if (!task) throw new Error(`Ready handoff ${relative} requires task metadata.`);
@@ -602,7 +1386,587 @@ function scanWorkstreamHandoffs(rootDir) {
   }
   const candidates = BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready);
   assertNoOrphanReadyHandoffs(rootDir, candidates);
-  return { workstreams, candidates, selected: candidates };
+  return { workstreams, candidates, selected: candidates, blockedCandidates };
+}
+
+function bfmEvidenceRole(lane) {
+  return new Map([
+    ['fb-product', 'Product/BFM'],
+    ['fb-user', 'User'],
+    ['fb-business', 'Business'],
+    ['fb-design', 'Design'],
+    ['fb-tech', 'Tech'],
+    ['fb-discovery', 'Discovery'],
+    ['fb-bugs', 'Bugs'],
+  ]).get(String(lane || '').trim().toLowerCase()) || '';
+}
+
+function bfmOnboardingEvidence(rootDir, migration) {
+  const required = BFM_INTAKE_ROLES.map(role => {
+    const key = role === 'Product/BFM' ? 'product' : role.toLowerCase();
+    const workstream = ONBOARDING_WORKSTREAMS.find(item => item.key === key);
+    return { key, role, title: workstream.title };
+  });
+  let receipt;
+  try {
+    receipt = readOnboardingReceipt(rootDir);
+  } catch {
+    return { state: 'stale', missingRoles: required.map(item => item.role) };
+  }
+  if (!receipt) return { state: 'absent', missingRoles: required.map(item => item.role) };
+  if (receipt.permission !== 'granted') {
+    return {
+      state: receipt.permission === 'pending' ? 'permission-pending' : 'permission-declined',
+      missingRoles: required.map(item => item.role),
+    };
+  }
+
+  const observed = new Set(Array.isArray(receipt.workstreams) ? receipt.workstreams : []);
+  const bindings = receipt.taskBindings && typeof receipt.taskBindings === 'object'
+    ? receipt.taskBindings
+    : {};
+  const missingRoles = required
+    .filter(item => {
+      const binding = bindings[item.key];
+      return !observed.has(item.key)
+        || !binding
+        || !String(binding.taskId || '').trim()
+        || binding.title !== item.title
+        || binding.pinned !== true;
+    })
+    .map(item => item.role);
+  if (missingRoles.length > 0) return { state: 'partial', missingRoles };
+
+  const attemptedActions = Array.isArray(receipt.attemptedActions) ? receipt.attemptedActions : null;
+  const expectedActionsHash = attemptedActions
+    ? crypto.createHash('sha256').update(JSON.stringify(attemptedActions)).digest('hex')
+    : '';
+  const reconciledAt = Date.parse(String(receipt.reconciledAt || ''));
+  const receiptPath = String(receipt.repositoryPath || '').trim();
+  const receiptProjectId = String(receipt.projectId || '').trim();
+  const migrationProjectId = String(migration?.repository?.projectId || '').trim();
+  const exactRoot = Boolean(receiptPath)
+    && pathIdentity(receiptPath) === pathIdentity(rootDir);
+  const exactProject = Boolean(receiptProjectId)
+    && (!migration?.managed || (Boolean(migrationProjectId) && receiptProjectId === migrationProjectId));
+  if (!attemptedActions
+    || receipt.attemptedActionsHash !== expectedActionsHash
+    || !Number.isFinite(reconciledAt)
+    || !exactRoot
+    || !exactProject) {
+    return { state: 'stale', missingRoles: [] };
+  }
+  if (migration?.managed) {
+    const migrationBindings = migration.taskBindings && typeof migration.taskBindings === 'object'
+      ? migration.taskBindings
+      : {};
+    const migrationMissing = required
+      .filter(item => !migrationBindings[item.key] || !String(migrationBindings[item.key].taskId || '').trim())
+      .map(item => item.role);
+    if (migrationMissing.length > 0) return { state: 'partial', missingRoles: migrationMissing };
+    const mismatched = required.some(item => {
+      const receiptBinding = bindings[item.key];
+      const migrationBinding = migrationBindings[item.key];
+      return receiptBinding.taskId !== migrationBinding.taskId
+        || (migrationBinding.title !== undefined && receiptBinding.title !== migrationBinding.title)
+        || (migrationBinding.pinned !== undefined && receiptBinding.pinned !== migrationBinding.pinned);
+    });
+    if (mismatched) return { state: 'stale', missingRoles: [] };
+  }
+  return { state: 'verified', missingRoles: [] };
+}
+
+function commaSeparatedMetadata(value) {
+  return [...new Set(String(value || '')
+    .split(',')
+    .map(item => item.trim())
+    .filter(Boolean))];
+}
+
+function normalizedBoardLocks(value) {
+  const source = String(value || '').trim();
+  if (!source || /^(?:\(none\)|none)$/i.test(source)) return [];
+  return [...new Set(source
+    .split(',')
+    .map(item => item.replace(/`/g, '').trim())
+    .filter(Boolean))].sort();
+}
+
+function readBfmIntakeFile(rootDir, relative, missing) {
+  const absolute = path.join(rootDir, relative);
+  try {
+    if (!fs.statSync(absolute).isFile()) throw Object.assign(new Error('not a file'), { code: 'ENOTFILE' });
+    return fs.readFileSync(absolute, 'utf8');
+  } catch (error) {
+    missing.push(`${absolute} (${error.code || 'READ_ERROR'})`);
+    return '';
+  }
+}
+
+function bfmRoutingDigest(parts) {
+  const hash = crypto.createHash('sha256');
+  for (const [label, contents] of parts) hash.update(`${label}\0${contents}\0`);
+  return hash.digest('hex');
+}
+
+function markdownTableCells(line) {
+  const source = String(line || '').trim();
+  if (!source.startsWith('|') || !source.endsWith('|')) return [];
+  const cells = [];
+  let cell = '';
+  let escaped = false;
+  for (const character of source.slice(1, -1)) {
+    if (escaped) {
+      cell += character;
+      escaped = false;
+    } else if (character === '\\') {
+      cell += character;
+      escaped = true;
+    } else if (character === '|') {
+      cells.push(cell.trim());
+      cell = '';
+    } else {
+      cell += character;
+    }
+  }
+  cells.push(cell.trim());
+  return cells;
+}
+
+function markdownLinkTargets(source) {
+  return [...String(source || '').matchAll(/\]\(([^)]+)\)/g)].map(match => match[1].trim());
+}
+
+function exactHandoffTarget(target, fileName) {
+  const clean = String(target || '').split(/[?#]/, 1)[0].replace(/\\/g, '/');
+  return path.posix.basename(clean) === fileName;
+}
+
+function escapedRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function exactTaskLines(source, task) {
+  const pattern = new RegExp(`(^|[^A-Za-z0-9-])${escapedRegex(task)}(?=$|[^A-Za-z0-9-])`);
+  return String(source || '').split(/\r?\n/).filter(line => pattern.test(line));
+}
+
+function indexTaskId(cell) {
+  return String(cell || '').match(/^([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*-\d+)(?:\s|$)/)?.[1] || '';
+}
+
+function collectBfmIntakeInventories(canonicalRoot) {
+  const missing = [];
+  const inventories = new Map();
+  for (const root of handoffAuditRoots(canonicalRoot)) {
+    try {
+      if (!fs.statSync(root).isDirectory()) throw Object.assign(new Error('not a directory'), { code: 'ENOTDIR' });
+      fs.accessSync(root, fs.constants.R_OK | fs.constants.X_OK);
+    } catch (error) {
+      missing.push(`${root} (${error.code || 'ACCESS_ERROR'})`);
+      continue;
+    }
+    const boardSource = readBfmIntakeFile(root, 'PROJECT_BOARD.md', missing);
+    const indexSource = readBfmIntakeFile(root, 'docs/handoffs/index.md', missing);
+    const cardSources = new Map();
+    for (const role of BFM_INTAKE_ROLES) {
+      const relative = `docs/workstreams/${BFM_EVIDENCE_ROLE_FILES.get(role)}`;
+      cardSources.set(role, readBfmIntakeFile(root, relative, missing));
+    }
+    let boardTasks = [];
+    if (boardSource) {
+      try {
+        boardTasks = parseBoard(path.join(root, 'PROJECT_BOARD.md')).tasks;
+      } catch (error) {
+        missing.push(`${path.join(root, 'PROJECT_BOARD.md')} (${error.message})`);
+      }
+    }
+    inventories.set(root, { root, boardSource, indexSource, cardSources, boardTasks });
+  }
+  if (missing.length > 0) {
+    const canonicalPrefix = `${canonicalRoot}${path.sep}`;
+    const canonicalMissing = missing.filter(item => item.startsWith(canonicalPrefix));
+    if (canonicalMissing.length > 0) {
+      const missingRoles = BFM_INTAKE_ROLES.filter(role => canonicalMissing.some(item =>
+        item.includes(`${path.sep}docs${path.sep}workstreams${path.sep}${BFM_EVIDENCE_ROLE_FILES.get(role)} `)
+      ));
+      throw new Error(
+        `BFM_INTAKE_INCOMPLETE: missing or unreadable authoritative inventory: ${canonicalMissing.join('; ')}`
+        + `${missingRoles.length ? `; roles: ${missingRoles.join(', ')}` : ''}.`
+      );
+    }
+    throw new Error(`READINESS_AUDIT_INCOMPLETE: BFM routing roots or surfaces were missing or unreadable: ${missing.join('; ')}.`);
+  }
+  return inventories;
+}
+
+function bfmCandidateRoutingRecord(inventory, relative, handoffSource, errors) {
+  const metadata = handoffFrontmatter(handoffSource) || {};
+  const task = String(metadata.task || '').trim();
+  const role = bfmEvidenceRole(metadata.lane);
+  const fileName = path.basename(relative);
+  if (!role) {
+    errors.push(`${inventory.root}/${relative} uses ${metadata.lane || '(missing lane)'}; Product/BFM is a control centre, not an evidence role`);
+    return null;
+  }
+  const boardMatches = inventory.boardTasks.filter(item => item.id === task);
+  const boardRouteMatches = boardMatches.filter(item => markdownLinkTargets(item.links).some(target => exactHandoffTarget(target, fileName)));
+  const indexMatches = String(inventory.indexSource || '')
+    .split(/\r?\n/)
+    .map(line => ({ line, cells: markdownTableCells(line) }))
+    .filter(row => row.cells.length > 0
+      && indexTaskId(row.cells[0]) === task
+      && markdownLinkTargets(row.line).some(target => exactHandoffTarget(target, fileName)));
+  const cardSource = inventory.cardSources.get(role) || '';
+  const cardLines = exactTaskLines(cardSource, task);
+  if (boardMatches.length !== 1 || boardRouteMatches.length !== 1) {
+    errors.push(`${inventory.root}/${relative} requires one exact PROJECT_BOARD.md task/filename route for ${task}; found ${boardRouteMatches.length}`);
+  }
+  if (indexMatches.length !== 1) {
+    errors.push(`${inventory.root}/${relative} requires one exact docs/handoffs/index.md task/filename route for ${task}; found ${indexMatches.length}`);
+  }
+  if (cardLines.length === 0) {
+    errors.push(`${inventory.root}/${relative} requires an exact ${task} route in the ${role} workstream card`);
+  }
+  const boardTask = boardMatches[0] || { locks: '(None)', status: '' };
+  return {
+    root: inventory.root,
+    relative,
+    task,
+    role,
+    status: String(metadata.status || ''),
+    sha256: handoffDigest(Buffer.from(handoffSource)),
+    routingSha256: bfmRoutingDigest([
+      ['handoff', handoffSource],
+      ['board', inventory.boardSource],
+      ['index', inventory.indexSource],
+      [`card:${role}`, cardSource],
+    ]),
+    dependencies: commaSeparatedMetadata(metadata.depends_on),
+    approvalGate: String(metadata.approval_gate || '').trim(),
+    externalBlocker: String(metadata.external_blocker || '').trim(),
+    recordedDisposition: String(metadata.disposition || '').trim(),
+    locks: normalizedBoardLocks(boardTask.locks),
+    boardStatus: boardTask.status,
+  };
+}
+
+function validBfmRoutingReceipt(receipt, canonical, sources) {
+  if (!(receipt
+    && typeof receipt.disposition === 'string'
+    && receipt.disposition.trim() !== ''
+    && receipt.canonicalSha256 === canonical.sha256
+    && receipt.canonicalRoutingSha256 === canonical.routingSha256
+    && Array.isArray(receipt.sources))) return false;
+  const expected = sources
+    .map(record => `${pathIdentity(record.root)}\0${record.sha256}\0${record.routingSha256}`)
+    .sort();
+  const recorded = receipt.sources
+    .filter(record => record
+      && typeof record.root === 'string'
+      && typeof record.sha256 === 'string'
+      && typeof record.routingSha256 === 'string')
+    .map(record => `${pathIdentity(record.root)}\0${record.sha256}\0${record.routingSha256}`)
+    .sort();
+  return recorded.length === receipt.sources.length
+    && recorded.length === expected.length
+    && recorded.every((value, index) => value === expected[index]);
+}
+
+function assertBfmCrossRootRouting(migration, recordsByRelative) {
+  const findings = [];
+  for (const [relative, records] of recordsByRelative) {
+    const canonical = records.find(record => record.root === migration.canonicalPath);
+    const sources = records.filter(record => record.root !== migration.canonicalPath);
+    if (!canonical || sources.length === 0) continue;
+    const differs = sources.some(record => record.sha256 !== canonical.sha256
+      || record.task !== canonical.task
+      || record.status !== canonical.status
+      || record.routingSha256 !== canonical.routingSha256);
+    if (!differs || validBfmRoutingReceipt(migration.routingReceipts[relative], canonical, sources)) continue;
+    findings.push(
+      `${relative} requires a source-bound receipt with canonicalSha256=${canonical.sha256}, `
+      + `canonicalRoutingSha256=${canonical.routingSha256}, and each source root/sha256/routingSha256`
+    );
+  }
+  if (findings.length > 0) {
+    throw new Error(`HANDOFF_ROUTING_DRIFT: cross-root handoff or routing state is unreceipted: ${findings.join('; ')}.`);
+  }
+}
+
+function assertNoContradictoryCanonicalHandoffs(rootDir) {
+  const directory = path.join(rootDir, 'docs', 'handoffs');
+  const byTask = new Map();
+  for (const file of fs.readdirSync(directory).filter(name => name.endsWith('.md') && name !== 'index.md').sort()) {
+    const relative = `docs/handoffs/${file}`;
+    const source = fs.readFileSync(path.join(directory, file), 'utf8');
+    const metadata = handoffFrontmatter(source);
+    if (!metadata || metadata.type !== 'fb-lane-handoff') continue;
+    const task = String(metadata.task || '').trim();
+    if (!task) continue;
+    if (!byTask.has(task)) byTask.set(task, []);
+    byTask.get(task).push({ relative, status: String(metadata.status || '').trim().toLowerCase() });
+  }
+  const findings = [...byTask.entries()]
+    .filter(([, records]) => records.length > 1 && records.some(record => record.status === 'ready'))
+    .map(([task, records]) => `${task}: ${records.map(record => `${record.relative} (${record.status || 'missing status'})`).join(', ')}`);
+  if (findings.length > 0) {
+    throw new Error(`BFM_INTAKE_CONTRADICTION: duplicate Ready task records require reconciliation: ${findings.join('; ')}.`);
+  }
+}
+
+function activeBoardLocks(tasks) {
+  const locks = new Map();
+  for (const task of tasks.filter(item => normalizedStatus(item.status) === 'in progress')) {
+    for (const lock of normalizedBoardLocks(task.locks)) {
+      if (!locks.has(lock)) locks.set(lock, []);
+      locks.get(lock).push(task.id);
+    }
+  }
+  return [...locks.entries()]
+    .map(([lockPath, taskIds]) => ({ path: lockPath, tasks: [...new Set(taskIds)].sort() }))
+    .sort((a, b) => a.path.localeCompare(b.path));
+}
+
+function recommendedBfmExecution(candidates) {
+  const include = candidates.filter(candidate => candidate.disposition === 'Include now');
+  const includedTasks = new Set(include.map(candidate => candidate.task));
+  const roleRank = new Map(BFM_INTAKE_ROLES.map((role, index) => [role, index]));
+  const byTask = new Map(include.map(candidate => [candidate.task, candidate]));
+  const remaining = new Set(include.map(candidate => candidate.task));
+  const order = [];
+
+  while (remaining.size > 0) {
+    const ready = [...remaining]
+      .filter(task => byTask.get(task).dependencies.every(dependency => !includedTasks.has(dependency) || !remaining.has(dependency)))
+      .sort((left, right) => {
+        const roleDifference = roleRank.get(byTask.get(left).role) - roleRank.get(byTask.get(right).role);
+        return roleDifference || left.localeCompare(right);
+      });
+    if (ready.length === 0) {
+      throw new Error(`BFM_DEPENDENCY_CONFLICT: dependency cycle among Include now candidates: ${[...remaining].sort().join(', ')}.`);
+    }
+    for (const task of ready) {
+      order.push(task);
+      remaining.delete(task);
+    }
+  }
+
+  const waveByTask = new Map();
+  const waves = [];
+  for (const task of order) {
+    const candidate = byTask.get(task);
+    const dependencyFloor = candidate.dependencies
+      .filter(dependency => waveByTask.has(dependency))
+      .reduce((floor, dependency) => Math.max(floor, waveByTask.get(dependency) + 1), 0);
+    let waveIndex = dependencyFloor;
+    while (true) {
+      const wave = waves[waveIndex] || [];
+      const occupied = new Set(wave.flatMap(other => byTask.get(other).locks));
+      if (candidate.locks.every(lock => !occupied.has(lock))) break;
+      waveIndex += 1;
+    }
+    if (!waves[waveIndex]) waves[waveIndex] = [];
+    waves[waveIndex].push(task);
+    waveByTask.set(task, waveIndex);
+  }
+  return { order, waves: waves.filter(Boolean) };
+}
+
+function freezeBfmIntake(rootDir, options = {}) {
+  const canonicalRoot = pathIdentity(rootDir);
+  const migration = assertCanonicalCheckout(canonicalRoot, 'BFM intake freeze');
+  if (migration.unresolvedDrift > 0) {
+    throw new Error(`HANDOFF_CONTENT_DRIFT: ${migration.unresolvedDrift} unresolved migration drift record(s) block BFM intake.`);
+  }
+
+  // This is the canonical scanner. It performs linked-worktree/former-root
+  // discovery, source-bound receipt validation, and Ready false-negative
+  // detection before the routing inventory below is trusted.
+  const scan = scanWorkstreamHandoffs(canonicalRoot);
+  const onboarding = bfmOnboardingEvidence(canonicalRoot, migration);
+  assertNoContradictoryCanonicalHandoffs(canonicalRoot);
+  const inventories = collectBfmIntakeInventories(canonicalRoot);
+  const canonicalInventory = inventories.get(canonicalRoot);
+  const boardTasks = canonicalInventory.boardTasks;
+  const tasksById = new Map();
+  for (const task of boardTasks) {
+    if (!tasksById.has(task.id)) tasksById.set(task.id, []);
+    tasksById.get(task.id).push(task);
+  }
+
+  const candidates = [];
+  const routeErrors = [];
+  const recordsByRelative = new Map();
+  for (const relative of scan.candidates) {
+    const canonicalSource = readBfmIntakeFile(canonicalRoot, relative, routeErrors);
+    const canonicalRecord = bfmCandidateRoutingRecord(canonicalInventory, relative, canonicalSource, routeErrors);
+    if (!canonicalRecord) continue;
+    candidates.push(canonicalRecord);
+    const records = [canonicalRecord];
+    for (const [auditRoot, inventory] of inventories) {
+      if (auditRoot === canonicalRoot) continue;
+      const absolute = path.join(auditRoot, relative);
+      if (!fs.existsSync(absolute)) continue;
+      let source;
+      try {
+        source = fs.readFileSync(absolute, 'utf8');
+      } catch (error) {
+        routeErrors.push(`${absolute} (${error.code || 'READ_ERROR'})`);
+        continue;
+      }
+      const record = bfmCandidateRoutingRecord(inventory, relative, source, routeErrors);
+      if (record) records.push(record);
+    }
+    recordsByRelative.set(relative, records);
+  }
+  if (routeErrors.length > 0) {
+    throw new Error(`BFM_INTAKE_INCOMPLETE: authoritative routing is incomplete or contradictory: ${routeErrors.join('; ')}.`);
+  }
+  assertBfmCrossRootRouting(migration, recordsByRelative);
+
+  const dispositions = Object.prototype.hasOwnProperty.call(options, 'dispositions')
+    && options.dispositions && typeof options.dispositions === 'object'
+    ? options.dispositions
+    : Object.fromEntries(candidates.map(candidate => [candidate.task, candidate.recordedDisposition]));
+  const candidateTasks = new Set(candidates.map(candidate => candidate.task));
+  const dispositionErrors = [];
+  for (const candidate of candidates) {
+    const value = dispositions[candidate.task];
+    if (!BFM_DISPOSITIONS.has(value)) dispositionErrors.push(candidate.task);
+    else candidate.disposition = value;
+  }
+  const extras = Object.keys(dispositions).filter(task => !candidateTasks.has(task));
+  if (dispositionErrors.length > 0 || extras.length > 0) {
+    throw new Error(
+      `BFM_DISPOSITION_INCOMPLETE: every frozen candidate needs exactly one allowed disposition; `
+      + `invalid or missing: ${dispositionErrors.join(', ') || '(none)'}; unexpected: ${extras.join(', ') || '(none)'}.`
+    );
+  }
+
+  const activeLocks = activeBoardLocks(boardTasks);
+  const includedTasks = new Set(candidates.filter(candidate => candidate.disposition === 'Include now').map(candidate => candidate.task));
+  const approvalGates = candidates
+    .flatMap(candidate => {
+      const boardTask = tasksById.get(candidate.task)?.[0];
+      const boardApproval = String(boardTask?.details?.approval || '').trim();
+      const gates = candidate.approvalGate ? [candidate.approvalGate] : [];
+      if (boardApproval && !/^(?:approved|none|not required)(?:\b|\s|—|-|:)/i.test(boardApproval)) gates.push(boardApproval);
+      return [...new Set(gates)].map(gate => ({ task: candidate.task, gate }));
+    });
+  const externalBlockers = candidates
+    .flatMap(candidate => {
+      const boardTask = tasksById.get(candidate.task)?.[0];
+      const boardBlocker = String(boardTask?.details?.blockers || '').trim();
+      const blockers = candidate.externalBlocker ? [candidate.externalBlocker] : [];
+      if (boardBlocker && !/^(?:\(none\)|none)(?:\b|\s|—|-|:)/i.test(boardBlocker)) blockers.push(boardBlocker);
+      return [...new Set(blockers)].map(blocker => ({ task: candidate.task, blocker }));
+    });
+  for (const candidate of candidates.filter(item => item.disposition === 'Include now')) {
+    for (const dependency of candidate.dependencies) {
+      if (includedTasks.has(dependency)) continue;
+      const boardDependency = tasksById.get(dependency)?.[0];
+      if (boardDependency && normalizedStatus(boardDependency.status) === 'done') continue;
+      externalBlockers.push({ task: candidate.task, blocker: `Dependency ${dependency} is not an Include now or Done task` });
+    }
+    for (const lock of candidate.locks) {
+      const outsideOwners = (activeLocks.find(item => item.path === lock)?.tasks || [])
+        .filter(task => task !== candidate.task && !includedTasks.has(task));
+      for (const owner of outsideOwners) {
+        externalBlockers.push({ task: candidate.task, blocker: `Lock ${lock} is active in ${owner}` });
+      }
+    }
+  }
+  const uniqueBlockers = [...new Map(externalBlockers.map(item => [`${item.task}\0${item.blocker}`, item])).values()];
+  const recommendation = recommendedBfmExecution(candidates);
+  const includeCount = candidates.filter(candidate => candidate.disposition === 'Include now').length;
+  const roles = BFM_INTAKE_ROLES.map(role => {
+    const roleCandidates = candidates.filter(candidate => candidate.role === role);
+    const blocked = scan.blockedCandidates
+      .filter(candidate => candidate.role === role)
+      .map(candidate => candidate.relative);
+    const readySummary = roleCandidates.map(candidate => `${candidate.task}: ${candidate.disposition}`).join('; ');
+    const blockedSummary = blocked.length ? `Blocked: ${blocked.join(', ')}` : '';
+    const contributionSummary = [readySummary, blockedSummary].filter(Boolean).join('; ');
+    return {
+      role,
+      candidateCount: roleCandidates.length,
+      blockedCount: blocked.length,
+      summary: contributionSummary || (role === 'Product/BFM'
+        ? 'Control centre — not an evidence workstream'
+        : 'None relevant'),
+      candidates: roleCandidates.map(candidate => candidate.task),
+      blocked,
+    };
+  });
+
+  const canonicalEvidenceState = migration.managed ? 'verified' : 'not-configured';
+  const evidenceReady = canonicalEvidenceState === 'verified' && onboarding.state === 'verified';
+
+  return {
+    canonicalCheckout: migration.canonicalPath,
+    lifecycleState: migration.state,
+    unresolvedDrift: migration.unresolvedDrift,
+    taskRebind: migration.taskRebind,
+    activeLocks,
+    canonicalEvidenceState,
+    onboardingState: onboarding.state,
+    missingRoles: onboarding.missingRoles,
+    approvalGates,
+    externalBlockers: uniqueBlockers,
+    recommendedOrder: recommendation.order,
+    recommendedWaves: recommendation.waves,
+    emptyQueueProven: candidates.length === 0 && scan.blockedCandidates.length === 0 && evidenceReady,
+    executionAllowed: includeCount > 0
+      && evidenceReady
+      && migration.taskRebind.pending.length === 0
+      && migration.taskRebind.status !== 'awaiting-task-rebind'
+      && approvalGates.length === 0
+      && uniqueBlockers.length === 0,
+    roles,
+    candidates,
+  };
+}
+
+function gateBfmExecutionStart(rootDir, lane, options = {}) {
+  if (String(lane || '').trim().toLowerCase() !== 'bfm') return null;
+  const ledger = freezeBfmIntake(rootDir, options);
+  const rendered = renderBfmIntakeLedger(ledger);
+  if (!ledger.executionAllowed) {
+    throw new Error(`BFM_EXECUTION_BLOCKED: the frozen intake does not permit execution.\n${rendered}`);
+  }
+  return { ledger, rendered };
+}
+
+function renderBfmIntakeLedger(ledger) {
+  if (!ledger || !Array.isArray(ledger.roles)) throw new Error('A frozen BFM intake ledger is required.');
+  const lines = [
+    'BFM intake ledger',
+    `Canonical checkout: ${ledger.canonicalCheckout}`,
+    `Lifecycle state: ${ledger.lifecycleState}`,
+    `Unresolved drift: ${ledger.unresolvedDrift}`,
+    `Task rebind: ${ledger.taskRebind.status} (${ledger.taskRebind.pending.length} pending)`,
+    `Canonical evidence: ${ledger.canonicalEvidenceState}`,
+    `Onboarding reconciliation: ${ledger.onboardingState}`,
+    `Active locks: ${ledger.activeLocks.length ? ledger.activeLocks.map(lock => `${lock.path} [${lock.tasks.join(', ')}]`).join('; ') : 'None'}`,
+    `Missing roles: ${ledger.missingRoles.length ? ledger.missingRoles.join(', ') : 'None'}`,
+  ];
+  for (const role of ledger.roles) {
+    const blocked = Number(role.blockedCount || 0);
+    const count = blocked > 0
+      ? `${role.candidateCount} ready, ${blocked} blocked`
+      : `${role.candidateCount} candidate(s)`;
+    lines.push(`${role.role}: ${count} — ${role.summary}`);
+  }
+  lines.push(`Approval gates: ${ledger.approvalGates.length ? ledger.approvalGates.map(item => `${item.task}: ${item.gate}`).join('; ') : 'None'}`);
+  lines.push(`External blockers: ${ledger.externalBlockers.length ? ledger.externalBlockers.map(item => `${item.task}: ${item.blocker}`).join('; ') : 'None'}`);
+  lines.push(`Recommended order: ${ledger.recommendedOrder.length ? ledger.recommendedOrder.join(' -> ') : 'None'}`);
+  lines.push(`Empty queue proof: ${ledger.emptyQueueProven ? 'complete' : 'not empty'}`);
+  const executionGate = ledger.executionAllowed
+    ? 'open for Include now scope'
+    : (ledger.recommendedOrder.length === 0 ? 'no Include now scope' : 'blocked');
+  lines.push(`Execution gate: ${executionGate}`);
+  return lines.join('\n');
 }
 
 function workstreamStatusCardTemplate(displayTitle) {
@@ -1621,18 +2985,30 @@ function handleStatus(options = {}) {
     console.error('❌ Error: PROJECT_BOARD.md not found in this workspace.');
     process.exit(1);
   }
+  const rootDir = path.dirname(boardPath);
+  let migration;
+  try {
+    migration = checkoutMigrationSnapshot(rootDir);
+  } catch (error) {
+    console.error(`❌ Error: ${error.message}`);
+    process.exit(1);
+  }
   if (options.context) {
     console.log(renderBoardContext(fs.readFileSync(boardPath, 'utf8')));
+    if (migration.managed) console.log(`\n${checkoutMigrationStatusLines(migration).join('\n')}`);
+    if (!isCanonicalCheckout(migration)) {
+      console.error(`❌ Error: FB_CHECKOUT_NOT_CANONICAL: canonical checkout is ${migration.canonicalPath}.`);
+      process.exit(1);
+    }
     return;
   }
   const { tasks } = parseBoard(boardPath);
-  const rootDir = path.dirname(boardPath);
   const currentTaskPath = path.join(rootDir, '.codex', 'current_task.md');
   const current = fs.existsSync(currentTaskPath) ? parseCurrentTask(fs.readFileSync(currentTaskPath, 'utf8')) : null;
   const quickPath = current && current.id.startsWith('TASK-Q-') ? findQuickRecord(rootDir, current.id) : null;
   if (quickPath && !options.details) {
     const quick = parseQuickRecord(fs.readFileSync(quickPath, 'utf8'));
-    console.log([
+    const lines = [
       'FB status',
       `Current objective: ${quick.scope || quick.taskId}`,
       'Working mode: Quick BFM',
@@ -1642,12 +3018,25 @@ function handleStatus(options = {}) {
       'Your input: None required.',
       `Next action / owner: ${quick.owner || 'Product'} / ${quick.status === 'complete' ? 'review the result' : 'run the focused verification plan'}.`,
       `Test / review link: docs/handoffs/${quick.taskId}.md`,
-    ].join('\n'));
+    ];
+    if (migration.managed) lines.push(...checkoutMigrationStatusLines(migration));
+    console.log(lines.join('\n'));
+    if (!isCanonicalCheckout(migration)) {
+      console.error(`❌ Error: FB_CHECKOUT_NOT_CANONICAL: canonical checkout is ${migration.canonicalPath}.`);
+      process.exit(1);
+    }
     return;
   }
-  console.log(options.details
+  const rendered = options.details
     ? `\n${renderTechnicalStatus(tasks)}\n`
-    : renderBeginnerStatus(statusInputs(rootDir, tasks)));
+    : renderBeginnerStatus(statusInputs(rootDir, tasks));
+  console.log(migration.managed
+    ? `${rendered}\n${checkoutMigrationStatusLines(migration).join('\n')}`
+    : rendered);
+  if (!isCanonicalCheckout(migration)) {
+    console.error(`❌ Error: FB_CHECKOUT_NOT_CANONICAL: canonical checkout is ${migration.canonicalPath}.`);
+    process.exit(1);
+  }
 }
 
 function handleDoctor() {
@@ -1989,6 +3378,14 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
   const boardPath = findBoardPath();
   if (!boardPath) {
     console.error('❌ Error: PROJECT_BOARD.md not found.');
+    process.exit(1);
+  }
+
+  try {
+    const intake = gateBfmExecutionStart(path.dirname(boardPath), lane, options.bfmIntake || {});
+    if (intake) console.log(`${intake.rendered}\n`);
+  } catch (error) {
+    console.error(`❌ Error: ${error.message}`);
     process.exit(1);
   }
 
@@ -2873,6 +4270,51 @@ function handleMcpRequest(request) {
           }
         },
         {
+          name: 'fb_checkout_migration_inventory',
+          description: 'Discover checkout roots, branches, worktrees, dirt, handoff drift, task-routing drift, and exact-project task rebind state without writing migration state.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              canonicalPath: { type: 'string' },
+              formerPaths: { type: 'array', items: { type: 'string' } },
+              repository: { type: 'object' },
+              taskInventory: { type: 'object' },
+              dispositions: { type: 'object' },
+              workspacePath: { type: 'string' }
+            },
+            required: ['canonicalPath', 'formerPaths', 'repository', 'taskInventory']
+          }
+        },
+        {
+          name: 'fb_checkout_migration_commit',
+          description: 'Re-discover and atomically record one canonical checkout plus quarantined former roots only after every discovered difference is dispositioned.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              canonicalPath: { type: 'string' },
+              formerPaths: { type: 'array', items: { type: 'string' } },
+              repository: { type: 'object' },
+              taskInventory: { type: 'object' },
+              dispositions: { type: 'object' },
+              workspacePath: { type: 'string' }
+            },
+            required: ['canonicalPath', 'formerPaths', 'repository', 'taskInventory', 'dispositions']
+          }
+        },
+        {
+          name: 'fb_checkout_migration_rebind',
+          description: 'Complete migration task rebind from the canonical checkout using a complete pinned inventory for the exact migration project.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              repository: { type: 'object' },
+              taskInventory: { type: 'object' },
+              workspacePath: { type: 'string' }
+            },
+            required: ['repository', 'taskInventory']
+          }
+        },
+        {
           name: 'fb_project_context',
           description: 'Return a compact, source-cited context packet for one task question. Uses the project graph for targeted reading and falls back to the authoritative board/index route when needed.',
           inputSchema: {
@@ -2924,7 +4366,7 @@ function handleMcpRequest(request) {
             type: 'object',
             properties: {
               taskId: { type: 'string', description: 'The task ID, e.g. TASK-001' },
-              lane: { type: 'string', enum: ['Tech', 'Design', 'Business', 'Product', 'Discovery', 'Bugs'], description: 'The lane claiming the task' },
+              lane: { type: 'string', enum: ['Tech', 'Design', 'Business', 'Product', 'Discovery', 'Bugs', 'BFM'], description: 'The lane claiming the task' },
               lockedFiles: { type: 'string', description: 'Comma-separated list of files to lock' },
               workspacePath: { type: 'string', description: 'Optional workspace/repo path to search for PROJECT_BOARD.md from.' }
             },
@@ -2974,6 +4416,9 @@ function handleMcpRequest(request) {
       process.chdir(workspaceRoot);
 
       try {
+        if (MCP_MUTATIONS.has(name)) {
+          assertCanonicalCheckout(workspaceRoot, `${name} MCP mutation`);
+        }
         if (name === 'fb_control_event_validate') {
           const { workspacePath, ...event } = toolArgs;
           structuredContent = validateMcpStageEvent(event);
@@ -2986,6 +4431,11 @@ function handleMcpRequest(request) {
           const { workspacePath, ...input } = toolArgs;
           message = JSON.stringify(routeArtifact(input));
         } else if (name === 'fb_lane_status') {
+          const migration = checkoutMigrationSnapshot(workspaceRoot);
+          const lifecycle = migration.managed ? checkoutMigrationStatusLines(migration).join('\n') : '';
+          if (!isCanonicalCheckout(migration)) {
+            throw new Error(`${lifecycle}\nFB_CHECKOUT_NOT_CANONICAL: canonical checkout is ${migration.canonicalPath}.`);
+          }
           if (toolArgs.context) {
             message = renderBoardContext(fs.readFileSync(boardPath, 'utf8'));
           } else {
@@ -2994,6 +4444,20 @@ function handleMcpRequest(request) {
               ? renderTechnicalStatus(tasks, { format: 'mcp', workspaceRoot })
               : renderBeginnerStatus(statusInputs(workspaceRoot, tasks));
           }
+          if (lifecycle) message = `${message}\n${lifecycle}`;
+        } else if (name === 'fb_checkout_migration_inventory') {
+          const { workspacePath, ...request } = toolArgs;
+          message = JSON.stringify(inventoryCheckoutMigration(request), null, 2);
+        } else if (name === 'fb_checkout_migration_commit') {
+          const { workspacePath, ...request } = toolArgs;
+          const inventory = inventoryCheckoutMigration(request);
+          message = JSON.stringify(commitCheckoutMigration(inventory), null, 2);
+        } else if (name === 'fb_checkout_migration_rebind') {
+          message = JSON.stringify(recordCheckoutTaskRebind(
+            workspaceRoot,
+            toolArgs.taskInventory,
+            toolArgs.repository,
+          ), null, 2);
         } else if (name === 'fb_project_context') {
           const { taskId, question } = toolArgs;
           assertSafeTaskId(taskId);
@@ -3118,6 +4582,11 @@ intake, and Product must disposition every candidate before source execution.
 Product/BFM then reconciles all six, prioritizes and sequences **Include now**
 candidates, and records the consolidated Project Start Brief and Build Brief;
 BFM executes that approved scope.
+
+Setup and BFM mutate only the active canonical checkout. Before execution,
+Product/BFM shows the complete intake ledger across all six evidence workstreams
+plus the control centre. Checkout moves use transactional migration and keep
+former roots quarantined and recoverable. Only **Push Live** authorizes release.
 
 For returning-project health, use \`$fb-lane status\` for the beginner card.
 For routine operational orientation, use CLI
@@ -3315,6 +4784,7 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 - Start in whichever evidence-producing workstream matches the question whenever planning or evidence is useful. User is selected for user needs, outcomes, requirements, feedback, acceptance criteria, or product priorities; Product/BFM is the control centre, not universal intake.
 - Relevant workstreams investigate and create handoffs ready for Product intake. Ready status is neither approval nor execution authority.
 - After the user says \`$bfm\` in Product/BFM, Product/BFM freezes intake and must disposition every candidate before source execution. It scans all six evidence-producing workstreams, reconciles duplicates, conflicts, dependencies, and priorities, then records the consolidated Project Start Brief and Build Brief for **Include now** candidates.
+- Setup and BFM mutate only the active canonical checkout. Before execution, Product/BFM shows the complete intake ledger across all six evidence workstreams plus the control centre. Checkout moves use transactional migration and keep former roots quarantined and recoverable.
 - Pinning never starts work, approves scope, invokes \`$bfm\`, or authorizes release.
 - Pause only for a changed decision, disputed priority, sensitive boundary, conflict, or unclear scope. BFM executes and verifies approved scope, stops at Ready to ship, and reserves release for Push Live.
 
@@ -3468,7 +4938,7 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('1. Describe your new project normally.');
   console.log('2. FB starts in whichever evidence-producing workstream matches the question: User, Business, Design, Tech, Discovery, or Bugs. Product/BFM is the control centre.');
   console.log('3. Relevant workstreams investigate and create handoffs ready for Product intake; ready is a candidate, not execution authority.');
-  console.log('4. When actionable handoffs are ready, say $bfm in Product/BFM. $bfm freezes intake; Product/BFM scans all six and must disposition every candidate before source execution, then prioritizes and sequences Include now candidates into the Project Start Brief and Build Brief for BFM execution.');
+  console.log('4. When actionable handoffs are ready, say $bfm in Product/BFM. From the active canonical checkout, Product/BFM scans all six workstreams, shows the separate control-centre inputs, and must disposition every candidate before sequencing Include now work into the Project Start Brief and Build Brief.');
   console.log('5. BFM stops at Ready to ship. Only Push Live authorizes release.');
   console.log('======================================================================');
   console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');
@@ -3480,9 +4950,57 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   }
 }
 
+function handleMigrationCommand(args = []) {
+  const operation = String(args[0] || '').toLowerCase();
+  if (operation === 'inventory' || operation === 'commit') {
+    const requestPath = path.resolve(args[1] || '');
+    if (!args[1] || !fs.existsSync(requestPath)) {
+      throw new Error(`Usage: node tools/fb-lane.cjs migration ${operation} <request.json>`);
+    }
+    const request = JSON.parse(fs.readFileSync(requestPath, 'utf8'));
+    const inventory = inventoryCheckoutMigration(request);
+    const result = operation === 'inventory' ? inventory : commitCheckoutMigration(inventory, request);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    return;
+  }
+  if (operation === 'rebind') {
+    const inventoryPath = path.resolve(args[1] || '');
+    const rootDir = path.resolve(args[2] || process.cwd());
+    if (!args[1] || !fs.existsSync(inventoryPath)) {
+      throw new Error('Usage: node tools/fb-lane.cjs migration rebind <complete-inventory.json> [root] [project-id]');
+    }
+    const taskInventory = JSON.parse(fs.readFileSync(inventoryPath, 'utf8'));
+    const repository = {
+      repositoryPath: rootDir,
+      ...(args[3] ? { projectId: args[3] } : {}),
+    };
+    process.stdout.write(`${JSON.stringify(recordCheckoutTaskRebind(rootDir, taskInventory, repository), null, 2)}\n`);
+    return;
+  }
+  throw new Error('Usage: node tools/fb-lane.cjs migration inventory|commit <request.json> | migration rebind <complete-inventory.json> [root] [project-id]');
+}
+
 function main() {
   const args = process.argv.slice(2);
   const command = args[0] ? args[0].toLowerCase() : '';
+  const guardedMutations = new Set(['bootstrap', 'claim', 'quick', 'submit', 'merge']);
+  const sessionMutation = command === 'session'
+    && new Set(['promote', 'checkpoint', 'close']).has(String(args[1] || '').toLowerCase());
+  const migrationMutation = command === 'migration'
+    && new Set(['commit', 'rebind']).has(String(args[1] || '').toLowerCase());
+  if (guardedMutations.has(command) || sessionMutation || migrationMutation) {
+    const boardPath = findBoardPath();
+    const rootDir = boardPath ? path.dirname(boardPath) : process.cwd();
+    try {
+      const operation = sessionMutation
+        ? `session ${args[1]} mutation`
+        : migrationMutation ? `migration ${args[1]} mutation` : `${command} mutation`;
+      assertCanonicalCheckout(rootDir, operation);
+    } catch (error) {
+      console.error(`❌ Error: ${error.message}`);
+      process.exit(1);
+    }
+  }
 
   if (command === 'session') {
     try {
@@ -3502,6 +5020,13 @@ function main() {
     handleDoctor();
   } else if (command === 'bootstrap') {
     handleBootstrap(args.slice(1));
+  } else if (command === 'migration') {
+    try {
+      handleMigrationCommand(args.slice(1));
+    } catch (error) {
+      console.error(`❌ Error: ${error.message}`);
+      process.exit(1);
+    }
   } else if (command === 'claim') {
     const rest = args.slice(1);
     const noWorktree = rest.includes('--no-worktree');
@@ -3553,6 +5078,8 @@ Usage:
   node tools/fb-lane.cjs bootstrap [--platform codex]   - Bootstrap project board, rules, tools, and folders
   node tools/fb-lane.cjs doctor                         - Check FB-Lane setup health without writing files
   node tools/fb-lane.cjs status [--details|--context]   - Print beginner status, raw technical details, or bounded active context
+  node tools/fb-lane.cjs migration inventory|commit <request.json> - Discover or atomically record checkout migration state
+  node tools/fb-lane.cjs migration rebind <inventory.json> [root] [project-id] - Complete exact-project task rebind
   node tools/fb-lane.cjs claim <id> <lane> [locks]      - Claim task in a linked worktree by default
   node tools/fb-lane.cjs claim ... --no-worktree        - Use the legacy single-checkout compatibility path
   node tools/fb-lane.cjs quick <lane> <locks> <desc> --approval-ref <reference> - Create an approved quick task in a linked worktree
@@ -3588,9 +5115,19 @@ module.exports = {
   selectTaskBranch,
   removeMergedWorktree,
   renderQueueSummary,
+  advanceCheckoutRetirement,
+  checkoutMigrationSnapshot,
+  commitCheckoutMigration,
+  inventoryCheckoutMigration,
+  recordCheckoutTaskRebind,
+  assertCanonicalCheckout,
+  assertNoHandoffContentDrift,
   TASK_ID_PATTERN,
   LANE_PATTERN,
   scanWorkstreamHandoffs,
+  freezeBfmIntake,
+  gateBfmExecutionStart,
+  renderBfmIntakeLedger,
   collectLifecycleFindings,
   collectGoalAlignmentSessionWarnings,
   collectArchivedBoardTasks,

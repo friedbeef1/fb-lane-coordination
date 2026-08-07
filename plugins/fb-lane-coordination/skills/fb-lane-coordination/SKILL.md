@@ -30,10 +30,23 @@ blocked or ready handoff in `docs/handoffs/<TASK-ID>.md`. Ready means `ready for
 Product intake`: queued for Product review, **not approval or execution**.
 
 Only `$bfm` in the Product/BFM parent task starts delivery. It freezes the
-intake snapshot, gives every candidate a disposition, reconciles conflicts and
-dependencies, prioritizes the included work, and records the consolidated
-Project Start Brief and Build Brief before source execution. BFM stops at
+complete intake ledger from the active canonical checkout, keeps all six
+evidence workstreams plus Product/BFM visible, gives every candidate a
+disposition, reconciles conflicts and dependencies, prioritizes the included
+work, and records the consolidated Project Start Brief and Build Brief before
+source execution. The gate requires the configured canonical checkout and a
+verified exact-project receipt for all seven pinned tasks; every non-retired
+manifest checkout is audited. Product/BFM control inputs remain separate, while
+blocked inputs stay counted and linked without execution. Missing, pending,
+partial, stale, unreadable, drifting, or contradictory intake fails
+closed through the canonical runtime; guidance never duplicates its scanner
+logic. BFM stops at
 **Ready to ship**. Only **Push Live** authorizes merge or deployment.
+
+Checkout changes use one transactional migration contract: disposition every
+discovered difference, atomically record one canonical root, quarantine former
+roots, rebind the exact seven project tasks, and require explicit approval
+before retirement.
 
 The public model is six evidence-producing workstreams plus one Product/BFM
 control centre and seven pinned repository-scoped Codex tasks. Pinning never
@@ -44,6 +57,8 @@ An explicit workstream-to-workstream request creates a queued
 `<Source> handoff queued for <Destination> — planning only; waiting for you. Open: <handoff link>`
 and stays idle until the user continues it. `$bfm` ignores that artifact; a
 delivery recommendation needs a separate Product-ready `fb-lane-handoff`.
+If task tools are unavailable, return the Markdown link and a paste-ready notice
+instead of implying that another task was updated.
 
 ## Context and history
 
@@ -70,9 +85,10 @@ For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must
 judge it.
 
-Use focused checks by default. Safety gates always win. A full validator is
-eligible only for an explicit Product-owned release checkpoint. For a major
-user-visible release, `Changelog approval: pending` remains a gate before
-**Ready to ship**. Every later documentation review resurfaces it until the user
-approves, rejects, or explicitly defers it; never silently clear it. Do not
-infer approval from build approval or **Push Live**.
+Use focused checks by default. Safety gates always win. Follow
+[standing delegated approvals](../../docs/fb/workflow.md#standing-delegated-approvals):
+Product/BFM approves candidate-faithful changelog wording and authorizes one
+initial release checkpoint without a user prompt. Ask the user only for a
+changed user or product decision, material scope or priority change, weakened
+evidence, or a sensitive gate. **Push Live** remains the external release
+authorization.

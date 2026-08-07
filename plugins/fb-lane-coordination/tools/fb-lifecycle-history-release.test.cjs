@@ -22,8 +22,8 @@ function json(relativePath) {
 const manifest = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.codex-plugin/plugin.json'), 'utf8'));
 assert.match(
   manifest.version,
-  /^0\.5\.9-beta\+codex\.\d{14}$/,
-  'release build must use the 0.5.9-beta UTC build form',
+  /^0\.5\.11-beta\+codex\.\d{14}$/,
+  'release build must use the 0.5.11-beta UTC build form',
 );
 assert.strictEqual(JSON.parse(fs.readFileSync(path.join(pluginRoot, 'plugin.json'), 'utf8')).version, manifest.version);
 
@@ -69,17 +69,52 @@ assert.match(coordination, /on-demand historical retrieval/i, 'coordination must
 
 if (!packaged) {
   const changelog = read('CHANGELOG.md');
-  const release = changelog.match(/## 0\.5\.9-beta[\s\S]*?(?=\n## 0\.5\.8-beta)/)?.[0] || '';
+  const release = changelog.match(/## 0\.5\.11-beta[\s\S]*?(?=\n## 0\.5\.10-beta)/)?.[0] || '';
   for (const field of ['What changed', 'Why it matters', 'Compatibility', 'Installation or upgrade']) {
-    assert.match(release, new RegExp(`\\*\\*${field}:\\*\\*`), `0.5.9 changelog must include ${field}`);
+    assert.match(release, new RegExp(`\\*\\*${field}:\\*\\*`), `0.5.11 changelog must include ${field}`);
   }
-  assert.match(release, /User evidence workstream/i);
-  assert.match(release, /Product\/BFM control centre/i);
-  assert.match(release, /seven pinned repository-scoped Codex tasks/i);
+  assert.match(release, /canonical checkout/i);
+  assert.match(release, /complete intake ledger/i);
+  assert.match(release, /transactional migration/i);
+  assert.match(release, /exact-project/i);
+  assert.match(release, /Product\/BFM standing delegation/i);
+  assert.match(release, /Push Live/i);
 
   for (const surface of ['README.md', 'FAQ.md', 'docs/setup.md', 'docs/versioning.md', 'platforms/codex/README.md']) {
-    assert.match(read(surface), /0\.5\.9-beta/, `${surface} must name 0.5.9-beta`);
+    assert.match(read(surface), /0\.5\.11-beta/, `${surface} must name 0.5.11-beta`);
   }
+
+  const bfm = read('skills/bfm/SKILL.md');
+  assert.match(bfm, /freezeBfmIntake/);
+  assert.match(bfm, /renderBfmIntakeLedger/);
+  assert.match(bfm, /canonical checkout/i);
+  assert.match(bfm, /complete\s+intake\s+ledger/i);
+  assert.match(bfm, /Do not duplicate scanner/i);
+
+  const product = read('skills/fb-product/SKILL.md');
+  assert.match(product, /canonical checkout/i);
+  assert.match(product, /complete\s+intake\s+ledger/i);
+  assert.match(product, /transactional\s+migration/i);
+
+  const coordination = read('skills/fb-lane-coordination/SKILL.md');
+  assert.match(coordination, /canonical checkout/i);
+  assert.match(coordination, /complete\s+intake\s+ledger/i);
+
+  const setup = read('skills/project-coordination-setup/SKILL.md');
+  assert.match(setup, /exact-project/i);
+  assert.match(setup, /transactional\s+migration/i);
+  assert.match(setup, /quarantined former roots/i);
+
+  for (const surface of ['README.md', 'docs/fb/README.md', 'docs/fb/start.md', 'docs/fb/workflow.md']) {
+    const source = read(surface);
+    assert.match(source, /canonical checkout/i, `${surface} must explain the canonical checkout gate`);
+    assert.match(source, /complete\s+intake\s+ledger/i, `${surface} must explain the complete intake ledger`);
+    assert.match(source, /transactional\s+migration/i, `${surface} must explain transactional migration`);
+    assert.match(source, /Push Live/i, `${surface} must retain the release boundary`);
+  }
+
+  const manifestPaths = json('tools/fb-package-manifest.json');
+  assert.ok(manifestPaths.includes('tools/fb-bfm-intake-ledger.test.cjs'), 'package manifest must include the focused intake-ledger contract');
 }
 
 console.log(`FB current release contract passed for ${manifest.version}.`);

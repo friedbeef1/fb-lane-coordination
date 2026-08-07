@@ -40,3 +40,8 @@ workstream. Relevant workstreams create ready handoffs; after they are ready,
 `$bfm` in Product/BFM activates reconciliation and execution of approved scope.
 Pinning never starts work. Project-specific instructions and stricter safety
 rules always win.
+
+Setup and `$bfm` mutate only the active canonical checkout. Before execution,
+Product/BFM shows the complete intake ledger for all six evidence workstreams
+plus the control centre. Checkout moves use transactional migration and keep
+former roots quarantined and recoverable. Only **Push Live** authorizes release.

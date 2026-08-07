@@ -1,6 +1,6 @@
 # FB FAQ
 
-This FAQ describes the current **FB 0.5.9-beta** model: six evidence-producing
+This FAQ describes the current **FB 0.5.11-beta** model: six evidence-producing
 workstreams plus one Product/BFM control centre and seven pinned
 repository-scoped Codex tasks.
 
@@ -37,7 +37,8 @@ produce its own recommendation. Only a separate Product-ready handoff can enter
 
 ## Will FB create the seven Codex sidebar tasks for me?
 
-After repository bootstrap, FB asks once for permission. With Yes, it detects
+Yes. Open the project and invoke `$fb-setup`. After repository bootstrap, FB
+asks once for permission. With Yes, it detects
 repository-scoped current and legacy workstream tasks and creates only what is
 missing. Product/User is treated as a legacy User title, while a lone legacy
 Product title maps to Product/BFM. Every new task remains idle until you ask it
@@ -47,16 +48,38 @@ If Codex cannot list or create tasks in the current environment, FB tells you
 and provides paste-ready prompts. It does not pretend the tasks were created.
 Declining does not disable `$bfm`.
 
+## What keeps FB in the right project?
+
+Setup and `$bfm` mutate only the active canonical checkout. Exact-project task
+reconciliation requires both the verified Codex project ID and canonical
+repository root. Missing, mixed, truncated, or contradictory inventory changes
+nothing.
+
+## What happens when a project moves to another checkout?
+
+FB uses a transactional migration. It inventories and dispositions every
+discovered difference, atomically records one canonical root, quarantines former
+roots, and rebinds the exact seven pinned tasks. Former roots remain recoverable
+until fresh evidence and explicit retirement approval.
+
 ## What happens when I say `$bfm`?
 
-Build For Me (BFM) begins only after Product approval and explicit `$bfm`; see
-[start and approval](docs/fb/start.md).
+Build For Me (BFM) begins when Product/BFM receives explicit `$bfm`; see
+[start and approval](docs/fb/start.md). Product first freezes intake, reconciles
+every candidate, records the included scope and consolidated Build Brief, and
+only then begins source execution. That sequence does not require a routine
+second approval; Product pauses for changed user decisions, disputed
+priorities, sensitive boundaries, conflicts, or unclear scope.
 
 `$bfm` executes only in Product/BFM. The control centre scans User, Business,
 Design, Tech, Discovery, and Bugs. It
-includes valid `ready` handoffs, keeps blocked work visible, excludes completed
-or deferred work, reconciles conflicts, prioritizes the sequence, directs Codex
-implementation, and runs automated checks.
+renders a complete intake ledger, dispositions every candidate, keeps blocked
+work linked and visible, shows compatible Product/BFM inputs separately,
+reconciles conflicts, prioritizes the included sequence, directs
+Codex implementation, and runs automated checks. Missing, unreadable, drifting,
+or contradictory evidence fails closed before source execution. Execution and
+an empty-queue claim also require a configured canonical checkout plus a fresh
+receipt proving the exact project and all seven pinned tasks.
 
 `$bfm` is the supported invocation. FB may understand `/bfm` as your intent,
 but `/bfm` is not a separate installed command.
@@ -65,6 +88,14 @@ but `/bfm` is not a separate installed command.
 
 No. `$bfm` stops at **Ready to ship**. Only **Push Live** authorizes merge or
 deployment.
+
+## Why does FB not ask me to approve every release step?
+
+Product/BFM has standing delegation to approve candidate-faithful changelog
+wording and authorize one release checkpoint without a user prompt. It asks you
+only for a changed user or product decision, material scope or priority, a
+sensitive gate, or **Push Live**. Push Live remains the only authorization for
+merge, publication, installation, or deployment.
 
 ## What if automated checks fail?
 

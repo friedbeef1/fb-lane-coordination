@@ -25,7 +25,8 @@ disposition for every workstream.
 
 ## First bootstrap
 
-After repository bootstrap, FB introduces itself and asks once for permission
+Invoke `$fb-setup` once after installing the plugin. It runs the canonical
+repository bootstrap, then FB introduces itself and asks once for permission
 to create seven repository-scoped Codex sidebar tasks. These are durable entry
 points for Product/BFM, User, Business, Design, Tech, Discovery, and Bugs—not
 mandatory agents, approval gates, or automatic starts.
@@ -45,6 +46,14 @@ prompts for manual task creation. It never guesses that a task is missing or
 implies that sidebar tasks exist without tool evidence. Declining setup does
 not disable FB.
 
+Setup proves both the exact Codex project and its canonical checkout before it
+creates, renames, pins, or reconciles tasks. If identity or the complete task
+inventory cannot be proved, setup changes nothing and gives the manual fallback.
+Moving to a different checkout uses a transactional migration: every discovered
+difference is dispositioned, one canonical root is recorded atomically, the
+exact seven pinned tasks are rebound, and former roots remain quarantined and
+recoverable until explicit retirement approval.
+
 ## The single public sequence
 
 1. FB starts in whichever workstream or workstreams match the question.
@@ -53,6 +62,17 @@ not disable FB.
 4. `$bfm` executes only in Product/BFM. It freezes intake: Product/BFM scans all six evidence-producing workstreams and must disposition every candidate as **Include now**, **Blocked**, **Deferred**, **Duplicate**, **Rejected**, or **Superseded** before source execution. A disposition does not auto-close a task; all genuinely nonterminal candidates remain visible in the board and handoff records.
 5. Product/BFM reconciles duplicates, conflicts, and dependencies, then prioritizes and sequences only **Include now** candidates. Product/BFM records the consolidated Project Start Brief and Build Brief; those records define the BFM execution scope.
 6. BFM implements and verifies that reconciled scope, then stops at **Ready to ship**. Only **Push Live** authorizes release, merge, or deployment.
+
+The frozen view is a complete intake ledger, not just a list of selected
+handoffs. It keeps all six evidence workstreams plus Product/BFM visible and
+shows candidate dispositions, canonical checkout and lifecycle state,
+unresolved drift, task rebind, active locks, approval gates, external blockers,
+and recommended dependency order. It counts and links blocked inputs without
+executing them and shows compatible Product/BFM control inputs separately. A
+verified exact-project seven-task onboarding receipt and a configured canonical
+checkout record are required before execution or an empty-queue claim. Missing,
+pending, partial, stale, unreadable, drifting, or
+contradictory evidence fails closed before source execution.
 
 `$bfm` remains the supported invocation. If a user types `/bfm`, FB may
 interpret that as intent to run `$bfm`; `/bfm` is not a separate installed

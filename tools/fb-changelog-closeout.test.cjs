@@ -88,14 +88,23 @@ check('v3 release budget and runtime entry points enforce the same changelog gat
   assert.match(laneSource, /performAutomatedSubmission[\s\S]*assertFullBfmChangelog[\s\S]*changelogVerification/);
 });
 
-check('major-release guidance requires explicit user approval of drafted changelog wording', () => {
+check('routine changelog and release-checkpoint approvals are delegated to Product/BFM', () => {
   const containingRoot = path.resolve(__dirname, '..');
   const packageContext = path.basename(containingRoot) === 'fb-lane-coordination'
     && path.basename(path.dirname(containingRoot)) === 'plugins';
   const repoRoot = packageContext ? path.resolve(containingRoot, '..', '..') : containingRoot;
   const surfaceRoot = packageContext ? containingRoot : repoRoot;
+  for (const relative of ['docs/fb/workflow.md', 'docs/fb/guardrails.md']) {
+    const source = fs.readFileSync(path.join(surfaceRoot, relative), 'utf8');
+    assert.match(source, /standing delegated approvals/i);
+    assert.match(source, /standing delegation/i);
+    assert.match(source, /Product\/BFM[\s\S]{0,220}(?:approves|approval)[\s\S]{0,220}changelog/i);
+    assert.match(source, /without (?:a )?user prompt/i);
+    assert.match(source, /authorizes?[\s\S]{0,120}(?:one|single)[\s\S]{0,120}release checkpoint/i);
+    assert.match(source, /\*\*Push Live\*\*/i);
+    assert.doesNotMatch(source, /asks? the user to approve[\s\S]{0,80}changelog|explicit changelog approval before \*\*Ready to ship\*\*/i);
+  }
   for (const relative of [
-    'docs/fb/workflow.md',
     'docs/fb/evidence.md',
     'docs/fb/sessions.md',
     'skills/fb-product/SKILL.md',
@@ -103,16 +112,16 @@ check('major-release guidance requires explicit user approval of drafted changel
     'skills/fb-lane-coordination/SKILL.md',
   ]) {
     const source = fs.readFileSync(path.join(surfaceRoot, relative), 'utf8');
-    assert.match(source, /major\s+user-visible release/i);
-    assert.match(source, /changelog\s+approval/i);
-    assert.match(source, /before\s+\*\*Ready to ship\*\*|cannot reach \*\*Ready to\s*ship\*\*|Checking — changelog approval needed/i);
+    assert.match(source, /workflow\.md#standing-delegated-approvals/i);
+    assert.match(source, /without (?:a )?user prompt|do not ask the user/i);
   }
-  const handoff = fs.readFileSync(path.join(repoRoot, 'docs/handoffs/TASK-049.md'), 'utf8');
-  assert.match(handoff, /Changelog approval:\s*approved — James, originating conversation, 2026-07-26/i);
 });
 
-check('unanswered changelog approval persists into later documentation reviews', () => {
-  const repoRoot = path.resolve(__dirname, '..');
+check('delegation preserves only material and sensitive user gates', () => {
+  const containingRoot = path.resolve(__dirname, '..');
+  const packageContext = path.basename(containingRoot) === 'fb-lane-coordination'
+    && path.basename(path.dirname(containingRoot)) === 'plugins';
+  const surfaceRoot = packageContext ? containingRoot : containingRoot;
   for (const relative of [
     'docs/fb/workflow.md',
     'docs/fb/evidence.md',
@@ -122,11 +131,10 @@ check('unanswered changelog approval persists into later documentation reviews',
     'skills/fb-lane-coordination/SKILL.md',
     'skills/fb-business/SKILL.md',
   ]) {
-    const source = fs.readFileSync(path.join(repoRoot, relative), 'utf8');
-    assert.match(source, /Changelog approval:\s*pending|changelog approval as pending|pending changelog approval/i);
-    assert.match(source, /every later\s+documentation|at every later\s+documentation|later documentation-review/i);
-    assert.match(source, /approves?, rejects?, or explicitly\s+defers?/i);
-    assert.match(source, /silently\s+(?:dropped|clear)|never\s+silently\s+clear/i);
+    const source = fs.readFileSync(path.join(surfaceRoot, relative), 'utf8');
+    assert.match(source, /changed (?:user|product) decision|material (?:scope|product)|sensitive/i);
+    assert.match(source, /\*\*Push Live\*\*/i);
+    assert.doesNotMatch(source, /every later\s+documentation|at every later\s+documentation|later documentation-review/i);
   }
 });
 

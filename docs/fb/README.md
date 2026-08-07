@@ -59,6 +59,14 @@ risk and execution classification internal; the user never chooses a mode.
 See [start.md](start.md) for the public sequence and [workflow.md](workflow.md)
 for internal execution budgets and stop predicates.
 
+Four reliability rules keep that beginner flow honest: FB mutates only the
+active canonical checkout; `$bfm` shows a complete intake ledger across the six
+evidence workstreams plus the Product/BFM control centre before execution;
+checkout moves use a transactional migration that keeps former roots
+quarantined and recoverable; and only **Push Live** authorizes release. The
+runtime owns checkout and intake scanning, so these pages explain the outcome
+without recreating scanner rules.
+
 Verification has three levels: focused check, immediate safety gate, and
 release checkpoint. A full validator is eligible only when a Product-owned
 handoff explicitly requests that release checkpoint; a handoff artifact,

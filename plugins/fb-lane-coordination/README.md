@@ -6,8 +6,8 @@ FB harness. **FB — Graph Engineering for Everyday People** is an open-source
 Codex plugin that turns scattered AI conversations into a living
 product-delivery graph. It has six evidence-producing workstreams plus one
 Product/BFM control centre and seven pinned repository-scoped Codex tasks. The
-current release candidate is **FB 0.5.9-beta**
-`0.5.9-beta+codex.20260805042523`.
+current release candidate is **FB 0.5.11-beta**
+`0.5.11-beta+codex.20260807112648`.
 
 ## Install and start
 
@@ -16,7 +16,8 @@ codex plugin marketplace add friedbeef1/fb-lane-coordination
 codex plugin add fb-lane-coordination@fb-lane
 ```
 
-Open the project and say `Set up FB in this project.` Discuss questions in the
+Open the project and invoke `$fb-setup`. It runs the canonical idempotent setup
+and reconciles the seven pinned repository tasks. Then discuss questions in the
 relevant User, Business, Design, Tech, Discovery, or Bugs workstreams.
 For actionable findings say `Create a handoff MD for Product/BFM.` Then say
 `$bfm`. Ready handoffs are queued for Product intake, not executable scope.
@@ -24,6 +25,16 @@ Explicit `$bfm` freezes the intake; Product dispositions every candidate,
 prioritizes the included scope, and records the Build Brief before BFM
 implements, tests, and stops at **Ready to ship**. Only
 **Push Live** authorizes merge or deployment.
+
+Product/BFM uses standing delegation for candidate-faithful changelog wording
+and one release checkpoint without a user prompt. It asks only for changed
+product decisions, material scope, sensitive gates, or **Push Live**.
+
+Setup and BFM mutate only the active canonical checkout. Before execution,
+Product/BFM shows the complete intake ledger across all six evidence workstreams
+plus the control centre. Checkout moves use transactional migration, atomically
+record one canonical root, rebind the exact seven pinned tasks, and keep former
+roots quarantined and recoverable until explicit retirement approval.
 
 Routine orientation reads current board state and current workstream cards.
 Completed history remains searchable on demand through archives, the handoff

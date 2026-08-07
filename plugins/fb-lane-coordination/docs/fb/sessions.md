@@ -93,15 +93,12 @@ For a v3 Full BFM handoff it also records the changelog result defined in
 [workflow.md](workflow.md#internal-approval-record). The Build Brief expectation
 and Task Receipt decision must agree; a concrete not-required reason is copied
 unchanged.
-For a major user-visible release, the Task Receipt additionally records
-`Changelog approval: approved — <user/reference/date>`. Product asks for that
-approval after drafting the entry and before **Ready to ship**. **Push Live**
-does not retroactively approve changelog wording.
-If approval is unanswered, the session checkpoint preserves
-`Changelog approval: pending — <entry link and date>` in the linked handoff.
-Every later documentation-review session must recall and surface that pending
-gate until the user approves, rejects, or explicitly defers it; closing or
-replacing a session never silently clears it.
+Use the [standing delegated approvals](workflow.md#standing-delegated-approvals)
+contract. Product/BFM records candidate-faithful changelog approval and the
+single release-checkpoint authorization without a user prompt. Ask the user
+only for a changed user or product decision, material scope, or sensitive gate;
+**Push Live** remains separate. Convert historical pending wording approvals to
+that concrete gate or resolve them under the standing delegation.
 
 Brief Validation is `pass` or `blocked`. Product/BFM authors the semantic
 comparison. The deterministic CLI only checks complete actionable structure:

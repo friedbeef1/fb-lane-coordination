@@ -97,7 +97,7 @@ function assertConversationExecutionAuthority() {
   }
 }
 
-const SIX = /Product\/User[\s\S]*Business[\s\S]*Design[\s\S]*Tech[\s\S]*Discovery[\s\S]*Bugs/i;
+const SIX = /User[\s\S]*Business[\s\S]*Design[\s\S]*Tech[\s\S]*Discovery[\s\S]*Bugs/i;
 const MINI_LOOP = /mini-loop/i;
 const HANDOFF = /docs\/handoffs\/<TASK-ID>\.md|ready handoffs?/i;
 
@@ -115,6 +115,7 @@ function assertAlignedSkills() {
   for (const file of files) {
     const skill = read(file);
     assert.match(skill, SIX, `${file} must name the six workstreams in canonical order`);
+    assert.match(skill, /Product\/BFM[\s\S]{0,40}control\s+centre/i, `${file} must route delivery to Product/BFM`);
     assert.match(skill, MINI_LOOP, `${file} must use the mini-loop contract`);
     assert.match(skill, HANDOFF, `${file} must route durable work through handoffs`);
     assert.match(skill, /Ready to\s+ship/i, `${file} must stop delivery at Ready to ship`);
@@ -122,10 +123,11 @@ function assertAlignedSkills() {
   }
 
   const bfm = read('plugins/fb-lane-coordination/skills/bfm/SKILL.md');
-  assert.match(bfm, /scanWorkstreamHandoffs/);
+  assert.match(bfm, /freezeBfmIntake/);
+  assert.match(bfm, /renderBfmIntakeLedger/);
   assert.match(bfm, /require\(['"]\.\/tools\/fb-lane\.cjs['"]\)/);
-  assert.match(bfm, /orphan|off-home/i);
-  assert.match(bfm, /even when[\s\S]{0,100}(?:another|one or more)[\s\S]{0,80}(?:selected|Ready)/i);
+  assert.match(bfm, /canonical checkout/i);
+  assert.match(bfm, /complete intake ledger/i);
   assert.match(bfm, /routing[\s\S]{0,80}(fail|persist)/i);
   assert.match(bfm, /None\s+relevant/);
   assert.match(bfm, /duplicate|contradict/i);

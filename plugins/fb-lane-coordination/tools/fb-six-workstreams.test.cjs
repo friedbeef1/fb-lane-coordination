@@ -59,6 +59,11 @@ try {
       'docs/handoffs/02-discovery.md',
       'docs/handoffs/01-bugs.md',
     ],
+    blockedCandidates: [{
+      relative: 'docs/handoffs/07-design-blocked.md',
+      task: 'DESIGN-2',
+      role: 'Design',
+    }],
   });
 
   const sparse = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-six-none-relevant-'));
@@ -138,20 +143,20 @@ try {
       assert.doesNotMatch(generated, /approval attaches to (?:that )?ready scope before `\$bfm`/i, `${relative} must not attach approval before $bfm`);
     }
     assert.match(bootstrapStdout, /ready for Product intake/i, 'Quick Start must identify ready handoffs as Product intake candidates');
-    assert.match(bootstrapStdout, /must disposition every candidate[\s\S]*before source execution/i, 'Quick Start must require Product disposition before execution');
+    assert.match(bootstrapStdout, /must disposition every candidate[\s\S]*before sequencing Include now work/i, 'Quick Start must require Product disposition before sequencing execution');
   } finally {
     fs.rmSync(boot, { recursive: true, force: true });
   }
 
   const source = fs.readFileSync(cliPath, 'utf8');
   assert.match(source, /fb-product \| fb-tech \| fb-design \| fb-business \| fb-discovery \| fb-bugs/);
-  assert.match(source, /enum: \['Tech', 'Design', 'Business', 'Product', 'Discovery', 'Bugs'\]/);
+  assert.match(source, /enum: \['Tech', 'Design', 'Business', 'Product', 'Discovery', 'Bugs', 'BFM'\]/);
   const session = fs.readFileSync(path.join(__dirname, 'fb-session.cjs'), 'utf8');
   assert.match(session, /'product', 'tech', 'design', 'business', 'discovery', 'bugs', 'bfm', 'coordination'/);
 
   const read = relative => fs.readFileSync(path.join(__dirname, '..', relative), 'utf8');
   const readme = read('README.md');
-  assert.match(readme, /Product\/User[\s\S]*Business[\s\S]*Design[\s\S]*Tech[\s\S]*Discovery[\s\S]*Bugs/);
+  assert.match(readme, /\bUser\b[\s\S]*\bBusiness\b[\s\S]*\bDesign\b[\s\S]*\bTech\b[\s\S]*\bDiscovery\b[\s\S]*\bBugs\b/);
   assert.match(readme, /Create a handoff MD for Product\/BFM/);
   assert.match(readme, /\$bfm[\s\S]*Ready[\s\S]*to ship[\s\S]*Push Live/);
   assert.match(readme, /codex plugin marketplace add friedbeef1\/fb-lane-coordination/);

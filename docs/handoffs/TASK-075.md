@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-075
 lane: fb-product
-status: implemented
+status: done
 okr_fit: aligned
 approval: approved
 fb_harness: v3
