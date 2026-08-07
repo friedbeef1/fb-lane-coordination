@@ -262,6 +262,7 @@ function checkoutMigrationSnapshot(rootDir) {
       managed: false,
       currentPath,
       canonicalPath: currentPath,
+      repository: { repositoryPath: currentPath },
       state: 'unmanaged',
       unresolvedDrift: 0,
       taskRebind: { status: 'not-configured', pending: [] },
@@ -274,6 +275,7 @@ function checkoutMigrationSnapshot(rootDir) {
     manifestPath: manifest.manifestPath,
     currentPath,
     canonicalPath: manifest.canonicalPath,
+    repository: manifest.repository,
     state: manifest.checkouts[currentPath]?.state || 'unregistered',
     unresolvedDrift: manifest.unresolvedDrift.length,
     taskRebind: manifest.taskRebind,
@@ -1440,13 +1442,18 @@ function bfmOnboardingEvidence(rootDir, migration) {
     ? crypto.createHash('sha256').update(JSON.stringify(attemptedActions)).digest('hex')
     : '';
   const reconciledAt = Date.parse(String(receipt.reconciledAt || ''));
-  const exactRoot = pathIdentity(receipt.repositoryPath || '') === pathIdentity(rootDir);
-  const currentProject = Boolean(String(receipt.projectId || '').trim());
+  const receiptPath = String(receipt.repositoryPath || '').trim();
+  const receiptProjectId = String(receipt.projectId || '').trim();
+  const migrationProjectId = String(migration?.repository?.projectId || '').trim();
+  const exactRoot = Boolean(receiptPath)
+    && pathIdentity(receiptPath) === pathIdentity(rootDir);
+  const exactProject = Boolean(receiptProjectId)
+    && (!migration?.managed || (Boolean(migrationProjectId) && receiptProjectId === migrationProjectId));
   if (!attemptedActions
     || receipt.attemptedActionsHash !== expectedActionsHash
     || !Number.isFinite(reconciledAt)
     || !exactRoot
-    || !currentProject) {
+    || !exactProject) {
     return { state: 'stale', missingRoles: [] };
   }
   if (migration?.managed) {

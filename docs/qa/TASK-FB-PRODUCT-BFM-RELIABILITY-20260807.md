@@ -137,3 +137,18 @@ former root or staling the receipt closes the gate.
 
 No full validator or external action ran. Independent whole-branch re-review is
 the next local gate.
+
+## Exact-project identity follow-up
+
+Whole-branch re-review confirmed the original reliability findings were closed
+and exposed two bounded compatibility gaps. The onboarding receipt now requires
+an explicit canonical repository path and an exact project-ID match with the
+migration manifest; a missing path can no longer resolve implicitly through the
+process working directory. The established six-workstream scanner contract now
+also records blocked candidates and the current Product/BFM/BFM lane vocabulary
+without stale four/six-task assertions.
+
+Focused RED/GREEN evidence covered a missing receipt path and mismatched project
+ID. Final root and packaged intake tests passed 12/12 each, both six-workstream
+contracts passed, package-sync tests passed 10/10, all 65 mirrors matched, both
+runtime files passed syntax checks, and whitespace checks passed.

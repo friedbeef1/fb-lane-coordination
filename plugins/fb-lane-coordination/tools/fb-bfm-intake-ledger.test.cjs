@@ -547,6 +547,14 @@ test('onboarding evidence and blocked-only roles remain visible at the execution
     ledger = freezeBfmIntake(root, { dispositions: { 'TECH-2': 'Include now' } });
     assert.equal(ledger.onboardingState, 'stale');
 
+    writeVerifiedOnboardingReceipt(root, { repositoryPath: '' });
+    ledger = freezeBfmIntake(root, { dispositions: { 'TECH-2': 'Include now' } });
+    assert.equal(ledger.onboardingState, 'stale', 'a missing receipt path must not resolve through cwd');
+
+    writeVerifiedOnboardingReceipt(root, { projectId: 'another-project' });
+    ledger = freezeBfmIntake(root, { dispositions: { 'TECH-2': 'Include now' } });
+    assert.equal(ledger.onboardingState, 'stale', 'the receipt project ID must match the migration project ID');
+
     writeVerifiedOnboardingReceipt(root);
     ledger = freezeBfmIntake(root, { dispositions: { 'TECH-2': 'Include now' } });
     assert.equal(ledger.onboardingState, 'verified');
