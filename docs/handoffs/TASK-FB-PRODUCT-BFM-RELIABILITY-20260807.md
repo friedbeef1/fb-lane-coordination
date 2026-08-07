@@ -11,8 +11,8 @@ record_model: normalized-v1
 
 # Product/BFM canonical-project and complete-intake reliability
 
-Date: 2026-08-07  
-Owner: Product/BFM  
+Date: 2026-08-07
+Owner: Product/BFM
 Source: James-approved Unmirror handoff
 
 ## Approved Decision

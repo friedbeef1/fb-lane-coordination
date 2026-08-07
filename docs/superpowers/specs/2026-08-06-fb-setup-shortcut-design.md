@@ -1,7 +1,7 @@
 # FB setup shortcut design
 
-Date: 2026-08-06  
-Task: TASK-076  
+Date: 2026-08-06
+Task: TASK-076
 Owner: Product/BFM
 
 ## Decision
