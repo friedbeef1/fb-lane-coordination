@@ -87,7 +87,7 @@ function belongsToRepository(task, repository) {
     : (repository || {});
   const expectedProjectId = identity.projectId;
   const observedProjectId = taskProjectId(task);
-  if (expectedProjectId && observedProjectId) return observedProjectId === expectedProjectId;
+  if (expectedProjectId) return observedProjectId === expectedProjectId;
   return sameRepository(
     taskRepositoryPath(task),
     identity.repositoryPath || identity.projectPath || identity.path,
@@ -220,6 +220,208 @@ function planRepositoryTaskInventory(inventory, repositoryPath) {
   return { complete: true, failures: [], actions };
 }
 
+function verifyRepositoryTaskInventory(inventory, repository) {
+  const plan = planRepositoryTaskInventory(inventory, repository);
+  if (!plan.complete) return { complete: false, failures: plan.failures, taskBindings: {} };
+
+  const incomplete = plan.actions.filter(action => action.type !== 'reuse');
+  if (incomplete.length > 0) {
+    return {
+      complete: false,
+      failures: incomplete.map(action => ({
+        operation: 'verification',
+        workstream: action.workstream,
+        message: `${action.workstream} still requires ${action.type}; all seven exact tasks must be visible and pinned.`,
+      })),
+      taskBindings: {},
+    };
+  }
+
+  const snapshot = inventorySnapshot(inventory);
+  const taskBindings = {};
+  for (const workstream of WORKSTREAMS) {
+    const task = snapshot.tasks.find(candidate => (
+      belongsToRepository(candidate, repository)
+      && recognizedWorkstream(taskTitle(candidate))?.key === workstream.key
+    ));
+    const id = actionTaskId(task);
+    if (!task || !id || normalizeTitle(taskTitle(task)) !== normalizeTitle(workstream.title) || !taskIsPinned(task)) {
+      return {
+        complete: false,
+        failures: [{
+          operation: 'verification',
+          workstream: workstream.key,
+          message: `${workstream.title.replace(/^FB · /, '')} is not confirmed with an exact title, executable ID, and pinned state.`,
+        }],
+        taskBindings: {},
+      };
+    }
+    taskBindings[workstream.key] = {
+      taskId: id,
+      title: workstream.title,
+      pinned: true,
+    };
+  }
+  return { complete: true, failures: [], taskBindings };
+}
+
+function reconciliationFailure(failures, repository, options = {}) {
+  const messages = Array.isArray(failures) && failures.length > 0
+    ? failures
+    : [{ operation: 'reconciliation', message: 'Complete exact-project task state could not be proved.' }];
+  const explanation = messages.map(failure => `- ${failure.operation}: ${failure.message}`).join('\n');
+  const prompts = renderManualFallback(WORKSTREAMS, {
+    repositoryName: options.repositoryName,
+    repositoryPath: repository?.repositoryPath || repository?.projectPath || repository?.path,
+  });
+  return {
+    complete: false,
+    reconciled: false,
+    failures: messages,
+    actions: [],
+    taskBindings: {},
+    manualFallback: `Automatic reconciliation could not finish:\n${explanation}\n\n${prompts}`,
+  };
+}
+
+function recordVerifiedReconciliation(rootDir, verification, repository, options = {}) {
+  const current = readOnboardingReceipt(rootDir);
+  if (!current || current.permission !== 'granted') {
+    throw new Error('Explicit onboarding permission must be granted before reconciliation.');
+  }
+  if (!verification?.complete || Object.keys(verification.taskBindings || {}).length !== WORKSTREAMS.length) {
+    throw new Error('Onboarding reconciliation requires confirmed exact titles, task IDs, and pinned state for all seven roles.');
+  }
+  const now = options.now instanceof Date ? options.now : new Date();
+  const state = {
+    ...current,
+    repositoryPath: path.resolve(repository?.repositoryPath || repository?.projectPath || repository?.path || rootDir),
+    ...(repository?.projectId ? { projectId: String(repository.projectId) } : {}),
+    workstreams: WORKSTREAMS.map(item => item.key),
+    taskBindings: verification.taskBindings,
+    reconciledAt: now.toISOString(),
+  };
+  atomicWriteJson(receiptPath(rootDir), state);
+  return state;
+}
+
+function reconcileRepositoryTaskInventory(options = {}) {
+  const repository = typeof options.repository === 'string'
+    ? { repositoryPath: options.repository }
+    : (options.repository || {});
+  const controls = options.controls || {};
+  let inventory = options.inventory;
+  if (inventory === undefined) {
+    if (typeof controls.listTasks !== 'function') {
+      return reconciliationFailure([{
+        operation: 'inventory',
+        message: 'Codex task inventory controls are unavailable.',
+      }], repository, options);
+    }
+    try {
+      inventory = controls.listTasks(repository);
+    } catch (error) {
+      return reconciliationFailure([{
+        operation: 'inventory',
+        message: error.message,
+      }], repository, options);
+    }
+  }
+
+  const plan = planRepositoryTaskInventory(inventory, repository);
+  if (!plan.complete) return reconciliationFailure(plan.failures, repository, options);
+
+  const createdTaskIds = new Map();
+  const executed = [];
+  try {
+    for (const action of plan.actions) {
+      if (action.type === 'reuse') continue;
+      if (action.type === 'create') {
+        if (typeof controls.createTask !== 'function') {
+          throw new Error(`Codex create control is unavailable for ${action.workstream}.`);
+        }
+        const workstream = WORKSTREAMS.find(item => item.key === action.workstream);
+        const created = controls.createTask({
+          workstream: action.workstream,
+          title: action.title,
+          prompt: renderIdleTaskPrompt(workstream, {
+            repositoryName: options.repositoryName,
+            repositoryPath: repository.repositoryPath || repository.projectPath || repository.path,
+          }),
+          repository,
+        });
+        const createdId = actionTaskId(created);
+        if (!createdId) throw new Error(`Codex create control returned no task/thread ID for ${action.workstream}.`);
+        createdTaskIds.set(action.workstream, createdId);
+        executed.push({ ...action, taskId: createdId });
+        continue;
+      }
+
+      const targetId = action.taskId || createdTaskIds.get(action.workstream);
+      if (!targetId) throw new Error(`No task/thread ID is available for ${action.type} ${action.workstream}.`);
+      if (action.type === 'rename') {
+        if (typeof controls.renameTask !== 'function') {
+          throw new Error(`Codex rename control is unavailable for ${action.workstream}.`);
+        }
+        controls.renameTask(targetId, action.title, { workstream: action.workstream, repository });
+      } else if (action.type === 'pin') {
+        if (typeof controls.pinTask !== 'function') {
+          throw new Error(`Codex pin control is unavailable for ${action.workstream}.`);
+        }
+        controls.pinTask(targetId, { workstream: action.workstream, repository, pinned: true });
+      }
+      executed.push({ ...action, taskId: targetId });
+    }
+  } catch (error) {
+    return {
+      ...reconciliationFailure([{
+        operation: executed.length > 0 ? 'partial-reconciliation' : 'reconciliation',
+        message: error.message,
+      }], repository, options),
+      actions: executed,
+    };
+  }
+
+  if (typeof controls.listTasks !== 'function') {
+    return {
+      ...reconciliationFailure([{
+        operation: 'verification',
+        message: 'Codex task inventory cannot be re-listed to confirm all seven titles and pins.',
+      }], repository, options),
+      actions: executed,
+    };
+  }
+
+  let finalInventory;
+  try {
+    finalInventory = controls.listTasks(repository);
+  } catch (error) {
+    return {
+      ...reconciliationFailure([{ operation: 'verification', message: error.message }], repository, options),
+      actions: executed,
+    };
+  }
+  const verification = verifyRepositoryTaskInventory(finalInventory, repository);
+  if (!verification.complete) {
+    return {
+      ...reconciliationFailure(verification.failures, repository, options),
+      actions: executed,
+    };
+  }
+
+  if (options.rootDir) {
+    recordVerifiedReconciliation(options.rootDir, verification, repository, options);
+  }
+  return {
+    complete: true,
+    reconciled: true,
+    failures: [],
+    actions: executed,
+    taskBindings: verification.taskBindings,
+    manualFallback: '',
+  };
+}
+
 function receiptPath(rootDir) {
   const requestedRoot = path.resolve(rootDir);
   const resolvedRoot = fs.realpathSync.native(requestedRoot);
@@ -292,24 +494,20 @@ function recordPermission(rootDir, permission, options = {}) {
   return state;
 }
 
-function recordReconciliation(rootDir, workstreams, options = {}) {
-  const current = readOnboardingReceipt(rootDir);
-  if (!current || current.permission !== 'granted') {
-    throw new Error('Explicit onboarding permission must be granted before reconciliation.');
+function recordReconciliation(rootDir, inventory, options = {}) {
+  if (!inventory || Array.isArray(inventory) || typeof inventory !== 'object') {
+    throw new Error('Onboarding reconciliation requires a complete exact-project pinned task inventory.');
   }
-  const observed = new Set(Array.isArray(workstreams) ? workstreams : []);
-  const canonical = WORKSTREAMS.map(item => item.key);
-  if (!canonical.every(key => observed.has(key))) {
-    throw new Error('Onboarding reconciliation requires all seven roles.');
-  }
-  const now = options.now instanceof Date ? options.now : new Date();
-  const state = {
-    ...current,
-    workstreams: canonical,
-    reconciledAt: now.toISOString(),
+  const repository = options.repository || {
+    repositoryPath: rootDir,
+    ...(options.projectId ? { projectId: options.projectId } : {}),
   };
-  atomicWriteJson(receiptPath(rootDir), state);
-  return state;
+  const verification = verifyRepositoryTaskInventory(inventory, repository);
+  if (!verification.complete) {
+    const detail = verification.failures.map(failure => failure.message).join('; ');
+    throw new Error(`Onboarding reconciliation requires all seven exact-project tasks pinned: ${detail}`);
+  }
+  return recordVerifiedReconciliation(rootDir, verification, repository, options);
 }
 
 function renderIdleTaskPrompt(workstream, options = {}) {
@@ -383,9 +581,18 @@ function runCli(args) {
     return;
   }
   if (command === 'reconcile') {
-    const workstreams = String(args[1] || '').split(',').map(item => item.trim()).filter(Boolean);
+    const inventoryPath = path.resolve(args[1] || '');
     const rootDir = args[2] || process.cwd();
-    process.stdout.write(`${JSON.stringify(recordReconciliation(rootDir, workstreams), null, 2)}\n`);
+    if (!args[1] || !fs.existsSync(inventoryPath)) {
+      throw new Error('Reconciliation requires a JSON file containing a complete exact-project pinned task inventory.');
+    }
+    const inventory = JSON.parse(fs.readFileSync(inventoryPath, 'utf8'));
+    process.stdout.write(`${JSON.stringify(recordReconciliation(rootDir, inventory, {
+      repository: {
+        repositoryPath: rootDir,
+        ...(args[3] ? { projectId: args[3] } : {}),
+      },
+    }), null, 2)}\n`);
     return;
   }
   if (command === 'prompt') {
@@ -399,7 +606,7 @@ function runCli(args) {
     })}\n`);
     return;
   }
-  throw new Error('Usage: node tools/fb-onboarding.cjs status [root] | needs-reconciliation [root] | permission granted|declined [root] | reconcile product,user,business,design,tech,discovery,bugs [root] | prompt <workstream> [root]');
+  throw new Error('Usage: node tools/fb-onboarding.cjs status [root] | needs-reconciliation [root] | permission granted|declined [root] | reconcile <complete-inventory.json> [root] [project-id] | prompt <workstream> [root]');
 }
 
 if (require.main === module) {
@@ -418,10 +625,13 @@ module.exports = {
   needsTaskInventoryReconciliation,
   planMissingWorkstreams,
   planRepositoryTaskInventory,
+  reconcileRepositoryTaskInventory,
   readOnboardingReceipt,
   recognizedWorkstream,
   recordPermission,
   recordReconciliation,
+  recordVerifiedReconciliation,
   renderIdleTaskPrompt,
   renderManualFallback,
+  verifyRepositoryTaskInventory,
 };

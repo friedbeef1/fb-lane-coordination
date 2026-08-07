@@ -10,7 +10,11 @@ const { execFileSync, spawnSync } = require('node:child_process');
 
 const cliPath = path.join(__dirname, 'fb-lane.cjs');
 const {
+  advanceCheckoutRetirement,
   checkoutMigrationSnapshot,
+  commitCheckoutMigration,
+  inventoryCheckoutMigration,
+  recordCheckoutTaskRebind,
   scanWorkstreamHandoffs,
 } = require('./fb-lane.cjs');
 
@@ -298,6 +302,212 @@ test('configured inaccessible audit roots fail readiness instead of being skippe
 });
 
 console.log('checkout migration lifecycle');
+test('migration inventory captures branches, worktrees, dirt, task records, and dispositions every difference', () => {
+  const canonical = makeRepo();
+  const former = makeRepo('fb-checkout-former-inventory-');
+  try {
+    fs.writeFileSync(path.join(former, 'UNTRACKED.txt'), 'preserve me\n');
+    const taskInventory = {
+      complete: true,
+      tasks: require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
+        id: `task-${index}`,
+        title: workstream.title,
+        projectId: 'project-fixture',
+        pinned: true,
+      })),
+    };
+    assert.throws(() => inventoryCheckoutMigration({
+      canonicalPath: canonical,
+      formerPaths: [former],
+      repository: { projectId: 'project-fixture', repositoryPath: canonical },
+      taskInventory,
+      differences: [{ id: 'handoff:TASK-X', kind: 'handoff-content' }],
+      dispositions: {},
+    }), /MIGRATION_DIFFERENCE_UNDISPOSITIONED/);
+
+    const inventory = inventoryCheckoutMigration({
+      canonicalPath: canonical,
+      formerPaths: [former],
+      repository: { projectId: 'project-fixture', repositoryPath: canonical },
+      taskInventory,
+      differences: [{ id: 'handoff:TASK-X', kind: 'handoff-content' }],
+      dispositions: { 'handoff:TASK-X': 'canonical-content-retained' },
+    });
+    assert.strictEqual(inventory.roots.length, 2);
+    assert.strictEqual(inventory.roots[0].path, fs.realpathSync(canonical));
+    assert.ok(Array.isArray(inventory.roots[0].worktrees));
+    assert.match(inventory.roots[1].dirt.join('\n'), /UNTRACKED\.txt/);
+    assert.strictEqual(inventory.taskRecords.length, 7);
+    assert.deepStrictEqual(inventory.differences[0], {
+      id: 'handoff:TASK-X',
+      kind: 'handoff-content',
+      disposition: 'canonical-content-retained',
+    });
+  } finally {
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(former, { recursive: true, force: true });
+  }
+});
+
+test('migration commit records one active canonical root, quarantines former roots, and is idempotent', () => {
+  const canonical = makeRepo();
+  const former = makeRepo('fb-checkout-former-commit-');
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-registry-'));
+  const previousRegistry = process.env.FB_CHECKOUT_MIGRATION_REGISTRY;
+  try {
+    process.env.FB_CHECKOUT_MIGRATION_REGISTRY = registry;
+    const taskInventory = {
+      complete: true,
+      tasks: require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
+        id: `task-${index}`,
+        title: workstream.title,
+        projectId: 'project-fixture',
+        pinned: true,
+      })),
+    };
+    const inventory = inventoryCheckoutMigration({
+      canonicalPath: canonical,
+      formerPaths: [former],
+      repository: { projectId: 'project-fixture', repositoryPath: canonical },
+      taskInventory,
+    });
+    const first = commitCheckoutMigration(inventory, { registryDir: registry });
+    const second = commitCheckoutMigration(inventory, { registryDir: registry });
+    assert.deepStrictEqual(second.manifest, first.manifest);
+    assert.strictEqual(checkoutMigrationSnapshot(canonical).state, 'active');
+    assert.strictEqual(checkoutMigrationSnapshot(former).state, 'quarantined');
+    assert.throws(() => require('./fb-lane.cjs').assertCanonicalCheckout(former), /FB_CHECKOUT_NOT_CANONICAL/);
+    assert.strictEqual(first.manifest.taskRebind.status, 'complete');
+    assert.strictEqual(Object.keys(first.manifest.taskBindings).length, 7);
+  } finally {
+    if (previousRegistry === undefined) delete process.env.FB_CHECKOUT_MIGRATION_REGISTRY;
+    else process.env.FB_CHECKOUT_MIGRATION_REGISTRY = previousRegistry;
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(former, { recursive: true, force: true });
+    fs.rmSync(registry, { recursive: true, force: true });
+  }
+});
+
+test('a registry write failure leaves no checkout-local migration manifest behind', () => {
+  const canonical = makeRepo();
+  const former = makeRepo('fb-checkout-former-transaction-');
+  const blockedRegistry = path.join(canonical, 'registry-file');
+  try {
+    fs.writeFileSync(blockedRegistry, 'not a directory\n');
+    const tasks = require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
+      id: `task-${index}`,
+      title: workstream.title,
+      projectId: 'project-fixture',
+      pinned: true,
+    }));
+    const inventory = inventoryCheckoutMigration({
+      canonicalPath: canonical,
+      formerPaths: [former],
+      repository: { projectId: 'project-fixture', repositoryPath: canonical },
+      taskInventory: { complete: true, tasks },
+    });
+    assert.throws(() => commitCheckoutMigration(inventory, {
+      registryDir: blockedRegistry,
+    }), /EEXIST|ENOTDIR/);
+    assert.strictEqual(
+      fs.existsSync(path.join(gitDirectory(canonical), 'fb-checkout-migration.json')),
+      false,
+    );
+  } finally {
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(former, { recursive: true, force: true });
+  }
+});
+
+test('pending task rebind closes only with a complete exact-project pinned inventory', () => {
+  const canonical = makeRepo();
+  const former = makeRepo('fb-checkout-former-rebind-');
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-registry-'));
+  const previousRegistry = process.env.FB_CHECKOUT_MIGRATION_REGISTRY;
+  try {
+    process.env.FB_CHECKOUT_MIGRATION_REGISTRY = registry;
+    const partialTasks = require('./fb-onboarding.cjs').WORKSTREAMS.slice(0, 6).map((workstream, index) => ({
+      id: `task-${index}`,
+      title: workstream.title,
+      projectId: 'project-fixture',
+      pinned: true,
+    }));
+    const inventory = inventoryCheckoutMigration({
+      canonicalPath: canonical,
+      formerPaths: [former],
+      repository: { projectId: 'project-fixture', repositoryPath: canonical },
+      taskInventory: { complete: true, tasks: partialTasks },
+    });
+    commitCheckoutMigration(inventory, { registryDir: registry });
+    assert.strictEqual(checkoutMigrationSnapshot(canonical).taskRebind.status, 'awaiting-task-rebind');
+    assert.throws(() => recordCheckoutTaskRebind(canonical, {
+      complete: true,
+      tasks: partialTasks,
+    }, { projectId: 'project-fixture', repositoryPath: canonical }, { registryDir: registry }), /TASK_REBIND_PENDING/);
+
+    const completeTasks = require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
+      id: `task-${index}`,
+      title: workstream.title,
+      projectId: 'project-fixture',
+      pinned: true,
+    }));
+    recordCheckoutTaskRebind(canonical, { complete: true, tasks: completeTasks }, {
+      projectId: 'project-fixture', repositoryPath: canonical,
+    }, { registryDir: registry });
+    assert.strictEqual(checkoutMigrationSnapshot(canonical).taskRebind.status, 'complete');
+    assert.deepStrictEqual(checkoutMigrationSnapshot(canonical).taskRebind.pending, []);
+  } finally {
+    if (previousRegistry === undefined) delete process.env.FB_CHECKOUT_MIGRATION_REGISTRY;
+    else process.env.FB_CHECKOUT_MIGRATION_REGISTRY = previousRegistry;
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(former, { recursive: true, force: true });
+    fs.rmSync(registry, { recursive: true, force: true });
+  }
+});
+
+test('retirement requires explicit approval and a two-step lifecycle transition', () => {
+  const canonical = makeRepo();
+  const former = makeRepo('fb-checkout-former-retirement-');
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-registry-'));
+  const previousRegistry = process.env.FB_CHECKOUT_MIGRATION_REGISTRY;
+  try {
+    process.env.FB_CHECKOUT_MIGRATION_REGISTRY = registry;
+    const tasks = require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
+      id: `task-${index}`,
+      title: workstream.title,
+      projectId: 'project-fixture',
+      pinned: true,
+    }));
+    const inventory = inventoryCheckoutMigration({
+      canonicalPath: canonical,
+      formerPaths: [former],
+      repository: { projectId: 'project-fixture', repositoryPath: canonical },
+      taskInventory: { complete: true, tasks },
+    });
+    commitCheckoutMigration(inventory, { registryDir: registry });
+    assert.throws(() => advanceCheckoutRetirement(canonical, former, {
+      targetState: 'retirement-pending', registryDir: registry,
+    }), /RETIREMENT_APPROVAL_REQUIRED/);
+    assert.throws(() => advanceCheckoutRetirement(canonical, former, {
+      targetState: 'retired', approvalRef: 'APPROVED-RETIRE', registryDir: registry,
+    }), /retirement-pending/);
+    advanceCheckoutRetirement(canonical, former, {
+      targetState: 'retirement-pending', approvalRef: 'APPROVED-RETIRE', registryDir: registry,
+    });
+    assert.strictEqual(checkoutMigrationSnapshot(former).state, 'retirement-pending');
+    advanceCheckoutRetirement(canonical, former, {
+      targetState: 'retired', approvalRef: 'APPROVED-RETIRE', registryDir: registry,
+    });
+    assert.strictEqual(checkoutMigrationSnapshot(former).state, 'retired');
+  } finally {
+    if (previousRegistry === undefined) delete process.env.FB_CHECKOUT_MIGRATION_REGISTRY;
+    else process.env.FB_CHECKOUT_MIGRATION_REGISTRY = previousRegistry;
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(former, { recursive: true, force: true });
+    fs.rmSync(registry, { recursive: true, force: true });
+  }
+});
+
 test('snapshot reports active checkout, canonical path, drift count, and awaiting task rebind', () => {
   const root = makeRepo();
   try {

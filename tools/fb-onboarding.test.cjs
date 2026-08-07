@@ -17,6 +17,19 @@ try {
 
 const REPO = '/work/projects/mirrorcam';
 
+function completeInventory(repository = { projectId: 'project-mirrorcam', repositoryPath: REPO }) {
+  return {
+    complete: true,
+    tasks: onboarding.WORKSTREAMS.map((workstream, index) => ({
+      id: `task-${index}`,
+      title: workstream.title,
+      projectId: repository.projectId,
+      projectPath: repository.repositoryPath,
+      pinned: true,
+    })),
+  };
+}
+
 test('legacy four-task projects add User, Discovery, and Bugs', () => {
   assert.strictEqual(typeof onboarding.planMissingWorkstreams, 'function');
   const tasks = ['Product', 'FB Business', 'FB-Design', 'Tech'].map(title => ({
@@ -67,6 +80,26 @@ test('Codex project IDs scope tasks when thread summaries omit repository paths'
       repositoryPath: REPO,
     }).map(item => item.key),
     ['user', 'discovery', 'bugs'],
+  );
+});
+
+test('an exact project ID never accepts a path-only or different-project task', () => {
+  const inventory = completeInventory();
+  inventory.tasks[0] = {
+    ...inventory.tasks[0],
+    projectId: undefined,
+    projectPath: REPO,
+  };
+  inventory.tasks[1] = {
+    ...inventory.tasks[1],
+    projectId: 'project-other',
+  };
+  assert.deepStrictEqual(
+    onboarding.planMissingWorkstreams(inventory.tasks, {
+      projectId: 'project-mirrorcam',
+      repositoryPath: REPO,
+    }).map(item => item.key),
+    ['product', 'user'],
   );
 });
 
@@ -136,12 +169,19 @@ test('legacy reconciled receipts still run the seven-role reconciliation cycle',
     assert.strictEqual(before.status, 0, before.stderr);
     assert.deepStrictEqual(JSON.parse(before.stdout), { needsReconciliation: true });
 
-    const reconciled = spawnSync(process.execPath, [
-      tool,
-      'reconcile',
-      'product,user,business,design,tech,discovery,bugs',
-      root,
-    ], { encoding: 'utf8' });
+    const inventoryPath = path.join(root, 'task-inventory.json');
+    fs.writeFileSync(inventoryPath, `${JSON.stringify({
+      complete: true,
+      tasks: onboarding.WORKSTREAMS.map((workstream, index) => ({
+        id: `task-${index}`,
+        title: workstream.title,
+        projectPath: root,
+        pinned: true,
+      })),
+    })}\n`);
+    const reconciled = spawnSync(process.execPath, [tool, 'reconcile', inventoryPath, root], {
+      encoding: 'utf8',
+    });
     assert.strictEqual(reconciled.status, 0, reconciled.stderr);
 
     const after = spawnSync(process.execPath, [tool, 'needs-reconciliation', root], {
@@ -188,15 +228,24 @@ test('reconciliation completes only after all seven roles are observed', () => {
   try {
     onboarding.ensureOnboardingReceipt(root);
     onboarding.recordPermission(root, 'granted');
-    assert.throws(
-      () => onboarding.recordReconciliation(root, ['product', 'business', 'design', 'tech']),
-      /all seven/i,
-    );
-    const state = onboarding.recordReconciliation(
+    assert.throws(() => onboarding.recordReconciliation(
       root,
       ['product', 'user', 'business', 'design', 'tech', 'discovery', 'bugs'],
-      { now: new Date('2026-07-29T13:00:00Z') },
-    );
+    ), /complete.*inventory|exact.*pinned/i);
+    const inventory = {
+      complete: true,
+      tasks: onboarding.WORKSTREAMS.map((workstream, index) => ({
+        id: `task-${index}`,
+        title: workstream.title,
+        projectPath: root,
+        pinned: index !== 6,
+      })),
+    };
+    assert.throws(() => onboarding.recordReconciliation(root, inventory), /all seven|pinned/i);
+    inventory.tasks[6].pinned = true;
+    const state = onboarding.recordReconciliation(root, inventory, {
+      now: new Date('2026-07-29T13:00:00Z'),
+    });
     assert.strictEqual(state.reconciledAt, '2026-07-29T13:00:00.000Z');
     assert.deepStrictEqual(state.workstreams, [
       'product',
@@ -207,6 +256,7 @@ test('reconciliation completes only after all seven roles are observed', () => {
       'discovery',
       'bugs',
     ]);
+    assert.strictEqual(state.taskBindings.bugs.taskId, 'task-6');
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -323,6 +373,124 @@ test('repository inventory planning is deterministic across repeated complete in
   const second = onboarding.planRepositoryTaskInventory(tasks, REPO);
   assert.deepStrictEqual(first, second);
   assert.deepStrictEqual(first.actions.map(action => action.type), Array(7).fill('reuse'));
+});
+
+test('complete exact-project reconciliation confirms all seven pinned task IDs without mutation', () => {
+  const inventory = completeInventory();
+  const mutations = [];
+  const result = onboarding.reconcileRepositoryTaskInventory({
+    inventory,
+    repository: { projectId: 'project-mirrorcam', repositoryPath: REPO },
+    controls: {
+      listTasks: () => inventory,
+      createTask: () => mutations.push('create'),
+      renameTask: () => mutations.push('rename'),
+      pinTask: () => mutations.push('pin'),
+    },
+  });
+  assert.strictEqual(result.complete, true);
+  assert.strictEqual(result.reconciled, true);
+  assert.deepStrictEqual(mutations, []);
+  assert.deepStrictEqual(Object.keys(result.taskBindings), [
+    'product', 'user', 'business', 'design', 'tech', 'discovery', 'bugs',
+  ]);
+  assert.strictEqual(result.taskBindings.product.taskId, 'task-0');
+});
+
+test('partial task inventory performs no mutation and returns all seven paste-ready prompts', () => {
+  const mutations = [];
+  const result = onboarding.reconcileRepositoryTaskInventory({
+    inventory: {
+      complete: false,
+      tasks: completeInventory().tasks.slice(0, 3),
+      failures: [{ operation: 'list', message: 'continuation cursor unavailable' }],
+    },
+    repository: { projectId: 'project-mirrorcam', repositoryPath: REPO },
+    controls: {
+      createTask: () => mutations.push('create'),
+      renameTask: () => mutations.push('rename'),
+      pinTask: () => mutations.push('pin'),
+    },
+  });
+  assert.strictEqual(result.complete, false);
+  assert.strictEqual(result.reconciled, false);
+  assert.deepStrictEqual(mutations, []);
+  assert.match(result.manualFallback, /continuation cursor unavailable/);
+  for (const workstream of onboarding.WORKSTREAMS) {
+    assert.match(result.manualFallback, new RegExp(`Create ${workstream.title.replace(/^FB · /, '').replace('/', '\\/')}`));
+  }
+});
+
+test('legacy titles are renamed once, missing tasks are created once, and reruns are idempotent', () => {
+  const repository = { projectId: 'project-mirrorcam', repositoryPath: REPO };
+  let tasks = completeInventory(repository).tasks.filter(task => !['task-0', 'task-1'].includes(task.id));
+  tasks.unshift(
+    { id: 'legacy-product', title: 'Product', projectId: repository.projectId, pinned: true },
+    { id: 'legacy-user', title: 'FB · Product/User', projectId: repository.projectId, pinned: false },
+  );
+  const mutations = [];
+  const controls = {
+    listTasks: () => ({ complete: true, tasks: tasks.map(task => ({ ...task })) }),
+    renameTask: (taskId, title) => {
+      mutations.push(['rename', taskId, title]);
+      tasks.find(task => task.id === taskId).title = title;
+    },
+    createTask: ({ workstream, title }) => {
+      mutations.push(['create', workstream, title]);
+      const task = { id: `created-${workstream}`, title, projectId: repository.projectId, pinned: false };
+      tasks.push(task);
+      return task;
+    },
+    pinTask: taskId => {
+      mutations.push(['pin', taskId]);
+      tasks.find(task => task.id === taskId).pinned = true;
+    },
+  };
+
+  const first = onboarding.reconcileRepositoryTaskInventory({
+    inventory: controls.listTasks(), repository, controls,
+  });
+  assert.strictEqual(first.complete, true);
+  assert.deepStrictEqual(mutations, [
+    ['rename', 'legacy-product', 'FB · Product/BFM'],
+    ['rename', 'legacy-user', 'FB · User'],
+    ['pin', 'legacy-user'],
+  ]);
+
+  mutations.length = 0;
+  const second = onboarding.reconcileRepositoryTaskInventory({
+    inventory: controls.listTasks(), repository, controls,
+  });
+  assert.strictEqual(second.complete, true);
+  assert.deepStrictEqual(mutations, []);
+  assert.deepStrictEqual(second.taskBindings, first.taskBindings);
+});
+
+test('a partial pin failure remains unreconciled and cannot write a success receipt', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-pin-failure-'));
+  const repository = { projectId: 'project-mirrorcam', repositoryPath: root };
+  const inventory = completeInventory(repository);
+  inventory.tasks[2].pinned = false;
+  try {
+    onboarding.ensureOnboardingReceipt(root);
+    onboarding.recordPermission(root, 'granted');
+    const result = onboarding.reconcileRepositoryTaskInventory({
+      inventory,
+      repository,
+      rootDir: root,
+      controls: {
+        pinTask: () => { throw new Error('provider rejected pin'); },
+        listTasks: () => inventory,
+      },
+    });
+    assert.strictEqual(result.complete, false);
+    assert.match(result.failures[0].message, /provider rejected pin/);
+    const receipt = onboarding.readOnboardingReceipt(root);
+    assert.strictEqual(receipt.reconciledAt, undefined);
+    assert.strictEqual(receipt.taskBindings, undefined);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('new task prompts remain idle and carry distinct workstream instructions', () => {

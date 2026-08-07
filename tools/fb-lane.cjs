@@ -36,7 +36,12 @@ const {
   renderWorkstreamSummary,
   refreshManagedWorkstreamCard,
 } = require('./fb-board-context.cjs');
-const { ensureOnboardingReceipt } = require('./fb-onboarding.cjs');
+const {
+  WORKSTREAMS: ONBOARDING_WORKSTREAMS,
+  ensureOnboardingReceipt,
+  planRepositoryTaskInventory,
+  verifyRepositoryTaskInventory,
+} = require('./fb-onboarding.cjs');
 const {
   classifyExecutionMode,
   renderQuickRecord,
@@ -292,6 +297,263 @@ function assertCanonicalCheckout(rootDir, operation = 'mutation') {
     throw error;
   }
   return snapshot;
+}
+
+function atomicWriteJson(filePath, value) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  const temporary = path.join(
+    path.dirname(filePath),
+    `.${path.basename(filePath)}.${process.pid}.${Date.now()}.tmp`,
+  );
+  try {
+    fs.writeFileSync(temporary, `${JSON.stringify(value, null, 2)}\n`, { mode: 0o600 });
+    fs.renameSync(temporary, filePath);
+  } finally {
+    try {
+      fs.unlinkSync(temporary);
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+  }
+}
+
+function migrationRegistryDirectory(options = {}) {
+  const configured = String(
+    options.registryDir
+    || process.env.FB_CHECKOUT_MIGRATION_REGISTRY
+    || '',
+  ).trim();
+  return path.resolve(expandHome(configured || path.join(
+    process.env.HOME || os.homedir(),
+    '.codex',
+    'fb-lane',
+    'checkout-migrations',
+  )));
+}
+
+function migrationRegistryFile(canonicalPath, options = {}) {
+  const identity = crypto.createHash('sha256').update(pathIdentity(canonicalPath)).digest('hex');
+  return path.join(migrationRegistryDirectory(options), `${identity}.json`);
+}
+
+function writeCheckoutMigrationManifest(manifest, options = {}) {
+  const canonicalPath = pathIdentity(manifest.canonicalPath);
+  const value = { ...manifest, canonicalPath };
+  const checkoutLocal = path.join(gitCommonDirectory(canonicalPath), CHECKOUT_MIGRATION_MANIFEST);
+  const registryFile = migrationRegistryFile(canonicalPath, options);
+  const previous = new Map([checkoutLocal, registryFile].map(filePath => [
+    filePath,
+    fs.existsSync(filePath) ? fs.readFileSync(filePath) : null,
+  ]));
+  try {
+    atomicWriteJson(registryFile, value);
+    atomicWriteJson(checkoutLocal, value);
+  } catch (error) {
+    const rollbackFailures = [];
+    for (const [filePath, contents] of previous) {
+      try {
+        if (contents === null) fs.rmSync(filePath, { force: true });
+        else atomicWriteJson(filePath, JSON.parse(contents.toString('utf8')));
+      } catch (rollbackError) {
+        rollbackFailures.push(`${filePath}: ${rollbackError.message}`);
+      }
+    }
+    if (rollbackFailures.length > 0) {
+      throw new Error(`${error.message}; MIGRATION_ROLLBACK_INCOMPLETE: ${rollbackFailures.join('; ')}`);
+    }
+    throw error;
+  }
+  return { manifest: value, manifestPath: checkoutLocal, registryPath: registryFile };
+}
+
+function inspectMigrationRoot(rootPath) {
+  const root = pathIdentity(rootPath);
+  let stat;
+  try {
+    stat = fs.statSync(root);
+  } catch (error) {
+    throw new Error(`MIGRATION_ROOT_INACCESSIBLE: ${root}: ${error.message}`);
+  }
+  if (!stat.isDirectory()) throw new Error(`MIGRATION_ROOT_INACCESSIBLE: ${root} is not a directory.`);
+
+  const git = args => {
+    try {
+      return execFileSync('git', args, {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      }).trim();
+    } catch (error) {
+      const stderr = error.stderr ? String(error.stderr).trim() : '';
+      throw new Error(`MIGRATION_ROOT_INVENTORY_INCOMPLETE: ${root}: ${stderr || error.message}`);
+    }
+  };
+  const branch = git(['branch', '--show-current']) || `detached:${git(['rev-parse', 'HEAD'])}`;
+  const worktrees = parseWorktreePorcelain(git(['worktree', 'list', '--porcelain']));
+  const dirt = git(['status', '--porcelain', '--untracked-files=all'])
+    .split(/\r?\n/)
+    .filter(Boolean);
+  return { path: root, branch, worktrees, dirt };
+}
+
+function inventoryCheckoutMigration(options = {}) {
+  const canonicalPath = pathIdentity(options.canonicalPath || '');
+  const formerPaths = [...new Set((options.formerPaths || []).map(pathIdentity))]
+    .filter(candidate => candidate !== canonicalPath)
+    .sort();
+  if (!options.canonicalPath) throw new Error('MIGRATION_CANONICAL_REQUIRED: canonicalPath is required.');
+
+  const differenceIds = new Set();
+  const differences = (options.differences || []).map(difference => {
+    const id = String(difference?.id || '').trim();
+    if (!id || differenceIds.has(id)) {
+      throw new Error(`MIGRATION_DIFFERENCE_INVALID: every difference needs one unique ID; received ${JSON.stringify(id)}.`);
+    }
+    differenceIds.add(id);
+    const disposition = options.dispositions && options.dispositions[id];
+    if (!String(disposition || '').trim()) {
+      throw new Error(`MIGRATION_DIFFERENCE_UNDISPOSITIONED: ${id}.`);
+    }
+    return { ...difference, id, disposition: String(disposition) };
+  });
+
+  const repository = typeof options.repository === 'string'
+    ? { repositoryPath: options.repository }
+    : (options.repository || { repositoryPath: canonicalPath });
+  const taskInventory = options.taskInventory || { complete: false, tasks: [] };
+  const taskPlan = planRepositoryTaskInventory(taskInventory, repository);
+  const verification = verifyRepositoryTaskInventory(taskInventory, repository);
+  const taskRecords = taskPlan.complete
+    ? taskPlan.actions.filter(action => action.type === 'reuse').map(action => ({
+      workstream: action.workstream,
+      taskId: action.taskId,
+    }))
+    : [];
+  const pending = verification.complete
+    ? []
+    : ONBOARDING_WORKSTREAMS
+      .map(workstream => workstream.key)
+      .filter(key => !taskRecords.some(record => record.workstream === key));
+
+  return {
+    version: 1,
+    repository: {
+      repositoryPath: path.resolve(repository.repositoryPath || repository.projectPath || canonicalPath),
+      ...(repository.projectId ? { projectId: String(repository.projectId) } : {}),
+    },
+    canonicalPath,
+    roots: [canonicalPath, ...formerPaths].map(inspectMigrationRoot),
+    differences,
+    taskRecords,
+    taskBindings: verification.complete ? verification.taskBindings : {},
+    taskRebind: {
+      status: verification.complete ? 'complete' : 'awaiting-task-rebind',
+      pending,
+    },
+    routingReceipts: options.routingReceipts && typeof options.routingReceipts === 'object'
+      ? options.routingReceipts
+      : {},
+    unresolvedDrift: Array.isArray(options.unresolvedDrift) ? options.unresolvedDrift : [],
+  };
+}
+
+function commitCheckoutMigration(inventory, options = {}) {
+  if (!inventory || inventory.version !== 1 || !inventory.canonicalPath || !Array.isArray(inventory.roots)) {
+    throw new Error('FB_CHECKOUT_MANIFEST_INVALID: a complete migration inventory is required.');
+  }
+  const canonicalPath = pathIdentity(inventory.canonicalPath);
+  const roots = inventory.roots.map(record => ({ ...record, path: pathIdentity(record.path) }));
+  if (roots.filter(record => record.path === canonicalPath).length !== 1) {
+    throw new Error('FB_CHECKOUT_MANIFEST_INVALID: the migration inventory must contain exactly one canonical root.');
+  }
+  if ((inventory.differences || []).some(difference => !String(difference.disposition || '').trim())) {
+    throw new Error('MIGRATION_DIFFERENCE_UNDISPOSITIONED: every recorded difference requires a disposition.');
+  }
+  const checkouts = {};
+  for (const root of roots) {
+    checkouts[root.path] = {
+      state: root.path === canonicalPath ? 'active' : 'quarantined',
+      branch: root.branch,
+      worktrees: root.worktrees,
+      dirt: root.dirt,
+    };
+  }
+  const manifest = {
+    version: 1,
+    repository: inventory.repository,
+    canonicalPath,
+    checkouts,
+    differences: inventory.differences || [],
+    taskRecords: inventory.taskRecords || [],
+    taskBindings: inventory.taskBindings || {},
+    taskRebind: inventory.taskRebind || { status: 'awaiting-task-rebind', pending: ONBOARDING_WORKSTREAMS.map(item => item.key) },
+    routingReceipts: inventory.routingReceipts || {},
+    unresolvedDrift: inventory.unresolvedDrift || [],
+  };
+  return writeCheckoutMigrationManifest(manifest, options);
+}
+
+function recordCheckoutTaskRebind(rootDir, taskInventory, repository, options = {}) {
+  const migration = loadCheckoutMigrationManifest(rootDir);
+  if (!migration) throw new Error('TASK_REBIND_PENDING: no checkout migration manifest is registered.');
+  const verification = verifyRepositoryTaskInventory(taskInventory, repository);
+  if (!verification.complete) {
+    const detail = verification.failures.map(failure => failure.message).join('; ');
+    throw new Error(`TASK_REBIND_PENDING: ${detail || 'all seven exact-project tasks must be visible and pinned.'}`);
+  }
+  const manifest = {
+    ...migration,
+    manifestPath: undefined,
+    taskBindings: verification.taskBindings,
+    taskRecords: Object.entries(verification.taskBindings).map(([workstream, binding]) => ({
+      workstream,
+      taskId: binding.taskId,
+    })),
+    taskRebind: { status: 'complete', pending: [] },
+  };
+  delete manifest.manifestPath;
+  return writeCheckoutMigrationManifest(manifest, options);
+}
+
+function advanceCheckoutRetirement(rootDir, formerPath, options = {}) {
+  const approvalRef = String(options.approvalRef || '').trim();
+  if (!approvalRef) throw new Error('RETIREMENT_APPROVAL_REQUIRED: explicit approval is required before checkout retirement.');
+  const migration = loadCheckoutMigrationManifest(rootDir);
+  if (!migration) throw new Error('FB_CHECKOUT_MANIFEST_INVALID: no checkout migration manifest is registered.');
+  if (pathIdentity(rootDir) !== migration.canonicalPath) {
+    throw new Error(`FB_CHECKOUT_NOT_CANONICAL: retirement state may be changed only from ${migration.canonicalPath}.`);
+  }
+  if (migration.taskRebind.status !== 'complete' || migration.taskRebind.pending.length > 0) {
+    throw new Error('TASK_REBIND_PENDING: checkout retirement requires complete task rebind.');
+  }
+  if (migration.unresolvedDrift.length > 0) {
+    throw new Error('HANDOFF_CONTENT_DRIFT: checkout retirement requires every difference to be dispositioned.');
+  }
+  const former = pathIdentity(formerPath);
+  const current = migration.checkouts[former];
+  if (!current || former === migration.canonicalPath) {
+    throw new Error(`FB_CHECKOUT_MANIFEST_INVALID: ${former} is not a registered former checkout.`);
+  }
+  const targetState = String(options.targetState || 'retirement-pending');
+  const allowed = (
+    (current.state === 'quarantined' && targetState === 'retirement-pending')
+    || (current.state === 'retirement-pending' && targetState === 'retired')
+    || current.state === targetState
+  );
+  if (!allowed) {
+    throw new Error(`FB_CHECKOUT_MANIFEST_INVALID: ${current.state} must transition through retirement-pending before ${targetState}.`);
+  }
+  const manifest = { ...migration };
+  delete manifest.manifestPath;
+  manifest.checkouts = {
+    ...migration.checkouts,
+    [former]: {
+      ...current,
+      state: targetState,
+      retirementApprovalRef: approvalRef,
+    },
+  };
+  return writeCheckoutMigrationManifest(manifest, options);
 }
 
 // Find PROJECT_BOARD.md by searching upward
@@ -4441,7 +4703,11 @@ module.exports = {
   selectTaskBranch,
   removeMergedWorktree,
   renderQueueSummary,
+  advanceCheckoutRetirement,
   checkoutMigrationSnapshot,
+  commitCheckoutMigration,
+  inventoryCheckoutMigration,
+  recordCheckoutTaskRebind,
   assertCanonicalCheckout,
   assertNoHandoffContentDrift,
   TASK_ID_PATTERN,
