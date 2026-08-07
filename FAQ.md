@@ -74,9 +74,12 @@ priorities, sensitive boundaries, conflicts, or unclear scope.
 `$bfm` executes only in Product/BFM. The control centre scans User, Business,
 Design, Tech, Discovery, and Bugs. It
 renders a complete intake ledger, dispositions every candidate, keeps blocked
-work visible, reconciles conflicts, prioritizes the included sequence, directs
+work linked and visible, shows compatible Product/BFM inputs separately,
+reconciles conflicts, prioritizes the included sequence, directs
 Codex implementation, and runs automated checks. Missing, unreadable, drifting,
-or contradictory evidence fails closed before source execution.
+or contradictory evidence fails closed before source execution. Execution and
+an empty-queue claim also require a configured canonical checkout plus a fresh
+receipt proving the exact project and all seven pinned tasks.
 
 `$bfm` is the supported invocation. FB may understand `/bfm` as your intent,
 but `/bfm` is not a separate installed command.

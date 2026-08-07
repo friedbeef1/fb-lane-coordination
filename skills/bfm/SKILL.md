@@ -38,10 +38,11 @@ permission question once. Do not ask it again on a later `$bfm`.
 - On explicit **Yes**, record
   `node tools/fb-onboarding.cjs permission granted`.
 - On explicit **No**, record
-  `node tools/fb-onboarding.cjs permission declined` and continue without
-  sidebar setup.
-- When permission is pending and the current message is not the answer, do not
-  infer consent or block ordinary `$bfm` work.
+  `node tools/fb-onboarding.cjs permission declined`. Planning may continue,
+  but BFM source execution and an empty-queue claim remain blocked until exact-
+  project setup is explicitly granted and verified.
+- When permission is pending, do not infer consent. `$bfm` must surface the
+  pending setup action and stop before source execution.
 - Whenever permission is granted, run
   `node tools/fb-onboarding.cjs needs-reconciliation`. It decides from the
   canonical seven roles recorded in `workstreams`; an existing `reconciledAt`
@@ -114,7 +115,12 @@ centre. Each evidence-producing workstream runs a
 mini-loop and records ready or blocked evidence in `docs/handoffs/<TASK-ID>.md`.
 `$bfm` ignores `fb-workstream-handoff` artifacts because they are queued
 planning requests, not Product delivery inputs.
-Before intake or any source mutation, require the active canonical checkout.
+Before intake or any source mutation, require the active canonical checkout
+record and a fresh clone-local receipt proving the exact project ID, canonical
+path, and all seven exact pinned task bindings. Missing, pending, declined,
+partial, or stale onboarding evidence closes both the execution and empty-queue
+gates. Every non-retired checkout in the migration manifest participates in the
+audit even when no separate audit-roots file names it.
 Then call the runtime's complete intake semantics directly:
 
 ```js

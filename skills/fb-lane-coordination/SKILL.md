@@ -34,7 +34,11 @@ complete intake ledger from the active canonical checkout, keeps all six
 evidence workstreams plus Product/BFM visible, gives every candidate a
 disposition, reconciles conflicts and dependencies, prioritizes the included
 work, and records the consolidated Project Start Brief and Build Brief before
-source execution. Missing, unreadable, drifting, or contradictory intake fails
+source execution. The gate requires the configured canonical checkout and a
+verified exact-project receipt for all seven pinned tasks; every non-retired
+manifest checkout is audited. Product/BFM control inputs remain separate, while
+blocked inputs stay counted and linked without execution. Missing, pending,
+partial, stale, unreadable, drifting, or contradictory intake fails
 closed through the canonical runtime; guidance never duplicates its scanner
 logic. BFM stops at
 **Ready to ship**. Only **Push Live** authorizes merge or deployment.

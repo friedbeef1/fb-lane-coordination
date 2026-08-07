@@ -67,7 +67,11 @@ The frozen view is a complete intake ledger, not just a list of selected
 handoffs. It keeps all six evidence workstreams plus Product/BFM visible and
 shows candidate dispositions, canonical checkout and lifecycle state,
 unresolved drift, task rebind, active locks, approval gates, external blockers,
-and recommended dependency order. Missing, unreadable, drifting, or
+and recommended dependency order. It counts and links blocked inputs without
+executing them and shows compatible Product/BFM control inputs separately. A
+verified exact-project seven-task onboarding receipt and a configured canonical
+checkout record are required before execution or an empty-queue claim. Missing,
+pending, partial, stale, unreadable, drifting, or
 contradictory evidence fails closed before source execution.
 
 `$bfm` remains the supported invocation. If a user types `/bfm`, FB may

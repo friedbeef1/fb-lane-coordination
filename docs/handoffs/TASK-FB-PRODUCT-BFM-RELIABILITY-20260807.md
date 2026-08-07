@@ -78,13 +78,13 @@ candidate-faithful wording; **Push Live** remains user-owned.
 ## Task Receipt
 
 - **Branch:** `codex/product-bfm-reliability-20260807`.
-- **Candidate:** `0.5.11-beta+codex.20260807112648` on the reviewed
-  `b2513d4` runtime/skill base plus Task 6 guidance and release records.
+- **Candidate:** `0.5.11-beta+codex.20260807112648` on the reviewed Task 6
+  candidate plus the focused whole-branch reliability repair.
 - **Changelog:** updated — [0.5.11-beta](../../CHANGELOG.md#0511-beta--2026-08-07).
 - **Changelog approval:** approved — Product/BFM standing delegation;
   Reference: TASK-FB-PRODUCT-BFM-RELIABILITY-20260807, 2026-08-07.
-- **Review state:** Local review-ready — focused root/package, package parity,
-  canonical/quarantined consumer, and disposable migration evidence pass.
+- **Review state:** Checking — the consolidated repair is focused-green and
+  independent whole-branch re-review is pending.
 - **External gates:** publication/cache replacement, checkout retirement,
   sensitive operations, and **Push Live**.
 - **Remaining owner/action:** Product/BFM retains the candidate for the later
@@ -92,24 +92,28 @@ candidate-faithful wording; **Push Live** remains user-owned.
 
 ## Brief Validation
 
-Status: passed-local-review
+Status: checking
 
 - **Satisfied:** Runtime, intake, exact-project onboarding, transactional
   migration, canonical guidance, version, changelog, 65-mirror package parity,
   and consumer-bound evidence are aligned.
-- **Missing:** Nothing inside the approved local Task 6 scope. The complete
-  release checkpoint, publication, install/cache replacement, merge, retirement,
-  deployment, and **Push Live** remain separate gates.
+- **Missing:** Independent re-review of the consolidated whole-branch repair.
+  The complete release checkpoint, publication, install/cache replacement,
+  merge, retirement, deployment, and **Push Live** remain separate gates.
 - **Evidence:** [Task 6 QA](../qa/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md).
 
 ## Product/BFM Closeout
 
-Status: local review-ready
+Status: checking
 
 - One-time package generation produced 65 declared mirrors; final byte parity
   and package contract checks pass.
 - Focused root and package onboarding, intake, migration, guidance, metadata,
   syntax, validation, link, JSON, and whitespace checks pass.
+- The actual BFM claim gate now accepts compatible Product/BFM control inputs,
+  audits every non-retired manifest checkout, requires verified exact-project
+  seven-task onboarding evidence, and keeps blocked links visible without
+  executing them.
 - The quarantined Unmirror root fails closed, the canonical Unmirror root
   succeeds read-only, and an isolated migration preserves the former root while
   recording seven exact-project task bindings.

@@ -44,7 +44,9 @@ that question to the user exactly once:
 > Business, Design, Tech, Discovery, and Bugs?
 
 Do not create tasks before explicit Yes. On No, record
-`node tools/fb-onboarding.cjs permission declined` and continue normally. On
+`node tools/fb-onboarding.cjs permission declined`. Workstream planning may
+continue, but `$bfm` source execution and an empty-queue claim remain blocked
+until exact-project setup is granted and verified. On
 Yes, record `node tools/fb-onboarding.cjs permission granted`, then own the
 native exact-project reconciliation below. The Node CLI plans and verifies
 inventory files; it does not call the sidebar or Codex-native task controls.

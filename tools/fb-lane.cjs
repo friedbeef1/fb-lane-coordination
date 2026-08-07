@@ -40,6 +40,7 @@ const {
   WORKSTREAMS: ONBOARDING_WORKSTREAMS,
   ensureOnboardingReceipt,
   planRepositoryTaskInventory,
+  readOnboardingReceipt,
   verifyRepositoryTaskInventory,
 } = require('./fb-onboarding.cjs');
 const {
@@ -264,6 +265,7 @@ function checkoutMigrationSnapshot(rootDir) {
       state: 'unmanaged',
       unresolvedDrift: 0,
       taskRebind: { status: 'not-configured', pending: [] },
+      taskBindings: {},
       routingReceipts: {},
     };
   }
@@ -275,6 +277,9 @@ function checkoutMigrationSnapshot(rootDir) {
     state: manifest.checkouts[currentPath]?.state || 'unregistered',
     unresolvedDrift: manifest.unresolvedDrift.length,
     taskRebind: manifest.taskRebind,
+    taskBindings: manifest.taskBindings && typeof manifest.taskBindings === 'object'
+      ? manifest.taskBindings
+      : {},
     routingReceipts: manifest.routingReceipts,
   };
 }
@@ -1165,7 +1170,14 @@ function handoffAuditRoots(rootDir) {
     .split(path.delimiter)
     .map(value => value.trim())
     .filter(Boolean);
-  const configuredRoots = [...configured, ...environment].map(value => path.resolve(rootDir, value));
+  const migration = loadCheckoutMigrationManifest(rootDir);
+  const registered = migration
+    ? Object.entries(migration.checkouts)
+      .filter(([, record]) => record.state !== 'retired')
+      .map(([checkoutPath]) => checkoutPath)
+    : [];
+  const configuredRoots = [...configured, ...environment, ...registered]
+    .map(value => path.resolve(rootDir, value));
   const errors = [];
   for (const root of configuredRoots) {
     try {
@@ -1338,6 +1350,7 @@ function scanWorkstreamHandoffs(rootDir) {
   const handoffsDir = path.join(rootDir, 'docs', 'handoffs');
   const workstreams = Object.fromEntries(BFM_WORKSTREAMS.map(workstream => [workstream, { ready: [], blocked: [] }]));
   const selectedByTask = new Map();
+  const blockedCandidates = [];
   const files = fs.existsSync(handoffsDir)
     ? fs.readdirSync(handoffsDir).filter(file => file.endsWith('.md') && file !== 'index.md').sort()
     : [];
@@ -1348,7 +1361,14 @@ function scanWorkstreamHandoffs(rootDir) {
     const workstream = scannerWorkstream(metadata.lane);
     if (!BFM_WORKSTREAMS.includes(workstream)) continue;
     const status = String(metadata.status || '').toLowerCase();
-    if (status === 'blocked') workstreams[workstream].blocked.push(relative);
+    if (status === 'blocked') {
+      workstreams[workstream].blocked.push(relative);
+      blockedCandidates.push({
+        relative,
+        task: String(metadata.task || '').trim(),
+        role: bfmEvidenceRole(metadata.lane),
+      });
+    }
     if (status !== 'ready') continue;
     const task = String(metadata.task || '').trim();
     if (!task) throw new Error(`Ready handoff ${relative} requires task metadata.`);
@@ -1364,11 +1384,12 @@ function scanWorkstreamHandoffs(rootDir) {
   }
   const candidates = BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready);
   assertNoOrphanReadyHandoffs(rootDir, candidates);
-  return { workstreams, candidates, selected: candidates };
+  return { workstreams, candidates, selected: candidates, blockedCandidates };
 }
 
 function bfmEvidenceRole(lane) {
   return new Map([
+    ['fb-product', 'Product/BFM'],
     ['fb-user', 'User'],
     ['fb-business', 'Business'],
     ['fb-design', 'Design'],
@@ -1376,6 +1397,76 @@ function bfmEvidenceRole(lane) {
     ['fb-discovery', 'Discovery'],
     ['fb-bugs', 'Bugs'],
   ]).get(String(lane || '').trim().toLowerCase()) || '';
+}
+
+function bfmOnboardingEvidence(rootDir, migration) {
+  const required = BFM_INTAKE_ROLES.map(role => {
+    const key = role === 'Product/BFM' ? 'product' : role.toLowerCase();
+    const workstream = ONBOARDING_WORKSTREAMS.find(item => item.key === key);
+    return { key, role, title: workstream.title };
+  });
+  let receipt;
+  try {
+    receipt = readOnboardingReceipt(rootDir);
+  } catch {
+    return { state: 'stale', missingRoles: required.map(item => item.role) };
+  }
+  if (!receipt) return { state: 'absent', missingRoles: required.map(item => item.role) };
+  if (receipt.permission !== 'granted') {
+    return {
+      state: receipt.permission === 'pending' ? 'permission-pending' : 'permission-declined',
+      missingRoles: required.map(item => item.role),
+    };
+  }
+
+  const observed = new Set(Array.isArray(receipt.workstreams) ? receipt.workstreams : []);
+  const bindings = receipt.taskBindings && typeof receipt.taskBindings === 'object'
+    ? receipt.taskBindings
+    : {};
+  const missingRoles = required
+    .filter(item => {
+      const binding = bindings[item.key];
+      return !observed.has(item.key)
+        || !binding
+        || !String(binding.taskId || '').trim()
+        || binding.title !== item.title
+        || binding.pinned !== true;
+    })
+    .map(item => item.role);
+  if (missingRoles.length > 0) return { state: 'partial', missingRoles };
+
+  const attemptedActions = Array.isArray(receipt.attemptedActions) ? receipt.attemptedActions : null;
+  const expectedActionsHash = attemptedActions
+    ? crypto.createHash('sha256').update(JSON.stringify(attemptedActions)).digest('hex')
+    : '';
+  const reconciledAt = Date.parse(String(receipt.reconciledAt || ''));
+  const exactRoot = pathIdentity(receipt.repositoryPath || '') === pathIdentity(rootDir);
+  const currentProject = Boolean(String(receipt.projectId || '').trim());
+  if (!attemptedActions
+    || receipt.attemptedActionsHash !== expectedActionsHash
+    || !Number.isFinite(reconciledAt)
+    || !exactRoot
+    || !currentProject) {
+    return { state: 'stale', missingRoles: [] };
+  }
+  if (migration?.managed) {
+    const migrationBindings = migration.taskBindings && typeof migration.taskBindings === 'object'
+      ? migration.taskBindings
+      : {};
+    const migrationMissing = required
+      .filter(item => !migrationBindings[item.key] || !String(migrationBindings[item.key].taskId || '').trim())
+      .map(item => item.role);
+    if (migrationMissing.length > 0) return { state: 'partial', missingRoles: migrationMissing };
+    const mismatched = required.some(item => {
+      const receiptBinding = bindings[item.key];
+      const migrationBinding = migrationBindings[item.key];
+      return receiptBinding.taskId !== migrationBinding.taskId
+        || (migrationBinding.title !== undefined && receiptBinding.title !== migrationBinding.title)
+        || (migrationBinding.pinned !== undefined && receiptBinding.pinned !== migrationBinding.pinned);
+    });
+    if (mismatched) return { state: 'stale', missingRoles: [] };
+  }
+  return { state: 'verified', missingRoles: [] };
 }
 
 function commaSeparatedMetadata(value) {
@@ -1686,6 +1777,7 @@ function freezeBfmIntake(rootDir, options = {}) {
   // discovery, source-bound receipt validation, and Ready false-negative
   // detection before the routing inventory below is trusted.
   const scan = scanWorkstreamHandoffs(canonicalRoot);
+  const onboarding = bfmOnboardingEvidence(canonicalRoot, migration);
   assertNoContradictoryCanonicalHandoffs(canonicalRoot);
   const inventories = collectBfmIntakeInventories(canonicalRoot);
   const canonicalInventory = inventories.get(canonicalRoot);
@@ -1782,19 +1874,27 @@ function freezeBfmIntake(rootDir, options = {}) {
   const recommendation = recommendedBfmExecution(candidates);
   const includeCount = candidates.filter(candidate => candidate.disposition === 'Include now').length;
   const roles = BFM_INTAKE_ROLES.map(role => {
-    if (role === 'Product/BFM') {
-      return { role, candidateCount: 0, summary: 'Control centre — not an evidence workstream', candidates: [] };
-    }
     const roleCandidates = candidates.filter(candidate => candidate.role === role);
+    const blocked = scan.blockedCandidates
+      .filter(candidate => candidate.role === role)
+      .map(candidate => candidate.relative);
+    const readySummary = roleCandidates.map(candidate => `${candidate.task}: ${candidate.disposition}`).join('; ');
+    const blockedSummary = blocked.length ? `Blocked: ${blocked.join(', ')}` : '';
+    const contributionSummary = [readySummary, blockedSummary].filter(Boolean).join('; ');
     return {
       role,
       candidateCount: roleCandidates.length,
-      summary: roleCandidates.length === 0
-        ? 'None relevant'
-        : roleCandidates.map(candidate => `${candidate.task}: ${candidate.disposition}`).join('; '),
+      blockedCount: blocked.length,
+      summary: contributionSummary || (role === 'Product/BFM'
+        ? 'Control centre — not an evidence workstream'
+        : 'None relevant'),
       candidates: roleCandidates.map(candidate => candidate.task),
+      blocked,
     };
   });
+
+  const canonicalEvidenceState = migration.managed ? 'verified' : 'not-configured';
+  const evidenceReady = canonicalEvidenceState === 'verified' && onboarding.state === 'verified';
 
   return {
     canonicalCheckout: migration.canonicalPath,
@@ -1802,13 +1902,16 @@ function freezeBfmIntake(rootDir, options = {}) {
     unresolvedDrift: migration.unresolvedDrift,
     taskRebind: migration.taskRebind,
     activeLocks,
-    missingRoles: [],
+    canonicalEvidenceState,
+    onboardingState: onboarding.state,
+    missingRoles: onboarding.missingRoles,
     approvalGates,
     externalBlockers: uniqueBlockers,
     recommendedOrder: recommendation.order,
     recommendedWaves: recommendation.waves,
-    emptyQueueProven: candidates.length === 0,
+    emptyQueueProven: candidates.length === 0 && scan.blockedCandidates.length === 0 && evidenceReady,
     executionAllowed: includeCount > 0
+      && evidenceReady
       && migration.taskRebind.pending.length === 0
       && migration.taskRebind.status !== 'awaiting-task-rebind'
       && approvalGates.length === 0
@@ -1836,10 +1939,18 @@ function renderBfmIntakeLedger(ledger) {
     `Lifecycle state: ${ledger.lifecycleState}`,
     `Unresolved drift: ${ledger.unresolvedDrift}`,
     `Task rebind: ${ledger.taskRebind.status} (${ledger.taskRebind.pending.length} pending)`,
+    `Canonical evidence: ${ledger.canonicalEvidenceState}`,
+    `Onboarding reconciliation: ${ledger.onboardingState}`,
     `Active locks: ${ledger.activeLocks.length ? ledger.activeLocks.map(lock => `${lock.path} [${lock.tasks.join(', ')}]`).join('; ') : 'None'}`,
     `Missing roles: ${ledger.missingRoles.length ? ledger.missingRoles.join(', ') : 'None'}`,
   ];
-  for (const role of ledger.roles) lines.push(`${role.role}: ${role.candidateCount} candidate(s) — ${role.summary}`);
+  for (const role of ledger.roles) {
+    const blocked = Number(role.blockedCount || 0);
+    const count = blocked > 0
+      ? `${role.candidateCount} ready, ${blocked} blocked`
+      : `${role.candidateCount} candidate(s)`;
+    lines.push(`${role.role}: ${count} — ${role.summary}`);
+  }
   lines.push(`Approval gates: ${ledger.approvalGates.length ? ledger.approvalGates.map(item => `${item.task}: ${item.gate}`).join('; ') : 'None'}`);
   lines.push(`External blockers: ${ledger.externalBlockers.length ? ledger.externalBlockers.map(item => `${item.task}: ${item.blocker}`).join('; ') : 'None'}`);
   lines.push(`Recommended order: ${ledger.recommendedOrder.length ? ledger.recommendedOrder.join(' -> ') : 'None'}`);
@@ -4820,7 +4931,7 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('1. Describe your new project normally.');
   console.log('2. FB starts in whichever evidence-producing workstream matches the question: User, Business, Design, Tech, Discovery, or Bugs. Product/BFM is the control centre.');
   console.log('3. Relevant workstreams investigate and create handoffs ready for Product intake; ready is a candidate, not execution authority.');
-  console.log('4. When actionable handoffs are ready, say $bfm in Product/BFM. From the active canonical checkout, $bfm shows the complete intake ledger across all six workstreams plus the control centre, dispositions every candidate, then sequences Include now work into the Project Start Brief and Build Brief.');
+  console.log('4. When actionable handoffs are ready, say $bfm in Product/BFM. From the active canonical checkout, Product/BFM scans all six workstreams, shows the separate control-centre inputs, and must disposition every candidate before sequencing Include now work into the Project Start Brief and Build Brief.');
   console.log('5. BFM stops at Ready to ship. Only Push Live authorizes release.');
   console.log('======================================================================');
   console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');

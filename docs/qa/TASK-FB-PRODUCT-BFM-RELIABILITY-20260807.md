@@ -2,7 +2,7 @@
 type: fb-qa-artifact
 task: TASK-FB-PRODUCT-BFM-RELIABILITY-20260807
 record_model: normalized-v1
-status: passed-local-review
+status: checking
 ---
 
 # TASK-FB-PRODUCT-BFM-RELIABILITY-20260807 QA
@@ -16,7 +16,8 @@ replacement, merge, push, retirement, deployment, or **Push Live**.
 
 ## Outcome
 
-The combined 0.5.11 candidate is local review-ready. Product/BFM guidance,
+The combined 0.5.11 candidate is focused-green after one consolidated
+whole-branch repair and awaits independent re-review. Product/BFM guidance,
 runtime prompts, plugin metadata, generated mirrors, and release records agree
 on one canonical checkout, six evidence workstreams plus separate Product/BFM,
 exact-project seven-task reconciliation, complete fail-closed intake, and a
@@ -101,3 +102,38 @@ Focused rerun evidence: root and packaged intake-ledger tests passed 10/10
 each; root and packaged lifecycle/release contracts passed; package-sync tests
 passed 10/10; all 65 declared mirrors matched; 178 changed-document links and
 anchors resolved; and `git diff --check` passed.
+
+## Whole-branch reliability repair
+
+The whole-branch review found two fail-open seams and three consistency gaps.
+One consolidated TDD repair now:
+
+- accepts compatible ready `lane: fb-product` files as separately displayed
+  Product/BFM control-centre inputs;
+- audits every non-retired checkout named only by the committed migration
+  manifest and fails closed when one is inaccessible;
+- binds execution and empty-queue proof to the existing exact-project
+  seven-task onboarding receipt and reports absent, pending, partial, stale, or
+  verified evidence plus missing roles;
+- keeps blocked handoff counts and links visible without executing them; and
+- aligns the authoritative TASK-075 summary with its completed handoff/index.
+
+The new real `claim ... bfm` integration first failed on the Product/BFM role
+mismatch, then passed with six evidence inputs, one Product/BFM control input,
+a manifest-only former root, and a verified onboarding receipt. Removing the
+former root or staling the receipt closes the gate.
+
+| Focused proof | Result |
+|---|---|
+| Root and packaged BFM intake integration | 12/12 each |
+| Checkout migration | 34/34 |
+| Exact-project onboarding | 26/26 |
+| Root CLI | 72/72 |
+| Sessions | 39/39 |
+| Package sync contract | 10/10 |
+| Declared package parity | 65/65 |
+| Changed Markdown links | 288 resolved |
+| Product/BFM, native setup, lifecycle, syntax, whitespace | pass |
+
+No full validator or external action ran. Independent whole-branch re-review is
+the next local gate.

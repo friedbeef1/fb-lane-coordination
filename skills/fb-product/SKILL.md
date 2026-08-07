@@ -22,11 +22,16 @@ Product/BFM can reconcile and prioritize the graph before execution.
 
 Product/BFM operates only from the active canonical checkout. Before execution,
 the runtime freezes a complete intake ledger across all six evidence
-workstreams, linked worktrees, registered audit and quarantined former roots,
+workstreams, linked worktrees, every non-retired manifest checkout plus explicit audit roots,
 board/index routing, workstream cards, locks, approval gates, external blockers,
-and task-rebind state. Missing, unreadable, drifting, or contradictory evidence
-fails closed. Product/BFM uses that runtime ledger and does not recreate its
-scanner rules in guidance.
+and task-rebind state. It also verifies the existing clone-local onboarding
+receipt against the exact project, canonical path, and all seven pinned task
+bindings. Missing, pending, declined, partial, stale, unreadable, drifting, or
+contradictory evidence fails closed. Compatible `lane: fb-product` handoffs are
+shown as Product/BFM control-centre inputs, not a seventh evidence workstream.
+Blocked inputs remain counted and linked but excluded from execution.
+Product/BFM uses that runtime ledger and does not recreate its scanner rules in
+guidance.
 
 When a project moves between checkouts, Product/BFM owns the transactional migration:
 inventory and disposition every discovered difference, atomically

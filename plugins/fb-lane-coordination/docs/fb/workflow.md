@@ -24,18 +24,25 @@ not additional workstreams or mandatory agents.
 Product/BFM executes only from the active canonical checkout. Before claim,
 source mutation, or execution routing, the runtime freezes and renders one
 complete intake ledger. It covers canonical handoffs, linked worktrees,
-registered audit and quarantined former roots, board/index routes, all six
+every non-retired checkout registered by the migration manifest (plus explicit
+audit roots), board/index routes, all six
 workstream cards plus one Product/BFM control-centre card, active locks,
 approval gates, external blockers, lifecycle state, unresolved drift, and
-exact-project task rebind. User, Business, Design, Tech, Discovery, and Bugs
+exact-project task rebind. The execution and empty-queue gates also require the
+existing clone-local onboarding receipt to prove the exact project ID,
+canonical repository path, all seven exact pinned task bindings, and its
+reconciliation ledger. An absent, pending, declined, partial, or stale receipt
+fails closed. User, Business, Design, Tech, Discovery, and Bugs
 remain visible in canonical order; Product/BFM is shown separately as the
-control centre. Every candidate receives exactly one
+control centre, including compatible `lane: fb-product` inputs. Every candidate receives exactly one
 allowed disposition or the execution gate stays closed.
 
 Missing roots, inaccessible authoritative records, same-path content or routing
 drift, hidden Ready work, incomplete role inventory, conflicting dispositions,
 dependency cycles, and noncanonical execution fail closed. Guidance consumes
 the runtime ledger; it does not duplicate scanner or checkout-discovery logic.
+Blocked handoffs stay linked and counted in that ledger even though BFM excludes
+them from execution; a blocked-only role never reports **None relevant**.
 
 Checkout moves use a transactional migration. Product/BFM inventories and
 dispositions every discovered branch, commit/tree, worktree, dirt, handoff, and

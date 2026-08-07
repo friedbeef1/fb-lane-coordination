@@ -109,9 +109,79 @@ function initGitFixture(root) {
   git(root, ['commit', '-m', 'fixture']);
 }
 
+function writeVerifiedOnboardingReceipt(root, overrides = {}) {
+  const attemptedActions = [];
+  const taskBindings = Object.fromEntries([
+    ['product', 'Product/BFM'],
+    ['user', 'User'],
+    ['business', 'Business'],
+    ['design', 'Design'],
+    ['tech', 'Tech'],
+    ['discovery', 'Discovery'],
+    ['bugs', 'Bugs'],
+  ].map(([key, title], index) => [key, {
+    taskId: `sidebar-${index}`,
+    title: `FB · ${title}`,
+    pinned: true,
+  }]));
+  const receipt = {
+    schemaVersion: 1,
+    repositoryPath: root,
+    projectId: 'project-bfm-integration',
+    permission: 'granted',
+    promptedAt: '2026-08-07T00:00:00.000Z',
+    decidedAt: '2026-08-07T00:01:00.000Z',
+    workstreams: ['product', 'user', 'business', 'design', 'tech', 'discovery', 'bugs'],
+    taskBindings,
+    attemptedActions,
+    attemptedActionsHash: crypto.createHash('sha256').update(JSON.stringify(attemptedActions)).digest('hex'),
+    reconciledAt: '2026-08-07T00:02:00.000Z',
+    ...overrides,
+  };
+  fs.writeFileSync(path.join(root, '.git', 'fb-onboarding.json'), `${JSON.stringify(receipt)}\n`);
+  return receipt;
+}
+
+function writeMigrationManifest(root, former) {
+  const taskBindings = Object.fromEntries([
+    ['product', 'Product/BFM'],
+    ['user', 'User'],
+    ['business', 'Business'],
+    ['design', 'Design'],
+    ['tech', 'Tech'],
+    ['discovery', 'Discovery'],
+    ['bugs', 'Bugs'],
+  ].map(([key, title], index) => [key, {
+    taskId: `sidebar-${index}`,
+    title: `FB · ${title}`,
+    pinned: true,
+  }]));
+  const manifest = {
+    version: 1,
+    repository: { repositoryPath: root, projectId: 'project-bfm-integration' },
+    canonicalPath: root,
+    checkouts: {
+      [root]: { state: 'active' },
+      ...(former ? { [former]: { state: 'quarantined' } } : {}),
+    },
+    taskBindings,
+    taskRebind: { status: 'complete', pending: [] },
+    routingReceipts: {},
+    unresolvedDrift: [],
+  };
+  fs.writeFileSync(path.join(root, '.git', 'fb-checkout-migration.json'), `${JSON.stringify(manifest)}\n`);
+}
+
+function configureVerifiedControlPlane(root, former = '') {
+  writeMigrationManifest(root, former);
+  writeVerifiedOnboardingReceipt(root);
+}
+
 test('complete empty intake proves all six None relevant and separates Product/BFM', () => {
   const root = makeFixture();
   try {
+    initGitFixture(root);
+    configureVerifiedControlPlane(root);
     const ledger = freezeBfmIntake(root, { dispositions: {} });
     assert.deepEqual(ledger.roles.map(role => role.role), ROLE_ORDER);
     assert.equal(ledger.emptyQueueProven, true);
@@ -123,8 +193,10 @@ test('complete empty intake proves all six None relevant and separates Product/B
     assert.deepEqual(ledger.roles.at(-1), {
       role: 'Product/BFM',
       candidateCount: 0,
+      blockedCount: 0,
       summary: 'Control centre — not an evidence workstream',
       candidates: [],
+      blocked: [],
     });
     const rendered = renderBfmIntakeLedger(ledger);
     let previous = -1;
@@ -373,6 +445,7 @@ test('the existing BFM claim path gates before mutation and emits the frozen led
   const readyRoot = makeFixture([readyCandidate]);
   try {
     initGitFixture(readyRoot);
+    configureVerifiedControlPlane(readyRoot);
     git(readyRoot, ['remote', 'add', 'origin', readyRoot]);
     const claimed = spawnSync(
       process.execPath,
@@ -387,5 +460,125 @@ test('the existing BFM claim path gates before mutation and emits the frozen led
     assert.match(runtime, /enum:\s*\[[^\]]*'BFM'/);
   } finally {
     remove(readyRoot);
+  }
+});
+
+test('real BFM claim requires the complete cross-feature reliability evidence set', () => {
+  const candidates = [
+    { task: 'USER-1', role: 'User', lane: 'fb-user', file: 'user.md', boardStatus: 'Ready', disposition: 'Include now' },
+    { task: 'BUSINESS-1', role: 'Business', lane: 'fb-business', file: 'business.md', boardStatus: 'Ready', disposition: 'Include now' },
+    { task: 'DESIGN-1', role: 'Design', lane: 'fb-design', file: 'design.md', boardStatus: 'Ready', disposition: 'Include now' },
+    { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'tech.md', boardStatus: 'Ready', disposition: 'Include now' },
+    { task: 'DISCOVERY-1', role: 'Discovery', lane: 'fb-discovery', file: 'discovery.md', boardStatus: 'Ready', disposition: 'Include now' },
+    { task: 'BUGS-1', role: 'Bugs', lane: 'fb-bugs', file: 'bugs.md', boardStatus: 'Ready', disposition: 'Include now' },
+    { task: 'PRODUCT-1', role: 'Product/BFM', lane: 'fb-product', file: 'product.md', boardStatus: 'Ready', disposition: 'Include now' },
+  ];
+  const root = makeFixture(candidates);
+  const former = makeFixture(candidates);
+  const runtimePath = path.join(__dirname, 'fb-lane.cjs');
+  try {
+    initGitFixture(root);
+    initGitFixture(former);
+    git(root, ['remote', 'add', 'origin', root]);
+    writeMigrationManifest(root, former);
+    writeVerifiedOnboardingReceipt(root);
+    assert.equal(fs.existsSync(path.join(root, '.git', 'fb-handoff-audit-roots')), false);
+
+    const claimed = spawnSync(
+      process.execPath,
+      [runtimePath, 'claim', 'TECH-1', 'bfm', '(None)', '--no-worktree'],
+      { cwd: root, encoding: 'utf8' },
+    );
+    assert.equal(claimed.status, 0, `${claimed.stdout}\n${claimed.stderr}`);
+    assert.match(claimed.stdout, /Product\/BFM: 1 candidate\(s\) — PRODUCT-1: Include now/);
+    assert.match(claimed.stdout, /Onboarding reconciliation: verified/);
+
+    fs.rmSync(former, { recursive: true, force: true });
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: dispositionsFor(candidates, candidates.map(() => 'Include now')) }),
+      /READINESS_AUDIT_INCOMPLETE.*fb-bfm-ledger-/,
+    );
+
+    const manifest = JSON.parse(fs.readFileSync(path.join(root, '.git', 'fb-checkout-migration.json'), 'utf8'));
+    delete manifest.checkouts[former];
+    manifest.taskBindings.tech.taskId = 'stale-tech-task';
+    fs.writeFileSync(path.join(root, '.git', 'fb-checkout-migration.json'), `${JSON.stringify(manifest)}\n`);
+    writeVerifiedOnboardingReceipt(root);
+    assert.throws(
+      () => gateBfmExecutionStart(root, 'bfm', { dispositions: dispositionsFor(candidates, candidates.map(() => 'Include now')) }),
+      /BFM_EXECUTION_BLOCKED[\s\S]*Onboarding reconciliation: stale/,
+    );
+  } finally {
+    remove(root);
+    remove(former);
+  }
+});
+
+test('onboarding evidence and blocked-only roles remain visible at the execution boundary', () => {
+  const ready = { task: 'TECH-2', role: 'Tech', lane: 'fb-tech', file: 'ready.md', boardStatus: 'Ready' };
+  const root = makeFixture([ready]);
+  try {
+    initGitFixture(root);
+    writeMigrationManifest(root);
+
+    let ledger = freezeBfmIntake(root, { dispositions: { 'TECH-2': 'Include now' } });
+    assert.equal(ledger.onboardingState, 'absent');
+    assert.deepEqual(ledger.missingRoles, ROLE_ORDER);
+    assert.equal(ledger.executionAllowed, false);
+    assert.equal(ledger.emptyQueueProven, false);
+
+    writeVerifiedOnboardingReceipt(root, {
+      permission: 'pending',
+      workstreams: undefined,
+      taskBindings: undefined,
+      reconciledAt: undefined,
+    });
+    ledger = freezeBfmIntake(root, { dispositions: { 'TECH-2': 'Include now' } });
+    assert.equal(ledger.onboardingState, 'permission-pending');
+
+    const partial = writeVerifiedOnboardingReceipt(root);
+    delete partial.taskBindings.bugs;
+    fs.writeFileSync(path.join(root, '.git', 'fb-onboarding.json'), `${JSON.stringify(partial)}\n`);
+    ledger = freezeBfmIntake(root, { dispositions: { 'TECH-2': 'Include now' } });
+    assert.equal(ledger.onboardingState, 'partial');
+    assert.deepEqual(ledger.missingRoles, ['Bugs']);
+
+    writeVerifiedOnboardingReceipt(root, { attemptedActionsHash: '0'.repeat(64) });
+    ledger = freezeBfmIntake(root, { dispositions: { 'TECH-2': 'Include now' } });
+    assert.equal(ledger.onboardingState, 'stale');
+
+    writeVerifiedOnboardingReceipt(root);
+    ledger = freezeBfmIntake(root, { dispositions: { 'TECH-2': 'Include now' } });
+    assert.equal(ledger.onboardingState, 'verified');
+    assert.deepEqual(ledger.missingRoles, []);
+    assert.equal(ledger.executionAllowed, true);
+
+    fs.rmSync(path.join(root, '.git', 'fb-checkout-migration.json'));
+    ledger = freezeBfmIntake(root, { dispositions: { 'TECH-2': 'Include now' } });
+    assert.equal(ledger.canonicalEvidenceState, 'not-configured');
+    assert.equal(ledger.executionAllowed, false);
+  } finally {
+    remove(root);
+  }
+
+  const blocked = { task: 'BUG-BLOCKED', role: 'Bugs', lane: 'fb-bugs', file: 'blocked.md', boardStatus: 'Blocked' };
+  const blockedRoot = makeFixture([]);
+  try {
+    initGitFixture(blockedRoot);
+    configureVerifiedControlPlane(blockedRoot);
+    fs.writeFileSync(path.join(blockedRoot, 'docs', 'handoffs', blocked.file), handoff({
+      task: blocked.task,
+      lane: blocked.lane,
+      status: 'blocked',
+    }));
+    const ledger = freezeBfmIntake(blockedRoot, { dispositions: {} });
+    const bugs = ledger.roles.find(role => role.role === 'Bugs');
+    assert.equal(bugs.candidateCount, 0);
+    assert.equal(bugs.blockedCount, 1);
+    assert.deepEqual(bugs.blocked, [`docs/handoffs/${blocked.file}`]);
+    assert.doesNotMatch(bugs.summary, /None relevant/);
+    assert.match(renderBfmIntakeLedger(ledger), /Bugs: 0 ready, 1 blocked.*docs\/handoffs\/blocked\.md/);
+  } finally {
+    remove(blockedRoot);
   }
 });
