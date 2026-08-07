@@ -168,3 +168,11 @@ publication. Historical test and release evidence remains intact. A focused
 doctor run then reported no blocking normalized-record conflicts; the remaining
 OKR notices belong to the historical checkout-guard handoff and are disclosed,
 not treated as candidate failures.
+
+The post-repair complete pass then showed those three notices prevented the
+validator's strict Ready assertion even though the imported handoff already
+contained equivalent bold-list evidence. Product/BFM used the documented single
+bounded circuit-breaker recovery: it added the three canonical plain-field
+forms without changing the decision or evidence. Focused doctor proof then
+showed every OKR contract green; only the expected dirty-worktree notice remained
+before this recovery commit.
