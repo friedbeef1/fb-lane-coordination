@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-076 | Checking | FB-Product / BFM | Exact FB setup invocation, delegated internal approvals, and FB 0.5.10-beta | Add `$fb-setup`; let Product/BFM approve routine changelog wording and one release checkpoint without user prompts; preserve material, sensitive, and **Push Live** gates | Setup and Product/BFM skills, active docs, focused contracts, plugin mirrors, version/changelog | Candidate `0.5.10-beta+codex.20260807084627`; focused revalidation in progress; [Handoff](docs/handoffs/TASK-076.md); [QA](docs/qa/TASK-076.md) |
+| TASK-076 | Ready to ship | FB-Product / BFM | Exact FB setup invocation, delegated internal approvals, and FB 0.5.10-beta | Add `$fb-setup`; let Product/BFM approve routine changelog wording and one release checkpoint without user prompts; preserve material, sensitive, and **Push Live** gates | Setup and Product/BFM skills, active docs, focused contracts, plugin mirrors, version/changelog | Candidate `0.5.10-beta+codex.20260807084627`; complete release checkpoint passed on `0b8039f`; **Push Live** required; [Handoff](docs/handoffs/TASK-076.md); [QA](docs/qa/TASK-076.md) |
 | TASK-075 | Staging QA | FB-Product / BFM | User workstream and Product/BFM control centre; FB 0.5.9-beta | Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks | Canonical candidate, generated package mirrors, version/metadata contracts, and release records | Checking — focused candidate green for `0.5.9-beta+codex.20260805042523`; changelog approved by James on 2026-08-05; final release validator pending; [Handoff](docs/handoffs/TASK-075.md); [QA](docs/qa/TASK-075.md) |
 | TASK-074 | Done | FB-Product / BFM | Graph Engineering positioning and FB 0.5.8-beta | Make Graph Engineering the headline product category, align the public story and packaged plugin, and preserve existing runtime contracts | None; published and installed | [Handoff](docs/handoffs/TASK-074.md); [QA](docs/qa/TASK-074.md); [PR #58](https://github.com/friedbeef1/fb-lane-coordination/pull/58) merged as `72bfab0`; exact build installed and enabled |
 | TASK-073 | Done | FB-Product / BFM | Evaluation results, meaningful repair, and FB 0.5.7-beta | Show eval results clearly, reject superficial repair loops, and publish `0.5.7-beta+codex.20260804131420` | None; published and installed | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); [PR #57](https://github.com/friedbeef1/fb-lane-coordination/pull/57) merged as `c1e63f1`; exact build installed and enabled |
@@ -27,8 +27,8 @@
 
 ### TASK-076 - Exact FB setup shortcut
 
-*   **Status**: Checking — James added delegated internal approval to the
-    candidate before release; focused revalidation is in progress.
+*   **Status**: Ready to ship — standing delegation and the complete release
+    checkpoint passed on candidate commit `0b8039f`; **Push Live** is required.
 *   **Owner / Thread**: FB-Product / BFM
 *   **Area**: Setup skill, active setup documentation, plugin metadata,
     versioning, focused contracts, and generated package mirrors.

@@ -1,7 +1,7 @@
 # TASK-076 QA — Exact FB setup shortcut
 
-Date: 2026-08-06
-Status: Checking — final-candidate verification in progress
+Date: 2026-08-07
+Status: Ready to ship
 Candidate: `codex/TASK-076-fb-setup-shortcut`
 Release candidate: `0.5.10-beta+codex.20260807084627`
 Changelog approval: approved — Product/BFM standing delegation; TASK-076,
@@ -22,11 +22,11 @@ Changelog approval: approved — Product/BFM standing delegation; TASK-076,
 | Codex plugin validator | Pass |
 | Syntax and JSON | Pass — both shortcut contracts parse; metadata contracts parse both manifests |
 | Links and normalized records | Pass |
-| Clean-worktree doctor | Ready after candidate commit `be1e354` |
+| Clean-worktree doctor | Ready on final candidate commit `0b8039f` |
 | Whitespace | Pass — `git diff --check` |
 | Changelog approval | Approved by James on 2026-08-06 |
 | Prior release checkpoint | Passed for the pre-delegation candidate; superseded by the approved candidate change and not reused |
-| Final-candidate release checkpoint | Pending — Product/BFM will authorize it automatically after focused proof |
+| Final-candidate release checkpoint | Pass — single automatic run on `0b8039f`; no repair loop |
 
 ## Bounded verification note
 
@@ -41,6 +41,10 @@ James approved one clean release checkpoint on 2026-08-06. That committed
 candidate passed `node tools/fb-lane.validate.cjs` without a repair loop. James
 then added the standing-delegation requirement before release. The earlier
 result remains historical evidence but cannot prove the changed final
-candidate. Product/BFM will run focused proof, create the final candidate
-commit, and authorize one new final-candidate checkpoint without another user
-prompt.
+candidate. Product/BFM then authorized one new final-candidate checkpoint under
+the standing delegation. Commit `0b8039f` passed the complete validator without
+a repair loop: CLI 72/72, sessions 39/39, evals 19/19, beginner 11/11,
+efficiency 25/25, positioning and two-speed contracts, 62 package mirrors,
+Doctor Ready, syntax, metadata, JSON, and committed-diff whitespace all passed.
+This coordination-only closeout records that result and does not rerun runtime
+suites.

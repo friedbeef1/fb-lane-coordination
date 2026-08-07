@@ -2,7 +2,7 @@
 
 * **Current Task**: TASK-076
 * **Lane**: FB-Product / BFM
-* **Status**: Checking — focused delegated-approval proof passed; automatic release checkpoint next
+* **Status**: Ready to ship — automatic release checkpoint passed; Push Live required
 * **BFM Class**: Full BFM plugin interface release candidate
 * **Feature Branch**: `codex/TASK-076-fb-setup-shortcut`
 * **Release Candidate**: `0.5.10-beta+codex.20260807084627`
@@ -21,6 +21,6 @@ James approved the dedicated thin-skill approach. The RED proof failed on the
 missing skill, the canonical implementation and generated package contract are
 green. Before release, James directed FB to use standing delegation for routine
 changelog approval and one release checkpoint. The focused final-candidate
-contracts pass; Product/BFM now commits the candidate and automatically runs one
-release checkpoint. Material decisions, sensitive gates, and **Push Live**
-remain user-owned.
+contracts and the single automatic release checkpoint passed on candidate
+commit `0b8039f`. No repair loop was needed. Material decisions, sensitive
+gates, and **Push Live** remain user-owned.
