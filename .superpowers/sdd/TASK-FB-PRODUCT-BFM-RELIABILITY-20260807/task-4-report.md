@@ -82,3 +82,20 @@ identity and the supplied rebind identity through `canonicalMigrationRepository`
 and verifies task inventory against the normalized canonical identity. Focused
 GREEN is 33/33 migration checks; both amended CommonJS syntax checks and
 whitespace validation pass. No broader suite or external action was run.
+
+## Review fix round 2/5
+
+Independent review found that snapshot and mutation guards could still trust a
+manifest whose active `canonicalPath` was a subdirectory inside the repository.
+The active-checkout record matched that same path, so load returned it before
+the rebind-only Git-root validation ran.
+
+Focused RED called `checkoutMigrationSnapshot` on a manifest whose canonical
+path and repository path both named the same nested directory; snapshot
+incorrectly accepted it. The repair now runs `canonicalMigrationRepository` at
+the manifest-load trust boundary and returns only its normalized repository
+identity. Existing noncanonical-guard fixtures were updated from plain temporary
+directories to disposable Git repositories so they continue to model valid
+canonical roots under the stricter invariant. Focused GREEN is 34/34 migration
+checks; amended syntax and whitespace checks pass. No broader suite or external
+action was run.

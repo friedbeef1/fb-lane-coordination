@@ -458,6 +458,24 @@ test('task rebind rejects a canonical identity that resolves to a same-repositor
   }
 });
 
+test('snapshot rejects a manifest whose canonical path is a same-repository subdirectory', () => {
+  const repositoryRoot = makeRepo();
+  const canonicalSubdirectory = path.join(repositoryRoot, 'nested-snapshot-canonical');
+  try {
+    fs.mkdirSync(canonicalSubdirectory);
+    writeManifest(repositoryRoot, activeManifest(canonicalSubdirectory, {
+      repository: { projectId: 'project-fixture', repositoryPath: canonicalSubdirectory },
+    }));
+
+    assert.throws(
+      () => checkoutMigrationSnapshot(canonicalSubdirectory),
+      /MIGRATION_PROJECT_MISMATCH|canonical repository/i,
+    );
+  } finally {
+    fs.rmSync(repositoryRoot, { recursive: true, force: true });
+  }
+});
+
 test('migration inventory discovers branches, worktrees, dirt, handoffs, and routing differences itself', () => {
   const canonical = makeRepo();
   const former = makeRepo('fb-checkout-former-inventory-');
@@ -923,7 +941,7 @@ test('retirement cannot close while task rebind is pending', () => {
 console.log('canonical checkout command guards');
 test('status on a quarantined checkout prints migration state and fails closed', () => {
   const root = makeRepo();
-  const canonical = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-active-'));
+  const canonical = makeRepo('fb-checkout-active-');
   try {
     writeManifest(root, activeManifest(canonical, {
       taskRebind: { status: 'awaiting-task-rebind', pending: ['FB-Design'] },
@@ -947,7 +965,7 @@ test('status on a quarantined checkout prints migration state and fails closed',
 
 test('claim is rejected before board or context mutation outside the canonical checkout', () => {
   const root = makeRepo();
-  const canonical = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-active-'));
+  const canonical = makeRepo('fb-checkout-active-');
   try {
     const originalBoard = fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8');
     writeManifest(root, activeManifest(canonical, {
@@ -973,7 +991,7 @@ test('bootstrap and quick handoff writes are rejected before mutation outside ca
     ['quick', 'Product', 'README.md', 'Guarded quick write', '--approval-ref', 'APPROVED-1', '--no-worktree'],
   ]) {
     const root = makeRepo();
-    const canonical = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-active-'));
+    const canonical = makeRepo('fb-checkout-active-');
     try {
       writeManifest(root, activeManifest(canonical, {
         checkouts: {
@@ -996,7 +1014,7 @@ test('bootstrap and quick handoff writes are rejected before mutation outside ca
 
 test('MCP status exposes checkout lifecycle and fails closed outside canonical', () => {
   const root = makeRepo();
-  const canonical = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-active-'));
+  const canonical = makeRepo('fb-checkout-active-');
   try {
     writeManifest(root, activeManifest(root));
     const active = mcpRequest(root, 'fb_lane_status', { details: true });
@@ -1048,7 +1066,7 @@ test('MCP mutations assert canonical state before any write', () => {
     ['fb_lane_merge', { taskId: 'TASK-001' }],
   ]) {
     const root = makeRepo();
-    const canonical = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-active-'));
+    const canonical = makeRepo('fb-checkout-active-');
     try {
       const originalBoard = fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8');
       writeManifest(root, activeManifest(canonical, {
@@ -1070,7 +1088,7 @@ test('MCP mutations assert canonical state before any write', () => {
 
 test('mutating session subcommands are guarded while read-only session status remains available', () => {
   const root = makeRepo();
-  const canonical = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-active-'));
+  const canonical = makeRepo('fb-checkout-active-');
   try {
     writeManifest(root, activeManifest(canonical, {
       checkouts: {

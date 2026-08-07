@@ -218,6 +218,7 @@ function loadCheckoutMigrationManifest(rootDir) {
   if (active.length !== 1 || active[0][0] !== canonicalPath) {
     throw new Error('FB_CHECKOUT_MANIFEST_INVALID: exactly one active checkout must match canonicalPath.');
   }
+  const repository = canonicalMigrationRepository(canonicalPath, manifest.repository);
   const taskRebind = {
     status: String(manifest.taskRebind?.status || 'complete'),
     pending: Array.isArray(manifest.taskRebind?.pending)
@@ -241,6 +242,7 @@ function loadCheckoutMigrationManifest(rootDir) {
     ...manifest,
     manifestPath,
     canonicalPath,
+    repository,
     checkouts,
     taskRebind,
     routingReceipts: manifest.routingReceipts && typeof manifest.routingReceipts === 'object'
