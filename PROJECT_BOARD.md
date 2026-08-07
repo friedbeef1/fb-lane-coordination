@@ -13,7 +13,8 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-076 | Staging QA | FB-Product / BFM | Exact FB setup invocation, delegated internal approvals, and FB 0.5.10-beta | Add `$fb-setup`; let Product/BFM approve routine changelog wording and one release checkpoint without user prompts; preserve material, sensitive, and **Push Live** gates | Setup and Product/BFM skills, active docs, focused contracts, plugin mirrors, version/changelog | Ready to ship: candidate `0.5.10-beta+codex.20260807084627`; complete release checkpoint passed on `0b8039f`; **Push Live** required; [Handoff](docs/handoffs/TASK-076.md); [QA](docs/qa/TASK-076.md) |
+| TASK-FB-PRODUCT-BFM-RELIABILITY-20260807 | In Progress | FB-Product / BFM | Canonical-project and complete-intake reliability | Integrate the verified checkout guard with FB 0.5.10; enforce exact-project seven-role onboarding, fail-closed complete intake, visible BFM ledger, and transactional migration | `tools/`, Product/BFM/setup skills, `docs/fb/`, package mirrors, focused contracts, release records | Existing guard commits `e4715d1` and `5b4a226`; [Handoff](docs/handoffs/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md) |
+| TASK-076 | Staging QA | FB-Product / BFM | Exact FB setup invocation, delegated internal approvals, and FB 0.5.10-beta | Add `$fb-setup`; let Product/BFM approve routine changelog wording and one release checkpoint without user prompts; preserve material, sensitive, and **Push Live** gates | Setup and Product/BFM skills, active docs, focused contracts, plugin mirrors, version/changelog | Candidate preserved at `0b8039f`; release checkpoint superseded by the combined reliability candidate; [Handoff](docs/handoffs/TASK-076.md); [QA](docs/qa/TASK-076.md) |
 | TASK-075 | Staging QA | FB-Product / BFM | User workstream and Product/BFM control centre; FB 0.5.9-beta | Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks | Canonical candidate, generated package mirrors, version/metadata contracts, and release records | Checking — focused candidate green for `0.5.9-beta+codex.20260805042523`; changelog approved by James on 2026-08-05; final release validator pending; [Handoff](docs/handoffs/TASK-075.md); [QA](docs/qa/TASK-075.md) |
 | TASK-074 | Done | FB-Product / BFM | Graph Engineering positioning and FB 0.5.8-beta | Make Graph Engineering the headline product category, align the public story and packaged plugin, and preserve existing runtime contracts | None; published and installed | [Handoff](docs/handoffs/TASK-074.md); [QA](docs/qa/TASK-074.md); [PR #58](https://github.com/friedbeef1/fb-lane-coordination/pull/58) merged as `72bfab0`; exact build installed and enabled |
 | TASK-073 | Done | FB-Product / BFM | Evaluation results, meaningful repair, and FB 0.5.7-beta | Show eval results clearly, reject superficial repair loops, and publish `0.5.7-beta+codex.20260804131420` | None; published and installed | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); [PR #57](https://github.com/friedbeef1/fb-lane-coordination/pull/57) merged as `c1e63f1`; exact build installed and enabled |
@@ -22,6 +23,40 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-FB-PRODUCT-BFM-RELIABILITY-20260807 - Canonical project and complete intake
+
+*   **Status**: In Progress — Product/BFM is integrating the verified checkout
+    guard into the newer FB 0.5.10 candidate before implementing the remaining
+    onboarding, intake-ledger, migration, and rollout contracts.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Scope**: Canonical checkout enforcement; exact-project seven-role
+    reconciliation; complete fail-closed intake; visible dependency/lock-aware
+    ledger and sequencing; transactional migration; plugin guidance, tests,
+    mirrors, and a local release candidate.
+*   **Out of Scope**: Unmirror application behavior, destructive checkout
+    retirement, provider state, publication, installation/cache replacement,
+    merge, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make Product/BFM a reliable visible control centre that
+        cannot lose approved work or operate from the wrong project.
+    *   **Key Results**: Wrong-checkout mutation fails closed; all six evidence
+        workstreams plus Product/BFM are reconciled visibly; same-path drift and
+        incomplete inventory cannot disappear; migration remains recoverable.
+    *   **Definition of Done**: Focused migration, onboarding, intake, CLI/MCP,
+        session, package, consumer, syntax, doctor, and whitespace evidence pass;
+        release remains separately gated.
+    *   **Approval**: approved by James through the Unmirror Product/BFM handoff
+        on 2026-08-07.
+    *   **Justification**: The Unmirror split-brain incident demonstrated a real
+        missed Design amendment and incomplete sidebar reconciliation.
+*   **Gate / Review Point**: Continue automatically through the local candidate.
+    Stop for publication/cache replacement, checkout retirement, sensitive
+    operations, material scope change, or **Push Live**.
+*   **Links & Deliverables**:
+    [handoff](docs/handoffs/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md).
 
 ---
 

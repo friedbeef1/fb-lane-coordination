@@ -1,26 +1,24 @@
 # Active Task Context
 
-* **Current Task**: TASK-076
+* **Current Task**: TASK-FB-PRODUCT-BFM-RELIABILITY-20260807
 * **Lane**: FB-Product / BFM
-* **Status**: Ready to ship — automatic release checkpoint passed; Push Live required
-* **BFM Class**: Full BFM plugin interface release candidate
-* **Feature Branch**: `codex/TASK-076-fb-setup-shortcut`
-* **Release Candidate**: `0.5.10-beta+codex.20260807084627`
-* **Locked Files**: Setup skill and active setup documentation; focused
-  contract; package manifest and generated mirrors; version/changelog and
-  TASK-076 release records.
+* **Status**: In Progress — verified migration guard integration first
+* **BFM Class**: Full BFM multi-slice reliability candidate
+* **Feature Branch**: `codex/product-bfm-reliability-20260807`
+* **Release Candidate**: local only; version decision pending candidate review
+* **Locked Files**: `tools/`, Product/BFM/setup skills, active `docs/fb/`,
+  focused contracts, package mirrors, and task/release records.
 
 ## Task Scope
 
-Add `$fb-setup` as the exact primary setup invocation while retaining the
-existing canonical setup skill and natural-language fallback.
+Integrate the verified checkout-migration guard with the newer FB 0.5.10
+candidate, then complete exact-project seven-role onboarding, fail-closed
+intake, visible BFM ledger, migration, documentation, and local verification.
 
 ## Current
 
-James approved the dedicated thin-skill approach. The RED proof failed on the
-missing skill, the canonical implementation and generated package contract are
-green. Before release, James directed FB to use standing delegation for routine
-changelog approval and one release checkpoint. The focused final-candidate
-contracts and the single automatic release checkpoint passed on candidate
-commit `0b8039f`. No repair loop was needed. Material decisions, sensitive
-gates, and **Push Live** remain user-owned.
+The FB 0.5.10 setup/delegation candidate is preserved at `0b8039f`. The
+checkout guard is independently verified at `e4715d1` and `5b4a226` and will
+be imported rather than recreated. The Unmirror handoff is approved for local
+implementation. Publication, installation/cache replacement, destructive
+checkout retirement, sensitive operations, and **Push Live** remain gated.
