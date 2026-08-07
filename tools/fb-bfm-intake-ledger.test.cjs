@@ -7,9 +7,11 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
+const { execFileSync, spawnSync } = require('node:child_process');
 
 const {
   freezeBfmIntake,
+  gateBfmExecutionStart,
   renderBfmIntakeLedger,
 } = require('./fb-lane.cjs');
 
@@ -24,13 +26,13 @@ const ROLE_FILES = {
   'Product/BFM': 'fb-product.md',
 };
 
-function handoff({ task, lane, status = 'ready', dependsOn = '', approvalGate = '', externalBlocker = '' }) {
+function handoff({ task, lane, status = 'ready', disposition = '', dependsOn = '', approvalGate = '', externalBlocker = '' }) {
   return `---
 type: fb-lane-handoff
 task: ${task}
 lane: ${lane}
 status: ${status}
-${dependsOn ? `depends_on: ${dependsOn}\n` : ''}${approvalGate ? `approval_gate: ${approvalGate}\n` : ''}${externalBlocker ? `external_blocker: ${externalBlocker}\n` : ''}---
+${disposition ? `disposition: ${disposition}\n` : ''}${dependsOn ? `depends_on: ${dependsOn}\n` : ''}${approvalGate ? `approval_gate: ${approvalGate}\n` : ''}${externalBlocker ? `external_blocker: ${externalBlocker}\n` : ''}---
 # ${task}
 `;
 }
@@ -77,6 +79,7 @@ function makeFixture(candidates = [], options = {}) {
     fs.writeFileSync(path.join(root, 'docs', 'handoffs', candidate.file), handoff({
       task: candidate.task,
       lane: candidate.lane,
+      disposition: candidate.disposition,
       dependsOn: candidate.dependsOn,
       approvalGate: candidate.approvalGate,
       externalBlocker: candidate.externalBlocker,
@@ -91,6 +94,19 @@ function remove(root) {
 
 function dispositionsFor(candidates, values) {
   return Object.fromEntries(candidates.map((candidate, index) => [candidate.task, values[index]]));
+}
+
+function git(root, args) {
+  return execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+}
+
+function initGitFixture(root) {
+  fs.rmSync(path.join(root, '.git'), { recursive: true, force: true });
+  execFileSync('git', ['init', '-b', 'main', root], { stdio: 'ignore' });
+  git(root, ['config', 'user.name', 'FB Test']);
+  git(root, ['config', 'user.email', 'fb-test@example.invalid']);
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'fixture']);
 }
 
 test('complete empty intake proves all six None relevant and separates Product/BFM', () => {
@@ -184,9 +200,8 @@ test('hidden Ready work and incomplete board/index/card inventory fail closed', 
 test('same-filename drift and inaccessible former roots remain canonical scanner failures', () => {
   const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
   const root = makeFixture([candidate]);
-  const former = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-ledger-former-'));
+  const former = makeFixture([candidate]);
   try {
-    fs.mkdirSync(path.join(former, 'docs', 'handoffs'), { recursive: true });
     fs.writeFileSync(path.join(former, 'docs', 'handoffs', 'same.md'), handoff({ task: 'TECH-1', lane: 'fb-tech' }) + 'drift\n');
     fs.writeFileSync(path.join(root, '.git', 'fb-handoff-audit-roots'), `${former}\n`);
     assert.throws(
@@ -201,6 +216,73 @@ test('same-filename drift and inaccessible former roots remain canonical scanner
   } finally {
     remove(root);
     remove(former);
+  }
+});
+
+test('cross-root routing drift requires a receipt bound to canonical and source routing hashes', () => {
+  const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
+  const root = makeFixture([candidate]);
+  const former = makeFixture([candidate]);
+  try {
+    fs.appendFileSync(path.join(former, 'docs', 'workstreams', 'fb-tech.md'), '\nFormer-root route changed.\n');
+    fs.writeFileSync(path.join(root, '.git', 'fb-handoff-audit-roots'), `${former}\n`);
+    const source = fs.readFileSync(path.join(root, 'docs', 'handoffs', 'same.md'));
+    fs.writeFileSync(path.join(root, '.git', 'fb-checkout-migration.json'), `${JSON.stringify({
+      version: 1,
+      canonicalPath: root,
+      checkouts: { [root]: { state: 'active' } },
+      taskRebind: { status: 'complete', pending: [] },
+      unresolvedDrift: [],
+      routingReceipts: {
+        'docs/handoffs/same.md': {
+          canonicalSha256: crypto.createHash('sha256').update(source).digest('hex'),
+          sources: [{ root: former, sha256: crypto.createHash('sha256').update(source).digest('hex') }],
+          disposition: 'canonical-routing-retained',
+        },
+      },
+    })}\n`);
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } }),
+      /HANDOFF_ROUTING_DRIFT[\s\S]*canonicalRoutingSha256[\s\S]*routingSha256/
+    );
+  } finally {
+    remove(root);
+    remove(former);
+  }
+});
+
+test('missing linked worktrees and their required routing surfaces fail closed', () => {
+  const root = makeFixture();
+  const linked = `${fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-ledger-linked-parent-'))}-worktree`;
+  try {
+    initGitFixture(root);
+    git(root, ['worktree', 'add', '-b', 'audit-linked', linked]);
+    fs.rmSync(linked, { recursive: true, force: true });
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: {} }),
+      /READINESS_AUDIT_INCOMPLETE[\s\S]*linked-parent-[^\s]*-worktree/
+    );
+  } finally {
+    remove(linked);
+    remove(root);
+  }
+});
+
+test('routing requires one coherent exact task and filename entry per authoritative surface', () => {
+  const candidate = { task: 'TASK-1', role: 'User', lane: 'fb-user', file: 'task-1.md' };
+  const root = makeFixture([candidate]);
+  try {
+    fs.writeFileSync(
+      path.join(root, 'docs', 'handoffs', 'index.md'),
+      '# Handoff Index\n\n| Task | Lane | Status | Detail |\n|---|---|---|---|\n| TASK-10 | User | Ready | [task-1.md](task-1.md) |\n'
+    );
+    fs.writeFileSync(path.join(root, 'docs', 'workstreams', 'fb-user.md'), '# User\n\nTASK-10\n');
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: { 'TASK-1': 'Include now' } }),
+      /BFM_INTAKE_INCOMPLETE[\s\S]*exact[\s\S]*TASK-1/
+    );
+  } finally {
+    remove(root);
   }
 });
 
@@ -260,5 +342,46 @@ test('dependency and lock conflicts serialize Include-now work and expose gates'
     assert.equal(ledger.candidates.find(candidate => candidate.task === 'USER-1').sha256, digest);
   } finally {
     remove(root);
+  }
+});
+
+test('the existing BFM claim path gates before mutation and emits the frozen ledger on success', () => {
+  const blockedCandidate = { task: 'TASK-1', role: 'Tech', lane: 'fb-tech', file: 'task-1.md', boardStatus: 'Ready' };
+  const blockedRoot = makeFixture([blockedCandidate]);
+  const runtimePath = path.join(__dirname, 'fb-lane.cjs');
+  try {
+    const before = fs.readFileSync(path.join(blockedRoot, 'PROJECT_BOARD.md'), 'utf8');
+    const blocked = spawnSync(
+      process.execPath,
+      [runtimePath, 'claim', 'TASK-1', 'bfm', '(None)', '--no-worktree'],
+      { cwd: blockedRoot, encoding: 'utf8' }
+    );
+    assert.notEqual(blocked.status, 0);
+    assert.match(`${blocked.stdout}\n${blocked.stderr}`, /BFM_DISPOSITION_INCOMPLETE|BFM_EXECUTION_BLOCKED/);
+    assert.equal(fs.readFileSync(path.join(blockedRoot, 'PROJECT_BOARD.md'), 'utf8'), before);
+  } finally {
+    remove(blockedRoot);
+  }
+
+  const readyCandidate = {
+    task: 'TASK-2', role: 'Tech', lane: 'fb-tech', file: 'task-2.md', boardStatus: 'Ready', disposition: 'Include now',
+  };
+  const readyRoot = makeFixture([readyCandidate]);
+  try {
+    initGitFixture(readyRoot);
+    git(readyRoot, ['remote', 'add', 'origin', readyRoot]);
+    const claimed = spawnSync(
+      process.execPath,
+      [runtimePath, 'claim', 'TASK-2', 'bfm', '(None)', '--no-worktree'],
+      { cwd: readyRoot, encoding: 'utf8' }
+    );
+    assert.equal(claimed.status, 0, `${claimed.stdout}\n${claimed.stderr}`);
+    assert.match(claimed.stdout, /BFM intake ledger[\s\S]*Execution gate: open for Include now scope/);
+    assert.ok(claimed.stdout.indexOf('BFM intake ledger') < claimed.stdout.indexOf('Switching to main'));
+    assert.equal(gateBfmExecutionStart(readyRoot, 'tech'), null);
+    const runtime = fs.readFileSync(runtimePath, 'utf8');
+    assert.match(runtime, /enum:\s*\[[^\]]*'BFM'/);
+  } finally {
+    remove(readyRoot);
   }
 });

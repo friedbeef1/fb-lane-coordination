@@ -951,7 +951,7 @@ function readBfmIntakeFile(rootDir, relative, missing) {
     if (!fs.statSync(absolute).isFile()) throw Object.assign(new Error('not a file'), { code: 'ENOTFILE' });
     return fs.readFileSync(absolute, 'utf8');
   } catch (error) {
-    missing.push(`${relative} (${error.code || 'READ_ERROR'})`);
+    missing.push(`${absolute} (${error.code || 'READ_ERROR'})`);
     return '';
   }
 }
@@ -960,6 +960,191 @@ function bfmRoutingDigest(parts) {
   const hash = crypto.createHash('sha256');
   for (const [label, contents] of parts) hash.update(`${label}\0${contents}\0`);
   return hash.digest('hex');
+}
+
+function markdownTableCells(line) {
+  const source = String(line || '').trim();
+  if (!source.startsWith('|') || !source.endsWith('|')) return [];
+  const cells = [];
+  let cell = '';
+  let escaped = false;
+  for (const character of source.slice(1, -1)) {
+    if (escaped) {
+      cell += character;
+      escaped = false;
+    } else if (character === '\\') {
+      cell += character;
+      escaped = true;
+    } else if (character === '|') {
+      cells.push(cell.trim());
+      cell = '';
+    } else {
+      cell += character;
+    }
+  }
+  cells.push(cell.trim());
+  return cells;
+}
+
+function markdownLinkTargets(source) {
+  return [...String(source || '').matchAll(/\]\(([^)]+)\)/g)].map(match => match[1].trim());
+}
+
+function exactHandoffTarget(target, fileName) {
+  const clean = String(target || '').split(/[?#]/, 1)[0].replace(/\\/g, '/');
+  return path.posix.basename(clean) === fileName;
+}
+
+function escapedRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function exactTaskLines(source, task) {
+  const pattern = new RegExp(`(^|[^A-Za-z0-9-])${escapedRegex(task)}(?=$|[^A-Za-z0-9-])`);
+  return String(source || '').split(/\r?\n/).filter(line => pattern.test(line));
+}
+
+function indexTaskId(cell) {
+  return String(cell || '').match(/^([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*-\d+)(?:\s|$)/)?.[1] || '';
+}
+
+function collectBfmIntakeInventories(canonicalRoot) {
+  const missing = [];
+  const inventories = new Map();
+  for (const root of handoffAuditRoots(canonicalRoot)) {
+    try {
+      if (!fs.statSync(root).isDirectory()) throw Object.assign(new Error('not a directory'), { code: 'ENOTDIR' });
+      fs.accessSync(root, fs.constants.R_OK | fs.constants.X_OK);
+    } catch (error) {
+      missing.push(`${root} (${error.code || 'ACCESS_ERROR'})`);
+      continue;
+    }
+    const boardSource = readBfmIntakeFile(root, 'PROJECT_BOARD.md', missing);
+    const indexSource = readBfmIntakeFile(root, 'docs/handoffs/index.md', missing);
+    const cardSources = new Map();
+    for (const role of BFM_INTAKE_ROLES) {
+      const relative = `docs/workstreams/${BFM_EVIDENCE_ROLE_FILES.get(role)}`;
+      cardSources.set(role, readBfmIntakeFile(root, relative, missing));
+    }
+    let boardTasks = [];
+    if (boardSource) {
+      try {
+        boardTasks = parseBoard(path.join(root, 'PROJECT_BOARD.md')).tasks;
+      } catch (error) {
+        missing.push(`${path.join(root, 'PROJECT_BOARD.md')} (${error.message})`);
+      }
+    }
+    inventories.set(root, { root, boardSource, indexSource, cardSources, boardTasks });
+  }
+  if (missing.length > 0) {
+    const canonicalPrefix = `${canonicalRoot}${path.sep}`;
+    const canonicalMissing = missing.filter(item => item.startsWith(canonicalPrefix));
+    if (canonicalMissing.length > 0) {
+      const missingRoles = BFM_INTAKE_ROLES.filter(role => canonicalMissing.some(item =>
+        item.includes(`${path.sep}docs${path.sep}workstreams${path.sep}${BFM_EVIDENCE_ROLE_FILES.get(role)} `)
+      ));
+      throw new Error(
+        `BFM_INTAKE_INCOMPLETE: missing or unreadable authoritative inventory: ${canonicalMissing.join('; ')}`
+        + `${missingRoles.length ? `; roles: ${missingRoles.join(', ')}` : ''}.`
+      );
+    }
+    throw new Error(`READINESS_AUDIT_INCOMPLETE: BFM routing roots or surfaces were missing or unreadable: ${missing.join('; ')}.`);
+  }
+  return inventories;
+}
+
+function bfmCandidateRoutingRecord(inventory, relative, handoffSource, errors) {
+  const metadata = handoffFrontmatter(handoffSource) || {};
+  const task = String(metadata.task || '').trim();
+  const role = bfmEvidenceRole(metadata.lane);
+  const fileName = path.basename(relative);
+  if (!role) {
+    errors.push(`${inventory.root}/${relative} uses ${metadata.lane || '(missing lane)'}; Product/BFM is a control centre, not an evidence role`);
+    return null;
+  }
+  const boardMatches = inventory.boardTasks.filter(item => item.id === task);
+  const boardRouteMatches = boardMatches.filter(item => markdownLinkTargets(item.links).some(target => exactHandoffTarget(target, fileName)));
+  const indexMatches = String(inventory.indexSource || '')
+    .split(/\r?\n/)
+    .map(line => ({ line, cells: markdownTableCells(line) }))
+    .filter(row => row.cells.length > 0
+      && indexTaskId(row.cells[0]) === task
+      && markdownLinkTargets(row.line).some(target => exactHandoffTarget(target, fileName)));
+  const cardSource = inventory.cardSources.get(role) || '';
+  const cardLines = exactTaskLines(cardSource, task);
+  if (boardMatches.length !== 1 || boardRouteMatches.length !== 1) {
+    errors.push(`${inventory.root}/${relative} requires one exact PROJECT_BOARD.md task/filename route for ${task}; found ${boardRouteMatches.length}`);
+  }
+  if (indexMatches.length !== 1) {
+    errors.push(`${inventory.root}/${relative} requires one exact docs/handoffs/index.md task/filename route for ${task}; found ${indexMatches.length}`);
+  }
+  if (cardLines.length === 0) {
+    errors.push(`${inventory.root}/${relative} requires an exact ${task} route in the ${role} workstream card`);
+  }
+  const boardTask = boardMatches[0] || { locks: '(None)', status: '' };
+  return {
+    root: inventory.root,
+    relative,
+    task,
+    role,
+    status: String(metadata.status || ''),
+    sha256: handoffDigest(Buffer.from(handoffSource)),
+    routingSha256: bfmRoutingDigest([
+      ['handoff', handoffSource],
+      ['board', inventory.boardSource],
+      ['index', inventory.indexSource],
+      [`card:${role}`, cardSource],
+    ]),
+    dependencies: commaSeparatedMetadata(metadata.depends_on),
+    approvalGate: String(metadata.approval_gate || '').trim(),
+    externalBlocker: String(metadata.external_blocker || '').trim(),
+    recordedDisposition: String(metadata.disposition || '').trim(),
+    locks: normalizedBoardLocks(boardTask.locks),
+    boardStatus: boardTask.status,
+  };
+}
+
+function validBfmRoutingReceipt(receipt, canonical, sources) {
+  if (!(receipt
+    && typeof receipt.disposition === 'string'
+    && receipt.disposition.trim() !== ''
+    && receipt.canonicalSha256 === canonical.sha256
+    && receipt.canonicalRoutingSha256 === canonical.routingSha256
+    && Array.isArray(receipt.sources))) return false;
+  const expected = sources
+    .map(record => `${pathIdentity(record.root)}\0${record.sha256}\0${record.routingSha256}`)
+    .sort();
+  const recorded = receipt.sources
+    .filter(record => record
+      && typeof record.root === 'string'
+      && typeof record.sha256 === 'string'
+      && typeof record.routingSha256 === 'string')
+    .map(record => `${pathIdentity(record.root)}\0${record.sha256}\0${record.routingSha256}`)
+    .sort();
+  return recorded.length === receipt.sources.length
+    && recorded.length === expected.length
+    && recorded.every((value, index) => value === expected[index]);
+}
+
+function assertBfmCrossRootRouting(migration, recordsByRelative) {
+  const findings = [];
+  for (const [relative, records] of recordsByRelative) {
+    const canonical = records.find(record => record.root === migration.canonicalPath);
+    const sources = records.filter(record => record.root !== migration.canonicalPath);
+    if (!canonical || sources.length === 0) continue;
+    const differs = sources.some(record => record.sha256 !== canonical.sha256
+      || record.task !== canonical.task
+      || record.status !== canonical.status
+      || record.routingSha256 !== canonical.routingSha256);
+    if (!differs || validBfmRoutingReceipt(migration.routingReceipts[relative], canonical, sources)) continue;
+    findings.push(
+      `${relative} requires a source-bound receipt with canonicalSha256=${canonical.sha256}, `
+      + `canonicalRoutingSha256=${canonical.routingSha256}, and each source root/sha256/routingSha256`
+    );
+  }
+  if (findings.length > 0) {
+    throw new Error(`HANDOFF_ROUTING_DRIFT: cross-root handoff or routing state is unreceipted: ${findings.join('; ')}.`);
+  }
 }
 
 function assertNoContradictoryCanonicalHandoffs(rootDir) {
@@ -1053,27 +1238,9 @@ function freezeBfmIntake(rootDir, options = {}) {
   // detection before the routing inventory below is trusted.
   const scan = scanWorkstreamHandoffs(canonicalRoot);
   assertNoContradictoryCanonicalHandoffs(canonicalRoot);
-  const missing = [];
-  const boardSource = readBfmIntakeFile(canonicalRoot, 'PROJECT_BOARD.md', missing);
-  const indexSource = readBfmIntakeFile(canonicalRoot, 'docs/handoffs/index.md', missing);
-  const cardSources = new Map();
-  for (const role of BFM_INTAKE_ROLES) {
-    const relative = `docs/workstreams/${BFM_EVIDENCE_ROLE_FILES.get(role)}`;
-    cardSources.set(role, readBfmIntakeFile(canonicalRoot, relative, missing));
-  }
-  if (missing.length > 0) {
-    const missingRoles = BFM_INTAKE_ROLES.filter(role => !cardSources.get(role));
-    const error = new Error(`BFM_INTAKE_INCOMPLETE: missing or unreadable authoritative inventory: ${missing.join('; ')}${missingRoles.length ? `; roles: ${missingRoles.join(', ')}` : ''}.`);
-    error.missingRoles = missingRoles;
-    throw error;
-  }
-
-  let boardTasks;
-  try {
-    boardTasks = parseBoard(path.join(canonicalRoot, 'PROJECT_BOARD.md')).tasks;
-  } catch (error) {
-    throw new Error(`BFM_INTAKE_INCOMPLETE: PROJECT_BOARD.md could not be parsed: ${error.message}`);
-  }
+  const inventories = collectBfmIntakeInventories(canonicalRoot);
+  const canonicalInventory = inventories.get(canonicalRoot);
+  const boardTasks = canonicalInventory.boardTasks;
   const tasksById = new Map();
   for (const task of boardTasks) {
     if (!tasksById.has(task.id)) tasksById.set(task.id, []);
@@ -1082,48 +1249,38 @@ function freezeBfmIntake(rootDir, options = {}) {
 
   const candidates = [];
   const routeErrors = [];
+  const recordsByRelative = new Map();
   for (const relative of scan.candidates) {
-    const handoffSource = readBfmIntakeFile(canonicalRoot, relative, routeErrors);
-    const metadata = handoffFrontmatter(handoffSource) || {};
-    const task = String(metadata.task || '').trim();
-    const role = bfmEvidenceRole(metadata.lane);
-    if (!role) {
-      routeErrors.push(`${relative} uses ${metadata.lane || '(missing lane)'}; Product/BFM is a control centre, not an evidence role`);
-      continue;
+    const canonicalSource = readBfmIntakeFile(canonicalRoot, relative, routeErrors);
+    const canonicalRecord = bfmCandidateRoutingRecord(canonicalInventory, relative, canonicalSource, routeErrors);
+    if (!canonicalRecord) continue;
+    candidates.push(canonicalRecord);
+    const records = [canonicalRecord];
+    for (const [auditRoot, inventory] of inventories) {
+      if (auditRoot === canonicalRoot) continue;
+      const absolute = path.join(auditRoot, relative);
+      if (!fs.existsSync(absolute)) continue;
+      let source;
+      try {
+        source = fs.readFileSync(absolute, 'utf8');
+      } catch (error) {
+        routeErrors.push(`${absolute} (${error.code || 'READ_ERROR'})`);
+        continue;
+      }
+      const record = bfmCandidateRoutingRecord(inventory, relative, source, routeErrors);
+      if (record) records.push(record);
     }
-    const boardMatches = tasksById.get(task) || [];
-    const fileName = path.basename(relative);
-    const cardSource = cardSources.get(role);
-    if (boardMatches.length !== 1) routeErrors.push(`${relative} task ${task} has ${boardMatches.length} PROJECT_BOARD.md routes`);
-    if (!indexSource.includes(task) || !indexSource.includes(fileName)) routeErrors.push(`${relative} task ${task} is not routed by docs/handoffs/index.md`);
-    if (!cardSource.includes(task)) routeErrors.push(`${relative} task ${task} is not routed by the ${role} workstream card`);
-    const boardTask = boardMatches[0] || { locks: '(None)', status: '' };
-    candidates.push({
-      relative,
-      task,
-      role,
-      status: String(metadata.status || ''),
-      sha256: handoffDigest(Buffer.from(handoffSource)),
-      routingSha256: bfmRoutingDigest([
-        ['handoff', handoffSource],
-        ['board', boardSource],
-        ['index', indexSource],
-        [`card:${role}`, cardSource],
-      ]),
-      dependencies: commaSeparatedMetadata(metadata.depends_on),
-      approvalGate: String(metadata.approval_gate || '').trim(),
-      externalBlocker: String(metadata.external_blocker || '').trim(),
-      locks: normalizedBoardLocks(boardTask.locks),
-      boardStatus: boardTask.status,
-    });
+    recordsByRelative.set(relative, records);
   }
   if (routeErrors.length > 0) {
     throw new Error(`BFM_INTAKE_INCOMPLETE: authoritative routing is incomplete or contradictory: ${routeErrors.join('; ')}.`);
   }
+  assertBfmCrossRootRouting(migration, recordsByRelative);
 
-  const dispositions = options.dispositions && typeof options.dispositions === 'object'
+  const dispositions = Object.prototype.hasOwnProperty.call(options, 'dispositions')
+    && options.dispositions && typeof options.dispositions === 'object'
     ? options.dispositions
-    : {};
+    : Object.fromEntries(candidates.map(candidate => [candidate.task, candidate.recordedDisposition]));
   const candidateTasks = new Set(candidates.map(candidate => candidate.task));
   const dispositionErrors = [];
   for (const candidate of candidates) {
@@ -1210,6 +1367,16 @@ function freezeBfmIntake(rootDir, options = {}) {
     roles,
     candidates,
   };
+}
+
+function gateBfmExecutionStart(rootDir, lane, options = {}) {
+  if (String(lane || '').trim().toLowerCase() !== 'bfm') return null;
+  const ledger = freezeBfmIntake(rootDir, options);
+  const rendered = renderBfmIntakeLedger(ledger);
+  if (!ledger.executionAllowed) {
+    throw new Error(`BFM_EXECUTION_BLOCKED: the frozen intake does not permit execution.\n${rendered}`);
+  }
+  return { ledger, rendered };
 }
 
 function renderBfmIntakeLedger(ledger) {
@@ -2648,6 +2815,14 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
   }
 
   try {
+    const intake = gateBfmExecutionStart(path.dirname(boardPath), lane, options.bfmIntake || {});
+    if (intake) console.log(`${intake.rendered}\n`);
+  } catch (error) {
+    console.error(`❌ Error: ${error.message}`);
+    process.exit(1);
+  }
+
+  try {
     runHook('preflight', boardPath);
   } catch (err) {
     console.error(`❌ Project preflight failed: ${err.message}`);
@@ -3579,7 +3754,7 @@ function handleMcpRequest(request) {
             type: 'object',
             properties: {
               taskId: { type: 'string', description: 'The task ID, e.g. TASK-001' },
-              lane: { type: 'string', enum: ['Tech', 'Design', 'Business', 'Product', 'Discovery', 'Bugs'], description: 'The lane claiming the task' },
+              lane: { type: 'string', enum: ['Tech', 'Design', 'Business', 'Product', 'Discovery', 'Bugs', 'BFM'], description: 'The lane claiming the task' },
               lockedFiles: { type: 'string', description: 'Comma-separated list of files to lock' },
               workspacePath: { type: 'string', description: 'Optional workspace/repo path to search for PROJECT_BOARD.md from.' }
             },
@@ -4273,6 +4448,7 @@ module.exports = {
   LANE_PATTERN,
   scanWorkstreamHandoffs,
   freezeBfmIntake,
+  gateBfmExecutionStart,
   renderBfmIntakeLedger,
   collectLifecycleFindings,
   collectGoalAlignmentSessionWarnings,
