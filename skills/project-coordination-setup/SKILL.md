@@ -55,7 +55,7 @@ inventory files; it does not call the sidebar or Codex-native task controls.
    exact project ID whose canonical repository path identifies that root. If
    the project is absent, ambiguous, or path identity disagrees, stop without
    mutation and give the role-specific manual fallback.
-2. Call `list_threads({"limit":100})`; `limit` is its only currently supported
+2. Call `list_threads({"limit":50})`; `limit` is its only currently supported
    argument, so never pass `projectId`, repository path, search, or invented
    pagination arguments. Filter the returned entries afterward by the already
    verified exact project ID and, whenever an entry exposes repository identity,

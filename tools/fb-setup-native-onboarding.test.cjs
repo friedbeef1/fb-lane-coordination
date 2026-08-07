@@ -94,9 +94,10 @@ const listThreadsCall = skill.match(/list_threads\((\{[^\n]+\})\)/);
 assert.ok(listThreadsCall, 'setup must show the supported list_threads argument object');
 assert.deepStrictEqual(
   JSON.parse(listThreadsCall[1]),
-  { limit: 100 },
-  'setup must call list_threads with only its supported limit argument',
+  { limit: 50 },
+  'setup must call list_threads with only its supported maximum limit and no projectId',
 );
+assert.doesNotMatch(skill, /list_threads\(\{[^)]*(?:"limit":100|projectId)/);
 
 const repository = {
   projectId: 'project-mirrorcam',

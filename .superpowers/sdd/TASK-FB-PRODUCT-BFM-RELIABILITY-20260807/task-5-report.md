@@ -138,3 +138,37 @@ Final focused verification:
 No mirror generation, package synchronization, broad suite, release action,
 publication, install/cache replacement, merge, push, deployment, provider
 mutation, or **Push Live** action was performed.
+
+## Review fix round 2/5
+
+Status: PASS.
+
+The observed native `list_threads` maximum is 50, not 100. This round corrects
+the canonical executable guidance to `list_threads({"limit":50})` while
+retaining exact local project filtering and the existing fail-closed identity
+and completeness boundary. This supersedes the round 1 statement that called
+100 the supported limit.
+
+The focused contract now requires the literal supported argument object
+`{"limit":50}` and explicitly rejects guidance that uses limit 100 or passes
+the unsupported `projectId` argument.
+
+RED:
+
+```text
+AssertionError: setup must call list_threads with only its supported maximum limit and no projectId
+actual: { limit: 100 }
+expected: { limit: 50 }
+```
+
+Focused verification for this round:
+
+- `node tools/fb-setup-native-onboarding.test.cjs` — passed (1 contract).
+- `quick_validate.py skills/project-coordination-setup` — `Skill is valid!`.
+- `node --check tools/fb-setup-native-onboarding.test.cjs` — passed.
+- Changed skill relative-link check — 11/11 valid.
+- `git diff --check` — passed.
+
+No other source or test was changed. No broad suite, mirror generation, package
+synchronization, release action, publication, install/cache replacement, merge,
+push, deployment, provider mutation, or **Push Live** action was performed.
