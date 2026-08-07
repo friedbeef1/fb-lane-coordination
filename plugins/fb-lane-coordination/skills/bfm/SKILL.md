@@ -46,40 +46,16 @@ permission question once. Do not ask it again on a later `$bfm`.
   `node tools/fb-onboarding.cjs needs-reconciliation`. It decides from the
   canonical seven roles recorded in `workstreams`; an existing `reconciledAt`
   never overrides a missing role.
-- When that helper reports `needsReconciliation: true`, use Codex task tools
-  only if they are available:
-  1. Call `list_projects` and select the exact current repository project.
-  2. Call `list_threads` using only arguments supported by the current Codex
-     app, then filter by the exact project ID or repository path. If a search
-     argument is rejected, retry without it. Page only while the tool exposes a
-     reliable continuation cursor. If the repository-scoped inventory is
-     truncated or cannot be proved complete, stop and use the manual fallback;
-     never guess that a workstream is missing.
-  3. Pass the complete repository-scoped inventory to the exported
-     `planRepositoryTaskInventory(inventory, repository)` contract in
-     `tools/fb-onboarding.cjs`. Its canonical keys are `product` (Product/BFM),
-     then `user`, `business`, `design`, `tech`, `discovery`, and `bugs`.
-     Product/User is a legacy User title; a lone legacy Product title maps to
-     Product/BFM. Tech or Technical remains compatible. Do not treat a general
-     task such as “Design homepage” as the Design workstream.
-  4. If the planner returns `complete: false`, perform no create, rename, or pin
-     actions. Report every discovery/planning failure and use the manual
-     fallback. Otherwise execute only its deterministic actions: reuse exact
-     matches; rename legacy titles with `set_thread_title`; create only missing
-     tasks with `create_thread` in the exact project and a local environment,
-     not a worktree; then pin each action target with
-     `set_thread_pinned({ pinned: true })`.
-  5. Generate every created task's initial prompt with
-     `node tools/fb-onboarding.cjs prompt <workstream> <repository-root>`. Do
-     not send follow-up work. Each created task acknowledges setup and remains
-     idle until the user asks it a concrete question.
-  6. Re-list the exact repository tasks, run the planner again on the complete
-     inventory, and verify all seven titles are present and pinned. A created
-     but unpinned task is incomplete onboarding; pin that existing task rather
-     than creating a duplicate. A partial rename, creation, or pin failure
-     remains unreconciled and must be reported honestly.
-  7. After all seven are observed and pinned, record
-     `node tools/fb-onboarding.cjs reconcile product,user,business,design,tech,discovery,bugs`.
+- When that helper reports `needsReconciliation: true`, follow the canonical
+  native exact-project reconciliation in
+  [project-coordination-setup](../project-coordination-setup/SKILL.md). Its
+  planner uses `planRepositoryTaskInventory`, requires a proven-complete
+  inventory for the verified project ID and canonical repository root, records
+  every attempted native action, and finishes only through the strict
+  `reconcile` route. The seven canonical keys remain `product` (Product/BFM),
+  `user`, `business`, `design`, `tech`, `discovery`, and `bugs`. In inventory
+  order that is product, user, business, design, tech, discovery, bugs; success
+  requires all seven exact tasks present and pinned.
 
 The user’s explicit Yes authorizes these seven user-owned Codex tasks; it does
 not authorize source work. If project/task tools are unavailable or a complete
@@ -138,26 +114,35 @@ centre. Each evidence-producing workstream runs a
 mini-loop and records ready or blocked evidence in `docs/handoffs/<TASK-ID>.md`.
 `$bfm` ignores `fb-workstream-handoff` artifacts because they are queued
 planning requests, not Product delivery inputs.
-At intake, call the runtime's exported scanner semantics directly:
+Before intake or any source mutation, require the active canonical checkout.
+Then call the runtime's complete intake semantics directly:
 
 ```js
-const { scanWorkstreamHandoffs } = require('./tools/fb-lane.cjs');
-const scan = scanWorkstreamHandoffs(projectRoot);
+const {
+  freezeBfmIntake,
+  renderBfmIntakeLedger,
+} = require('./tools/fb-lane.cjs');
+const intake = freezeBfmIntake(projectRoot);
+const ledger = renderBfmIntakeLedger(intake);
 ```
 
-Use `scan.candidates` in canonical order; `scan.selected` remains a
-compatibility alias. `$bfm` freezes intake, then Product must disposition every candidate as **Include now**, **Blocked**, **Deferred**, **Duplicate**,
+Show the complete intake ledger before execution. It keeps User, Business,
+Design, Tech, Discovery, and Bugs visible, then shows Product/BFM separately as
+the control centre. It includes canonical handoffs, linked worktrees,
+registered audit/former roots, board/index routes, workstream cards, active
+locks, approval gates, external blockers, and task-rebind state. Missing or
+contradictory inventory fails closed. Do not duplicate scanner or
+checkout-discovery logic in this skill; the runtime owns those rules.
+
+Product must disposition every candidate as **Include now**, **Blocked**, **Deferred**, **Duplicate**,
 **Rejected**, or **Superseded** before source execution. A ready handoff is
 ready for Product intake, not approval or execution authority. A disposition
 does not auto-close a task: preserve all genuinely nonterminal visibility in
 the board and handoff records. Record `None relevant` only when the
 six-workstream scan/report requires a disposition.
-The scanner fails closed on Ready-like orphan or off-home handoffs listed by
-linked worktrees, `FB_HANDOFF_AUDIT_ROOTS`, or the clone-local
-`.git/fb-handoff-audit-roots` registry. Never report an empty Ready queue after
-that failure. The audit remains active even when another handoff was selected;
-one selected item must never conceal additional Ready work. Product must
-reconcile each artifact into its authoritative home.
+Never report an empty Ready queue after a runtime intake failure. One selected
+item must never conceal additional Ready work. Product must reconcile each
+artifact into its authoritative home.
 Planning work is not Ready when board, index, handoff, or workstream routing
 failed to persist. Record it as blocked with its recovery path instead.
 Stop on duplicate or contradictory ready-handoff errors. Product reconciles

@@ -545,7 +545,7 @@ function renderIdleTaskPrompt(workstream, options = {}) {
       `Primary question: ${workstream.question}`,
       '',
       'Remain idle after acknowledging this setup until the user invokes `$bfm` in this task. Do not investigate, edit files, create a handoff, claim work, or start implementation before that invocation.',
-      'When invoked, reconcile ready evidence from User, Business, Design, Tech, Discovery, and Bugs; disposition and sequence the approved scope; direct execution and verification; stop at Ready to ship. Only Push Live authorizes release.',
+      'When invoked from the active canonical checkout, show the complete intake ledger for User, Business, Design, Tech, Discovery, Bugs, and this separate Product/BFM control centre; disposition, reconcile, and sequence the approved scope; direct execution and verification; stop at Ready to ship. Only Push Live authorizes release.',
     ].join('\n');
   }
   return [
@@ -554,7 +554,7 @@ function renderIdleTaskPrompt(workstream, options = {}) {
     `Primary question: ${workstream.question}`,
     '',
     'Remain idle after acknowledging this setup. Do not investigate, edit files, create a handoff, claim work, or start implementation until the user asks a concrete question in this task.',
-    'This is a planning and evidence task. When findings become actionable, create a repository-local handoff MD for Product/BFM. Source-changing integration happens through `$bfm`, and only Push Live authorizes release.',
+    'This is one of six planning and evidence workstreams; Product/BFM is the separate control centre. When findings become actionable, create a repository-local handoff MD for Product/BFM. Source-changing integration happens from the canonical checkout through `$bfm`, and only Push Live authorizes release.',
   ].join('\n');
 }
 

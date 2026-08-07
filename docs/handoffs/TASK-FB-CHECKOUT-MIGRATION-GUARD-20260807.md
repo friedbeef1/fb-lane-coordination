@@ -44,7 +44,8 @@ status: actioned
   Root and generated package runtimes are byte-aligned.
 - **Evidence:** [QA](../qa/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md);
   focused migration checks 20/20; CLI regression 72/72; sessions 39/39;
-  package tests 10/10; package sync 61/61; syntax passed.
+  package tests 10/10; historical guard-only package sync 61/61 (superseded for
+  release evidence by the combined 65-mirror manifest); syntax passed.
 - **Remaining:** Explicit Product approval is required before publication,
   installation, active-cache replacement, merge, consumer rollout, or checkout
   retirement.

@@ -501,7 +501,7 @@ test('new task prompts remain idle and carry distinct workstream instructions', 
   assert.match(prompts[0], /remain idle[\s\S]*until[\s\S]*\$bfm/i);
   assert.doesNotMatch(prompts[0], /planning and evidence task|create a repository-local handoff/i);
   assert.match(prompts[1], /user outcome/i);
-  assert.match(prompts[1], /planning and evidence task/i);
+  assert.match(prompts[1], /planning and evidence workstream/i);
   assert.match(prompts[1], /create a repository-local handoff/i);
   assert.match(prompts[2], /commercial/i);
   assert.match(prompts[3], /experience/i);
@@ -533,10 +533,9 @@ test('BFM fails safely when Codex cannot prove a complete repository task invent
   assert.match(skill, /needs-reconciliation/i);
   assert.match(skill, /canonical seven roles/i);
   assert.doesNotMatch(skill, /permission is granted and `reconciledAt` is absent/i);
-  assert.match(skill, /exact project ID or repository path/i);
-  assert.match(skill, /search\s+argument is rejected, retry without it/i);
-  assert.match(skill, /inventory is\s+truncated or cannot be proved complete/i);
-  assert.match(skill, /never guess that a workstream is missing/i);
+  assert.match(skill, /verified project ID and canonical repository root/i);
+  assert.match(skill, /project-coordination-setup/i);
+  assert.match(skill, /proven-complete[\s\S]{0,80}inventory/i);
   assert.match(skill, /provide all seven prompts/i);
 });
 
@@ -596,12 +595,14 @@ test('first-run guidance creates, pins, verifies, and only then reconciles works
   const setup = fs.readFileSync(path.join(root, 'skills/project-coordination-setup/SKILL.md'), 'utf8');
   const start = fs.readFileSync(path.join(root, 'docs/fb/start.md'), 'utf8');
   const metadata = fs.readFileSync(path.join(root, packaged ? '.codex-plugin/plugin.json' : 'plugins/fb-lane-coordination/.codex-plugin/plugin.json'), 'utf8');
-  for (const [label, source] of [['BFM', bfm], ['setup', setup], ['start', start], ['metadata', metadata]]) {
+  assert.match(bfm, /project-coordination-setup/i);
+  assert.match(bfm, /all seven exact tasks present and pinned/i);
+  for (const [label, source] of [['setup', setup], ['start', start], ['metadata', metadata]]) {
     assert.match(source, /pin/i, `${label} must require pinned workstream tasks`);
     assert.match(source, /sidebar/i, `${label} must connect pinning to sidebar visibility`);
   }
-  assert.match(bfm, /set_thread_pinned/);
-  assert.match(bfm, /verify all seven[\s\S]*pinned/i);
-  assert.match(bfm, /unpinned[\s\S]*rather\s+than creating a duplicate/i);
-  assert.ok(bfm.indexOf('verify all seven') < bfm.indexOf('fb-onboarding.cjs reconcile'));
+  assert.match(setup, /set_thread_pinned/);
+  assert.match(setup, /all seven roles[\s\S]*exact[\s\S]*pinned/i);
+  assert.match(setup, /pin the named task[\s\S]*create only if absent/i);
+  assert.ok(setup.indexOf('all seven roles') < setup.indexOf('fb-onboarding.cjs reconcile'));
 });

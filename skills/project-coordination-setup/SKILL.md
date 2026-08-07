@@ -117,6 +117,19 @@ approves scope, invokes `$bfm`, or authorizes release. Only **Push Live**
 authorizes merge, publication, or deployment. Bootstrap reruns do not repeat
 the question or overwrite the decision receipt.
 
+### Transactional migration between checkouts
+
+Setup and reconciliation run only from the active canonical checkout. If FB
+detects a former, quarantined, or otherwise noncanonical root, stop before
+repository or task mutation and use the existing `fb-lane.cjs migration`
+inventory, commit, and rebind routes. Product/BFM must disposition every
+discovered branch, commit/tree, worktree, dirty-file, handoff, and routing
+difference before the runtime atomically records one canonical root plus
+quarantined former roots. Rebind succeeds only from a proven-complete
+exact-project inventory with all seven tasks pinned. Former roots stay
+recoverable; retirement requires fresh matching evidence and explicit approval.
+Do not recreate migration discovery or drift rules in this skill.
+
 The installed [start.md](../../docs/fb/start.md) defines the single public
 workstream-first path. Relevant workstreams create handoffs ready for Product
 intake; ready is queued for Product review, not approval or execution. Only

@@ -19,6 +19,31 @@ not additional workstreams or mandatory agents.
 - **All workstreams:** investigate and write plans/handoffs in ordinary chats; a handoff ready for Product intake is a candidate only, and none starts source execution without Product-launched BFM.
 - **BFM execution workers:** may claim locked files, use an isolated branch/worktree, edit, verify, and submit only within an approved BFM run.
 
+## Canonical checkout and complete intake
+
+Product/BFM executes only from the active canonical checkout. Before claim,
+source mutation, or execution routing, the runtime freezes and renders one
+complete intake ledger. It covers canonical handoffs, linked worktrees,
+registered audit and quarantined former roots, board/index routes, all seven
+workstream cards, active locks, approval gates, external blockers, lifecycle
+state, unresolved drift, and exact-project task rebind. User, Business, Design,
+Tech, Discovery, and Bugs remain visible in canonical order; Product/BFM is
+shown separately as the control centre. Every candidate receives exactly one
+allowed disposition or the execution gate stays closed.
+
+Missing roots, inaccessible authoritative records, same-path content or routing
+drift, hidden Ready work, incomplete role inventory, conflicting dispositions,
+dependency cycles, and noncanonical execution fail closed. Guidance consumes
+the runtime ledger; it does not duplicate scanner or checkout-discovery logic.
+
+Checkout moves use a transactional migration. Product/BFM inventories and
+dispositions every discovered branch, commit/tree, worktree, dirt, handoff, and
+routing difference; atomically records one canonical root plus quarantined
+former roots; rebinds the exact seven pinned tasks; verifies canonical
+acceptance and former-root rejection; and requires fresh evidence plus explicit
+approval before retirement. Former roots remain recoverable until that final
+gate.
+
 ## Workstream-to-workstream routing
 
 A main workstream may route a bounded planning question to a different main

@@ -8,8 +8,8 @@ FB currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
 setup paths when you are not installing through the plugin flow.
 
-The current release candidate is **FB 0.5.10-beta** build
-`0.5.10-beta+codex.20260807084627`.
+The current release candidate is **FB 0.5.11-beta** build
+`0.5.11-beta+codex.20260807112648`.
 
 ## Set up the current project
 
@@ -93,6 +93,14 @@ success. FB titles and automatically pins every exact workstream task, then
 re-lists the repository inventory before recording reconciliation. An existing
 unpinned task is pinned, never duplicated.
 Pinning never starts work, approves scope, invokes `$bfm`, or authorizes release.
+
+Setup verifies the exact Codex project ID and canonical repository root before
+any task mutation. An incomplete or mixed inventory fails closed and returns
+the seven role-specific manual prompts. Checkout changes use the runtime's
+transactional migration routes: inventory and disposition every difference,
+atomically record one canonical root plus quarantined former roots, then rebind
+the exact seven pinned tasks. Former roots remain rollback evidence until fresh
+verification and explicit retirement approval.
 
 ## Upgrade Existing Codex Plugin Install
 

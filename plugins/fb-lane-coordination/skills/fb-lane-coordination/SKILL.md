@@ -30,10 +30,19 @@ blocked or ready handoff in `docs/handoffs/<TASK-ID>.md`. Ready means `ready for
 Product intake`: queued for Product review, **not approval or execution**.
 
 Only `$bfm` in the Product/BFM parent task starts delivery. It freezes the
-intake snapshot, gives every candidate a disposition, reconciles conflicts and
-dependencies, prioritizes the included work, and records the consolidated
-Project Start Brief and Build Brief before source execution. BFM stops at
+complete intake ledger from the active canonical checkout, keeps all six
+evidence workstreams plus Product/BFM visible, gives every candidate a
+disposition, reconciles conflicts and dependencies, prioritizes the included
+work, and records the consolidated Project Start Brief and Build Brief before
+source execution. Missing, unreadable, drifting, or contradictory intake fails
+closed through the canonical runtime; guidance never duplicates its scanner
+logic. BFM stops at
 **Ready to ship**. Only **Push Live** authorizes merge or deployment.
+
+Checkout changes use one transactional migration contract: disposition every
+discovered difference, atomically record one canonical root, quarantine former
+roots, rebind the exact seven project tasks, and require explicit approval
+before retirement.
 
 The public model is six evidence-producing workstreams plus one Product/BFM
 control centre and seven pinned repository-scoped Codex tasks. Pinning never
@@ -44,6 +53,8 @@ An explicit workstream-to-workstream request creates a queued
 `<Source> handoff queued for <Destination> — planning only; waiting for you. Open: <handoff link>`
 and stays idle until the user continues it. `$bfm` ignores that artifact; a
 delivery recommendation needs a separate Product-ready `fb-lane-handoff`.
+If task tools are unavailable, return the Markdown link and a paste-ready notice
+instead of implying that another task was updated.
 
 ## Context and history
 

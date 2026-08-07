@@ -4,8 +4,8 @@
 
 **Graph Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.5.10-beta**
-(`0.5.10-beta+codex.20260807084627`).
+Current Codex release candidate: **FB 0.5.11-beta**
+(`0.5.11-beta+codex.20260807112648`).
 
 **FB is an open-source Codex plugin that turns scattered AI conversations into
 a living product-delivery graph.** It has six evidence-producing workstreams
@@ -211,6 +211,21 @@ Product/BFM handles routine internal closeout decisions—including faithful
 changelog wording and one release checkpoint—without asking you. You are
 interrupted only for a changed product decision, material scope, a sensitive
 gate, or **Push Live**.
+
+## Reliability gates in plain language
+
+- **One project:** setup and `$bfm` mutate only the active canonical checkout.
+- **Nothing silently missed:** before execution, `$bfm` shows a complete intake
+  ledger for User, Business, Design, Tech, Discovery, Bugs, and the separate
+  Product/BFM control centre. Missing, unreadable, drifting, or contradictory
+  evidence stops the run.
+- **Safe moves:** checkout changes use a transactional migration. FB inventories
+  and dispositions every difference, atomically records one canonical root,
+  rebinds the exact seven pinned project tasks, and keeps former roots
+  quarantined and recoverable until explicit retirement approval.
+- **Release stays yours:** Product/BFM may close routine internal wording and
+  checkpoint gates under standing delegation, but only **Push Live** authorizes
+  merge, publication, installation, or deployment.
 
 ## Comparison
 

@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-FB-PRODUCT-BFM-RELIABILITY-20260807 | In Progress | FB-Product / BFM | Canonical-project and complete-intake reliability | Integrate the verified checkout guard with FB 0.5.10; enforce exact-project seven-role onboarding, fail-closed complete intake, visible BFM ledger, and transactional migration | `tools/`, Product/BFM/setup skills, `docs/fb/`, package mirrors, focused contracts, release records | Existing guard commits `e4715d1` and `5b4a226`; [Handoff](docs/handoffs/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md) |
+| TASK-FB-PRODUCT-BFM-RELIABILITY-20260807 | Staging QA | FB-Product / BFM | Canonical-project and complete-intake reliability; FB 0.5.11-beta | Enforce the canonical checkout, complete seven-role intake ledger, exact-project onboarding, and transactional migration | `tools/`, Product/BFM/setup skills, `docs/fb/`, package mirrors, focused contracts, release records | Local review-ready `0.5.11-beta+codex.20260807112648`; [Handoff](docs/handoffs/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md); [QA](docs/qa/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md) |
 | TASK-076 | Staging QA | FB-Product / BFM | Exact FB setup invocation, delegated internal approvals, and FB 0.5.10-beta | Add `$fb-setup`; let Product/BFM approve routine changelog wording and one release checkpoint without user prompts; preserve material, sensitive, and **Push Live** gates | Setup and Product/BFM skills, active docs, focused contracts, plugin mirrors, version/changelog | Candidate preserved at `0b8039f`; release checkpoint superseded by the combined reliability candidate; [Handoff](docs/handoffs/TASK-076.md); [QA](docs/qa/TASK-076.md) |
 | TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807 | Staging QA | FB-Product / BFM | Checkout migration reliability | Detect same-path handoff drift, model checkout lifecycle, block noncanonical writes, and expose pending task rebind | `tools/fb-lane.cjs`, focused tests, package mirror, docs/handoff/QA; local candidate only, no publication/install/cache replacement | Review repair verified locally; [Handoff](docs/handoffs/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md); [QA](docs/qa/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md) |
 | TASK-075 | Staging QA | FB-Product / BFM | User workstream and Product/BFM control centre; FB 0.5.9-beta | Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks | Canonical candidate, generated package mirrors, version/metadata contracts, and release records | Checking — focused candidate green for `0.5.9-beta+codex.20260805042523`; changelog approved by James on 2026-08-05; final release validator pending; [Handoff](docs/handoffs/TASK-075.md); [QA](docs/qa/TASK-075.md) |
@@ -29,9 +29,9 @@
 
 ### TASK-FB-PRODUCT-BFM-RELIABILITY-20260807 - Canonical project and complete intake
 
-*   **Status**: In Progress — Product/BFM is integrating the verified checkout
-    guard into the newer FB 0.5.10 candidate before implementing the remaining
-    onboarding, intake-ledger, migration, and rollout contracts.
+*   **Status**: Staging QA — the combined local
+    `0.5.11-beta+codex.20260807112648` candidate is review-ready after focused
+    package, canonical/quarantined consumer, and disposable migration evidence.
 *   **Owner / Thread**: FB-Product / BFM.
 *   **Scope**: Canonical checkout enforcement; exact-project seven-role
     reconciliation; complete fail-closed intake; visible dependency/lock-aware
@@ -57,7 +57,9 @@
     Stop for publication/cache replacement, checkout retirement, sensitive
     operations, material scope change, or **Push Live**.
 *   **Links & Deliverables**:
-    [handoff](docs/handoffs/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md).
+    [handoff](docs/handoffs/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md) ·
+    [QA](docs/qa/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md) ·
+    [changelog](CHANGELOG.md#0511-beta--2026-08-07).
 
 ---
 

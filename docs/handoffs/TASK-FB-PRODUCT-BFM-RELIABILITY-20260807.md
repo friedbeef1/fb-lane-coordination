@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-FB-PRODUCT-BFM-RELIABILITY-20260807
 lane: fb-product
-status: implemented
+status: ready
 approval: approved
 okr_fit: aligned
 fb_harness: v3
@@ -17,8 +17,9 @@ Source: James-approved Unmirror handoff
 
 ## Approved Decision
 
-Build on the verified checkout-migration guard while preserving the newer FB
-0.5.10 setup and delegated-approval candidate. Product/BFM must operate from
+Build on the verified checkout-migration guard while preserving the FB 0.5.10
+setup and delegated-approval behavior in the combined FB 0.5.11 candidate.
+Product/BFM must operate from
 one canonical project, inspect all six evidence workstreams, show Product/BFM
 separately, compare same-path records by content and routing state, display a
 complete intake ledger before execution, and keep former roots recoverable
@@ -61,7 +62,8 @@ verified local guard or complete exact-project rebind and intake contract.
 
 ## Build Brief
 
-1. Preserve the FB 0.5.10 setup and standing-delegation behavior.
+1. Preserve the FB 0.5.10 setup and standing-delegation behavior inside the
+   next truthful combined beta.
 2. Import guard commits `e4715d1` and `5b4a226`; do not reimplement them.
 3. Complete runtime intake, ledger, onboarding, migration, and documentation in
    bounded reviewed slices.
@@ -76,19 +78,40 @@ candidate-faithful wording; **Push Live** remains user-owned.
 ## Task Receipt
 
 - **Branch:** `codex/product-bfm-reliability-20260807`.
-- **Candidate base:** FB 0.5.10 at `4f51fd7`; guard commits pending import.
-- **Review state:** not reviewable — implementation is in progress.
+- **Candidate:** `0.5.11-beta+codex.20260807112648` on the reviewed
+  `b2513d4` runtime/skill base plus Task 6 guidance and release records.
+- **Changelog:** updated — [0.5.11-beta](../../CHANGELOG.md#0511-beta--2026-08-07).
+- **Changelog approval:** approved — Product/BFM standing delegation;
+  Reference: TASK-FB-PRODUCT-BFM-RELIABILITY-20260807, 2026-08-07.
+- **Review state:** Local review-ready — focused root/package, package parity,
+  canonical/quarantined consumer, and disposable migration evidence pass.
 - **External gates:** publication/cache replacement, checkout retirement,
   sensitive operations, and **Push Live**.
-- **Remaining owner/action:** Product/BFM executes and verifies the local
-  candidate, then reports the next real gate.
+- **Remaining owner/action:** Product/BFM retains the candidate for the later
+  release checkpoint and explicit Push Live decision; no release action ran.
 
 ## Brief Validation
 
-Status: blocked
+Status: passed-local-review
 
-- **Satisfied:** Goal, scope, authority, compatibility base, and release limits
-  are explicit.
-- **Missing:** Integrated implementation and candidate-bound verification.
-- **Next action:** Execute the three bounded implementation slices and review
-  the complete branch.
+- **Satisfied:** Runtime, intake, exact-project onboarding, transactional
+  migration, canonical guidance, version, changelog, 65-mirror package parity,
+  and consumer-bound evidence are aligned.
+- **Missing:** Nothing inside the approved local Task 6 scope. The complete
+  release checkpoint, publication, install/cache replacement, merge, retirement,
+  deployment, and **Push Live** remain separate gates.
+- **Evidence:** [Task 6 QA](../qa/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md).
+
+## Product/BFM Closeout
+
+Status: local review-ready
+
+- One-time package generation produced 65 declared mirrors; final byte parity
+  and package contract checks pass.
+- Focused root and package onboarding, intake, migration, guidance, metadata,
+  syntax, validation, link, JSON, and whitespace checks pass.
+- The quarantined Unmirror root fails closed, the canonical Unmirror root
+  succeeds read-only, and an isolated migration preserves the former root while
+  recording seven exact-project task bindings.
+- No full release validator, publication, installation/cache replacement,
+  retirement, merge, push, deployment, or **Push Live** occurred.

@@ -1,8 +1,8 @@
 # FB for Codex
 
-FB is the supported Codex distribution for **FB 0.5.10-beta: Graph Engineering
+FB is the supported Codex distribution for **FB 0.5.11-beta: Graph Engineering
 for Everyday People**. The current release candidate is
-`0.5.10-beta+codex.20260807084627`. FB is an open-source Codex plugin that turns
+`0.5.11-beta+codex.20260807112648`. FB is an open-source Codex plugin that turns
 scattered AI conversations into a living product-delivery graph. Codex provides
 threads, skills, and worktrees; FB connects their decisions, evidence,
 dependencies, implementation, verification, and release state.
@@ -24,9 +24,13 @@ control centre and seven pinned repository-scoped Codex tasks.
    Discovery, or Bugs workstreams.
 4. For actionable findings say `Create a handoff MD for Product/BFM.`
 5. After actionable handoffs are ready, say `$bfm` in Product/BFM. The control centre scans all six,
-   reconciles and prioritizes, creates the durable briefs, and BFM implements,
-   tests, and stops at
+   shows the complete intake ledger from the canonical checkout, reconciles and
+   prioritizes, creates the durable briefs, and BFM implements, tests, and stops at
    **Ready to ship**. Say **Push Live** only when you want merge and deployment.
+
+Exact-project setup and checkout moves fail closed. Migration atomically records
+one canonical root, quarantines recoverable former roots, and rebinds all seven
+pinned tasks before Product/BFM execution continues.
 
 Product/BFM approves routine candidate-faithful changelog wording and one
 release checkpoint without a user prompt. It interrupts you only for a changed

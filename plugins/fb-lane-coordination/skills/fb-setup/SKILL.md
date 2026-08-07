@@ -9,10 +9,12 @@ description: Use when a user wants to initialize, bootstrap, reconcile, or repai
 `fb-lane-coordination:project-coordination-setup`. Complete the canonical setup
 workflow for the current repository.
 
-This shortcut must preserve the canonical contract: bootstrap FB
-idempotently, reconcile the seven repository-scoped Product/BFM, User,
-Business, Design, Tech, Discovery, and Bugs tasks, create only what is missing,
-verify pinning where Codex exposes it, and leave all new tasks idle.
+This shortcut must preserve the canonical contract: bootstrap FB idempotently
+from the active canonical checkout, reconcile the seven repository-scoped
+exact-project Product/BFM, User, Business, Design, Tech, Discovery, and Bugs
+tasks, create only what is missing, verify pinning where Codex exposes it, and
+leave all new tasks idle. Checkout moves use the canonical transactional
+migration and keep former roots recoverable until explicit retirement approval.
 
 Report unavailable task creation, discovery, renaming, or pinning honestly and
 provide the canonical manual fallback. Do not duplicate setup policy here.

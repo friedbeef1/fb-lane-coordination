@@ -4465,6 +4465,11 @@ Product/BFM then reconciles all six, prioritizes and sequences **Include now**
 candidates, and records the consolidated Project Start Brief and Build Brief;
 BFM executes that approved scope.
 
+Setup and BFM mutate only the active canonical checkout. Before execution,
+Product/BFM shows the complete intake ledger across all six evidence workstreams
+plus the control centre. Checkout moves use transactional migration and keep
+former roots quarantined and recoverable. Only **Push Live** authorizes release.
+
 For returning-project health, use \`$fb-lane status\` for the beginner card.
 For routine operational orientation, use CLI
 \`node tools/fb-lane.cjs status --context\` or MCP
@@ -4661,6 +4666,7 @@ When a sidechat prepares work for Product/BFM, use this output shape:
 - Start in whichever evidence-producing workstream matches the question whenever planning or evidence is useful. User is selected for user needs, outcomes, requirements, feedback, acceptance criteria, or product priorities; Product/BFM is the control centre, not universal intake.
 - Relevant workstreams investigate and create handoffs ready for Product intake. Ready status is neither approval nor execution authority.
 - After the user says \`$bfm\` in Product/BFM, Product/BFM freezes intake and must disposition every candidate before source execution. It scans all six evidence-producing workstreams, reconciles duplicates, conflicts, dependencies, and priorities, then records the consolidated Project Start Brief and Build Brief for **Include now** candidates.
+- Setup and BFM mutate only the active canonical checkout. Before execution, Product/BFM shows the complete intake ledger across all six evidence workstreams plus the control centre. Checkout moves use transactional migration and keep former roots quarantined and recoverable.
 - Pinning never starts work, approves scope, invokes \`$bfm\`, or authorizes release.
 - Pause only for a changed decision, disputed priority, sensitive boundary, conflict, or unclear scope. BFM executes and verifies approved scope, stops at Ready to ship, and reserves release for Push Live.
 
@@ -4814,7 +4820,7 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('1. Describe your new project normally.');
   console.log('2. FB starts in whichever evidence-producing workstream matches the question: User, Business, Design, Tech, Discovery, or Bugs. Product/BFM is the control centre.');
   console.log('3. Relevant workstreams investigate and create handoffs ready for Product intake; ready is a candidate, not execution authority.');
-  console.log('4. When actionable handoffs are ready, say $bfm in Product/BFM. $bfm freezes intake; Product/BFM scans all six and must disposition every candidate before source execution, then prioritizes and sequences Include now candidates into the Project Start Brief and Build Brief for BFM execution.');
+  console.log('4. When actionable handoffs are ready, say $bfm in Product/BFM. From the active canonical checkout, $bfm shows the complete intake ledger across all six workstreams plus the control centre, dispositions every candidate, then sequences Include now work into the Project Start Brief and Build Brief.');
   console.log('5. BFM stops at Ready to ship. Only Push Live authorizes release.');
   console.log('======================================================================');
   console.log('👉 Codex: Start a new thread, describe a new project normally, or use `$fb-lane status` for returning-project health.');

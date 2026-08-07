@@ -1,6 +1,6 @@
 # FB FAQ
 
-This FAQ describes the current **FB 0.5.10-beta** model: six evidence-producing
+This FAQ describes the current **FB 0.5.11-beta** model: six evidence-producing
 workstreams plus one Product/BFM control centre and seven pinned
 repository-scoped Codex tasks.
 
@@ -48,6 +48,20 @@ If Codex cannot list or create tasks in the current environment, FB tells you
 and provides paste-ready prompts. It does not pretend the tasks were created.
 Declining does not disable `$bfm`.
 
+## What keeps FB in the right project?
+
+Setup and `$bfm` mutate only the active canonical checkout. Exact-project task
+reconciliation requires both the verified Codex project ID and canonical
+repository root. Missing, mixed, truncated, or contradictory inventory changes
+nothing.
+
+## What happens when a project moves to another checkout?
+
+FB uses a transactional migration. It inventories and dispositions every
+discovered difference, atomically records one canonical root, quarantines former
+roots, and rebinds the exact seven pinned tasks. Former roots remain recoverable
+until fresh evidence and explicit retirement approval.
+
 ## What happens when I say `$bfm`?
 
 Build For Me (BFM) begins only after Product approval and explicit `$bfm`; see
@@ -55,9 +69,10 @@ Build For Me (BFM) begins only after Product approval and explicit `$bfm`; see
 
 `$bfm` executes only in Product/BFM. The control centre scans User, Business,
 Design, Tech, Discovery, and Bugs. It
-includes valid `ready` handoffs, keeps blocked work visible, excludes completed
-or deferred work, reconciles conflicts, prioritizes the sequence, directs Codex
-implementation, and runs automated checks.
+renders a complete intake ledger, dispositions every candidate, keeps blocked
+work visible, reconciles conflicts, prioritizes the included sequence, directs
+Codex implementation, and runs automated checks. Missing, unreadable, drifting,
+or contradictory evidence fails closed before source execution.
 
 `$bfm` is the supported invocation. FB may understand `/bfm` as your intent,
 but `/bfm` is not a separate installed command.

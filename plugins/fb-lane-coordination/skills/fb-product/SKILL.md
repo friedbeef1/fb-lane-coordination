@@ -20,6 +20,20 @@ workstreams, decisions, evidence, dependencies, implementation, verification,
 and release state. Workstream loops create learning; `$bfm` freezes intake so
 Product/BFM can reconcile and prioritize the graph before execution.
 
+Product/BFM operates only from the active canonical checkout. Before execution,
+the runtime freezes a complete intake ledger across all six evidence
+workstreams, linked worktrees, registered audit and quarantined former roots,
+board/index routing, workstream cards, locks, approval gates, external blockers,
+and task-rebind state. Missing, unreadable, drifting, or contradictory evidence
+fails closed. Product/BFM uses that runtime ledger and does not recreate its
+scanner rules in guidance.
+
+When a project moves between checkouts, Product/BFM owns the transactional migration:
+inventory and disposition every discovered difference, atomically
+record one canonical root, keep former roots quarantined and recoverable, rebind
+the exact seven pinned tasks, and require fresh evidence plus explicit approval
+before retirement.
+
 ## Cross-workstream planning handoff
 
 On an explicit user request, a main workstream may route planning or evidence

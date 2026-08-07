@@ -58,7 +58,7 @@ paths remain outside tracked repository content, so host paths are not committed
 | `node tools/fb-lane.test.cjs` | 72/72 pass |
 | `node tools/fb-session.test.cjs` | 39/39 pass |
 | `node tools/fb-package-sync.test.cjs` | 10/10 pass |
-| `node tools/fb-package-sync.cjs --check` | 61 mirrors pass |
+| `node tools/fb-package-sync.cjs --check` | Historical guard-only snapshot: 61 mirrors pass; superseded for release evidence by the combined 65-mirror manifest. |
 | `node --check tools/fb-lane.cjs` | pass |
 | `node --check plugins/fb-lane-coordination/tools/fb-lane.cjs` | pass |
 | `git diff --check` | pass |
