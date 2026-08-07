@@ -2,7 +2,7 @@
 type: fb-qa-artifact
 task: TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807
 record_model: normalized-v1
-status: passed-local-candidate
+status: passed
 ---
 
 # TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807 QA
@@ -10,8 +10,8 @@ status: passed-local-candidate
 Candidate: `codex/checkout-migration-guard-20260807`
 Environment: local clean FB-Lane source checkout
 Date: 2026-08-07
-Release boundary: no publish, install, cache replacement, merge, push, or
-consumer rollout.
+Release boundary: guard absorbed into FB 0.5.11; PR #60 merged and the exact
+plugin build is installed. Checkout retirement remains separately gated.
 
 ## Red-Green Evidence
 

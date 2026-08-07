@@ -13,9 +13,9 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-FB-PRODUCT-BFM-RELIABILITY-20260807 | Staging QA | FB-Product / BFM | Canonical-project and complete-intake reliability; FB 0.5.11-beta | Enforce the canonical checkout, complete seven-role intake ledger, exact-project onboarding, and transactional migration | `tools/`, Product/BFM/setup skills, `docs/fb/`, package mirrors, focused contracts, release records | Ready to ship — independent review and the complete release checkpoint pass; **Push Live** remains required; [Handoff](docs/handoffs/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md); [QA](docs/qa/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md) |
+| TASK-FB-PRODUCT-BFM-RELIABILITY-20260807 | Done | FB-Product / BFM | Canonical-project and complete-intake reliability; FB 0.5.11-beta | Enforce the canonical checkout, complete seven-role intake ledger, exact-project onboarding, and transactional migration | None; published and installed | [PR #60](https://github.com/friedbeef1/fb-lane-coordination/pull/60) merged as `57d1053`; `0.5.11-beta+codex.20260807112648` installed and enabled; [Handoff](docs/handoffs/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md); [QA](docs/qa/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md) |
 | TASK-076 | Superseded | FB-Product / BFM | Exact FB setup invocation, delegated internal approvals, and FB 0.5.10-beta | Add `$fb-setup`; let Product/BFM approve routine changelog wording and one release checkpoint without user prompts; preserve material, sensitive, and **Push Live** gates | Setup and Product/BFM skills, active docs, focused contracts, plugin mirrors, version/changelog | Candidate preserved at `0b8039f`; release checkpoint superseded by the combined reliability candidate; [Handoff](docs/handoffs/TASK-076.md); [QA](docs/qa/TASK-076.md) |
-| TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807 | Staging QA | FB-Product / BFM | Checkout migration reliability | Detect same-path handoff drift, model checkout lifecycle, block noncanonical writes, and expose pending task rebind | `tools/fb-lane.cjs`, focused tests, package mirror, docs/handoff/QA; local candidate only, no publication/install/cache replacement | Review repair verified locally; [Handoff](docs/handoffs/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md); [QA](docs/qa/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md) |
+| TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807 | Done | FB-Product / BFM | Checkout migration reliability | Detect same-path handoff drift, model checkout lifecycle, block noncanonical writes, and expose pending task rebind | None; absorbed into published 0.5.11 | Guard included in [PR #60](https://github.com/friedbeef1/fb-lane-coordination/pull/60) and installed 0.5.11 build; [Handoff](docs/handoffs/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md); [QA](docs/qa/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md) |
 | TASK-075 | Done | FB-Product / BFM | User workstream and Product/BFM control centre; FB 0.5.9-beta | Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks | Canonical candidate, generated package mirrors, version/metadata contracts, and release records | Published and installed `0.5.9-beta+codex.20260805042523`; PR #59 merged as `3e7f31c`; [Handoff](docs/handoffs/TASK-075.md); [QA](docs/qa/TASK-075.md) |
 | TASK-074 | Done | FB-Product / BFM | Graph Engineering positioning and FB 0.5.8-beta | Make Graph Engineering the headline product category, align the public story and packaged plugin, and preserve existing runtime contracts | None; published and installed | [Handoff](docs/handoffs/TASK-074.md); [QA](docs/qa/TASK-074.md); [PR #58](https://github.com/friedbeef1/fb-lane-coordination/pull/58) merged as `72bfab0`; exact build installed and enabled |
 | TASK-073 | Done | FB-Product / BFM | Evaluation results, meaningful repair, and FB 0.5.7-beta | Show eval results clearly, reject superficial repair loops, and publish `0.5.7-beta+codex.20260804131420` | None; published and installed | [Handoff](docs/handoffs/TASK-073.md); [QA](docs/qa/TASK-073.md); [PR #57](https://github.com/friedbeef1/fb-lane-coordination/pull/57) merged as `c1e63f1`; exact build installed and enabled |
@@ -29,9 +29,8 @@
 
 ### TASK-FB-PRODUCT-BFM-RELIABILITY-20260807 - Canonical project and complete intake
 
-*   **Status**: Staging QA — **Ready to ship**. The combined local
-    `0.5.11-beta+codex.20260807112648` candidate passed independent review and
-    the complete release checkpoint.
+*   **Status**: Done — [PR #60](https://github.com/friedbeef1/fb-lane-coordination/pull/60)
+    merged as `57d1053`; `0.5.11-beta+codex.20260807112648` is installed and enabled.
 *   **Owner / Thread**: FB-Product / BFM.
 *   **Scope**: Canonical checkout enforcement; exact-project seven-role
     reconciliation; complete fail-closed intake; visible dependency/lock-aware
@@ -53,9 +52,8 @@
         on 2026-08-07.
     *   **Justification**: The Unmirror split-brain incident demonstrated a real
         missed Design amendment and incomplete sidebar reconciliation.
-*   **Gate / Review Point**: Continue automatically through the local candidate.
-    Stop for publication/cache replacement, checkout retirement, sensitive
-    operations, material scope change, or **Push Live**.
+*   **Gate / Review Point**: Release complete. Checkout retirement remains a
+    separate destructive-operation decision.
 *   **Links & Deliverables**:
     [handoff](docs/handoffs/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md) ·
     [QA](docs/qa/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md) ·
@@ -101,7 +99,7 @@
 
 ### TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807 - Checkout migration guard
 
-*   **Status**: Staging QA - review repair verified locally; not published or installed.
+*   **Status**: Done — absorbed into FB 0.5.11, published through PR #60, and installed.
 *   **Owner / Thread**: FB-Product / BFM.
 *   **Area**: Checkout migration reliability and BFM handoff intake.
 *   **Scope**: Detect same-relative-path handoff drift by SHA-256 and metadata;

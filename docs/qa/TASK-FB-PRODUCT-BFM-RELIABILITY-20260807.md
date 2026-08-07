@@ -11,18 +11,31 @@ Candidate: `codex/product-bfm-reliability-20260807`
 Release candidate: `0.5.11-beta+codex.20260807112648`
 Environment: local FB-Lane candidate plus read-only Unmirror consumer smoke
 Date: 2026-08-07
-Release boundary: complete release validator passed; no publish, install, cache
-replacement, merge, push, retirement, deployment, or **Push Live**.
+Release boundary: **Push Live** approved; PR #60 merged and the exact plugin
+build is installed. Checkout retirement remains separately gated.
 
 ## Outcome
 
-The combined 0.5.11 candidate is **Ready to ship** after independent review and
-the complete release checkpoint. Product/BFM guidance,
+FB 0.5.11 is published and installed after independent review and the complete
+release checkpoint. Product/BFM guidance,
 runtime prompts, plugin metadata, generated mirrors, and release records agree
 on one canonical checkout, six evidence workstreams plus separate Product/BFM,
 exact-project seven-task reconciliation, complete fail-closed intake, and a
 visible dependency/lock-aware ledger. The declared package contains 65
 byte-identical mirrors.
+
+## Live release evidence
+
+- GitHub PR: [#60](https://github.com/friedbeef1/fb-lane-coordination/pull/60).
+- Merge commit: `57d1053` on `main`.
+- GitHub readiness: passed after one focused whitespace-only repair.
+- Marketplace: `fb-lane` upgraded successfully.
+- Installed plugin: `fb-lane-coordination@fb-lane`, enabled at
+  `0.5.11-beta+codex.20260807112648`.
+- Installed contents: all expected FB skills present; `.mcp.json` resolves
+  `node ./tools/fb-lane.cjs mcp` from the plugin root; bundled runtime syntax
+  checks passed.
+- Checkout retirement: not performed.
 
 ## Red-Green Evidence
 

@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807
 lane: fb-bugs
-status: actioned
+status: done
 ---
 
 # Checkout migration guard
@@ -39,8 +39,7 @@ approved Product goal of complete, canonical Product/BFM intake.
 
 ## Product/BFM Closeout
 
-- **Status:** Actioned - local candidate verified and committed; publication is
-  not authorized.
+- **Status:** Done — absorbed into FB 0.5.11, published through PR #60, and installed.
 - **Actioned By:** Product/BFM.
 - **Result:** Routing receipts now bind the canonical digest and exact source
   root/digest set. Configured missing or inaccessible audit roots fail closed.
@@ -52,10 +51,9 @@ approved Product goal of complete, canonical Product/BFM intake.
   focused migration checks 20/20; CLI regression 72/72; sessions 39/39;
   package tests 10/10; historical guard-only package sync 61/61 (superseded for
   release evidence by the combined 65-mirror manifest); syntax passed.
-- **Remaining:** Explicit Product approval is required before publication,
-  installation, active-cache replacement, merge, consumer rollout, or checkout
-  retirement.
-- **Closeout Note:** The branch is a local candidate only and was not pushed.
+- **Remaining:** Checkout retirement remains separately gated.
+- **Closeout Note:** PR #60 merged as `57d1053`; the exact 0.5.11 plugin build
+  is installed and enabled.
 - **Loop Learning:** Checkout migration authority must be discoverable across
   independent clones, and a routing receipt is valid only for the exact
   canonical and off-home content set that Product reviewed.

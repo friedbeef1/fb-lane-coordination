@@ -25,8 +25,8 @@ evidence.
 Product/BFM control centre, technical identifiers, existing commands, MCP
 routes, onboarding receipts, and repository-owned coordination records remain
 compatible. The previously installed
-`0.5.9-beta+codex.20260805042523` stays available as rollback because this local
-candidate is not installed or published. Product/BFM standing delegation covers
+`0.5.9-beta+codex.20260805042523` remains preserved as rollback; the active
+installation is now `0.5.11-beta+codex.20260807112648`. Product/BFM standing delegation covers
 candidate-faithful changelog wording and one release checkpoint; only **Push
 Live** authorizes merge, publication, installation, or deployment.
 
@@ -38,6 +38,12 @@ approved.
 
 **Changelog approval:** Approved — Product/BFM standing delegation; Reference:
 TASK-FB-PRODUCT-BFM-RELIABILITY-20260807, local candidate review on 2026-08-07.
+
+**Release evidence:** [PR #60](https://github.com/friedbeef1/fb-lane-coordination/pull/60)
+merged as `57d1053`; GitHub validation passed after one whitespace-only repair;
+the `fb-lane` marketplace upgraded successfully; and Codex reports
+`0.5.11-beta+codex.20260807112648` installed and enabled with all expected
+skills and the bundled relative MCP route.
 
 ## 0.5.10-beta — 2026-08-06
 

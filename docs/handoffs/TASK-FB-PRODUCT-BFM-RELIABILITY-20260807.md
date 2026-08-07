@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-FB-PRODUCT-BFM-RELIABILITY-20260807
 lane: fb-product
-status: implemented
+status: done
 approval: approved
 okr_fit: aligned
 fb_harness: v3
@@ -77,19 +77,18 @@ candidate-faithful wording; **Push Live** remains user-owned.
 
 ## Task Receipt
 
-- **Branch:** `codex/product-bfm-reliability-20260807`.
+- **Branch:** merged through [PR #60](https://github.com/friedbeef1/fb-lane-coordination/pull/60)
+  as `57d1053`.
 - **Candidate:** `0.5.11-beta+codex.20260807112648` on the reviewed Task 6
   candidate plus the focused whole-branch reliability repair.
 - **Changelog:** updated — [0.5.11-beta](../../CHANGELOG.md#0511-beta--2026-08-07).
 - **Changelog approval:** approved — Product/BFM standing delegation;
   Reference: TASK-FB-PRODUCT-BFM-RELIABILITY-20260807, 2026-08-07.
-- **Review state:** Ready to ship — independent whole-branch review and the
-  complete release checkpoint pass.
-- **External gates:** publication/cache replacement, checkout retirement,
-  sensitive operations, and **Push Live**.
-- **Remaining owner/action:** James may say **Push Live** to authorize push,
-  merge, publication, installation/cache replacement, and live verification;
-  no release action ran.
+- **Review state:** Completed build — published and installed.
+- **External gates:** Checkout retirement remains separately gated.
+- **Remaining owner/action:** Start a new Codex task to load the refreshed
+  skills and MCP server; invoke `$fb-setup` in each project when its repository
+  guidance needs reconciliation.
 
 ## Brief Validation
 
@@ -98,13 +97,12 @@ Status: pass
 - **Satisfied:** Runtime, intake, exact-project onboarding, transactional
   migration, canonical guidance, version, changelog, 65-mirror package parity,
   and consumer-bound evidence are aligned.
-- **Missing:** Publication, install/cache replacement, merge, retirement,
-  deployment, and **Push Live** remain separate gates.
+- **Missing:** None for plugin release. Checkout retirement is a separate task.
 - **Evidence:** [Task 6 QA](../qa/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md).
 
 ## Product/BFM Closeout
 
-Status: Ready to ship
+Status: Done
 
 - One-time package generation produced 65 declared mirrors; final byte parity
   and package contract checks pass.
@@ -120,5 +118,7 @@ Status: Ready to ship
 - Independent whole-branch review passed. The final complete validator passed
   after one consolidated record repair and one bounded Product-directed
   recovery; doctor reported Ready.
-- No publication, installation/cache replacement, retirement, merge, push,
-  deployment, or **Push Live** occurred.
+- James approved **Push Live** on 2026-08-08. PR #60 merged as `57d1053`, the
+  marketplace upgraded, and Codex installed and enabled the exact
+  `0.5.11-beta+codex.20260807112648` build. All expected skills are present and
+  the bundled relative MCP runtime resolves. No checkout retirement occurred.
