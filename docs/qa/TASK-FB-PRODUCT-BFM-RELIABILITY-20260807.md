@@ -152,3 +152,19 @@ Focused RED/GREEN evidence covered a missing receipt path and mismatched project
 ID. Final root and packaged intake tests passed 12/12 each, both six-workstream
 contracts passed, package-sync tests passed 10/10, all 65 mirrors matched, both
 runtime files passed syntax checks, and whitespace checks passed.
+
+## Release-checkpoint repair
+
+Product/BFM used the standing delegated approval for this candidate's single
+release checkpoint. The initial complete validator passed all runtime, migration,
+session, eval, beginner, positioning, two-speed, and efficiency suites, then
+doctor stopped on two normalized-record conflicts: TASK-075 and TASK-076 still
+carried their former active handoff statuses after the current board truth had
+been corrected to Done and Superseded.
+
+The one permitted consolidated checkpoint repair changed only those current
+handoff status fields and clarified that 0.5.10 was superseded before
+publication. Historical test and release evidence remains intact. A focused
+doctor run then reported no blocking normalized-record conflicts; the remaining
+OKR notices belong to the historical checkout-guard handoff and are disclosed,
+not treated as candidate failures.

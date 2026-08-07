@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-076
 lane: fb-product
-status: implemented
+status: superseded
 okr_fit: aligned
 approval: approved
 fb_harness: v3
@@ -12,7 +12,8 @@ record_model: normalized-v1
 # TASK-076 — Exact FB setup shortcut
 
 Release candidate: `0.5.10-beta+codex.20260807084627`
-Candidate state: Ready to ship — complete release checkpoint passed.
+Candidate state: Superseded — its release checkpoint passed, but the combined
+0.5.11 reliability candidate replaced it before publication.
 Changelog approval: approved — Product/BFM standing delegation; Reference:
 TASK-076, 2026-08-07.
 
