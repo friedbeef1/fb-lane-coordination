@@ -381,93 +381,17 @@ test('repository inventory planning is deterministic across repeated complete in
   assert.deepStrictEqual(first.actions.map(action => action.type), Array(7).fill('reuse'));
 });
 
-test('complete exact-project reconciliation confirms all seven pinned task IDs without mutation', () => {
+test('complete exact-project verification confirms all seven pinned task IDs without mutation', () => {
   const inventory = completeInventory();
-  const mutations = [];
-  const result = onboarding.reconcileRepositoryTaskInventory({
+  const result = onboarding.verifyRepositoryTaskInventory(
     inventory,
-    repository: { projectId: 'project-mirrorcam', repositoryPath: REPO },
-    controls: {
-      listTasks: () => inventory,
-      createTask: () => mutations.push('create'),
-      renameTask: () => mutations.push('rename'),
-      pinTask: () => mutations.push('pin'),
-    },
-  });
+    { projectId: 'project-mirrorcam', repositoryPath: REPO },
+  );
   assert.strictEqual(result.complete, true);
-  assert.strictEqual(result.reconciled, true);
-  assert.deepStrictEqual(mutations, []);
   assert.deepStrictEqual(Object.keys(result.taskBindings), [
     'product', 'user', 'business', 'design', 'tech', 'discovery', 'bugs',
   ]);
   assert.strictEqual(result.taskBindings.product.taskId, 'task-0');
-});
-
-test('partial task inventory performs no mutation and returns all seven paste-ready prompts', () => {
-  const mutations = [];
-  const result = onboarding.reconcileRepositoryTaskInventory({
-    inventory: {
-      complete: false,
-      tasks: completeInventory().tasks.slice(0, 3),
-      failures: [{ operation: 'list', message: 'continuation cursor unavailable' }],
-    },
-    repository: { projectId: 'project-mirrorcam', repositoryPath: REPO },
-    controls: {
-      createTask: () => mutations.push('create'),
-      renameTask: () => mutations.push('rename'),
-      pinTask: () => mutations.push('pin'),
-    },
-  });
-  assert.strictEqual(result.complete, false);
-  assert.strictEqual(result.reconciled, false);
-  assert.deepStrictEqual(mutations, []);
-  assert.match(result.manualFallback, /continuation cursor unavailable/);
-  assert.match(result.manualFallback, /Verify existing Product\/BFM in a complete inventory/);
-  assert.match(result.manualFallback, /Verify existing User in a complete inventory/);
-  assert.match(result.manualFallback, /Check for Design; create only if absent/);
-  assert.doesNotMatch(result.manualFallback, /### Create Product\/BFM/);
-});
-
-test('mutating reconciliation rejects raw arrays and missing project identity before controls run', () => {
-  const mutations = [];
-  const controls = {
-    createTask: () => mutations.push('create'),
-    renameTask: () => mutations.push('rename'),
-    pinTask: () => mutations.push('pin'),
-    listTasks: () => completeInventory(),
-  };
-  const raw = onboarding.reconcileRepositoryTaskInventory({
-    inventory: completeInventory().tasks,
-    repository: { projectId: 'project-mirrorcam', repositoryPath: REPO },
-    controls,
-  });
-  const unidentified = onboarding.reconcileRepositoryTaskInventory({
-    inventory: completeInventory(),
-    repository: {},
-    controls,
-  });
-  assert.strictEqual(raw.complete, false);
-  assert.strictEqual(unidentified.complete, false);
-  assert.deepStrictEqual(mutations, []);
-  assert.match(raw.failures[0].message, /explicitly complete inventory object/i);
-  assert.match(unidentified.failures[0].message, /project ID|repository path/i);
-});
-
-test('a create result without an ID records the mutation and warns against duplicate creation', () => {
-  const repository = { projectId: 'project-mirrorcam', repositoryPath: REPO };
-  const inventory = completeInventory(repository);
-  inventory.tasks = inventory.tasks.slice(1);
-  const result = onboarding.reconcileRepositoryTaskInventory({
-    inventory,
-    repository,
-    controls: { createTask: () => ({ title: 'FB · Product/BFM' }) },
-  });
-  assert.strictEqual(result.complete, false);
-  assert.deepStrictEqual(result.actions.map(action => [action.type, action.workstream, action.taskId || null]), [
-    ['create', 'product', null],
-  ]);
-  assert.match(result.manualFallback, /Verify newly created Product\/BFM.*do not create a duplicate/is);
-  assert.doesNotMatch(result.manualFallback, /### Create Product\/BFM/);
 });
 
 test('CLI plan exposes deterministic native create rename pin actions without mutating tasks', () => {
@@ -502,51 +426,6 @@ test('CLI plan exposes deterministic native create rename pin actions without mu
   }
 });
 
-test('legacy titles are renamed once, missing tasks are created once, and reruns are idempotent', () => {
-  const repository = { projectId: 'project-mirrorcam', repositoryPath: REPO };
-  let tasks = completeInventory(repository).tasks.filter(task => !['task-0', 'task-1'].includes(task.id));
-  tasks.unshift(
-    { id: 'legacy-product', title: 'Product', projectId: repository.projectId, pinned: true },
-    { id: 'legacy-user', title: 'FB · Product/User', projectId: repository.projectId, pinned: false },
-  );
-  const mutations = [];
-  const controls = {
-    listTasks: () => ({ complete: true, tasks: tasks.map(task => ({ ...task })) }),
-    renameTask: (taskId, title) => {
-      mutations.push(['rename', taskId, title]);
-      tasks.find(task => task.id === taskId).title = title;
-    },
-    createTask: ({ workstream, title }) => {
-      mutations.push(['create', workstream, title]);
-      const task = { id: `created-${workstream}`, title, projectId: repository.projectId, pinned: false };
-      tasks.push(task);
-      return task;
-    },
-    pinTask: taskId => {
-      mutations.push(['pin', taskId]);
-      tasks.find(task => task.id === taskId).pinned = true;
-    },
-  };
-
-  const first = onboarding.reconcileRepositoryTaskInventory({
-    inventory: controls.listTasks(), repository, controls,
-  });
-  assert.strictEqual(first.complete, true);
-  assert.deepStrictEqual(mutations, [
-    ['rename', 'legacy-product', 'FB · Product/BFM'],
-    ['rename', 'legacy-user', 'FB · User'],
-    ['pin', 'legacy-user'],
-  ]);
-
-  mutations.length = 0;
-  const second = onboarding.reconcileRepositoryTaskInventory({
-    inventory: controls.listTasks(), repository, controls,
-  });
-  assert.strictEqual(second.complete, true);
-  assert.deepStrictEqual(mutations, []);
-  assert.deepStrictEqual(second.taskBindings, first.taskBindings);
-});
-
 test('a partial pin failure remains unreconciled and cannot write a success receipt', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-pin-failure-'));
   const repository = { projectId: 'project-mirrorcam', repositoryPath: root };
@@ -555,17 +434,17 @@ test('a partial pin failure remains unreconciled and cannot write a success rece
   try {
     onboarding.ensureOnboardingReceipt(root);
     onboarding.recordPermission(root, 'granted');
-    const result = onboarding.reconcileRepositoryTaskInventory({
-      inventory,
-      repository,
-      rootDir: root,
-      controls: {
-        pinTask: () => { throw new Error('provider rejected pin'); },
-        listTasks: () => inventory,
-      },
-    });
-    assert.strictEqual(result.complete, false);
-    assert.match(result.failures[0].message, /provider rejected pin/);
+    const inventoryPath = path.join(root, 'partial-inventory.json');
+    fs.writeFileSync(inventoryPath, `${JSON.stringify(inventory)}\n`);
+    const result = spawnSync(process.execPath, [
+      path.join(__dirname, 'fb-onboarding.cjs'),
+      'reconcile',
+      inventoryPath,
+      root,
+      repository.projectId,
+    ], { encoding: 'utf8' });
+    assert.notStrictEqual(result.status, 0);
+    assert.match(result.stderr, /all seven|pinned/i);
     const receipt = onboarding.readOnboardingReceipt(root);
     assert.strictEqual(receipt.reconciledAt, undefined);
     assert.strictEqual(receipt.taskBindings, undefined);

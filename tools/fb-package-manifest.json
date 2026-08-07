@@ -31,6 +31,7 @@
   "tools/fb-project-graph-plugin.test.cjs",
   "tools/fb-lifecycle-history-release.test.cjs",
   "tools/fb-setup-shortcut.test.cjs",
+  "tools/fb-setup-native-onboarding.test.cjs",
   "tools/fb-control-loop.cjs",
   "tools/fb-control-loop.test.cjs",
   "tools/fb-control-loop-docs.test.cjs",

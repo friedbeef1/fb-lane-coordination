@@ -343,123 +343,6 @@ function recordVerifiedReconciliation(rootDir, verification, repository, options
   return state;
 }
 
-function reconcileRepositoryTaskInventory(options = {}) {
-  const repository = typeof options.repository === 'string'
-    ? { repositoryPath: options.repository }
-    : (options.repository || {});
-  const controls = options.controls || {};
-  let inventory = options.inventory;
-  if (inventory === undefined) {
-    if (typeof controls.listTasks !== 'function') {
-      return reconciliationFailure([{
-        operation: 'inventory',
-        message: 'Codex task inventory controls are unavailable.',
-      }], repository, options);
-    }
-    try {
-      inventory = controls.listTasks(repository);
-    } catch (error) {
-      return reconciliationFailure([{
-        operation: 'inventory',
-        message: error.message,
-      }], repository, options);
-    }
-  }
-
-  const plan = planRepositoryTaskInventory(inventory, repository);
-  if (!plan.complete) return reconciliationFailure(plan.failures, repository, options, { inventory });
-
-  const createdTaskIds = new Map();
-  const executed = [];
-  try {
-    for (const action of plan.actions) {
-      if (action.type === 'reuse') continue;
-      if (action.type === 'create') {
-        if (typeof controls.createTask !== 'function') {
-          throw new Error(`Codex create control is unavailable for ${action.workstream}.`);
-        }
-        const workstream = WORKSTREAMS.find(item => item.key === action.workstream);
-        const created = controls.createTask({
-          workstream: action.workstream,
-          title: action.title,
-          prompt: renderIdleTaskPrompt(workstream, {
-            repositoryName: options.repositoryName,
-            repositoryPath: repository.repositoryPath || repository.projectPath || repository.path,
-          }),
-          repository,
-        });
-        const createdId = actionTaskId(created);
-        executed.push({ ...action, ...(createdId ? { taskId: createdId } : {}) });
-        if (!createdId) throw new Error(`Codex create control returned no task/thread ID for ${action.workstream}.`);
-        createdTaskIds.set(action.workstream, createdId);
-        continue;
-      }
-
-      const targetId = action.taskId || createdTaskIds.get(action.workstream);
-      if (!targetId) throw new Error(`No task/thread ID is available for ${action.type} ${action.workstream}.`);
-      if (action.type === 'rename') {
-        if (typeof controls.renameTask !== 'function') {
-          throw new Error(`Codex rename control is unavailable for ${action.workstream}.`);
-        }
-        controls.renameTask(targetId, action.title, { workstream: action.workstream, repository });
-      } else if (action.type === 'pin') {
-        if (typeof controls.pinTask !== 'function') {
-          throw new Error(`Codex pin control is unavailable for ${action.workstream}.`);
-        }
-        controls.pinTask(targetId, { workstream: action.workstream, repository, pinned: true });
-      }
-      executed.push({ ...action, taskId: targetId });
-    }
-  } catch (error) {
-    return {
-      ...reconciliationFailure([{
-        operation: executed.length > 0 ? 'partial-reconciliation' : 'reconciliation',
-        message: error.message,
-      }], repository, options, { inventory, actions: executed }),
-      actions: executed,
-    };
-  }
-
-  if (typeof controls.listTasks !== 'function') {
-    return {
-      ...reconciliationFailure([{
-        operation: 'verification',
-        message: 'Codex task inventory cannot be re-listed to confirm all seven titles and pins.',
-      }], repository, options, { inventory, actions: executed }),
-      actions: executed,
-    };
-  }
-
-  let finalInventory;
-  try {
-    finalInventory = controls.listTasks(repository);
-  } catch (error) {
-    return {
-      ...reconciliationFailure([{ operation: 'verification', message: error.message }], repository, options, { inventory, actions: executed }),
-      actions: executed,
-    };
-  }
-  const verification = verifyRepositoryTaskInventory(finalInventory, repository);
-  if (!verification.complete) {
-    return {
-      ...reconciliationFailure(verification.failures, repository, options, { inventory: finalInventory, actions: executed }),
-      actions: executed,
-    };
-  }
-
-  if (options.rootDir) {
-    recordVerifiedReconciliation(options.rootDir, verification, repository, options);
-  }
-  return {
-    complete: true,
-    reconciled: true,
-    failures: [],
-    actions: executed,
-    taskBindings: verification.taskBindings,
-    manualFallback: '',
-  };
-}
-
 function receiptPath(rootDir) {
   const requestedRoot = path.resolve(rootDir);
   const resolvedRoot = fs.realpathSync.native(requestedRoot);
@@ -686,7 +569,6 @@ module.exports = {
   needsTaskInventoryReconciliation,
   planMissingWorkstreams,
   planRepositoryTaskInventory,
-  reconcileRepositoryTaskInventory,
   readOnboardingReceipt,
   recognizedWorkstream,
   recordPermission,

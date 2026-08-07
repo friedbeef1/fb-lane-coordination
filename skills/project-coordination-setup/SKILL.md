@@ -43,16 +43,68 @@ that question to the user exactly once:
 > May I create seven repository-scoped sidebar tasks: Product/BFM, User,
 > Business, Design, Tech, Discovery, and Bugs?
 
-Do not create tasks before explicit Yes. After Yes, follow the first-run
-sidebar procedure in the BFM skill: use Codex project/task tools when available,
-recognize repository-scoped current and legacy titles, create only missing
-tasks, automatically pin them in the sidebar, verify all seven are pinned, and
-leave them idle. Product/User is a legacy User title; a lone legacy Product
-title maps to Product/BFM. Pinning never starts work, approves scope, invokes
-`$bfm`, or authorizes release. On No, record the decline and
-continue normally. When task tools are unavailable, state that limitation and
-return paste-ready manual prompts; never simulate success. Bootstrap reruns do
-not repeat the question or overwrite the decision receipt.
+Do not create tasks before explicit Yes. On No, record
+`node tools/fb-onboarding.cjs permission declined` and continue normally. On
+Yes, record `node tools/fb-onboarding.cjs permission granted`, then own the
+native exact-project reconciliation below. The Node CLI plans and verifies
+inventory files; it does not call the sidebar or Codex-native task controls.
+
+### Native exact-project reconciliation
+
+1. Resolve the canonical repository root. Call `list_projects` and select one
+   exact project ID whose canonical repository path identifies that root. If
+   the project is absent, ambiguous, or path identity disagrees, stop without
+   mutation and give the role-specific manual fallback.
+2. Call `list_threads` with that exact project ID, using only arguments the
+   current Codex app supports. Follow reliable continuation cursors until the
+   exact-project inventory is proven complete. Save a temporary JSON object
+   with `complete: true` and those tasks. An array, truncated page, search-only
+   result, or mixed-project inventory is incomplete and must not be mutated.
+3. Run
+   `node tools/fb-onboarding.cjs plan <initial-inventory.json> <canonical-root> <project-id>`.
+   Stop on `complete: false`. Execute only the deterministic action objects
+   returned by this plan. `reuse` means no native action and must never mutate
+   a task. This makes reruns idempotent: re-list a complete inventory, plan
+   again, and create only roles still missing.
+4. Before each non-`reuse` native tool call, append its role, action, target ID
+   when known, and `attempted` status to an attempted action ledger. Then use
+   the real Codex controls: `create_thread` for `create`, `set_thread_title`
+   for `rename`, and `set_thread_pinned({ pinned: true })` for `pin`. A created
+   task uses the exact project, a local environment rather than a worktree, and
+   the idle prompt from
+   `node tools/fb-onboarding.cjs prompt <workstream> <canonical-root>`. Pass the
+   action title when `create_thread` supports it. After a created task returns
+   an ID, confirm its title; if it is not exact, record another attempted call
+   and use `set_thread_title` with the plan action's title before the planned
+   pin. Record the returned task ID and result or failure after each native tool
+   call.
+5. On any unavailable control, rejected call, missing created-task ID, or other
+   partial failure, stop immediately. Keep onboarding unreconciled, report the
+   complete attempted action ledger, and emit the role-specific manual
+   fallback. For a successful or uncertain newly created role, tell the user
+   to locate and verify that task; never create or recreate a duplicate.
+6. After every planned action succeeds, Re-list the exact project through
+   `list_threads` and again prove the inventory complete. Save the final JSON
+   inventory with the attempted action ledger. It must show all seven roles—
+   Product/BFM, User, Business, Design, Tech, Discovery, and Bugs—with exact
+   titles, executable task IDs, and pinned state.
+7. Only then run
+   `node tools/fb-onboarding.cjs reconcile <final-inventory.json> <canonical-root> <project-id>`.
+   This strict route verifies the final inventory and writes the clone-local
+   receipt. A failed reconcile remains unreconciled and must be reported with
+   the attempted action ledger; never translate an attempted call into success.
+
+Product/User is a legacy User title; a lone legacy Product title maps to
+Product/BFM. If native controls or complete inventory are unavailable, create
+nothing. For each role, state the precise next action from the plan or observed
+state: reuse the exact task, rename the named legacy task, pin the named task,
+or create only if absent. Generate the corresponding paste-ready idle prompt
+with `node tools/fb-onboarding.cjs prompt <workstream> <canonical-root>`. If
+inventory completeness itself is unknown, provide all seven prompts and tell
+the user to create only roles not already present. Pinning never starts work,
+approves scope, invokes `$bfm`, or authorizes release. Only **Push Live**
+authorizes merge, publication, or deployment. Bootstrap reruns do not repeat
+the question or overwrite the decision receipt.
 
 The installed [start.md](../../docs/fb/start.md) defines the single public
 workstream-first path. Relevant workstreams create handoffs ready for Product
