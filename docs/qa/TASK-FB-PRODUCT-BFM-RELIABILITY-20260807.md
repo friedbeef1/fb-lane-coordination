@@ -2,7 +2,7 @@
 type: fb-qa-artifact
 task: TASK-FB-PRODUCT-BFM-RELIABILITY-20260807
 record_model: normalized-v1
-status: checking
+status: passed
 ---
 
 # TASK-FB-PRODUCT-BFM-RELIABILITY-20260807 QA
@@ -11,13 +11,13 @@ Candidate: `codex/product-bfm-reliability-20260807`
 Release candidate: `0.5.11-beta+codex.20260807112648`
 Environment: local FB-Lane candidate plus read-only Unmirror consumer smoke
 Date: 2026-08-07
-Release boundary: no full release validator, publish, install, cache
+Release boundary: complete release validator passed; no publish, install, cache
 replacement, merge, push, retirement, deployment, or **Push Live**.
 
 ## Outcome
 
-The combined 0.5.11 candidate is focused-green after one consolidated
-whole-branch repair and awaits independent re-review. Product/BFM guidance,
+The combined 0.5.11 candidate is **Ready to ship** after independent review and
+the complete release checkpoint. Product/BFM guidance,
 runtime prompts, plugin metadata, generated mirrors, and release records agree
 on one canonical checkout, six evidence workstreams plus separate Product/BFM,
 exact-project seven-task reconciliation, complete fail-closed intake, and a
@@ -152,6 +152,10 @@ Focused RED/GREEN evidence covered a missing receipt path and mismatched project
 ID. Final root and packaged intake tests passed 12/12 each, both six-workstream
 contracts passed, package-sync tests passed 10/10, all 65 mirrors matched, both
 runtime files passed syntax checks, and whitespace checks passed.
+
+Final complete validation passed: CLI 72/72, migration 34/34, sessions 39/39,
+evals 19/19, beginner experience 11/11, efficiency 25/25, positioning,
+two-speed, syntax, 65-mirror parity, committed whitespace, and doctor Ready.
 
 ## Release-checkpoint repair
 
