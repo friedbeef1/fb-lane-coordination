@@ -5,6 +5,7 @@ lane: fb-user
 status: ready
 approval: pending
 record_model: normalized-v1
+learning_contract: v1
 ---
 
 # TASK-... — Title
@@ -25,6 +26,10 @@ Evidence Against Product OKR: <evidence that weakens or blocks the approved Prod
 ## Dependencies
 
 ## Acceptance Criteria
+
+## Project Learning
+
+Learning: pending — Product/BFM records one verified reusable lesson or a concrete none reason before completed Full BFM closeout.
 
 ## Other lanes
 

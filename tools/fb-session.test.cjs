@@ -905,7 +905,11 @@ test('submit and completed close require active execution, reciprocal evidence, 
     git(worktree, ['commit', '-qm', 'feat: completed source']);
     const sourceCommit = git(worktree, ['rev-parse', '--short', 'HEAD']);
     appendEvidence(worktree, 'close-complete', 'TASK-001', sourceCommit);
+    const handoffPath = path.join(worktree, 'docs', 'handoffs', 'TASK-001.md');
+    fs.writeFileSync(handoffPath, fs.readFileSync(handoffPath, 'utf8').replace(/^---\n/, '---\nlearning_contract: v1\n'));
     assertOk(run(worktree, ['session', 'checkpoint', '--reason', 'verification', '--session-id', 'close-complete']));
+    assertFailed(run(worktree, ['session', 'close', '--outcome', 'completed', '--session-id', 'close-complete']), /Project Learning|Learning decision/i);
+    fs.appendFileSync(handoffPath, '\n## Project Learning\n\nLearning: none — No reusable failure pattern emerged from the verified candidate.\n');
     const submit = run(worktree, ['submit', 'TASK-001']);
     assertOk(submit);
     assert.match(output(submit), /System verification: passed/);

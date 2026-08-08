@@ -250,6 +250,15 @@ function selectApplicableLessons(lessons, context = {}) {
   return lessons.map(validateLearningReceipt).filter(lesson => lesson.active && lesson.workTypes.some(workType => requested.has(workType)));
 }
 
+function upsertLearningRegistry(repoRoot, input) {
+  const lesson = validateLearningReceipt(input);
+  const existing = readLearningRegistry(repoRoot);
+  const next = existing.filter(item => item.lessonId !== lesson.lessonId);
+  next.push(lesson);
+  writeLearningRegistry(repoRoot, next);
+  return lesson;
+}
+
 function validateAutomaticTreatment(input) {
   assertOnlyKeys(input, ['type', 'value'], 'Automatic learning treatment');
   const type = String(input.type || '').trim();
@@ -339,6 +348,18 @@ function evaluateLearningTransition(input = {}) {
   }, applications.length >= 2 ? 'Two distinct relevant applications confirmed the lesson.' : 'One helpful application recorded; another is required for confirmation.');
 }
 
+function applyLearningObservation(repoRoot, lessonId, input) {
+  const safeLessonId = safeId(lessonId, 'Learning lesson ID', SAFE_LESSON_ID);
+  const lessons = readLearningRegistry(repoRoot);
+  const current = lessons.find(lesson => lesson.lessonId === safeLessonId);
+  if (!current) throw new Error(`Learning lesson ${safeLessonId} is not recorded in the durable registry.`);
+  const transitioned = evaluateLearningTransition({ lesson: current, observation: input });
+  const { reason, ...receipt } = transitioned;
+  upsertLearningRegistry(repoRoot, receipt);
+  recordLearningObservation(repoRoot, receipt);
+  return transitioned;
+}
+
 function assertLearningBudget(input = {}) {
   assertOnlyKeys(input, ['runId', 'signature', 'repairBudget', 'activeLessons'], 'Learning budget');
   safeId(input.runId, 'Learning budget run ID');
@@ -368,6 +389,70 @@ function renderLearningSummary(lesson) {
   return `Learning: ${record.state} ${record.lessonId}`;
 }
 
+function section(markdown, heading) {
+  const pattern = new RegExp(`^## ${heading}\\s*$`, 'gmi');
+  const matches = [...String(markdown || '').matchAll(pattern)];
+  if (!matches.length) return '';
+  const start = matches[matches.length - 1].index + matches[matches.length - 1][0].length;
+  const tail = String(markdown).slice(start);
+  const end = tail.search(/^##\s+/m);
+  return (end >= 0 ? tail.slice(0, end) : tail).trim();
+}
+
+function markdownField(body, label) {
+  const match = String(body || '').match(new RegExp(`^${label}:\\s*(.+)$`, 'mi'));
+  return match ? match[1].trim() : '';
+}
+
+function assertLearningCloseoutMarkdown(markdown, repoRoot) {
+  if (!/^learning_contract:\s*v1\s*$/im.test(String(markdown || ''))) return { required: false };
+  const body = section(markdown, 'Project Learning');
+  if (!body) throw new Error('Learning decision is missing: add a ## Project Learning section before completed closeout.');
+  const decision = markdownField(body, 'Learning');
+  const none = decision.match(/^none\s+—\s+(.+)$/i);
+  if (none) {
+    text(none[1], 'Learning none reason');
+    return { required: true, decision: 'none', reason: none[1].trim() };
+  }
+  const recorded = decision.match(/^recorded\s+—\s+(LESSON-[A-Z0-9]+(?:-[A-Z0-9]+)+)$/i);
+  if (!recorded) throw new Error('Learning decision must be `Learning: none — <concrete reason>` or `Learning: recorded — <lesson ID>`.');
+  const lessonId = recorded[1].toUpperCase();
+  const registry = markdownField(body, 'Registry');
+  const evidence = markdownField(body, 'Evidence');
+  const budget = markdownField(body, 'Repair budget');
+  if (!new RegExp(`\\[[^\\]]+\\]\\(\\.\\./learning/index\\.md#${lessonId.toLowerCase()}\\)`, 'i').test(registry)) {
+    throw new Error(`Project Learning registry link must resolve to ${lessonId}.`);
+  }
+  if (!/^\[[^\]]+\]\(\.\.\/qa\/[A-Za-z0-9._/-]+(?:#[a-z0-9-]+)?\)$/.test(evidence)) {
+    throw new Error('Project Learning evidence must be one repository-relative Markdown QA link.');
+  }
+  if (!/^unchanged\s+—\s+.{12,}$/i.test(budget)) {
+    throw new Error('Project Learning must state that the repair budget remained unchanged with a concrete reason.');
+  }
+  const lesson = readLearningRegistry(repoRoot).find(item => item.lessonId === lessonId);
+  if (!lesson) throw new Error(`Project Learning lesson ${lessonId} is not recorded in docs/learning/index.md.`);
+  return { required: true, decision: 'recorded', lessonId, state: lesson.state };
+}
+
+function collectLearningDoctorChecks(repoRoot) {
+  const target = registryPath(repoRoot);
+  if (!fs.existsSync(target)) {
+    return [{ level: 'warn', label: 'Project learning', detail: 'docs/learning/index.md is missing.', fix: 'Run FB bootstrap to add the empty learning registry without changing project-owned records.' }];
+  }
+  try {
+    const lessons = readLearningRegistry(repoRoot);
+    const observations = readLearningObservations(repoRoot);
+    const observed = new Set(observations.map(item => `${item.lessonId}/${item.runId}`));
+    const missing = lessons.filter(item => !observed.has(`${item.lessonId}/${item.runId}`)).map(item => item.lessonId);
+    if (missing.length) {
+      return [{ level: 'fail', label: 'Project learning', detail: `${missing.length} durable lesson(s) lack matching clone-local observations.`, fix: 'Record the validated learning receipt before final closeout.' }];
+    }
+    return [{ level: 'ok', label: 'Project learning', detail: `${lessons.length} durable lesson(s); ${observations.length} clone-local observation(s); registry structure is consistent.` }];
+  } catch (error) {
+    return [{ level: 'fail', label: 'Project learning', detail: `Learning records are invalid: ${error.message}`, fix: 'Repair the learning registry or clone-local observation record before closeout.' }];
+  }
+}
+
 module.exports = {
   SCHEMA_VERSION,
   STATES,
@@ -379,8 +464,12 @@ module.exports = {
   readLearningRegistry,
   writeLearningRegistry,
   selectApplicableLessons,
+  upsertLearningRegistry,
   validateAutomaticTreatment,
   evaluateLearningTransition,
+  applyLearningObservation,
   assertLearningBudget,
+  assertLearningCloseoutMarkdown,
+  collectLearningDoctorChecks,
   renderLearningSummary,
 };

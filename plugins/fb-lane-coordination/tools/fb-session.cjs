@@ -8,6 +8,7 @@ const { assertSelectedEvalCloseout, validateSelectedEvalIntegration } = require(
 const { automatedVerificationDecision, selectAutomatedChecks, classifyExecutionMode } = require('./fb-efficiency.cjs');
 const { assertFullBfmChangelog } = require('./fb-changelog-closeout.cjs');
 const { assertStageEventSummaryMarkdown } = require('./fb-control-loop.cjs');
+const { assertLearningCloseoutMarkdown } = require('./fb-learning.cjs');
 
 const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const LANES = new Set(['product', 'tech', 'design', 'business', 'discovery', 'bugs', 'bfm', 'coordination']);
@@ -1027,6 +1028,7 @@ function assertCompletedEvidence(cwd, record) {
     throw new Error('Completed reviewable work requires reciprocal recap and handoff links.');
   }
   assertSelectedEvalCloseout(gitRoot(cwd), combined);
+  assertLearningCloseoutMarkdown(handoff, gitRoot(cwd));
   if (/^fb_harness:\s*v3\s*$/im.test(handoff)) {
     const baseCommit = authoritativeSessionBase(record);
     const candidateCommit = git(cwd, ['rev-parse', 'HEAD']).stdout;

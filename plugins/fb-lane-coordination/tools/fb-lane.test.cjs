@@ -762,6 +762,9 @@ test('status MCP exposes details schema and shares beginner and technical render
     const listed = mcpRequest(root, { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} });
     const schema = listed.result.tools.find(tool => tool.name === 'fb_lane_status').inputSchema;
     assert.deepStrictEqual(schema.properties.details, { type: 'boolean', description: 'Show the raw technical workstream table.' });
+    for (const name of ['fb_learning_record', 'fb_learning_status', 'fb_learning_apply']) {
+      assert.ok(listed.result.tools.some(tool => tool.name === name), `MCP must expose ${name}`);
+    }
 
     const beginner = mcpRequest(root, { jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'fb_lane_status', arguments: { workspacePath: root } } });
     const beginnerText = beginner.result.content[0].text;
@@ -774,6 +777,20 @@ test('status MCP exposes details schema and shares beginner and technical render
     assert.match(detailsText, /TASK-501/);
     assert.match(detailsText, /Staging QA/);
     assert.match(detailsText, /mcp-secret\.js/);
+
+    const learningReceipt = {
+      lessonId: 'LESSON-TECH-CACHE-501', runId: 'run-501', taskId: 'TASK-501', state: 'provisional',
+      signature: { category: 'build', surface: 'cache', criterion: 'invalidation' }, workTypes: ['tech:cache'],
+      cause: 'The first candidate left stale derived cache data.', currentRepair: 'Invalidate derived cache data after mutation.',
+      treatment: { type: 'select_existing_check', value: 'cache-invalidation' },
+      evidenceRefs: ['docs/qa/TASK-501.md#cache-regression'], owningRecord: 'docs/handoffs/TASK-501.md#project-learning',
+      safetyClass: 'ordinary', applications: [], revisionCount: 0, active: true,
+    };
+    const recorded = mcpRequest(root, { jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'fb_learning_record', arguments: { workspacePath: root, receipt: learningReceipt } } });
+    assert.match(recorded.result.content[0].text, /LESSON-TECH-CACHE-501/);
+    assert.match(recorded.result.content[0].text, /"releaseAuthorized":false/);
+    const learningStatus = mcpRequest(root, { jsonrpc: '2.0', id: 5, method: 'tools/call', params: { name: 'fb_learning_status', arguments: { workspacePath: root, workTypes: ['tech:cache'] } } });
+    assert.match(learningStatus.result.content[0].text, /LESSON-TECH-CACHE-501/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -952,6 +969,10 @@ function assertCodexBootstrap(args) {
     assert.ok(!fs.readFileSync(evalTemplatePath, 'utf8').includes(brandLine), 'generated scorecard must not repeat the current FB model line');
     assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /Non-Product Execution Gate/);
     assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /## Verification Handoff/);
+    const learningIndexPath = path.join(root, 'docs', 'learning', 'index.md');
+    assert.ok(fs.existsSync(learningIndexPath), 'expected bootstrap to create docs/learning/index.md');
+    const initialLearningIndex = fs.readFileSync(learningIndexPath, 'utf8');
+    assert.match(initialLearningIndex, /^# FB Project Learning/m);
     assert.match(fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8'), /Sidechat-to-Main Prompt Handoff/);
     const sidechatRoutingPath = path.join(root, 'docs', 'sidechat-parent-thread-routing.md');
     assert.ok(fs.existsSync(sidechatRoutingPath), 'expected bootstrap to create sidechat parent-routing guidance');
@@ -1002,6 +1023,9 @@ function assertCodexBootstrap(args) {
     assert.match(fs.readFileSync(path.join(root, '.gitignore'), 'utf8'), /^\.fb\/graph\/$/m, 'expected bootstrap to ignore derived graph artifacts');
     assert.ok(!fs.existsSync(path.join(root, '.claude')), 'expected bootstrap not to create Claude Code files');
     assert.ok(!fs.existsSync(path.join(root, 'agents')), 'expected bootstrap not to create Antigravity files');
+    fs.appendFileSync(learningIndexPath, '\nProject-owned learning entry.\n');
+    execFileSync('node', [cliPath, 'bootstrap', ...args], { cwd: root, stdio: 'ignore' });
+    assert.match(fs.readFileSync(learningIndexPath, 'utf8'), /Project-owned learning entry\./, 'bootstrap rerun must preserve project-owned learning entries');
     assert.doesNotMatch(output, /Antigravity|Claude Code|MCP/i);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });

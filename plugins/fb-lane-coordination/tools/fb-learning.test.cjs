@@ -16,6 +16,10 @@ const {
   evaluateLearningTransition,
   validateAutomaticTreatment,
   assertLearningBudget,
+  upsertLearningRegistry,
+  applyLearningObservation,
+  assertLearningCloseoutMarkdown,
+  collectLearningDoctorChecks,
 } = require('./fb-learning.cjs');
 
 const tests = [];
@@ -177,6 +181,91 @@ test('automatic treatments are allowlisted and learning cannot reset repair budg
     repairBudget: { before: 1, after: 1, limit: 2 },
     activeLessons: [receipt(), receipt({ lessonId: 'LESSON-TECH-CACHE-002' })],
   }), /one active|signature/i);
+});
+
+test('upserts and transitions one durable lesson without executing its treatment', () => {
+  const fixture = createRepo();
+  try {
+    const created = upsertLearningRegistry(fixture.repo, receipt());
+    assert.equal(created.lessonId, 'LESSON-TECH-CACHE-001');
+    const applied = applyLearningObservation(fixture.repo, created.lessonId, observation('helped', 'run-002'));
+    assert.equal(applied.state, 'provisional');
+    assert.deepEqual(applied.applications, ['run-002']);
+    assert.equal(readLearningRegistry(fixture.repo).length, 1);
+    assert.equal(readLearningObservations(fixture.repo).length, 1);
+    assert.deepEqual(fs.readdirSync(fixture.repo).sort(), ['.git', 'README.md', 'docs']);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('prospective closeout requires a concrete none reason or a recorded lesson link', () => {
+  const fixture = createRepo();
+  try {
+    const header = '---\nlearning_contract: v1\n---\n\n# TASK-001\n';
+    assert.throws(() => assertLearningCloseoutMarkdown(header, fixture.repo), /Project Learning|Learning decision/i);
+    assert.throws(
+      () => assertLearningCloseoutMarkdown(`${header}\n## Project Learning\n\nLearning: none — TBD\n`, fixture.repo),
+      /concrete|reason/i,
+    );
+    assert.equal(
+      assertLearningCloseoutMarkdown(`${header}\n## Project Learning\n\nLearning: none — No reusable failure pattern emerged from the verified candidate.\n`, fixture.repo).decision,
+      'none',
+    );
+
+    upsertLearningRegistry(fixture.repo, receipt());
+    const recorded = `${header}\n## Project Learning\n\nLearning: recorded — LESSON-TECH-CACHE-001\nRegistry: [LESSON-TECH-CACHE-001](../learning/index.md#lesson-tech-cache-001)\nEvidence: [Cache regression](../qa/TASK-001.md#cache-regression)\nRepair budget: unchanged — learning did not add a repair attempt.\n`;
+    assert.equal(assertLearningCloseoutMarkdown(recorded, fixture.repo).lessonId, 'LESSON-TECH-CACHE-001');
+    assert.throws(
+      () => assertLearningCloseoutMarkdown(recorded.replace('LESSON-TECH-CACHE-001', 'LESSON-MISSING-001'), fixture.repo),
+      /recorded|registry|lesson/i,
+    );
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('doctor reports compact registry and clone-local observation consistency', () => {
+  const fixture = createRepo();
+  try {
+    fs.mkdirSync(path.join(fixture.repo, 'docs', 'learning'), { recursive: true });
+    fs.writeFileSync(path.join(fixture.repo, 'docs', 'learning', 'index.md'), '# FB Project Learning\n\nNo lessons recorded yet.\n');
+    let checks = collectLearningDoctorChecks(fixture.repo);
+    assert.deepEqual(checks.map(check => check.level), ['ok']);
+    assert.doesNotMatch(checks[0].detail, /Mutation did not|Invalidate the derived/);
+
+    upsertLearningRegistry(fixture.repo, receipt());
+    checks = collectLearningDoctorChecks(fixture.repo);
+    assert.equal(checks[0].level, 'fail');
+    recordLearningObservation(fixture.repo, receipt());
+    checks = collectLearningDoctorChecks(fixture.repo);
+    assert.equal(checks[0].level, 'ok');
+    assert.match(checks[0].detail, /1 durable lesson\(s\); 1 clone-local observation\(s\)/);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test('learning CLI records, filters, and applies evidence without granting release authority', () => {
+  const fixture = createRepo();
+  const cli = path.join(__dirname, 'fb-lane.cjs');
+  try {
+    const receiptPath = path.join(fixture.parent, 'receipt.json');
+    const observationPath = path.join(fixture.parent, 'observation.json');
+    fs.writeFileSync(receiptPath, JSON.stringify(receipt()));
+    fs.writeFileSync(observationPath, JSON.stringify(observation('helped', 'run-002')));
+    const recorded = JSON.parse(execFileSync(process.execPath, [cli, 'learning', 'record', receiptPath], { cwd: fixture.repo, encoding: 'utf8' }));
+    assert.deepEqual(recorded, { recorded: 'LESSON-TECH-CACHE-001', state: 'provisional', releaseAuthorized: false });
+    const matching = JSON.parse(execFileSync(process.execPath, [cli, 'learning', 'status', 'tech:cache'], { cwd: fixture.repo, encoding: 'utf8' }));
+    const unrelated = JSON.parse(execFileSync(process.execPath, [cli, 'learning', 'status', 'design:navigation'], { cwd: fixture.repo, encoding: 'utf8' }));
+    assert.equal(matching.count, 1);
+    assert.equal(unrelated.count, 0);
+    const applied = JSON.parse(execFileSync(process.execPath, [cli, 'learning', 'apply', 'LESSON-TECH-CACHE-001', observationPath], { cwd: fixture.repo, encoding: 'utf8' }));
+    assert.equal(applied.state, 'provisional');
+    assert.equal(applied.releaseAuthorized, false);
+  } finally {
+    fixture.cleanup();
+  }
 });
 
 (async () => {

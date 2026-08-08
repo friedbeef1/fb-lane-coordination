@@ -30,6 +30,15 @@ const { validateNormalizedRepository } = require('./fb-records.cjs');
 const { validateWorkstreamHandoffDirectory } = require('./fb-workstream-handoff.cjs');
 const { projectContextPacket } = require('./fb-project-graph.cjs');
 const {
+  validateLearningReceipt,
+  recordLearningObservation,
+  readLearningRegistry,
+  writeLearningRegistry,
+  selectApplicableLessons,
+  applyLearningObservation,
+  collectLearningDoctorChecks,
+} = require('./fb-learning.cjs');
+const {
   renderBoardContext,
   compactBoardFiles,
   collectLifecycleFindings,
@@ -133,6 +142,8 @@ const MCP_MUTATIONS = new Set([
   'fb_checkout_migration_commit',
   'fb_checkout_migration_rebind',
   'fb_control_event_record',
+  'fb_learning_record',
+  'fb_learning_apply',
   'fb_lane_claim',
   'fb_lane_submit',
   'fb_lane_merge',
@@ -3329,6 +3340,9 @@ function handleDoctor() {
     for (const check of collectControlLoopDoctorChecks(rootDir)) {
       add(check.level, check.label, check.detail, check.fix);
     }
+    for (const check of collectLearningDoctorChecks(rootDir)) {
+      add(check.level, check.label, check.detail, check.fix);
+    }
     const normalizedRecordFindings = validateNormalizedRepository(rootDir);
     if (normalizedRecordFindings.length > 0) {
       for (const finding of normalizedRecordFindings) {
@@ -4328,6 +4342,42 @@ function handleMcpRequest(request) {
           }
         },
         {
+          name: 'fb_learning_record',
+          description: 'Record one validated project-local learning receipt. This never executes the treatment, changes source, or authorizes release.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              receipt: { type: 'object', description: 'A complete fb-project-learning-v1 receipt.' },
+              workspacePath: { type: 'string' }
+            },
+            required: ['receipt']
+          }
+        },
+        {
+          name: 'fb_learning_status',
+          description: 'Return compact active project lessons matching the requested work types, without transcript or narrative history.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              workTypes: { type: 'array', items: { type: 'string' } },
+              workspacePath: { type: 'string' }
+            }
+          }
+        },
+        {
+          name: 'fb_learning_apply',
+          description: 'Record evidence from one later application and transition the named lesson. This never executes treatment text or extends repair budgets.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              lessonId: { type: 'string' },
+              observation: { type: 'object' },
+              workspacePath: { type: 'string' }
+            },
+            required: ['lessonId', 'observation']
+          }
+        },
+        {
           name: 'fb_control_event_validate',
           description: 'Validate one privacy-safe, flat stage event without recording it. This does not evaluate product semantics or authorize a release.',
           inputSchema: CONTROL_EVENT_MCP_SCHEMA,
@@ -4468,6 +4518,21 @@ function handleMcpRequest(request) {
             taskId,
             question: question.trim(),
           }), null, 2);
+        } else if (name === 'fb_learning_record') {
+          const receipt = validateLearningReceipt(toolArgs.receipt);
+          const existing = readLearningRegistry(workspaceRoot).filter(item => item.lessonId !== receipt.lessonId);
+          writeLearningRegistry(workspaceRoot, [...existing, receipt]);
+          recordLearningObservation(workspaceRoot, receipt);
+          message = JSON.stringify({ recorded: receipt.lessonId, state: receipt.state, releaseAuthorized: false });
+        } else if (name === 'fb_learning_status') {
+          const lessons = readLearningRegistry(workspaceRoot);
+          const selected = Array.isArray(toolArgs.workTypes) && toolArgs.workTypes.length
+            ? selectApplicableLessons(lessons, { workTypes: toolArgs.workTypes })
+            : lessons.filter(lesson => lesson.active);
+          message = JSON.stringify({ count: selected.length, lessons: selected.map(lesson => ({ lessonId: lesson.lessonId, state: lesson.state, workTypes: lesson.workTypes, treatment: lesson.treatment, owningRecord: lesson.owningRecord })) }, null, 2);
+        } else if (name === 'fb_learning_apply') {
+          const result = applyLearningObservation(workspaceRoot, toolArgs.lessonId, toolArgs.observation);
+          message = JSON.stringify({ lessonId: result.lessonId, state: result.state, reason: result.reason, releaseAuthorized: false });
         } else if (name === 'fb_lane_claim') {
           const { taskId, lane, lockedFiles } = toolArgs;
           assertSafeTaskId(taskId);
@@ -4915,6 +4980,17 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
     console.log('📝 Created docs/evals/eval-record-template.md');
   }
 
+  // 3e. Create the compact durable learning registry only when absent.
+  const learningDir = path.join(rootDir, 'docs', 'learning');
+  const learningIndexPath = path.join(learningDir, 'index.md');
+  if (!fs.existsSync(learningIndexPath)) {
+    fs.mkdirSync(learningDir, { recursive: true });
+    fs.copyFileSync(path.join(__dirname, '..', 'templates', 'docs', 'learning', 'index.md'), learningIndexPath);
+    console.log('📝 Created docs/learning/index.md (project-local learning registry)');
+  } else {
+    console.log('ℹ️  docs/learning/index.md already exists, preserving project learning.');
+  }
+
   // 4. Add or refresh only the managed FB route in Codex rules.
   if (options.includeCodex) {
     const codexDir = path.join(rootDir, '.codex');
@@ -4980,6 +5056,47 @@ function handleMigrationCommand(args = []) {
   throw new Error('Usage: node tools/fb-lane.cjs migration inventory|commit <request.json> | migration rebind <complete-inventory.json> [root] [project-id]');
 }
 
+function readLearningJson(fileArgument, label) {
+  const target = path.resolve(String(fileArgument || ''));
+  if (!fileArgument || !fs.existsSync(target) || !fs.statSync(target).isFile()) {
+    throw new Error(`${label} JSON file was not found.`);
+  }
+  try {
+    return JSON.parse(fs.readFileSync(target, 'utf8'));
+  } catch (error) {
+    throw new Error(`${label} JSON file is invalid.`);
+  }
+}
+
+function handleLearningCommand(args = []) {
+  const operation = String(args[0] || '').toLowerCase();
+  const boardPath = findBoardPath();
+  const repoRoot = boardPath ? path.dirname(boardPath) : process.cwd();
+  if (operation === 'record') {
+    const receipt = validateLearningReceipt(readLearningJson(args[1], 'Learning receipt'));
+    const existing = readLearningRegistry(repoRoot).filter(item => item.lessonId !== receipt.lessonId);
+    writeLearningRegistry(repoRoot, [...existing, receipt]);
+    recordLearningObservation(repoRoot, receipt);
+    process.stdout.write(`${JSON.stringify({ recorded: receipt.lessonId, state: receipt.state, releaseAuthorized: false }, null, 2)}\n`);
+    return;
+  }
+  if (operation === 'status') {
+    const lessons = readLearningRegistry(repoRoot);
+    const selected = args.length > 1
+      ? selectApplicableLessons(lessons, { workTypes: args.slice(1) })
+      : lessons.filter(lesson => lesson.active);
+    process.stdout.write(`${JSON.stringify({ count: selected.length, lessons: selected.map(lesson => ({ lessonId: lesson.lessonId, state: lesson.state, workTypes: lesson.workTypes, treatment: lesson.treatment, owningRecord: lesson.owningRecord })) }, null, 2)}\n`);
+    return;
+  }
+  if (operation === 'apply') {
+    if (!args[1]) throw new Error('Learning apply requires a lesson ID.');
+    const result = applyLearningObservation(repoRoot, args[1], readLearningJson(args[2], 'Learning observation'));
+    process.stdout.write(`${JSON.stringify({ lessonId: result.lessonId, state: result.state, reason: result.reason, releaseAuthorized: false }, null, 2)}\n`);
+    return;
+  }
+  throw new Error('Usage: node tools/fb-lane.cjs learning record <receipt.json> | learning status [work-type ...] | learning apply <lesson-id> <observation.json>');
+}
+
 function main() {
   const args = process.argv.slice(2);
   const command = args[0] ? args[0].toLowerCase() : '';
@@ -4988,13 +5105,16 @@ function main() {
     && new Set(['promote', 'checkpoint', 'close']).has(String(args[1] || '').toLowerCase());
   const migrationMutation = command === 'migration'
     && new Set(['commit', 'rebind']).has(String(args[1] || '').toLowerCase());
-  if (guardedMutations.has(command) || sessionMutation || migrationMutation) {
+  const learningMutation = command === 'learning'
+    && new Set(['record', 'apply']).has(String(args[1] || '').toLowerCase());
+  if (guardedMutations.has(command) || sessionMutation || migrationMutation || learningMutation) {
     const boardPath = findBoardPath();
     const rootDir = boardPath ? path.dirname(boardPath) : process.cwd();
     try {
       const operation = sessionMutation
         ? `session ${args[1]} mutation`
-        : migrationMutation ? `migration ${args[1]} mutation` : `${command} mutation`;
+        : migrationMutation ? `migration ${args[1]} mutation`
+          : learningMutation ? `learning ${args[1]} mutation` : `${command} mutation`;
       assertCanonicalCheckout(rootDir, operation);
     } catch (error) {
       console.error(`❌ Error: ${error.message}`);
@@ -5023,6 +5143,13 @@ function main() {
   } else if (command === 'migration') {
     try {
       handleMigrationCommand(args.slice(1));
+    } catch (error) {
+      console.error(`❌ Error: ${error.message}`);
+      process.exit(1);
+    }
+  } else if (command === 'learning') {
+    try {
+      handleLearningCommand(args.slice(1));
     } catch (error) {
       console.error(`❌ Error: ${error.message}`);
       process.exit(1);
@@ -5080,6 +5207,9 @@ Usage:
   node tools/fb-lane.cjs status [--details|--context]   - Print beginner status, raw technical details, or bounded active context
   node tools/fb-lane.cjs migration inventory|commit <request.json> - Discover or atomically record checkout migration state
   node tools/fb-lane.cjs migration rebind <inventory.json> [root] [project-id] - Complete exact-project task rebind
+  node tools/fb-lane.cjs learning record <receipt.json>     - Record one validated project-local lesson
+  node tools/fb-lane.cjs learning status [work-type ...]   - Show only active matching lessons
+  node tools/fb-lane.cjs learning apply <id> <observation.json> - Transition one lesson from later evidence
   node tools/fb-lane.cjs claim <id> <lane> [locks]      - Claim task in a linked worktree by default
   node tools/fb-lane.cjs claim ... --no-worktree        - Use the legacy single-checkout compatibility path
   node tools/fb-lane.cjs quick <lane> <locks> <desc> --approval-ref <reference> - Create an approved quick task in a linked worktree
