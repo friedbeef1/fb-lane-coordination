@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-079 | In Progress | FB-Product / BFM | Project-local recursive learning | Make each FB project learn bounded preventative lessons from its own verified delivery outcomes without creating nested repair loops | Learning runtime, harness guidance, plugin mirrors, focused contracts, version/release records | Design approved in conversation; [design](docs/superpowers/specs/2026-08-08-project-recursive-learning-design.md); implementation plan follows written-spec review |
+| TASK-079 | Staging QA | FB-Product / BFM | Project-local recursive learning and `0.6.0-beta+codex.20260808104938` | Make each FB project learn bounded preventative lessons from its own verified delivery outcomes without creating nested repair loops | Learning runtime, harness guidance, plugin mirrors, focused contracts, version/release records | [Handoff](docs/handoffs/TASK-079.md); [QA](docs/qa/TASK-079.md); [design](docs/superpowers/specs/2026-08-08-project-recursive-learning-design.md); final release checkpoint pending |
 | TASK-078 | Done | FB-Product / BFM | One-sentence GitHub setup and `0.5.12-beta+codex.20260808093008` | Integrate task-reuse permission, plain-language safe reruns, and one GitHub install-or-upgrade prompt into the canonical plugin release | None; published and installed | [PR #61](https://github.com/friedbeef1/fb-lane-coordination/pull/61) merged as `414b191`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-078.md); [QA](docs/qa/TASK-078.md) |
 | TASK-Q-20260808-ONBOARDING-REUSE | Done | FB-Product / BFM | Codex onboarding | Make setup approval explicitly authorize reuse, rename, and pin of matching project tasks, with creation only for missing lanes | None; source/docs/tests only | User-approved in current conversation; 54 focused tests passed; root/package parity and `git diff --check` passed |
 | TASK-077 | Superseded | Side conversation, one-off approved | Plain-language FB setup status | Replace user-facing setup jargon with clear safe-rerun wording | None; absorbed into TASK-078 | Candidate `228610d` integrated through `e14ab9b`; release evidence belongs to TASK-078 |
@@ -33,7 +33,7 @@
 
 ### TASK-079 - Project-local recursive learning
 
-*   **Status**: In Progress — durable design ready for review.
+*   **Status**: Staging QA — focused implementation is green; final release checkpoint pending.
 *   **Owner / Thread**: FB-Product / BFM.
 *   **Scope**: Connect verified project outcomes to bounded provisional lessons,
     relevant future context, confirmation, one revision, rejection, and
@@ -41,10 +41,25 @@
 *   **Out of Scope**: Autonomous source or prompt mutation, cross-project data
     transmission, unbounded repair, automatic eval-authority changes, merge,
     publication, or deployment.
-*   **Gate / Review Point**: James reviews the written design before the
-    implementation plan is produced.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let each FB consumer project reuse verified delivery
+        lessons without increasing retry loops or broad context.
+    *   **Key Results**: Project-local registry and observations; relevant-only
+        selection; bounded lifecycle; prospective Full BFM closeout gate;
+        root/package/plugin parity; release checkpoint pass.
+    *   **Definition of Done**: `0.6.0-beta` candidate passes focused contracts,
+        doctor, and one complete release validator, then stops at Ready to ship.
+    *   **Approval**: approved by James in the current Product/BFM task.
+    *   **Justification**: Consumer projects should improve from verified
+        outcomes without hidden source changes, cross-project transfer, or
+        additional repair attempts.
+*   **Gate / Review Point**: Product/BFM standing delegation approved faithful
+    changelog wording and one release checkpoint; **Push Live** remains the
+    merge, marketplace publication, and reinstall boundary.
 *   **Links & Deliverables**:
-    [design](docs/superpowers/specs/2026-08-08-project-recursive-learning-design.md).
+    [design](docs/superpowers/specs/2026-08-08-project-recursive-learning-design.md) ·
+    [plan](docs/superpowers/plans/2026-08-08-project-recursive-learning.md) ·
+    [handoff](docs/handoffs/TASK-079.md) · [QA](docs/qa/TASK-079.md).
 
 ---
 

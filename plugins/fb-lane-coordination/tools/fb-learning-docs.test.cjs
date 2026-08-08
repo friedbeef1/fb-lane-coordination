@@ -6,8 +6,12 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
+const packageContext = path.basename(root) === 'fb-lane-coordination'
+  && path.basename(path.dirname(root)) === 'plugins';
 const canonical = path.join(root, 'docs', 'fb', 'learning.md');
-const packaged = path.join(root, 'plugins', 'fb-lane-coordination', 'docs', 'fb', 'learning.md');
+const packaged = packageContext
+  ? canonical
+  : path.join(root, 'plugins', 'fb-lane-coordination', 'docs', 'fb', 'learning.md');
 
 assert.ok(fs.existsSync(canonical), 'canonical project learning page must exist');
 assert.ok(fs.existsSync(packaged), 'packaged project learning page must exist');
@@ -35,7 +39,7 @@ for (const relative of [
   assert.match(fs.readFileSync(path.join(root, relative), 'utf8'), /learning\.md/, `${relative} must route to canonical learning guidance`);
 }
 
-for (const relative of ['README.md', 'FAQ.md']) {
+for (const relative of packageContext ? ['README.md'] : ['README.md', 'FAQ.md']) {
   const publicSource = fs.readFileSync(path.join(root, relative), 'utf8');
   assert.match(publicSource, /After FB verifies a feature/i, `${relative} must explain project learning in plain language`);
   assert.match(publicSource, /endless repair loop/i, `${relative} must explain the bounded loop`);

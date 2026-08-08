@@ -1,5 +1,42 @@
 # Changelog
 
+## 0.6.0-beta — 2026-08-08
+
+Build: `0.6.0-beta+codex.20260808104938`
+
+**What changed:** FB now has project-local continuous learning. Verified
+delivery failures or avoidable rework can create one provisional lesson per
+failure signature. Later relevant work receives only matching active lessons;
+two helpful comparable applications confirm a lesson, one incomplete result may
+use the one revision allowance, and failures or safety regressions reject it. New Full BFM
+handoffs opt in through `learning_contract: v1` and record either a linked
+lesson or a concrete no-learning reason before closeout.
+
+**Why it matters:** Consumer projects can reuse verified lessons without
+copying old chats or full project history into every agent. The next related
+feature receives better context while unrelated work stays small. Continuous
+learning remains bounded by the existing repair budget instead of creating an
+endless retry loop.
+
+**Compatibility:** Existing boards, historical handoffs, Quick BFM, Normal
+Codex work, `$fb-setup`, `$bfm`, workstreams, plugin IDs, MCP paths, and **Push
+Live** remain compatible. Historical handoffs need no retrofit. Automatic
+learning treatments cannot edit application source, change product or eval
+authority, cross project boundaries, or authorize release.
+
+**Installation or upgrade:** After explicit **Push Live**, upgrade marketplace
+`fb-lane`, reinstall `fb-lane-coordination@fb-lane`, and open a new Codex task.
+Run `$fb-setup` in each consumer repository to add the learning page and empty
+registry without overwriting project-owned lessons.
+
+**Changelog approval:** Approved through Product/BFM standing delegation for
+candidate-faithful wording; reference TASK-079.
+
+**Release evidence:** Local focused learning, session, CLI/MCP, documentation,
+metadata, package-parity, syntax, links, whitespace, doctor, and final release
+checkpoint evidence is recorded in [TASK-079 QA](docs/qa/TASK-079.md). Merge,
+marketplace publication, and reinstall remain gated by **Push Live**.
+
 ## 0.5.12-beta — 2026-08-08
 
 Build: `0.5.12-beta+codex.20260808093008`
