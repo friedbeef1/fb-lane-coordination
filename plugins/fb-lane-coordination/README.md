@@ -6,10 +6,26 @@ FB harness. **FB — Graph Engineering for Everyday People** is an open-source
 Codex plugin that turns scattered AI conversations into a living
 product-delivery graph. It has six evidence-producing workstreams plus one
 Product/BFM control centre and seven pinned repository-scoped Codex tasks. The
-current release candidate is **FB 0.5.11-beta**
-`0.5.11-beta+codex.20260807112648`.
+current release candidate is **FB 0.5.12-beta**
+`0.5.12-beta+codex.20260808093008`.
 
 ## Install and start
+
+Paste this into Codex while your project is open:
+
+```text
+Install or update FB from https://github.com/friedbeef1/fb-lane-coordination and set it up in this project.
+```
+
+Codex detects whether the FB marketplace and plugin are missing, already
+installed, or outdated. It adds or refreshes the marketplace only when needed,
+installs or upgrades the plugin only when needed, and preserves an existing
+project setup. When the plugin changes, open a new Codex task so the refreshed
+skills can load; Codex then continues with `$fb-setup`. The plugin cannot install
+itself before it is loaded, so the GitHub sentence owns that first Codex-level
+step.
+
+Manual fallback:
 
 ```bash
 codex plugin marketplace add friedbeef1/fb-lane-coordination

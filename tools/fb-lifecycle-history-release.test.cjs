@@ -22,8 +22,8 @@ function json(relativePath) {
 const manifest = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.codex-plugin/plugin.json'), 'utf8'));
 assert.match(
   manifest.version,
-  /^0\.5\.11-beta\+codex\.\d{14}$/,
-  'release build must use the 0.5.11-beta UTC build form',
+  /^0\.5\.12-beta\+codex\.\d{14}$/,
+  'release build must use the 0.5.12-beta UTC build form',
 );
 assert.strictEqual(JSON.parse(fs.readFileSync(path.join(pluginRoot, 'plugin.json'), 'utf8')).version, manifest.version);
 
@@ -69,19 +69,18 @@ assert.match(coordination, /on-demand historical retrieval/i, 'coordination must
 
 if (!packaged) {
   const changelog = read('CHANGELOG.md');
-  const release = changelog.match(/## 0\.5\.11-beta[\s\S]*?(?=\n## 0\.5\.10-beta)/)?.[0] || '';
+  const release = changelog.match(/## 0\.5\.12-beta[\s\S]*?(?=\n## 0\.5\.11-beta)/)?.[0] || '';
   for (const field of ['What changed', 'Why it matters', 'Compatibility', 'Installation or upgrade']) {
-    assert.match(release, new RegExp(`\\*\\*${field}:\\*\\*`), `0.5.11 changelog must include ${field}`);
+    assert.match(release, new RegExp(`\\*\\*${field}:\\*\\*`), `0.5.12 changelog must include ${field}`);
   }
-  assert.match(release, /canonical checkout/i);
-  assert.match(release, /complete intake ledger/i);
-  assert.match(release, /transactional migration/i);
-  assert.match(release, /exact-project/i);
-  assert.match(release, /Product\/BFM standing delegation/i);
-  assert.match(release, /Push Live/i);
+  assert.match(release, /Install or update FB from GitHub/i);
+  assert.match(release, /safe to run again/i);
+  assert.match(release, /reuse/i);
+  assert.match(release, /create(?:s)? only/i);
+  assert.match(release, /new Codex task/i);
 
   for (const surface of ['README.md', 'FAQ.md', 'docs/setup.md', 'docs/versioning.md', 'platforms/codex/README.md']) {
-    assert.match(read(surface), /0\.5\.11-beta/, `${surface} must name 0.5.11-beta`);
+    assert.match(read(surface), /0\.5\.12-beta/, `${surface} must name 0.5.12-beta`);
   }
 
   const bfm = read('skills/bfm/SKILL.md');
