@@ -79,7 +79,7 @@ function boardRows(markdown) {
     const cells = line.split('|').slice(1, -1).map(cell => cell.trim());
     const task = String(cells[0] || '').toUpperCase();
     if (cells.length >= 2 && SAFE_TASK_ID.test(task)) {
-      rows.push({ task, status: cells[1], owner: cells[2] || '', line });
+      rows.push({ task, status: cells[1], owner: cells[2] || '', scope: cells[4] || '', line });
     }
   }
   return rows;
@@ -210,7 +210,15 @@ function resolvedMarkdownTarget(root, source, target) {
 function addBoardRows(root, markdown, source, nodes, edges) {
   for (const row of boardRows(markdown)) {
     const taskId = `task:${row.task}`;
-    addNode(nodes, { id: taskId, type: 'task', label: `${row.task} · ${row.status}`, source, status: 'confirmed' });
+    addNode(nodes, {
+      id: taskId,
+      type: 'task',
+      label: `${row.task} · ${row.status}`,
+      source,
+      status: 'confirmed',
+      activityState: row.status,
+      objective: row.scope,
+    });
     addEdge(edges, { from: 'project:root', to: taskId, type: 'contains', source, status: 'confirmed' });
     for (const target of markdownLinks(row.line)) {
       const relative = resolvedMarkdownTarget(root, source, target);
@@ -563,6 +571,74 @@ function queryProjectGraph(graph, query, options = {}) {
     .slice(0, 20);
 }
 
+function compactGraphNode(node) {
+  const result = {
+    id: node.id,
+    type: node.type,
+    label: node.label,
+    source: node.source,
+    citation: { source: node.citation?.source || node.source },
+  };
+  if (node.activityState) result.activityState = node.activityState;
+  return result;
+}
+
+function activityState(node) {
+  return String(node?.activityState || '').trim().toLowerCase();
+}
+
+function buildActiveSubgraph(graph, options = {}) {
+  const taskId = String(options.taskId || '').toUpperCase();
+  const currentId = `task:${taskId}`;
+  const nodes = new Map((graph.nodes || []).map(node => [node.id, node]));
+  const current = nodes.get(currentId);
+  const recentSources = new Set((options.recentSources || []).map(source => String(source)));
+  const relatedEdges = (graph.edges || []).filter(edge => edge.from === currentId || edge.to === currentId);
+  const neighborFor = edge => nodes.get(edge.from === currentId ? edge.to : edge.from);
+  const uniqueNodes = values => [...new Map(values.filter(Boolean).map(node => [node.id, node])).values()]
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map(compactGraphNode);
+  const directBy = predicate => uniqueNodes(relatedEdges.filter(predicate).map(neighborFor));
+  const directTyped = directBy(edge => new Set(['depends-on', 'blocks']).has(edge.type));
+  const governingDecisions = directBy(edge => edge.type === 'supports' && neighborFor(edge)?.type === 'user-decision');
+  const assumptions = directBy(edge => edge.type === 'supports' && neighborFor(edge)?.type === 'assumption');
+  const acceptanceCriteria = directBy(edge => edge.type === 'supports' && neighborFor(edge)?.type === 'requirement');
+  const directDependencies = directBy(edge => (edge.from === currentId && edge.type === 'depends-on')
+    || (edge.to === currentId && edge.type === 'blocks'));
+  const directDependants = directBy(edge => (edge.to === currentId && edge.type === 'depends-on')
+    || (edge.from === currentId && edge.type === 'blocks'));
+  const activeTasks = directTyped.filter(node => node.type === 'task');
+  const conflicts = relatedEdges
+    .filter(edge => edge.type === 'conflicts-with' && edge.status !== 'resolved')
+    .map(edge => ({
+      node: compactGraphNode(neighborFor(edge)),
+      relationship: {
+        type: edge.type,
+        source: edge.source,
+        citation: { source: edge.citation?.source || edge.source },
+      },
+    }))
+    .sort((a, b) => a.node.id.localeCompare(b.node.id));
+
+  return {
+    taskId,
+    objective: current?.objective || '',
+    readyNodes: activeTasks.filter(node => activityState(node) === 'ready'),
+    blockedNodes: activeTasks.filter(node => activityState(node) === 'blocked'),
+    unresolvedConflicts: conflicts,
+    governingDecisions,
+    recentDecisions: governingDecisions.filter(node => recentSources.has(node.source)),
+    assumptions,
+    dependencyState: { directDependencies, directDependants },
+    directDependencies,
+    directDependants,
+    acceptanceCriteria,
+    affectedVerification: directBy(edge => ['verified-by', 'affects'].includes(edge.type)
+      && ['verification', 'qa'].includes(neighborFor(edge)?.type)),
+    applicableLessons: directBy(edge => edge.type === 'learned-from' && neighborFor(edge)?.type === 'lesson'),
+  };
+}
+
 function resolveProjectContext(root, query) {
   const findings = [];
   try {
@@ -683,6 +759,12 @@ function projectContextPacket(root, options = {}) {
   }
 
   const results = queryProjectGraph(refresh.graph, question, { currentTask: taskId });
+  const activeSubgraph = buildActiveSubgraph(refresh.graph, {
+    taskId,
+    // An initial derived-state build has no prior graph baseline, so its sources
+    // are not evidence that a governing decision changed recently.
+    recentSources: refresh.reusedSources.length ? refresh.changedSources : [],
+  });
   const exactHandoff = `docs/handoffs/${taskId}.md`;
   const lowerQuestion = question.toLowerCase();
   function sourceScore(source) {
@@ -731,6 +813,19 @@ function projectContextPacket(root, options = {}) {
       source: result.source,
       relationshipPath: result.relationshipPath,
     })),
+    objective: activeSubgraph.objective,
+    readyNodes: activeSubgraph.readyNodes,
+    blockedNodes: activeSubgraph.blockedNodes,
+    unresolvedConflicts: activeSubgraph.unresolvedConflicts,
+    governingDecisions: activeSubgraph.governingDecisions,
+    recentDecisions: activeSubgraph.recentDecisions,
+    assumptions: activeSubgraph.assumptions,
+    dependencyState: activeSubgraph.dependencyState,
+    directDependencies: activeSubgraph.directDependencies,
+    directDependants: activeSubgraph.directDependants,
+    acceptanceCriteria: activeSubgraph.acceptanceCriteria,
+    affectedVerification: activeSubgraph.affectedVerification,
+    applicableLessons: activeSubgraph.applicableLessons,
     citations: [...new Set([taskNode.source, ...readableSources])].slice(0, 4),
     readableSources,
     instructions: [
@@ -805,6 +900,7 @@ module.exports = {
   readProjectGraph,
   refreshProjectGraph,
   queryProjectGraph,
+  buildActiveSubgraph,
   resolveProjectContext,
   projectContextPacket,
   evaluateGraduation,

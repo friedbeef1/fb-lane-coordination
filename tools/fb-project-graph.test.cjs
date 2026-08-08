@@ -17,6 +17,8 @@ const {
   refreshProjectGraph,
   queryProjectGraph,
   resolveProjectContext,
+  buildActiveSubgraph,
+  projectContextPacket,
   evaluateGraduation,
 } = require(graphModule);
 
@@ -190,6 +192,83 @@ status: ready
 [TASK-100](../handoffs/TASK-100.md) [QA](../qa/TASK-100.md)
 `);
   write(root, 'CHANGELOG.md', '# 1.0.0\n\n- Includes TASK-100.\n');
+  return root;
+}
+
+function activeSubgraphFixture() {
+  const root = normalizedCompilerFixture();
+  write(root, 'PROJECT_BOARD.md', `# Board
+
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+| TASK-100 | In Progress | FB-Product / BFM | Harness | Compile only the current graph context | tools/fb-project-graph.cjs | [Handoff](docs/handoffs/TASK-100.md) |
+| TASK-101 | Ready | FB-Tech | Compiler | Provide the direct prerequisite | none | [Handoff](docs/handoffs/TASK-101.md) |
+| TASK-102 | Blocked | FB-Tech | Runtime | Wait for the current graph context | none | [Handoff](docs/handoffs/TASK-102.md) |
+| TASK-103 | Ready | FB-Tech | Unrelated | Do not include this sibling task | none | [Handoff](docs/handoffs/TASK-103.md) |
+`);
+  write(root, 'docs/handoffs/TASK-100.md', `---
+type: fb-lane-handoff
+task: TASK-100
+lane: fb-product
+status: in-progress
+graph:
+  depends_on:
+    - TASK-101
+  blocks:
+    - TASK-102
+  conflicts_with:
+    - DECISION-100
+  affects:
+    - verification:TASK-100
+  verified_by:
+    - verification:TASK-100
+  learned_from:
+    - lesson:LESSON-100
+---
+
+# TASK-100
+
+## User Decision: DECISION-100
+
+Use only the semantically linked active subgraph.
+
+## Assumption: ASSUMPTION-100
+
+The derived graph remains rebuildable.
+
+## Requirement: REQUIREMENT-100
+
+Keep routine context compact.
+`);
+  write(root, 'docs/handoffs/TASK-102.md', `---
+type: fb-lane-handoff
+task: TASK-102
+lane: fb-tech
+status: blocked
+---
+
+# TASK-102
+`);
+  write(root, 'docs/handoffs/TASK-103.md', `---
+type: fb-lane-handoff
+task: TASK-103
+lane: fb-tech
+status: ready
+---
+
+# TASK-103
+`);
+  write(root, 'docs/qa/TASK-100.md', '# TASK-100 QA\n');
+  write(root, 'docs/learning/index.md', `# Learning
+
+## LESSON-100
+
+Relevant lesson.
+
+## LESSON-OTHER
+
+Unrelated lesson.
+`);
   return root;
 }
 
@@ -421,6 +500,61 @@ test('current-task query scopes generic questions to linked task documents witho
   assert.ok(results.some(result => result.source === 'docs/superpowers/specs/TASK-100-design.md'));
   assert.ok(results.every(result => !result.id.includes('TASK-999')));
   assert.ok(results.length <= 20);
+});
+
+test('active subgraph keeps only direct semantic context and compact cited fields', () => {
+  const root = activeSubgraphFixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  const context = buildActiveSubgraph(graph, {
+    taskId: 'TASK-100',
+    recentSources: ['docs/handoffs/TASK-100.md'],
+  });
+
+  assert.strictEqual(context.objective, 'Compile only the current graph context');
+  assert.deepStrictEqual(context.readyNodes.map(node => node.id), ['task:TASK-101']);
+  assert.deepStrictEqual(context.blockedNodes.map(node => node.id), ['task:TASK-102']);
+  assert.deepStrictEqual(context.directDependencies.map(node => node.id), ['task:TASK-101']);
+  assert.deepStrictEqual(context.directDependants.map(node => node.id), ['task:TASK-102']);
+  assert.deepStrictEqual(context.governingDecisions.map(node => node.label), ['User Decision: DECISION-100']);
+  assert.deepStrictEqual(context.recentDecisions.map(node => node.label), ['User Decision: DECISION-100']);
+  assert.deepStrictEqual(context.assumptions.map(node => node.label), ['Assumption: ASSUMPTION-100']);
+  assert.deepStrictEqual(context.acceptanceCriteria.map(node => node.label), ['Requirement: REQUIREMENT-100']);
+  assert.deepStrictEqual(context.affectedVerification.map(node => node.id), ['verification:TASK-100']);
+  assert.deepStrictEqual(context.applicableLessons.map(node => node.id), ['lesson:LESSON-100']);
+  assert.strictEqual(context.unresolvedConflicts.length, 1);
+  assert.ok(context.unresolvedConflicts[0].node.label.includes('DECISION-100'));
+  assert.ok(!JSON.stringify(context).includes('TASK-103'));
+  assert.ok(!JSON.stringify(context).includes('LESSON-OTHER'));
+  for (const group of Object.values(context)) {
+    if (!Array.isArray(group)) continue;
+    for (const item of group) {
+      const node = item.node || item;
+      assert.strictEqual(node.citation.source, node.source);
+    }
+  }
+});
+
+test('project context packet exposes compact active-subgraph fields without copied handoff prose', () => {
+  const root = activeSubgraphFixture();
+  const packet = projectContextPacket(root, {
+    taskId: 'TASK-100',
+    question: 'What is the active dependency state for TASK-100?',
+  });
+
+  assert.strictEqual(packet.route, 'project-graph');
+  assert.strictEqual(packet.objective, 'Compile only the current graph context');
+  assert.deepStrictEqual(packet.directDependencies.map(node => node.id), ['task:TASK-101']);
+  assert.deepStrictEqual(packet.directDependants.map(node => node.id), ['task:TASK-102']);
+  assert.deepStrictEqual(packet.applicableLessons.map(node => node.id), ['lesson:LESSON-100']);
+  assert.deepStrictEqual(packet.recentDecisions, []);
+  assert.ok(!JSON.stringify(packet).includes('Use only the semantically linked active subgraph.'));
+
+  fs.appendFileSync(path.join(root, 'docs/handoffs/TASK-100.md'), '\n## Note\n\nRefresh the current decision source.\n');
+  const changedPacket = projectContextPacket(root, {
+    taskId: 'TASK-100',
+    question: 'What is the active dependency state for TASK-100?',
+  });
+  assert.deepStrictEqual(changedPacket.recentDecisions.map(node => node.label), ['User Decision: DECISION-100']);
 });
 
 test('retrieves archived history through its exact archive and handoff citations', () => {
