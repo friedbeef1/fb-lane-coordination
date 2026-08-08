@@ -250,6 +250,119 @@ function selectApplicableLessons(lessons, context = {}) {
   return lessons.map(validateLearningReceipt).filter(lesson => lesson.active && lesson.workTypes.some(workType => requested.has(workType)));
 }
 
+function validateAutomaticTreatment(input) {
+  assertOnlyKeys(input, ['type', 'value'], 'Automatic learning treatment');
+  const type = String(input.type || '').trim();
+  if (!TREATMENTS.has(type)) throw new Error('Automatic learning treatment is not allowlisted.');
+  return { type, value: safeId(input.value, 'Automatic learning treatment value') };
+}
+
+function validateLearningObservation(input) {
+  assertOnlyKeys(input, [
+    'result', 'runId', 'kind', 'comparable', 'acceptedOutcome', 'safetyPassed',
+    'mustPassPassed', 'evidenceRefs', 'metrics',
+  ], 'Learning application observation');
+  assertPrivateSafe({ ...input, ...(input.metrics ? { metrics: '[numeric efficiency metrics]' } : {}) }, 'Learning application observation');
+  const result = String(input.result || '').trim();
+  if (!['helped', 'incomplete', 'failed', 'safety_regression', 'not_comparable'].includes(result)) {
+    throw new Error('Learning application result is invalid.');
+  }
+  const kind = String(input.kind || '').trim();
+  if (!['quality', 'efficiency'].includes(kind)) throw new Error('Learning application kind is invalid.');
+  let metrics;
+  if (kind === 'efficiency') {
+    assertOnlyKeys(input.metrics, ['baselineTokens', 'candidateTokens', 'baselineWallMs', 'candidateWallMs'], 'Learning efficiency metrics');
+    metrics = {};
+    for (const key of ['baselineTokens', 'candidateTokens', 'baselineWallMs', 'candidateWallMs']) {
+      const value = Number(input.metrics[key]);
+      if (!Number.isFinite(value) || value < 0) throw new Error(`Learning efficiency metric ${key} is invalid.`);
+      metrics[key] = value;
+    }
+  } else if (input.metrics !== undefined) {
+    throw new Error('Quality learning observations do not accept efficiency metrics.');
+  }
+  return {
+    result,
+    runId: safeId(input.runId, 'Learning application run ID'),
+    kind,
+    comparable: input.comparable === true,
+    acceptedOutcome: input.acceptedOutcome === true,
+    safetyPassed: input.safetyPassed === true,
+    mustPassPassed: input.mustPassPassed === true,
+    evidenceRefs: stringArray(input.evidenceRefs, 'Learning application evidence references', item => evidenceRef(item, 'Learning application evidence reference')),
+    ...(metrics ? { metrics } : {}),
+  };
+}
+
+function efficiencyImprovement(metrics) {
+  const tokenGain = metrics.baselineTokens > 0 ? (metrics.baselineTokens - metrics.candidateTokens) / metrics.baselineTokens : 0;
+  const wallGain = metrics.baselineWallMs > 0 ? (metrics.baselineWallMs - metrics.candidateWallMs) / metrics.baselineWallMs : 0;
+  return Math.max(tokenGain, wallGain);
+}
+
+function transitionedLesson(lesson, updates, reason) {
+  const next = validateLearningReceipt({ ...lesson, ...updates });
+  return { ...next, reason };
+}
+
+function evaluateLearningTransition(input = {}) {
+  assertOnlyKeys(input, ['lesson', 'observation'], 'Learning transition');
+  const { reason: priorReason, ...lessonInput } = input.lesson || {};
+  const lesson = validateLearningReceipt(lessonInput);
+  const observation = validateLearningObservation(input.observation);
+  if (!lesson.active) throw new Error(`Learning lesson ${lesson.lessonId} is inactive and cannot transition automatically.`);
+  if (lesson.applications.includes(observation.runId) || lesson.runId === observation.runId) {
+    throw new Error('Learning confirmation requires a distinct application run that was not already counted.');
+  }
+  if (observation.result === 'not_comparable' || !observation.comparable) {
+    return transitionedLesson(lesson, {}, 'Comparison was not equivalent; application was not counted.');
+  }
+  if (observation.result === 'safety_regression' || !observation.safetyPassed) {
+    return transitionedLesson(lesson, { state: 'rejected', active: false }, 'Safety regression rejected and deactivated the lesson immediately.');
+  }
+  if (observation.result === 'failed' || !observation.mustPassPassed || !observation.acceptedOutcome) {
+    return transitionedLesson(lesson, { state: 'rejected', active: false }, 'Required outcome or regression proof failed.');
+  }
+  if (observation.kind === 'efficiency' && efficiencyImprovement(observation.metrics) < 0.10) {
+    return transitionedLesson(lesson, { state: 'rejected', active: false }, 'Observed efficiency improvement was below 10%.');
+  }
+  if (observation.result === 'incomplete') {
+    if (lesson.revisionCount >= 1 || lesson.state === 'revised') {
+      return transitionedLesson(lesson, { state: 'rejected', active: false }, 'The single permitted lesson revision was exhausted.');
+    }
+    return transitionedLesson(lesson, { state: 'revised', revisionCount: 1, applications: [...lesson.applications, observation.runId] }, 'The treatment was relevant but incomplete; one revision is permitted.');
+  }
+  const applications = [...lesson.applications, observation.runId];
+  return transitionedLesson(lesson, {
+    state: applications.length >= 2 ? 'confirmed' : lesson.state,
+    applications,
+  }, applications.length >= 2 ? 'Two distinct relevant applications confirmed the lesson.' : 'One helpful application recorded; another is required for confirmation.');
+}
+
+function assertLearningBudget(input = {}) {
+  assertOnlyKeys(input, ['runId', 'signature', 'repairBudget', 'activeLessons'], 'Learning budget');
+  safeId(input.runId, 'Learning budget run ID');
+  assertOnlyKeys(input.signature, ['category', 'surface', 'criterion'], 'Learning budget signature');
+  const signature = {
+    category: safeId(input.signature.category, 'Learning budget signature category'),
+    surface: safeId(input.signature.surface, 'Learning budget signature surface'),
+    criterion: safeId(input.signature.criterion, 'Learning budget signature criterion'),
+  };
+  assertOnlyKeys(input.repairBudget, ['before', 'after', 'limit'], 'Learning repair budget');
+  const before = Number(input.repairBudget.before);
+  const after = Number(input.repairBudget.after);
+  const limit = Number(input.repairBudget.limit);
+  if (![before, after, limit].every(Number.isInteger) || before < 0 || after < 0 || limit < 0 || after > limit) {
+    throw new Error('Learning repair budget values are invalid.');
+  }
+  if (after < before) throw new Error('Learning cannot reset or reduce the consumed repair budget.');
+  const matching = (Array.isArray(input.activeLessons) ? input.activeLessons : [])
+    .map(validateLearningReceipt)
+    .filter(lesson => lesson.active && signatureKey(lesson.signature) === signatureKey(signature));
+  if (matching.length > 1) throw new Error('Learning permits only one active lesson for a failure signature.');
+  return { valid: true, remainingRepairs: limit - after };
+}
+
 function renderLearningSummary(lesson) {
   const record = validateLearningReceipt(lesson);
   return `Learning: ${record.state} ${record.lessonId}`;
@@ -266,5 +379,8 @@ module.exports = {
   readLearningRegistry,
   writeLearningRegistry,
   selectApplicableLessons,
+  validateAutomaticTreatment,
+  evaluateLearningTransition,
+  assertLearningBudget,
   renderLearningSummary,
 };

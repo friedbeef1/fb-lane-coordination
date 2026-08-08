@@ -13,6 +13,9 @@ const {
   readLearningRegistry,
   writeLearningRegistry,
   selectApplicableLessons,
+  evaluateLearningTransition,
+  validateAutomaticTreatment,
+  assertLearningBudget,
 } = require('./fb-learning.cjs');
 
 const tests = [];
@@ -52,6 +55,20 @@ function receipt(overrides = {}) {
     applications: [],
     revisionCount: 0,
     active: true,
+    ...overrides,
+  };
+}
+
+function observation(result, runId, overrides = {}) {
+  return {
+    result,
+    runId,
+    kind: 'quality',
+    comparable: true,
+    acceptedOutcome: true,
+    safetyPassed: true,
+    mustPassPassed: true,
+    evidenceRefs: [`docs/qa/${runId}.md#learning-result`],
     ...overrides,
   };
 }
@@ -104,6 +121,62 @@ test('concurrent observation writers leave complete JSONL records', async () => 
   } finally {
     fixture.cleanup();
   }
+});
+
+test('confirms after two helpful applications and allows only one revision', () => {
+  const provisional = receipt();
+  const first = evaluateLearningTransition({ lesson: provisional, observation: observation('helped', 'run-002') });
+  assert.equal(first.state, 'provisional');
+  assert.deepEqual(first.applications, ['run-002']);
+  const second = evaluateLearningTransition({ lesson: first, observation: observation('helped', 'run-003') });
+  assert.equal(second.state, 'confirmed');
+  const revised = evaluateLearningTransition({ lesson: provisional, observation: observation('incomplete', 'run-002') });
+  assert.equal(revised.state, 'revised');
+  assert.equal(revised.revisionCount, 1);
+  const rejected = evaluateLearningTransition({ lesson: revised, observation: observation('incomplete', 'run-003') });
+  assert.equal(rejected.state, 'rejected');
+  assert.equal(rejected.active, false);
+});
+
+test('rejects safety regressions, failed proofs, duplicate runs, and weak efficiency gains', () => {
+  const provisional = receipt();
+  assert.equal(evaluateLearningTransition({ lesson: provisional, observation: observation('safety_regression', 'run-002', { safetyPassed: false }) }).state, 'rejected');
+  assert.equal(evaluateLearningTransition({ lesson: provisional, observation: observation('failed', 'run-002', { mustPassPassed: false }) }).state, 'rejected');
+  const once = evaluateLearningTransition({ lesson: provisional, observation: observation('helped', 'run-002') });
+  assert.throws(() => evaluateLearningTransition({ lesson: once, observation: observation('helped', 'run-002') }), /distinct|already|run/i);
+  const weak = observation('helped', 'run-002', {
+    kind: 'efficiency',
+    metrics: { baselineTokens: 1000, candidateTokens: 950, baselineWallMs: 1000, candidateWallMs: 950 },
+  });
+  assert.equal(evaluateLearningTransition({ lesson: provisional, observation: weak }).state, 'rejected');
+  const strong = observation('helped', 'run-002', {
+    kind: 'efficiency',
+    metrics: { baselineTokens: 1000, candidateTokens: 850, baselineWallMs: 1000, candidateWallMs: 1000 },
+  });
+  assert.equal(evaluateLearningTransition({ lesson: provisional, observation: strong }).state, 'provisional');
+});
+
+test('automatic treatments are allowlisted and learning cannot reset repair budgets', () => {
+  assert.deepEqual(validateAutomaticTreatment({ type: 'add_context_ref', value: 'decision-auth' }), { type: 'add_context_ref', value: 'decision-auth' });
+  assert.throws(() => validateAutomaticTreatment({ type: 'change_source', value: 'src/auth.js' }), /allow|treatment/i);
+  assert.deepEqual(assertLearningBudget({
+    runId: 'run-001',
+    signature: { category: 'build', surface: 'cache', criterion: 'invalidation' },
+    repairBudget: { before: 1, after: 1, limit: 2 },
+    activeLessons: [],
+  }), { valid: true, remainingRepairs: 1 });
+  assert.throws(() => assertLearningBudget({
+    runId: 'run-001',
+    signature: { category: 'build', surface: 'cache', criterion: 'invalidation' },
+    repairBudget: { before: 1, after: 0, limit: 2 },
+    activeLessons: [],
+  }), /reset|budget/i);
+  assert.throws(() => assertLearningBudget({
+    runId: 'run-001',
+    signature: { category: 'build', surface: 'cache', criterion: 'invalidation' },
+    repairBudget: { before: 1, after: 1, limit: 2 },
+    activeLessons: [receipt(), receipt({ lessonId: 'LESSON-TECH-CACHE-002' })],
+  }), /one active|signature/i);
 });
 
 (async () => {
