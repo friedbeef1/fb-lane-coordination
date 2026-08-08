@@ -139,6 +139,10 @@ graph:
     - REQUIREMENT-100
   supersedes:
     - REQUIREMENT-099
+  learned_from:
+    - lesson:LESSON-100
+  included_in_release:
+    - release:1.0.0
 ---
 
 # TASK-100
@@ -256,6 +260,72 @@ test('rejects unresolved declared relationships without deriving successful veri
   assert.ok(graph.health.findings.some(finding => finding.code === 'unresolved-edge-target'));
   assert.ok(!graph.edges.some(edge => edge.to === 'task:TASK-404'));
   assert.ok(graph.nodes.filter(node => node.type === 'verification').every(node => node.verificationState === 'unknown'));
+});
+
+test('does not infer a user decision or approval from a plain decision heading', () => {
+  const root = fixture();
+  write(root, 'docs/handoffs/TASK-100.md', `---
+type: fb-lane-handoff
+task: TASK-100
+lane: fb-product
+status: ready
+---
+
+# TASK-100
+
+## Decision
+
+A facilitator noted an unresolved option.
+`);
+
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  assert.ok(!graph.nodes.some(node => node.type === 'user-decision'));
+  assert.ok(!graph.edges.some(edge => edge.type === 'supports' && edge.source === 'docs/handoffs/TASK-100.md'));
+});
+
+test('does not promote generic QA links and task mentions into semantic relationships', () => {
+  const root = fixture();
+  write(root, 'docs/qa/BUG-100.md', '# BUG-100\n\nTASK-100 is mentioned for investigation.\n');
+  write(root, 'docs/learning/index.md', '# Learning\n\n## LESSON-100\n\n[TASK-100](../handoffs/TASK-100.md) [QA](../qa/TASK-100.md)\n');
+  write(root, 'CHANGELOG.md', '# 1.0.0\n\nTASK-100 is mentioned as a future candidate.\n');
+
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  assert.ok(!graph.edges.some(edge => edge.type === 'verified-by'));
+  assert.ok(!graph.edges.some(edge => edge.type === 'owned-by' && edge.source.startsWith('docs/workstreams/')));
+  assert.ok(!graph.edges.some(edge => edge.type === 'affects' && edge.source === 'docs/qa/BUG-100.md'));
+  assert.ok(!graph.edges.some(edge => edge.type === 'learned-from' && edge.source === 'docs/learning/index.md'));
+  assert.ok(!graph.edges.some(edge => edge.type === 'included-in-release' && edge.source === 'CHANGELOG.md'));
+});
+
+test('source-scopes repeated heading entities instead of silently dropping one source', () => {
+  const root = normalizedCompilerFixture();
+  fs.appendFileSync(path.join(root, 'docs/handoffs/TASK-100.md'), '\n## Requirement: SHARED-REQUIREMENT\n\nFirst source.\n');
+  fs.appendFileSync(path.join(root, 'docs/handoffs/TASK-101.md'), '\n## Requirement: SHARED-REQUIREMENT\n\nSecond source.\n');
+
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  const repeated = graph.nodes.filter(node => node.label === 'Requirement: SHARED-REQUIREMENT');
+  assert.strictEqual(repeated.length, 2);
+  assert.notStrictEqual(repeated[0].id, repeated[1].id);
+  assert.notStrictEqual(repeated[0].source, repeated[1].source);
+});
+
+test('citation-less persisted graphs and nonexistent Git provenance fall back to authoritative records', () => {
+  const root = fixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  for (const item of [...graph.nodes, ...graph.edges]) delete item.citation;
+  graph.nodes.push({
+    id: 'commit:invalid',
+    type: 'commit',
+    label: 'invalid',
+    source: 'git:0000000000000000000000000000000000000000',
+    status: 'confirmed',
+  });
+  writeProjectGraph(root, graph);
+
+  const findings = validateProjectGraph(root, graph).map(finding => finding.code);
+  assert.ok(findings.includes('missing-citation'));
+  assert.ok(findings.includes('unsafe-source'));
+  assert.strictEqual(resolveProjectContext(root, 'What verifies TASK-100?').route, 'normalized-record-fallback');
 });
 
 test('writes deterministic graph, Markdown, HTML, and state artifacts atomically', () => {

@@ -114,13 +114,29 @@ function sourceFiles(root) {
 
 function gitSources(root) {
   try {
-    const output = execFileSync('git', ['log', '--format=%H%x09%s', '-n', '200'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-    return output.trim().split(/\r?\n/).filter(Boolean).map(line => {
-      const [hash, subject = ''] = line.split('\t');
-      return { source: `git:${hash}`, hash, subject };
-    });
+    const output = execFileSync('git', ['log', '--format=%H', '-n', '200'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    return output.trim().split(/\r?\n/).filter(Boolean).map(hash => ({ source: `git:${hash}`, hash }));
   } catch {
     return [];
+  }
+}
+
+function validGitSources(root, sources) {
+  const hashes = [...new Set(sources
+    .filter(source => /^git:[0-9a-f]{40}$/i.test(source))
+    .map(source => source.slice('git:'.length)))];
+  if (!hashes.length) return new Set();
+  try {
+    const output = execFileSync('git', ['cat-file', '--batch-check=%(objecttype)'], {
+      cwd: root,
+      input: `${hashes.join('\n')}\n`,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'ignore'],
+    });
+    const kinds = output.trim().split(/\r?\n/);
+    return new Set(hashes.filter((hash, index) => kinds[index] === 'commit').map(hash => `git:${hash}`));
+  } catch {
+    return new Set();
   }
 }
 
@@ -159,9 +175,13 @@ function safeEntityId(value) {
   return String(value || '').trim().toUpperCase().replace(/[^A-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
+function sourceScopedEntityId(type, key, source) {
+  return `${type}:${key || 'UNTITLED'}--${sha256(source).slice(0, 12)}`;
+}
+
 function addHeadingEntities(markdown, source, nodes, edges, taskId) {
   const kinds = new Map([
-    ['user decision', 'user-decision'], ['decision', 'user-decision'], ['assumption', 'assumption'],
+    ['user decision', 'user-decision'], ['assumption', 'assumption'],
     ['requirement', 'requirement'], ['implementation slice', 'implementation-slice'],
     ['bug', 'bug'], ['verification', 'verification'], ['lesson', 'lesson'], ['release', 'release'],
   ]);
@@ -172,8 +192,8 @@ function addHeadingEntities(markdown, source, nodes, edges, taskId) {
     if (!matched) continue;
     const [label, type] = matched;
     const suffix = heading[1].replace(new RegExp(`^${label}(?:\\s*:\\s*|\\s*)`, 'i'), '');
-    const key = safeEntityId(suffix) || `${safeEntityId(source)}-${index + 1}`;
-    const id = `${type}:${key}`;
+    const key = safeEntityId(suffix) || `LINE-${index + 1}`;
+    const id = sourceScopedEntityId(type, key, source);
     addNode(nodes, { id, type, label: heading[1], source, status: 'confirmed' });
     if (taskId) addEdge(edges, { from: taskId, to: id, type: type === 'implementation-slice' ? 'implements' : 'supports', source, status: 'confirmed' });
   }
@@ -202,7 +222,7 @@ function addBoardRows(root, markdown, source, nodes, edges) {
       } else if (relative.startsWith('docs/qa/')) {
         const id = `qa:${relative}`;
         addNode(nodes, { id, type: 'qa', label: path.basename(relative, '.md'), source: relative, status: 'confirmed' });
-        addEdge(edges, { from: taskId, to: id, type: 'verified-by', source, status: 'confirmed' });
+        addEdge(edges, { from: taskId, to: id, type: 'references', source, status: 'confirmed' });
       }
     }
   }
@@ -242,31 +262,17 @@ function buildProjectGraph(root, options = {}) {
       addNode(nodes, { id: laneId, type: 'workstream', label: meta.lane, source: relative, status: 'confirmed' });
       addEdge(edges, { from: taskId, to: laneId, type: 'owned-by', source: relative, status: 'confirmed' });
     }
-    if (/^##\s+(?:Approved Decision|User Decision|Decision)\b/im.test(markdown)) {
-      const decisionId = `decision:${relative}`;
-      addNode(nodes, { id: decisionId, type: 'decision', label: `${meta.task} approved decision`, source: relative, status: 'confirmed' });
-      addEdge(edges, { from: taskId, to: decisionId, type: 'supports', source: relative, status: 'confirmed' });
-      const canonicalDecisionId = `user-decision:${safeEntityId(meta.task)}-APPROVED`;
-      addNode(nodes, { id: canonicalDecisionId, type: 'user-decision', label: `${meta.task} approved decision`, source: relative, status: 'confirmed' });
-      addEdge(edges, { from: taskId, to: canonicalDecisionId, type: 'supports', source: relative, status: 'confirmed' });
-    }
     for (const target of markdownLinks(markdown)) {
       const resolved = resolvedMarkdownTarget(resolvedRoot, relative, target);
       if (!resolved || !fs.existsSync(path.join(resolvedRoot, resolved))) continue;
       if (resolved.startsWith('docs/qa/')) {
         const qaId = `qa:${resolved}`;
         addNode(nodes, { id: qaId, type: 'qa', label: path.basename(resolved, '.md'), source: resolved, status: 'confirmed' });
-        addEdge(edges, { from: taskId, to: qaId, type: 'verified-by', source: relative, status: 'confirmed' });
+        addEdge(edges, { from: handoffId, to: qaId, type: 'references', source: relative, status: 'confirmed' });
       } else if (resolved.startsWith('docs/handoffs/')) {
         const dependencyId = `handoff:${resolved}`;
         addNode(nodes, { id: dependencyId, type: 'handoff', label: path.basename(resolved, '.md'), source: resolved, status: 'confirmed' });
-        addEdge(edges, { from: handoffId, to: dependencyId, type: 'depends-on', source: relative, status: 'confirmed' });
-        const dependency = frontmatter(fs.readFileSync(path.join(resolvedRoot, resolved), 'utf8'));
-        if (SAFE_TASK_ID.test(dependency.task || '')) {
-          const dependencyTaskId = `task:${dependency.task}`;
-          addNode(nodes, { id: dependencyTaskId, type: 'task', label: dependency.task, source: 'PROJECT_BOARD.md', status: 'confirmed' });
-          addEdge(edges, { from: taskId, to: dependencyTaskId, type: 'depends-on', source: relative, status: 'confirmed' });
-        }
+        addEdge(edges, { from: handoffId, to: dependencyId, type: 'references', source: relative, status: 'confirmed' });
       } else if (resolved.endsWith('.md')) {
         const documentId = `document:${resolved}`;
         addNode(nodes, { id: documentId, type: 'document', label: path.basename(resolved, '.md'), source: resolved, status: 'confirmed' });
@@ -290,18 +296,12 @@ function buildProjectGraph(root, options = {}) {
   }
 
   for (const relative of files.filter(file => file.startsWith('docs/workstreams/'))) {
-    const markdown = fs.readFileSync(path.join(resolvedRoot, relative), 'utf8');
     const lane = path.basename(relative, '.md');
     const workstreamId = `workstream:${lane}`;
     addNode(nodes, { id: workstreamId, type: 'workstream', label: lane, source: relative, status: 'confirmed' });
-    for (const task of new Set(String(markdown).match(/[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)/g) || [])) {
-      const taskId = `task:${task}`;
-      if (nodes.has(taskId)) addEdge(edges, { from: taskId, to: workstreamId, type: 'owned-by', source: relative, status: 'confirmed' });
-    }
   }
 
   for (const relative of files.filter(file => file.startsWith('docs/qa/'))) {
-    const markdown = fs.readFileSync(path.join(resolvedRoot, relative), 'utf8');
     const key = path.basename(relative, '.md').toUpperCase();
     const qaId = `qa:${relative}`;
     const verificationId = `verification:${key}`;
@@ -310,9 +310,6 @@ function buildProjectGraph(root, options = {}) {
     if (key.startsWith('BUG-')) {
       const bugId = `bug:${key}`;
       addNode(nodes, { id: bugId, type: 'bug', label: key, source: relative, status: 'confirmed' });
-      for (const task of new Set(String(markdown).match(/[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)/g) || [])) {
-        if (nodes.has(`task:${task}`)) addEdge(edges, { from: bugId, to: `task:${task}`, type: 'affects', source: relative, status: 'confirmed' });
-      }
     }
   }
 
@@ -323,36 +320,16 @@ function buildProjectGraph(root, options = {}) {
       if (!lesson) continue;
       const lessonId = `lesson:${lesson[1].toUpperCase()}`;
       addNode(nodes, { id: lessonId, type: 'lesson', label: lesson[1], source: relative, status: 'confirmed' });
-      for (const target of markdownLinks(markdown)) {
-        const resolved = resolvedMarkdownTarget(resolvedRoot, relative, target);
-        if (!resolved) continue;
-        const verificationKey = path.basename(resolved, '.md').toUpperCase();
-        if (resolved.startsWith('docs/qa/') && nodes.has(`verification:${verificationKey}`)) {
-          addEdge(edges, { from: lessonId, to: `verification:${verificationKey}`, type: 'learned-from', source: relative, status: 'confirmed' });
-        } else if (resolved.startsWith('docs/handoffs/')) {
-          const targetMeta = frontmatter(fs.readFileSync(path.join(resolvedRoot, resolved), 'utf8'));
-          if (SAFE_TASK_ID.test(targetMeta.task || '') && nodes.has(`task:${targetMeta.task}`)) {
-            addEdge(edges, { from: lessonId, to: `task:${targetMeta.task}`, type: 'learned-from', source: relative, status: 'confirmed' });
-          }
-        }
-      }
     }
   }
 
   if (files.includes('CHANGELOG.md')) {
     const source = 'CHANGELOG.md';
     const markdown = fs.readFileSync(path.join(resolvedRoot, source), 'utf8');
-    let releaseId = null;
     for (const line of String(markdown).split(/\r?\n/)) {
       const heading = line.match(/^#{1,6}\s+(?:\[)?v?(\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?)(?:\])?\b/i);
       if (heading) {
-        releaseId = `release:${heading[1]}`;
-        addNode(nodes, { id: releaseId, type: 'release', label: heading[1], source, status: 'confirmed' });
-        continue;
-      }
-      if (!releaseId) continue;
-      for (const task of new Set(line.match(/[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)/g) || [])) {
-        if (nodes.has(`task:${task}`)) addEdge(edges, { from: `task:${task}`, to: releaseId, type: 'included-in-release', source, status: 'confirmed' });
+        addNode(nodes, { id: `release:${heading[1]}`, type: 'release', label: heading[1], source, status: 'confirmed' });
       }
     }
   }
@@ -373,7 +350,8 @@ function buildProjectGraph(root, options = {}) {
       if (!type) continue;
       for (const target of targets) {
         const value = String(target).trim();
-        const candidates = [value, `task:${value}`, ...[...nodes.keys()].filter(id => id.endsWith(`:${value}`))];
+        const key = safeEntityId(value.includes(':') ? value.slice(value.indexOf(':') + 1) : value);
+        const candidates = [value, `task:${value}`, ...[...nodes.keys()].filter(id => id.endsWith(`:${value}`) || id.includes(`:${key}--`))];
         const resolved = [...new Set(candidates)].filter(id => nodes.has(id));
         if (resolved.length !== 1) {
           compileFindings.push({ code: 'unresolved-edge-target', message: `Declared ${type} target is unresolved or ambiguous: ${value}`, source: declaration.source });
@@ -401,14 +379,18 @@ function buildProjectGraph(root, options = {}) {
 
 function validateProjectGraph(root, graph) {
   const findings = [...(graph.compileFindings || [])];
+  const items = [...(graph.nodes || []), ...(graph.edges || [])];
   const nodeIds = new Set((graph.nodes || []).map(node => node.id));
-  for (const item of [...(graph.nodes || []), ...(graph.edges || [])]) {
+  const knownGitSources = validGitSources(root, items.map(item => String(item.source || '')));
+  for (const item of items) {
     const source = String(item.source || '');
     if (!source || path.isAbsolute(source) || source === '..' || source.startsWith('../')
-      || (source.startsWith('git:') ? !/^git:[0-9a-f]{40}$/i.test(source) : !fs.existsSync(path.join(root, source)))) {
+      || (source.startsWith('git:') ? !knownGitSources.has(source) : !fs.existsSync(path.join(root, source)))) {
       findings.push({ code: 'unsafe-source', message: `Graph item has an unsafe or missing source: ${source}` });
     }
-    if (item.citation && item.citation.source !== source) {
+    if (!item.citation || typeof item.citation !== 'object' || typeof item.citation.source !== 'string') {
+      findings.push({ code: 'missing-citation', message: `Graph item is missing a source citation: ${source}` });
+    } else if (item.citation.source !== source) {
       findings.push({ code: 'invalid-citation', message: `Graph item citation does not match its source: ${source}` });
     }
     if (SENSITIVE.test(String(item.label || ''))) findings.push({ code: 'sensitive-output', message: 'Graph output contains sensitive-looking content.' });
@@ -530,7 +512,7 @@ function queryProjectGraph(graph, query, options = {}) {
     if (nodes.has(start)) {
       scopedDistances.set(start, 0);
       let frontier = [start];
-      for (let depth = 1; depth <= 2; depth += 1) {
+      for (let depth = 1; depth <= 3; depth += 1) {
         const next = [];
         for (const nodeId of frontier) {
           if (nodes.get(nodeId)?.type === 'workstream') continue;
@@ -590,12 +572,16 @@ function resolveProjectContext(root, query) {
     if (graph.schemaVersion !== GRAPH_SCHEMA_VERSION) findings.push('Project graph schema is unsupported.');
     if (graph.sourceFingerprint?.hash !== current.sourceFingerprint.hash) findings.push('Project graph is stale; used normalized FB records.');
     findings.push(...validation.map(finding => finding.message));
-    if (!findings.length) return { route: 'project-graph', results: queryProjectGraph(graph, query), findings: [] };
+    if (!findings.length) {
+      const task = String(query).toUpperCase().match(/[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)/);
+      return { route: 'project-graph', results: queryProjectGraph(graph, query, { currentTask: task?.[0] }), findings: [] };
+    }
   } catch {
     findings.push('Project graph is unreadable; used normalized FB records.');
   }
   const fallbackGraph = buildProjectGraph(root);
-  return { route: 'normalized-record-fallback', results: queryProjectGraph(fallbackGraph, query), findings };
+  const task = String(query).toUpperCase().match(/[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)/);
+  return { route: 'normalized-record-fallback', results: queryProjectGraph(fallbackGraph, query, { currentTask: task?.[0] }), findings };
 }
 
 function resolveTaskHandoff(root, taskId) {
