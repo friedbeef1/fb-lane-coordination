@@ -285,10 +285,25 @@ A facilitator noted an unresolved option.
 
 test('does not infer a user decision or approval from an approved decision heading', () => {
   const root = fixture();
+  write(root, 'docs/handoffs/TASK-100.md', `---
+type: fb-lane-handoff
+task: TASK-100
+lane: fb-product
+status: ready
+---
+
+# TASK-100
+
+## Approved Decision
+
+An editor labelled an option for later review.
+`);
   const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
 
-  assert.ok(!graph.nodes.some(node => node.type === 'user-decision'));
-  assert.ok(!graph.nodes.some(node => node.type === 'decision' && /approved/i.test(node.label)));
+  assert.ok(!graph.nodes.some(node => node.source === 'docs/handoffs/TASK-100.md'
+    && (node.type === 'user-decision' || /(?:approved|approval)/i.test(`${node.label} ${node.status}`))));
+  assert.ok(!graph.edges.some(edge => edge.source === 'docs/handoffs/TASK-100.md'
+    && (['approved-by', 'authorizes', 'releases'].includes(edge.type) || /(?:approved|approval)/i.test(edge.status))));
 });
 
 test('does not promote generic QA links and task mentions into semantic relationships', () => {
