@@ -34,7 +34,16 @@ function citation(item) {
 
 function values(value) {
   if (Array.isArray(value)) return value.map(item => String(item).trim()).filter(Boolean);
+  if (value instanceof Map) return [...value.keys()].map(item => String(item).trim()).filter(Boolean);
+  if (value && typeof value === 'object') return Object.keys(value).filter(key => value[key] !== false).sort();
   return typeof value === 'string' && value.trim() ? [value.trim()] : [];
+}
+
+function hasLockDeclaration(node) {
+  if (!Object.hasOwn(node || {}, 'locks')) return false;
+  const locks = node.locks;
+  return Array.isArray(locks) || locks instanceof Map || (locks !== null && typeof locks === 'object')
+    || (typeof locks === 'string' && Boolean(locks.trim()));
 }
 
 function relation(edge, code, target) {
@@ -54,7 +63,7 @@ function taskProjection(node, requirements, criticalPath, reasons = []) {
     source: node.source,
     citation: citation(node),
     ...(node.worktree ? { worktree: node.worktree } : {}),
-    ...(values(node.locks).length ? { locks: values(node.locks).sort() } : {}),
+    ...(hasLockDeclaration(node) ? { locks: values(node.locks).sort() } : {}),
     criticalPath,
     verificationRequirements: requirements,
     reasons,
@@ -169,7 +178,20 @@ function scheduleGraph(graph = {}, options = {}) {
 
   for (const detail of details.values()) {
     const { task } = detail;
-    if (isCurrent(task)) projection.current.push(make(detail));
+    if (isCurrent(task)) {
+      projection.current.push(make(detail, hasLockDeclaration(task)
+        ? []
+        : [relation(task, 'missing-lock-declaration')]));
+    }
+  }
+
+  for (const detail of details.values()) {
+    for (const requirement of detail.requirements) {
+      const verification = nodes.get(requirement.id);
+      if (!verification || !isComplete(verification)) {
+        addGate({ ...requirement, type: 'verification-gate', label: verification?.label || requirement.id }, relation(detail.task, 'verification-required', requirement.id));
+      }
+    }
   }
 
   const candidates = [];
@@ -227,11 +249,20 @@ function scheduleGraph(graph = {}, options = {}) {
       projection.deferred.push(make(detail, [relation(null, 'worktree-isolation-gate')]));
       continue;
     }
+    if (!hasLockDeclaration(task)) {
+      projection.deferred.push(make(detail, [relation(task, 'missing-lock-isolation-gate')]));
+      continue;
+    }
     candidates.push(detail);
   }
 
   const reserved = projection.current.map(entry => nodes.get(entry.id)).filter(Boolean);
   for (const detail of candidates) {
+    const unknownCurrentLocks = reserved.filter(task => !hasLockDeclaration(task));
+    if (unknownCurrentLocks.length) {
+      projection.deferred.push(make(detail, unknownCurrentLocks.map(task => relation(task, 'missing-lock-isolation-gate', task.id))));
+      continue;
+    }
     const collisions = [...candidates.filter(other => other.task.id !== detail.task.id).map(other => collides(detail.task, other.task)),
       ...reserved.map(other => collides(detail.task, other))]
       .filter(Boolean)
@@ -240,15 +271,6 @@ function scheduleGraph(graph = {}, options = {}) {
       projection.next.push(make(detail, [...new Set(collisions)].map(code => relation(null, code))));
     } else {
       projection.parallelReady.push(make(detail));
-    }
-  }
-
-  for (const entry of [...projection.current, ...projection.parallelReady, ...projection.next]) {
-    for (const requirement of entry.verificationRequirements) {
-      const verification = nodes.get(requirement.id);
-      if (!verification || !isComplete(verification)) {
-        addGate({ ...requirement, type: 'verification-gate', label: verification?.label || requirement.id }, relation(null, 'verification-required', requirement.id));
-      }
     }
   }
 

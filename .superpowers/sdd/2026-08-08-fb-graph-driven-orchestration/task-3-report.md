@@ -65,3 +65,49 @@ Task 6 must wire this API into Product/BFM after the plan requires the active
 subgraph snapshot and recorded Product priorities. This slice intentionally
 does not alter `$bfm`, records, locks, worktree allocation, release authority,
 or any source task.
+
+## Fix round 1 — lock and verification gates
+
+- A task now needs an explicit `locks` array or map before it can enter
+  `parallelReady`; an explicit empty array/map means no locks, while a missing
+  declaration emits a source-cited `missing-lock-isolation-gate` instead of
+  assuming safe isolation.
+- Current work with unknown locks remains visible as current but is marked with
+  a source-cited missing-lock reason and prevents new ready work from running
+  concurrently with it.
+- Unfinished `verified-by` requirements are collected before classification, so
+  blocked, deferred, and conflicted tasks keep their verification release gates
+  visible without asserting passed or failed proof.
+
+Focused verification command and output:
+
+```text
+$ node --test tools/fb-graph-scheduler.test.cjs plugins/fb-lane-coordination/tools/fb-graph-scheduler.test.cjs
+✔ projects six independent ready tasks in deterministic isolated parallel lanes
+✔ keeps dependency chains out of ready work and exposes their critical paths
+✔ reports unresolved user-decision conflicts without choosing a winner
+✔ reports explicit blockers and blocked activity without scheduling either task
+✔ defers sensitive work and serializes ready tasks that overlap a shared lock
+✔ permits only distinct concurrent worktree mappings and defers an unmapped task
+✔ fails closed when ready or current work omits its lock declaration
+✔ keeps unfinished verification gates visible for blocked deferred and conflicted tasks
+✔ projects six independent ready tasks in deterministic isolated parallel lanes
+✔ keeps dependency chains out of ready work and exposes their critical paths
+✔ reports unresolved user-decision conflicts without choosing a winner
+✔ reports explicit blockers and blocked activity without scheduling either task
+✔ defers sensitive work and serializes ready tasks that overlap a shared lock
+✔ permits only distinct concurrent worktree mappings and defers an unmapped task
+✔ fails closed when ready or current work omits its lock declaration
+✔ keeps unfinished verification gates visible for blocked deferred and conflicted tasks
+ℹ tests 16
+ℹ pass 16
+ℹ fail 0
+```
+
+```text
+$ node -c tools/fb-graph-scheduler.cjs
+$ node -c plugins/fb-lane-coordination/tools/fb-graph-scheduler.cjs
+$ node tools/fb-package-sync.cjs --check
+Checked 72 package mirrors.
+$ git diff --check
+```

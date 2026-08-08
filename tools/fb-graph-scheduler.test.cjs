@@ -146,3 +146,45 @@ test('permits only distinct concurrent worktree mappings and defers an unmapped 
   assert.deepStrictEqual(ids(projection.deferred), ['task:TASK-604']);
   assert.ok(projection.deferred[0].reasons.some(reason => reason.code === 'worktree-isolation-gate'));
 });
+
+test('fails closed when ready or current work omits its lock declaration', () => {
+  const projection = scheduleGraph(graph([
+    node('task:TASK-701', 'Ready', { worktree: 'wt-701' }),
+    node('task:TASK-702', 'In Progress', { worktree: 'wt-702' }),
+    node('task:TASK-703', 'Ready', { worktree: 'wt-703', locks: [] }),
+    node('task:TASK-704', 'Ready', { worktree: 'wt-704', locks: {} }),
+  ]));
+
+  assert.deepStrictEqual(ids(projection.current), ['task:TASK-702']);
+  assert.ok(projection.current[0].reasons.some(reason => reason.code === 'missing-lock-declaration'));
+  assert.deepStrictEqual(ids(projection.deferred), ['task:TASK-701', 'task:TASK-703', 'task:TASK-704']);
+  assert.ok(projection.deferred.every(item => item.reasons.some(reason => reason.code === 'missing-lock-isolation-gate')));
+  assert.ok(projection.deferred.flatMap(item => item.reasons).every(reason => reason.source.startsWith('docs/task-')));
+  assert.equal(projection.parallelReady.length, 0);
+});
+
+test('keeps unfinished verification gates visible for blocked deferred and conflicted tasks', () => {
+  const projection = scheduleGraph(graph([
+    node('task:TASK-801', 'Blocked', { worktree: 'wt-801', locks: [] }),
+    node('task:TASK-802', 'Ready', { worktree: 'wt-802', locks: [], sensitive: true }),
+    node('task:TASK-803', 'Ready', { worktree: 'wt-803', locks: [] }),
+    node('decision:SCOPE', 'Unresolved'),
+    node('verification:TASK-801'),
+    node('verification:TASK-802'),
+    node('verification:TASK-803'),
+  ], [
+    edge('task:TASK-801', 'verification:TASK-801', 'verified-by'),
+    edge('task:TASK-802', 'verification:TASK-802', 'verified-by'),
+    edge('task:TASK-803', 'verification:TASK-803', 'verified-by'),
+    edge('task:TASK-803', 'decision:SCOPE', 'conflicts-with', 'unresolved'),
+  ]));
+
+  assert.deepStrictEqual(ids(projection.releaseGates), [
+    'task:TASK-802',
+    'verification:TASK-801',
+    'verification:TASK-802',
+    'verification:TASK-803',
+  ]);
+  assert.ok(projection.releaseGates.filter(item => item.id.startsWith('verification:'))
+    .every(item => item.reasons.some(reason => reason.code === 'verification-required')));
+});
