@@ -30,6 +30,8 @@
   "tools/fb-records.test.cjs",
   "tools/fb-project-graph.cjs",
   "tools/fb-project-graph-plugin.test.cjs",
+  "tools/fb-graph-scheduler.cjs",
+  "tools/fb-graph-scheduler.test.cjs",
   "tools/fb-lifecycle-history-release.test.cjs",
   "tools/fb-setup-shortcut.test.cjs",
   "tools/fb-setup-native-onboarding.test.cjs",
