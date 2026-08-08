@@ -3,7 +3,7 @@ type: fb-lane-handoff
 fb_harness: v3
 task: TASK-078
 lane: fb-product
-status: checking
+status: staging-qa
 review_state: not reviewable
 ---
 
@@ -62,23 +62,46 @@ existing tasks are reused and only missing roles are created.
 ## Task Receipt
 
 - Branch: `codex/onboarding-reuse-permission`
+- Candidate commit: `e6e0dfe` plus this coordination-only closeout.
 - Candidate build: `0.5.12-beta+codex.20260808093008`
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#0512-beta--2026-08-08)
+- Changelog approval: approved through Product/BFM standing delegation.
 - Changed surfaces: setup skills, public and packaged setup documentation,
   plugin metadata, focused contracts, release records, and generated mirrors.
+- Verification: [TASK-078 QA](../qa/TASK-078.md).
+- Review state: not reviewable — this is a plugin/setup release with complete
+  automated verification and no application preview.
 - External gates: **Push Live** for publication and reinstall.
-- Remaining owner/action: Product/BFM completes focused evidence and reports
-  **Ready to ship**.
+- Remaining owner/action: James says **Push Live** to authorize merge,
+  marketplace publication, reinstall, and live verification.
 
 ## Brief Validation
 
-Status: pending verification.
+Status: pass.
 
-Satisfied criteria and evidence: implementation is scoped to setup guidance,
-metadata, tests, and generated mirrors; existing technical interfaces remain
-unchanged.
+Satisfied criteria and evidence: one-sentence setup, safe reruns, deterministic
+task reuse, metadata, changelog, root/package guidance, 65-mirror parity,
+doctor, and the complete release checkpoint agree.
 
-Missing criteria and next actions: focused root/package setup, onboarding,
-metadata, release, parity, syntax, and whitespace checks passed. Commit the
-candidate, require doctor Ready, run the single final release checkpoint, then
-update this handoff and QA artifact with exact evidence.
+Missing criteria and next actions: none for the candidate. External publication
+remains gated by **Push Live**.
+
+## Verification Handoff
+
+- Focused setup contract: passed in root and packaged contexts.
+- Onboarding: passed 26/26 in root and packaged contexts.
+- Product/BFM setup guidance and metadata/release contracts: passed in root and
+  packaged contexts.
+- Package parity: 65/65 mirrors aligned.
+- Complete release checkpoint: passed with CLI 72/72, migration 34/34,
+  sessions 39/39, evals 19/19, beginner 11/11, and efficiency 25/25.
+- Doctor: Ready on the committed candidate.
+- Repository state: committed candidate; this closeout changes coordination
+  records only and does not require another runtime validator.
+
+## Product/BFM Closeout
+
+Status: **Ready to ship**.
+
+The plugin candidate is complete. GitHub merge, marketplace publication,
+reinstall, and active-install verification remain behind **Push Live**.
