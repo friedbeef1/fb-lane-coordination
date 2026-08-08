@@ -225,7 +225,7 @@ test('prospective closeout requires a concrete none reason or a recorded lesson 
   }
 });
 
-test('doctor reports compact registry and clone-local observation consistency', () => {
+test('doctor accepts portable durable lessons and validates clone-local observations when present', () => {
   const fixture = createRepo();
   try {
     fs.mkdirSync(path.join(fixture.repo, 'docs', 'learning'), { recursive: true });
@@ -236,11 +236,20 @@ test('doctor reports compact registry and clone-local observation consistency', 
 
     upsertLearningRegistry(fixture.repo, receipt());
     checks = collectLearningDoctorChecks(fixture.repo);
-    assert.equal(checks[0].level, 'fail');
+    assert.equal(checks[0].level, 'ok');
+    assert.match(checks[0].detail, /1 durable lesson\(s\); 0 clone-local observation\(s\)/);
+    assert.match(checks[0].detail, /fresh clones remain valid/i);
+
     recordLearningObservation(fixture.repo, receipt());
     checks = collectLearningDoctorChecks(fixture.repo);
     assert.equal(checks[0].level, 'ok');
     assert.match(checks[0].detail, /1 durable lesson\(s\); 1 clone-local observation\(s\)/);
+
+    const common = git(fixture.repo, ['rev-parse', '--git-common-dir']);
+    fs.appendFileSync(path.resolve(fixture.repo, common, 'fb-lane', 'learning', 'observations.jsonl'), '{broken-json}\n');
+    checks = collectLearningDoctorChecks(fixture.repo);
+    assert.equal(checks[0].level, 'fail');
+    assert.match(checks[0].detail, /invalid at line 2/i);
   } finally {
     fixture.cleanup();
   }

@@ -442,12 +442,7 @@ function collectLearningDoctorChecks(repoRoot) {
   try {
     const lessons = readLearningRegistry(repoRoot);
     const observations = readLearningObservations(repoRoot);
-    const observed = new Set(observations.map(item => `${item.lessonId}/${item.runId}`));
-    const missing = lessons.filter(item => !observed.has(`${item.lessonId}/${item.runId}`)).map(item => item.lessonId);
-    if (missing.length) {
-      return [{ level: 'fail', label: 'Project learning', detail: `${missing.length} durable lesson(s) lack matching clone-local observations.`, fix: 'Record the validated learning receipt before final closeout.' }];
-    }
-    return [{ level: 'ok', label: 'Project learning', detail: `${lessons.length} durable lesson(s); ${observations.length} clone-local observation(s); registry structure is consistent.` }];
+    return [{ level: 'ok', label: 'Project learning', detail: `${lessons.length} durable lesson(s); ${observations.length} clone-local observation(s); records are structurally valid and fresh clones remain valid without another clone's private observations.` }];
   } catch (error) {
     return [{ level: 'fail', label: 'Project learning', detail: `Learning records are invalid: ${error.message}`, fix: 'Repair the learning registry or clone-local observation record before closeout.' }];
   }

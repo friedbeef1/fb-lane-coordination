@@ -5,7 +5,8 @@ Candidate: `0.6.0-beta+codex.20260808104938`
 ## System verification
 
 Status: passed — **Ready to ship**. The complete release checkpoint passed on
-source candidate `091926b`; this coordination-only update reuses that evidence.
+source candidate `091926b`; the later GitHub portability repair reruns only the
+focused learning proof and reuses that complete checkpoint evidence.
 
 | Check | Result |
 |---|---|
@@ -19,6 +20,7 @@ source candidate `091926b`; this coordination-only update reuses that evidence.
 | Final release validator | Passed — CLI 72/72; migration 34/34; sessions 39/39; evals 19/19; beginner 11/11; efficiency 25/25 |
 | Doctor | Ready; project learning reported 1 durable lesson and 1 clone-local observation |
 | Syntax, links, and whitespace | Passed |
+| GitHub readiness | [Initial run](https://github.com/friedbeef1/fb-lane-coordination/actions/runs/31254083520) isolated a fresh-clone learning-observation portability defect; the updated result is recorded on [PR #62](https://github.com/friedbeef1/fb-lane-coordination/pull/62) |
 
 ## Focused repair evidence
 
@@ -34,11 +36,21 @@ This produced provisional lesson
 when a new runtime dependency is added, the manual archive fallback must copy
 the runtime, canonical page, and bootstrap template as one dependency set.
 
+The first GitHub readiness run then exposed a distinct portability defect: a
+fresh CI clone contained the committed learning index but, correctly, did not
+contain another clone's private observation JSONL. Doctor treated that expected
+absence as corruption. The focused repair now validates both record formats
+when present while allowing durable lessons to travel between clones without
+private observations. Root and packaged learning contracts pass 10/10, package
+parity reports 70 mirrors, affected syntax and whitespace pass, and local doctor
+validates the resulting records. No second broad local validator was run.
+
 ## Review state
 
 Completed plugin build — no application preview is required. GitHub review
-links will be added after the candidate is pushed. **Push Live** remains the
-only merge, marketplace publication, and reinstall authority.
+is available in [PR #62](https://github.com/friedbeef1/fb-lane-coordination/pull/62).
+**Push Live** remains the only merge, marketplace publication, and reinstall
+authority.
 
 ## Known limits
 

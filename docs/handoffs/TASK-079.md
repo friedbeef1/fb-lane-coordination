@@ -67,7 +67,11 @@ integration `ea099d5`, and guidance `9a0ebdf`; runtime, templates, harness,
 skills, metadata, tests, and release records changed.
 Checks, failures, recovery, and results: Focused RED/GREEN caught the missing
 manual-bootstrap dependency and one line-sensitive documentation assertion;
-both were corrected without another broad loop. Final results are in
+both were corrected without another broad loop. The first GitHub readiness run
+then found that doctor incorrectly required private clone-local observations in
+a fresh clone; one focused portability repair made those observations optional
+across clones while preserving structural validation when present. Final
+results are in
 [TASK-079 QA](../qa/TASK-079.md).
 Review state, direct links, limits, and external gates: completed plugin build;
 [QA](../qa/TASK-079.md); no application preview; real consumer-project benefit
@@ -113,7 +117,8 @@ Runnable evidence links: [QA](../qa/TASK-079.md) and
 Manual pass criteria: Product confirms the changelog describes the candidate
 and no interface gains release authority.
 Recovery attempted: Added the learning runtime/page/template to the manual
-fallback and corrected the focused structural assertion.
+fallback, corrected the focused structural assertion, and repaired fresh-clone
+doctor portability without rerunning the broad local validator.
 Known limits: No production telemetry or consumer-project confirmation run is
 claimed by this release.
 Next Product/BFM recovery action: If the final release checkpoint fails, make
