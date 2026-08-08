@@ -4,8 +4,8 @@ Candidate: `0.6.0-beta+codex.20260808104938`
 
 ## System verification
 
-Status: checking — focused implementation passed; final release checkpoint is
-pending.
+Status: passed — **Ready to ship**. The complete release checkpoint passed on
+source candidate `091926b`; this coordination-only update reuses that evidence.
 
 | Check | Result |
 |---|---|
@@ -16,8 +16,9 @@ pending.
 | Eval/manual-bootstrap compatibility | Passed — 19/19 |
 | Records compatibility | Passed — 17/17 |
 | Package parity | Passed — 70 mirrors aligned |
-| Final release validator | Pending |
-| Doctor | Pending on final committed candidate |
+| Final release validator | Passed — CLI 72/72; migration 34/34; sessions 39/39; evals 19/19; beginner 11/11; efficiency 25/25 |
+| Doctor | Ready; project learning reported 1 durable lesson and 1 clone-local observation |
+| Syntax, links, and whitespace | Passed |
 
 ## Focused repair evidence
 

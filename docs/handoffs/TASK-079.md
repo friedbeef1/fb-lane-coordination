@@ -4,7 +4,7 @@ fb_harness: v3
 learning_contract: v1
 task: TASK-079
 lane: fb-product
-status: staging-qa
+status: ready-to-ship
 review_state: completed build
 ---
 
@@ -72,10 +72,10 @@ both were corrected without another broad loop. Final results are in
 Review state, direct links, limits, and external gates: completed plugin build;
 [QA](../qa/TASK-079.md); no application preview; real consumer-project benefit
 still requires later comparable evidence; **Push Live** remains external.
-Repository state: Candidate branch is committed through the guidance slice;
-release records and final checkpoint are being completed.
-Remaining owner and action: Product/BFM runs one release checkpoint, pushes a
-review candidate, and stops at **Ready to ship** for **Push Live**.
+Repository state: Source candidate `091926b` passed the complete release
+validator; this coordination-only closeout records that unchanged result.
+Remaining owner and action: Product/BFM pushes the review candidate and waits
+for **Push Live** before merge, marketplace publication, or reinstall.
 
 ## Brief Validation
 
@@ -88,7 +88,7 @@ consumer-project lesson confirmation remain outside this candidate checkpoint.
 Reason: Local implementation satisfies the approved candidate scope while live
 delivery remains separately gated.
 Owner: Product/BFM
-Next action: Run the final release checkpoint and prepare the GitHub review.
+Next action: Push the review candidate and wait for **Push Live**.
 Approved scope-change references: None — the approved design remains unchanged.
 
 ## Project Learning
@@ -133,10 +133,9 @@ final validator pass.
 
 ## Closeout
 
-Reason: The local candidate scope is implemented and undergoing its single
-release checkpoint.
+Reason: The local candidate scope and its single final release checkpoint passed.
 Owner: Product/BFM
 Next action: Push the verified candidate for review, report **Ready to ship**,
 and wait for **Push Live**.
 External gates: James says **Push Live** before merge, marketplace publication, or reinstall.
-Remaining owner/action: Product/BFM completes the final validator pass, pushes the review candidate, and reports **Ready to ship**.
+Remaining owner/action: Product/BFM pushes the review candidate and waits for **Push Live**.
