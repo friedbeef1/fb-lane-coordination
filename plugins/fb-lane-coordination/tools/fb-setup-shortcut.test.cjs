@@ -27,6 +27,7 @@ assert.match(canonicalSkill, /canonical\s+setup\s+workflow/i);
 assert.match(canonicalSkill, /seven repository-scoped/i);
 assert.match(canonicalSkill, /leave(?:s)? (?:all )?(?:new )?tasks idle/i);
 assert.match(canonicalSkill, /does not invoke `?\$bfm`?/i);
+assert.match(canonicalSkill, /safe to run again/i);
 assert.ok(canonicalSkill.split('\n').length <= 45, 'fb-setup must remain a thin alias, not a duplicated setup manual');
 
 const primarySurfaces = isPackagedCopy
@@ -48,6 +49,24 @@ for (const [label, root, relativePath] of primarySurfaces) {
   assert.match(source, /\$fb-setup/, `${label} must show the exact setup shortcut`);
   assert.doesNotMatch(source, /(?:invoke|run|say)\s+`\/fb-setup`/i, `${label} must not claim a slash command exists`);
 }
+
+for (const [label, root, relativePath] of [
+  ['setup guide', isPackagedCopy ? pluginRoot : repoRoot, isPackagedCopy ? 'README.md' : 'docs/setup.md'],
+  ['setup shortcut', isPackagedCopy ? pluginRoot : repoRoot, 'skills/fb-setup/SKILL.md'],
+  ['canonical setup workflow', isPackagedCopy ? pluginRoot : repoRoot, 'skills/project-coordination-setup/SKILL.md'],
+]) {
+  const source = read(root, relativePath);
+  assert.match(source, /safe to run again/i, `${label} must explain repeat setup in plain language`);
+  assert.match(source, /only (?:what|roles|tasks|setup)[\s\S]{0,80}(?:missing|outdated)/i, `${label} must explain what a repeat setup changes`);
+  assert.match(source, /preserv(?:e|es|ed|ing) existing (?:project\s+)?work/i, `${label} must explain that existing work is preserved`);
+  assert.doesNotMatch(source, /\bidempotent(?:ly)?\b/i, `${label} must not use idempotent jargon in setup-facing guidance`);
+}
+
+assert.match(
+  read(isPackagedCopy ? pluginRoot : repoRoot, 'skills/project-coordination-setup/SKILL.md'),
+  /report[\s\S]{0,100}`FB setup is safe to run again:/i,
+  'setup workflow must require a plain-language Codex completion status',
+);
 
 const setupGuide = read(isPackagedCopy ? pluginRoot : repoRoot, isPackagedCopy
   ? 'skills/project-coordination-setup/SKILL.md'

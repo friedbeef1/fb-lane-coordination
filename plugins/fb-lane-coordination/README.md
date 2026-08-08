@@ -16,7 +16,8 @@ codex plugin marketplace add friedbeef1/fb-lane-coordination
 codex plugin add fb-lane-coordination@fb-lane
 ```
 
-Open the project and invoke `$fb-setup`. It runs the canonical idempotent setup
+Open the project and invoke `$fb-setup`. It is safe to run again.
+It updates only what is missing or outdated, preserves existing project work,
 and reconciles the seven pinned repository tasks. Then discuss questions in the
 relevant User, Business, Design, Tech, Discovery, or Bugs workstreams.
 For actionable findings say `Create a handoff MD for Product/BFM.` Then say

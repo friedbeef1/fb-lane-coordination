@@ -19,8 +19,9 @@ After installing the plugin, open the project in Codex and invoke:
 $fb-setup
 ```
 
-This is the primary setup invocation. It runs the canonical idempotent
-bootstrap and reconciles the seven pinned repository tasks. The long-form
+This is the primary setup invocation. It is safe to run again.
+It updates only what is missing or outdated, preserves existing project work,
+and reconciles the seven pinned repository tasks. The long-form
 `$fb-lane-coordination:project-coordination-setup` invocation and the natural
 request `Set up FB in this project.` remain compatibility fallbacks. `/fb-setup`
 is not an installed slash command.

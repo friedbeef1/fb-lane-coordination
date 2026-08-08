@@ -75,8 +75,9 @@ inventory files; it does not call the sidebar or Codex-native task controls.
    `node tools/fb-onboarding.cjs plan <initial-inventory.json> --repository-root <canonical-root> --project-id <project-id>`.
    Stop on `complete: false`. Execute only the deterministic action objects
    returned by this plan. `reuse` means no native action and must never mutate
-   a task. This makes reruns idempotent: re-list a complete inventory, plan
-   again, and create only roles still missing.
+   a task. This makes setup safe to run again: re-list a complete inventory,
+   plan again, create only roles still missing, and preserve existing project
+   work.
 4. Before each non-`reuse` native tool call, append one privacy-safe ledger row
    with contiguous `sequence`, `action` (`create`, `rename`, or `pin`), canonical
    `workstream`, and `outcome`; update `outcome` to `succeeded`, `failed`, or
@@ -121,6 +122,10 @@ the user to create only roles not already present. Pinning never starts work,
 approves scope, invokes `$bfm`, or authorizes release. Only **Push Live**
 authorizes merge, publication, or deployment. Bootstrap reruns do not repeat
 the question or overwrite the decision receipt.
+
+Use the exact plain-language status for a successful repeat setup. Report:
+`FB setup is safe to run again: only missing or outdated FB-managed setup was
+updated, and existing project work was preserved.`
 
 ### Transactional migration between checkouts
 
