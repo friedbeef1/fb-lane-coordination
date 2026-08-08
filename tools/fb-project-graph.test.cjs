@@ -283,6 +283,14 @@ A facilitator noted an unresolved option.
   assert.ok(!graph.edges.some(edge => edge.type === 'supports' && edge.source === 'docs/handoffs/TASK-100.md'));
 });
 
+test('does not infer a user decision or approval from an approved decision heading', () => {
+  const root = fixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+
+  assert.ok(!graph.nodes.some(node => node.type === 'user-decision'));
+  assert.ok(!graph.nodes.some(node => node.type === 'decision' && /approved/i.test(node.label)));
+});
+
 test('does not promote generic QA links and task mentions into semantic relationships', () => {
   const root = fixture();
   write(root, 'docs/qa/BUG-100.md', '# BUG-100\n\nTASK-100 is mentioned for investigation.\n');
@@ -325,6 +333,26 @@ test('citation-less persisted graphs and nonexistent Git provenance fall back to
   const findings = validateProjectGraph(root, graph).map(finding => finding.code);
   assert.ok(findings.includes('missing-citation'));
   assert.ok(findings.includes('unsafe-source'));
+  assert.strictEqual(resolveProjectContext(root, 'What verifies TASK-100?').route, 'normalized-record-fallback');
+});
+
+test('citation-less persisted node independently fails validation and rebuilds through fallback', () => {
+  const root = fixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  delete graph.nodes.find(node => node.id === 'task:TASK-100').citation;
+  writeProjectGraph(root, graph);
+
+  assert.ok(validateProjectGraph(root, graph).some(finding => finding.code === 'missing-citation'));
+  assert.strictEqual(resolveProjectContext(root, 'What verifies TASK-100?').route, 'normalized-record-fallback');
+});
+
+test('citation-less persisted edge independently fails validation and rebuilds through fallback', () => {
+  const root = fixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  delete graph.edges.find(edge => edge.from === 'project:root' && edge.to === 'task:TASK-100').citation;
+  writeProjectGraph(root, graph);
+
+  assert.ok(validateProjectGraph(root, graph).some(finding => finding.code === 'missing-citation'));
   assert.strictEqual(resolveProjectContext(root, 'What verifies TASK-100?').route, 'normalized-record-fallback');
 });
 
