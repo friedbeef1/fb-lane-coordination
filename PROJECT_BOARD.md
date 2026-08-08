@@ -59,11 +59,13 @@
         and run it in the current main task.
     *   **Justification**: The graph should drive coordination rather than act
         only as an optional reading aid.
-*   **Gate / Review Point**: Focused proof runs per slice; one consolidated
-    behavioral repair, one whole-candidate review, and one final release
-    checkpoint govern the candidate. Per-slice reviewer/re-review ceremonies
-    are not required. Sensitive-operation and release gates remain unchanged.
-    **Push Live** remains external.
+*   **Gate / Review Point**: Focused proof runs per slice; one whole-candidate
+    review, one consolidated repair if needed, and one final release checkpoint
+    govern the candidate. `$bfm` chooses Direct, graph-driven, or visible
+    authoritative fallback through deterministic preflight; the user never
+    selects the route. Per-slice reviewer/re-review ceremonies are not required.
+    Sensitive-operation and release gates remain unchanged. **Push Live**
+    remains external.
 *   **Links & Deliverables**: [plan](docs/superpowers/plans/2026-08-08-fb-graph-driven-orchestration.md) ·
     [handoff](docs/handoffs/TASK-080.md).
 

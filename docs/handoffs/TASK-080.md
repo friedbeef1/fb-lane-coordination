@@ -49,8 +49,8 @@ zero invented decisions or missed safety gates, and aligned plugin guidance.
   publication, reinstall, or deployment.
 - Sequencing: follow Tasks 1–8 in the approved
   [implementation plan](../superpowers/plans/2026-08-08-fb-graph-driven-orchestration.md).
-- Verification: focused proof per slice, one consolidated behavioral repair
-  maximum, one independent whole-candidate review, then one complete release
+- Verification: focused proof per slice, one independent whole-candidate
+  review, one consolidated repair if needed, then one complete release
   validator. Individual slices do not require reviewer/re-review ceremonies.
 - Changelog expectation: required.
 - Release boundary: stop at **Ready to ship**. Only **Push Live** authorizes
@@ -76,7 +76,17 @@ Deferred: all live release actions until **Push Live**.
 ## Process decision — 2026-08-08
 
 FB's default plugin and generated-project execution process is now focused proof
-per slice, one consolidated behavioral repair, one whole-candidate review, and
-one final release checkpoint. Mandatory per-slice reviewer/re-review ceremony is
+per slice, one whole-candidate review, one consolidated repair if needed, and one
+final release checkpoint. Mandatory per-slice reviewer/re-review ceremony is
 removed. Safety, sensitive-operation, authority, worktree/lock, changelog, and
 **Push Live** gates remain unchanged.
+
+## Automatic orchestration router decision — 2026-08-09
+
+`$bfm` runs a cheap deterministic preflight and selects its own route. Direct
+BFM is allowed only for one isolated bounded item with no graph-relevant signal.
+Multiple items, dependencies, conflicts, changed decisions, blocked/stale work,
+shared locks, applicable lessons, or release relationships require graph-driven
+orchestration. The selected route and reasons are visible. Missing, stale, or
+corrupt graph data uses the authoritative-record fallback. The user is never
+asked to choose.

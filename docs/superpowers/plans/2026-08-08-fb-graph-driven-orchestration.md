@@ -31,10 +31,11 @@ hosted service, automatic cross-project learning, or a second source of truth.
   it cannot change product decisions, source code, repair budgets, or release
   authority.
 - Generate package mirrors mechanically after canonical review.
-- Default execution uses focused proof per slice, one consolidated behavioral
-  repair maximum, one independent whole-candidate review, and one final release
-  checkpoint. Individual slices do not require separate reviewer/re-review
-  ceremonies. Existing safety and **Push Live** gates remain unchanged.
+- Default execution uses focused proof per slice, then one independent
+  whole-candidate review, one consolidated repair if that review finds real
+  defects, and one final release checkpoint. Individual slices do not require
+  separate reviewer/re-review ceremonies. Existing safety and **Push Live**
+  gates remain unchanged.
 - Stop at **Ready to ship**. Merge, marketplace publication, reinstall, and
   deployment require **Push Live**.
 
@@ -173,6 +174,16 @@ must not claim graph-driven sequencing.
 Run focused BFM, status, board-projection, fallback, root/package, syntax, and
 parity tests; commit the slice.
 
+### Automatic orchestration router
+
+`$bfm` first runs a cheap deterministic preflight and reports the selected
+route plus reasons. It uses Direct BFM only for one isolated bounded item with
+no graph-relevant signals. It uses graph-driven orchestration when multiple
+items, dependencies, conflicts, changed decisions, blocked or stale work,
+shared locks, applicable lessons, or release relationships are present. The
+user never chooses the route. Missing, stale, or corrupt graph data selects the
+visible authoritative-record fallback.
+
 ## Task 7: Plugin, documentation, setup, and migration
 
 Update Product/BFM, coordination, six workstream, setup, and BFM skills; graph,
@@ -190,10 +201,10 @@ project-owned records. Mechanically regenerate all declared package mirrors
 once after canonical review.
 
 Make the same lean execution contract the canonical plugin and generated-
-project default: focused proof per slice, one consolidated behavioral repair,
-one whole-candidate review, and one final release checkpoint. Remove mandatory
-per-slice reviewer/re-review ceremonies while preserving all safety, sensitive,
-worktree/lock, changelog, and **Push Live** gates.
+project default: focused proof per slice, one whole-candidate review, one
+consolidated repair if needed, and one final release checkpoint. Remove
+mandatory per-slice reviewer/re-review ceremonies while preserving all safety,
+sensitive, worktree/lock, changelog, and **Push Live** gates.
 
 Run focused documentation, migration/bootstrap, link, parity, syntax, and
 whitespace contracts; commit the slice.
