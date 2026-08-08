@@ -4,8 +4,8 @@
 
 **Graph Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.5.11-beta**
-(`0.5.11-beta+codex.20260807112648`).
+Current Codex release candidate: **FB 0.5.12-beta**
+(`0.5.12-beta+codex.20260808093008`).
 
 **FB is an open-source Codex plugin that turns scattered AI conversations into
 a living product-delivery graph.** It has six evidence-producing workstreams
@@ -190,6 +190,19 @@ remain owned and visible instead of being force-deleted. See the
 [automatic implementation worktree contract](docs/fb/workflow.md#automatic-implementation-worktrees).
 
 ## Install
+
+Paste this into Codex while your project is open:
+
+```text
+Install or update FB from https://github.com/friedbeef1/fb-lane-coordination and set it up in this project.
+```
+
+Codex detects whether FB is already installed and performs only the missing
+installation or upgrade steps. If the plugin was newly installed or refreshed,
+Codex asks you to open a new task so the updated skills can load, then continues
+with `$fb-setup`.
+
+Manual fallback:
 
 ```bash
 codex plugin marketplace add friedbeef1/fb-lane-coordination

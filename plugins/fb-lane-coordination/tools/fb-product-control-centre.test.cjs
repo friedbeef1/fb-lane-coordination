@@ -104,7 +104,8 @@ try {
     encoding: 'utf8',
   });
   assert.match(output, publicModelPattern());
-  assert.match(output, /May I create seven repository-scoped sidebar tasks: Product\/BFM, User, Business, Design, Tech, Discovery, and Bugs\?/i);
+  assert.match(output, /May I reuse and pin matching repository-scoped sidebar tasks, rename legacy matches where needed, and create only the missing roles: Product\/BFM, User, Business, Design, Tech, Discovery, and Bugs\?/i);
+  assert.doesNotMatch(output, /May I create seven repository-scoped sidebar tasks/i);
   assert.match(output, /pinning never starts work/i);
   for (const lane of ['product', 'user', 'business', 'design', 'tech', 'discovery', 'bugs']) {
     assert.ok(fs.existsSync(path.join(fixture, 'docs', 'workstreams', `fb-${lane}.md`)), `bootstrap must create the ${lane} status card`);

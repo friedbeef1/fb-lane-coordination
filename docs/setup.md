@@ -8,8 +8,26 @@ FB currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
 setup paths when you are not installing through the plugin flow.
 
-The current release candidate is **FB 0.5.11-beta** build
-`0.5.11-beta+codex.20260807112648`.
+The current release candidate is **FB 0.5.12-beta** build
+`0.5.12-beta+codex.20260808093008`.
+
+## Install or update from GitHub
+
+Paste one sentence into Codex while your project is open:
+
+```text
+Install or update FB from https://github.com/friedbeef1/fb-lane-coordination and set it up in this project.
+```
+
+Codex detects whether the FB marketplace and plugin are missing, already
+installed, or outdated. It adds or refreshes the marketplace only when needed,
+installs or upgrades the plugin only when needed, and preserves an existing
+project setup. When the plugin changes, Codex tells you to open a new Codex task
+so the refreshed skills can load, then continues with `$fb-setup`.
+
+The plugin cannot install itself before it is loaded. The GitHub sentence is a
+Codex-level entry point that performs that first machine-level step; `$fb-setup`
+then owns the repository-level setup and safe upgrade.
 
 ## Set up the current project
 
@@ -19,8 +37,9 @@ After installing the plugin, open the project in Codex and invoke:
 $fb-setup
 ```
 
-This is the primary setup invocation. It runs the canonical idempotent
-bootstrap and reconciles the seven pinned repository tasks. The long-form
+This is the primary setup invocation. It is safe to run again.
+It updates only what is missing or outdated, preserves existing project work,
+and reconciles the seven pinned repository tasks. The long-form
 `$fb-lane-coordination:project-coordination-setup` invocation and the natural
 request `Set up FB in this project.` remain compatibility fallbacks. `/fb-setup`
 is not an installed slash command.
@@ -102,7 +121,7 @@ atomically record one canonical root plus quarantined former roots, then rebind
 the exact seven pinned tasks. Former roots remain rollback evidence until fresh
 verification and explicit retirement approval.
 
-## Upgrade Existing Codex Plugin Install
+## Manual upgrade fallback
 
 When the plugin source has been updated and merged, reinstall the plugin from the
 configured FB marketplace:

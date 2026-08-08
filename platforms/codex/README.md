@@ -1,8 +1,8 @@
 # FB for Codex
 
-FB is the supported Codex distribution for **FB 0.5.11-beta: Graph Engineering
+FB is the supported Codex distribution for **FB 0.5.12-beta: Graph Engineering
 for Everyday People**. The current release candidate is
-`0.5.11-beta+codex.20260807112648`. FB is an open-source Codex plugin that turns
+`0.5.12-beta+codex.20260808093008`. FB is an open-source Codex plugin that turns
 scattered AI conversations into a living product-delivery graph. Codex provides
 threads, skills, and worktrees; FB connects their decisions, evidence,
 dependencies, implementation, verification, and release state.
@@ -11,7 +11,14 @@ control centre and seven pinned repository-scoped Codex tasks.
 
 ## Start
 
-1. Install the plugin:
+1. Paste this into Codex while your project is open:
+
+   ```text
+   Install or update FB from https://github.com/friedbeef1/fb-lane-coordination and set it up in this project.
+   ```
+
+   Codex detects whether installation or upgrade is needed. If refreshed, open
+   a new task so the current plugin can load. Manual fallback:
 
    ```bash
    codex plugin marketplace add friedbeef1/fb-lane-coordination

@@ -578,8 +578,10 @@ test('fresh bootstrap prints the permission question once across reruns', () => 
     });
     assert.strictEqual(first.status, 0, first.stderr);
     assert.strictEqual(second.status, 0, second.stderr);
-    assert.match(first.stdout, /Meet FB[\s\S]*May I create seven repository-scoped sidebar tasks/i);
-    assert.doesNotMatch(second.stdout, /May I create seven repository-scoped sidebar tasks/i);
+    assert.match(first.stdout, /May I reuse and pin matching repository-scoped sidebar tasks, rename legacy matches where needed, and create only the missing roles/i);
+    assert.match(first.stdout, /Product\/BFM, User, Business, Design, Tech, Discovery, and Bugs/i);
+    assert.doesNotMatch(first.stdout, /May I create seven repository-scoped sidebar tasks/i);
+    assert.doesNotMatch(second.stdout, /May I reuse and pin matching repository-scoped sidebar tasks/i);
     assert.match(fs.readFileSync(path.join(root, '.gitignore'), 'utf8'), /^\.fb\/onboarding\.json$/m);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });

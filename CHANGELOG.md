@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.5.12-beta — 2026-08-08
+
+Build: `0.5.12-beta+codex.20260808093008`
+
+**What changed:** Codex users can now paste one sentence—`Install or update FB
+from GitHub and set it up in this project.`—instead of remembering marketplace
+commands. Setup guidance now says plainly that FB is safe to run again, reuses
+matching project tasks, renames only clear legacy matches, and creates only
+missing roles.
+
+**Why it matters:** Fresh installation and existing-project upgrades now start
+the same way. Users do not need to understand marketplace state, repeat-safe
+setup terminology, or the seven-task reconciliation machinery before using FB.
+
+**Compatibility:** Existing boards, handoffs, worktrees, sidebar tasks,
+project-owned instructions, `$fb-setup`, `$bfm`, plugin IDs, and MCP paths remain
+compatible. The plugin cannot install itself before it is loaded, so Codex owns
+the initial GitHub detection step. A newly installed or refreshed plugin still
+requires a new Codex task to load its skills.
+
+**Installation or upgrade:** Paste `Install or update FB from GitHub and set it
+up in this project.` while the target project is open. Codex adds or refreshes
+the marketplace and installs or upgrades the plugin only when needed. Open a
+new Codex task when prompted; setup then continues through `$fb-setup`.
+
+**Changelog approval:** Approved through Product/BFM standing delegation for
+candidate-faithful wording; reference TASK-078.
+
+**Release evidence:** Local focused setup, metadata, package-parity, syntax,
+link, whitespace, doctor, and release-checkpoint results are recorded in
+[TASK-078 QA](docs/qa/TASK-078.md). GitHub publication and installation remain
+pending explicit **Push Live**.
+
 ## 0.5.11-beta — 2026-08-07
 
 Build: `0.5.11-beta+codex.20260807112648`
