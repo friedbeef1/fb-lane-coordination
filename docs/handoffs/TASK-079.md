@@ -138,3 +138,5 @@ release checkpoint.
 Owner: Product/BFM
 Next action: Push the verified candidate for review, report **Ready to ship**,
 and wait for **Push Live**.
+External gates: James says **Push Live** before merge, marketplace publication, or reinstall.
+Remaining owner/action: Product/BFM completes the final validator pass, pushes the review candidate, and reports **Ready to ship**.
