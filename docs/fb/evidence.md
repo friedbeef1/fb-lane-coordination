@@ -125,6 +125,10 @@ scope, or sensitive gate. **Push Live** remains separate release evidence.
 
 ## Quality and cleanup
 
+When verified failure or rework yields a reusable lesson, link the QA evidence
+from the compact [project-learning receipt](learning.md#closeout). Evidence may
+confirm or reject a later lesson; it never grants an extra repair attempt.
+
 Evidence names the exact split: delivered work, checks that passed, and any
 remaining gate. UI work also needs actual visual verification: text must not
 clip or spill, expected theme/assets must load, and responsive/interactions must

@@ -86,3 +86,5 @@ owner transfer, staging, or review does not request one.
 - Reducing broad orientation through source-cited targeted reading: [graph.md](graph.md)
 - Adding rules-first routing, pairwise QA, layered gates, or diagnosed
   configuration evolution: [control-loop.md](control-loop.md)
+- Turning verified project outcomes into bounded lessons for later relevant
+  work: [learning.md](learning.md)

@@ -84,10 +84,11 @@ FB_LANE_ARCHIVE_URL="${FB_LANE_ARCHIVE_URL:-https://github.com/friedbeef1/fb-lan
 fb_lane_tmp="$(mktemp -d)"
 trap 'rm -rf "$fb_lane_tmp"' EXIT
 curl -fsSL "$FB_LANE_ARCHIVE_URL" | tar -xz -C "$fb_lane_tmp" --strip-components=1
-mkdir -p tools docs/fb docs/evals
-cp "$fb_lane_tmp"/tools/fb-{lane,onboarding,session,eval,efficiency,changelog-closeout,records,project-graph,board-context,control-loop,workstream-handoff}.cjs tools/
-cp "$fb_lane_tmp"/docs/fb/{README,start,workflow,evidence,guardrails,sessions,evals,records,graph,control-loop}.md docs/fb/
+mkdir -p tools docs/fb docs/evals templates/docs/learning
+cp "$fb_lane_tmp"/tools/fb-{lane,onboarding,session,eval,efficiency,changelog-closeout,records,project-graph,board-context,control-loop,workstream-handoff,learning}.cjs tools/
+cp "$fb_lane_tmp"/docs/fb/{README,start,workflow,evidence,guardrails,sessions,evals,records,graph,control-loop,learning}.md docs/fb/
 cp "$fb_lane_tmp"/docs/evals/{eval-record-template,agent-behavior-scorecard-template}.md docs/evals/
+cp "$fb_lane_tmp"/templates/docs/learning/index.md templates/docs/learning/
 node tools/fb-lane.cjs bootstrap
 ```
 
@@ -97,7 +98,7 @@ What bootstrap creates:
 - lane boundary rules in `AGENTS.md`
 - local Codex rules in `.codex/rules.md`
 - handoff routing index in `docs/handoffs/index.md`
-- the ten-page harness, including `docs/fb/sessions.md`, `docs/fb/evals.md`, `docs/fb/records.md`, `docs/fb/graph.md`, and `docs/fb/control-loop.md`
+- the eleven-page harness, including `docs/fb/sessions.md`, `docs/fb/evals.md`, `docs/fb/records.md`, `docs/fb/graph.md`, `docs/fb/control-loop.md`, and `docs/fb/learning.md`
 - Codex-ready lane guidance
 - one clone-local onboarding receipt in the Git common directory, shared by
   linked worktrees, or ignored `.fb/onboarding.json` for a non-Git project;
@@ -201,7 +202,7 @@ the bounded low-risk rules in [workflow.md](fb/workflow.md) pass.
 Repository-local sessions keep transcript-free JSON under the Git common
 directory and curated recaps in `docs/sessions/`. Upgrades preserve all
 project-owned instruction text outside the managed FB route markers and refresh
-the bundled ten-page harness. Before removing the plugin, close or preserve any
+the bundled eleven-page harness. Before removing the plugin, close or preserve any
 active session evidence. Plugin removal does not delete project-owned boards,
 handoffs, recaps, or instructions. If no session command is running, optional
 clone-local cleanup may remove `fb-sessions` and a confirmed dead

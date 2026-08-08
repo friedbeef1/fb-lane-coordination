@@ -120,6 +120,9 @@ BFM continues the bounded scoped loop until pass or until its repair budget,
 scope, time, no-progress rule, or direction requires a Product decision. Close
 a prior failure only when the original scenario passes, is explicitly deferred,
 or is superseded by an approved brief revision.
+If that verified outcome yields a reusable project lesson, record it through
+[the bounded learning lifecycle](learning.md); eval authority and lesson state
+remain separate, and neither promotes the other.
 The lifecycle is coherent only as `open` with a non-passing latest/rerun result,
 `passed` with latest/rerun pass, `deferred` with latest blocked/rerun deferred,
 or `superseded` with latest blocked/rerun superseded and an approved brief revision.

@@ -79,7 +79,7 @@ excluded from routine context, not deleted or made inaccessible.
 - Follow [workflow.md](../../docs/fb/workflow.md) for ownership, intake, locks, worktrees, private execution routing, budgets, changelog decisions, and closeout.
 - Follow [records.md](../../docs/fb/records.md) for one-fact-one-home records, verification reuse, compact cards, archive safety, and efficiency evidence.
 - Follow [evidence.md](../../docs/fb/evidence.md) for automatic checks, Verification Handoff, and Test This Now.
-- Follow [sessions.md](../../docs/fb/sessions.md), [evals.md](../../docs/fb/evals.md), and [control-loop.md](../../docs/fb/control-loop.md) only when those capabilities apply.
+- Follow [sessions.md](../../docs/fb/sessions.md), [evals.md](../../docs/fb/evals.md), [control-loop.md](../../docs/fb/control-loop.md), and [learning.md](../../docs/fb/learning.md) only when those capabilities apply.
 
 For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must

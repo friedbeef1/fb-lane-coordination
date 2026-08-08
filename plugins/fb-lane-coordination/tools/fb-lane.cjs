@@ -4623,7 +4623,7 @@ function handleMcpRequest(request) {
   // Ignore other JSON-RPC methods (like notifications)
 }
 
-const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md', 'control-loop.md'];
+const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md', 'control-loop.md', 'learning.md'];
 const FB_HARNESS_ROUTE_START = '<!-- fb-harness-route-start -->';
 const FB_HARNESS_ROUTE_END = '<!-- fb-harness-route-end -->';
 
@@ -4673,6 +4673,8 @@ For routine operational orientation, use CLI
   [graph.md](docs/fb/graph.md)
 - Rules-first routing, pairwise QA, layered gates, and bounded configuration
   evolution: [control-loop.md](docs/fb/control-loop.md)
+- Project-local continuous learning and lesson closeout:
+  [learning.md](docs/fb/learning.md)
 
 Project-specific instructions and stricter safety rules win.
 ${FB_HARNESS_ROUTE_END}`;

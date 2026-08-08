@@ -168,6 +168,10 @@ See the
 
 ## Deliberate limits
 
+Verified outcomes may create a bounded, project-local lesson under
+[learning.md](learning.md). The lesson can improve later routing or evidence,
+but cannot extend this control loop's repair budget.
+
 FB does not add a hosted logger, hosted dashboard, semantic scoring platform,
 transcript capture, automatic external adapter, mandatory agent per stage, or
 autonomous configuration promotion. If richer telemetry is useful, it may

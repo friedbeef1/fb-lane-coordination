@@ -381,3 +381,6 @@ explicitly marked. See [evidence.md](evidence.md) for review evidence and
 classify it as Build, Brief, Eval, or Environment failure. BFM does not weaken
 the target; insufficient product output stays
 `Checking — product quality target missed` with a complete Quality Gap.
+Before the final verification checkpoint, Full BFM also records the bounded
+[project-learning decision](learning.md#closeout); closeout validates it but
+does not open another repair loop.

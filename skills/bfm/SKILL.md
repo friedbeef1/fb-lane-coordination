@@ -168,6 +168,7 @@ deployment.
 - [Selected evals, authority, Quality Gaps, and revision closure](../../docs/fb/evals.md)
 - [Normalized records, verification reuse, and efficiency metrics](../../docs/fb/records.md)
 - [Graph-directed context and fallback](../../docs/fb/graph.md)
+- [Project-local continuous learning](../../docs/fb/learning.md)
 
 For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must

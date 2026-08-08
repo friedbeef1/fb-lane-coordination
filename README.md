@@ -220,6 +220,12 @@ codex plugin add fb-lane-coordination@fb-lane
 5. FB runs automated checks and owns bounded repair. Review optional links only when useful.
 6. When FB reports **Ready to ship**, say **Push Live** to authorize merge and deployment.
 
+After FB verifies a feature, it records what caused meaningful failure or
+rework, repairs within the existing budget, and gives the next related task
+only the proven lesson it needs. Helpful lessons are confirmed; ineffective
+lessons are revised once or rejected. FB never turns continuous learning into
+an endless repair loop. See [project-local continuous learning](docs/fb/learning.md).
+
 Product/BFM handles routine internal closeout decisions—including faithful
 changelog wording and one release checkpoint—without asking you. You are
 interrupted only for a changed product decision, material scope, a sensitive

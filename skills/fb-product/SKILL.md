@@ -114,6 +114,7 @@ delivery handoff enters Product reconciliation.
 - [Eval selection, authority decisions, and product-quality loops](../../docs/fb/evals.md)
 - [Authoritative records, risk review, verification reuse, and closeout](../../docs/fb/records.md)
 - [Graph-directed context and fallback](../../docs/fb/graph.md)
+- [Project-local continuous learning and closeout](../../docs/fb/learning.md)
 
 For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must

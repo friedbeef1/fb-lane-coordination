@@ -273,6 +273,10 @@ graph, never a reason to invent slices or accept overlapping locks.
 
 ## Loop Learning and small escalation
 
+Project-local recursive learning follows the stricter bounded lifecycle in
+[learning.md](learning.md): relevant lessons only, one revision, immediate
+safety rejection, and no reset of Quick or Full repair budgets.
+
 Closeout records `Loop Learning`: feedback captured, whether the pattern
 repeated, tooling needed (`none`, `propose guardrail`, `propose automation`, or
 `propose eval`), and whether Product approval is needed. For repeated friction,

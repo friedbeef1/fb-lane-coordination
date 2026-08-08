@@ -19,7 +19,7 @@ const CLOSE_OUTCOMES = new Set(['completed', 'blocked', 'deferred']);
 const STALE_AFTER_MS = 24 * 60 * 60 * 1000;
 const LOCK_WAIT_MS = 5000;
 const LOCK_POLL_MS = 20;
-const HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md'];
+const HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md', 'control-loop.md', 'learning.md'];
 
 function git(cwd, args, options = {}) {
   const result = spawnSync('git', args.map(String), {

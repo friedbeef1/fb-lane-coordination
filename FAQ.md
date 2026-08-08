@@ -103,6 +103,15 @@ FB keeps the candidate in **Checking**, diagnoses the evidence, and makes only
 scoped repairs within the declared loop budget. It does not silently change the
 approved outcome or weaken a valid test.
 
+## Does FB learn from a project over time?
+
+After FB verifies a feature, it records what caused meaningful failure or
+rework, repairs within the existing budget, and gives the next related task
+only the proven lesson it needs. Helpful lessons are confirmed; ineffective
+lessons are revised once or rejected. FB never turns continuous learning into
+an endless repair loop. Learning stays [inside that project](docs/fb/learning.md)
+and never authorizes release.
+
 ## Can compact board context make FB miss important work?
 
 The compact packet is navigation, not a replacement for project truth. It

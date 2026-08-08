@@ -134,6 +134,10 @@ board/handoff/eval/session/Git records, and approval for changed user decisions.
 
 ## Recall, review, and privacy boundary
 
+Session close validates the prospective Full BFM
+[project-learning decision](learning.md#closeout) after it has been recorded;
+it never creates a lesson, applies a treatment, or starts another repair.
+
 `recall` searches only explicit FB records: `PROJECT_BOARD.md`, workstream
 cards, typed `fb-lane-handoff` files under `docs/handoffs/`, and typed
 `fb-session-recap` files under `docs/sessions/`. `HEAD` is the default;
@@ -191,9 +195,9 @@ review.
 
 ## Install, upgrade, and removal
 
-Bootstrap confirms the ten-page harness and adds or refreshes only the managed
+Bootstrap confirms the eleven-page harness and adds or refreshes only the managed
 FB route block in project-owned instructions. Upgrades replace the bundled
-ten-page pack and managed route while preserving all text outside the markers.
+eleven-page pack and managed route while preserving all text outside the markers.
 For cleanup, close or preserve active session evidence first, then remove the
 clone-local `fb-sessions` directory and dead mutation lock from the Git common
 directory if no session command is running. Plugin removal does not delete

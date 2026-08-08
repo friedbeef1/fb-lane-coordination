@@ -47,6 +47,10 @@ when sources are unchanged.
 Missing, stale, corrupt, unsafe, or insufficient graph output must never block
 normal FB. The authoritative normalized-record route remains the safe fallback.
 
+The graph may select matching active lessons from
+[project-local continuous learning](learning.md). It links to unchanged lesson
+evidence instead of copying the learning registry into every context packet.
+
 ## Graduation
 
 Project age and record count do not trigger deeper mapping. Level 2 may be
