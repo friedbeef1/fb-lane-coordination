@@ -30,6 +30,11 @@ const { validateNormalizedRepository } = require('./fb-records.cjs');
 const { validateWorkstreamHandoffDirectory } = require('./fb-workstream-handoff.cjs');
 const { projectContextPacket } = require('./fb-project-graph.cjs');
 const {
+  prepareGraphDrivenBfm,
+  renderGraphProjection,
+  readGraphProjection,
+} = require('./fb-graph-bfm.cjs');
+const {
   validateLearningReceipt,
   recordLearningObservation,
   readLearningRegistry,
@@ -1946,7 +1951,14 @@ function gateBfmExecutionStart(rootDir, lane, options = {}) {
   if (!ledger.executionAllowed) {
     throw new Error(`BFM_EXECUTION_BLOCKED: the frozen intake does not permit execution.\n${rendered}`);
   }
-  return { ledger, rendered };
+  const graphRuntime = options.graphDriven
+    ? prepareGraphDrivenBfm(rootDir, options.graphDriven)
+    : null;
+  return {
+    ledger,
+    rendered: graphRuntime ? `${rendered}\n\n${renderGraphProjection(graphRuntime)}` : rendered,
+    graphRuntime,
+  };
 }
 
 function renderBfmIntakeLedger(ledger) {
@@ -3006,6 +3018,8 @@ function handleStatus(options = {}) {
   }
   if (options.context) {
     console.log(renderBoardContext(fs.readFileSync(boardPath, 'utf8')));
+    const graphProjection = readGraphProjection(rootDir);
+    if (graphProjection) console.log(`\n${renderGraphProjection(graphProjection)}`);
     if (migration.managed) console.log(`\n${checkoutMigrationStatusLines(migration).join('\n')}`);
     if (!isCanonicalCheckout(migration)) {
       console.error(`❌ Error: FB_CHECKOUT_NOT_CANONICAL: canonical checkout is ${migration.canonicalPath}.`);
@@ -4631,6 +4645,16 @@ function fbHarnessRoute() {
   return `${FB_HARNESS_ROUTE_START}
 ## FB coordination route
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Default execution uses focused proof per slice, one consolidated behavioral
+repair maximum across the candidate, one whole-candidate review, and one final
+release checkpoint. Do not create separate review or re-review loops for
+individual slices. Safety, sensitive-operation, authority, worktree/lock,
+changelog, and **Push Live** gates remain unchanged.
+
 Read [the FB harness](docs/fb/README.md) after using
 \`node tools/fb-lane.cjs status --context\` or
 \`fb_lane_status({context:true})\` for active work and locks. Then follow
@@ -4644,9 +4668,10 @@ Bugs. Product/BFM is the control centre, not universal intake. Relevant
 workstreams create handoffs ready for Product
 intake; ready is neither approval nor execution authority. \`$bfm\` freezes
 intake, and Product must disposition every candidate before source execution.
-Product/BFM then reconciles all six, prioritizes and sequences **Include now**
-candidates, and records the consolidated Project Start Brief and Build Brief;
-BFM executes that approved scope.
+Product/BFM then reconciles all six, records the consolidated Project Start
+Brief and Build Brief, refreshes and freezes the active graph snapshot, resolves
+gaps and conflicts, and applies Product priorities. Handoffs stay queued inputs;
+BFM executes the approved graph sequence through one integration pass.
 
 Setup and BFM mutate only the active canonical checkout. Before execution,
 Product/BFM shows the complete intake ledger across all six evidence workstreams
@@ -5267,4 +5292,7 @@ module.exports = {
   compactBoardFiles,
   completeBoardTask,
   refreshManagedWorkstreamCards,
+  prepareGraphDrivenBfm,
+  renderGraphProjection,
+  readGraphProjection,
 };

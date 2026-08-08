@@ -5,6 +5,16 @@ description: Use when Product/Captain must intake, sequence, execute, reconcile,
 
 # BFM
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Default execution uses focused proof per slice, one consolidated behavioral
+repair maximum across the candidate, one whole-candidate review, and one final
+release checkpoint. Do not create separate review or re-review loops for
+individual slices. Safety, sensitive-operation, authority, worktree/lock,
+changelog, and **Push Live** gates remain unchanged.
+
 BFM is the navigator and executor of FB's repository-local product-delivery
 graph. The graph is the map; workstream loops produce learning inside it; BFM
 reconciles, prioritizes, and executes the approved graph; **Push Live** remains
@@ -184,15 +194,14 @@ gate. Execute only **Include now**, unlocked work in the approved scope; close
 only after the board, source, docs, evidence, and Git state agree or exceptions
 are explicit.
 Apply private agent routing and the
-canonical progress, resource, reviewer, verification, and stop budgets. Reuse a matching
+canonical progress, resource, candidate-review, verification, and stop budgets. Reuse a matching
 linked worktree or place a new one under the primary checkout's `.worktrees`,
 and keep `Current`, `Next ready`, and `External blocks` visible.
 For closely related low-risk skill, documentation, template, or contract edits,
 produce one bounded candidate and test their distinct behavior with one focused
-structural contract. Documentation and coordination Quick work closes with zero
-reviewers after focused checks pass; runtime and test Quick work requires
-exactly one reviewer. Review only the complete candidate with one focused
-verification pass; stop immediately when it passes.
+structural contract. Individual Quick slices do not create reviewer loops.
+Review only the complete candidate once with one focused verification pass;
+stop immediately when it passes.
 Quick BFM is one bounded slice. Documentation/coordination normally targets 5
 minutes and two total iterations; runtime/test normally targets 15 minutes and
 three. Both permit one consolidated repair. Full BFM may run for hours by
@@ -221,7 +230,7 @@ a registered, present, clean worktree whose branch is merged. If cleanup finds
 a dirty, unmerged, missing, blocked, or deferred worktree, retain it, keep the
 task and locks open, and record its owner plus next action. Never force-remove
 or broadly prune worktrees.
-Review the complete canonical candidate before generating package mirrors.
+Review the complete canonical candidate once before generating package mirrors.
 Use focused proof per slice, an integration check only when slices are
 meaningfully combined, and broad validation only at a release checkpoint. If a
 slice reveals unexpected complexity, keep completed slices and resplit only the

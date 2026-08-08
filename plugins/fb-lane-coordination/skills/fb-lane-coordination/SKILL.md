@@ -5,6 +5,16 @@ description: Use when an FB project needs board-aware routing, handoffs, current
 
 # FB task coordination
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Default execution uses focused proof per slice, one consolidated behavioral
+repair maximum across the candidate, one whole-candidate review, and one final
+release checkpoint. Do not create separate review or re-review loops for
+individual slices. Safety, sensitive-operation, authority, worktree/lock,
+changelog, and **Push Live** gates remain unchanged.
+
 FB is **Graph Engineering for Everyday People**: an open-source Codex plugin
 that turns scattered AI conversations into a living product-delivery graph.
 The graph is the map connecting workstreams, decisions, evidence, dependencies,

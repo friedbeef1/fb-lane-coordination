@@ -1,5 +1,15 @@
 # Evidence and review
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Focused proof attaches evidence to each slice. The complete canonical candidate
+receives one whole-candidate review, at most one consolidated behavioral repair,
+and one final release checkpoint. Slice proof does not create a separate
+reviewer or re-review ceremony. Existing safety and release evidence gates
+remain unchanged.
+
 Store complete command output and verification fingerprints in the authoritative
 QA artifact described by [records.md](records.md). Handoffs and chat link to it
 instead of copying logs.

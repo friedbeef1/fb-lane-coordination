@@ -165,12 +165,12 @@ decision, one closeout, and an Efficiency Receipt. Status reads that record
 without requiring a board row. Submit closes that same file and must not invoke
 runtime suites or a full validator for coordination-only closeout.
 
-Each new Quick Record says whether review is required. Documentation and
-coordination records use `Review required: no`, `Reviewer: not required`,
-`Reviewer decision: not required`, and `Reviewers: 0`; runtime and test records
-use `Review required: yes` and require exactly one approved reviewer. A legacy
-Quick Record without `Review required` keeps the previous exactly-one-reviewer
-rule.
+Each new Quick Record retains its historical review fields for validator
+compatibility. Documentation and coordination records use `Review required:
+no`, `Reviewer: not required`, `Reviewer decision: not required`, and
+`Reviewers: 0`. Runtime and test records bind any required review to the one
+whole candidate, never to repeated per-slice review or re-review loops. Legacy
+records remain valid without retrofit.
 
 Each Quick Record represents one planned execution slice, not the total task.
 Documentation/coordination slices normally target 5 minutes with two iterations

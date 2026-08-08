@@ -5,6 +5,10 @@ description: Use when a suspected defect needs reproduction, severity, affected-
 
 # FB Bugs
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
 ## Cross-workstream planning handoff
 
 On an explicit user request, a main workstream may route planning or evidence

@@ -74,6 +74,15 @@ function compareId(left, right) {
   return left.id.localeCompare(right.id);
 }
 
+function prioritizedCompare(priorityOrder = []) {
+  const rank = new Map(priorityOrder.map((id, index) => [String(id), index]));
+  return (left, right) => {
+    const leftRank = rank.has(left.id) ? rank.get(left.id) : Number.MAX_SAFE_INTEGER;
+    const rightRank = rank.has(right.id) ? rank.get(right.id) : Number.MAX_SAFE_INTEGER;
+    return leftRank - rightRank || left.id.localeCompare(right.id);
+  };
+}
+
 function edgeIndex(edges) {
   const from = new Map();
   const to = new Map();
@@ -275,7 +284,7 @@ function scheduleGraph(graph = {}, options = {}) {
   }
 
   projection.current.sort(compareId);
-  projection.parallelReady.sort(compareId);
+  projection.parallelReady.sort(prioritizedCompare(options.priorityOrder));
   projection.next.sort(compareId);
   projection.blocked.sort(compareId);
   projection.deferred.sort(compareId);

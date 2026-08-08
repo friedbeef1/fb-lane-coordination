@@ -1,5 +1,9 @@
 # FB Coordination for Codex
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
 This package is the supported Codex distribution for FB. It supplies the
 `fb-lane` coordination capability, BFM/Product/lane skills, and the reusable
 FB harness. **FB — Graph Engineering for Everyday People** is an open-source

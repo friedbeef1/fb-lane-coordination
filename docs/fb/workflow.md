@@ -1,5 +1,15 @@
 # Coordinate and execute
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Default execution uses focused proof per slice, one consolidated behavioral
+repair maximum across the candidate, one whole-candidate review, and one final
+release checkpoint. Do not create separate review or re-review loops for
+individual slices. Safety, sensitive-operation, authority, worktree/lock,
+changelog, and **Push Live** gates remain unchanged.
+
 The public workstream-first and `$bfm` reconciliation contract lives in
 [start.md](start.md). Internal execution classification is not a user choice.
 When the approved Build Brief opts into transformation routing, pairwise
@@ -255,9 +265,10 @@ Verification Handoff. Needing any of those reclassifies the task Full BFM.
 
 The time budget applies per execution slice, not to the complete outcome. Quick
 BFM is one bounded slice: documentation/coordination normally targets 5
-minutes, two total agent iterations, one consolidated repair, and zero reviewers
-after focused checks pass; runtime/test normally targets 15 minutes with three total agent
-iterations, one consolidated repair, and exactly one reviewer. Quick work stays
+minutes and two total agent iterations; runtime/test normally targets 15
+minutes and three total agent iterations. Both stay inside the one consolidated
+behavioral repair maximum, and neither creates a slice-level reviewer. Review
+the complete combined candidate once. Quick work stays
 with the current owner and uses no implementation subagent. Full BFM may run
 for hours by coordinating many such slices. It runs independent, non-overlapping
 slices concurrently through agents or subagents and sequences dependencies,
@@ -271,9 +282,9 @@ provider token/cost ceilings apply only when supplied; otherwise record
 
 Before implementation, put the smallest adversarial contract in RED: the
 expected path, a mixed or unknown path, and the sensitive boundary. Implement
-the canonical source once and run its focused root check. Runtime/test work gets
-one focused review of that complete canonical candidate. If required, make one
-consolidated repair and rerun only the failed proof. Generate package mirrors
+the canonical source once and run its focused root check. The complete
+runtime/test candidate gets the one whole-candidate review. If required, make
+the single consolidated behavioral repair and rerun only the failed proof. Generate package mirrors
 once after review passes, then run parity and only package-context checks that
 exercise a different path.
 

@@ -103,7 +103,8 @@ assert.match(workflow, /Sensitive[\s\S]*Full-BFM safety\/release gates/);
 assert.match(workflow, /Quick BFM/);
 assert.match(workflow, /ambiguity/i);
 assert.match(workflow, /<primary>\/\.worktrees\//);
-for (const contract of ['5 minutes', '15 minutes', 'two total agent\\s+iterations', 'three total agent\\s+iterations', 'one consolidated repair', 'zero reviewers', 'exactly one reviewer', 'hooks\\.focusedTest', '10 minutes', 'no implementation subagent', 'current brief', 'candidate\/diff', 'specific feedback', 'required evidence']) assert.match(workflow, new RegExp(contract, 'i'));
+for (const contract of ['5 minutes', '15 minutes', 'two total agent\\s+iterations', 'three total agent\\s+iterations', 'one consolidated behavioral', 'focused proof per slice', 'one whole-candidate review', 'one final\\s+release checkpoint', 'hooks\\.focusedTest', '10 minutes', 'no implementation subagent', 'current brief', 'candidate\/diff', 'specific feedback', 'required evidence']) assert.match(workflow, new RegExp(contract, 'i'));
+assert.doesNotMatch(workflow, /runtime(?:\/test| and test)[\s\S]{0,80}(?:exactly one|one) reviewer/i);
 for (const contract of ['per execution slice', 'dependency graph', 'independent[\\s\\S]{0,100}slices[\\s\\S]{0,100}parallel', 'dependent[\\s\\S]{0,80}sequential', 'shared-file[\\s\\S]{0,80}sequential', 'res(?:plit|lice)', 'integration or\\s+release checkpoint']) assert.match(workflow, new RegExp(contract, 'i'));
 assert.match(workflow, /at most one full validator/);
 
@@ -113,7 +114,7 @@ for (const contract of ['Efficiency Receipt', 'without requiring\\s+a board row'
 const guardrails = readHarness('guardrails.md');
 assert.match(guardrails, /hooks\.preflight/);
 assert.match(guardrails, /no global Node version/i);
-for (const contract of ['one consolidated repair', 'repeated broad', 'fb-package-sync\\.cjs[\\s\\S]{0,30}--check', 'after[\\s\\S]{0,80}review', 'release checkpoint', 'explicitly\\s+requests']) assert.match(guardrails, new RegExp(contract, 'i'));
+for (const contract of ['one consolidated\\s+behavioral\\s+repair', 'repeated broad', 'fb-package-sync\\.cjs[\\s\\S]{0,30}--check', 'after[\\s\\S]{0,80}review', 'release checkpoint', 'explicitly\\s+requests']) assert.match(guardrails, new RegExp(contract, 'i'));
 
 const cliSource = fs.readFileSync(path.join(surfaceRoot, 'tools', 'fb-lane.cjs'), 'utf8');
 assert.match(cliSource, /diff['"],\s*['"]--name-only['"],\s*`\$\{baseCommit\}\.\.HEAD`/);

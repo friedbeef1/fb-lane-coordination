@@ -1,5 +1,14 @@
 # Codex Setup
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Bootstrap and upgrade add derived graph support without overwriting
+project-owned boards, records, handoffs, or learning. `.fb/graph/` is ignored,
+rebuildable state; Markdown and Git remain authoritative. Existing projects and
+historical handoffs need no migration.
+
 This page is tactical. For the operating model behind these commands, read
 [Graph Engineering and its workstream loops](loop-engineering.md). For version naming and the v1-to-latest
 before/after, read [FB Versions](versioning.md).
@@ -85,7 +94,7 @@ fb_lane_tmp="$(mktemp -d)"
 trap 'rm -rf "$fb_lane_tmp"' EXIT
 curl -fsSL "$FB_LANE_ARCHIVE_URL" | tar -xz -C "$fb_lane_tmp" --strip-components=1
 mkdir -p tools docs/fb docs/evals templates/docs/learning
-cp "$fb_lane_tmp"/tools/fb-{lane,onboarding,session,eval,efficiency,changelog-closeout,records,project-graph,board-context,control-loop,workstream-handoff,learning}.cjs tools/
+cp "$fb_lane_tmp"/tools/fb-{lane,onboarding,session,eval,efficiency,changelog-closeout,records,project-graph,graph-scheduler,graph-propagation,graph-learning,graph-bfm,board-context,control-loop,workstream-handoff,learning}.cjs tools/
 cp "$fb_lane_tmp"/docs/fb/{README,start,workflow,evidence,guardrails,sessions,evals,records,graph,control-loop,learning}.md docs/fb/
 cp "$fb_lane_tmp"/docs/evals/{eval-record-template,agent-behavior-scorecard-template}.md docs/evals/
 cp "$fb_lane_tmp"/templates/docs/learning/index.md templates/docs/learning/
@@ -121,6 +130,16 @@ transactional migration routes: inventory and disposition every difference,
 atomically record one canonical root plus quarantined former roots, then rebind
 the exact seven pinned tasks. Former roots remain rollback evidence until fresh
 verification and explicit retirement approval.
+
+Bootstrap or upgrade installs the graph compiler, scheduler, propagation,
+bounded-learning, and Product/BFM projection runtimes, then adds the derived
+graph ignore rule. It preserves project-owned records and learning entries.
+Checkout migration keeps former roots quarantined and recoverable; derived
+graph data is rebuilt from the chosen canonical root rather than copied as
+authority.
+
+The installed runtime set includes `fb-graph-scheduler.cjs`,
+`fb-graph-propagation.cjs`, `fb-graph-learning.cjs`, and `fb-graph-bfm.cjs`.
 
 ## Manual upgrade fallback
 

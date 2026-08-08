@@ -1007,9 +1007,11 @@ function assertCodexBootstrap(args) {
       assert.match(source, /node tools\/fb-lane\.cjs status --context/, `${label} must use bounded active context for routine orientation`);
       assert.match(source, /fb_lane_status\(\{context:true\}\)/, `${label} must request bounded MCP context for routine orientation`);
       assert.match(source, /returning-project health[\s\S]*\$fb-lane status/i, `${label} must keep default status for returning health`);
+      assert.match(source, /focused proof per slice[\s\S]{0,220}one consolidated behavioral\s+repair[\s\S]{0,220}one whole-candidate review[\s\S]{0,220}one final\s+release checkpoint/i, `${label} must generate the lean candidate-level execution process`);
+      assert.doesNotMatch(source, /runtime(?:\/test| and test)[\s\S]{0,80}(?:exactly one|one) reviewer/i, `${label} must not generate the retired runtime per-slice reviewer rule`);
     }
     assert.doesNotMatch(board + agents, /Mode Selection Trigger Rule|normal\/simple|FB light/i, 'generated coordination guidance must not expose internal mode routing');
-    assert.match(agents, /handoffs ready for Product\s+intake[\s\S]*ready is neither approval nor execution authority[\s\S]*`\$bfm` freezes[\s\S]*disposition every candidate[\s\S]*Project Start Brief and Build Brief[\s\S]*BFM executes that approved scope/i, 'generated AGENTS must preserve Product intake, disposition, reconciliation briefs, and execution order');
+    assert.match(agents, /handoffs ready for Product\s+intake[\s\S]*ready is neither approval nor execution authority[\s\S]*`\$bfm` freezes[\s\S]*disposition every candidate[\s\S]*Project Start[\s\S]*Brief and Build Brief[\s\S]*BFM executes the approved graph sequence/i, 'generated AGENTS must preserve Product intake, disposition, reconciliation briefs, and graph execution order');
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
     assert.match(output, /starts in whichever evidence-producing workstream matches the question/, 'bootstrap quick start must explain workstream-first intake');
     assert.match(output, /Relevant workstreams investigate and create handoffs ready for Product intake/, 'bootstrap quick start must explain relevant workstream output');

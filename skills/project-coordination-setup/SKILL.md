@@ -5,6 +5,16 @@ description: Use when bootstrapping an FB-coordinated project with board, handof
 
 # Set up an FB-coordinated project
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Default execution uses focused proof per slice, one consolidated behavioral
+repair maximum across the candidate, one whole-candidate review, and one final
+release checkpoint. Do not create separate review or re-review loops for
+individual slices. Safety, sensitive-operation, authority, worktree/lock,
+changelog, and **Push Live** gates remain unchanged.
+
 `$fb-setup` is the primary public invocation for this canonical setup workflow.
 Natural-language setup requests and the long-form skill invocation remain
 compatible fallbacks.
@@ -151,6 +161,10 @@ orientation. For a known task and question, agents call MCP
 `fb_project_context` and open only its relevant cited authoritative records.
 The graph is not a source of truth. Missing, stale, unhealthy, incomplete, or
 contradictory packets fall back to the board → index → handoff → card route.
+Bootstrap and upgrade add derived graph support under ignored `.fb/graph/`
+without overwriting project-owned boards, records, handoffs, learning, or
+instruction text. The graph is rebuilt from the active canonical checkout;
+former roots stay quarantined and recoverable through the migration contract.
 
 For routine session orientation, use CLI
 `node tools/fb-lane.cjs status --context` or MCP
@@ -191,9 +205,9 @@ under [standing delegated approvals](../../docs/fb/workflow.md#standing-delegate
 Product/BFM creates that request without a user prompt after focused evidence
 and candidate-bound changelog verification pass. A Markdown handoff artifact or
 review transfer alone is not a request.
-Its generated Quick Records state whether review is required: documentation and
-coordination use zero reviewers after focused checks pass, runtime and test use
-exactly one, and records without the field retain the legacy one-reviewer rule.
+Its generated Quick Records retain historical review fields for compatibility,
+but the default process does not create per-slice reviewer loops. Review the
+complete candidate once after focused slice proof.
 Projects may configure `hooks.focusedTest` and a
 `timeouts.focusedTestMinutes` value of at most 10 in `.fb-lane.json`; otherwise
 runtime Quick work uses bounded `npm test`.

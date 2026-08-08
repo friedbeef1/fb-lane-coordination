@@ -1,5 +1,15 @@
 # Safety, recovery, and learning
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Default execution uses focused proof per slice, one consolidated behavioral
+repair maximum across the candidate, one whole-candidate review, and one final
+release checkpoint. Do not create separate review or re-review loops for
+individual slices. Safety, sensitive-operation, authority, worktree/lock,
+changelog, and **Push Live** gates remain unchanged.
+
 The [generic control loop](control-loop.md) inherits every safety, approval,
 repair, time, and release boundary here. Routing cannot bypass a safety trigger;
 diagnosis cannot create extra repair loops; a candidate cannot promote itself.
@@ -207,10 +217,11 @@ correction or material progress; or the one Product-directed recovery fails.
 There is at most one such recovery per checkpoint.
 
 The time limits apply per planned slice, not to the whole product outcome.
-Quick BFM is one slice: documentation/coordination normally targets 5 minutes,
-two total iterations, or one consolidated repair; runtime/test normally targets
-15 minutes, three iterations, or one consolidated repair. Runtime/test adds one
-reviewer and documentation/coordination adds none. Full BFM may run for hours by
+Quick BFM is one slice: documentation/coordination normally targets 5 minutes
+and two total iterations; runtime/test normally targets 15 minutes and three
+iterations. Both remain within the one consolidated behavioral repair maximum.
+No slice gets its own review loop; the combined candidate gets one
+whole-candidate review. Full BFM may run for hours by
 coordinating multiple slices. It may use agents or subagents concurrently only
 for independent, non-overlapping locks; dependencies, shared files, sensitive
 work, and unresolved decisions remain sequential. All slices stop on success, a
@@ -250,11 +261,11 @@ For closely related, low-risk documentation, skill, template, or contract
 changes, make one bounded candidate rather than assigning sibling changes
 sequentially. Do not require each sibling to fail and pass independently when
 one focused structural contract can prove their distinct behavior. Prepare the
-complete candidate before review. Quick documentation and coordination work
-uses zero reviewers after its focused checks pass; Quick runtime and test work
-requires exactly one reviewer. Quick BFM permits one focused verification pass
-and one consolidated repair.
-Do not add another reviewer, narration loop,
+complete candidate before review. Quick documentation, coordination, runtime,
+and test slices use focused proof without their own review ceremony. The
+complete candidate gets the single whole-candidate review and permits one
+consolidated behavioral repair.
+Do not add another review, narration loop,
 mirror-by-mirror check, or broad validator after the success predicates pass.
 Report progress only when source, evidence, test state, blocker recovery, or an
 approved decision materially changes. A second Quick repair, one no-progress

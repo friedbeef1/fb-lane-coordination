@@ -1,5 +1,9 @@
 # Project-local continuous learning
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
 FB improves the **consumer project** from its own verified delivery outcomes. It does not send project evidence back to the FB repository or another project.
 
 ```text

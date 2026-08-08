@@ -1,5 +1,16 @@
 # Graph-directed context
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Markdown records and Git history remain authoritative. The graph is a derived,
+repository-local delivery map that routes context, dependencies, sequencing,
+invalidation, and readable projections. Product/BFM owns decisions and
+priorities, while Codex executes only the approved sequence. **Push Live**
+remains the only release authority. This hybrid authority model adds no graph
+database and creates no second source of truth.
+
 Use the repository-local project graph to reduce broad orientation reads in
 long-lived work. The graph is a derived navigation layer. It never replaces or
 overrides the board, handoffs, QA evidence, Git, approvals, or release gates.
@@ -21,6 +32,54 @@ When the current task ID and question are known:
 Do not load broad project history merely because it exists. Do not treat a
 graph label or relationship as approval, product truth, test evidence, or
 release authority.
+
+## Optional structured relationships
+
+New handoffs may declare relationships when Product has authoritative evidence:
+
+```yaml
+graph:
+  depends_on:
+    - TASK-101
+  conflicts_with:
+    - DECISION-023
+  affects:
+    - FEATURE-EXPORT
+  supersedes:
+    - REQUIREMENT-011
+```
+
+These fields are optional. Existing handoffs and historical records remain
+valid without migration. Missing or ambiguous relationships remain unknown;
+the compiler never guesses approval, verification success, or release
+authority.
+
+## Change invalidation
+
+Propagation follows only cited graph relationships and never reopens unrelated
+completed work:
+
+- A changed decision reopens only affected implementation and verification.
+- A failed verification blocks its connected implementation and release.
+- A superseded requirement retires only its unstarted implementing tasks.
+- A fixed bug requires its connected regression check.
+- A changed dependency recalculates only downstream sequencing.
+
+Every invalidation cites the changed authoritative source and explains why the
+affected node became stale. Product/BFM records the resulting decision in the
+normal board, handoff, QA, or release record.
+
+## Product/BFM delivery projection
+
+After `$bfm`, Product records the consolidated Build Brief before scheduler
+execution, refreshes the graph, freezes an active-subgraph snapshot, resolves
+conflicts and missing evidence, applies Product priorities, and records one
+integration pass. Status projects **Current**, **Next**, **Blocked**,
+**Deferred**, **Conflicts**, **Recently invalidated**, and **Ready to ship**.
+Handoffs remain queued Product inputs, not executable instructions.
+
+If refresh fails, status must say that the authoritative fallback is active and
+must not claim graph-driven sequencing.
 
 ## Historical retrieval
 

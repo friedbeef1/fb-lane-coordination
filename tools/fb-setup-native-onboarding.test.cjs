@@ -78,7 +78,7 @@ assert.match(skill, /created task[\s\S]{0,220}set_thread_title[\s\S]{0,160}(?:pl
 assert.match(skill, /partial[\s-]failure[\s\S]{0,180}(?:unreconciled|do not reconcile|must not reconcile)/i);
 assert.match(skill, /stop[\s\S]{0,180}role-specific[\s\S]{0,180}manual fallback/i);
 assert.match(skill, /newly created[\s\S]{0,180}(?:never|do not)[\s\S]{0,80}(?:create|recreate)[\s\S]{0,80}duplicate/i);
-assert.match(skill, /rerun[\s\S]{0,180}(?:complete inventory|plan)[\s\S]{0,180}create only[\s\S]{0,120}(?:still missing|missing)/i);
+assert.match(skill, /safe to run again[\s\S]{0,180}(?:complete inventory|plan)[\s\S]{0,180}create only[\s\S]{0,120}(?:still missing|missing)/i);
 assert.match(skill, /all seven[\s\S]{0,320}exact\s+titles?[\s\S]{0,180}pinned/i);
 
 assert.strictEqual(

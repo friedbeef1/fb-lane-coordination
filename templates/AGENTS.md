@@ -1,5 +1,15 @@
 # FB coordination navigator
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Default execution uses focused proof per slice, one consolidated behavioral
+repair maximum across the candidate, one whole-candidate review, and one final
+release checkpoint. Do not create separate review or re-review loops for
+individual slices. Safety, sensitive-operation, authority, worktree/lock,
+changelog, and **Push Live** gates remain unchanged.
+
 Read this file, then the current project state: `PROJECT_BOARD.md`,
 `docs/handoffs/index.md`, the linked handoff, and the relevant workstream card.
 The board is current truth; the index routes; handoffs hold detail; cards are

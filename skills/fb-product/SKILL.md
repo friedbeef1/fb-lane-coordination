@@ -5,6 +5,16 @@ description: Use when the Product/BFM control centre must reconcile workstream e
 
 # FB Product/BFM control centre
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Default execution uses focused proof per slice, one consolidated behavioral
+repair maximum across the candidate, one whole-candidate review, and one final
+release checkpoint. Do not create separate review or re-review loops for
+individual slices. Safety, sensitive-operation, authority, worktree/lock,
+changelog, and **Push Live** gates remain unchanged.
+
 `fb-product` remains the technical identifier for the Product/BFM control
 centre. It is not an evidence-producing workstream. FB has six
 evidence-producing workstreams in canonical order: User, Business, Design,
@@ -32,6 +42,15 @@ shown as Product/BFM control-centre inputs, not a seventh evidence workstream.
 Blocked inputs remain counted and linked but excluded from execution.
 Product/BFM uses that runtime ledger and does not recreate its scanner rules in
 guidance.
+
+After intake, refresh the derived graph, freeze the active-subgraph snapshot,
+record the consolidated Build Brief, and only then apply Product priorities to
+the scheduler. Handoffs remain queued Product inputs, not executable
+instructions. Record one integration-pass representation, attach verification,
+update authoritative records after each result, refresh the graph again, and
+stop at **Ready to ship**. If refresh fails, state that the authoritative
+board/index/handoff/Git fallback is active and do not claim graph-driven
+sequencing.
 
 When a project moves between checkouts, Product/BFM owns the transactional migration:
 inventory and disposition every discovered difference, atomically
