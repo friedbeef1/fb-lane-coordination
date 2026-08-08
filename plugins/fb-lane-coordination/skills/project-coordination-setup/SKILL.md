@@ -40,10 +40,13 @@ directory, shared by every worktree in that clone. Non-Git projects use ignored
 `.fb/onboarding.json`. It prints one permission question introducing FB. Relay
 that question to the user exactly once:
 
-> May I create seven repository-scoped sidebar tasks: Product/BFM, User,
+> May I reuse and pin matching repository-scoped sidebar tasks, rename legacy
+> matches where needed, and create only the missing roles: Product/BFM, User,
 > Business, Design, Tech, Discovery, and Bugs?
 
-Do not create tasks before explicit Yes. On No, record
+This approval is for deterministic reconciliation of the seven-role set, not
+blanket creation of seven new tasks. Prefer reuse. Do not rename, pin, or create
+tasks before explicit Yes. On No, record
 `node tools/fb-onboarding.cjs permission declined`. Workstream planning may
 continue, but `$bfm` source execution and an empty-queue claim remain blocked
 until exact-project setup is granted and verified. On

@@ -4945,8 +4945,8 @@ If Product/BFM sees repeated workflow failure, coordination friction, stale stat
   console.log('👉 For detailed rules, boundaries, and manual commands, check AGENTS.md.\n');
   if (onboarding.shouldPrompt) {
     console.log('Meet FB — Focus Bridge. FB has six evidence-producing workstreams plus one Product/BFM control centre and seven pinned repository-scoped Codex tasks.');
-    console.log('May I create seven repository-scoped sidebar tasks: Product/BFM, User, Business, Design, Tech, Discovery, and Bugs?');
-    console.log('Reply Yes or No. FB asks this setup question once, creates only missing legacy/current tasks, and leaves every new task idle. Pinning never starts work.\n');
+    console.log('May I reuse and pin matching repository-scoped sidebar tasks, rename legacy matches where needed, and create only the missing roles: Product/BFM, User, Business, Design, Tech, Discovery, and Bugs?');
+    console.log('Reply Yes or No. This approves reconciliation, not blanket creation: FB reuses exact matches first, renames legacy matches only when needed, creates only missing roles, and leaves every new task idle. Pinning never starts work.\n');
   }
 }
 
