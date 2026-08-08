@@ -49,8 +49,9 @@ zero invented decisions or missed safety gates, and aligned plugin guidance.
   publication, reinstall, or deployment.
 - Sequencing: follow Tasks 1–8 in the approved
   [implementation plan](../superpowers/plans/2026-08-08-fb-graph-driven-orchestration.md).
-- Verification: focused proof per slice, task review per slice, one final
-  whole-branch review, then one complete release validator.
+- Verification: focused proof per slice, one consolidated behavioral repair
+  maximum, one independent whole-candidate review, then one complete release
+  validator. Individual slices do not require reviewer/re-review ceremonies.
 - Changelog expectation: required.
 - Release boundary: stop at **Ready to ship**. Only **Push Live** authorizes
   merge, marketplace publication, reinstall, or deployment.
@@ -71,3 +72,11 @@ Next: active-subgraph context, scheduler, propagation, learning integration,
 Product/BFM projections, plugin/docs/migration, release checkpoint.
 Blocked: none.
 Deferred: all live release actions until **Push Live**.
+
+## Process decision — 2026-08-08
+
+FB's default plugin and generated-project execution process is now focused proof
+per slice, one consolidated behavioral repair, one whole-candidate review, and
+one final release checkpoint. Mandatory per-slice reviewer/re-review ceremony is
+removed. Safety, sensitive-operation, authority, worktree/lock, changelog, and
+**Push Live** gates remain unchanged.

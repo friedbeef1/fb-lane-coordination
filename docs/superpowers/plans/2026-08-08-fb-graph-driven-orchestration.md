@@ -31,6 +31,10 @@ hosted service, automatic cross-project learning, or a second source of truth.
   it cannot change product decisions, source code, repair budgets, or release
   authority.
 - Generate package mirrors mechanically after canonical review.
+- Default execution uses focused proof per slice, one consolidated behavioral
+  repair maximum, one independent whole-candidate review, and one final release
+  checkpoint. Individual slices do not require separate reviewer/re-review
+  ceremonies. Existing safety and **Push Live** gates remain unchanged.
 - Stop at **Ready to ship**. Merge, marketplace publication, reinstall, and
   deployment require **Push Live**.
 
@@ -184,6 +188,12 @@ relationships, historical retrieval, change invalidation, and no graph database
 requirement. Bootstrap or upgrade adds derived graph support without overwriting
 project-owned records. Mechanically regenerate all declared package mirrors
 once after canonical review.
+
+Make the same lean execution contract the canonical plugin and generated-
+project default: focused proof per slice, one consolidated behavioral repair,
+one whole-candidate review, and one final release checkpoint. Remove mandatory
+per-slice reviewer/re-review ceremonies while preserving all safety, sensitive,
+worktree/lock, changelog, and **Push Live** gates.
 
 Run focused documentation, migration/bootstrap, link, parity, syntax, and
 whitespace contracts; commit the slice.
