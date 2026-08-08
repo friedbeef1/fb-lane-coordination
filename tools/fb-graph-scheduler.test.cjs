@@ -188,3 +188,19 @@ test('keeps unfinished verification gates visible for blocked deferred and confl
   assert.ok(projection.releaseGates.filter(item => item.id.startsWith('verification:'))
     .every(item => item.reasons.some(reason => reason.code === 'verification-required')));
 });
+
+test('applies recorded Product priority only within an otherwise ready wave', () => {
+  const input = graph([
+    node('task:TASK-901', 'Ready', { worktree: 'wt-901', locks: ['a.js'] }),
+    node('task:TASK-902', 'Ready', { worktree: 'wt-902', locks: ['b.js'] }),
+    node('task:TASK-903', 'Ready', { worktree: 'wt-903', locks: ['c.js'] }),
+  ]);
+
+  const projection = scheduleGraph(input, {
+    priorityOrder: ['task:TASK-903', 'task:TASK-901'],
+  });
+
+  assert.deepStrictEqual(ids(projection.parallelReady), [
+    'task:TASK-903', 'task:TASK-901', 'task:TASK-902',
+  ]);
+});

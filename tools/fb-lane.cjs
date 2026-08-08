@@ -30,6 +30,11 @@ const { validateNormalizedRepository } = require('./fb-records.cjs');
 const { validateWorkstreamHandoffDirectory } = require('./fb-workstream-handoff.cjs');
 const { projectContextPacket } = require('./fb-project-graph.cjs');
 const {
+  prepareGraphDrivenBfm,
+  renderGraphProjection,
+  readGraphProjection,
+} = require('./fb-graph-bfm.cjs');
+const {
   validateLearningReceipt,
   recordLearningObservation,
   readLearningRegistry,
@@ -1946,7 +1951,14 @@ function gateBfmExecutionStart(rootDir, lane, options = {}) {
   if (!ledger.executionAllowed) {
     throw new Error(`BFM_EXECUTION_BLOCKED: the frozen intake does not permit execution.\n${rendered}`);
   }
-  return { ledger, rendered };
+  const graphRuntime = options.graphDriven
+    ? prepareGraphDrivenBfm(rootDir, options.graphDriven)
+    : null;
+  return {
+    ledger,
+    rendered: graphRuntime ? `${rendered}\n\n${renderGraphProjection(graphRuntime)}` : rendered,
+    graphRuntime,
+  };
 }
 
 function renderBfmIntakeLedger(ledger) {
@@ -3006,6 +3018,8 @@ function handleStatus(options = {}) {
   }
   if (options.context) {
     console.log(renderBoardContext(fs.readFileSync(boardPath, 'utf8')));
+    const graphProjection = readGraphProjection(rootDir);
+    if (graphProjection) console.log(`\n${renderGraphProjection(graphProjection)}`);
     if (migration.managed) console.log(`\n${checkoutMigrationStatusLines(migration).join('\n')}`);
     if (!isCanonicalCheckout(migration)) {
       console.error(`❌ Error: FB_CHECKOUT_NOT_CANONICAL: canonical checkout is ${migration.canonicalPath}.`);
@@ -5267,4 +5281,7 @@ module.exports = {
   compactBoardFiles,
   completeBoardTask,
   refreshManagedWorkstreamCards,
+  prepareGraphDrivenBfm,
+  renderGraphProjection,
+  readGraphProjection,
 };
