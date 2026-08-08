@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-079 | In Progress | FB-Product / BFM | Project-local recursive learning | Make each FB project learn bounded preventative lessons from its own verified delivery outcomes without creating nested repair loops | Learning runtime, harness guidance, plugin mirrors, focused contracts, version/release records | Design approved in conversation; [design](docs/superpowers/specs/2026-08-08-project-recursive-learning-design.md); implementation plan follows written-spec review |
 | TASK-078 | Done | FB-Product / BFM | One-sentence GitHub setup and `0.5.12-beta+codex.20260808093008` | Integrate task-reuse permission, plain-language safe reruns, and one GitHub install-or-upgrade prompt into the canonical plugin release | None; published and installed | [PR #61](https://github.com/friedbeef1/fb-lane-coordination/pull/61) merged as `414b191`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-078.md); [QA](docs/qa/TASK-078.md) |
 | TASK-Q-20260808-ONBOARDING-REUSE | Done | FB-Product / BFM | Codex onboarding | Make setup approval explicitly authorize reuse, rename, and pin of matching project tasks, with creation only for missing lanes | None; source/docs/tests only | User-approved in current conversation; 54 focused tests passed; root/package parity and `git diff --check` passed |
 | TASK-077 | Superseded | Side conversation, one-off approved | Plain-language FB setup status | Replace user-facing setup jargon with clear safe-rerun wording | None; absorbed into TASK-078 | Candidate `228610d` integrated through `e14ab9b`; release evidence belongs to TASK-078 |
@@ -27,6 +28,23 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-079 - Project-local recursive learning
+
+*   **Status**: In Progress — durable design ready for review.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Scope**: Connect verified project outcomes to bounded provisional lessons,
+    relevant future context, confirmation, one revision, rejection, and
+    retirement; update the reusable plugin and project harness.
+*   **Out of Scope**: Autonomous source or prompt mutation, cross-project data
+    transmission, unbounded repair, automatic eval-authority changes, merge,
+    publication, or deployment.
+*   **Gate / Review Point**: James reviews the written design before the
+    implementation plan is produced.
+*   **Links & Deliverables**:
+    [design](docs/superpowers/specs/2026-08-08-project-recursive-learning-design.md).
 
 ---
 
