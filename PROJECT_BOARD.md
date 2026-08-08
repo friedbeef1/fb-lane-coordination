@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-078 | Staging QA | FB-Product / BFM | One-sentence GitHub setup and `0.5.12-beta+codex.20260808093008` | Integrate task-reuse permission, plain-language safe reruns, and one GitHub install-or-upgrade prompt into the canonical plugin release | None; candidate committed and verified | **Ready to ship**; [Handoff](docs/handoffs/TASK-078.md); [QA](docs/qa/TASK-078.md); **Push Live** remains required |
+| TASK-078 | Done | FB-Product / BFM | One-sentence GitHub setup and `0.5.12-beta+codex.20260808093008` | Integrate task-reuse permission, plain-language safe reruns, and one GitHub install-or-upgrade prompt into the canonical plugin release | None; published and installed | [PR #61](https://github.com/friedbeef1/fb-lane-coordination/pull/61) merged as `414b191`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-078.md); [QA](docs/qa/TASK-078.md) |
 | TASK-Q-20260808-ONBOARDING-REUSE | Done | FB-Product / BFM | Codex onboarding | Make setup approval explicitly authorize reuse, rename, and pin of matching project tasks, with creation only for missing lanes | None; source/docs/tests only | User-approved in current conversation; 54 focused tests passed; root/package parity and `git diff --check` passed |
 | TASK-077 | Superseded | Side conversation, one-off approved | Plain-language FB setup status | Replace user-facing setup jargon with clear safe-rerun wording | None; absorbed into TASK-078 | Candidate `228610d` integrated through `e14ab9b`; release evidence belongs to TASK-078 |
 | TASK-FB-PRODUCT-BFM-RELIABILITY-20260807 | Done | FB-Product / BFM | Canonical-project and complete-intake reliability; FB 0.5.11-beta | Enforce the canonical checkout, complete seven-role intake ledger, exact-project onboarding, and transactional migration | None; published and installed | [PR #60](https://github.com/friedbeef1/fb-lane-coordination/pull/60) merged as `57d1053`; `0.5.11-beta+codex.20260807112648` installed and enabled; [Handoff](docs/handoffs/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md); [QA](docs/qa/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md) |
@@ -32,8 +32,8 @@
 
 ### TASK-078 - One-sentence GitHub setup
 
-*   **Status**: Staging QA — **Ready to ship** at
-    `0.5.12-beta+codex.20260808093008`.
+*   **Status**: Done — [PR #61](https://github.com/friedbeef1/fb-lane-coordination/pull/61)
+    merged as `414b191`; `0.5.12-beta+codex.20260808093008` is installed and enabled.
 *   **Owner / Thread**: FB-Product / BFM.
 *   **Area**: Setup skills, installation documentation, plugin metadata,
     release records, focused contracts, and generated mirrors.
@@ -41,8 +41,7 @@
     users point Codex at GitHub with one sentence; preserve existing project
     work and create only genuinely missing sidebar roles.
 *   **Out of Scope**: Runtime command changes, MCP changes, automatic hot-load
-    in the current Codex task, consumer-repository mutation, merge,
-    publication, or reinstall.
+    in the current Codex task, and consumer-repository mutation.
 *   **Goal Alignment Session**:
     *   **Objective**: Make fresh install and safe upgrade start the same way.
     *   **Key Results**: One public GitHub sentence; plain-language repeat
@@ -55,8 +54,8 @@
     *   **Justification**: Users should not need to remember marketplace
         commands or migration terminology to install or upgrade FB safely.
 *   **Gate / Review Point**: Faithful changelog wording and the one release
-    checkpoint passed. Only **Push Live** authorizes merge, publication, and
-    reinstall.
+    checkpoint passed; James then authorized **Push Live**. GitHub merge,
+    marketplace installation, and active-bundle verification passed.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-078.md) ·
     [QA](docs/qa/TASK-078.md) ·
     [changelog](CHANGELOG.md#0512-beta--2026-08-08).

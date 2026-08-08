@@ -3,8 +3,8 @@ type: fb-lane-handoff
 fb_harness: v3
 task: TASK-078
 lane: fb-product
-status: staging-qa
-review_state: not reviewable
+status: done
+review_state: completed build
 ---
 
 # TASK-078 — One-sentence GitHub setup and FB 0.5.12-beta
@@ -62,18 +62,22 @@ existing tasks are reused and only missing roles are created.
 ## Task Receipt
 
 - Branch: `codex/onboarding-reuse-permission`
-- Candidate commit: `e6e0dfe` plus this coordination-only closeout.
+- Candidate commit: `926440c`; [PR #61](https://github.com/friedbeef1/fb-lane-coordination/pull/61)
+  merged to `main` as `414b191`.
 - Candidate build: `0.5.12-beta+codex.20260808093008`
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#0512-beta--2026-08-08)
 - Changelog approval: approved through Product/BFM standing delegation.
 - Changed surfaces: setup skills, public and packaged setup documentation,
   plugin metadata, focused contracts, release records, and generated mirrors.
 - Verification: [TASK-078 QA](../qa/TASK-078.md).
-- Review state: not reviewable — this is a plugin/setup release with complete
+- Review state: completed build — this plugin/setup release has complete
   automated verification and no application preview.
-- External gates: **Push Live** for publication and reinstall.
-- Remaining owner/action: James says **Push Live** to authorize merge,
-  marketplace publication, reinstall, and live verification.
+- Publication: `0.5.12-beta+codex.20260808093008` installed and enabled from
+  marketplace `fb-lane`; all 12 skills and the relative bundled MCP route were
+  verified from the installed cache.
+- External gates: complete — James authorized **Push Live**.
+- Remaining owner/action: open a new Codex task to load the refreshed skills
+  and MCP server.
 
 ## Brief Validation
 
@@ -83,8 +87,8 @@ Satisfied criteria and evidence: one-sentence setup, safe reruns, deterministic
 task reuse, metadata, changelog, root/package guidance, 65-mirror parity,
 doctor, and the complete release checkpoint agree.
 
-Missing criteria and next actions: none for the candidate. External publication
-remains gated by **Push Live**.
+Missing criteria and next actions: none. Publication and installed-bundle
+verification passed after **Push Live**.
 
 ## Verification Handoff
 
@@ -101,7 +105,8 @@ remains gated by **Push Live**.
 
 ## Product/BFM Closeout
 
-Status: **Ready to ship**.
+Status: **Done**.
 
-The plugin candidate is complete. GitHub merge, marketplace publication,
-reinstall, and active-install verification remain behind **Push Live**.
+The plugin release is merged, published through the configured GitHub
+marketplace, installed, enabled, and verified. A new Codex task is required to
+load the refreshed plugin.

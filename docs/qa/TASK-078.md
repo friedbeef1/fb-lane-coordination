@@ -4,7 +4,7 @@ Candidate: `0.5.12-beta+codex.20260808093008`
 
 ## System verification
 
-Status: passed — **Ready to ship**.
+Status: passed — published and installed.
 
 | Check | Result |
 |---|---|
@@ -20,13 +20,24 @@ Status: passed — **Ready to ship**.
 
 ## Review state
 
-Not reviewable — this is a plugin/setup release with complete automated proof
-and no application preview. Publication and reinstall remain blocked by **Push
-Live**.
+Completed build — this is a plugin/setup release with complete automated proof
+and no application preview. James authorized **Push Live**.
+
+## Live release evidence
+
+| Check | Result |
+|---|---|
+| GitHub PR | [PR #61](https://github.com/friedbeef1/fb-lane-coordination/pull/61) merged to `main` as `414b191` |
+| GitHub readiness | [Validation run 31250951121](https://github.com/friedbeef1/fb-lane-coordination/actions/runs/31250951121) passed |
+| Installed build | `0.5.12-beta+codex.20260808093008` installed and enabled |
+| Installed skills | All 12 expected FB skills present |
+| Bundled MCP | Relative `node ./tools/fb-lane.cjs mcp` route with `cwd: "."` resolved in the installed bundle |
+| Installed syntax | `fb-lane.cjs` and `fb-onboarding.cjs` passed Node syntax checks |
 
 ## Outcome
 
 FB now exposes one GitHub sentence for fresh installation or upgrade, explains
 repeat setup without specialist terminology, reuses matching tasks, and creates
 only missing roles. The plugin and canonical documentation agree on the new
-entry point and the required new-task transition after installation.
+entry point and the required new-task transition after installation. The exact
+release is live in the configured marketplace and active in Codex.

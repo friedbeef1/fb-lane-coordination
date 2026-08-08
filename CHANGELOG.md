@@ -30,8 +30,9 @@ candidate-faithful wording; reference TASK-078.
 
 **Release evidence:** Local focused setup, metadata, package-parity, syntax,
 link, whitespace, doctor, and release-checkpoint results are recorded in
-[TASK-078 QA](docs/qa/TASK-078.md). GitHub publication and installation remain
-pending explicit **Push Live**.
+[TASK-078 QA](docs/qa/TASK-078.md). [PR #61](https://github.com/friedbeef1/fb-lane-coordination/pull/61)
+passed GitHub validation, merged as `414b191`, and the exact build was installed
+and enabled after explicit **Push Live**.
 
 ## 0.5.11-beta — 2026-08-07
 
