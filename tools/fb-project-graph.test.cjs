@@ -299,11 +299,16 @@ status: ready
 An editor labelled an option for later review.
 `);
   const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  const source = 'docs/handoffs/TASK-100.md';
+  const sourceNodeTypes = [...new Set(graph.nodes
+    .filter(node => node.source === source)
+    .map(node => node.type))].sort();
+  const sourceEdgeTypes = [...new Set(graph.edges
+    .filter(edge => edge.source === source)
+    .map(edge => edge.type))].sort();
 
-  assert.ok(!graph.nodes.some(node => node.source === 'docs/handoffs/TASK-100.md'
-    && (node.type === 'user-decision' || /(?:approved|approval)/i.test(`${node.label} ${node.status}`))));
-  assert.ok(!graph.edges.some(edge => edge.source === 'docs/handoffs/TASK-100.md'
-    && (['approved-by', 'authorizes', 'releases'].includes(edge.type) || /(?:approved|approval)/i.test(edge.status))));
+  assert.deepStrictEqual(sourceNodeTypes, ['handoff', 'workstream']);
+  assert.deepStrictEqual(sourceEdgeTypes, ['documented-by', 'owned-by']);
 });
 
 test('does not promote generic QA links and task mentions into semantic relationships', () => {
