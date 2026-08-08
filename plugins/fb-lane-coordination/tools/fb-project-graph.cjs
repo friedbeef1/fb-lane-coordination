@@ -2,12 +2,23 @@
 'use strict';
 
 const crypto = require('node:crypto');
+const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
 const GRAPH_SCHEMA_VERSION = 1;
-const NODE_TYPES = new Set(['project', 'okr', 'workstream', 'task', 'handoff', 'decision', 'document', 'qa', 'commit', 'release']);
-const EDGE_TYPES = new Set(['contains', 'supports', 'owned-by', 'documented-by', 'depends-on', 'references', 'supersedes', 'implemented-by', 'verified-by', 'released-as']);
+const NODE_TYPES = new Set([
+  'project', 'workstream', 'user-decision', 'assumption', 'requirement', 'handoff', 'task',
+  'implementation-slice', 'bug', 'verification', 'lesson', 'release',
+  // Level-1 aliases remain readable for existing graphs and historical artifacts.
+  'okr', 'decision', 'document', 'qa', 'commit',
+]);
+const EDGE_TYPES = new Set([
+  'depends-on', 'blocks', 'conflicts-with', 'supersedes', 'affects', 'implements',
+  'verified-by', 'learned-from', 'owned-by', 'included-in-release',
+  // Level-1 aliases remain readable for existing graphs and historical artifacts.
+  'contains', 'supports', 'documented-by', 'references', 'implemented-by', 'released-as',
+]);
 const AUTHORITY_EDGE_TYPES = new Set(['approved-by', 'authorizes', 'releases']);
 const SENSITIVE = /\b(?:authorization\s*:\s*bearer|api[_-]?key|password|secret|token)\b/i;
 const SAFE_TASK_ID = /^[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)$/;
@@ -25,6 +36,36 @@ function frontmatter(markdown) {
     if (field) result[field[1]] = field[2];
   }
   return result;
+}
+
+function graphFrontmatter(markdown) {
+  const match = String(markdown).match(/^---\s*\n([\s\S]*?)\n---(?:\s*\n|$)/);
+  if (!match) return {};
+  const graph = {};
+  let field = null;
+  let inGraph = false;
+  for (const line of match[1].split(/\r?\n/)) {
+    if (/^graph:\s*$/.test(line)) {
+      inGraph = true;
+      field = null;
+      continue;
+    }
+    if (/^\S/.test(line)) {
+      inGraph = false;
+      field = null;
+      continue;
+    }
+    if (!inGraph) continue;
+    const key = line.match(/^\s{2,}([a-z_]+):\s*$/i);
+    if (key) {
+      field = key[1];
+      graph[field] = [];
+      continue;
+    }
+    const item = line.match(/^\s{4,}-\s*(\S.*?)\s*$/);
+    if (item && field) graph[field].push(item[1]);
+  }
+  return graph;
 }
 
 function markdownLinks(markdown) {
@@ -60,12 +101,27 @@ function sourceFiles(root) {
     }
   };
   add('PROJECT_BOARD.md');
+  add('CHANGELOG.md');
   add('docs/handoffs/index.md');
   walk('docs/handoffs');
   walk('docs/workstreams');
   walk('docs/qa');
+  walk('docs/learning');
+  walk('docs/releases');
   walk('docs/board/archive');
   return [...new Set(files)].sort();
+}
+
+function gitSources(root) {
+  try {
+    const output = execFileSync('git', ['log', '--format=%H%x09%s', '-n', '200'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    return output.trim().split(/\r?\n/).filter(Boolean).map(line => {
+      const [hash, subject = ''] = line.split('\t');
+      return { source: `git:${hash}`, hash, subject };
+    });
+  } catch {
+    return [];
+  }
 }
 
 function sha256(value) {
@@ -78,16 +134,49 @@ function sourceFingerprint(root, files) {
     sha256: sha256(fs.readFileSync(path.join(root, relative))),
     size: fs.statSync(path.join(root, relative)).size,
   }));
+  for (const commit of gitSources(root)) {
+    sources.push({ relativePath: commit.source, sha256: commit.hash, size: 0 });
+  }
   return { hash: sha256(JSON.stringify(sources)), sources };
 }
 
 function addNode(nodes, node) {
-  if (!nodes.has(node.id)) nodes.set(node.id, node);
+  if (!nodes.has(node.id)) nodes.set(node.id, {
+    ...node,
+    citation: node.citation || { source: node.source },
+  });
 }
 
 function addEdge(edges, edge) {
   const key = `${edge.from}\0${edge.to}\0${edge.type}\0${edge.source}`;
-  if (!edges.has(key)) edges.set(key, edge);
+  if (!edges.has(key)) edges.set(key, {
+    ...edge,
+    citation: edge.citation || { source: edge.source },
+  });
+}
+
+function safeEntityId(value) {
+  return String(value || '').trim().toUpperCase().replace(/[^A-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function addHeadingEntities(markdown, source, nodes, edges, taskId) {
+  const kinds = new Map([
+    ['user decision', 'user-decision'], ['decision', 'user-decision'], ['assumption', 'assumption'],
+    ['requirement', 'requirement'], ['implementation slice', 'implementation-slice'],
+    ['bug', 'bug'], ['verification', 'verification'], ['lesson', 'lesson'], ['release', 'release'],
+  ]);
+  for (const [index, line] of String(markdown).split(/\r?\n/).entries()) {
+    const heading = line.match(/^#{1,6}\s+(.+?)\s*$/);
+    if (!heading) continue;
+    const matched = [...kinds.entries()].find(([label]) => new RegExp(`^${label}(?:\\s*:|\\s+|$)`, 'i').test(heading[1]));
+    if (!matched) continue;
+    const [label, type] = matched;
+    const suffix = heading[1].replace(new RegExp(`^${label}(?:\\s*:\\s*|\\s*)`, 'i'), '');
+    const key = safeEntityId(suffix) || `${safeEntityId(source)}-${index + 1}`;
+    const id = `${type}:${key}`;
+    addNode(nodes, { id, type, label: heading[1], source, status: 'confirmed' });
+    if (taskId) addEdge(edges, { from: taskId, to: id, type: type === 'implementation-slice' ? 'implements' : 'supports', source, status: 'confirmed' });
+  }
 }
 
 function resolvedMarkdownTarget(root, source, target) {
@@ -126,6 +215,8 @@ function buildProjectGraph(root, options = {}) {
   const nodes = new Map();
   const edges = new Map();
   const generatedAt = options.generatedAt || new Date().toISOString();
+  const compileFindings = [];
+  const declaredRelationships = [];
   addNode(nodes, { id: 'project:root', type: 'project', label: path.basename(resolvedRoot), source: 'PROJECT_BOARD.md', status: 'confirmed' });
 
   const boardPath = path.join(resolvedRoot, 'PROJECT_BOARD.md');
@@ -144,6 +235,8 @@ function buildProjectGraph(root, options = {}) {
     addNode(nodes, { id: taskId, type: 'task', label: meta.task, source: 'PROJECT_BOARD.md', status: 'confirmed' });
     addNode(nodes, { id: handoffId, type: 'handoff', label: path.basename(relative, '.md'), source: relative, status: 'confirmed' });
     addEdge(edges, { from: taskId, to: handoffId, type: 'documented-by', source: relative, status: 'confirmed' });
+    addHeadingEntities(markdown, relative, nodes, edges, taskId);
+    declaredRelationships.push({ taskId, source: relative, graph: graphFrontmatter(markdown) });
     if (meta.lane) {
       const laneId = `workstream:${meta.lane}`;
       addNode(nodes, { id: laneId, type: 'workstream', label: meta.lane, source: relative, status: 'confirmed' });
@@ -153,6 +246,9 @@ function buildProjectGraph(root, options = {}) {
       const decisionId = `decision:${relative}`;
       addNode(nodes, { id: decisionId, type: 'decision', label: `${meta.task} approved decision`, source: relative, status: 'confirmed' });
       addEdge(edges, { from: taskId, to: decisionId, type: 'supports', source: relative, status: 'confirmed' });
+      const canonicalDecisionId = `user-decision:${safeEntityId(meta.task)}-APPROVED`;
+      addNode(nodes, { id: canonicalDecisionId, type: 'user-decision', label: `${meta.task} approved decision`, source: relative, status: 'confirmed' });
+      addEdge(edges, { from: taskId, to: canonicalDecisionId, type: 'supports', source: relative, status: 'confirmed' });
     }
     for (const target of markdownLinks(markdown)) {
       const resolved = resolvedMarkdownTarget(resolvedRoot, relative, target);
@@ -179,6 +275,115 @@ function buildProjectGraph(root, options = {}) {
     }
   }
 
+  const indexSource = 'docs/handoffs/index.md';
+  if (files.includes(indexSource)) {
+    const markdown = fs.readFileSync(path.join(resolvedRoot, indexSource), 'utf8');
+    const indexId = `document:${indexSource}`;
+    addNode(nodes, { id: indexId, type: 'document', label: 'Handoff index', source: indexSource, status: 'confirmed' });
+    for (const target of markdownLinks(markdown)) {
+      const resolved = resolvedMarkdownTarget(resolvedRoot, indexSource, target);
+      if (!resolved?.startsWith('docs/handoffs/') || !fs.existsSync(path.join(resolvedRoot, resolved))) continue;
+      const handoffId = `handoff:${resolved}`;
+      addNode(nodes, { id: handoffId, type: 'handoff', label: path.basename(resolved, '.md'), source: resolved, status: 'confirmed' });
+      addEdge(edges, { from: indexId, to: handoffId, type: 'references', source: indexSource, status: 'confirmed' });
+    }
+  }
+
+  for (const relative of files.filter(file => file.startsWith('docs/workstreams/'))) {
+    const markdown = fs.readFileSync(path.join(resolvedRoot, relative), 'utf8');
+    const lane = path.basename(relative, '.md');
+    const workstreamId = `workstream:${lane}`;
+    addNode(nodes, { id: workstreamId, type: 'workstream', label: lane, source: relative, status: 'confirmed' });
+    for (const task of new Set(String(markdown).match(/[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)/g) || [])) {
+      const taskId = `task:${task}`;
+      if (nodes.has(taskId)) addEdge(edges, { from: taskId, to: workstreamId, type: 'owned-by', source: relative, status: 'confirmed' });
+    }
+  }
+
+  for (const relative of files.filter(file => file.startsWith('docs/qa/'))) {
+    const markdown = fs.readFileSync(path.join(resolvedRoot, relative), 'utf8');
+    const key = path.basename(relative, '.md').toUpperCase();
+    const qaId = `qa:${relative}`;
+    const verificationId = `verification:${key}`;
+    addNode(nodes, { id: qaId, type: 'qa', label: path.basename(relative, '.md'), source: relative, status: 'confirmed' });
+    addNode(nodes, { id: verificationId, type: 'verification', label: path.basename(relative, '.md'), source: relative, status: 'confirmed', verificationState: 'unknown' });
+    if (key.startsWith('BUG-')) {
+      const bugId = `bug:${key}`;
+      addNode(nodes, { id: bugId, type: 'bug', label: key, source: relative, status: 'confirmed' });
+      for (const task of new Set(String(markdown).match(/[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)/g) || [])) {
+        if (nodes.has(`task:${task}`)) addEdge(edges, { from: bugId, to: `task:${task}`, type: 'affects', source: relative, status: 'confirmed' });
+      }
+    }
+  }
+
+  for (const relative of files.filter(file => file.startsWith('docs/learning/'))) {
+    const markdown = fs.readFileSync(path.join(resolvedRoot, relative), 'utf8');
+    for (const line of String(markdown).split(/\r?\n/)) {
+      const lesson = line.match(/^#{1,6}\s+(LESSON-[A-Z0-9][A-Z0-9-]*)\b/i);
+      if (!lesson) continue;
+      const lessonId = `lesson:${lesson[1].toUpperCase()}`;
+      addNode(nodes, { id: lessonId, type: 'lesson', label: lesson[1], source: relative, status: 'confirmed' });
+      for (const target of markdownLinks(markdown)) {
+        const resolved = resolvedMarkdownTarget(resolvedRoot, relative, target);
+        if (!resolved) continue;
+        const verificationKey = path.basename(resolved, '.md').toUpperCase();
+        if (resolved.startsWith('docs/qa/') && nodes.has(`verification:${verificationKey}`)) {
+          addEdge(edges, { from: lessonId, to: `verification:${verificationKey}`, type: 'learned-from', source: relative, status: 'confirmed' });
+        } else if (resolved.startsWith('docs/handoffs/')) {
+          const targetMeta = frontmatter(fs.readFileSync(path.join(resolvedRoot, resolved), 'utf8'));
+          if (SAFE_TASK_ID.test(targetMeta.task || '') && nodes.has(`task:${targetMeta.task}`)) {
+            addEdge(edges, { from: lessonId, to: `task:${targetMeta.task}`, type: 'learned-from', source: relative, status: 'confirmed' });
+          }
+        }
+      }
+    }
+  }
+
+  if (files.includes('CHANGELOG.md')) {
+    const source = 'CHANGELOG.md';
+    const markdown = fs.readFileSync(path.join(resolvedRoot, source), 'utf8');
+    let releaseId = null;
+    for (const line of String(markdown).split(/\r?\n/)) {
+      const heading = line.match(/^#{1,6}\s+(?:\[)?v?(\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?)(?:\])?\b/i);
+      if (heading) {
+        releaseId = `release:${heading[1]}`;
+        addNode(nodes, { id: releaseId, type: 'release', label: heading[1], source, status: 'confirmed' });
+        continue;
+      }
+      if (!releaseId) continue;
+      for (const task of new Set(line.match(/[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)/g) || [])) {
+        if (nodes.has(`task:${task}`)) addEdge(edges, { from: `task:${task}`, to: releaseId, type: 'included-in-release', source, status: 'confirmed' });
+      }
+    }
+  }
+
+  for (const commit of gitSources(resolvedRoot)) {
+    addNode(nodes, { id: `commit:${commit.hash}`, type: 'commit', label: commit.hash, source: commit.source, status: 'confirmed' });
+  }
+
+  const declaredEdgeTypes = new Map([
+    ['depends_on', 'depends-on'], ['blocks', 'blocks'], ['conflicts_with', 'conflicts-with'],
+    ['affects', 'affects'], ['supersedes', 'supersedes'], ['implements', 'implements'],
+    ['verified_by', 'verified-by'], ['learned_from', 'learned-from'], ['owned_by', 'owned-by'],
+    ['included_in_release', 'included-in-release'],
+  ]);
+  for (const declaration of declaredRelationships) {
+    for (const [field, targets] of Object.entries(declaration.graph)) {
+      const type = declaredEdgeTypes.get(field);
+      if (!type) continue;
+      for (const target of targets) {
+        const value = String(target).trim();
+        const candidates = [value, `task:${value}`, ...[...nodes.keys()].filter(id => id.endsWith(`:${value}`))];
+        const resolved = [...new Set(candidates)].filter(id => nodes.has(id));
+        if (resolved.length !== 1) {
+          compileFindings.push({ code: 'unresolved-edge-target', message: `Declared ${type} target is unresolved or ambiguous: ${value}`, source: declaration.source });
+          continue;
+        }
+        addEdge(edges, { from: declaration.taskId, to: resolved[0], type, source: declaration.source, status: 'confirmed' });
+      }
+    }
+  }
+
   const graph = {
     schemaVersion: GRAPH_SCHEMA_VERSION,
     level: 1,
@@ -186,6 +391,7 @@ function buildProjectGraph(root, options = {}) {
     sourceFingerprint: fingerprint,
     nodes: [...nodes.values()].sort((a, b) => a.id.localeCompare(b.id)),
     edges: [...edges.values()].sort((a, b) => `${a.from}:${a.to}:${a.type}`.localeCompare(`${b.from}:${b.to}:${b.type}`)),
+    compileFindings,
     health: { valid: true, findings: [], sourceCount: files.length },
   };
   const findings = validateProjectGraph(resolvedRoot, graph);
@@ -194,13 +400,16 @@ function buildProjectGraph(root, options = {}) {
 }
 
 function validateProjectGraph(root, graph) {
-  const findings = [];
+  const findings = [...(graph.compileFindings || [])];
   const nodeIds = new Set((graph.nodes || []).map(node => node.id));
   for (const item of [...(graph.nodes || []), ...(graph.edges || [])]) {
     const source = String(item.source || '');
     if (!source || path.isAbsolute(source) || source === '..' || source.startsWith('../')
-      || (!source.startsWith('git:') && !fs.existsSync(path.join(root, source)))) {
+      || (source.startsWith('git:') ? !/^git:[0-9a-f]{40}$/i.test(source) : !fs.existsSync(path.join(root, source)))) {
       findings.push({ code: 'unsafe-source', message: `Graph item has an unsafe or missing source: ${source}` });
+    }
+    if (item.citation && item.citation.source !== source) {
+      findings.push({ code: 'invalid-citation', message: `Graph item citation does not match its source: ${source}` });
     }
     if (SENSITIVE.test(String(item.label || ''))) findings.push({ code: 'sensitive-output', message: 'Graph output contains sensitive-looking content.' });
   }
@@ -212,6 +421,9 @@ function validateProjectGraph(root, graph) {
     if (!nodeIds.has(edge.from) || !nodeIds.has(edge.to)) findings.push({ code: 'missing-endpoint', message: 'Graph edge endpoint is missing.' });
     if (edge.status !== 'confirmed' && AUTHORITY_EDGE_TYPES.has(edge.type)) {
       findings.push({ code: 'inferred-authority', message: 'Inferred or ambiguous edges cannot carry authority.' });
+    }
+    if (edge.type === 'verified-by' && edge.verificationState === 'passed') {
+      findings.push({ code: 'derived-test-success', message: 'A derived graph cannot prove successful verification.' });
     }
   }
   return findings;
@@ -502,7 +714,8 @@ function projectContextPacket(root, options = {}) {
     .sort((a, b) => sourceScore(b) - sourceScore(a) || a.localeCompare(b))
     .slice(0, 3);
 
-  if (!readableSources.length) {
+  const hasTaskEvidence = results.some(result => result.source.startsWith('docs/handoffs/') || result.source.startsWith('docs/qa/'));
+  if (!readableSources.length || !hasTaskEvidence) {
     const fallback = authoritativeFallback(root, taskId);
     return {
       route: 'normalized-record-fallback',

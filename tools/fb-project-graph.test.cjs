@@ -116,6 +116,79 @@ status: done
   return root;
 }
 
+function normalizedCompilerFixture() {
+  const root = fixture();
+  write(root, 'PROJECT_BOARD.md', `# Board
+
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+| TASK-100 | In Progress | FB-Product / BFM | Harness | Add graph navigation | tools/fb-project-graph.cjs | [Handoff](docs/handoffs/TASK-100.md); [QA](docs/qa/TASK-100.md) |
+| TASK-101 | Ready | FB-Tech | Compiler | Provide the prerequisite | none | [Handoff](docs/handoffs/TASK-101.md) |
+`);
+  write(root, 'docs/handoffs/TASK-100.md', `---
+type: fb-lane-handoff
+task: TASK-100
+lane: fb-product
+status: ready
+graph:
+  depends_on:
+    - TASK-101
+  conflicts_with:
+    - DECISION-100
+  affects:
+    - REQUIREMENT-100
+  supersedes:
+    - REQUIREMENT-099
+---
+
+# TASK-100
+
+## User Decision: DECISION-100
+
+Use the source-cited graph.
+
+## Assumption: ASSUMPTION-100
+
+The graph remains derived.
+
+## Requirement: REQUIREMENT-100
+
+Compile the complete vocabulary.
+
+## Requirement: REQUIREMENT-099
+
+The predecessor requirement.
+
+## Implementation Slice: SLICE-100
+
+Implement only the compiler foundation.
+`);
+  write(root, 'docs/handoffs/TASK-101.md', `---
+type: fb-lane-handoff
+task: TASK-101
+lane: fb-tech
+status: ready
+---
+
+# TASK-101
+`);
+  write(root, 'docs/workstreams/fb-product.md', `# Product
+
+## TASK-100
+
+[Handoff](../handoffs/TASK-100.md)
+`);
+  write(root, 'docs/qa/BUG-100.md', '# BUG-100\n\n[QA](TASK-100.md)\n');
+  write(root, 'docs/learning/index.md', `# Project Learning
+
+## LESSON-100
+
+[TASK-100](../handoffs/TASK-100.md) [QA](../qa/TASK-100.md)
+`);
+  write(root, 'CHANGELOG.md', '# 1.0.0\n\n- Includes TASK-100.\n');
+  return root;
+}
+
 test('builds a source-backed Level 1 graph without copying record prose', () => {
   const root = fixture();
   const graph = buildProjectGraph(root, { generatedAt: '2026-07-26T00:00:00.000Z' });
@@ -152,6 +225,37 @@ test('rejects unsafe, sensitive, and authority-bearing graph output', () => {
   assert.ok(codes.includes('sensitive-output'));
   assert.ok(codes.includes('invalid-edge-type'));
   assert.ok(codes.includes('inferred-authority'));
+});
+
+test('normalizes the Task 1 vocabulary and structured handoff graph with source citations', () => {
+  const root = normalizedCompilerFixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  const nodeTypes = new Set(graph.nodes.map(node => node.type));
+
+  for (const type of ['project', 'workstream', 'user-decision', 'assumption', 'requirement', 'handoff', 'task', 'implementation-slice', 'bug', 'verification', 'lesson', 'release']) {
+    assert.ok(nodeTypes.has(type), `missing ${type} node`);
+  }
+  for (const type of ['depends-on', 'conflicts-with', 'affects', 'supersedes', 'learned-from', 'included-in-release']) {
+    assert.ok(graph.edges.some(edge => edge.type === type), `missing ${type} edge`);
+  }
+  assert.ok(graph.edges.some(edge => edge.from === 'task:TASK-100'
+    && edge.to === 'task:TASK-101'
+    && edge.type === 'depends-on'
+    && edge.source === 'docs/handoffs/TASK-100.md'));
+  assert.ok(graph.nodes.every(node => node.citation?.source === node.source));
+  assert.ok(graph.edges.every(edge => edge.citation?.source === edge.source));
+  assert.deepStrictEqual(validateProjectGraph(root, graph), []);
+});
+
+test('rejects unresolved declared relationships without deriving successful verification', () => {
+  const root = normalizedCompilerFixture();
+  const handoffPath = path.join(root, 'docs/handoffs/TASK-100.md');
+  fs.writeFileSync(handoffPath, fs.readFileSync(handoffPath, 'utf8').replace('- TASK-101', '- TASK-404'));
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+
+  assert.ok(graph.health.findings.some(finding => finding.code === 'unresolved-edge-target'));
+  assert.ok(!graph.edges.some(edge => edge.to === 'task:TASK-404'));
+  assert.ok(graph.nodes.filter(node => node.type === 'verification').every(node => node.verificationState === 'unknown'));
 });
 
 test('writes deterministic graph, Markdown, HTML, and state artifacts atomically', () => {
