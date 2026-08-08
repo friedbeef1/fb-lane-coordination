@@ -491,7 +491,7 @@ test('bounded query returns source-cited direct and one-hop results', () => {
   assert.ok(results.every(result => result.source && Array.isArray(result.relationshipPath)));
 });
 
-test('current-task query scopes generic questions to linked task documents without unrelated noise', () => {
+test('explicit graph-linked lookup scopes generic questions to linked task documents without unrelated noise', () => {
   const root = fixture();
   write(root, 'docs/superpowers/specs/TASK-100-design.md', '# TASK-100 design\n');
   fs.appendFileSync(path.join(root, 'docs/handoffs/TASK-100.md'), '\n## Design\n\n[Detailed design](../superpowers/specs/TASK-100-design.md)\n');
@@ -500,6 +500,55 @@ test('current-task query scopes generic questions to linked task documents witho
   assert.ok(results.some(result => result.source === 'docs/superpowers/specs/TASK-100-design.md'));
   assert.ok(results.every(result => !result.id.includes('TASK-999')));
   assert.ok(results.length <= 20);
+});
+
+test('routine packets exclude generic references and completed history while explicit graph lookups retain both', () => {
+  const root = activeSubgraphFixture();
+  write(root, 'docs/board/archive/2026-08.md', `# August 2026 archive
+
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+| TASK-099 | Done | FB-Product / BFM | History | Archived predecessor | None | [Handoff](../../handoffs/TASK-099.md) |
+`);
+  write(root, 'docs/handoffs/TASK-099.md', `---
+type: fb-lane-handoff
+task: TASK-099
+lane: fb-product
+status: done
+---
+
+# TASK-099
+`);
+  write(root, 'docs/superpowers/specs/TASK-100-design.md', '# TASK-100 design\n');
+  fs.appendFileSync(path.join(root, 'docs/handoffs/TASK-100.md'), `
+## Design
+
+[Detailed design](../superpowers/specs/TASK-100-design.md)
+
+## Prior work
+
+[TASK-099 predecessor](TASK-099.md)
+`);
+  const packet = projectContextPacket(root, {
+    taskId: 'TASK-100',
+    question: 'What user-visible artifacts and prior history should I review for TASK-100?',
+  });
+
+  assert.strictEqual(packet.route, 'project-graph');
+  const routineContext = JSON.stringify({
+    facts: packet.facts,
+    readableSources: packet.readableSources,
+    citations: packet.citations,
+  });
+  assert.ok(!routineContext.includes('TASK-100-design.md'));
+  assert.ok(!routineContext.includes('TASK-099'));
+  assert.ok(packet.facts.every(fact => fact.citation?.source === fact.source));
+
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  const genericLookup = queryProjectGraph(graph, 'What user-visible artifacts are proposed?', { currentTask: 'TASK-100' });
+  assert.ok(genericLookup.some(result => result.source === 'docs/superpowers/specs/TASK-100-design.md'));
+  const historyLookup = queryProjectGraph(graph, 'What decision governs TASK-099?', { currentTask: 'TASK-100' });
+  assert.ok(historyLookup.some(result => result.id === 'task:TASK-099'));
 });
 
 test('active subgraph keeps only direct semantic context and compact cited fields', () => {

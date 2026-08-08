@@ -639,6 +639,35 @@ function buildActiveSubgraph(graph, options = {}) {
   };
 }
 
+function activeSubgraphFacts(taskNode, activeSubgraph) {
+  const relatedNodes = [
+    taskNode,
+    ...activeSubgraph.readyNodes,
+    ...activeSubgraph.blockedNodes,
+    ...activeSubgraph.unresolvedConflicts.map(conflict => conflict.node),
+    ...activeSubgraph.governingDecisions,
+    ...activeSubgraph.recentDecisions,
+    ...activeSubgraph.assumptions,
+    ...activeSubgraph.directDependencies,
+    ...activeSubgraph.directDependants,
+    ...activeSubgraph.acceptanceCriteria,
+    ...activeSubgraph.affectedVerification,
+    ...activeSubgraph.applicableLessons,
+  ];
+  const unique = new Map();
+  for (const node of relatedNodes) {
+    if (node?.id && !unique.has(node.id)) unique.set(node.id, node);
+  }
+  return [...unique.values()].map(node => ({
+    id: node.id,
+    type: node.type,
+    label: node.label,
+    status: node.status,
+    source: node.source,
+    citation: { source: node.citation?.source || node.source },
+  }));
+}
+
 function resolveProjectContext(root, query) {
   const findings = [];
   try {
@@ -758,38 +787,22 @@ function projectContextPacket(root, options = {}) {
     };
   }
 
-  const results = queryProjectGraph(refresh.graph, question, { currentTask: taskId });
   const activeSubgraph = buildActiveSubgraph(refresh.graph, {
     taskId,
     // An initial derived-state build has no prior graph baseline, so its sources
     // are not evidence that a governing decision changed recently.
     recentSources: refresh.reusedSources.length ? refresh.changedSources : [],
   });
-  const exactHandoff = `docs/handoffs/${taskId}.md`;
-  const lowerQuestion = question.toLowerCase();
-  function sourceScore(source) {
-    let score = source === exactHandoff ? 100 : 0;
-    if (source.startsWith('docs/qa/') && /\b(?:verif|test|check|fail|bug|quality)\b/.test(lowerQuestion)) score += 80;
-    if (source.startsWith('docs/experiments/') && /\b(?:evidence|experiment|discover|level|graduat|result)\b/.test(lowerQuestion)) score += 70;
-    if (source.includes('/spec') && /\b(?:design|artifact|experience|visible)\b/.test(lowerQuestion)) score += 70;
-    if (source.startsWith('docs/handoffs/')) score += 30;
-    if (source.startsWith('docs/qa/')) score += 20;
-    if (source.startsWith('docs/experiments/')) score += 15;
-    return score;
-  }
-  const readableSources = [...new Set(results.map(result => result.source))]
-    .filter(source => source && source !== 'PROJECT_BOARD.md' && source !== 'docs/handoffs/index.md')
-    .sort((a, b) => sourceScore(b) - sourceScore(a) || a.localeCompare(b))
-    .slice(0, 3);
-
-  const hasTaskEvidence = results.some(result => result.source.startsWith('docs/handoffs/') || result.source.startsWith('docs/qa/'));
-  if (!readableSources.length || !hasTaskEvidence) {
+  const facts = activeSubgraphFacts(taskNode, activeSubgraph);
+  const readableSources = [...new Set(facts.map(fact => fact.source).filter(Boolean))];
+  const hasActiveEvidence = facts.some(fact => fact.id !== taskNode.id);
+  if (!readableSources.length || !hasActiveEvidence) {
     const fallback = authoritativeFallback(root, taskId);
     return {
       route: 'normalized-record-fallback',
       taskId,
       question,
-      reason: 'Project graph results are insufficient for targeted reading.',
+      reason: 'Project graph active context is insufficient for targeted reading.',
       facts: [],
       citations: fallback.citations,
       readableSources: fallback.readableSources,
@@ -806,13 +819,7 @@ function projectContextPacket(root, options = {}) {
     route: 'project-graph',
     taskId,
     question,
-    facts: results.slice(0, 6).map(result => ({
-      type: result.type,
-      label: result.label,
-      status: result.status,
-      source: result.source,
-      relationshipPath: result.relationshipPath,
-    })),
+    facts,
     objective: activeSubgraph.objective,
     readyNodes: activeSubgraph.readyNodes,
     blockedNodes: activeSubgraph.blockedNodes,
@@ -826,10 +833,10 @@ function projectContextPacket(root, options = {}) {
     acceptanceCriteria: activeSubgraph.acceptanceCriteria,
     affectedVerification: activeSubgraph.affectedVerification,
     applicableLessons: activeSubgraph.applicableLessons,
-    citations: [...new Set([taskNode.source, ...readableSources])].slice(0, 4),
+    citations: readableSources,
     readableSources,
     instructions: [
-      'Read only the cited sources needed to answer the question.',
+      'Read only the active-subgraph sources cited in this packet.',
       'The graph routes to evidence; authoritative records remain source of truth.',
       'If the packet is ambiguous, incomplete, or contradictory, use PROJECT_BOARD.md, then docs/handoffs/index.md, the exact handoff, and Git history.',
     ],
