@@ -35,8 +35,10 @@ candidate-faithful wording; reference TASK-081.
 **Release evidence:** The bounded root/package setup contracts, onboarding
 runtime, live read-only MÉJA inventory smoke, package parity, syntax, doctor,
 whitespace, and final release checkpoint are recorded in
-[TASK-081 QA](docs/qa/TASK-081.md). Merge, marketplace publication, and reinstall
-remain gated by **Push Live**.
+[TASK-081 QA](docs/qa/TASK-081.md). [PR #64](https://github.com/friedbeef1/fb-lane-coordination/pull/64)
+passed GitHub readiness and merged as `3ef65a9`; the exact plugin build was
+installed and enabled, and its setup adapter and bundled MCP route were
+verified.
 
 ## 0.7.0-beta — 2026-08-09
 

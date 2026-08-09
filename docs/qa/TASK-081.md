@@ -12,7 +12,7 @@ status: passed
 - Branch: `codex/fb-setup-complete-inventory`
 - Version: `0.7.1-beta+codex.20260809105651`
 - Implementation commit: `b66502f`
-- Release authorization: not granted.
+- Release authorization: James explicitly said **Push Live**.
 
 ## Focused verification
 
@@ -64,6 +64,27 @@ Circuit-breaker closeout: no third complete validator was run. The board-only
 record correction was followed by the exact failed doctor proof and committed-
 diff whitespace check. Those focused final checks passed, completing the same
 release-checkpoint evidence without rerunning already-green suites.
+
+## Live release verification
+
+- GitHub readiness: passed on [PR #64](https://github.com/friedbeef1/fb-lane-coordination/pull/64).
+- Merge: PR #64 merged to `main` as
+  `3ef65a9b96483ad1b1b3c7beb6469545c3edea05`.
+- Marketplace source: configured local `fb-lane` checkout fast-forwarded to the
+  same merge commit.
+- Installed plugin: `0.7.1-beta+codex.20260809105651`, installed and enabled.
+- Installed setup runtime: live read-only MÉJA candidate enumeration passed and
+  returned only the existing Product/BFM task.
+- Bundled MCP: `.mcp.json` resolves `node ./tools/fb-lane.cjs mcp`, and the
+  packaged server file exists.
+- Reload boundary: a new Codex task is required before `$fb-setup` uses the
+  refreshed skill bundle.
+
+An extra non-gating attempt to run the source/package structural test directly
+inside the installed cache found that the test expects the root-only
+`tools/fb-package-manifest.json`. The installed runtime, adapter, skill wording,
+manifest, and MCP route all passed; this source-layout test is not used as
+installed runtime authority.
 
 ## Known limits
 

@@ -70,8 +70,9 @@ available; it remains the fallback on unsupported hosts.
 
 ## Current execution state
 
-Current: **Ready to ship** — `0.7.1-beta+codex.20260809105651`.
-Next: wait for **Push Live** before push, merge, publication, or installation.
+Current: Complete — `0.7.1-beta+codex.20260809105651` is published, installed,
+and enabled.
+Next: open a new MÉJA Product/BFM task and invoke `$fb-setup`.
 Blocked: none.
 Deferred: publication and consumer-project reconciliation until **Push Live**.
 
@@ -98,12 +99,12 @@ Deferred: publication and consumer-project reconciliation until **Push Live**.
   candidate records until a GitHub branch exists.
 - Limits: local-host Codex only; it does not create, rename, pin, archive, merge,
   publish, install, or deploy anything by itself.
-- External gates: explicit **Push Live**, publication, reinstall, and a new
-  MÉJA task.
-- Repository state: clean local release candidate in an isolated worktree; no
-  push.
-- Remaining owner/action: Product release sequencing, then rerun `$fb-setup` in
-  a new MÉJA Product/BFM task after the refreshed plugin is installed.
+- External gates: James supplied **Push Live**; PR #64, publication, and
+  reinstall completed. Only the new-task plugin reload remains.
+- Repository state: PR #64 merged to `main` as `3ef65a9`; the configured local
+  marketplace checkout matches that commit.
+- Remaining owner/action: open a new MÉJA Product/BFM task and invoke
+  `$fb-setup`; the installed adapter can now reconcile the six missing roles.
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#071-beta--2026-08-09).
 
 ## Brief Validation
@@ -115,8 +116,8 @@ helper/subagent exclusion, current native title/pin confirmation, metadata-only
 evidence, fail-closed missing/contradictory/private evidence, package parity,
 syntax, doctor, and whitespace all have focused proof.
 
-Missing criteria and next action: none inside the local candidate. External
-release remains gated by **Push Live**.
+Missing criteria and next action: none. The refreshed plugin must load in a new
+Codex task before the MÉJA reconciliation retry.
 
 ## Test This Now
 
