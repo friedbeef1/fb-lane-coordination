@@ -53,11 +53,12 @@
     *   **Key Results**: Deterministic source-cited graph; correct dependencies
         and conflicts; no unnecessary reopen; relevant-only context; visible
         fallback; package parity; one final release checkpoint.
-    *   **Definition of Done**: Eight task slices pass task review and one
-        whole-branch review; complete validator and GitHub readiness pass; the
-        candidate stops at **Ready to ship**.
-    *   **Approval**: James supplied the plan and asked Product/BFM to confirm
-        and run it in the current main task.
+    *   **Definition of Done**: Eight bounded slices pass focused proof, one
+        whole-candidate review and one consolidated repair close material
+        findings, complete release evidence and GitHub readiness pass, and the
+        exact plugin is installed and verified.
+    *   **Approval**: approved — James supplied the plan, asked Product/BFM to
+        run it, and explicitly authorized the live release in this task.
     *   **Justification**: The graph should drive coordination rather than act
         only as an optional reading aid.
 *   **Gate / Review Point**: Focused proof ran per slice; one whole-candidate
