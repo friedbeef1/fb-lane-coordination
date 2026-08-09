@@ -45,7 +45,15 @@ Quick-v3 runtime records correctly said `Review required: no`, while the old
 fixture still expected `yes`. The runtime and lean-review policy were unchanged.
 The fixture was corrected, its root and packaged session suites both passed
 39/39, and package parity remained 80/80. One final post-repair checkpoint is
-authorized; GitHub readiness and installed-build verification follow it.
+authorized. That checkpoint then exposed one incomplete fake GitHub archive in
+the eval suite: the documented fallback copied four new graph runtime files
+that its fixture had not staged. The repository/package contents were correct;
+the fixture was updated and the failed eval proof plus the not-yet-run
+checkpoint sections were executed directly instead of restarting already-green
+broad suites. Root/package evals passed 19/19, beginner experience passed 11/11,
+efficiency passed 25/25, positioning and two-speed contracts passed, package
+parity stayed 80/80, and whitespace passed. GitHub readiness and installed-build
+verification follow them.
 
 ## Test This Now
 
