@@ -70,17 +70,32 @@ inventory files; it does not call the sidebar or Codex-native task controls.
    exact project ID whose canonical repository path identifies that root. If
    the project is absent, ambiguous, or path identity disagrees, stop without
    mutation and give the role-specific manual fallback.
-2. Call `list_threads({"limit":50})`; `limit` is its only currently supported
-   argument, so never pass `projectId`, repository path, search, or invented
-   pagination arguments. Filter the returned entries afterward by the already
-   verified exact project ID and, whenever an entry exposes repository identity,
-   the canonical repository path. Exclude entries with another project ID; if
-   an entry claims the target project ID but exposes a contradictory path, the
-   response reaches its limit, or returned metadata cannot prove exact-project
-   identity and completeness, stop to the role-specific manual fallback. Save
-   only a proven-complete filtered JSON object with `complete: true` and tasks.
-   An array, truncated result, or mixed/unknown-project inventory must not be
-   mutated.
+2. Call `list_threads({"limit":50})`; `limit` is its only reliably supported
+   argument on current hosts. Do not pass `projectId`, repository path, search,
+   `query`, or invented pagination arguments. The response's `pinnedThreads`
+   array is the native complete pinned-task set; `threads` may contain exactly
+   50 global non-pinned tasks and therefore be incomplete.
+   - When the non-pinned response is below the limit, filter it by the already
+     verified exact project ID and canonical repository path as before.
+   - When it reaches the limit, run the read-only local adapter. First run
+     `node tools/fb-onboarding.cjs local-candidates --repository-root <canonical-root> --project-id <project-id>`.
+     It reads only active task IDs, roots, archive state, and source kind from
+     Codex `state_5.sqlite`, which is not sufficient authority by itself;
+     helper, guardian, and spawned subagent rows are
+     excluded. For every returned candidate ID, call `read_thread` once to get
+     its current title and root. Save one metadata-only JSON evidence bundle
+     containing the exact project ID/root/host/kind, task IDs/titles/roots,
+     pinned membership, and native availability fields. Never save previews,
+     turns, messages, tool items, rollout paths, or raw thread responses. Then run
+     `node tools/fb-onboarding.cjs inventory-local <native-evidence.json> --repository-root <canonical-root> --project-id <project-id>`.
+   This joined evidence must prove exact-project identity and completeness.
+   The state database has no saved project ID and may have stale title or pin
+   fields. The adapter succeeds only
+   when the exact local saved project, complete read-only candidate set, current
+   per-task native details, and native pinned-task set agree. Unsupported local
+   row kinds, missing details, unavailable native sources, or contradictory
+   project/root/pin evidence fail closed before mutation. Save only the
+   adapter's proven-complete object with `complete: true` and `tasks`.
 3. Run
    `node tools/fb-onboarding.cjs plan <initial-inventory.json> --repository-root <canonical-root> --project-id <project-id>`.
    Stop on `complete: false`. Execute only the deterministic action objects
@@ -110,7 +125,10 @@ inventory files; it does not call the sidebar or Codex-native task controls.
    fallback. For a successful or uncertain newly created role, tell the user
    to locate and verify that task; never create or recreate a duplicate.
 6. After every planned action succeeds, Re-list the exact project through
-   `list_threads` and again prove the inventory complete. Save the final JSON
+   `list_threads` and again prove the inventory complete. If the non-pinned
+   response is capped, rerun `local-candidates`, `read_thread` for every current
+   candidate, and `inventory-local`; do not reuse the pre-mutation evidence.
+   Save the final JSON
    inventory with the normalized field `attemptedActions` (use `[]` when the
    plan needed no native mutation). It must show all seven roles—
    Product/BFM, User, Business, Design, Tech, Discovery, and Bugs—with exact

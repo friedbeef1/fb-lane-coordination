@@ -1,5 +1,43 @@
 # Changelog
 
+## 0.7.1-beta — 2026-08-09
+
+Build: `0.7.1-beta+codex.20260809105651`
+
+**What changed:** `$fb-setup` no longer stops merely because Codex returns its
+fixed 50-item global non-pinned task list. On a local host, FB can enumerate
+active task IDs through read-only exact-root local state, then
+join them to the saved native project, current task detail, and complete pinned
+task evidence. Helper, guardian, and spawned-subagent rows are excluded. Unknown
+sources, missing or contradictory evidence, and transcript-like fields still
+fail closed before any sidebar mutation.
+
+**Why it matters:** Projects with many Codex tasks can safely complete FB setup
+without archiving unrelated history or risking duplicate Product/BFM, User,
+Business, Design, Tech, Discovery, or Bugs tasks. The adapter retains only the
+identity metadata needed for reconciliation; previews, turns, messages, tool
+items, and rollout paths are forbidden.
+
+**Compatibility:** Existing projects, onboarding receipts, task names, seven-role
+topology, `$fb-setup`, `$bfm`, plugin IDs, MCP paths, and **Push Live** remain
+compatible. Unsupported, remote, unavailable, or unprovable inventories keep
+the existing honest manual fallback. The local state database never becomes
+project, title, or pin authority by itself.
+
+**Installation or upgrade:** After explicit **Push Live**, upgrade marketplace
+`fb-lane`, reinstall `fb-lane-coordination@fb-lane`, and open a new Codex task.
+Run `$fb-setup` in each affected project; FB reuses verified tasks and creates
+only roles proven missing.
+
+**Changelog approval:** Approved through Product/BFM standing delegation for
+candidate-faithful wording; reference TASK-081.
+
+**Release evidence:** The bounded root/package setup contracts, onboarding
+runtime, live read-only MÉJA inventory smoke, package parity, syntax, doctor,
+whitespace, and final release checkpoint are recorded in
+[TASK-081 QA](docs/qa/TASK-081.md). Merge, marketplace publication, and reinstall
+remain gated by **Push Live**.
+
 ## 0.7.0-beta — 2026-08-09
 
 Build: `0.7.0-beta+codex.20260809013127`

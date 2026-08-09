@@ -183,6 +183,262 @@ function verifiedRepositoryIdentity(repository) {
   };
 }
 
+function safeTaskIdentifier(value) {
+  const id = String(value || '').trim();
+  return id && id.length <= 512 && !/[\u0000-\u001f\u007f]/.test(id) ? id : null;
+}
+
+function localInventoryFailure(message, operation = 'local-inventory') {
+  return { complete: false, failures: [{ operation, message }], candidateIds: [] };
+}
+
+function isExcludedLocalHelperSource(source) {
+  if (typeof source !== 'string' || !source.startsWith('{')) return false;
+  try {
+    const parsed = JSON.parse(source);
+    return Boolean(parsed && parsed.subagent);
+  } catch (error) {
+    return false;
+  }
+}
+
+function classifyLocalTaskRows(rows, repository) {
+  let identity;
+  try {
+    identity = verifiedRepositoryIdentity(repository);
+  } catch (error) {
+    return localInventoryFailure(error.message, 'project');
+  }
+  if (!Array.isArray(rows)) {
+    return localInventoryFailure('The read-only Codex local-state query did not return a task-row array.');
+  }
+
+  const candidateIds = [];
+  for (const row of rows) {
+    if (!row || typeof row !== 'object') {
+      return localInventoryFailure('The read-only Codex local-state query returned a malformed task row.');
+    }
+    if (Number(row.archived || 0) !== 0 || !sameRepository(row.cwd, identity.repositoryPath)) continue;
+    if (row.source !== 'vscode') {
+      if (isExcludedLocalHelperSource(row.source)) continue;
+      return localInventoryFailure(`Exact-root task ${safeTaskIdentifier(row.id) || '(unknown)'} has unsupported local source metadata; setup cannot prove whether it is a user-visible sidebar task.`);
+    }
+    const id = safeTaskIdentifier(row.id);
+    if (!id) return localInventoryFailure('An exact-root user-visible task has an unsafe or missing task ID.');
+    candidateIds.push(id);
+  }
+  const unique = [...new Set(candidateIds)].sort();
+  if (unique.length !== candidateIds.length) {
+    return localInventoryFailure('The read-only Codex local-state query returned duplicate task IDs.');
+  }
+  return {
+    complete: true,
+    failures: [],
+    repositoryPath: identity.repositoryPath,
+    projectId: identity.projectId,
+    candidateIds: unique,
+  };
+}
+
+function parseEvidenceObject(value, label) {
+  if (typeof value !== 'string') return value;
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    throw new Error(`${label} is not valid JSON.`);
+  }
+}
+
+function containsPrivateThreadEvidence(value) {
+  if (!value || typeof value !== 'object') return false;
+  for (const [key, nested] of Object.entries(value)) {
+    if (['preview', 'turns', 'items', 'message', 'first_user_message', 'rollout_path'].includes(key)) {
+      return true;
+    }
+    if (containsPrivateThreadEvidence(nested)) return true;
+  }
+  return false;
+}
+
+function buildCompleteLocalInventory(evidence, repository, localCandidates) {
+  let identity;
+  try {
+    identity = verifiedRepositoryIdentity(repository);
+  } catch (error) {
+    return { complete: false, failures: [{ operation: 'project', message: error.message }], tasks: [] };
+  }
+  const fail = (message, operation = 'local-inventory') => ({
+    complete: false,
+    failures: [{ operation, message }],
+    tasks: [],
+  });
+  if (!localCandidates?.complete || !Array.isArray(localCandidates.candidateIds)) {
+    return fail('A complete read-only local candidate enumeration is required; the Codex state database alone is never task, project, title, or pin authority.');
+  }
+
+  let value;
+  try {
+    value = parseEvidenceObject(evidence, 'Native inventory evidence') || {};
+  } catch (error) {
+    return fail(error.message, 'native-evidence');
+  }
+  if (containsPrivateThreadEvidence(value)) {
+    return fail('Native inventory evidence must contain identity metadata only; previews, turns, messages, rollout paths, and tool items are forbidden.', 'privacy');
+  }
+  let projectEvidence;
+  let threadList;
+  try {
+    projectEvidence = parseEvidenceObject(value.projects, 'Native project evidence');
+    threadList = parseEvidenceObject(value.threadList, 'Native thread-list evidence');
+  } catch (error) {
+    return fail(error.message, 'native-evidence');
+  }
+  const projects = Array.isArray(projectEvidence)
+    ? projectEvidence
+    : projectEvidence?.projects;
+  if (!Array.isArray(projects)) {
+    return fail('Native list_projects evidence is required to prove the saved project ID and canonical root.', 'project');
+  }
+  const matchingProjects = projects.filter(project => project?.projectId === identity.projectId);
+  if (matchingProjects.length !== 1
+      || matchingProjects[0].projectKind !== 'local'
+      || matchingProjects[0].hostId !== 'local'
+      || !sameRepository(matchingProjects[0].path, identity.repositoryPath)) {
+    return fail('Native project evidence does not prove one local saved project with the requested project ID and canonical repository root.', 'project');
+  }
+  if (!threadList || Number(threadList.schemaVersion || 0) < 4
+      || !Array.isArray(threadList.pinnedThreads)
+      || !Array.isArray(threadList.threads)
+      || !Array.isArray(threadList.unavailableHosts)
+      || !Array.isArray(threadList.unavailableSources)) {
+    return fail('Native list_threads evidence is missing the pinned-task set or availability metadata.', 'native-evidence');
+  }
+  if (threadList.unavailableHosts.length > 0 || threadList.unavailableSources.length > 0) {
+    return fail('Native task sources are unavailable, so exact-project inventory completeness cannot be proved.', 'native-evidence');
+  }
+
+  const candidateIds = [...localCandidates.candidateIds].sort();
+  if (candidateIds.some(id => !safeTaskIdentifier(id)) || new Set(candidateIds).size !== candidateIds.length) {
+    return fail('The local candidate enumeration contains unsafe or duplicate task IDs.');
+  }
+  const details = Array.isArray(value.threadDetails) ? value.threadDetails : [];
+  const detailMap = new Map();
+  for (const item of details) {
+    let parsed;
+    try {
+      parsed = parseEvidenceObject(item, 'Native read_thread evidence');
+    } catch (error) {
+      return fail(error.message, 'native-evidence');
+    }
+    const detail = parsed?.thread || parsed;
+    const id = safeTaskIdentifier(detail?.id);
+    if (!id || detailMap.has(id)) return fail('Native read_thread evidence contains an unsafe, missing, or duplicate task ID.', 'native-evidence');
+    detailMap.set(id, detail);
+  }
+  if (detailMap.size !== candidateIds.length
+      || candidateIds.some(id => !detailMap.has(id))
+      || [...detailMap.keys()].some(id => !candidateIds.includes(id))) {
+    return fail('Native read_thread detail must cover every current local candidate exactly once.', 'native-evidence');
+  }
+
+  const pinnedMap = new Map();
+  for (const pinned of threadList.pinnedThreads) {
+    const id = safeTaskIdentifier(pinned?.id);
+    if (!id || pinnedMap.has(id)) return fail('Native pinned-task evidence contains an unsafe, missing, or duplicate task ID.', 'native-evidence');
+    pinnedMap.set(id, pinned);
+    const claimsProject = pinned.projectId === identity.projectId;
+    const claimsRoot = sameRepository(pinned.cwd, identity.repositoryPath);
+    if (claimsProject !== claimsRoot) {
+      return fail(`Pinned task ${id} contradicts the requested project ID and canonical repository root.`, 'native-evidence');
+    }
+    if (claimsProject && !candidateIds.includes(id)) {
+      return fail(`Pinned exact-project task ${id} is missing from the complete local candidate enumeration.`, 'native-evidence');
+    }
+  }
+
+  const recentMap = new Map();
+  for (const recent of threadList.threads) {
+    const id = safeTaskIdentifier(recent?.id);
+    if (!id) return fail('Native recent-task evidence contains an unsafe or missing task ID.', 'native-evidence');
+    if (recentMap.has(id) || pinnedMap.has(id)) return fail(`Native task ${id} appears more than once or in both pinned and non-pinned sets.`, 'native-evidence');
+    recentMap.set(id, recent);
+    if (recent.projectId === identity.projectId && !candidateIds.includes(id)) {
+      return fail(`Recent exact-project task ${id} is missing from the complete local candidate enumeration.`, 'native-evidence');
+    }
+  }
+
+  const tasks = [];
+  for (const id of candidateIds) {
+    const detail = detailMap.get(id);
+    if (detail.kind !== 'codex' || detail.hostId !== 'local'
+        || !sameRepository(detail.cwd, identity.repositoryPath)
+        || !String(detail.title || '').trim()) {
+      return fail(`Native read_thread detail for ${id} does not prove a current local Codex task at the canonical repository root.`, 'native-evidence');
+    }
+    const pinned = pinnedMap.get(id);
+    const recent = recentMap.get(id);
+    if (pinned && (pinned.projectId !== identity.projectId
+        || !sameRepository(pinned.cwd, identity.repositoryPath)
+        || String(pinned.title || '') !== String(detail.title))) {
+      return fail(`Pinned-task and read_thread evidence disagree for ${id}.`, 'native-evidence');
+    }
+    if (recent && (recent.projectId !== identity.projectId
+        || !sameRepository(recent.cwd, identity.repositoryPath)
+        || String(recent.title || '') !== String(detail.title))) {
+      return fail(`Recent-task and read_thread evidence disagree for ${id}.`, 'native-evidence');
+    }
+    tasks.push({
+      id,
+      title: String(detail.title).trim(),
+      projectId: identity.projectId,
+      repositoryPath: identity.repositoryPath,
+      pinned: Boolean(pinned),
+    });
+  }
+  return { complete: true, failures: [], tasks };
+}
+
+function defaultCodexStateDb() {
+  const home = process.env.CODEX_HOME || path.join(require('node:os').homedir(), '.codex');
+  return path.join(home, 'state_5.sqlite');
+}
+
+function readLocalTaskCandidates(repository, options = {}) {
+  let identity;
+  try {
+    identity = verifiedRepositoryIdentity(repository);
+  } catch (error) {
+    return localInventoryFailure(error.message, 'project');
+  }
+  let canonicalRoot;
+  try {
+    canonicalRoot = fs.realpathSync.native(identity.repositoryPath);
+  } catch (error) {
+    return localInventoryFailure(`Canonical repository root is unavailable: ${identity.repositoryPath}.`, 'project');
+  }
+  if (canonicalRoot !== identity.repositoryPath) {
+    return localInventoryFailure(`Repository root must be canonical: expected ${canonicalRoot}.`, 'project');
+  }
+  const stateDb = path.resolve(options.stateDb || defaultCodexStateDb());
+  if (!fs.existsSync(stateDb) || !fs.statSync(stateDb).isFile()) {
+    return localInventoryFailure(`Read-only Codex local state is unavailable at ${stateDb}.`);
+  }
+  const escapedRoot = canonicalRoot.replace(/'/g, "''");
+  const query = `SELECT id, cwd, archived, source FROM threads WHERE archived = 0 AND cwd = '${escapedRoot}' ORDER BY id`;
+  let rows;
+  try {
+    const execute = options.execFileSync || execFileSync;
+    const output = execute(options.sqlite3Path || 'sqlite3', ['-readonly', '-json', stateDb, query], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    rows = JSON.parse(String(output || '[]'));
+  } catch (error) {
+    return localInventoryFailure('The read-only Codex local-state query failed; setup remains unchanged.');
+  }
+  return classifyLocalTaskRows(rows, { ...identity, repositoryPath: canonicalRoot });
+}
+
 function inventorySnapshot(inventory, options = {}) {
   if (Array.isArray(inventory)) {
     return {
@@ -532,6 +788,27 @@ function requiredRepositoryFlags(args) {
   });
 }
 
+function localInventoryFlags(args) {
+  const values = {};
+  for (let index = 0; index < args.length; index += 2) {
+    const flag = args[index];
+    const value = args[index + 1];
+    if (!['--repository-root', '--project-id', '--state-db'].includes(flag) || !String(value || '').trim()) {
+      throw new Error('Local inventory requires --repository-root <canonical-root> and --project-id <verified-project-id>; --state-db <path> is optional.');
+    }
+    if (values[flag]) throw new Error(`Duplicate local inventory flag: ${flag}.`);
+    values[flag] = value;
+  }
+  const repository = verifiedRepositoryIdentity({
+    repositoryPath: values['--repository-root'],
+    projectId: values['--project-id'],
+  });
+  return {
+    repository,
+    ...(values['--state-db'] ? { stateDb: path.resolve(values['--state-db']) } : {}),
+  };
+}
+
 function renderIdleTaskPrompt(workstream, options = {}) {
   if (!workstream || !WORKSTREAMS.some(item => item.key === workstream.key)) {
     throw new Error('A recognized FB workstream is required.');
@@ -620,6 +897,26 @@ function runCli(args) {
     }), null, 2)}\n`);
     return;
   }
+  if (command === 'local-candidates') {
+    const options = localInventoryFlags(args.slice(1));
+    const result = readLocalTaskCandidates(options.repository, options);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    if (!result.complete) process.exitCode = 1;
+    return;
+  }
+  if (command === 'inventory-local') {
+    const evidencePath = path.resolve(args[1] || '');
+    if (!args[1] || !fs.existsSync(evidencePath)) {
+      throw new Error('Local inventory requires a JSON evidence file from list_projects, list_threads, and read_thread.');
+    }
+    const options = localInventoryFlags(args.slice(2));
+    const candidates = readLocalTaskCandidates(options.repository, options);
+    const evidence = JSON.parse(fs.readFileSync(evidencePath, 'utf8'));
+    const result = buildCompleteLocalInventory(evidence, options.repository, candidates);
+    process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    if (!result.complete) process.exitCode = 1;
+    return;
+  }
   if (command === 'plan') {
     const inventoryPath = path.resolve(args[1] || '');
     if (!args[1] || !fs.existsSync(inventoryPath)) {
@@ -645,7 +942,7 @@ function runCli(args) {
     })}\n`);
     return;
   }
-  throw new Error('Usage: node tools/fb-onboarding.cjs status [root] | needs-reconciliation [root] | permission granted|declined [root] | plan <complete-inventory.json> --repository-root <canonical-root> --project-id <verified-project-id> | reconcile <complete-inventory.json> --repository-root <canonical-root> --project-id <verified-project-id> | prompt <workstream> [root]');
+  throw new Error('Usage: node tools/fb-onboarding.cjs status [root] | needs-reconciliation [root] | permission granted|declined [root] | local-candidates --repository-root <canonical-root> --project-id <verified-project-id> [--state-db <path>] | inventory-local <native-evidence.json> --repository-root <canonical-root> --project-id <verified-project-id> [--state-db <path>] | plan <complete-inventory.json> --repository-root <canonical-root> --project-id <verified-project-id> | reconcile <complete-inventory.json> --repository-root <canonical-root> --project-id <verified-project-id> | prompt <workstream> [root]');
 }
 
 if (require.main === module) {
@@ -659,6 +956,8 @@ if (require.main === module) {
 
 module.exports = {
   WORKSTREAMS,
+  buildCompleteLocalInventory,
+  classifyLocalTaskRows,
   ensureOnboardingReceipt,
   isBfmIntent,
   needsTaskInventoryReconciliation,
@@ -666,6 +965,7 @@ module.exports = {
   planMissingWorkstreams,
   planRepositoryTaskInventory,
   readOnboardingReceipt,
+  readLocalTaskCandidates,
   recognizedWorkstream,
   recordPermission,
   recordReconciliation,

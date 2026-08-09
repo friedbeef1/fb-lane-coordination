@@ -17,8 +17,8 @@ FB currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
 setup paths when you are not installing through the plugin flow.
 
-The current release candidate is **FB 0.7.0-beta** build
-`0.7.0-beta+codex.20260809013127`.
+The current release candidate is **FB 0.7.1-beta** build
+`0.7.1-beta+codex.20260809105651`.
 
 ## Install or update from GitHub
 
@@ -130,6 +130,16 @@ transactional migration routes: inventory and disposition every difference,
 atomically record one canonical root plus quarantined former roots, then rebind
 the exact seven pinned tasks. Former roots remain rollback evidence until fresh
 verification and explicit retirement approval.
+
+On a busy desktop host, the native recent-task list may stop at 50 non-pinned
+tasks. FB does not ask the user to archive unrelated work and does not guess
+what is missing. It reads only active task IDs, roots, archive state, and source
+kind from local Codex state, excludes helper and spawned-subagent rows, then
+joins every exact-root candidate to current native task details and the native
+pinned-task set. Local state alone is never enough: missing or contradictory
+project, root, title, pin, or source evidence still stops setup before mutation.
+The temporary evidence bundle contains identity metadata only; previews, turns,
+messages, tool items, and rollout paths are forbidden.
 
 Bootstrap or upgrade installs the graph compiler, scheduler, propagation,
 bounded-learning, and Product/BFM projection runtimes, then adds the derived
