@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-081 | Staging QA | FB-Product / BFM | Complete exact-project sidebar inventory | Replace the capped global non-pinned listing with a read-only, exact-root local candidate enumeration joined to current native project, thread-detail, and pinned-task evidence; preserve duplicate protection and fail closed | `tools/fb-onboarding.cjs`, focused onboarding tests, setup skills/docs, generated plugin mirrors | Local candidate verified; release/changelog/install remain gated; [Handoff](docs/handoffs/TASK-081.md); [QA](docs/qa/TASK-081.md) |
 | TASK-080 | Done | FB-Product / BFM | Automatic Direct-vs-Graph BFM routing and `0.7.0-beta+codex.20260809013127` | Make `$bfm` select Direct, graph-driven, or authoritative-record fallback automatically while Markdown/Git remain authoritative | None; published and installed | [PR #63](https://github.com/friedbeef1/fb-lane-coordination/pull/63) merged as `c9d5d49`; exact build installed and enabled; router skill and bundled MCP route verified; [Handoff](docs/handoffs/TASK-080.md); [QA](docs/qa/TASK-080.md) |
 | TASK-079 | Superseded | FB-Product / BFM | Project-local recursive learning and `0.6.0-beta+codex.20260808104938` | Make each FB project learn bounded preventative lessons from its own verified delivery outcomes without creating nested repair loops | Learning runtime, harness guidance, plugin mirrors, focused contracts, version/release records | Candidate and evidence preserved; incorporated into TASK-080 / FB 0.7.0; [Handoff](docs/handoffs/TASK-079.md); [QA](docs/qa/TASK-079.md) |
 | TASK-078 | Done | FB-Product / BFM | One-sentence GitHub setup and `0.5.12-beta+codex.20260808093008` | Integrate task-reuse permission, plain-language safe reruns, and one GitHub install-or-upgrade prompt into the canonical plugin release | None; published and installed | [PR #61](https://github.com/friedbeef1/fb-lane-coordination/pull/61) merged as `414b191`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-078.md); [QA](docs/qa/TASK-078.md) |
@@ -29,6 +30,35 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-081 - Complete exact-project sidebar inventory
+
+*   **Status**: Staging QA — locally verified candidate; release not authorized.
+*   **Owner / Thread**: FB-Product / BFM, delegated from the MÉJA Product task.
+*   **Area**: First-run setup inventory and duplicate-safe reconciliation.
+*   **Scope**: Add the smallest complete local-host inventory route by joining
+    verified saved-project identity, a read-only exact-root Codex state query,
+    current per-task native details, and the native pinned-task set.
+*   **Out of Scope**: MÉJA application changes, blind task creation, weakened
+    duplicate protection, transcript capture, push, merge, publication,
+    reinstall, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let `$fb-setup` reconcile the seven sidebar tasks even
+        when the global non-pinned list reaches its fixed 50-task limit.
+    *   **Key Results**: Complete user-visible candidate enumeration for one
+        canonical root; current titles and pin state from native controls;
+        helper/subagent exclusion; fail-closed identity and evidence checks.
+    *   **Definition of Done**: Focused root/package contracts, package parity,
+        syntax, links, whitespace, durable handoff/QA, and a clean local commit.
+    *   **Approval**: approved — James explicitly delegated this remaining FB
+        repair to Product/BFM and prohibited publication without Push Live.
+*   **Gate / Review Point**: Changelog/version preparation and the release
+    checkpoint remain before **Ready to ship**. Installation and the MÉJA
+    reconciliation retry require a later explicit **Push Live** release.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-081.md) ·
+    [QA](docs/qa/TASK-081.md).
 
 ---
 

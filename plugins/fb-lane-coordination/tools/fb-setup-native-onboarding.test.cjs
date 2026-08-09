@@ -88,6 +88,8 @@ assert.strictEqual(
 );
 assert.strictEqual(typeof onboarding.planRepositoryTaskInventory, 'function');
 assert.strictEqual(typeof onboarding.verifyRepositoryTaskInventory, 'function');
+assert.strictEqual(typeof onboarding.classifyLocalTaskRows, 'function');
+assert.strictEqual(typeof onboarding.buildCompleteLocalInventory, 'function');
 
 assert.match(skill, /Node CLI[\s\S]{0,180}(?:does not|cannot)[\s\S]{0,180}(?:sidebar|Codex-native|native task)/i);
 assert.match(skill, /Pinning never[\s\S]{0,180}\$bfm/i);
@@ -102,10 +104,136 @@ assert.deepStrictEqual(
 );
 assert.doesNotMatch(skill, /list_threads\(\{[^)]*(?:"limit":100|projectId)/);
 
+assert.match(skill, /local-candidates/i);
+assert.match(skill, /read_thread/i);
+assert.match(skill, /inventory-local/i);
+assert.match(skill, /read-only/i);
+assert.match(skill, /(?:guardian|helper|subagent)[\s\S]{0,180}(?:exclude|excluded)/i);
+assert.match(skill, /state_5\.sqlite[\s\S]{0,260}(?:not sufficient|not authority|never.*alone)/i);
+
 const repository = {
   projectId: 'project-mirrorcam',
   repositoryPath: '/work/projects/mirrorcam',
 };
+
+const cappedNativeEvidence = {
+  projects: [{
+    projectId: repository.projectId,
+    path: repository.repositoryPath,
+    hostId: 'local',
+    projectKind: 'local',
+  }],
+  threadList: {
+    schemaVersion: 4,
+    pinnedThreads: [{
+      id: 'task-product',
+      projectId: repository.projectId,
+      hostId: 'local',
+      cwd: repository.repositoryPath,
+      title: 'FB · Product/BFM',
+      pinnedIndex: 1,
+    }],
+    threads: Array.from({ length: 50 }, (_, index) => ({
+      id: `global-${index}`,
+      projectId: 'project-other',
+      hostId: 'local',
+      cwd: '/work/projects/other',
+      title: `Global ${index}`,
+    })),
+    unavailableHosts: [],
+    unavailableSources: [],
+  },
+  threadDetails: onboarding.WORKSTREAMS.map((workstream, index) => ({
+    thread: {
+      id: `task-${workstream.key}`,
+      kind: 'codex',
+      hostId: 'local',
+      cwd: repository.repositoryPath,
+      title: workstream.title,
+    },
+  })),
+};
+cappedNativeEvidence.threadDetails[0].thread.id = 'task-product';
+
+const localRows = onboarding.WORKSTREAMS.map((workstream, index) => ({
+  id: index === 0 ? 'task-product' : `task-${workstream.key}`,
+  cwd: repository.repositoryPath,
+  archived: 0,
+  source: 'vscode',
+}));
+localRows.push({
+  id: 'guardian-helper',
+  cwd: repository.repositoryPath,
+  archived: 0,
+  source: '{"subagent":{"other":"guardian"}}',
+});
+localRows.push({
+  id: 'spawned-worker',
+  cwd: repository.repositoryPath,
+  archived: 0,
+  source: '{"subagent":{"thread_spawn":{"parent_thread_id":"task-product"}}}',
+});
+
+const classified = onboarding.classifyLocalTaskRows(localRows, repository);
+assert.strictEqual(classified.complete, true);
+assert.deepStrictEqual(
+  classified.candidateIds,
+  onboarding.WORKSTREAMS.map(workstream => `task-${workstream.key}`).sort(),
+  'local enumeration must include every user-visible task and exclude helper/subagent rows',
+);
+const cappedInventory = onboarding.buildCompleteLocalInventory(
+  cappedNativeEvidence,
+  repository,
+  { ...classified, candidateIds: localRows.filter(row => row.source === 'vscode').map(row => row.id).sort() },
+);
+assert.strictEqual(cappedInventory.complete, true);
+assert.strictEqual(cappedInventory.tasks.length, 7);
+assert.strictEqual(cappedInventory.tasks.find(task => task.id === 'task-product').pinned, true);
+assert.ok(cappedInventory.tasks.filter(task => task.id !== 'task-product').every(task => task.pinned === false));
+assert.ok(cappedInventory.tasks.every(task => task.projectId === repository.projectId));
+
+const dbAlone = onboarding.buildCompleteLocalInventory({}, repository, classified);
+assert.strictEqual(dbAlone.complete, false);
+assert.match(dbAlone.failures.map(item => item.message).join(' '), /project|native|pinned/i);
+
+const privateEvidence = structuredClone(cappedNativeEvidence);
+privateEvidence.threadDetails[0].turns = [{ message: 'must not be retained' }];
+const rejectedPrivateEvidence = onboarding.buildCompleteLocalInventory(
+  privateEvidence,
+  repository,
+  classified,
+);
+assert.strictEqual(rejectedPrivateEvidence.complete, false);
+assert.match(rejectedPrivateEvidence.failures[0].operation, /privacy/i);
+assert.match(rejectedPrivateEvidence.failures[0].message, /identity metadata only|forbidden/i);
+
+const missingDetailEvidence = structuredClone(cappedNativeEvidence);
+missingDetailEvidence.threadDetails.pop();
+const missingDetail = onboarding.buildCompleteLocalInventory(
+  missingDetailEvidence,
+  repository,
+  { ...classified, candidateIds: localRows.filter(row => row.source === 'vscode').map(row => row.id).sort() },
+);
+assert.strictEqual(missingDetail.complete, false);
+assert.match(missingDetail.failures.map(item => item.message).join(' '), /detail|candidate/i);
+
+const wrongRootEvidence = structuredClone(cappedNativeEvidence);
+wrongRootEvidence.threadDetails[1].thread.cwd = '/work/projects/other';
+const wrongRoot = onboarding.buildCompleteLocalInventory(
+  wrongRootEvidence,
+  repository,
+  { ...classified, candidateIds: localRows.filter(row => row.source === 'vscode').map(row => row.id).sort() },
+);
+assert.strictEqual(wrongRoot.complete, false);
+assert.match(wrongRoot.failures.map(item => item.message).join(' '), /root|repository/i);
+
+const unknownLocalSource = onboarding.classifyLocalTaskRows([
+  ...localRows,
+  { id: 'unknown-source', cwd: repository.repositoryPath, archived: 0, source: 'future-ui' },
+], repository);
+assert.strictEqual(unknownLocalSource.complete, false);
+assert.deepStrictEqual(unknownLocalSource.candidateIds, []);
+assert.match(unknownLocalSource.failures[0].message, /unsupported.*source/i);
 const emptyInventory = { complete: true, tasks: [] };
 for (const incompleteIdentity of [
   { projectId: repository.projectId },
@@ -121,6 +249,27 @@ const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-native-onboarding-'))
 try {
   const inventoryPath = path.join(tempRoot, 'inventory.json');
   fs.writeFileSync(inventoryPath, `${JSON.stringify(emptyInventory)}\n`);
+  const canonicalTempRoot = fs.realpathSync.native(tempRoot);
+  const stateDb = path.join(tempRoot, 'state_5.sqlite');
+  fs.writeFileSync(stateDb, 'fixture');
+  let sqliteInvocation;
+  const localCandidates = onboarding.readLocalTaskCandidates({
+    projectId: repository.projectId,
+    repositoryPath: canonicalTempRoot,
+  }, {
+    stateDb,
+    execFileSync(command, args, options) {
+      sqliteInvocation = { command, args, options };
+      return JSON.stringify(localRows.map(row => ({ ...row, cwd: canonicalTempRoot })));
+    },
+  });
+  assert.strictEqual(localCandidates.complete, true);
+  assert.deepStrictEqual(localCandidates.candidateIds, classified.candidateIds);
+  assert.strictEqual(sqliteInvocation.command, 'sqlite3');
+  assert.deepStrictEqual(sqliteInvocation.args.slice(0, 3), ['-readonly', '-json', stateDb]);
+  assert.match(sqliteInvocation.args[3], /SELECT id, cwd, archived, source FROM threads/i);
+  assert.doesNotMatch(sqliteInvocation.args[3], /title|preview|message|rollout/i);
+
   const cli = path.join(root, 'tools/fb-onboarding.cjs');
   for (const [command, args] of [
     ['plan without project ID', ['plan', inventoryPath, '--repository-root', tempRoot]],

@@ -46,6 +46,16 @@ prompts for manual task creation. It never guesses that a task is missing or
 implies that sidebar tasks exist without tool evidence. Declining setup does
 not disable FB.
 
+When the native recent-task list reaches its 50-item non-pinned limit, setup may
+use the documented read-only local inventory adapter. It enumerates active
+user-visible task IDs for the exact canonical root, excludes helper and spawned
+subagent rows, and requires a current native detail read for every candidate
+plus the native pinned-task set. The local database has no saved-project ID and
+may contain stale title or pin fields, so it never authorizes reconciliation by
+itself. The temporary join evidence is metadata-only; previews, turns, messages,
+tool items, and rollout paths are forbidden. Any private, missing, or
+contradictory join evidence fails closed.
+
 Setup proves both the exact Codex project and its canonical checkout before it
 creates, renames, pins, or reconciles tasks. If identity or the complete task
 inventory cannot be proved, setup changes nothing and gives the manual fallback.

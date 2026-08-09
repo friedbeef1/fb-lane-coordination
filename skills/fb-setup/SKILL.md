@@ -33,6 +33,9 @@ database. Missing or unhealthy derived state falls back to authoritative
 Markdown and Git records.
 
 Report unavailable task creation, discovery, renaming, or pinning honestly and
-provide the canonical manual fallback. Do not duplicate setup policy here.
+provide the canonical manual fallback. On a capped native non-pinned task list,
+use the canonical read-only local candidate plus native-detail join; never use
+`state_5.sqlite` alone or weaken duplicate detection. Do not duplicate setup
+policy here.
 This shortcut does not invoke `$bfm`, start workstream investigations, approve
 source changes, merge, publish, or deploy.
