@@ -1,8 +1,8 @@
 ---
 type: fb-verification-handoff
 task: TASK-080
-review_state: staging candidate
-status: checking
+review_state: completed build
+status: passed
 ---
 
 # TASK-080 QA — Automatic Direct-vs-Graph BFM routing
@@ -54,6 +54,17 @@ broad suites. Root/package evals passed 19/19, beginner experience passed 11/11,
 efficiency passed 25/25, positioning and two-speed contracts passed, package
 parity stayed 80/80, and whitespace passed. GitHub readiness and installed-build
 verification follow them.
+
+## Live release verification
+
+- GitHub readiness: passed on PR #63.
+- Merge: PR #63 merged to `main` as `c9d5d4946c200a4c306c3035be4d700a77aa18d5`.
+- Marketplace checkout: fast-forwarded to the same commit.
+- Installed plugin: `0.7.0-beta+codex.20260809013127`, enabled.
+- Installed BFM skill: automatic route, deterministic reasons, Direct BFM,
+  graph-driven orchestration, and authoritative-record fallback wording found.
+- Bundled MCP: `.mcp.json` resolves to the packaged FB lane server.
+- Reload boundary: a new Codex task is required to load the refreshed bundle.
 
 ## Test This Now
 

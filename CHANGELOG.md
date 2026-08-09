@@ -33,8 +33,10 @@ candidate-faithful wording; reference TASK-080.
 **Release evidence:** Focused router, graph compiler, scheduling, intake,
 documentation, metadata, package-parity, syntax, links, whitespace, doctor,
 and one final release checkpoint are recorded in
-[TASK-080 QA](docs/qa/TASK-080.md). Publication follows the user's explicit
-live-release authorization in the current Product/BFM task.
+[TASK-080 QA](docs/qa/TASK-080.md). [PR #63](https://github.com/friedbeef1/fb-lane-coordination/pull/63)
+passed GitHub readiness and merged as `c9d5d49`; the exact plugin build was
+installed and enabled, and its automatic-router skill and bundled MCP route
+were verified.
 
 ## 0.6.0-beta — 2026-08-08
 

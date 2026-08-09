@@ -4,8 +4,8 @@ fb_harness: v3
 learning_contract: v1
 task: TASK-080
 lane: fb-product
-status: staging-qa
-review_state: staging candidate
+status: implemented
+review_state: completed build
 ---
 
 # TASK-080 — FB graph-driven orchestration
@@ -69,10 +69,8 @@ Superseded: none.
 
 ## Current execution state
 
-Current: Task 8 — final release checkpoint for
-`0.7.0-beta+codex.20260809013127`.
-Next: push branch, GitHub readiness, merge, marketplace upgrade, reinstall, and
-active-build verification under James's explicit live-release authorization.
+Current: Complete — `0.7.0-beta+codex.20260809013127` is published and installed.
+Next: open a new Codex task to load the refreshed skills and MCP server.
 Blocked: none.
 Deferred: none inside the authorized release scope.
 
@@ -114,24 +112,25 @@ asked to choose.
 - Failures and recovery: the whole-candidate review found the graph runtime was
   opt-in and repository-wide; one consolidated repair connected automatic
   candidate-scoped routing and closed all findings.
-- Review state: staging candidate.
+- Review state: completed build.
 - Limits: no graph database, hosted graph service, cross-project learning, or
   autonomous sensitive/product decisions.
 - External gates: James explicitly authorized push, merge, publication, and
   reinstall in the current Product/BFM task on 2026-08-09.
-- Repository state: release branch pending final checkpoint and GitHub delivery.
-- Remaining owner/action: Product/BFM completes the authorized release and
-  verifies the installed build in a new task.
+- Repository state: PR #63 merged as `c9d5d49`; GitHub `main` and the local
+  marketplace checkout agree.
+- Remaining owner/action: user opens a new Codex task so the refreshed plugin
+  loads; no further release action remains.
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#070-beta--2026-08-09).
 
 ## Brief Validation
 
-Status: pass pending final release-checkpoint evidence.
+Status: pass.
 
 Satisfied criteria: automatic route selection, graph triggers, visible reasons,
 authoritative fallback, candidate-scoped scheduling, lock serialization,
 bounded learning, semantic invalidation, privacy redaction, evidence-based
 readiness, lean review process, and package parity all have focused proof.
 
-Missing criteria and next action: run the complete validator once, observe one
-GitHub readiness run, then verify the exact installed plugin and MCP server.
+Missing criteria and next action: none. GitHub readiness passed and the exact
+installed plugin skill and bundled MCP route were verified.
