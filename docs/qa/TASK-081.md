@@ -1,8 +1,8 @@
 ---
 type: fb-verification-handoff
 task: TASK-081
-review_state: not reviewable
-status: passed
+review_state: completed build
+status: checking
 ---
 
 # TASK-081 QA — Complete exact-project sidebar inventory
@@ -10,6 +10,8 @@ status: passed
 ## Candidate
 
 - Branch: `codex/fb-setup-complete-inventory`
+- Version: `0.7.1-beta+codex.20260809105651`
+- Implementation commit: `b66502f`
 - Release authorization: not granted.
 
 ## Focused verification
@@ -36,6 +38,20 @@ content even though only identity metadata is needed. The single consolidated
 repair rejects previews, turns, messages, tool items, and rollout paths and
 documents a metadata-only evidence bundle. The focused root/package proof was
 rerun and passed; no second review loop was opened.
+
+## Release checkpoint
+
+The initial complete validator passed package parity, syntax, 72 CLI checks, 34
+checkout-migration checks, 39 session checks, 19 eval checks, 11 beginner
+experience checks, positioning, two-speed, and 25 efficiency checks. Doctor
+then stopped correctly because the TASK-081 Goal Alignment block lacked its
+Mini-loop Evidence, Evidence Against Product OKR, and complete approval fields,
+and because the versioned candidate was not yet committed. No runtime or
+package defect was reported.
+
+Recovery: add the missing durable Goal Alignment evidence, commit the complete
+candidate so the worktree is clean, then run the one permitted final
+post-repair checkpoint. Do not rerun or repair any already-green subsystem.
 
 ## Known limits
 

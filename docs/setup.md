@@ -17,8 +17,8 @@ FB currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
 setup paths when you are not installing through the plugin flow.
 
-The current release candidate is **FB 0.7.0-beta** build
-`0.7.0-beta+codex.20260809013127`.
+The current release candidate is **FB 0.7.1-beta** build
+`0.7.1-beta+codex.20260809105651`.
 
 ## Install or update from GitHub
 
