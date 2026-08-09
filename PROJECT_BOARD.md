@@ -13,8 +13,8 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-080 | In Progress | FB-Product / BFM | Graph-driven orchestration | Make the derived repository graph drive relevant context, dependency sequencing, concurrency, invalidation, and compact status while Markdown/Git remain authoritative | `tools/fb-project-graph.cjs`, graph scheduler/runtime/tests, harness and plugin mirrors; isolated branch `codex/graph-driven-orchestration` | Approved attached plan; stacked on verified `0.6.0-beta` candidate `58b3a75`; [Plan](docs/superpowers/plans/2026-08-08-fb-graph-driven-orchestration.md); [Handoff](docs/handoffs/TASK-080.md); **Push Live** remains external |
-| TASK-079 | Staging QA | FB-Product / BFM | Project-local recursive learning and `0.6.0-beta+codex.20260808104938` | Make each FB project learn bounded preventative lessons from its own verified delivery outcomes without creating nested repair loops | Learning runtime, harness guidance, plugin mirrors, focused contracts, version/release records | Ready to ship; validator passed on `091926b`; focused fresh-clone portability repair tracked in [PR #62](https://github.com/friedbeef1/fb-lane-coordination/pull/62); [Handoff](docs/handoffs/TASK-079.md); [QA](docs/qa/TASK-079.md); **Push Live** remains external |
+| TASK-080 | Staging QA | FB-Product / BFM | Automatic Direct-vs-Graph BFM routing and `0.7.0-beta+codex.20260809013127` | Make `$bfm` select Direct, graph-driven, or authoritative-record fallback automatically while Markdown/Git remain authoritative | Graph compiler, router, scheduler/runtime/tests, harness and plugin mirrors; isolated branch `codex/graph-driven-orchestration` | Focused router and graph contracts green; one whole-candidate review and one consolidated repair complete; [Plan](docs/superpowers/plans/2026-08-08-fb-graph-driven-orchestration.md); [Handoff](docs/handoffs/TASK-080.md); [QA](docs/qa/TASK-080.md); live release explicitly authorized in the current Product/BFM task |
+| TASK-079 | Superseded | FB-Product / BFM | Project-local recursive learning and `0.6.0-beta+codex.20260808104938` | Make each FB project learn bounded preventative lessons from its own verified delivery outcomes without creating nested repair loops | Learning runtime, harness guidance, plugin mirrors, focused contracts, version/release records | Candidate and evidence preserved; incorporated into TASK-080 / FB 0.7.0; [Handoff](docs/handoffs/TASK-079.md); [QA](docs/qa/TASK-079.md) |
 | TASK-078 | Done | FB-Product / BFM | One-sentence GitHub setup and `0.5.12-beta+codex.20260808093008` | Integrate task-reuse permission, plain-language safe reruns, and one GitHub install-or-upgrade prompt into the canonical plugin release | None; published and installed | [PR #61](https://github.com/friedbeef1/fb-lane-coordination/pull/61) merged as `414b191`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-078.md); [QA](docs/qa/TASK-078.md) |
 | TASK-Q-20260808-ONBOARDING-REUSE | Done | FB-Product / BFM | Codex onboarding | Make setup approval explicitly authorize reuse, rename, and pin of matching project tasks, with creation only for missing lanes | None; source/docs/tests only | User-approved in current conversation; 54 focused tests passed; root/package parity and `git diff --check` passed |
 | TASK-077 | Superseded | Side conversation, one-off approved | Plain-language FB setup status | Replace user-facing setup jargon with clear safe-rerun wording | None; absorbed into TASK-078 | Candidate `228610d` integrated through `e14ab9b`; release evidence belongs to TASK-078 |
@@ -34,7 +34,8 @@
 
 ### TASK-080 - Graph-driven orchestration
 
-*   **Status**: In Progress.
+*   **Status**: Staging QA — release checkpoint in progress for
+    `0.7.0-beta+codex.20260809013127`.
 *   **Owner / Thread**: FB-Product / BFM.
 *   **Area**: Derived graph schema/compiler, active-subgraph context,
     dependency-aware scheduling, invalidation, bounded learning integration,
@@ -59,21 +60,22 @@
         and run it in the current main task.
     *   **Justification**: The graph should drive coordination rather than act
         only as an optional reading aid.
-*   **Gate / Review Point**: Focused proof runs per slice; one whole-candidate
+*   **Gate / Review Point**: Focused proof ran per slice; one whole-candidate
     review, one consolidated repair if needed, and one final release checkpoint
     govern the candidate. `$bfm` chooses Direct, graph-driven, or visible
     authoritative fallback through deterministic preflight; the user never
     selects the route. Per-slice reviewer/re-review ceremonies are not required.
-    Sensitive-operation and release gates remain unchanged. **Push Live**
-    remains external.
+    Sensitive-operation and release gates remain unchanged. Live release was
+    explicitly authorized by James in the current Product/BFM task.
 *   **Links & Deliverables**: [plan](docs/superpowers/plans/2026-08-08-fb-graph-driven-orchestration.md) ·
-    [handoff](docs/handoffs/TASK-080.md).
+    [handoff](docs/handoffs/TASK-080.md) · [QA](docs/qa/TASK-080.md).
 
 ---
 
 ### TASK-079 - Project-local recursive learning
 
-*   **Status**: Staging QA — **Ready to ship**; final release checkpoint passed on `091926b`.
+*   **Status**: Superseded — its verified learning candidate is incorporated
+    into TASK-080 / FB 0.7.0; historical evidence remains factual.
 *   **Owner / Thread**: FB-Product / BFM.
 *   **Scope**: Connect verified project outcomes to bounded provisional lessons,
     relevant future context, confirmation, one revision, rejection, and

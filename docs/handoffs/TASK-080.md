@@ -4,8 +4,8 @@ fb_harness: v3
 learning_contract: v1
 task: TASK-080
 lane: fb-product
-status: in-progress
-review_state: not reviewable
+status: staging-qa
+review_state: staging candidate
 ---
 
 # TASK-080 — FB graph-driven orchestration
@@ -67,11 +67,12 @@ Superseded: none.
 
 ## Current execution state
 
-Current: Task 1 — graph schema and normalized compiler.
-Next: active-subgraph context, scheduler, propagation, learning integration,
-Product/BFM projections, plugin/docs/migration, release checkpoint.
+Current: Task 8 — final release checkpoint for
+`0.7.0-beta+codex.20260809013127`.
+Next: push branch, GitHub readiness, merge, marketplace upgrade, reinstall, and
+active-build verification under James's explicit live-release authorization.
 Blocked: none.
-Deferred: all live release actions until **Push Live**.
+Deferred: none inside the authorized release scope.
 
 ## Process decision — 2026-08-08
 
@@ -90,3 +91,45 @@ shared locks, applicable lessons, or release relationships require graph-driven
 orchestration. The selected route and reasons are visible. Missing, stale, or
 corrupt graph data uses the authoritative-record fallback. The user is never
 asked to choose.
+
+## Task Receipt
+
+- Approved brief: implement Tasks 1–8 from the linked plan, including the
+  automatic router added before the whole-candidate repair.
+- Decisions: Direct BFM is limited to one isolated bounded item; all declared
+  graph signals route to graph-driven orchestration; unhealthy graph state uses
+  visible authoritative records.
+- Scope changes: mandatory per-slice reviewer/re-review ceremony was removed;
+  focused proof per slice, one whole-candidate review, one consolidated repair,
+  and one final release checkpoint are retained.
+- Branch and commits: `codex/graph-driven-orchestration`; implementation range
+  begins at `e0f4e0d`; consolidated router repair is `025a8cb`.
+- Changed surfaces: graph compiler/context, router, scheduler, propagation,
+  learning attachment, BFM projections, skills, templates, plugin manifests,
+  documentation, focused contracts, and release records.
+- Verification: focused results and final checkpoint are recorded in
+  [TASK-080 QA](../qa/TASK-080.md).
+- Failures and recovery: the whole-candidate review found the graph runtime was
+  opt-in and repository-wide; one consolidated repair connected automatic
+  candidate-scoped routing and closed all findings.
+- Review state: staging candidate.
+- Limits: no graph database, hosted graph service, cross-project learning, or
+  autonomous sensitive/product decisions.
+- External gates: James explicitly authorized push, merge, publication, and
+  reinstall in the current Product/BFM task on 2026-08-09.
+- Repository state: release branch pending final checkpoint and GitHub delivery.
+- Remaining owner/action: Product/BFM completes the authorized release and
+  verifies the installed build in a new task.
+- Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#070-beta--2026-08-09).
+
+## Brief Validation
+
+Status: pass pending final release-checkpoint evidence.
+
+Satisfied criteria: automatic route selection, graph triggers, visible reasons,
+authoritative fallback, candidate-scoped scheduling, lock serialization,
+bounded learning, semantic invalidation, privacy redaction, evidence-based
+readiness, lean review process, and package parity all have focused proof.
+
+Missing criteria and next action: run the complete validator once, observe one
+GitHub readiness run, then verify the exact installed plugin and MCP server.

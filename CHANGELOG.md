@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.7.0-beta — 2026-08-09
+
+Build: `0.7.0-beta+codex.20260809013127`
+
+**What changed:** `$bfm` now runs an automatic deterministic preflight before
+execution. It uses Direct BFM only for one isolated bounded item without graph
+signals. Multiple items, dependencies, conflicts, changed decisions, blocked
+or stale work, shared locks, applicable lessons, and release relationships use
+graph-driven orchestration. The selected route and reasons are visible, and
+missing, stale, or corrupt graph data uses the authoritative-record fallback.
+
+**Why it matters:** Users no longer choose an internal execution mode. Small
+work stays small, while complex work receives candidate-scoped dependency,
+lock, context, learning, invalidation, and verification handling without
+rehydrating unrelated completed history.
+
+**Compatibility:** Existing boards, handoffs, workstreams, `$fb-setup`, `$bfm`,
+plugin IDs, MCP paths, project-local learning, and **Push Live** remain
+compatible. Markdown and Git remain authoritative. Existing projects can
+rebuild derived graph state; no graph database or historical retrofit is
+required.
+
+**Installation or upgrade:** Upgrade marketplace `fb-lane`, reinstall
+`fb-lane-coordination@fb-lane`, and open a new Codex task. Run `$fb-setup` in
+consumer repositories to refresh FB-managed guidance without replacing
+project-owned records or sidebar tasks.
+
+**Changelog approval:** Approved through Product/BFM standing delegation for
+candidate-faithful wording; reference TASK-080.
+
+**Release evidence:** Focused router, graph compiler, scheduling, intake,
+documentation, metadata, package-parity, syntax, links, whitespace, doctor,
+and one final release checkpoint are recorded in
+[TASK-080 QA](docs/qa/TASK-080.md). Publication follows the user's explicit
+live-release authorization in the current Product/BFM task.
+
 ## 0.6.0-beta — 2026-08-08
 
 Build: `0.6.0-beta+codex.20260808104938`
