@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-081 | Checking | FB-Product / BFM | Complete exact-project sidebar inventory and FB `0.7.1-beta+codex.20260809105651` | Replace the capped global non-pinned listing with a read-only, exact-root local candidate enumeration joined to current native project, thread-detail, and pinned-task evidence; preserve duplicate protection and fail closed | `tools/fb-onboarding.cjs`, focused onboarding tests, setup skills/docs, generated plugin mirrors | Release candidate prepared; final checkpoint pending; [Changelog](CHANGELOG.md#071-beta--2026-08-09); [Handoff](docs/handoffs/TASK-081.md); [QA](docs/qa/TASK-081.md) |
+| TASK-081 | Ready to ship | FB-Product / BFM | Complete exact-project sidebar inventory and FB `0.7.1-beta+codex.20260809105651` | Replace the capped global non-pinned listing with a read-only, exact-root local candidate enumeration joined to current native project, thread-detail, and pinned-task evidence; preserve duplicate protection and fail closed | None; local release candidate only | Release checkpoint evidence complete; waiting for **Push Live**; [Changelog](CHANGELOG.md#071-beta--2026-08-09); [Handoff](docs/handoffs/TASK-081.md); [QA](docs/qa/TASK-081.md) |
 | TASK-080 | Done | FB-Product / BFM | Automatic Direct-vs-Graph BFM routing and `0.7.0-beta+codex.20260809013127` | Make `$bfm` select Direct, graph-driven, or authoritative-record fallback automatically while Markdown/Git remain authoritative | None; published and installed | [PR #63](https://github.com/friedbeef1/fb-lane-coordination/pull/63) merged as `c9d5d49`; exact build installed and enabled; router skill and bundled MCP route verified; [Handoff](docs/handoffs/TASK-080.md); [QA](docs/qa/TASK-080.md) |
 | TASK-079 | Superseded | FB-Product / BFM | Project-local recursive learning and `0.6.0-beta+codex.20260808104938` | Make each FB project learn bounded preventative lessons from its own verified delivery outcomes without creating nested repair loops | Learning runtime, harness guidance, plugin mirrors, focused contracts, version/release records | Candidate and evidence preserved; incorporated into TASK-080 / FB 0.7.0; [Handoff](docs/handoffs/TASK-079.md); [QA](docs/qa/TASK-079.md) |
 | TASK-078 | Done | FB-Product / BFM | One-sentence GitHub setup and `0.5.12-beta+codex.20260808093008` | Integrate task-reuse permission, plain-language safe reruns, and one GitHub install-or-upgrade prompt into the canonical plugin release | None; published and installed | [PR #61](https://github.com/friedbeef1/fb-lane-coordination/pull/61) merged as `414b191`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-078.md); [QA](docs/qa/TASK-078.md) |
@@ -35,8 +35,8 @@
 
 ### TASK-081 - Complete exact-project sidebar inventory
 
-*   **Status**: Checking — `0.7.1-beta+codex.20260809105651` release candidate;
-    final checkpoint pending and release not authorized.
+*   **Status**: Ready to ship — `0.7.1-beta+codex.20260809105651`; release not
+    authorized.
 *   **Owner / Thread**: FB-Product / BFM, delegated from the MÉJA Product task.
 *   **Area**: First-run setup inventory and duplicate-safe reconciliation.
 *   **Scope**: Add the smallest complete local-host inventory route by joining
@@ -53,11 +53,15 @@
         helper/subagent exclusion; fail-closed identity and evidence checks.
     *   **Definition of Done**: Focused root/package contracts, package parity,
         syntax, links, whitespace, durable handoff/QA, and a clean local commit.
+    *   **Gate / Review Point**: One clean release-candidate checkpoint before
+        **Ready to ship**; **Push Live** remains the publication boundary.
     *   **Approval**: approved — James explicitly delegated this remaining FB
         repair to Product/BFM and prohibited publication without Push Live.
-*   **Gate / Review Point**: One final release checkpoint remains before
-    **Ready to ship**. Installation and the MÉJA reconciliation retry require a
-    later explicit **Push Live** release.
+    *   **Justification**: Busy Codex hosts need complete duplicate-safe setup
+        without forcing users to archive unrelated task history.
+*   **Gate / Review Point**: Release checkpoint evidence is complete.
+    Installation and the MÉJA reconciliation retry require explicit **Push
+    Live**.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-081.md) ·
     [QA](docs/qa/TASK-081.md).
 

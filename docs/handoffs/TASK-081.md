@@ -70,10 +70,8 @@ available; it remains the fallback on unsupported hosts.
 
 ## Current execution state
 
-Current: Checking `0.7.1-beta+codex.20260809105651` at its final release
-checkpoint.
-Next: report **Ready to ship** after the checkpoint, then wait for **Push Live**
-before publication and installation.
+Current: **Ready to ship** — `0.7.1-beta+codex.20260809105651`.
+Next: wait for **Push Live** before push, merge, publication, or installation.
 Blocked: none.
 Deferred: publication and consumer-project reconciliation until **Push Live**.
 
@@ -102,7 +100,8 @@ Deferred: publication and consumer-project reconciliation until **Push Live**.
   publish, install, or deploy anything by itself.
 - External gates: explicit **Push Live**, publication, reinstall, and a new
   MÉJA task.
-- Repository state: focused candidate in an isolated worktree; no push.
+- Repository state: clean local release candidate in an isolated worktree; no
+  push.
 - Remaining owner/action: Product release sequencing, then rerun `$fb-setup` in
   a new MÉJA Product/BFM task after the refreshed plugin is installed.
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#071-beta--2026-08-09).
@@ -116,8 +115,8 @@ helper/subagent exclusion, current native title/pin confirmation, metadata-only
 evidence, fail-closed missing/contradictory/private evidence, package parity,
 syntax, doctor, and whitespace all have focused proof.
 
-Missing criteria and next action: run the one final release checkpoint, record
-its result, and stop before **Push Live**.
+Missing criteria and next action: none inside the local candidate. External
+release remains gated by **Push Live**.
 
 ## Test This Now
 

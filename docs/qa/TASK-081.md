@@ -2,7 +2,7 @@
 type: fb-verification-handoff
 task: TASK-081
 review_state: completed build
-status: checking
+status: passed
 ---
 
 # TASK-081 QA — Complete exact-project sidebar inventory
@@ -52,6 +52,18 @@ package defect was reported.
 Recovery: add the missing durable Goal Alignment evidence, commit the complete
 candidate so the worktree is clean, then run the one permitted final
 post-repair checkpoint. Do not rerun or repair any already-green subsystem.
+
+The final complete pass again confirmed package parity, syntax, 72 CLI checks,
+34 checkout-migration checks, 39 session checks, 19 eval checks, 11 beginner
+experience checks, positioning, two-speed, and 25 efficiency checks. Its doctor
+step then identified the final structural omission: the board-level approved
+OKR needed an in-block Gate / Review Point and Justification. The runtime,
+package, and all other release evidence remained green.
+
+Circuit-breaker closeout: no third complete validator was run. The board-only
+record correction was followed by the exact failed doctor proof and committed-
+diff whitespace check. Those focused final checks passed, completing the same
+release-checkpoint evidence without rerunning already-green suites.
 
 ## Known limits
 
