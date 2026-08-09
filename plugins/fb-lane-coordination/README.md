@@ -1,13 +1,17 @@
 # FB Coordination for Codex
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
 This package is the supported Codex distribution for FB. It supplies the
 `fb-lane` coordination capability, BFM/Product/lane skills, and the reusable
 FB harness. **FB — Graph Engineering for Everyday People** is an open-source
 Codex plugin that turns scattered AI conversations into a living
 product-delivery graph. It has six evidence-producing workstreams plus one
 Product/BFM control centre and seven pinned repository-scoped Codex tasks. The
-current release candidate is **FB 0.5.12-beta**
-`0.5.12-beta+codex.20260808093008`.
+current release candidate is **FB 0.7.0-beta**
+`0.7.0-beta+codex.20260809013127`.
 
 ## Install and start
 
@@ -69,6 +73,12 @@ correction. It does not replay accumulated conversation history. Missing
 corrections or repairs without candidate/readiness improvement stop instead of
 opening another automatic loop.
 
+After FB verifies a feature, it records what caused meaningful failure or
+rework, repairs within the existing budget, and gives the next related task
+only the proven lesson it needs. Helpful lessons are confirmed; ineffective
+lessons are revised once or rejected. FB never turns continuous learning into
+an endless repair loop. See [project-local continuous learning](docs/fb/learning.md).
+
 ## Read by task
 
 - [Why FB: Codex, Capacitor, and FB](docs/why-fb.md)
@@ -80,6 +90,7 @@ opening another automatic loop.
 - [Repository-local sessions and evidence-aware closeout](docs/fb/sessions.md)
 - [Generic agent control loop](docs/fb/control-loop.md)
 - [Markdown eval selection, authority, and Quality Gaps](docs/fb/evals.md)
+- [Project-local continuous learning](docs/fb/learning.md)
 
 Keep `fb-lane`, plugin IDs, MCP names, commands, and configured technical paths
 unchanged. The pack owns operating policy; project instructions own current

@@ -34,11 +34,14 @@ lane: fb-tech
 status: ready
 approval: approved
 record_model: normalized-v1
+graph:
+  verified_by:
+    - verification:${taskId}
 ---
 
 # ${taskId}
 
-## Approved Decision
+## User Decision: CONTEXT-DECISION
 
 Use graph-first targeted reading.
 
@@ -56,7 +59,7 @@ Use graph-first targeted reading.
   return root;
 }
 
-test('plugin context refreshes the graph and returns a capped task-specific route', () => {
+test('plugin routine context returns only active-subgraph citations', () => {
   const root = fixture();
   const packet = projectContextPacket(root, {
     taskId: 'TASK-200',
@@ -65,11 +68,12 @@ test('plugin context refreshes the graph and returns a capped task-specific rout
   assert.strictEqual(packet.route, 'project-graph');
   assert.strictEqual(packet.taskId, 'TASK-200');
   assert.ok(packet.facts.length > 0);
-  assert.ok(packet.readableSources.length > 0);
-  assert.ok(packet.readableSources.length <= 3);
-  assert.ok(packet.readableSources.includes('docs/qa/TASK-200.md'));
-  assert.ok(!packet.readableSources.includes('PROJECT_BOARD.md'));
-  assert.ok(!packet.readableSources.includes('docs/handoffs/index.md'));
+  assert.deepStrictEqual(packet.readableSources, [
+    'PROJECT_BOARD.md',
+    `docs/handoffs/TASK-200.md`,
+    `docs/qa/TASK-200.md`,
+  ]);
+  assert.ok(packet.facts.every(fact => fact.citation?.source === fact.source));
   assert.ok(fs.existsSync(path.join(root, '.fb', 'graph', 'project-graph.json')));
 });
 
@@ -81,7 +85,11 @@ test('plugin context routes project-specific task prefixes used by existing repo
   });
   assert.strictEqual(packet.route, 'project-graph');
   assert.strictEqual(packet.taskId, 'MEJA-111');
-  assert.ok(packet.readableSources.includes('docs/qa/MEJA-111.md'));
+  assert.deepStrictEqual(packet.readableSources, [
+    'PROJECT_BOARD.md',
+    `docs/handoffs/MEJA-111.md`,
+    `docs/qa/MEJA-111.md`,
+  ]);
 });
 
 test('plugin context refreshes stale derived state without broad fallback', () => {
@@ -167,7 +175,11 @@ test('bundled MCP lists and serves the read-only project context tool', () => {
   assert.ok(responses[0].result.tools.some(tool => tool.name === 'fb_project_context'));
   const packet = JSON.parse(responses[1].result.content[0].text);
   assert.strictEqual(packet.route, 'project-graph');
-  assert.ok(packet.readableSources.includes('docs/qa/TASK-200.md'));
+  assert.deepStrictEqual(packet.readableSources, [
+    'PROJECT_BOARD.md',
+    `docs/handoffs/TASK-200.md`,
+    `docs/qa/TASK-200.md`,
+  ]);
 });
 
 test('package and active guidance expose graph-first routing without changing authority', () => {

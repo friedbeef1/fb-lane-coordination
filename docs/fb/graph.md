@@ -1,5 +1,16 @@
 # Graph-directed context
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Markdown records and Git history remain authoritative. The graph is a derived,
+repository-local delivery map that routes context, dependencies, sequencing,
+invalidation, and readable projections. Product/BFM owns decisions and
+priorities, while Codex executes only the approved sequence. **Push Live**
+remains the only release authority. This hybrid authority model adds no graph
+database and creates no second source of truth.
+
 Use the repository-local project graph to reduce broad orientation reads in
 long-lived work. The graph is a derived navigation layer. It never replaces or
 overrides the board, handoffs, QA evidence, Git, approvals, or release gates.
@@ -11,7 +22,8 @@ When the current task ID and question are known:
 1. Call MCP `fb_project_context` with `taskId`, `question`, and the workspace
    path when needed.
 2. If the response route is `project-graph`, inspect its compact facts and open
-   only the listed `readableSources` required for the answer.
+   only the listed `readableSources` required for the answer. The routine
+   packet is capped deterministically at eight unique authoritative sources.
 3. Cite the authoritative files actually used.
 4. If the packet is ambiguous, incomplete, contradictory, unhealthy, or returns
    `normalized-record-fallback`, read `PROJECT_BOARD.md`, then
@@ -21,6 +33,70 @@ When the current task ID and question are known:
 Do not load broad project history merely because it exists. Do not treat a
 graph label or relationship as approval, product truth, test evidence, or
 release authority.
+
+## Optional structured relationships
+
+New handoffs may declare relationships when Product has authoritative evidence:
+
+```yaml
+graph:
+  depends_on:
+    - TASK-101
+  conflicts_with:
+    - DECISION-023
+  affects:
+    - FEATURE-EXPORT
+  supersedes:
+    - REQUIREMENT-011
+```
+
+These fields are optional. Existing handoffs and historical records remain
+valid without migration. Missing or ambiguous relationships remain unknown;
+the compiler never guesses approval, verification success, or release
+authority.
+
+## Change invalidation
+
+Propagation follows only cited graph relationships and never reopens unrelated
+completed work:
+
+- A changed decision reopens only affected implementation and verification.
+- A failed verification blocks its connected implementation and release.
+- A superseded requirement retires only its unstarted implementing tasks.
+- A fixed bug requires its connected regression check.
+- A changed dependency recalculates only downstream sequencing.
+
+Every invalidation cites the changed authoritative source and explains why the
+affected node became stale. Product/BFM records the resulting decision in the
+normal board, handoff, QA, or release record.
+
+## Product/BFM delivery projection
+
+After `$bfm` freezes intake, its deterministic preflight reports **Direct BFM**
+only for one explicitly isolated item without graph signals. Multiple items,
+dependencies, conflicts, semantic decision changes, blocked or stale work,
+shared isolation, applicable lessons, or release relationships select the
+graph-driven route. Missing, stale, corrupt, or unhealthy graph state selects
+the visible authoritative-record fallback. The user never chooses the route.
+
+For graph-driven execution, Product records the consolidated Build Brief before
+scheduler execution. The runtime compiles one candidate-scoped executable graph
+from the frozen Include now ledger and its selected dependency closure, merging
+authoritative worktree, locks, sensitivity, acceptance, and verification
+metadata. It applies Product priorities, consumes only matching allowlisted
+lessons, derives invalidation from semantic previous/current state, and uses a
+greedy first-eligible isolation wave. Integration advances from planned to
+running to completed only through authoritative evidence. Candidate readiness
+requires accepted pre-release task states and passed authoritative checks and
+gates; `verified-by` alone never proves success. Status projects **Current**,
+**Next**, **Blocked**,
+**Deferred**, **Conflicts**, **Recently invalidated**, and **Ready to ship**.
+Handoffs remain queued Product inputs, not executable instructions.
+
+The persisted status envelope records its schema, route and reasons, selected
+task, source fingerprint, generation time, and graph health. Status revalidates
+that envelope before display. Any stale or malformed envelope says that the
+authoritative fallback is active and must not claim graph-driven sequencing.
 
 ## Historical retrieval
 
@@ -46,6 +122,10 @@ when sources are unchanged.
 
 Missing, stale, corrupt, unsafe, or insufficient graph output must never block
 normal FB. The authoritative normalized-record route remains the safe fallback.
+
+The graph may select matching active lessons from
+[project-local continuous learning](learning.md). It links to unchanged lesson
+evidence instead of copying the learning registry into every context packet.
 
 ## Graduation
 

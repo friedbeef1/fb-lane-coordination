@@ -5,6 +5,16 @@ description: Use when an FB project needs board-aware routing, handoffs, current
 
 # FB task coordination
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Default execution uses focused proof per slice, one consolidated behavioral
+repair maximum across the candidate, one whole-candidate review, and one final
+release checkpoint. Do not create separate review or re-review loops for
+individual slices. Safety, sensitive-operation, authority, worktree/lock,
+changelog, and **Push Live** gates remain unchanged.
+
 FB is **Graph Engineering for Everyday People**: an open-source Codex plugin
 that turns scattered AI conversations into a living product-delivery graph.
 The graph is the map connecting workstreams, decisions, evidence, dependencies,
@@ -79,7 +89,7 @@ excluded from routine context, not deleted or made inaccessible.
 - Follow [workflow.md](../../docs/fb/workflow.md) for ownership, intake, locks, worktrees, private execution routing, budgets, changelog decisions, and closeout.
 - Follow [records.md](../../docs/fb/records.md) for one-fact-one-home records, verification reuse, compact cards, archive safety, and efficiency evidence.
 - Follow [evidence.md](../../docs/fb/evidence.md) for automatic checks, Verification Handoff, and Test This Now.
-- Follow [sessions.md](../../docs/fb/sessions.md), [evals.md](../../docs/fb/evals.md), and [control-loop.md](../../docs/fb/control-loop.md) only when those capabilities apply.
+- Follow [sessions.md](../../docs/fb/sessions.md), [evals.md](../../docs/fb/evals.md), [control-loop.md](../../docs/fb/control-loop.md), and [learning.md](../../docs/fb/learning.md) only when those capabilities apply.
 
 For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must

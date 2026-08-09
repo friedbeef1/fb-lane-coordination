@@ -762,6 +762,9 @@ test('status MCP exposes details schema and shares beginner and technical render
     const listed = mcpRequest(root, { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} });
     const schema = listed.result.tools.find(tool => tool.name === 'fb_lane_status').inputSchema;
     assert.deepStrictEqual(schema.properties.details, { type: 'boolean', description: 'Show the raw technical workstream table.' });
+    for (const name of ['fb_learning_record', 'fb_learning_status', 'fb_learning_apply']) {
+      assert.ok(listed.result.tools.some(tool => tool.name === name), `MCP must expose ${name}`);
+    }
 
     const beginner = mcpRequest(root, { jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'fb_lane_status', arguments: { workspacePath: root } } });
     const beginnerText = beginner.result.content[0].text;
@@ -774,6 +777,20 @@ test('status MCP exposes details schema and shares beginner and technical render
     assert.match(detailsText, /TASK-501/);
     assert.match(detailsText, /Staging QA/);
     assert.match(detailsText, /mcp-secret\.js/);
+
+    const learningReceipt = {
+      lessonId: 'LESSON-TECH-CACHE-501', runId: 'run-501', taskId: 'TASK-501', state: 'provisional',
+      signature: { category: 'build', surface: 'cache', criterion: 'invalidation' }, workTypes: ['tech:cache'],
+      cause: 'The first candidate left stale derived cache data.', currentRepair: 'Invalidate derived cache data after mutation.',
+      treatment: { type: 'select_existing_check', value: 'cache-invalidation' },
+      evidenceRefs: ['docs/qa/TASK-501.md#cache-regression'], owningRecord: 'docs/handoffs/TASK-501.md#project-learning',
+      safetyClass: 'ordinary', applications: [], revisionCount: 0, active: true,
+    };
+    const recorded = mcpRequest(root, { jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'fb_learning_record', arguments: { workspacePath: root, receipt: learningReceipt } } });
+    assert.match(recorded.result.content[0].text, /LESSON-TECH-CACHE-501/);
+    assert.match(recorded.result.content[0].text, /"releaseAuthorized":false/);
+    const learningStatus = mcpRequest(root, { jsonrpc: '2.0', id: 5, method: 'tools/call', params: { name: 'fb_learning_status', arguments: { workspacePath: root, workTypes: ['tech:cache'] } } });
+    assert.match(learningStatus.result.content[0].text, /LESSON-TECH-CACHE-501/);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -952,6 +969,10 @@ function assertCodexBootstrap(args) {
     assert.ok(!fs.readFileSync(evalTemplatePath, 'utf8').includes(brandLine), 'generated scorecard must not repeat the current FB model line');
     assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /Non-Product Execution Gate/);
     assert.match(fs.readFileSync(evalTemplatePath, 'utf8'), /## Verification Handoff/);
+    const learningIndexPath = path.join(root, 'docs', 'learning', 'index.md');
+    assert.ok(fs.existsSync(learningIndexPath), 'expected bootstrap to create docs/learning/index.md');
+    const initialLearningIndex = fs.readFileSync(learningIndexPath, 'utf8');
+    assert.match(initialLearningIndex, /^# FB Project Learning/m);
     assert.match(fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8'), /Sidechat-to-Main Prompt Handoff/);
     const sidechatRoutingPath = path.join(root, 'docs', 'sidechat-parent-thread-routing.md');
     assert.ok(fs.existsSync(sidechatRoutingPath), 'expected bootstrap to create sidechat parent-routing guidance');
@@ -986,9 +1007,11 @@ function assertCodexBootstrap(args) {
       assert.match(source, /node tools\/fb-lane\.cjs status --context/, `${label} must use bounded active context for routine orientation`);
       assert.match(source, /fb_lane_status\(\{context:true\}\)/, `${label} must request bounded MCP context for routine orientation`);
       assert.match(source, /returning-project health[\s\S]*\$fb-lane status/i, `${label} must keep default status for returning health`);
+      assert.match(source, /focused proof per slice[\s\S]{0,220}one consolidated behavioral\s+repair[\s\S]{0,220}one whole-candidate review[\s\S]{0,220}one final\s+release checkpoint/i, `${label} must generate the lean candidate-level execution process`);
+      assert.doesNotMatch(source, /runtime(?:\/test| and test)[\s\S]{0,80}(?:exactly one|one) reviewer/i, `${label} must not generate the retired runtime per-slice reviewer rule`);
     }
     assert.doesNotMatch(board + agents, /Mode Selection Trigger Rule|normal\/simple|FB light/i, 'generated coordination guidance must not expose internal mode routing');
-    assert.match(agents, /handoffs ready for Product\s+intake[\s\S]*ready is neither approval nor execution authority[\s\S]*`\$bfm` freezes[\s\S]*disposition every candidate[\s\S]*Project Start Brief and Build Brief[\s\S]*BFM executes that approved scope/i, 'generated AGENTS must preserve Product intake, disposition, reconciliation briefs, and execution order');
+    assert.match(agents, /handoffs ready for Product\s+intake[\s\S]*ready is neither approval nor execution authority[\s\S]*`\$bfm` freezes[\s\S]*disposition every candidate[\s\S]*Project Start[\s\S]*Brief and Build Brief[\s\S]*BFM executes the approved graph sequence/i, 'generated AGENTS must preserve Product intake, disposition, reconciliation briefs, and graph execution order');
     assert.match(output, /Describe your new project normally/, 'bootstrap quick start must lead with normal project description');
     assert.match(output, /starts in whichever evidence-producing workstream matches the question/, 'bootstrap quick start must explain workstream-first intake');
     assert.match(output, /Relevant workstreams investigate and create handoffs ready for Product intake/, 'bootstrap quick start must explain relevant workstream output');
@@ -1002,6 +1025,9 @@ function assertCodexBootstrap(args) {
     assert.match(fs.readFileSync(path.join(root, '.gitignore'), 'utf8'), /^\.fb\/graph\/$/m, 'expected bootstrap to ignore derived graph artifacts');
     assert.ok(!fs.existsSync(path.join(root, '.claude')), 'expected bootstrap not to create Claude Code files');
     assert.ok(!fs.existsSync(path.join(root, 'agents')), 'expected bootstrap not to create Antigravity files');
+    fs.appendFileSync(learningIndexPath, '\nProject-owned learning entry.\n');
+    execFileSync('node', [cliPath, 'bootstrap', ...args], { cwd: root, stdio: 'ignore' });
+    assert.match(fs.readFileSync(learningIndexPath, 'utf8'), /Project-owned learning entry\./, 'bootstrap rerun must preserve project-owned learning entries');
     assert.doesNotMatch(output, /Antigravity|Claude Code|MCP/i);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
@@ -1187,7 +1213,7 @@ test('documents the completed bootstrap and v2 review-authoring contract across 
   ];
   for (const relativePath of setupSkills) {
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
-    assert.match(source, /bootstrap (?:installs|copies) the canonical ten-page (?:FB harness|\[FB harness\]\([^)]*\))\s*pack/i, `${relativePath} must describe the completed pack install`);
+    assert.match(source, /bootstrap (?:installs|copies) the canonical eleven-page (?:FB harness|\[FB harness\]\([^)]*\))\s*pack/i, `${relativePath} must describe the completed pack install`);
     assert.match(source, /thin managed route/i, `${relativePath} must describe thin managed routes`);
     assert.match(source, /preserv(?:e|es|ing) project-owned text/i, `${relativePath} must preserve project-owned text`);
     assert.match(source, /fb-harness-route-start.*fb-harness-route-end/is, `${relativePath} must name the managed replacement boundary`);

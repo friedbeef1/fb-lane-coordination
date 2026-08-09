@@ -1,5 +1,9 @@
 # FB Harness — Graph Engineering for Everyday People
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
 FB is an open-source Codex plugin that turns scattered AI conversations into a
 living repository-local product-delivery graph. The graph connects workstreams,
 decisions, evidence, dependencies, implementation, verification, and release
@@ -86,3 +90,5 @@ owner transfer, staging, or review does not request one.
 - Reducing broad orientation through source-cited targeted reading: [graph.md](graph.md)
 - Adding rules-first routing, pairwise QA, layered gates, or diagnosed
   configuration evolution: [control-loop.md](control-loop.md)
+- Turning verified project outcomes into bounded lessons for later relevant
+  work: [learning.md](learning.md)

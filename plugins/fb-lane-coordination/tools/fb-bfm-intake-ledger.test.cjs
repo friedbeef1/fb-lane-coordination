@@ -26,13 +26,13 @@ const ROLE_FILES = {
   'Product/BFM': 'fb-product.md',
 };
 
-function handoff({ task, lane, status = 'ready', disposition = '', dependsOn = '', approvalGate = '', externalBlocker = '' }) {
+function handoff({ task, lane, status = 'ready', disposition = '', dependsOn = '', approvalGate = '', externalBlocker = '', worktree = '' }) {
   return `---
 type: fb-lane-handoff
 task: ${task}
 lane: ${lane}
 status: ${status}
-${disposition ? `disposition: ${disposition}\n` : ''}${dependsOn ? `depends_on: ${dependsOn}\n` : ''}${approvalGate ? `approval_gate: ${approvalGate}\n` : ''}${externalBlocker ? `external_blocker: ${externalBlocker}\n` : ''}---
+${disposition ? `disposition: ${disposition}\n` : ''}${dependsOn ? `depends_on: ${dependsOn}\n` : ''}${approvalGate ? `approval_gate: ${approvalGate}\n` : ''}${externalBlocker ? `external_blocker: ${externalBlocker}\n` : ''}${worktree ? `worktree: ${worktree}\n` : ''}---
 # ${task}
 `;
 }
@@ -83,6 +83,7 @@ function makeFixture(candidates = [], options = {}) {
       dependsOn: candidate.dependsOn,
       approvalGate: candidate.approvalGate,
       externalBlocker: candidate.externalBlocker,
+      worktree: candidate.worktree,
     }));
   }
   return root;
@@ -440,13 +441,30 @@ test('the existing BFM claim path gates before mutation and emits the frozen led
   }
 
   const readyCandidate = {
-    task: 'TASK-2', role: 'Tech', lane: 'fb-tech', file: 'task-2.md', boardStatus: 'Ready', disposition: 'Include now',
+    task: 'TASK-2', role: 'Tech', lane: 'fb-tech', file: 'task-2.md', boardStatus: 'Ready', disposition: 'Include now', worktree: 'worktrees/task-2',
   };
   const readyRoot = makeFixture([readyCandidate]);
   try {
     initGitFixture(readyRoot);
     configureVerifiedControlPlane(readyRoot);
     git(readyRoot, ['remote', 'add', 'origin', readyRoot]);
+    const automatic = gateBfmExecutionStart(readyRoot, 'bfm', {
+      taskId: 'TASK-2',
+      writeProjection: false,
+      graphStatus: 'healthy',
+      graph: {
+        schemaVersion: 1,
+        sourceFingerprint: { hash: 'direct-fixture', sources: [] },
+        health: { valid: true, findings: [], sourceCount: 1 },
+        nodes: [{
+          id: 'task:TASK-2', type: 'task', label: 'TASK-2', activityState: 'Ready',
+          source: 'PROJECT_BOARD.md', citation: { source: 'PROJECT_BOARD.md' },
+        }],
+        edges: [],
+      },
+    });
+    assert.equal(automatic.graphRuntime.route, 'direct');
+    assert.match(automatic.rendered, /Direct BFM[\s\S]*single-isolated-bounded-item/);
     const claimed = spawnSync(
       process.execPath,
       [runtimePath, 'claim', 'TASK-2', 'bfm', '(None)', '--no-worktree'],

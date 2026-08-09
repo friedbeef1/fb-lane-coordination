@@ -27,6 +27,8 @@ summaries. The reusable FB operating rules live in [docs/fb/](docs/fb/README.md)
   [graph.md](docs/fb/graph.md)
 - Rules-first routing, pairwise QA, layered gates, and bounded configuration
   evolution: [control-loop.md](docs/fb/control-loop.md)
+- Project-local continuous learning and lesson closeout:
+  [learning.md](docs/fb/learning.md)
 
 For a known task and concrete question, call MCP `fb_project_context` before
 broad orientation. Open only its relevant cited authoritative records. The

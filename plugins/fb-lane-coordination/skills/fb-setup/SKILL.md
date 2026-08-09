@@ -5,6 +5,10 @@ description: Use when a user wants to initialize, bootstrap, reconcile, or repai
 
 # Set up FB
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
 **REQUIRED SUB-SKILL:** Use
 `fb-lane-coordination:project-coordination-setup`. Complete the canonical setup
 workflow for the current repository.
@@ -22,6 +26,11 @@ Discovery, and Bugs tasks, create only what is missing, verify pinning where
 Codex exposes it, and leave all new tasks idle. Checkout moves use the canonical
 transactional migration and keep former roots recoverable until explicit
 retirement approval.
+
+Setup adds rebuildable derived graph support without overwriting project-owned
+boards, records, handoffs, learning, or instruction text. It adds no graph
+database. Missing or unhealthy derived state falls back to authoritative
+Markdown and Git records.
 
 Report unavailable task creation, discovery, renaming, or pinning honestly and
 provide the canonical manual fallback. Do not duplicate setup policy here.

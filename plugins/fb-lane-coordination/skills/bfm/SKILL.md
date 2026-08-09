@@ -5,6 +5,16 @@ description: Use when Product/Captain must intake, sequence, execute, reconcile,
 
 # BFM
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
+Default execution uses focused proof per slice, one consolidated behavioral
+repair maximum across the candidate, one whole-candidate review, and one final
+release checkpoint. Do not create separate review or re-review loops for
+individual slices. Safety, sensitive-operation, authority, worktree/lock,
+changelog, and **Push Live** gates remain unchanged.
+
 BFM is the navigator and executor of FB's repository-local product-delivery
 graph. The graph is the map; workstream loops produce learning inside it; BFM
 reconciles, prioritizes, and executes the approved graph; **Push Live** remains
@@ -140,6 +150,25 @@ locks, approval gates, external blockers, and task-rebind state. Missing or
 contradictory inventory fails closed. Do not duplicate scanner or
 checkout-discovery logic in this skill; the runtime owns those rules.
 
+Immediately after the freeze, use the runtime's automatic route preflight and
+report its selected route plus deterministic reasons. Direct BFM is valid only
+for one bounded item with explicit lock/worktree isolation and no graph signal.
+Multiple items, dependencies, conflicts, semantic decision changes,
+blocked/stale work, shared isolation, matching lessons, or release
+relationships select graph-driven orchestration. Missing, stale, malformed, or
+unhealthy derived state selects the visible authoritative-record fallback; do
+not ask the user to choose a route.
+
+For graph-driven work, compile the executable planning graph only from the
+frozen Include now candidates and their selected dependency closure. Overlay
+the ledger's authoritative worktree, locks, sensitivity, acceptance, and
+verification metadata before scheduling. Apply only allowlisted matching lesson
+treatments, calculate invalidation from semantic previous/current graph state,
+and persist the revalidated projection envelope. Integration progresses through
+planned, running, and completed only from authoritative evidence. A
+`verified-by` edge is a requirement, never proof; candidate Ready to ship needs
+accepted pre-release states plus passed authoritative verification and gates.
+
 Product must disposition every candidate as **Include now**, **Blocked**, **Deferred**, **Duplicate**,
 **Rejected**, or **Superseded** before source execution. A ready handoff is
 ready for Product intake, not approval or execution authority. A disposition
@@ -168,6 +197,7 @@ deployment.
 - [Selected evals, authority, Quality Gaps, and revision closure](../../docs/fb/evals.md)
 - [Normalized records, verification reuse, and efficiency metrics](../../docs/fb/records.md)
 - [Graph-directed context and fallback](../../docs/fb/graph.md)
+- [Project-local continuous learning](../../docs/fb/learning.md)
 
 For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must
@@ -183,15 +213,14 @@ gate. Execute only **Include now**, unlocked work in the approved scope; close
 only after the board, source, docs, evidence, and Git state agree or exceptions
 are explicit.
 Apply private agent routing and the
-canonical progress, resource, reviewer, verification, and stop budgets. Reuse a matching
+canonical progress, resource, candidate-review, verification, and stop budgets. Reuse a matching
 linked worktree or place a new one under the primary checkout's `.worktrees`,
 and keep `Current`, `Next ready`, and `External blocks` visible.
 For closely related low-risk skill, documentation, template, or contract edits,
 produce one bounded candidate and test their distinct behavior with one focused
-structural contract. Documentation and coordination Quick work closes with zero
-reviewers after focused checks pass; runtime and test Quick work requires
-exactly one reviewer. Review only the complete candidate with one focused
-verification pass; stop immediately when it passes.
+structural contract. Individual Quick slices do not create reviewer loops.
+Review only the complete candidate once with one focused verification pass;
+stop immediately when it passes.
 Quick BFM is one bounded slice. Documentation/coordination normally targets 5
 minutes and two total iterations; runtime/test normally targets 15 minutes and
 three. Both permit one consolidated repair. Full BFM may run for hours by
@@ -220,7 +249,7 @@ a registered, present, clean worktree whose branch is merged. If cleanup finds
 a dirty, unmerged, missing, blocked, or deferred worktree, retain it, keep the
 task and locks open, and record its owner plus next action. Never force-remove
 or broadly prune worktrees.
-Review the complete canonical candidate before generating package mirrors.
+Review the complete canonical candidate once before generating package mirrors.
 Use focused proof per slice, an integration check only when slices are
 meaningfully combined, and broad validation only at a release checkpoint. If a
 slice reveals unexpected complexity, keep completed slices and resplit only the

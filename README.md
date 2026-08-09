@@ -1,11 +1,15 @@
 # FB
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
 [Overview](README.md) · [Agile Teams](docs/fb-for-agile-teams.md) · [Why FB](docs/why-fb.md) · [Full Loop](docs/fb/full-loop.md)
 
 **Graph Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.5.12-beta**
-(`0.5.12-beta+codex.20260808093008`).
+Current Codex release candidate: **FB 0.7.0-beta**
+(`0.7.0-beta+codex.20260809013127`).
 
 **FB is an open-source Codex plugin that turns scattered AI conversations into
 a living product-delivery graph.** It has six evidence-producing workstreams
@@ -219,6 +223,12 @@ codex plugin add fb-lane-coordination@fb-lane
 4. Say `$bfm` in Product/BFM. The control centre freezes the six-workstream intake, dispositions every candidate, reconciles conflicts, records one prioritized plan and Build Brief, and only then directs Codex implementation.
 5. FB runs automated checks and owns bounded repair. Review optional links only when useful.
 6. When FB reports **Ready to ship**, say **Push Live** to authorize merge and deployment.
+
+After FB verifies a feature, it records what caused meaningful failure or
+rework, repairs within the existing budget, and gives the next related task
+only the proven lesson it needs. Helpful lessons are confirmed; ineffective
+lessons are revised once or rejected. FB never turns continuous learning into
+an endless repair loop. See [project-local continuous learning](docs/fb/learning.md).
 
 Product/BFM handles routine internal closeout decisions—including faithful
 changelog wording and one release checkpoint—without asking you. You are

@@ -61,7 +61,7 @@ test('mode router gives safety and ambiguity precedence', () => {
     'change core architecture', 'redesign the core product flow',
   ]) assert.strictEqual(classifyExecutionMode({ ...bounded, scope }).mode, 'Full BFM', scope);
 });
-test('runtime Quick Records require one reviewer and legacy records keep that rule', () => {
+test('runtime Quick Records use focused evidence without a slice reviewer and legacy records keep their reviewer rule', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-efficiency-'));
   const markdown = renderQuickRecord({
     ...bounded,
@@ -81,35 +81,31 @@ test('runtime Quick Records require one reviewer and legacy records keep that ru
   fs.writeFileSync(recordPath, markdown);
   assert.strictEqual(findQuickRecord(root, 'TASK-Q-1001'), recordPath);
   assert.strictEqual(parseQuickRecord(markdown).mode, 'Quick BFM');
-  assert.strictEqual(parseQuickRecord(markdown).reviewRequired, true);
-  assert.match(markdown, /Review required: yes/);
-  assert.match(markdown, /Quick policy version: 2/);
+  assert.strictEqual(parseQuickRecord(markdown).reviewRequired, false);
+  assert.match(markdown, /Review required: no/);
+  assert.match(markdown, /Quick policy version: 3/);
   assert.match(markdown, /Slice elapsed limit minutes: 15/);
   assert.match(markdown, /Current brief: \.superpowers\/sdd\/task-1-brief\.md/);
   assert.doesNotMatch(markdown, /transcript|conversation history/i);
 
   const closed = closeQuickRecord(markdown, {
     result: 'Status copy corrected.',
-    reviewer: 'FB-Product',
-    reviewerDecision: 'approved',
     focusedEvidence: 'node tools/status.test.cjs passed',
-    metrics: { elapsedUserWait: '4m', toolCalls: 8, focusedChecks: ['status'], broadValidatorRuns: 0, repeatedChecks: 0, repairLoops: 0, reviewers: 1, approximateTokens: 'unavailable', circuitBreakerTriggered: false },
+    metrics: { elapsedUserWait: '4m', toolCalls: 8, focusedChecks: ['status'], broadValidatorRuns: 0, repeatedChecks: 0, repairLoops: 0, reviewers: 0, approximateTokens: 'unavailable', circuitBreakerTriggered: false },
   });
   assert.match(closed, /Status: complete/);
-  assert.match(closed, /Reviewer: FB-Product/);
-  assert.match(closed, /Reviewers: 1/);
+  assert.match(closed, /Reviewer: not required/);
+  assert.match(closed, /Reviewers: 0/);
   assert.strictEqual((closed.match(/^## Closeout$/gm) || []).length, 1);
-  assert.throws(() => closeQuickRecord(markdown, { reviewer: ['one', 'two'], focusedEvidence: 'pass', metrics: {} }), /one reviewer/i);
+  assert.throws(() => closeQuickRecord(markdown, { reviewer: 'slice-reviewer', focusedEvidence: 'pass', metrics: {} }), /slice|zero reviewers/i);
 
-  const legacy = markdown.replace(/^Quick policy version: 2\n/m, '')
-    .replace(/^Review required: yes\n/m, '')
-    .replace('Reviewer: pending', 'Reviewer: FB-Product')
-    .replace('Reviewer decision: pending', 'Reviewer decision: approved')
-    .replace('Focused evidence: pending', 'Focused evidence: focused runtime contract passed')
+  const legacy = closed.replace(/^Quick policy version: 3\n/m, '')
+    .replace(/^Review required: no\n/m, '')
+    .replace('Reviewer: not required', 'Reviewer: FB-Product')
+    .replace('Reviewer decision: not required', 'Reviewer decision: approved')
     .replace('Reviewers: 0', 'Reviewers: 1');
   assert.doesNotThrow(() => validateQuickRecordForSubmit(legacy));
-  const priorThirtyMinuteRecord = closed
-    .replace(/^Quick policy version: 2\n/m, '')
+  const priorThirtyMinuteRecord = legacy
     .replace(/^Execution slice: 1 of 1\n/m, '')
     .replace('Slice elapsed limit minutes: 15', 'Elapsed limit minutes: 30')
     .replace(/^Slice started at epoch ms: \d+$/m, 'Started at epoch ms: 1000000');
@@ -151,7 +147,7 @@ test('Quick policy is centralized, bounded by surface, and conservative', () => 
   for (const changedPaths of [['src/app.js'], ['tools/fb-lane.test.cjs'], ['docs/fb/workflow.md', 'app.js'], ['unknown.bin']]) {
     assert.deepStrictEqual(quickPolicyForPaths(changedPaths), {
       surface: classifyChangedSurface(changedPaths), mode: 'Quick BFM', elapsedLimitMinutes: 15,
-      maxIterations: 3, maxRepairs: 1, reviewers: 1, budgetScope: 'execution-slice',
+      maxIterations: 3, maxRepairs: 1, reviewers: 0, budgetScope: 'execution-slice',
     });
   }
   assert.deepStrictEqual(quickPolicyForPaths(['auth/config.js']), {
@@ -342,7 +338,7 @@ test('Quick Records budget one slice while Full BFM may coordinate many slices',
   assert.doesNotMatch(markdown, /^Elapsed limit minutes:/m);
 });
 
-test('Quick submit revalidates review policy from the actual candidate paths', () => {
+test('Quick submit keeps slice review separate while revalidating sensitive candidate paths', () => {
   const documentation = closeQuickRecord(renderQuickRecord({
     ...bounded,
     locks: 'docs/fb/workflow.md',
@@ -351,10 +347,7 @@ test('Quick submit revalidates review policy from the actual candidate paths', (
     verificationPlan: 'focused contract',
   }), { focusedEvidence: 'focused contract passed', metrics: {} });
 
-  assert.throws(
-    () => validateQuickRecordForSubmit(documentation, { changedPaths: ['docs/fb/workflow.md', 'app.js'] }),
-    /actual candidate.*review/i,
-  );
+  assert.doesNotThrow(() => validateQuickRecordForSubmit(documentation, { changedPaths: ['docs/fb/workflow.md', 'app.js'] }));
   assert.throws(
     () => validateQuickRecordForSubmit(documentation, { changedPaths: ['docs/fb/workflow.md', 'auth/config.js'] }),
     /sensitive.*Full BFM/i,
@@ -514,8 +507,6 @@ test('Quick submission executes the configured focused check exactly once', () =
     approvedCorrection: bounded.scope,
     verificationPlan: 'configured focused check',
   }), {
-    reviewer: 'FB-Product',
-    reviewerDecision: 'approved',
     focusedEvidence: 'focused contract passed',
     metrics: {},
   });
@@ -618,11 +609,7 @@ test('Quick submit lifecycle enforces evidence, progress, and declared run budge
     verificationPlan: 'node tools/status.test.cjs',
     startedAt: 1_000_000,
     elapsedLimitMinutes: 30,
-  })
-    .replace('Reviewer: pending', 'Reviewer: FB-Product')
-    .replace('Reviewer decision: pending', 'Reviewer decision: approved')
-    .replace('Focused evidence: pending', 'Focused evidence: Focused status contract passed')
-    .replace('Reviewers: 0', 'Reviewers: 1');
+  }).replace('Focused evidence: pending', 'Focused evidence: Focused status contract passed');
 
   assert.match(markdown, /Slice elapsed limit minutes: 15/);
   assert.doesNotThrow(() => validateQuickRecordForSubmit(markdown, { now: 1_001_000, changedPaths: ['src/status.js'] }));
@@ -635,11 +622,8 @@ test('Quick submit lifecycle enforces evidence, progress, and declared run budge
     [markdown.replace('Token limit: unavailable', 'Token limit: 100').replace('Authoritative tokens: unavailable', 'Authoritative tokens: 100'), /token/i],
     [markdown.replace('Cost limit: unavailable', 'Cost limit: 2').replace('Authoritative cost: unavailable', 'Authoritative cost: 2'), /cost/i],
     [markdown.replace('Agent iterations: 1', 'Agent iterations: 2').replace('Material progress: initial execution', 'Material progress: none'), /material progress/i],
-    [markdown.replace('Reviewers: 1', 'Reviewers: 2'), /one reviewer/i],
+    [markdown.replace('Reviewer: not required', 'Reviewer: slice-reviewer'), /slice|zero reviewers/i],
     [markdown.replace('Approval reference: USER-APPROVAL-001', 'Approval reference: pending'), /approval reference/i],
-    [markdown.replace('Reviewer decision: approved', 'Reviewer decision: pending'), /reviewer decision|approved/i],
-    [markdown.replace('Reviewer decision: approved', 'Reviewer decision: rejected'), /reviewer decision|approved/i],
-    [markdown.replace(/^Reviewer decision: approved\n/m, ''), /reviewer decision|approved/i],
     [markdown.replace('Focused evidence: Focused status contract passed', 'Focused evidence: pending'), /focused evidence/i],
   ];
   for (const [candidate, pattern] of invalid) {

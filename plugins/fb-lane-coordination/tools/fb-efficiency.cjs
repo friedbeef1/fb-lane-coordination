@@ -64,7 +64,7 @@ Approval reference: ${input.approvalReference}
 Branch: ${input.branch || 'pending'}
 Worktree: ${input.worktree || 'current'}
 Focused verification: ${input.verificationPlan}
-Quick policy version: 2
+Quick policy version: 3
 Review required: ${reviewRequired ? 'yes' : 'no'}
 Execution slice: 1 of 1
 Slice elapsed limit minutes: ${policy.elapsedLimitMinutes}
@@ -121,7 +121,7 @@ function closeQuickRecord(markdown, closeout = {}) {
   const reviewRequired = quickRecordRequiresReview(markdown);
   const reviewers = Array.isArray(closeout.reviewer) ? closeout.reviewer : [closeout.reviewer].filter(Boolean);
   if (reviewRequired && reviewers.length !== 1) throw new Error('Quick BFM runtime and test work requires exactly one reviewer.');
-  if (!reviewRequired && reviewers.some(reviewer => !/^not required$/i.test(String(reviewer)))) throw new Error('Quick BFM documentation and coordination work requires zero reviewers.');
+  if (!reviewRequired && reviewers.some(reviewer => !/^not required$/i.test(String(reviewer)))) throw new Error('Quick BFM execution slices require zero reviewers; the whole-candidate review is a separate checkpoint.');
   if (!closeout.focusedEvidence) throw new Error('Quick BFM requires focused evidence.');
   const reviewer = reviewRequired ? reviewers[0] : 'not required';
   const reviewerDecision = reviewRequired ? (closeout.reviewerDecision || 'approved') : 'not required';
@@ -156,7 +156,7 @@ function validateQuickRecordForSubmit(markdown, options = {}) {
   const reviewers = numericField(markdown, 'Reviewers');
   const reviewRequired = quickRecordRequiresReview(markdown);
   const policyVersion = field(markdown, 'Quick policy version');
-  if (policyVersion && policyVersion !== '2') throw new Error('Unsupported Quick policy version.');
+  if (policyVersion && !['2', '3'].includes(policyVersion)) throw new Error('Unsupported Quick policy version.');
   const actualSurface = Array.isArray(options.changedPaths)
     ? classifyChangedSurface(options.changedPaths)
     : null;
@@ -164,7 +164,7 @@ function validateQuickRecordForSubmit(markdown, options = {}) {
   if (actualSurface === 'sensitive') {
     throw new Error('Quick BFM cannot submit sensitive candidate changes; route them through Full BFM.');
   }
-  if (actualSurface && !['coordination', 'documentation'].includes(actualSurface) && !reviewRequired) {
+  if (policyVersion !== '3' && actualSurface && !['coordination', 'documentation'].includes(actualSurface) && !reviewRequired) {
     throw new Error('The actual candidate changes require one reviewer; Review required cannot be waived in the record.');
   }
   const iterations = numericField(markdown, 'Agent iterations');
@@ -179,16 +179,16 @@ function validateQuickRecordForSubmit(markdown, options = {}) {
   if (!approvalReference || /^(?:pending|unverified|none|n\/a)$/i.test(approvalReference)) throw new Error('Quick BFM submit requires a concrete approval reference.');
   if (reviewRequired && (!reviewer || /^pending$/i.test(reviewer) || reviewer.includes(',') || reviewers !== 1)) throw new Error('Quick BFM submit requires exactly one reviewer.');
   if (reviewRequired && !/^approved$/i.test(reviewerDecision)) throw new Error('Quick BFM submit requires Reviewer decision: approved.');
-  if (!reviewRequired && (!/^not required$/i.test(reviewer) || !/^not required$/i.test(reviewerDecision) || reviewers !== 0)) throw new Error('Quick BFM documentation and coordination submit requires review fields to be not required and zero reviewers.');
+  if (!reviewRequired && (!/^not required$/i.test(reviewer) || !/^not required$/i.test(reviewerDecision) || reviewers !== 0)) throw new Error('Quick BFM slice submit requires review fields to be not required and zero reviewers; review occurs at the whole-candidate checkpoint.');
   if (!focusedEvidence || /^pending$/i.test(focusedEvidence)) throw new Error('Quick BFM submit requires focused evidence.');
   if (!Number.isFinite(iterations) || iterations > 5) throw new Error('A sixth agent iteration is blocked.');
   if (!Number.isFinite(repairs) || repairs > 2) throw new Error('A third repair loop is blocked.');
   if (!Number.isFinite(broadRuns) || broadRuns > 1) throw new Error('A repeated broad gate is blocked.');
   if (!Number.isFinite(noProgress) || noProgress > 0) throw new Error('A no-progress cycle with no material progress is blocked.');
   if (!Number.isFinite(startedAt) || !Number.isFinite(elapsedLimit) || now - startedAt >= elapsedLimit * 60_000) throw new Error('The declared elapsed-time budget is exhausted.');
-  if (policyVersion === '2' && policy && elapsedLimit > policy.elapsedLimitMinutes) throw new Error('The Quick elapsed-time budget exceeds its surface limit; route the work through Full BFM.');
-  if (policyVersion === '2' && policy && iterations > policy.maxIterations) throw new Error('The Quick iteration budget is exhausted; route the work through Full BFM.');
-  if (policyVersion === '2' && policy && repairs > policy.maxRepairs) throw new Error('The Quick repair budget is exhausted; route the work through Full BFM.');
+  if (['2', '3'].includes(policyVersion) && policy && elapsedLimit > policy.elapsedLimitMinutes) throw new Error('The Quick elapsed-time budget exceeds its surface limit; route the work through Full BFM.');
+  if (['2', '3'].includes(policyVersion) && policy && iterations > policy.maxIterations) throw new Error('The Quick iteration budget is exhausted; route the work through Full BFM.');
+  if (['2', '3'].includes(policyVersion) && policy && repairs > policy.maxRepairs) throw new Error('The Quick repair budget is exhausted; route the work through Full BFM.');
   if ((iterations > 1 || repairs > 0 || repeatedChecks > 0) && (!progress || /^(?:none|no|pending|initial execution)$/i.test(progress))) throw new Error('Repeated Quick work requires a material progress delta.');
   const tokenLimit = numericField(markdown, 'Token limit');
   const tokens = numericField(markdown, 'Authoritative tokens');
@@ -222,7 +222,7 @@ function quickPolicyForPaths(paths = []) {
   if (surface === 'coordination' || surface === 'documentation') {
     return { surface, mode: 'Quick BFM', elapsedLimitMinutes: 5, maxIterations: 2, maxRepairs: 1, reviewers: 0, budgetScope: 'execution-slice' };
   }
-  return { surface, mode: 'Quick BFM', elapsedLimitMinutes: 15, maxIterations: 3, maxRepairs: 1, reviewers: 1, budgetScope: 'execution-slice' };
+  return { surface, mode: 'Quick BFM', elapsedLimitMinutes: 15, maxIterations: 3, maxRepairs: 1, reviewers: 0, budgetScope: 'execution-slice' };
 }
 
 function planExecutionSlices(candidates = []) {

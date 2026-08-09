@@ -8,6 +8,7 @@ const { assertSelectedEvalCloseout, validateSelectedEvalIntegration } = require(
 const { automatedVerificationDecision, selectAutomatedChecks, classifyExecutionMode } = require('./fb-efficiency.cjs');
 const { assertFullBfmChangelog } = require('./fb-changelog-closeout.cjs');
 const { assertStageEventSummaryMarkdown } = require('./fb-control-loop.cjs');
+const { assertLearningCloseoutMarkdown } = require('./fb-learning.cjs');
 
 const SESSION_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 const LANES = new Set(['product', 'tech', 'design', 'business', 'discovery', 'bugs', 'bfm', 'coordination']);
@@ -18,7 +19,7 @@ const CLOSE_OUTCOMES = new Set(['completed', 'blocked', 'deferred']);
 const STALE_AFTER_MS = 24 * 60 * 60 * 1000;
 const LOCK_WAIT_MS = 5000;
 const LOCK_POLL_MS = 20;
-const HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md'];
+const HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md', 'control-loop.md', 'learning.md'];
 
 function git(cwd, args, options = {}) {
   const result = spawnSync('git', args.map(String), {
@@ -1027,6 +1028,7 @@ function assertCompletedEvidence(cwd, record) {
     throw new Error('Completed reviewable work requires reciprocal recap and handoff links.');
   }
   assertSelectedEvalCloseout(gitRoot(cwd), combined);
+  assertLearningCloseoutMarkdown(handoff, gitRoot(cwd));
   if (/^fb_harness:\s*v3\s*$/im.test(handoff)) {
     const baseCommit = authoritativeSessionBase(record);
     const candidateCommit = git(cwd, ['rev-parse', 'HEAD']).stdout;

@@ -5,6 +5,10 @@ description: Use when user needs, user outcomes, requirements, feedback, accepta
 
 # FB User
 
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
+
 FB has six evidence-producing workstreams in canonical order: User, Business,
 Design, Tech, Discovery, and Bugs. Product/BFM is the control centre that
 reconciles their handoffs and executes approved scope; it is not a seventh

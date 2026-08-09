@@ -17,6 +17,8 @@ const {
   refreshProjectGraph,
   queryProjectGraph,
   resolveProjectContext,
+  buildActiveSubgraph,
+  projectContextPacket,
   evaluateGraduation,
 } = require(graphModule);
 
@@ -116,6 +118,160 @@ status: done
   return root;
 }
 
+function normalizedCompilerFixture() {
+  const root = fixture();
+  write(root, 'PROJECT_BOARD.md', `# Board
+
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+| TASK-100 | In Progress | FB-Product / BFM | Harness | Add graph navigation | tools/fb-project-graph.cjs | [Handoff](docs/handoffs/TASK-100.md); [QA](docs/qa/TASK-100.md) |
+| TASK-101 | Ready | FB-Tech | Compiler | Provide the prerequisite | none | [Handoff](docs/handoffs/TASK-101.md) |
+`);
+  write(root, 'docs/handoffs/TASK-100.md', `---
+type: fb-lane-handoff
+task: TASK-100
+lane: fb-product
+status: ready
+graph:
+  depends_on:
+    - TASK-101
+  conflicts_with:
+    - DECISION-100
+  affects:
+    - REQUIREMENT-100
+  supersedes:
+    - REQUIREMENT-099
+  learned_from:
+    - lesson:LESSON-100
+  included_in_release:
+    - release:1.0.0
+---
+
+# TASK-100
+
+## User Decision: DECISION-100
+
+Use the source-cited graph.
+
+## Assumption: ASSUMPTION-100
+
+The graph remains derived.
+
+## Requirement: REQUIREMENT-100
+
+Compile the complete vocabulary.
+
+## Requirement: REQUIREMENT-099
+
+The predecessor requirement.
+
+## Implementation Slice: SLICE-100
+
+Implement only the compiler foundation.
+`);
+  write(root, 'docs/handoffs/TASK-101.md', `---
+type: fb-lane-handoff
+task: TASK-101
+lane: fb-tech
+status: ready
+---
+
+# TASK-101
+`);
+  write(root, 'docs/workstreams/fb-product.md', `# Product
+
+## TASK-100
+
+[Handoff](../handoffs/TASK-100.md)
+`);
+  write(root, 'docs/qa/BUG-100.md', '# BUG-100\n\n[QA](TASK-100.md)\n');
+  write(root, 'docs/learning/index.md', `# Project Learning
+
+## LESSON-100
+
+[TASK-100](../handoffs/TASK-100.md) [QA](../qa/TASK-100.md)
+`);
+  write(root, 'CHANGELOG.md', '# 1.0.0\n\n- Includes TASK-100.\n');
+  return root;
+}
+
+function activeSubgraphFixture() {
+  const root = normalizedCompilerFixture();
+  write(root, 'PROJECT_BOARD.md', `# Board
+
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+| TASK-100 | In Progress | FB-Product / BFM | Harness | Compile only the current graph context | tools/fb-project-graph.cjs | [Handoff](docs/handoffs/TASK-100.md) |
+| TASK-101 | Ready | FB-Tech | Compiler | Provide the direct prerequisite | none | [Handoff](docs/handoffs/TASK-101.md) |
+| TASK-102 | Blocked | FB-Tech | Runtime | Wait for the current graph context | none | [Handoff](docs/handoffs/TASK-102.md) |
+| TASK-103 | Ready | FB-Tech | Unrelated | Do not include this sibling task | none | [Handoff](docs/handoffs/TASK-103.md) |
+`);
+  write(root, 'docs/handoffs/TASK-100.md', `---
+type: fb-lane-handoff
+task: TASK-100
+lane: fb-product
+status: in-progress
+graph:
+  depends_on:
+    - TASK-101
+  blocks:
+    - TASK-102
+  conflicts_with:
+    - DECISION-100
+  affects:
+    - verification:TASK-100
+  verified_by:
+    - verification:TASK-100
+  learned_from:
+    - lesson:LESSON-100
+---
+
+# TASK-100
+
+## User Decision: DECISION-100
+
+Use only the semantically linked active subgraph.
+
+## Assumption: ASSUMPTION-100
+
+The derived graph remains rebuildable.
+
+## Requirement: REQUIREMENT-100
+
+Keep routine context compact.
+`);
+  write(root, 'docs/handoffs/TASK-102.md', `---
+type: fb-lane-handoff
+task: TASK-102
+lane: fb-tech
+status: blocked
+---
+
+# TASK-102
+`);
+  write(root, 'docs/handoffs/TASK-103.md', `---
+type: fb-lane-handoff
+task: TASK-103
+lane: fb-tech
+status: ready
+---
+
+# TASK-103
+`);
+  write(root, 'docs/qa/TASK-100.md', '# TASK-100 QA\n');
+  write(root, 'docs/learning/index.md', `# Learning
+
+## LESSON-100
+
+Relevant lesson.
+
+## LESSON-OTHER
+
+Unrelated lesson.
+`);
+  return root;
+}
+
 test('builds a source-backed Level 1 graph without copying record prose', () => {
   const root = fixture();
   const graph = buildProjectGraph(root, { generatedAt: '2026-07-26T00:00:00.000Z' });
@@ -154,6 +310,151 @@ test('rejects unsafe, sensitive, and authority-bearing graph output', () => {
   assert.ok(codes.includes('inferred-authority'));
 });
 
+test('normalizes the Task 1 vocabulary and structured handoff graph with source citations', () => {
+  const root = normalizedCompilerFixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  const nodeTypes = new Set(graph.nodes.map(node => node.type));
+
+  for (const type of ['project', 'workstream', 'user-decision', 'assumption', 'requirement', 'handoff', 'task', 'implementation-slice', 'bug', 'verification', 'lesson', 'release']) {
+    assert.ok(nodeTypes.has(type), `missing ${type} node`);
+  }
+  for (const type of ['depends-on', 'conflicts-with', 'affects', 'supersedes', 'learned-from', 'included-in-release']) {
+    assert.ok(graph.edges.some(edge => edge.type === type), `missing ${type} edge`);
+  }
+  assert.ok(graph.edges.some(edge => edge.from === 'task:TASK-100'
+    && edge.to === 'task:TASK-101'
+    && edge.type === 'depends-on'
+    && edge.source === 'docs/handoffs/TASK-100.md'));
+  assert.ok(graph.nodes.every(node => node.citation?.source === node.source));
+  assert.ok(graph.edges.every(edge => edge.citation?.source === edge.source));
+  assert.deepStrictEqual(validateProjectGraph(root, graph), []);
+});
+
+test('rejects unresolved declared relationships without deriving successful verification', () => {
+  const root = normalizedCompilerFixture();
+  const handoffPath = path.join(root, 'docs/handoffs/TASK-100.md');
+  fs.writeFileSync(handoffPath, fs.readFileSync(handoffPath, 'utf8').replace('- TASK-101', '- TASK-404'));
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+
+  assert.ok(graph.health.findings.some(finding => finding.code === 'unresolved-edge-target'));
+  assert.ok(!graph.edges.some(edge => edge.to === 'task:TASK-404'));
+  assert.ok(graph.nodes.filter(node => node.type === 'verification').every(node => node.verificationState === 'unknown'));
+});
+
+test('does not infer a user decision or approval from a plain decision heading', () => {
+  const root = fixture();
+  write(root, 'docs/handoffs/TASK-100.md', `---
+type: fb-lane-handoff
+task: TASK-100
+lane: fb-product
+status: ready
+---
+
+# TASK-100
+
+## Decision
+
+A facilitator noted an unresolved option.
+`);
+
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  assert.ok(!graph.nodes.some(node => node.type === 'user-decision'));
+  assert.ok(!graph.edges.some(edge => edge.type === 'supports' && edge.source === 'docs/handoffs/TASK-100.md'));
+});
+
+test('does not infer a user decision or approval from an approved decision heading', () => {
+  const root = fixture();
+  write(root, 'docs/handoffs/TASK-100.md', `---
+type: fb-lane-handoff
+task: TASK-100
+lane: fb-product
+status: ready
+---
+
+# TASK-100
+
+## Approved Decision
+
+An editor labelled an option for later review.
+`);
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  const source = 'docs/handoffs/TASK-100.md';
+  const sourceNodeTypes = [...new Set(graph.nodes
+    .filter(node => node.source === source)
+    .map(node => node.type))].sort();
+  const sourceEdgeTypes = [...new Set(graph.edges
+    .filter(edge => edge.source === source)
+    .map(edge => edge.type))].sort();
+
+  assert.deepStrictEqual(sourceNodeTypes, ['handoff', 'workstream']);
+  assert.deepStrictEqual(sourceEdgeTypes, ['documented-by', 'owned-by']);
+});
+
+test('does not promote generic QA links and task mentions into semantic relationships', () => {
+  const root = fixture();
+  write(root, 'docs/qa/BUG-100.md', '# BUG-100\n\nTASK-100 is mentioned for investigation.\n');
+  write(root, 'docs/learning/index.md', '# Learning\n\n## LESSON-100\n\n[TASK-100](../handoffs/TASK-100.md) [QA](../qa/TASK-100.md)\n');
+  write(root, 'CHANGELOG.md', '# 1.0.0\n\nTASK-100 is mentioned as a future candidate.\n');
+
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  assert.ok(!graph.edges.some(edge => edge.type === 'verified-by'));
+  assert.ok(!graph.edges.some(edge => edge.type === 'owned-by' && edge.source.startsWith('docs/workstreams/')));
+  assert.ok(!graph.edges.some(edge => edge.type === 'affects' && edge.source === 'docs/qa/BUG-100.md'));
+  assert.ok(!graph.edges.some(edge => edge.type === 'learned-from' && edge.source === 'docs/learning/index.md'));
+  assert.ok(!graph.edges.some(edge => edge.type === 'included-in-release' && edge.source === 'CHANGELOG.md'));
+});
+
+test('source-scopes repeated heading entities instead of silently dropping one source', () => {
+  const root = normalizedCompilerFixture();
+  fs.appendFileSync(path.join(root, 'docs/handoffs/TASK-100.md'), '\n## Requirement: SHARED-REQUIREMENT\n\nFirst source.\n');
+  fs.appendFileSync(path.join(root, 'docs/handoffs/TASK-101.md'), '\n## Requirement: SHARED-REQUIREMENT\n\nSecond source.\n');
+
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  const repeated = graph.nodes.filter(node => node.label === 'Requirement: SHARED-REQUIREMENT');
+  assert.strictEqual(repeated.length, 2);
+  assert.notStrictEqual(repeated[0].id, repeated[1].id);
+  assert.notStrictEqual(repeated[0].source, repeated[1].source);
+});
+
+test('citation-less persisted graphs and nonexistent Git provenance fall back to authoritative records', () => {
+  const root = fixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  for (const item of [...graph.nodes, ...graph.edges]) delete item.citation;
+  graph.nodes.push({
+    id: 'commit:invalid',
+    type: 'commit',
+    label: 'invalid',
+    source: 'git:0000000000000000000000000000000000000000',
+    status: 'confirmed',
+  });
+  writeProjectGraph(root, graph);
+
+  const findings = validateProjectGraph(root, graph).map(finding => finding.code);
+  assert.ok(findings.includes('missing-citation'));
+  assert.ok(findings.includes('unsafe-source'));
+  assert.strictEqual(resolveProjectContext(root, 'What verifies TASK-100?').route, 'normalized-record-fallback');
+});
+
+test('citation-less persisted node independently fails validation and rebuilds through fallback', () => {
+  const root = fixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  delete graph.nodes.find(node => node.id === 'task:TASK-100').citation;
+  writeProjectGraph(root, graph);
+
+  assert.ok(validateProjectGraph(root, graph).some(finding => finding.code === 'missing-citation'));
+  assert.strictEqual(resolveProjectContext(root, 'What verifies TASK-100?').route, 'normalized-record-fallback');
+});
+
+test('citation-less persisted edge independently fails validation and rebuilds through fallback', () => {
+  const root = fixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  delete graph.edges.find(edge => edge.from === 'project:root' && edge.to === 'task:TASK-100').citation;
+  writeProjectGraph(root, graph);
+
+  assert.ok(validateProjectGraph(root, graph).some(finding => finding.code === 'missing-citation'));
+  assert.strictEqual(resolveProjectContext(root, 'What verifies TASK-100?').route, 'normalized-record-fallback');
+});
+
 test('writes deterministic graph, Markdown, HTML, and state artifacts atomically', () => {
   const root = fixture();
   const graph = buildProjectGraph(root, { generatedAt: '2026-07-26T00:00:00.000Z' });
@@ -190,7 +491,7 @@ test('bounded query returns source-cited direct and one-hop results', () => {
   assert.ok(results.every(result => result.source && Array.isArray(result.relationshipPath)));
 });
 
-test('current-task query scopes generic questions to linked task documents without unrelated noise', () => {
+test('explicit graph-linked lookup scopes generic questions to linked task documents without unrelated noise', () => {
   const root = fixture();
   write(root, 'docs/superpowers/specs/TASK-100-design.md', '# TASK-100 design\n');
   fs.appendFileSync(path.join(root, 'docs/handoffs/TASK-100.md'), '\n## Design\n\n[Detailed design](../superpowers/specs/TASK-100-design.md)\n');
@@ -199,6 +500,110 @@ test('current-task query scopes generic questions to linked task documents witho
   assert.ok(results.some(result => result.source === 'docs/superpowers/specs/TASK-100-design.md'));
   assert.ok(results.every(result => !result.id.includes('TASK-999')));
   assert.ok(results.length <= 20);
+});
+
+test('routine packets exclude generic references and completed history while explicit graph lookups retain both', () => {
+  const root = activeSubgraphFixture();
+  write(root, 'docs/board/archive/2026-08.md', `# August 2026 archive
+
+| ID | Status | Owner | Area | Scope | Locks | Links |
+|---|---|---|---|---|---|---|
+| TASK-099 | Done | FB-Product / BFM | History | Archived predecessor | None | [Handoff](../../handoffs/TASK-099.md) |
+`);
+  write(root, 'docs/handoffs/TASK-099.md', `---
+type: fb-lane-handoff
+task: TASK-099
+lane: fb-product
+status: done
+---
+
+# TASK-099
+`);
+  write(root, 'docs/superpowers/specs/TASK-100-design.md', '# TASK-100 design\n');
+  fs.appendFileSync(path.join(root, 'docs/handoffs/TASK-100.md'), `
+## Design
+
+[Detailed design](../superpowers/specs/TASK-100-design.md)
+
+## Prior work
+
+[TASK-099 predecessor](TASK-099.md)
+`);
+  const packet = projectContextPacket(root, {
+    taskId: 'TASK-100',
+    question: 'What user-visible artifacts and prior history should I review for TASK-100?',
+  });
+
+  assert.strictEqual(packet.route, 'project-graph');
+  const routineContext = JSON.stringify({
+    facts: packet.facts,
+    readableSources: packet.readableSources,
+    citations: packet.citations,
+  });
+  assert.ok(!routineContext.includes('TASK-100-design.md'));
+  assert.ok(!routineContext.includes('TASK-099'));
+  assert.ok(packet.facts.every(fact => fact.citation?.source === fact.source));
+
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  const genericLookup = queryProjectGraph(graph, 'What user-visible artifacts are proposed?', { currentTask: 'TASK-100' });
+  assert.ok(genericLookup.some(result => result.source === 'docs/superpowers/specs/TASK-100-design.md'));
+  const historyLookup = queryProjectGraph(graph, 'What decision governs TASK-099?', { currentTask: 'TASK-100' });
+  assert.ok(historyLookup.some(result => result.id === 'task:TASK-099'));
+});
+
+test('active subgraph keeps only direct semantic context and compact cited fields', () => {
+  const root = activeSubgraphFixture();
+  const graph = buildProjectGraph(root, { generatedAt: '2026-08-08T00:00:00.000Z' });
+  const context = buildActiveSubgraph(graph, {
+    taskId: 'TASK-100',
+    recentSources: ['docs/handoffs/TASK-100.md'],
+  });
+
+  assert.strictEqual(context.objective, 'Compile only the current graph context');
+  assert.deepStrictEqual(context.readyNodes.map(node => node.id), ['task:TASK-101']);
+  assert.deepStrictEqual(context.blockedNodes.map(node => node.id), ['task:TASK-102']);
+  assert.deepStrictEqual(context.directDependencies.map(node => node.id), ['task:TASK-101']);
+  assert.deepStrictEqual(context.directDependants.map(node => node.id), ['task:TASK-102']);
+  assert.deepStrictEqual(context.governingDecisions.map(node => node.label), ['User Decision: DECISION-100']);
+  assert.deepStrictEqual(context.recentDecisions.map(node => node.label), ['User Decision: DECISION-100']);
+  assert.deepStrictEqual(context.assumptions.map(node => node.label), ['Assumption: ASSUMPTION-100']);
+  assert.deepStrictEqual(context.acceptanceCriteria.map(node => node.label), ['Requirement: REQUIREMENT-100']);
+  assert.deepStrictEqual(context.affectedVerification.map(node => node.id), ['verification:TASK-100']);
+  assert.deepStrictEqual(context.applicableLessons.map(node => node.id), ['lesson:LESSON-100']);
+  assert.strictEqual(context.unresolvedConflicts.length, 1);
+  assert.ok(context.unresolvedConflicts[0].node.label.includes('DECISION-100'));
+  assert.ok(!JSON.stringify(context).includes('TASK-103'));
+  assert.ok(!JSON.stringify(context).includes('LESSON-OTHER'));
+  for (const group of Object.values(context)) {
+    if (!Array.isArray(group)) continue;
+    for (const item of group) {
+      const node = item.node || item;
+      assert.strictEqual(node.citation.source, node.source);
+    }
+  }
+});
+
+test('project context packet exposes compact active-subgraph fields without copied handoff prose', () => {
+  const root = activeSubgraphFixture();
+  const packet = projectContextPacket(root, {
+    taskId: 'TASK-100',
+    question: 'What is the active dependency state for TASK-100?',
+  });
+
+  assert.strictEqual(packet.route, 'project-graph');
+  assert.strictEqual(packet.objective, 'Compile only the current graph context');
+  assert.deepStrictEqual(packet.directDependencies.map(node => node.id), ['task:TASK-101']);
+  assert.deepStrictEqual(packet.directDependants.map(node => node.id), ['task:TASK-102']);
+  assert.deepStrictEqual(packet.applicableLessons.map(node => node.id), ['lesson:LESSON-100']);
+  assert.deepStrictEqual(packet.recentDecisions, []);
+  assert.ok(!JSON.stringify(packet).includes('Use only the semantically linked active subgraph.'));
+
+  fs.appendFileSync(path.join(root, 'docs/handoffs/TASK-100.md'), '\n## Note\n\nRefresh the current decision source.\n');
+  const changedPacket = projectContextPacket(root, {
+    taskId: 'TASK-100',
+    question: 'What is the active dependency state for TASK-100?',
+  });
+  assert.deepStrictEqual(changedPacket.recentDecisions.map(node => node.label), ['User Decision: DECISION-100']);
 });
 
 test('retrieves archived history through its exact archive and handoff citations', () => {
