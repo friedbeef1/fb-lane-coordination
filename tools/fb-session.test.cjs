@@ -1742,7 +1742,9 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
     assert.ok(fs.existsSync(record));
     assert.ok(!fs.existsSync(primaryRecord), 'default Quick Record must never be created in the primary checkout');
     assert.match(fs.readFileSync(record, 'utf8'), /mode: Quick BFM/i);
-    assert.match(fs.readFileSync(record, 'utf8'), /^Review required: yes$/mi);
+    assert.match(fs.readFileSync(record, 'utf8'), /^Review required: no$/mi);
+    assert.match(fs.readFileSync(record, 'utf8'), /^Reviewer: not required$/mi);
+    assert.match(fs.readFileSync(record, 'utf8'), /^Reviewer decision: not required$/mi);
     assert.match(fs.readFileSync(record, 'utf8'), /^Approval reference: USER-APPROVAL-001$/mi);
     fs.writeFileSync(path.join(worktree, 'src', 'quick.js'), 'module.exports = "runtime quick fixture";\n');
     assert.strictEqual(fs.readFileSync(path.join(worktree, 'PROJECT_BOARD.md'), 'utf8'), boardBefore);
@@ -1753,20 +1755,7 @@ test('claim and quick execute linked worktrees by default while --no-worktree ex
     assert.match(status.stdout, /Working mode: Quick BFM/);
 
     const ready = fs.readFileSync(record, 'utf8')
-      .replace('Reviewer: pending', 'Reviewer: FB-Product')
-      .replace('Reviewer decision: pending', 'Reviewer decision: approved')
-      .replace('Focused evidence: pending', 'Focused evidence: focused quick test passed')
-      .replace('Reviewers: 0', 'Reviewers: 1');
-    for (const invalidDecision of [
-      ready.replace('Reviewer decision: approved', 'Reviewer decision: pending'),
-      ready.replace('Reviewer decision: approved', 'Reviewer decision: rejected'),
-      ready.replace(/^Reviewer decision: approved\n/m, ''),
-    ]) {
-      fs.writeFileSync(record, invalidDecision);
-      const blockedDecision = run(worktree, ['submit', taskId]);
-      assertFailed(blockedDecision, /Reviewer decision|approved/i);
-      assert.match(fs.readFileSync(record, 'utf8'), /Status: in-progress/);
-    }
+      .replace('Focused evidence: pending', 'Focused evidence: focused quick test passed');
     const overBudget = ready.replace('Agent iterations: 1', 'Agent iterations: 6');
     fs.writeFileSync(record, overBudget);
     const blockedSubmit = run(worktree, ['submit', taskId]);

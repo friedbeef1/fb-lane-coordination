@@ -40,8 +40,12 @@ was run.
 
 ## Release checkpoint
 
-Pending the one complete repository validator, GitHub readiness, and installed
-build verification.
+The initial complete validator stopped at one stale session-test expectation:
+Quick-v3 runtime records correctly said `Review required: no`, while the old
+fixture still expected `yes`. The runtime and lean-review policy were unchanged.
+The fixture was corrected, its root and packaged session suites both passed
+39/39, and package parity remained 80/80. One final post-repair checkpoint is
+authorized; GitHub readiness and installed-build verification follow it.
 
 ## Test This Now
 
