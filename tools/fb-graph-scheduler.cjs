@@ -5,7 +5,10 @@
 // It does not refresh the graph, read source records, execute tasks, or decide
 // Product/BFM authority. Those operations remain at the integration boundary.
 
-const TERMINAL_STATES = new Set(['done', 'complete', 'completed', 'resolved', 'retired', 'superseded']);
+const TERMINAL_STATES = new Set([
+  'staging qa', 'ready to ship', 'passed', 'verified', 'done', 'complete', 'completed',
+  'resolved', 'retired', 'superseded',
+]);
 const READY_STATES = new Set(['ready', 'in progress', 'in-progress', 'active']);
 
 function state(node) {
@@ -266,26 +269,30 @@ function scheduleGraph(graph = {}, options = {}) {
   }
 
   const reserved = projection.current.map(entry => nodes.get(entry.id)).filter(Boolean);
-  for (const detail of candidates) {
+  const orderedCandidates = [...candidates].sort((left, right) =>
+    prioritizedCompare(options.priorityOrder)(left.task, right.task));
+  for (const detail of orderedCandidates) {
     const unknownCurrentLocks = reserved.filter(task => !hasLockDeclaration(task));
     if (unknownCurrentLocks.length) {
       projection.deferred.push(make(detail, unknownCurrentLocks.map(task => relation(task, 'missing-lock-isolation-gate', task.id))));
       continue;
     }
-    const collisions = [...candidates.filter(other => other.task.id !== detail.task.id).map(other => collides(detail.task, other.task)),
-      ...reserved.map(other => collides(detail.task, other))]
-      .filter(Boolean)
-      .sort();
+    const collisions = reserved
+      .map(other => ({ code: collides(detail.task, other), target: other.id }))
+      .filter(item => item.code)
+      .sort((left, right) => left.code.localeCompare(right.code) || left.target.localeCompare(right.target));
     if (collisions.length) {
-      projection.next.push(make(detail, [...new Set(collisions)].map(code => relation(null, code))));
+      projection.next.push(make(detail, [...new Map(collisions.map(item => [item.code, item])).values()]
+        .map(item => relation(null, item.code, item.target))));
     } else {
       projection.parallelReady.push(make(detail));
+      reserved.push(detail.task);
     }
   }
 
   projection.current.sort(compareId);
   projection.parallelReady.sort(prioritizedCompare(options.priorityOrder));
-  projection.next.sort(compareId);
+  projection.next.sort(prioritizedCompare(options.priorityOrder));
   projection.blocked.sort(compareId);
   projection.deferred.sort(compareId);
   projection.conflicts.sort((left, right) => left.task.id.localeCompare(right.task.id) || left.conflict.id.localeCompare(right.conflict.id));

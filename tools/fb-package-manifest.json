@@ -38,6 +38,7 @@
   "tools/fb-graph-learning.test.cjs",
   "tools/fb-graph-bfm.cjs",
   "tools/fb-graph-bfm.test.cjs",
+  "tools/fb-graph-orchestration-integration.test.cjs",
   "tools/fb-graph-orchestration-docs.test.cjs",
   "tools/fb-lifecycle-history-release.test.cjs",
   "tools/fb-setup-shortcut.test.cjs",

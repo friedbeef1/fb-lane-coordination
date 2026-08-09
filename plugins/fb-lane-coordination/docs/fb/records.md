@@ -72,7 +72,8 @@ it from a current handoff. Do not keep every historical row in every agent
 prompt merely because it could conceivably matter later.
 
 When MCP `fb_project_context` is available and the current task and question
-are known, use its capped graph-directed packet before the broad route. Open
+are known, use its graph-directed packet of at most eight unique authoritative
+sources before the broad route. Open
 only the packet's relevant cited sources. The graph is derived navigation;
 these authoritative records remain source of truth. If the packet is missing,
 stale, unhealthy, incomplete, or contradictory, fall back to the board → index

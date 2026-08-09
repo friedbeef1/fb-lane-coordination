@@ -22,7 +22,8 @@ When the current task ID and question are known:
 1. Call MCP `fb_project_context` with `taskId`, `question`, and the workspace
    path when needed.
 2. If the response route is `project-graph`, inspect its compact facts and open
-   only the listed `readableSources` required for the answer.
+   only the listed `readableSources` required for the answer. The routine
+   packet is capped deterministically at eight unique authoritative sources.
 3. Cite the authoritative files actually used.
 4. If the packet is ambiguous, incomplete, contradictory, unhealthy, or returns
    `normalized-record-fallback`, read `PROJECT_BOARD.md`, then
@@ -71,15 +72,31 @@ normal board, handoff, QA, or release record.
 
 ## Product/BFM delivery projection
 
-After `$bfm`, Product records the consolidated Build Brief before scheduler
-execution, refreshes the graph, freezes an active-subgraph snapshot, resolves
-conflicts and missing evidence, applies Product priorities, and records one
-integration pass. Status projects **Current**, **Next**, **Blocked**,
+After `$bfm` freezes intake, its deterministic preflight reports **Direct BFM**
+only for one explicitly isolated item without graph signals. Multiple items,
+dependencies, conflicts, semantic decision changes, blocked or stale work,
+shared isolation, applicable lessons, or release relationships select the
+graph-driven route. Missing, stale, corrupt, or unhealthy graph state selects
+the visible authoritative-record fallback. The user never chooses the route.
+
+For graph-driven execution, Product records the consolidated Build Brief before
+scheduler execution. The runtime compiles one candidate-scoped executable graph
+from the frozen Include now ledger and its selected dependency closure, merging
+authoritative worktree, locks, sensitivity, acceptance, and verification
+metadata. It applies Product priorities, consumes only matching allowlisted
+lessons, derives invalidation from semantic previous/current state, and uses a
+greedy first-eligible isolation wave. Integration advances from planned to
+running to completed only through authoritative evidence. Candidate readiness
+requires accepted pre-release task states and passed authoritative checks and
+gates; `verified-by` alone never proves success. Status projects **Current**,
+**Next**, **Blocked**,
 **Deferred**, **Conflicts**, **Recently invalidated**, and **Ready to ship**.
 Handoffs remain queued Product inputs, not executable instructions.
 
-If refresh fails, status must say that the authoritative fallback is active and
-must not claim graph-driven sequencing.
+The persisted status envelope records its schema, route and reasons, selected
+task, source fingerprint, generation time, and graph health. Status revalidates
+that envelope before display. Any stale or malformed envelope says that the
+authoritative fallback is active and must not claim graph-driven sequencing.
 
 ## Historical retrieval
 

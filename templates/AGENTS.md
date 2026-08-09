@@ -10,10 +10,14 @@ release checkpoint. Do not create separate review or re-review loops for
 individual slices. Safety, sensitive-operation, authority, worktree/lock,
 changelog, and **Push Live** gates remain unchanged.
 
-Read this file, then the current project state: `PROJECT_BOARD.md`,
-`docs/handoffs/index.md`, the linked handoff, and the relevant workstream card.
-The board is current truth; the index routes; handoffs hold detail; cards are
-summaries. The reusable FB operating rules live in [docs/fb/](docs/fb/README.md).
+Read this file, then use `node tools/fb-lane.cjs status --context` (or MCP
+`fb_lane_status({context:true})`) for bounded active project state and locks.
+For a known task and concrete question, call MCP `fb_project_context` and open
+only its cited sources. Open the full `PROJECT_BOARD.md`, then the handoff index,
+exact handoff, and relevant workstream card only when bounded context is
+insufficient or contradictory. The board remains current truth; the index
+routes; handoffs hold detail; cards are summaries. The reusable FB operating
+rules live in [docs/fb/](docs/fb/README.md).
 
 ## Route by task
 

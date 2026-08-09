@@ -118,7 +118,7 @@ test('reports explicit blockers and blocked activity without scheduling either t
   assert.ok(projection.blocked[1].reasons.some(reason => reason.code === 'blocked-by'));
 });
 
-test('defers sensitive work and serializes ready tasks that overlap a shared lock', () => {
+test('defers sensitive work and greedily reserves a shared lock for the first eligible task', () => {
   const projection = scheduleGraph(graph([
     node('task:TASK-501', 'Ready', { worktree: 'wt-501', locks: ['shared.js'], sensitive: true }),
     node('task:TASK-502', 'Ready', { worktree: 'wt-502', locks: ['shared.js'] }),
@@ -127,12 +127,13 @@ test('defers sensitive work and serializes ready tasks that overlap a shared loc
 
   assert.deepStrictEqual(ids(projection.deferred), ['task:TASK-501']);
   assert.ok(projection.deferred[0].reasons.some(reason => reason.code === 'sensitive-operation-gate'));
-  assert.deepStrictEqual(ids(projection.next), ['task:TASK-502', 'task:TASK-503']);
+  assert.deepStrictEqual(ids(projection.parallelReady), ['task:TASK-502']);
+  assert.deepStrictEqual(ids(projection.next), ['task:TASK-503']);
   assert.ok(projection.next.every(item => item.reasons.some(reason => reason.code === 'shared-lock')));
   assert.deepStrictEqual(ids(projection.releaseGates), ['task:TASK-501']);
 });
 
-test('permits only distinct concurrent worktree mappings and defers an unmapped task', () => {
+test('greedily keeps the first unique worktree mapping and defers an unmapped task', () => {
   const projection = scheduleGraph(graph([
     node('task:TASK-601', 'Ready', { worktree: 'wt-601', locks: ['a.js'] }),
     node('task:TASK-602', 'Ready', { worktree: 'wt-602', locks: ['b.js'] }),
@@ -140,8 +141,8 @@ test('permits only distinct concurrent worktree mappings and defers an unmapped 
     node('task:TASK-604', 'Ready', { locks: ['d.js'] }),
   ]));
 
-  assert.deepStrictEqual(ids(projection.parallelReady), ['task:TASK-602']);
-  assert.deepStrictEqual(ids(projection.next), ['task:TASK-601', 'task:TASK-603']);
+  assert.deepStrictEqual(ids(projection.parallelReady), ['task:TASK-601', 'task:TASK-602']);
+  assert.deepStrictEqual(ids(projection.next), ['task:TASK-603']);
   assert.ok(projection.next.every(item => item.reasons.some(reason => reason.code === 'worktree-overlap')));
   assert.deepStrictEqual(ids(projection.deferred), ['task:TASK-604']);
   assert.ok(projection.deferred[0].reasons.some(reason => reason.code === 'worktree-isolation-gate'));

@@ -150,6 +150,25 @@ locks, approval gates, external blockers, and task-rebind state. Missing or
 contradictory inventory fails closed. Do not duplicate scanner or
 checkout-discovery logic in this skill; the runtime owns those rules.
 
+Immediately after the freeze, use the runtime's automatic route preflight and
+report its selected route plus deterministic reasons. Direct BFM is valid only
+for one bounded item with explicit lock/worktree isolation and no graph signal.
+Multiple items, dependencies, conflicts, semantic decision changes,
+blocked/stale work, shared isolation, matching lessons, or release
+relationships select graph-driven orchestration. Missing, stale, malformed, or
+unhealthy derived state selects the visible authoritative-record fallback; do
+not ask the user to choose a route.
+
+For graph-driven work, compile the executable planning graph only from the
+frozen Include now candidates and their selected dependency closure. Overlay
+the ledger's authoritative worktree, locks, sensitivity, acceptance, and
+verification metadata before scheduling. Apply only allowlisted matching lesson
+treatments, calculate invalidation from semantic previous/current graph state,
+and persist the revalidated projection envelope. Integration progresses through
+planned, running, and completed only from authoritative evidence. A
+`verified-by` edge is a requirement, never proof; candidate Ready to ship needs
+accepted pre-release states plus passed authoritative verification and gates.
+
 Product must disposition every candidate as **Include now**, **Blocked**, **Deferred**, **Duplicate**,
 **Rejected**, or **Superseded** before source execution. A ready handoff is
 ready for Product intake, not approval or execution authority. A disposition

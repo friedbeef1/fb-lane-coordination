@@ -92,8 +92,20 @@ test('package manifest declares every graph runtime and focused contract', () =>
     'tools/fb-graph-learning.test.cjs',
     'tools/fb-graph-bfm.cjs',
     'tools/fb-graph-bfm.test.cjs',
+    'tools/fb-graph-orchestration-integration.test.cjs',
     'tools/fb-graph-orchestration-docs.test.cjs',
   ]) assert.ok(manifest.includes(relative), `${relative} must be package-managed`);
+});
+
+test('BFM guidance matches automatic candidate-scoped routing and evidence readiness', () => {
+  for (const relative of ['skills/bfm/SKILL.md', 'docs/fb/graph.md']) {
+    const source = read(relative);
+    assert.match(source, /automatic route preflight|deterministic preflight/i);
+    assert.match(source, /Direct BFM[\s\S]{0,300}(?:one|1)[\s\S]{0,180}isolat/i);
+    assert.match(source, /frozen[\s\S]{0,220}(?:candidate-scoped executable graph|Include now)[\s\S]{0,260}dependency closure/i);
+    assert.match(source, /verified-by[\s\S]{0,120}(?:never proof|never proves|requirement, never proof)/i);
+    assert.match(source, /planned[\s\S]{0,80}running[\s\S]{0,80}completed[\s\S]{0,160}authoritative evidence/i);
+  }
 });
 
 test('declared package mirrors are byte-identical after the single mechanical sync', () => {

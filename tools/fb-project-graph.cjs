@@ -7,6 +7,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const GRAPH_SCHEMA_VERSION = 1;
+const CONTEXT_SOURCE_CAP = 8;
 const NODE_TYPES = new Set([
   'project', 'workstream', 'user-decision', 'assumption', 'requirement', 'handoff', 'task',
   'implementation-slice', 'bug', 'verification', 'lesson', 'release',
@@ -22,6 +23,28 @@ const EDGE_TYPES = new Set([
 const AUTHORITY_EDGE_TYPES = new Set(['approved-by', 'authorizes', 'releases']);
 const SENSITIVE = /\b(?:authorization\s*:\s*bearer|api[_-]?key|password|secret|token)\b/i;
 const SAFE_TASK_ID = /^[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)$/;
+
+function normalizeTaskId(value) {
+  return String(value || '').trim().toUpperCase().replace(/^TASK:/, '');
+}
+
+function isSafeTaskId(value) {
+  return SAFE_TASK_ID.test(normalizeTaskId(value));
+}
+
+function sensitiveScalarCount(value) {
+  if (value === null || value === undefined) return 0;
+  if (typeof value !== 'object') return SENSITIVE.test(String(value)) ? 1 : 0;
+  if (Array.isArray(value)) return value.reduce((count, item) => count + sensitiveScalarCount(item), 0);
+  return Object.values(value).reduce((count, item) => count + sensitiveScalarCount(item), 0);
+}
+
+function redactSensitiveScalars(value) {
+  if (value === null || value === undefined) return value;
+  if (typeof value !== 'object') return SENSITIVE.test(String(value)) ? '[redacted-sensitive]' : value;
+  if (Array.isArray(value)) return value.map(redactSensitiveScalars);
+  return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, redactSensitiveScalars(item)]));
+}
 
 function relativePath(root, candidate) {
   return path.relative(root, candidate).split(path.sep).join('/');
@@ -362,7 +385,7 @@ function buildProjectGraph(root, options = {}) {
         const candidates = [value, `task:${value}`, ...[...nodes.keys()].filter(id => id.endsWith(`:${value}`) || id.includes(`:${key}--`))];
         const resolved = [...new Set(candidates)].filter(id => nodes.has(id));
         if (resolved.length !== 1) {
-          compileFindings.push({ code: 'unresolved-edge-target', message: `Declared ${type} target is unresolved or ambiguous: ${value}`, source: declaration.source });
+          compileFindings.push({ code: 'unresolved-edge-target', message: `Declared ${type} target is unresolved or ambiguous.`, source: declaration.source });
           continue;
         }
         addEdge(edges, { from: declaration.taskId, to: resolved[0], type, source: declaration.source, status: 'confirmed' });
@@ -382,11 +405,32 @@ function buildProjectGraph(root, options = {}) {
   };
   const findings = validateProjectGraph(resolvedRoot, graph);
   graph.health = { valid: findings.length === 0, findings, sourceCount: files.length };
+  graph.nodes = redactSensitiveScalars(graph.nodes);
+  graph.edges = redactSensitiveScalars(graph.edges);
+  graph.compileFindings = redactSensitiveScalars(graph.compileFindings);
   return graph;
 }
 
 function validateProjectGraph(root, graph) {
-  const findings = [...(graph.compileFindings || [])];
+  const sensitiveFinding = () => ({
+    code: 'sensitive-output',
+    message: 'Graph output contains sensitive-looking content in a persisted scalar field.',
+  });
+  const findings = [];
+  const pushFinding = finding => {
+    const key = `${finding.code || ''}\0${finding.message || ''}\0${finding.source || ''}`;
+    if (!findings.some(existing => `${existing.code || ''}\0${existing.message || ''}\0${existing.source || ''}` === key)) {
+      findings.push(finding);
+    }
+  };
+  for (const finding of graph.compileFindings || []) {
+    const sensitiveCount = sensitiveScalarCount(finding);
+    if (sensitiveCount) {
+      for (let index = 0; index < sensitiveCount; index += 1) findings.push(sensitiveFinding());
+    } else {
+      pushFinding(finding);
+    }
+  }
   const items = [...(graph.nodes || []), ...(graph.edges || [])];
   const nodeIds = new Set((graph.nodes || []).map(node => node.id));
   const knownGitSources = validGitSources(root, items.map(item => String(item.source || '')));
@@ -401,7 +445,13 @@ function validateProjectGraph(root, graph) {
     } else if (item.citation.source !== source) {
       findings.push({ code: 'invalid-citation', message: `Graph item citation does not match its source: ${source}` });
     }
-    if (SENSITIVE.test(String(item.label || ''))) findings.push({ code: 'sensitive-output', message: 'Graph output contains sensitive-looking content.' });
+    const sensitiveCount = sensitiveScalarCount(item);
+    for (let index = 0; index < sensitiveCount; index += 1) findings.push(sensitiveFinding());
+  }
+  for (const persistedFinding of graph.health?.findings || []) {
+    const sensitiveCount = sensitiveScalarCount(persistedFinding);
+    for (let index = 0; index < sensitiveCount; index += 1) findings.push(sensitiveFinding());
+    if (!sensitiveCount && persistedFinding && typeof persistedFinding === 'object') pushFinding(persistedFinding);
   }
   for (const node of graph.nodes || []) {
     if (!NODE_TYPES.has(node.type)) findings.push({ code: 'invalid-node-type', message: `Invalid node type: ${node.type}` });
@@ -454,16 +504,17 @@ function reportHtml(graph) {
 
 function writeProjectGraph(root, graph) {
   const outputDirectory = path.join(root, '.fb', 'graph');
+  const persistedGraph = redactSensitiveScalars(graph);
   const outputs = new Map([
-    ['project-graph.json', `${JSON.stringify(graph, null, 2)}\n`],
-    ['project-graph.md', reportMarkdown(graph)],
-    ['project-graph.html', reportHtml(graph)],
+    ['project-graph.json', `${JSON.stringify(persistedGraph, null, 2)}\n`],
+    ['project-graph.md', reportMarkdown(persistedGraph)],
+    ['project-graph.html', reportHtml(persistedGraph)],
     ['graph-state.json', `${JSON.stringify({
-      schemaVersion: graph.schemaVersion,
-      level: graph.level,
-      generatedAt: graph.generatedAt,
-      sourceFingerprint: graph.sourceFingerprint,
-      health: graph.health,
+      schemaVersion: persistedGraph.schemaVersion,
+      level: persistedGraph.level,
+      generatedAt: persistedGraph.generatedAt,
+      sourceFingerprint: persistedGraph.sourceFingerprint,
+      health: persistedGraph.health,
     }, null, 2)}\n`],
   ]);
   let changed = false;
@@ -748,7 +799,9 @@ function projectContextPacket(root, options = {}) {
 
   let refresh;
   try {
-    refresh = refreshProjectGraph(root);
+    refresh = options.graph
+      ? { graph: options.graph, changedSources: [], removedSources: [], reusedSources: [] }
+      : refreshProjectGraph(root);
   } catch (error) {
     const fallback = authoritativeFallback(root, taskId);
     return {
@@ -793,8 +846,11 @@ function projectContextPacket(root, options = {}) {
     // are not evidence that a governing decision changed recently.
     recentSources: refresh.reusedSources.length ? refresh.changedSources : [],
   });
-  const facts = activeSubgraphFacts(taskNode, activeSubgraph);
-  const readableSources = [...new Set(facts.map(fact => fact.source).filter(Boolean))];
+  const uncappedFacts = activeSubgraphFacts(taskNode, activeSubgraph);
+  const readableSources = [...new Set(uncappedFacts.map(fact => fact.source).filter(Boolean))]
+    .slice(0, CONTEXT_SOURCE_CAP);
+  const allowedSources = new Set(readableSources);
+  const facts = uncappedFacts.filter(fact => allowedSources.has(fact.source));
   const hasActiveEvidence = facts.some(fact => fact.id !== taskNode.id);
   if (!readableSources.length || !hasActiveEvidence) {
     const fallback = authoritativeFallback(root, taskId);
@@ -901,6 +957,10 @@ function evaluateGraduation(input = {}) {
 
 module.exports = {
   GRAPH_SCHEMA_VERSION,
+  CONTEXT_SOURCE_CAP,
+  SAFE_TASK_ID,
+  normalizeTaskId,
+  isSafeTaskId,
   buildProjectGraph,
   validateProjectGraph,
   writeProjectGraph,

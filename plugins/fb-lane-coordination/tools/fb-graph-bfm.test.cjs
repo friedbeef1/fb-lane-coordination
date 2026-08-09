@@ -71,16 +71,53 @@ function graph() {
   };
 }
 
+function frozenLedger() {
+  const states = new Map([
+    ['TASK-200', 'In Progress'],
+    ['TASK-201', 'Ready'],
+    ['TASK-202', 'Ready'],
+    ['TASK-203', 'Blocked'],
+    ['TASK-204', 'Ready'],
+  ]);
+  const candidates = [...states].map(([task, boardStatus]) => ({
+    task,
+    disposition: 'Include now',
+    relative: 'docs/handoffs/TASK-200.md',
+    boardStatus,
+    dependencies: [],
+    locks: [`${task}.js`],
+    worktree: `wt-${task.slice('TASK-'.length)}`,
+    sensitive: false,
+    acceptanceCriteria: [],
+    verificationRequirements: [],
+    verificationEvidence: null,
+    workTypes: [],
+    surface: '',
+    requiredConditions: [],
+    safetyRejections: [],
+  }));
+  return {
+    candidates,
+    activeLocks: [],
+    approvalGates: [],
+    externalBlockers: [],
+    recommendedOrder: candidates.map(item => item.task),
+    recommendedWaves: [candidates.map(item => item.task)],
+    executionAllowed: true,
+  };
+}
+
 test('requires a recorded consolidated Build Brief before refreshing or scheduling', () => {
   const root = fixture();
   let refreshed = false;
   try {
     assert.throws(() => prepareGraphDrivenBfm(root, {
       taskId: 'TASK-200',
+      ledger: frozenLedger(),
       buildBriefPath: 'docs/handoffs/missing.md',
       refreshGraph() { refreshed = true; return { graph: graph() }; },
     }), /Build Brief.*before.*scheduler/i);
-    assert.equal(refreshed, false);
+    assert.equal(refreshed, true);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -91,6 +128,7 @@ test('freezes one graph snapshot, applies Product priority, and emits one integr
   try {
     const result = prepareGraphDrivenBfm(root, {
       taskId: 'TASK-200',
+      ledger: frozenLedger(),
       buildBriefPath: 'docs/handoffs/TASK-200.md',
       productPriorities: ['TASK-202', 'TASK-201'],
       refreshGraph: () => ({ graph: graph(), changedSources: [], removedSources: [], reusedSources: [] }),
@@ -103,8 +141,11 @@ test('freezes one graph snapshot, applies Product priority, and emits one integr
     assert.equal(result.snapshot.frozen, true);
     assert.equal(result.buildBrief.source, 'docs/handoffs/TASK-200.md');
     assert.deepEqual(result.scheduler.parallelReady.map(item => item.id), ['task:TASK-202', 'task:TASK-201']);
-    assert.equal(result.integrationPass.count, 1);
-    assert.deepEqual(result.integrationPass.taskIds, ['task:TASK-202', 'task:TASK-201']);
+    assert.equal(result.integrationPass.state, 'planned');
+    assert.equal(result.integrationPass.count, 0);
+    assert.deepEqual(result.integrationPass.taskIds, [
+      'task:TASK-200', 'task:TASK-201', 'task:TASK-202', 'task:TASK-203', 'task:TASK-204',
+    ]);
     assert.equal(result.handoffs.role, 'queued-product-inputs');
     assert.equal(result.handoffs.executable, false);
     assert.deepEqual(Object.keys(result.projection), [
@@ -117,11 +158,11 @@ test('freezes one graph snapshot, applies Product priority, and emits one integr
     assert.equal(result.releaseBoundary, 'Ready to ship');
     assert.equal(result.releaseAuthorized, false);
     assert.deepEqual(result.lifecycle, [
-      'refresh-graph', 'freeze-active-subgraph', 'detect-gaps', 'apply-product-priorities',
+      'preflight-route', 'refresh-graph', 'freeze-active-subgraph', 'detect-gaps', 'apply-product-priorities',
       'schedule-bounded-slices', 'execute-ready-slices', 'update-authoritative-records',
       'refresh-graph-after-results', 'stop-at-ready-to-ship',
     ]);
-    assert.deepEqual(readGraphProjection(root), result.projection);
+    assert.deepEqual(readGraphProjection(root, { currentGraph: graph() }).projection, result.projection);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
@@ -134,14 +175,15 @@ test('detects missing verification, conflicts, and stale graph findings without 
     staleGraph.health = { valid: true, findings: ['Source fingerprint is stale.'] };
     const result = prepareGraphDrivenBfm(root, {
       taskId: 'TASK-200',
+      ledger: frozenLedger(),
       buildBriefPath: 'docs/handoffs/TASK-200.md',
       refreshGraph: () => ({ graph: staleGraph, changedSources: [], removedSources: [], reusedSources: [] }),
     });
 
-    assert.ok(result.findings.some(finding => finding.code === 'missing-verification' && finding.taskId === 'task:TASK-203'));
-    assert.ok(result.findings.some(finding => finding.code === 'missing-verification' && finding.taskId === 'task:TASK-204'));
+    assert.ok(result.findings.some(finding => finding.code === 'missing-authoritative-verification' && finding.taskId === 'task:TASK-203'));
+    assert.ok(result.findings.some(finding => finding.code === 'missing-authoritative-verification' && finding.taskId === 'task:TASK-204'));
     assert.ok(result.findings.some(finding => finding.code === 'unresolved-conflict'));
-    assert.ok(result.findings.some(finding => finding.code === 'graph-stale'));
+    assert.ok(result.findings.some(finding => finding.code === 'graph-unhealthy'));
     assert.equal(result.projection.readyToShip.ready, false);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
@@ -153,13 +195,14 @@ test('a failed refresh visibly falls back and never claims graph-driven sequenci
   try {
     const result = prepareGraphDrivenBfm(root, {
       taskId: 'TASK-200',
+      ledger: frozenLedger(),
       buildBriefPath: 'docs/handoffs/TASK-200.md',
       refreshGraph() { throw new Error('corrupt derived state'); },
     });
 
     assert.equal(result.mode, 'authoritative-fallback');
     assert.equal(result.graphDrivenSequencing, false);
-    assert.match(result.notice, /graph refresh failed.*authoritative fallback/i);
+    assert.match(result.notice, /graph preflight.*authoritative-record fallback/i);
     assert.deepEqual(result.authoritativeSources, [
       'PROJECT_BOARD.md', 'docs/handoffs/index.md', 'docs/handoffs/TASK-200.md', 'Git history',
     ]);
@@ -176,6 +219,7 @@ test('renders compact named conditions without copying handoff narrative', () =>
   try {
     const result = prepareGraphDrivenBfm(root, {
       taskId: 'TASK-200',
+      ledger: frozenLedger(),
       buildBriefPath: 'docs/handoffs/TASK-200.md',
       refreshGraph: () => ({ graph: graph(), changedSources: [], removedSources: [], reusedSources: [] }),
     });

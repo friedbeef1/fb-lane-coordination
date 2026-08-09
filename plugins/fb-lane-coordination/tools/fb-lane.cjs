@@ -28,8 +28,9 @@ const {
 } = require('./fb-control-loop.cjs');
 const { validateNormalizedRepository } = require('./fb-records.cjs');
 const { validateWorkstreamHandoffDirectory } = require('./fb-workstream-handoff.cjs');
-const { projectContextPacket } = require('./fb-project-graph.cjs');
+const { projectContextPacket, isSafeTaskId } = require('./fb-project-graph.cjs');
 const {
+  prepareBfmOrchestration,
   prepareGraphDrivenBfm,
   renderGraphProjection,
   readGraphProjection,
@@ -1568,7 +1569,8 @@ function exactTaskLines(source, task) {
 }
 
 function indexTaskId(cell) {
-  return String(cell || '').match(/^([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*-\d+)(?:\s|$)/)?.[1] || '';
+  const value = String(cell || '').trim().split(/\s+/, 1)[0];
+  return isSafeTaskId(value) ? value : '';
 }
 
 function collectBfmIntakeInventories(canonicalRoot) {
@@ -1664,6 +1666,20 @@ function bfmCandidateRoutingRecord(inventory, relative, handoffSource, errors) {
     recordedDisposition: String(metadata.disposition || '').trim(),
     locks: normalizedBoardLocks(boardTask.locks),
     boardStatus: boardTask.status,
+    worktree: String(metadata.worktree || '').trim(),
+    sensitive: /^(?:true|yes|required)$/i.test(String(metadata.sensitive || '').trim()),
+    acceptanceCriteria: commaSeparatedMetadata(metadata.acceptance_criteria),
+    verificationRequirements: commaSeparatedMetadata(metadata.verification_requirements),
+    verificationEvidence: metadata.verification_state || metadata.verification_source
+      ? {
+        state: String(metadata.verification_state || '').trim().toLowerCase(),
+        source: String(metadata.verification_source || '').trim(),
+      }
+      : null,
+    workTypes: commaSeparatedMetadata(metadata.work_types),
+    surface: String(metadata.surface || '').trim(),
+    requiredConditions: commaSeparatedMetadata(metadata.required_conditions),
+    safetyRejections: commaSeparatedMetadata(metadata.safety_rejections),
   };
 }
 
@@ -1951,9 +1967,14 @@ function gateBfmExecutionStart(rootDir, lane, options = {}) {
   if (!ledger.executionAllowed) {
     throw new Error(`BFM_EXECUTION_BLOCKED: the frozen intake does not permit execution.\n${rendered}`);
   }
-  const graphRuntime = options.graphDriven
-    ? prepareGraphDrivenBfm(rootDir, options.graphDriven)
-    : null;
+  const selectedTask = String(options.taskId || ledger.recommendedOrder[0] || '').trim();
+  const graphRuntime = prepareBfmOrchestration(rootDir, {
+    ...(options.graphDriven || {}),
+    ...options,
+    taskId: selectedTask,
+    ledger,
+    writeProjection: options.writeProjection !== false,
+  });
   return {
     ledger,
     rendered: graphRuntime ? `${rendered}\n\n${renderGraphProjection(graphRuntime)}` : rendered,
@@ -2479,7 +2500,7 @@ function parseBoard(boardPath) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     // Parse table row
-    const tableMatch = line.match(/^\|\s*([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*-\d+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|/);
+    const tableMatch = line.match(/^\|\s*([A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9][A-Za-z0-9-]*))\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|\s*((?:\\\||[^|])+)\s*\|/);
     if (tableMatch) {
       const id = tableMatch[1].trim();
       if (id !== 'ID' && !id.startsWith('---')) {
@@ -2500,7 +2521,7 @@ function parseBoard(boardPath) {
   // Parse detail blocks
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const headerMatch = line.match(/^###\s*([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*-\d+)\s*-\s*(.*)/);
+    const headerMatch = line.match(/^###\s*([A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9][A-Za-z0-9-]*))\s*-\s*(.*)/);
     if (headerMatch) {
       if (currentTask) {
         currentTask.details = parseDetailLines(detailLines);
@@ -3410,7 +3431,10 @@ function handleClaim(taskId, lane, lockedFiles = '(None)', options = {}) {
   }
 
   try {
-    const intake = gateBfmExecutionStart(path.dirname(boardPath), lane, options.bfmIntake || {});
+    const intake = gateBfmExecutionStart(path.dirname(boardPath), lane, {
+      ...(options.bfmIntake || {}),
+      taskId,
+    });
     if (intake) console.log(`${intake.rendered}\n`);
   } catch (error) {
     console.error(`❌ Error: ${error.message}`);
@@ -5293,6 +5317,7 @@ module.exports = {
   completeBoardTask,
   refreshManagedWorkstreamCards,
   prepareGraphDrivenBfm,
+  prepareBfmOrchestration,
   renderGraphProjection,
   readGraphProjection,
 };
