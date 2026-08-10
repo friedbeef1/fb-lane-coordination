@@ -37,7 +37,7 @@
 
 ### TASK-083 - Project-qualified sidebar task titles
 
-*   **Status**: Ready to ship — integrated candidate is based on current `main` and versioned as `0.8.1-beta+codex.20260810055302`; focused root/package proof, one whole-candidate review, one consolidated behavioral repair, targeted preflight, Doctor Ready, and the final release checkpoint passed. **Push Live** remains required.
+*   **Status**: Ready to ship — integrated candidate `202b050` is based on current `main` and versioned as `0.8.1-beta+codex.20260810055302`; focused root/package proof, one whole-candidate review, one consolidated behavioral repair, targeted preflight, Doctor Ready, and the final release checkpoint passed. **Push Live** remains required.
 *   **Owner / Thread**: FB-Product / BFM, delegated from MÉJA Product/BFM.
 *   **Area**: Exact-project onboarding, sidebar identity, setup skills, and generated plugin package.
 *   **Scope**: Add optional repository-visible `taskTitlePrefix` configuration; derive the seven expected titles per repository; migrate supported generic/legacy bindings through stable-ID rename actions; prove the final titles, IDs, and pins through a fresh complete relist and receipt; keep setup repair in the existing skill pair.
@@ -46,7 +46,9 @@
     *   **Objective**: Make each repository's seven FB tasks visually unambiguous without weakening exact-project identity or duplicate protection.
     *   **Key Results**: Configured prefix produces seven stable-ID renames and zero creates; strict post-mutation reconciliation becomes a seven-role no-op; default behavior remains compatible; invalid or ambiguous configuration fails closed; root/package guidance and runtime agree.
     *   **Definition of Done**: Focused RED/GREEN onboarding and setup-skill contracts, one whole-candidate review, one consolidated repair maximum, generated package parity, syntax, links, Doctor, whitespace, and durable QA all pass at the appropriate boundary.
-    *   **Gate / Review Point**: Stop at **Ready to ship**. TASK-083 is stacked on TASK-082 and cannot merge, publish, reinstall, or release without the required upstream decision and a later explicit **Push Live**.
+    *   **Gate / Review Point**: Stop at **Ready to ship**. TASK-082 is live and
+        current `main` is integrated; TASK-083 still cannot merge, publish,
+        reinstall, or release without a later explicit **Push Live**.
     *   **Approval**: approved — James approved the coordination-retro skill-hardening design and implementation on 2026-08-10.
     *   **Justification**: Generic `FB · …` titles caused two exact-project suites to look interchangeable even though the duplicate-safe runtime was healthy; visible project qualification is a deterministic, reusable setup responsibility.
 *   **Locks**: None — the review candidate is frozen. TASK-082's frozen branch and release records remain untouched.

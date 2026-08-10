@@ -6,14 +6,18 @@ status: passed
 
 # TASK-083 QA
 
-Status: Passed — source candidate `883d786` is Ready to ship; no release action is authorized.
+Status: Passed — integrated versioned candidate `202b050` is Ready to ship; no
+release action is authorized.
 
 ## Candidate
 
 - Branch: `codex/task-083-sidebar-identity-hardening`
 - Worktree: `/private/tmp/fb-task-083`
-- Base: `79475ccb7fcc526906da017b8a24b33d4e892a16`
+- Original implementation base: `79475ccb7fcc526906da017b8a24b33d4e892a16`
+- Current release base: `902c04275fbbd77b682be347285ef10f1c2feebf`
 - Release-checkpoint source candidate: `883d7869cbb01cd1f93798ad71e830d6bcca2a40`
+- Current-main integration commit: `bc8b4d340bcf9f226b9487f334e517c42547c1be`
+- Versioned integrated candidate: `202b050`
 - Integrated candidate build: `0.8.1-beta+codex.20260810055302`
 - Environment: local canonical-source worktree; no installed cache or consumer source mutation.
 
@@ -81,6 +85,22 @@ Release checkpoint: planned once and passed once for source candidate `883d7869c
 - Committed-diff whitespace: passed.
 
 This closeout changes board, handoff, index, and QA records only. It does not change source or package bytes, so the complete validator is not rerun; the final record commit receives targeted preflight, Doctor, parity, syntax, local-link, and whitespace proof instead.
+
+## Current-main integration and release identity
+
+- Current `main` `902c042` was merged once into the already-reviewed TASK-083
+  branch. The only conflicts were current TASK-082 board/index state; resolution
+  preserved TASK-083 Ready-to-ship routing and TASK-082's published state.
+- Root and packaged onboarding remained 37/37; native setup and shortcut
+  contracts passed in both contexts; package synchronization remained 86/86.
+- TASK-083 candidate preflight and Doctor both passed on clean integrated commit
+  `bc8b4d3`.
+- A focused RED version contract rejected reuse of the already-live 0.8.0 build.
+  The candidate was then versioned as
+  `0.8.1-beta+codex.20260810055302`; root/package metadata and lifecycle
+  contracts, manifest parsing, package parity, and whitespace passed.
+- The lifecycle contract's only repair made its Markdown phrase assertion
+  whitespace-tolerant; the failed proof alone was rerun and passed.
 
 ## Known limits
 

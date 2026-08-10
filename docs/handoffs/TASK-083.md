@@ -44,7 +44,8 @@ Strengthen the existing setup skill pair and onboarding runtime. Do not create a
 - The canonical project ID, repository root, stable task ID, native title/pin detail, and complete inventory remain authoritative.
 - The default prefix remains `FB` when the configuration file or key is absent.
 - Invalid configured values fail closed instead of silently falling back.
-- TASK-083 is stacked on TASK-082 commit `79475ccb7fcc526906da017b8a24b33d4e892a16`; its later merge/release decision must be reconciled before TASK-083 delivery.
+- TASK-082 is released. TASK-083 is reconciled onto current `main` at
+  `902c04275fbbd77b682be347285ef10f1c2feebf` before delivery.
 
 ## Scope
 
@@ -52,7 +53,7 @@ Canonical onboarding runtime and focused tests, existing setup skills, setup doc
 
 ## Dependencies
 
-- TASK-082 frozen candidate and later upstream decision.
+- Released TASK-082 / FB 0.8.0 base at `902c042`.
 - Existing exact-root local inventory and native task controls.
 - Existing package manifest and synchronizer.
 - Explicit **Push Live** for merge, publication, marketplace refresh, or reinstall.
@@ -89,11 +90,11 @@ Changelog expectation: required — repository-qualified task titles change visi
 
 - **Approved brief and decisions:** Implement generic repository-visible `taskTitlePrefix` support in the canonical FB source, strengthen the existing setup skill pair, preserve exact-project authority and stable IDs, generate package mirrors mechanically, and stop at **Ready to ship**.
 - **Confirmed assumptions and approved scope changes:** `FB` remains the missing-key default; invalid configuration and configured-prefix drift fail closed; receipt-bound IDs cannot be replaced or adopted by title; `docs/setup.md` remains root-only because it is not manifest-managed; no new sidebar skill, archive planner action, consumer mutation, or sensitive operation was added.
-- **Branch, source commits, and changed surfaces:** Branch `codex/task-083-sidebar-identity-hardening`, source range `79475ccb7fcc526906da017b8a24b33d4e892a16..HEAD`; onboarding runtime/tests, existing setup skills, setup documentation, changelog, TASK-083 records, and five generated package mirrors.
-- **Checks, failures, recovery, and results:** Root and package onboarding passed 37/37 each; root and package native-setup and shortcut contracts passed; 86 mirrors are byte-identical; root/package runtime syntax, four skill validations, local links, normalized-record, changelog, preflight, and whitespace checks passed. The one whole-candidate review found two Important identity/wording issues and one changelog gap; one consolidated behavioral repair closed them. Candidate `883d786` then passed the targeted preflight, Doctor Ready, and the final full validator: 72 core, 34 checkout-migration, 39 session, 19 eval, 11 beginner, and 25 efficiency checks plus product-positioning and two-speed contracts.
+- **Branch, source commits, and changed surfaces:** Branch `codex/task-083-sidebar-identity-hardening`; reviewed runtime candidate `883d786`, current-main integration `bc8b4d3`, and versioned candidate `202b050` over release base `902c042`; onboarding runtime/tests, existing setup skills, setup documentation, changelog/version metadata, TASK-083 records, and generated package mirrors.
+- **Checks, failures, recovery, and results:** Root and package onboarding passed 37/37 each before and after current-main integration; root and package native-setup and shortcut contracts passed; 86 mirrors are byte-identical; root/package runtime syntax, four skill validations, local links, normalized-record, changelog, preflight, metadata, lifecycle/version, and whitespace checks passed. The one whole-candidate review found two Important identity/wording issues and one changelog gap; one consolidated behavioral repair closed them. Runtime candidate `883d786` passed the final full validator: 72 core, 34 checkout-migration, 39 session, 19 eval, 11 beginner, and 25 efficiency checks plus product-positioning and two-speed contracts. Current-main integration then passed only the affected onboarding, package, targeted-preflight, Doctor, metadata/version, syntax, and whitespace proofs; no unchanged broad suite was repeated.
 - **Review state, direct links, limits, and external gates:** Ready to ship; see [QA evidence](../qa/TASK-083.md) and the [0.8.1-beta changelog entry](../../CHANGELOG.md#081-beta--2026-08-10). Consumer acceptance is bounded local evidence, not installed-package proof. No merge, publication, marketplace refresh, reinstall, task mutation, or deployment is authorized before **Push Live**.
-- **Repository state:** Source candidate `883d786` is committed in the isolated TASK-083 worktree; the final coordination closeout changes records only and does not change source or package bytes. TASK-082's frozen branch remains untouched.
-- **Remaining owner and action:** Product/BFM holds the candidate at **Ready to ship**. Only a later explicit **Push Live** may authorize merge, publication, marketplace refresh, reinstall, or consumer reconciliation.
+- **Repository state:** Versioned integrated candidate `202b050` is committed in the isolated TASK-083 worktree over current `main` `902c042`; the final coordination closeout changes records only and does not change runtime or package bytes.
+- **Remaining owner and action:** Product/BFM pushes the review candidate and observes GitHub readiness once. Only a later explicit **Push Live** may authorize merge, publication, marketplace refresh, reinstall, or consumer reconciliation.
 - **Changelog:** updated — [0.8.1-beta project-qualified sidebar task titles](../../CHANGELOG.md#081-beta--2026-08-10).
 
 ## Brief Validation
