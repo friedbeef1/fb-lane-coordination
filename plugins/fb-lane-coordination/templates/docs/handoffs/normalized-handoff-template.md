@@ -47,7 +47,9 @@ Other lanes: no impact detected — <concrete reason, or list the escalation>
 
 ## Supersession
 
-Supersedes: None
+<!-- Delete this section when no earlier decision is replaced.
+Supersedes: [previous decision](<path-or-url>)
+-->
 
 ## Links
 

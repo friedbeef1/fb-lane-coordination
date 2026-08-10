@@ -56,6 +56,11 @@ Canonical release tooling and tests, FB operating guidance, Product/BFM skills, 
 - Canonical package manifest and synchronizer.
 - Existing normalized records, changelog closeout, Doctor, and release validator contracts.
 - Explicit **Push Live** for any later merge, marketplace publication, or reinstall.
+- Approved follow-up `MEJA-123` remains queued after TASK-082: strengthen the
+  existing setup skill pair and onboarding runtime so stable task IDs receive a
+  verified project display prefix and the post-mutation receipt proves all seven
+  final titles. It is outside this already-reviewed candidate and receives the
+  overlapping package/runtime lock only after TASK-082 releases it.
 
 ## Acceptance Criteria
 
@@ -68,15 +73,14 @@ Canonical release tooling and tests, FB operating guidance, Product/BFM skills, 
 
 ## Project Learning
 
-Learning: pending — closeout will classify each retro finding as a skill, existing-skill update, mechanical guardrail, or no action.
+Learning: confirmed — repeated release failures should be prevented at the
+cheapest authoritative boundary: one narrow release skill for the distinct
+**Push Live** transaction, existing-skill guidance for owned behavior, and
+mechanical checks for deterministic record and dependency facts.
 
 ## Other lanes
 
 Other lanes: no impact detected — this task changes the reusable FB coordination harness and does not change any consumer product behavior.
-
-## Supersession
-
-Supersedes: None
 
 ## Links
 
@@ -93,19 +97,23 @@ Changelog expectation: required — this adds a user-visible release skill and c
 - **Approved brief and decisions:** Implement TASK-082 as approved: exactly one new `fb-release` skill, an early complete-record release preflight, manifest-derived fallback dependency coverage, environment-specific proof, and FB `0.8.0-beta` preparation without live release.
 - **Confirmed assumptions and approved scope changes:** Consumer projects remain evidence only; historical records are preserved; the selected current release handoff must declare `record_model: normalized-v1`; no scope expansion or sensitive operation was introduced.
 - **Branch, source commits, and changed surfaces:** Branch `codex/task-082-retro-release-hardening`, source range `74a017b..HEAD`; release runtime and contracts, canonical operating guidance, BFM/Product/release skills, current TASK-080/TASK-081 state, version metadata, changelog, retro, and generated plugin package.
-- **Checks, failures, recovery, and results:** Focused preflight/skill contracts passed 13/13; normalized records passed 16/16; eval/archive fallback passed 19/19 after adding the omitted release runtime to the manual bootstrap dependency set; package-sync unit contracts passed 10/10; metadata, lifecycle/version, syntax, skill validation, and whitespace passed. Three read-only fresh-agent probes correctly stopped incomplete evidence, selected the local-marketplace path, and rejected installed-build/public-copy mismatches. The whole-candidate review and final release checkpoint remain scheduled once.
+- **Checks, failures, recovery, and results:** Focused preflight contracts passed 14/14 and the release-skill contract passed; normalized records passed 16/16; eval/archive fallback passed 19/19 after adding the omitted release runtime to the manual bootstrap dependency set; package-sync unit contracts passed 10/10; metadata, lifecycle/version, syntax, skill validation, and whitespace passed. Three read-only fresh-agent probes correctly stopped incomplete evidence, selected the local-marketplace path, and rejected installed-build/public-copy mismatches. The one whole-candidate review found three Important record/integration issues and no Critical issue; one consolidated repair closed all three. The final release checkpoint remains scheduled once.
 - **Review state, direct links, limits, and external gates:** Candidate checking; see [QA evidence](../qa/TASK-082.md), [retrospective](../retros/2026-08-10-fb-coordination-retro.md), and [0.8.0-beta changelog](../../CHANGELOG.md#080-beta--2026-08-10). No merge, publication, marketplace refresh, reinstall, or deployment is authorized before **Push Live**.
 - **Repository state:** The candidate is confined to the TASK-082 branch and must be clean and committed before the targeted preflight and final broad checkpoint. Canonical `main` remains at the approved base until a later release decision.
-- **Remaining owner and action:** Product/BFM freezes the exact candidate, performs one whole-candidate review, applies at most one consolidated behavioral repair, runs the targeted preflight and one final release checkpoint, pushes a review PR, and stops at **Ready to ship**.
+- **Remaining owner and action:** Product/BFM regenerates the repaired package mirrors, freezes the exact candidate, runs the targeted preflight and one final release checkpoint, pushes a review PR, and stops at **Ready to ship**.
 - **Changelog:** updated — [0.8.0-beta](../../CHANGELOG.md#080-beta--2026-08-10).
 
 ## Brief Validation
 
-Status: checking — the approved scope is implemented and focused evidence is green; the single whole-candidate review and final release checkpoint remain before final pass.
+Status: checking — the approved scope is implemented, focused evidence is green,
+and the single whole-candidate review plus consolidated repair are complete; the
+final clean-candidate preflight and release checkpoint remain before final pass.
 
 Satisfied criteria and evidence: The focused contracts prove selected-record completeness, historical compatibility, source-type-aware release behavior, installed-runtime proof boundaries, archive dependency closure, version consistency, and the intended one-skill boundary.
 
-Missing criteria and next actions: Complete the one integrated review, package generation/parity, targeted clean-candidate preflight, Doctor, final validator, and GitHub readiness. No approved scope change is pending.
+Missing criteria and next actions: Regenerate repaired package mirrors, run
+targeted clean-candidate preflight, Doctor, the final validator, and GitHub
+readiness. No approved scope change is pending.
 
 ## Verification Handoff
 

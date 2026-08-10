@@ -77,8 +77,9 @@ release-checkpoint evidence without rerunning already-green suites.
   returned only the existing Product/BFM task.
 - Bundled MCP: `.mcp.json` resolves `node ./tools/fb-lane.cjs mcp`, and the
   packaged server file exists.
-- Reload boundary: a new Codex task is required before `$fb-setup` uses the
-  refreshed skill bundle.
+- Reload boundary at release time: a new Codex task was required before
+  `$fb-setup` could use the refreshed skill bundle; later FB work confirms that
+  boundary was crossed.
 
 An extra non-gating attempt to run the source/package structural test directly
 inside the installed cache found that the test expects the root-only
@@ -91,7 +92,7 @@ installed runtime authority.
 - This adapter is local-host and read-only. It does not create, rename, pin, or
   archive Codex tasks.
 - Publication and installation completed after **Push Live**. Consumer-project
-  reconciliation remains a separate setup action after a fresh-task reload.
+  reconciliation was outside TASK-081 and is not claimed by this release record.
 - The smoke proved safe complete inventory construction, not the creation of
   the six missing MÉJA tasks. That mutation belongs to the post-install setup
   rerun in the MÉJA Product/BFM task.

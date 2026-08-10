@@ -28,7 +28,8 @@ Status: Checking — focused canonical evidence is green; integrated review and 
 
 | Proof | Result | What it establishes |
 |---|---:|---|
-| Release preflight plus release-skill contracts | Passed 13/13 | Missing handoff/board evidence, omitted marker, dirty or mismatched Git, unresolved links, candidate/live contradictions, and complete candidate/live records behave as specified. |
+| Release preflight contracts | Passed 14/14 | Missing handoff/board evidence, omitted marker, dirty or mismatched Git, unresolved links, candidate/live contradictions, bold receipt fields, complete normalized-record checks, and complete candidate/live records behave as specified. |
+| Release-skill contract | Passed | The skill is model-invoked only by **Push Live** in Product/BFM and preserves exact candidate, marketplace-source, installed-runtime, durable-closeout, and new-task boundaries. |
 | Normalized record contracts | Passed 16/16 | New normalized records retain the early Goal Alignment contract while historical records remain compatible. |
 | Eval and fallback archive contract | Passed 19/19 | The fallback fixture is derived from the canonical package manifest and the documented bootstrap acquires every declared runtime and canonical asset. |
 | Package synchronizer unit contracts | Passed 10/10 | Manifest paths, writes, executable modes, undeclared extras, and traversal protection remain deterministic. |
@@ -50,7 +51,19 @@ Three fresh read-only agents applied `fb-release` to adversarial scenarios. They
 
 ## Whole-candidate review
 
-Planned once after canonical review and mechanical package generation. Any material finding receives at most one consolidated behavioral repair; already-green slices will not be reopened without integration evidence.
+Completed once against `74a017b..01510ef`. The reviewer reported no Critical
+or security/privacy finding and three Important integration issues:
+
+1. the receipt parser did not parse the repository's own `**Label:**` form;
+2. the selected release preflight did not yet reuse the complete normalized
+   record contract, allowing a later Doctor failure;
+3. TASK-080/TASK-081 current-state sections retained obsolete new-task actions.
+
+One consolidated repair now accepts both bold-label forms, applies normalized
+validation to the selected task even when its marker is omitted, removes the
+invalid no-supersession line and fixes the normalized template, and reconciles
+the stale current actions without rewriting historical candidate evidence.
+Only the affected preflight/records proofs were rerun; both are green.
 
 ## Release checkpoint
 

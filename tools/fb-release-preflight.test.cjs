@@ -202,6 +202,28 @@ test('selected release requires record_model while continuing every other invari
   assert.ok(accumulated.includes('board-goal-gate'), accumulated.join(', '));
 });
 
+test('selected release applies the complete normalized contract even without the marker', () => {
+  const current = fixture({ recordModel: false });
+  editAndCommit(current, `docs/handoffs/${current.taskId}.md`, markdown => `${markdown}\nSupersedes: TASK-899\n`);
+  const result = validate(current);
+  assert.ok(codes(result).includes('handoff-record-model'), codes(result).join(', '));
+  assert.ok(codes(result).includes('supersedes-link'), codes(result).join(', '));
+});
+
+test('accepts canonical bold receipt labels with the colon inside the emphasis', () => {
+  const current = fixture();
+  editAndCommit(current, `docs/handoffs/${current.taskId}.md`, markdown => markdown
+    .replace('Approved brief and decisions:', '- **Approved brief and decisions:**')
+    .replace('Confirmed assumptions and approved scope changes:', '- **Confirmed assumptions and approved scope changes:**')
+    .replace('Branch, source commits, and changed surfaces:', '- **Branch, source commits, and changed surfaces:**')
+    .replace('Checks, failures, recovery, and results:', '- **Checks, failures, recovery, and results:**')
+    .replace('Review state, direct links, limits, and external gates:', '- **Review state, direct links, limits, and external gates:**')
+    .replace('Repository state:', '- **Repository state:**')
+    .replace('Remaining owner and action:', '- **Remaining owner and action:**')
+    .replace('Changelog:', '- **Changelog:**'));
+  assert.deepEqual(validate(current).findings, []);
+});
+
 test('reports dirty and mismatched candidate state together', () => {
   const current = fixture();
   fs.appendFileSync(path.join(current.root, 'README.md'), '\ndirty\n');

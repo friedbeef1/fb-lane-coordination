@@ -44,7 +44,7 @@ function section(markdown, heading) {
 
 function field(markdown, label) {
   const escaped = label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`^\\s*(?:[-*]\\s*)?(?:\\*\\*)?${escaped}(?:\\*\\*)?\\s*:\\s*(.+)$`, 'mi')
+  return new RegExp(`^\\s*(?:[-*]\\s*)?(?:\\*\\*)?${escaped}(?:\\*\\*\\s*:|:\\s*\\*\\*|:)\\s*(.+)$`, 'mi')
     .exec(String(markdown || ''))?.[1]?.trim() || '';
 }
 
@@ -239,6 +239,17 @@ function validateReleasePreflight(input = {}) {
   }
   if (boardDetail && !/(?:\*\*Approval\*\*|Approval):\s*approved\b/i.test(boardDetail)) {
     add('board-goal-approval-state', boardFile, `${taskId} board Goal Alignment approval must be approved.`);
+  }
+
+  const selectedNormalizedFindings = validateNormalizedRepository(root, { selectedTaskId: taskId })
+    .filter(finding => finding.file === handoffRelative
+      || (finding.file === 'PROJECT_BOARD.md' && finding.message.includes(taskId)));
+  for (const finding of selectedNormalizedFindings) {
+    if (!findings.some(current => current.code === finding.code
+      && current.file === finding.file
+      && current.message === finding.message)) {
+      add(finding.code, finding.file, finding.message);
+    }
   }
 
   const receiptLinks = links(taskReceipt);

@@ -104,8 +104,8 @@ Deferred: none inside TASK-081's released FB scope.
   reinstall completed. Only the new-task plugin reload remains.
 - Repository state: PR #64 merged to `main` as `3ef65a9`; the configured local
   marketplace checkout matches that commit.
-- Remaining owner/action: open a new MÉJA Product/BFM task and invoke
-  `$fb-setup`; the installed adapter can now reconcile the six missing roles.
+- Remaining owner/action: none for TASK-081. The release-time reload boundary
+  was completed before later FB work; future consumer setup is a separate task.
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#071-beta--2026-08-09).
 
 ## Brief Validation
