@@ -1,14 +1,14 @@
 ---
 type: fb-verification-handoff
 task: TASK-083
-status: checking
+status: passed
 ---
 
 # TASK-083 QA
 
-Status: Checking — completion-audit duplicate guard `79a813f` passed focused
-root/package proof; the current-candidate release checkpoint is pending and no
-release action is authorized.
+Status: Passed — completion-audit duplicate guard `79a813f` and current-candidate
+checkpoint `d137fce` pass; the candidate is Ready to ship and no release action
+is authorized.
 
 ## Candidate
 
@@ -20,6 +20,7 @@ release action is authorized.
 - Current-main integration commit: `bc8b4d340bcf9f226b9487f334e517c42547c1be`
 - Versioned integrated candidate: `202b050`
 - Completion-audit duplicate guard: `79a813f`
+- Current-candidate checkpoint input: `d137fce`
 - Integrated candidate build: `0.8.1-beta+codex.20260810055302`
 - Environment: local canonical-source worktree; no installed cache or consumer source mutation.
 
@@ -74,7 +75,7 @@ release action is authorized.
 
 ## Release checkpoint
 
-Release checkpoint: current-candidate checkpoint planned. The prior checkpoint passed for source candidate `883d7869cbb01cd1f93798ad71e830d6bcca2a40` after the targeted TASK-083 candidate preflight and Doctor Ready proof, but it does not cover the later runtime repair `79a813f`.
+Release checkpoint: passed once for repaired current-candidate input `d137fce793a6e4ed39aa74957902452b73fdb42e` after the targeted TASK-083 candidate preflight and Doctor Ready proof. The earlier checkpoint for `883d7869cbb01cd1f93798ad71e830d6bcca2a40` remains historical evidence only.
 
 - Command: `node tools/fb-lane.validate.cjs`.
 - Declared package mirrors: 86/86 byte-identical.
@@ -88,11 +89,8 @@ Release checkpoint: current-candidate checkpoint planned. The prior checkpoint p
 - Doctor: Ready on a clean TASK-083 branch.
 - Committed-diff whitespace: passed.
 
-That prior result supported the earlier source candidate. It is preserved as
-historical evidence, but it is not claimed as the current checkpoint because
-`79a813f` changes runtime and package bytes. The repaired candidate therefore
-receives one new targeted preflight and complete validator run before returning
-to Ready to ship.
+The complete current-candidate run ended with `FB-Lane readiness validation
+passed.` No broad rerun is required for the coordination-only closeout commit.
 
 ## Current-main integration and release identity
 
@@ -128,8 +126,8 @@ to Ready to ship.
   IDs, and emits zero actions.
 - Root and package onboarding pass 38/38; native setup and shortcut contracts,
   86-mirror package parity, runtime syntax, changelog/metadata/lifecycle
-  contracts, and whitespace pass. The final current-candidate release
-  checkpoint remains pending.
+  contracts, and whitespace pass. Targeted preflight, Doctor, and the complete
+  current-candidate release checkpoint also pass.
 
 ## Known limits
 
