@@ -69,6 +69,27 @@ approved Build Brief. They may also provide repository-relative manifest paths:
 Omitting this block preserves the normal six-evidence-workstream workflow. FB selects
 internal execution treatment; users do not choose Normal, Quick, or Full BFM.
 
+### Project-qualified sidebar titles
+
+Projects may optionally set a repository-visible prefix in `.fb-lane.json`:
+
+```json
+{
+  "taskTitlePrefix": "PROJECT"
+}
+```
+
+The prefix defaults to `FB`. It changes visible titles only; a visible title is
+not project identity or identity authority. Exact project ID, canonical root,
+stable task ID, and pinned state still govern reconciliation.
+
+For duplicate-looking suites or a prefix, rename, archive, or repair request,
+run `$fb-setup`. It reuses stable bindings, renames supported generic or legacy
+titles, and creates only roles proved absent. Never identify an archive target
+from its title alone. If FB was installed, upgraded, or replaced in the current
+task, open a fresh Codex task before any plugin-dependent setup or repair
+mutation.
+
 ## AI-Powered Bootstrap
 
 If you already have an AI agent open in your target project workspace, paste this:
