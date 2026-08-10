@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-083
 lane: fb-product
-status: ready
+status: implemented
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
