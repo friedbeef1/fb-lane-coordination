@@ -6,9 +6,9 @@ status: passed
 
 # TASK-083 QA
 
-Status: Passed — completion-audit duplicate guard `79a813f` and current-candidate
-checkpoint `d137fce` pass; the candidate is Ready to ship and no release action
-is authorized.
+Status: Passed — completion-audit duplicate guard `79a813f`, checkpoint
+`d137fce`, GitHub merge `d310548`, exact installed build, 89/89 artifact parity,
+and bundled MCP proof pass.
 
 ## Candidate
 
@@ -21,8 +21,10 @@ is authorized.
 - Versioned integrated candidate: `202b050`
 - Completion-audit duplicate guard: `79a813f`
 - Current-candidate checkpoint input: `d137fce`
+- GitHub merge commit: `d3105485cafb7851917076a2a62b0b57857a5386`
 - Integrated candidate build: `0.8.1-beta+codex.20260810055302`
-- Environment: local canonical-source worktree; no installed cache or consumer source mutation.
+- Installed cache: `/Users/jamesyeang/.codex/plugins/cache/fb-lane/fb-lane-coordination/0.8.1-beta+codex.20260810055302`
+- Environment: GitHub `main`, configured local marketplace, and installed cache; no consumer source, sidebar, provider, or deployment mutation.
 
 ## Verification plan
 
@@ -74,6 +76,9 @@ is authorized.
 - Closeout restored sibling TASK-082/TASK-083 changelog headings and refreshed this test count; this documentation-only correction changes no runtime or package behavior.
 
 ## Release checkpoint
+
+Result: passed — the repaired current-candidate checkpoint completed once and
+the live release evidence below matches that candidate.
 
 Release checkpoint: planned once and passed once for repaired current-candidate input `d137fce793a6e4ed39aa74957902452b73fdb42e` after the targeted TASK-083 candidate preflight and Doctor Ready proof. The earlier checkpoint for `883d7869cbb01cd1f93798ad71e830d6bcca2a40` remains historical evidence only.
 
@@ -129,13 +134,52 @@ passed.` No broad rerun is required for the coordination-only closeout commit.
   contracts, and whitespace pass. Targeted preflight, Doctor, and the complete
   current-candidate release checkpoint also pass.
 
+## Live release verification
+
+- **Authority:** James explicitly authorized merge, publication, global
+  installation, and post-install verification for PR #66 / TASK-083 with
+  **Push Live**. MÉJA live deployment was explicitly excluded.
+- **GitHub:** [PR #66](https://github.com/friedbeef1/fb-lane-coordination/pull/66)
+  passed readiness and merged reviewed head `d6e8abe` as signed merge
+  `d3105485cafb7851917076a2a62b0b57857a5386`.
+- **Marketplace:** `codex plugin marketplace list --json` confirmed `fb-lane`
+  is a local marketplace at the canonical checkout. Its unrelated dirty setup
+  files did not overlap TASK-083 and were preserved; its `main` now resolves to
+  exact GitHub merge `d310548` and tree `145a9d8`.
+- **Install:** `codex plugin list --json` reports
+  `0.8.1-beta+codex.20260810055302` installed and enabled from `fb-lane`.
+- **Artifact proof:** all 86 package-manifest files plus `plugin.json`,
+  `.codex-plugin/plugin.json`, and `.mcp.json` are byte-identical between the
+  merged package and installed cache: 89/89. Representative SHA-256 values are
+  `11d0ad9c…` for `fb-release`, `d4c10561…` for `fb-lane.cjs`, and
+  `3440ed48…` for `plugin.json`.
+- **Runtime proof:** both installed plugin manifests and `.mcp.json` parsed;
+  key onboarding, release, session, graph, and MCP runtimes passed Node syntax;
+  all required skills exist; and installed `node ./tools/fb-lane.cjs mcp`
+  answered `tools/list` with 14 tools.
+- **Recovery evidence:** two read-only Git HTTPS fetches stalled on this host.
+  They were terminated without state mutation. GitHub API proved the exact
+  base, head, signed merge payload, tree, and commit; the reconstructed commit
+  hash matched `d310548`, after which the canonical local checkout
+  fast-forwarded normally. The supported plugin installer completed normally.
+- **Reload boundary:** this task and existing MCP processes were loaded from
+  0.8.0 before replacement. They remain stale by design; a new Codex task is
+  required before plugin-dependent mutation. The new installed MCP runtime was
+  independently exercised from the 0.8.1 cache.
+- **No consumer release:** no MÉJA source, sidebar, provider, staging, or live
+  deployment state changed.
+
 ## Known limits
 
-- Generated package parity is proven; the installed plugin cache is intentionally unchanged.
+- Installed package parity and runtime resolution are proven; existing tasks do
+  not hot-reload replacement plugin skills or MCP processes.
 - MÉJA MEJA-122 is consumer acceptance for the named checkout only, not universal or installed-package proof.
 - Prefix-to-prefix drift remains deliberately fail-closed pending explicit identity repair; no speculative automatic migration was added.
-- This task prepares a review candidate only. Merge, publication, reinstall, task mutation, and release still require **Push Live**.
+- A new Codex task is required before `$fb-setup` or another plugin-dependent
+  mutation so task-loaded skills and MCP processes resolve to 0.8.1.
 
 ## Evidence boundary
 
-No task/sidebar mutation, consumer-source change, merge, publication, marketplace refresh, cache installation, or deployment is authorized by this source task. Only **Push Live** authorizes release.
+Merge, marketplace refresh, and cache installation occurred only after explicit
+**Push Live**. No consumer task/sidebar mutation, consumer-source change,
+provider action, staging action, or MÉJA deployment occurred.

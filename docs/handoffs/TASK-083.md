@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-083
 lane: fb-product
-status: ready
+status: implemented
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -56,7 +56,7 @@ Canonical onboarding runtime and focused tests, existing setup skills, setup doc
 - Released TASK-082 / FB 0.8.0 base at `902c042`.
 - Existing exact-root local inventory and native task controls.
 - Existing package manifest and synchronizer.
-- Explicit **Push Live** for merge, publication, marketplace refresh, or reinstall.
+- Explicit **Push Live** for merge, publication, marketplace refresh, or reinstall; supplied for TASK-083 on 2026-08-10.
 
 ## Acceptance Criteria
 
@@ -91,15 +91,15 @@ Changelog expectation: required — repository-qualified task titles change visi
 - **Approved brief and decisions:** Implement generic repository-visible `taskTitlePrefix` support in the canonical FB source, strengthen the existing setup skill pair, preserve exact-project authority and stable IDs, generate package mirrors mechanically, and stop at **Ready to ship**.
 - **Confirmed assumptions and approved scope changes:** `FB` remains the missing-key default; invalid configuration and configured-prefix drift fail closed; receipt-bound IDs cannot be replaced or adopted by title; `docs/setup.md` remains root-only because it is not manifest-managed; no new sidebar skill, archive planner action, consumer mutation, or sensitive operation was added.
 - **Branch, source commits, and changed surfaces:** Branch `codex/task-083-sidebar-identity-hardening`; reviewed runtime candidate `883d786`, current-main integration `bc8b4d3`, versioned candidate `202b050`, and completion-audit duplicate guard `79a813f` over release base `902c042`; onboarding runtime/tests, existing setup skills, setup documentation, changelog/version metadata, TASK-083 records, and generated package mirrors.
-- **Checks, failures, recovery, and results:** Root and package onboarding passed 38/38 each after the completion-audit repair; root and package native-setup and shortcut contracts passed; 86 mirrors are byte-identical; root/package runtime syntax, changelog, metadata, lifecycle/version, and whitespace checks passed. The whole-candidate review found two Important identity/wording issues and one changelog gap; its consolidated repair closed them. A later requirement-by-requirement completion audit proved that an unreceipted exact-project suite with another qualified prefix could still plan seven duplicate creates. A focused RED reproduced that behavior, and `79a813f` now stops with identity-repair evidence and zero actions. Runtime candidate `883d786` passed the earlier full validator: 72 core, 34 checkout-migration, 39 session, 19 eval, 11 beginner, and 25 efficiency checks plus product-positioning and two-speed contracts; the runtime-affecting completion repair requires one current-candidate checkpoint before release readiness is restored.
-- **Review state, direct links, limits, and external gates:** Ready to ship; see [QA evidence](../qa/TASK-083.md) and the [0.8.1-beta changelog entry](../../CHANGELOG.md#081-beta--2026-08-10). Consumer acceptance is bounded local evidence, not installed-package proof. No merge, publication, marketplace refresh, reinstall, task mutation, or deployment is authorized before **Push Live**.
-- **Repository state:** Completion-audit runtime repair `79a813f` and its committed candidate records produced clean checkpoint input `d137fce` in the isolated TASK-083 worktree over current `main` `902c042`; targeted preflight, Doctor, and the complete validator passed there.
-- **Remaining owner and action:** Product/BFM pushes the repaired review candidate and observes GitHub readiness once. Only a later explicit **Push Live** may authorize merge, publication, marketplace refresh, reinstall, or consumer reconciliation.
+- **Checks, failures, recovery, and results:** Root and package onboarding passed 38/38 each after the completion-audit repair; root and package native-setup and shortcut contracts passed; 86 mirrors are byte-identical; root/package runtime syntax, changelog, metadata, lifecycle/version, and whitespace checks passed. The whole-candidate review found two Important identity/wording issues and one changelog gap; its consolidated repair closed them. A later requirement-by-requirement completion audit proved that an unreceipted exact-project suite with another qualified prefix could still plan seven duplicate creates. A focused RED reproduced that behavior, and `79a813f` now stops with identity-repair evidence and zero actions. Repaired checkpoint `d137fce` passed 72 core, 34 checkout-migration, 39 session, 19 eval, 11 beginner, and 25 efficiency checks plus product-positioning and two-speed contracts. PR #66 readiness passed. Post-install proof parsed both manifests and `.mcp.json`, checked key runtime syntax and all required skills, received 14 tools from the bundled MCP server, and proved all 86 manifest files plus three distribution manifests byte-identical between package and installed cache: 89/89.
+- **Review state, direct links, limits, and external gates:** Completed build; see [QA evidence](../qa/TASK-083.md) and the [0.8.1-beta changelog entry](../../CHANGELOG.md#081-beta--2026-08-10). Consumer acceptance remains bounded local evidence. **Push Live** was supplied for TASK-083; no consumer task mutation or MÉJA deployment occurred.
+- **Repository state:** Reviewed head `d6e8abe` merged through [PR #66](https://github.com/friedbeef1/fb-lane-coordination/pull/66) as `d3105485cafb7851917076a2a62b0b57857a5386`. The configured local marketplace checkout resolves to that exact merge while preserving four unrelated local setup edits. Codex reports exact build `0.8.1-beta+codex.20260810055302` installed and enabled.
+- **Remaining owner and action:** None for TASK-083. Open a new Codex task before `$fb-setup` or other plugin-dependent mutation so the refreshed skills and MCP process load.
 - **Changelog:** updated — [0.8.1-beta project-qualified sidebar task titles](../../CHANGELOG.md#081-beta--2026-08-10).
 
-External gates: explicit **Push Live** before merge, publication, marketplace refresh, reinstall, or consumer reconciliation.
-Remaining owner/action: Product/BFM pushes the repaired review candidate, observes GitHub readiness once, and then waits for **Push Live**.
+External gates: complete — James explicitly authorized TASK-083 merge, publication, marketplace refresh, and reinstall with **Push Live**. MÉJA live deployment remained excluded.
+Remaining owner/action: none for TASK-083; a new Codex task must load the refreshed plugin before plugin-dependent mutation.
 
 ## Brief Validation
 
-Status: passed — the approved behavior, focused root/package evidence, completion-audit duplicate guard, current-candidate preflight, Doctor, and final checkpoint all pass. The candidate stops at **Ready to ship**.
+Status: passed — the approved behavior, focused root/package evidence, completion-audit duplicate guard, final checkpoint, GitHub merge, installed-artifact parity, and bundled MCP proof all pass.

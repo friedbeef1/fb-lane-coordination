@@ -29,9 +29,12 @@ candidate-faithful TASK-083 wording.
 
 **Release evidence and boundary:** Focused onboarding, native-setup, shortcut,
 syntax, package-parity, targeted-preflight, Doctor, and release-checkpoint
-evidence is recorded in [TASK-083 QA](docs/qa/TASK-083.md). This candidate is
-versioned separately from the live 0.8.0 build; merge, publication,
-installation, and release remain gated by **Push Live**.
+evidence is recorded in [TASK-083 QA](docs/qa/TASK-083.md). After explicit
+**Push Live**, PR #66 merged as `d310548`; the configured local marketplace was
+advanced to that exact merge, and build
+`0.8.1-beta+codex.20260810055302` was installed, enabled, and verified at
+89/89 artifact parity with a working bundled MCP route. No consumer project or
+MÉJA deployment was part of this release.
 
 ## 0.8.0-beta — 2026-08-10
 
