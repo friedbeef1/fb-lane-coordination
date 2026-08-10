@@ -97,6 +97,9 @@ Changelog expectation: required — repository-qualified task titles change visi
 - **Remaining owner and action:** Product/BFM runs one targeted current-candidate preflight, Doctor, and final release checkpoint, then updates GitHub readiness. Only a later explicit **Push Live** may authorize merge, publication, marketplace refresh, reinstall, or consumer reconciliation.
 - **Changelog:** updated — [0.8.1-beta project-qualified sidebar task titles](../../CHANGELOG.md#081-beta--2026-08-10).
 
+External gates: current-candidate release checkpoint, then explicit **Push Live** before merge, publication, marketplace refresh, reinstall, or consumer reconciliation.
+Remaining owner/action: Product/BFM runs the current-candidate Doctor and final validator, records the result, and returns the candidate to Ready to ship if both pass.
+
 ## Brief Validation
 
 Status: passed — the approved behavior and focused root/package evidence now include the completion-audit duplicate guard. Release readiness remains in Checking until the current-candidate preflight, Doctor, and final checkpoint are recorded.
