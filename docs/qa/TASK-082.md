@@ -1,18 +1,20 @@
 ---
 type: fb-verification-handoff
 task: TASK-082
-status: checking
+status: passed
 ---
 
 # TASK-082 QA
 
-Status: Checking — focused canonical evidence is green; integrated review and release checkpoint remain.
+Status: Passed — exact local source candidate and release checkpoint are green;
+GitHub review readiness remains before final handoff.
 
 ## Candidate
 
 - Branch: `codex/task-082-retro-release-hardening`
 - Build: `0.8.0-beta+codex.20260810034353`
 - Base: `74a017b`
+- Tested source candidate: `bd32dd2b2e1a096e2ada3db5e3c087bbb4abe007`
 
 ## Verification plan
 
@@ -67,7 +69,26 @@ Only the affected preflight/records proofs were rerun; both are green.
 
 ## Release checkpoint
 
-Release checkpoint: requested and planned once after the whole-candidate review, clean-candidate preflight, package parity, links, Doctor, syntax, and whitespace pass. It will run the complete repository validator exactly once for the final committed candidate.
+Release checkpoint: passed once for source candidate `bd32dd2` after the
+whole-candidate review, consolidated repair, 86-mirror parity, exact targeted
+preflight, and Doctor Ready result.
+
+- Result: passed.
+- Command: `node tools/fb-lane.validate.cjs`.
+- Core regression checks: 72/72.
+- Checkout migration: 34/34.
+- Session ledger: 39/39.
+- Eval loop: 19/19.
+- Beginner experience: 11/11.
+- Efficiency controls: 25/25.
+- Product positioning and two-speed contracts: passed.
+- Doctor: Ready.
+- Committed-diff whitespace: passed.
+
+This coordination closeout changes board, handoff, index, and QA state only. It
+does not change source or package bytes, so the complete validator is not rerun;
+the final record commit receives the targeted preflight, Doctor, parity, syntax,
+and whitespace proof instead.
 
 ## Known limits
 
