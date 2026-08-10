@@ -13,6 +13,7 @@ Status: Checking — source and generated-package focused evidence is green; cle
 - Branch: `codex/task-083-sidebar-identity-hardening`
 - Worktree: `/private/tmp/fb-task-083`
 - Base: `79475ccb7fcc526906da017b8a24b33d4e892a16`
+- Frozen source candidate: `a848c73`
 - Environment: local canonical-source worktree; no installed cache or consumer source mutation.
 
 ## Verification plan
@@ -23,10 +24,10 @@ Status: Checking — source and generated-package focused evidence is green; cle
 - Mechanical package generation and root/package parity.
 - Affected syntax, links, Doctor, and whitespace.
 
-## Current evidence
+## Focused verification
 
 - TASK-082 explicitly queued MEJA-123 as the next focused setup/runtime item and released the overlapping lock after freezing its candidate.
-- The worktree is clean and based on TASK-082's coordination closeout commit.
+- Source candidate `a848c73` was committed from the TASK-082 coordination closeout base; only preflight-driven record-shape corrections followed it.
 - MÉJA's local acceptance proves the intended seven visible titles and stable task IDs only; package durability is not yet proven.
 
 ### Baseline and RED

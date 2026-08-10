@@ -1,10 +1,6 @@
 # Changelog
 
-## 0.8.0-beta — 2026-08-10
-
-Build: `0.8.0-beta+codex.20260810034353`
-
-### TASK-083 — Project-qualified sidebar task titles
+## TASK-083 — Project-qualified sidebar task titles
 
 **What changed:** Optional repository-local `taskTitlePrefix` now derives all
 seven visible FB task titles while preserving exact-project identity, stable IDs,
@@ -30,6 +26,10 @@ candidate-faithful TASK-083 wording.
 syntax, and whitespace evidence is recorded in [TASK-083 QA](docs/qa/TASK-083.md).
 This candidate changes no version/build surface; merge, publication, installation,
 and release remain gated by **Push Live**.
+
+## 0.8.0-beta — 2026-08-10
+
+Build: `0.8.0-beta+codex.20260810034353`
 
 ### TASK-082 — Release hardening and exact installation proof
 
