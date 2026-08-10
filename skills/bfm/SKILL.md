@@ -280,12 +280,22 @@ For a v3 Full BFM run, also keep the Build Brief changelog expectation, matching
 Task Receipt decision, candidate-bound entry evidence, and release-checkpoint
 verification aligned. Do not report **Ready to ship** while that gate is
 missing. Quick and Normal work remain exempt.
+Every new normalized Full BFM handoff declares
+`record_model: normalized-v1`. Immediately after the exact candidate and its
+board, handoff, QA, and changelog records are committed, run
+`node tools/fb-release-preflight.cjs --task TASK-ID --phase candidate --base BASE --candidate CANDIDATE`.
+It validates the selected task even if a marker was omitted and reports the
+whole record invariant in one pass. Do not start the broad release validator
+until this focused preflight passes.
 Follow [standing delegated approvals](../../docs/fb/workflow.md#standing-delegated-approvals).
 Product/BFM approves candidate-faithful changelog wording and authorizes one
 initial release checkpoint without a user prompt after focused checks pass.
 Ask the user only for a changed user or product decision, material scope or
 priority change, weakened evidence, or a sensitive gate. **Push Live** remains
 the external release authorization.
+When **Push Live** is explicit in Product/BFM, invoke the model-invoked
+`fb-release` skill for the live transaction and installed-runtime proof. Do not
+reimplement marketplace-source routing or cache verification inside BFM.
 Classify failures before revision, keep insufficient products at the exact
 Checking quality-gap state, and close selected evals only with fresh rerun and
 regression evidence. Never weaken a target or change authority automatically.

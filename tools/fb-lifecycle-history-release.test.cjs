@@ -22,8 +22,8 @@ function json(relativePath) {
 const manifest = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.codex-plugin/plugin.json'), 'utf8'));
 assert.match(
   manifest.version,
-  /^0\.7\.1-beta\+codex\.\d{14}$/,
-  'release build must use the 0.7.1-beta UTC build form',
+  /^0\.8\.0-beta\+codex\.\d{14}$/,
+  'release build must use the 0.8.0-beta UTC build form',
 );
 assert.strictEqual(JSON.parse(fs.readFileSync(path.join(pluginRoot, 'plugin.json'), 'utf8')).version, manifest.version);
 
@@ -40,6 +40,7 @@ const activeGuidance = [
   'skills/project-coordination-setup/SKILL.md',
   'skills/bfm/SKILL.md',
   'skills/fb-product/SKILL.md',
+  'skills/fb-release/SKILL.md',
 ].map(read).join('\n');
 
 for (const phrase of [
@@ -72,17 +73,18 @@ assert.match(coordination, /on-demand historical retrieval/i, 'coordination must
 
 if (!packaged) {
   const changelog = read('CHANGELOG.md');
-  const release = changelog.match(/## 0\.7\.1-beta[\s\S]*?(?=\n## 0\.7\.0-beta)/)?.[0] || '';
+  const release = changelog.match(/## 0\.8\.0-beta[\s\S]*?(?=\n## 0\.7\.1-beta)/)?.[0] || '';
   for (const field of ['What changed', 'Why it matters', 'Compatibility', 'Installation or upgrade']) {
-    assert.match(release, new RegExp(`\\*\\*${field}:\\*\\*`), `0.7.1 changelog must include ${field}`);
+    assert.match(release, new RegExp(`\\*\\*${field}:\\*\\*`), `0.8.0 changelog must include ${field}`);
   }
-  assert.match(release, /50[^\n]*non-pinned|fixed 50-item/i);
-  assert.match(release, /read-only exact-root/i);
-  assert.match(release, /native project[\s\S]*task detail[\s\S]*pinned/i);
-  assert.match(release, /preview|turns|messages/i);
+  assert.match(release, /fb-release/i);
+  assert.match(release, /targeted\s+release\s+preflight/i);
+  assert.match(release, /local or Git|source type/i);
+  assert.match(release, /installed runtime/i);
+  assert.match(release, /new Codex task/i);
 
   for (const surface of ['README.md', 'FAQ.md', 'docs/setup.md', 'docs/versioning.md', 'platforms/codex/README.md']) {
-    assert.match(read(surface), /0\.7\.1-beta/, `${surface} must name 0.7.1-beta`);
+    assert.match(read(surface), /0\.8\.0-beta/, `${surface} must name 0.8.0-beta`);
   }
 
   const bfm = read('skills/bfm/SKILL.md');
@@ -116,6 +118,12 @@ if (!packaged) {
 
   const manifestPaths = json('tools/fb-package-manifest.json');
   assert.ok(manifestPaths.includes('tools/fb-bfm-intake-ledger.test.cjs'), 'package manifest must include the focused intake-ledger contract');
+  for (const required of [
+    'tools/fb-release-preflight.cjs',
+    'tools/fb-release-preflight.test.cjs',
+    'tools/fb-release-skill.test.cjs',
+    'skills/fb-release/SKILL.md',
+  ]) assert.ok(manifestPaths.includes(required), `package manifest must include ${required}`);
 }
 
 console.log(`FB current release contract passed for ${manifest.version}.`);

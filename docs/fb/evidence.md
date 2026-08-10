@@ -127,6 +127,38 @@ against the exact candidate commit. A missing, stale, unresolved, or
 candidate-mismatched decision cannot be reused and cannot reach **Ready to
 ship**.
 
+### Release preflight and proof environment
+
+Every new normalized Full BFM handoff declares
+`record_model: normalized-v1`. Historical records remain valid without a
+retrofit, but the selected release task is always checked as a complete current
+record—even if its marker was accidentally omitted. After the exact candidate
+and release records are committed, run the targeted release preflight before
+the broad validator:
+
+```bash
+node tools/fb-release-preflight.cjs --task TASK-ID --phase candidate --base BASE --candidate CANDIDATE
+```
+
+The preflight reports the complete handoff, board Goal Alignment, Build Brief,
+Task Receipt, QA, changelog, status, link, commit-range, and clean-candidate
+invariant in one pass. Repair the complete record once; do not wait for a broad
+validator to reveal one missing field at a time.
+
+Choose proof by environment:
+
+| Environment | Authoritative proof |
+|---|---|
+| Canonical source checkout | Source/runtime contracts, package generation and parity, targeted record preflight, Doctor, and the repository release validator. |
+| Fresh clone or CI | Portability, clean-checkout behavior, package generation, and supported repository tests without clone-local state. |
+| Configured marketplace | Proven source identity and the refresh route appropriate to its local or Git source type. |
+| Installed cache | Exact installed version and package identity, skill discovery, runtime syntax or exports, bundled manifest, and MCP resolution. |
+
+An installed cache is not a source checkout. Do not use a root-only package
+manifest or source-layout test as installed-runtime authority. Public release
+copy stays product-generic; named consumer-project evidence belongs in the
+linked QA artifact.
+
 Use the [standing delegated approvals](workflow.md#standing-delegated-approvals)
 contract. Candidate-bound evidence records Product/BFM's changelog approval and
 single release-checkpoint authorization without a user prompt. Ask the user

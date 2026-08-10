@@ -1,6 +1,6 @@
 # FB FAQ
 
-This FAQ describes the current **FB 0.7.1-beta** model: six evidence-producing
+This FAQ describes the current **FB 0.8.0-beta** model: six evidence-producing
 workstreams plus one Product/BFM control centre and seven pinned
 repository-scoped Codex tasks.
 

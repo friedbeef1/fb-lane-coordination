@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-082 | In Progress | FB-Product / BFM | Coordination retro, release hardening, and FB `0.8.0-beta+codex.20260810034353` | Retrospect commits `1da10b5..74a017b`; add one `fb-release` skill, targeted release preflight, manifest-derived archive fixtures, environment-specific proof, record repairs, and generated plugin mirrors | Release records, runtime/tests, canonical guidance, plugin package, metadata, and changelog | [Handoff](docs/handoffs/TASK-082.md); [QA](docs/qa/TASK-082.md) |
 | TASK-081 | Done | FB-Product / BFM | Complete exact-project sidebar inventory and FB `0.7.1-beta+codex.20260809105651` | Replace the capped global non-pinned listing with a read-only, exact-root local candidate enumeration joined to current native project, thread-detail, and pinned-task evidence; preserve duplicate protection and fail closed | None; published and installed | [PR #64](https://github.com/friedbeef1/fb-lane-coordination/pull/64) merged as `3ef65a9`; exact build installed and enabled; [Changelog](CHANGELOG.md#071-beta--2026-08-09); [Handoff](docs/handoffs/TASK-081.md); [QA](docs/qa/TASK-081.md) |
 | TASK-080 | Done | FB-Product / BFM | Automatic Direct-vs-Graph BFM routing and `0.7.0-beta+codex.20260809013127` | Make `$bfm` select Direct, graph-driven, or authoritative-record fallback automatically while Markdown/Git remain authoritative | None; published and installed | [PR #63](https://github.com/friedbeef1/fb-lane-coordination/pull/63) merged as `c9d5d49`; exact build installed and enabled; router skill and bundled MCP route verified; [Handoff](docs/handoffs/TASK-080.md); [QA](docs/qa/TASK-080.md) |
 | TASK-079 | Superseded | FB-Product / BFM | Project-local recursive learning and `0.6.0-beta+codex.20260808104938` | Make each FB project learn bounded preventative lessons from its own verified delivery outcomes without creating nested repair loops | Learning runtime, harness guidance, plugin mirrors, focused contracts, version/release records | Candidate and evidence preserved; incorporated into TASK-080 / FB 0.7.0; [Handoff](docs/handoffs/TASK-079.md); [QA](docs/qa/TASK-079.md) |
@@ -30,6 +31,24 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-082 - FB coordination retro and release hardening
+
+*   **Status**: In Progress.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Area**: Coordination reliability, plugin release execution, records, packaging, and retrospective evidence.
+*   **Scope**: Produce the approved 46-commit retro; add exactly one model-invoked `fb-release` skill; shift complete candidate-record validation before broad gates; derive archive fixtures from the package manifest; repair current TASK-080/TASK-081 state drift; prepare FB `0.8.0-beta+codex.20260810034353`.
+*   **Out of Scope**: Consumer-project source changes, historical-record retrofits, merge, marketplace publication, global reinstall, or deployment before **Push Live**.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make FB releases repeatable and fail early on incomplete or contradictory durable evidence without adding duplicate ceremony.
+    *   **Key Results**: One release skill with exact authority and provenance checks; one-pass record preflight; manifest-derived archive dependencies; complete environment-to-proof guidance; accurate current records; focused proof, one candidate review, and one release checkpoint.
+    *   **Definition of Done**: Root/package release contracts, skill validation, package parity, syntax, links, Doctor, whitespace, whole-candidate review, one final validator, GitHub readiness, and a review candidate all pass.
+    *   **Gate / Review Point**: Stop at **Ready to ship** after pushing a review candidate. Merge, publication, and reinstall require a later explicit **Push Live**.
+    *   **Approval**: approved — James supplied and explicitly requested implementation of TASK-082.
+    *   **Justification**: The last three releases exposed repeatable late-record, dependency-closure, marketplace-source, and installed-proof mistakes that deterministic preflight and one narrow release owner can prevent.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-082.md) · [QA](docs/qa/TASK-082.md) · [retro](docs/retros/2026-08-10-fb-coordination-retro.md).
 
 ---
 

@@ -1,0 +1,112 @@
+---
+type: fb-lane-handoff
+task: TASK-082
+lane: fb-product
+status: implemented
+approval: approved
+record_model: normalized-v1
+fb_harness: v3
+learning_contract: v1
+worktree: /private/tmp/fb-task-081
+sensitive: false
+work_types: coordination, release, tooling, documentation
+surface: FB canonical repository and packaged Codex plugin
+---
+
+# TASK-082 — FB coordination retro and release hardening
+
+## Goal Alignment Session
+
+Product Goal: Make FB releases repeatable and fail early on incomplete or contradictory durable evidence without adding duplicate ceremony.
+Lane OKR Fit: aligned
+Mini-loop Evidence: Focused contracts will prove the release preflight, skill boundary, dependency closure, package parity, and current-state repairs before the release checkpoint.
+Evidence Against Product OKR: No contrary evidence identified; time and token effects remain unmeasured and will not be claimed.
+
+## Approved Decision
+
+Implement the user-approved TASK-082 plan exactly once as a bounded release candidate. Create only `fb-release`; strengthen existing skills for setup, Product/BFM, and record responsibilities.
+
+## Build Brief
+
+- Retrospect `1da10b5..74a017b`, separating observed facts from inference.
+- Add a model-invoked `fb-release` skill triggered only by explicit **Push Live** in Product/BFM.
+- Add one targeted complete-record preflight before broad release validation.
+- Require `record_model: normalized-v1` on new normalized handoffs while preserving historical compatibility.
+- Build archive/fallback dependency fixtures from `tools/fb-package-manifest.json`.
+- Document proof boundaries for source, clone/CI, marketplace, and installed cache.
+- Repair current-state drift in TASK-080 and TASK-081 without rewriting historical candidate evidence.
+- Generate package mirrors mechanically and prepare `0.8.0-beta+codex.<UTC-build>`.
+- Exact candidate build: `0.8.0-beta+codex.20260810034353`.
+- Changelog expectation: required.
+- Stop at **Ready to ship**; **Push Live** remains the release boundary.
+
+## Decisions and assumptions
+
+- Consumer repositories are supporting evidence only; their source is out of scope.
+- The authoritative base is commit `74a017b` in the canonical FB repository.
+- Focused proof per slice, one whole-candidate review, one consolidated repair maximum, and one final release checkpoint remain the execution budget.
+- No elapsed-time or token-savings claim will be inferred from Git history.
+
+## Scope
+
+Canonical release tooling and tests, FB operating guidance, Product/BFM skills, one new release skill, current coordination records, changelog/version metadata, generated package mirrors, and review-candidate delivery.
+
+## Dependencies
+
+- Canonical package manifest and synchronizer.
+- Existing normalized records, changelog closeout, Doctor, and release validator contracts.
+- Explicit **Push Live** for any later merge, marketplace publication, or reinstall.
+
+## Acceptance Criteria
+
+- The focused release preflight reports every missing invariant in one run and handles omitted `record_model` on the selected candidate without weakening legacy scans.
+- Incomplete, dirty, mismatched, unresolved, and contradictory release candidates fail early; complete legacy and normalized candidates pass.
+- Archive fixtures inherit the full declared package dependency set.
+- `fb-release` selects source-type-specific marketplace refresh, verifies installed runtime artifacts, and refuses root-only source-layout proof in installed-cache context.
+- Root and packaged plugin guidance remain mechanically aligned.
+- One whole-candidate review and one final release checkpoint pass before a review candidate is pushed.
+
+## Project Learning
+
+Learning: pending — closeout will classify each retro finding as a skill, existing-skill update, mechanical guardrail, or no action.
+
+## Other lanes
+
+Other lanes: no impact detected — this task changes the reusable FB coordination harness and does not change any consumer product behavior.
+
+## Supersession
+
+Supersedes: None
+
+## Links
+
+- Board: [PROJECT_BOARD.md](../../PROJECT_BOARD.md)
+- QA: [TASK-082 QA](../qa/TASK-082.md)
+- Retro: [2026-08-10 FB coordination retro](../retros/2026-08-10-fb-coordination-retro.md)
+
+## Changelog expectation
+
+Changelog expectation: required — this adds a user-visible release skill and changes release validation behavior.
+
+## Task Receipt
+
+- **Approved brief and decisions:** Implement TASK-082 as approved: exactly one new `fb-release` skill, an early complete-record release preflight, manifest-derived fallback dependency coverage, environment-specific proof, and FB `0.8.0-beta` preparation without live release.
+- **Confirmed assumptions and approved scope changes:** Consumer projects remain evidence only; historical records are preserved; the selected current release handoff must declare `record_model: normalized-v1`; no scope expansion or sensitive operation was introduced.
+- **Branch, source commits, and changed surfaces:** Branch `codex/task-082-retro-release-hardening`, source range `74a017b..HEAD`; release runtime and contracts, canonical operating guidance, BFM/Product/release skills, current TASK-080/TASK-081 state, version metadata, changelog, retro, and generated plugin package.
+- **Checks, failures, recovery, and results:** Focused preflight/skill contracts passed 13/13; normalized records passed 16/16; eval/archive fallback passed 19/19 after adding the omitted release runtime to the manual bootstrap dependency set; package-sync unit contracts passed 10/10; metadata, lifecycle/version, syntax, skill validation, and whitespace passed. Three read-only fresh-agent probes correctly stopped incomplete evidence, selected the local-marketplace path, and rejected installed-build/public-copy mismatches. The whole-candidate review and final release checkpoint remain scheduled once.
+- **Review state, direct links, limits, and external gates:** Candidate checking; see [QA evidence](../qa/TASK-082.md), [retrospective](../retros/2026-08-10-fb-coordination-retro.md), and [0.8.0-beta changelog](../../CHANGELOG.md#080-beta--2026-08-10). No merge, publication, marketplace refresh, reinstall, or deployment is authorized before **Push Live**.
+- **Repository state:** The candidate is confined to the TASK-082 branch and must be clean and committed before the targeted preflight and final broad checkpoint. Canonical `main` remains at the approved base until a later release decision.
+- **Remaining owner and action:** Product/BFM freezes the exact candidate, performs one whole-candidate review, applies at most one consolidated behavioral repair, runs the targeted preflight and one final release checkpoint, pushes a review PR, and stops at **Ready to ship**.
+- **Changelog:** updated — [0.8.0-beta](../../CHANGELOG.md#080-beta--2026-08-10).
+
+## Brief Validation
+
+Status: checking — the approved scope is implemented and focused evidence is green; the single whole-candidate review and final release checkpoint remain before final pass.
+
+Satisfied criteria and evidence: The focused contracts prove selected-record completeness, historical compatibility, source-type-aware release behavior, installed-runtime proof boundaries, archive dependency closure, version consistency, and the intended one-skill boundary.
+
+Missing criteria and next actions: Complete the one integrated review, package generation/parity, targeted clean-candidate preflight, Doctor, final validator, and GitHub readiness. No approved scope change is pending.
+
+## Verification Handoff
+
+The durable test record is [TASK-082 QA](../qa/TASK-082.md). It separates focused observed checks, read-only fresh-agent simulations, the integrated candidate review, and the final release checkpoint.

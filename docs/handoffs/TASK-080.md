@@ -22,7 +22,10 @@ User Approval Needed: no — James supplied the plan and asked the current
 Product/BFM task to confirm and run it.
 Approval: approved — James approved the implementation plan and explicitly
 authorized the live release, publication, and installation in this task.
-Mini-loop Evidence: pending focused RED/GREEN implementation and task review.
+Mini-loop Evidence: focused router, compiler, scheduler, propagation, learning,
+intake, and package contracts passed; one whole-candidate review found the
+optional repository-wide path, and one consolidated repair produced the
+automatic candidate-scoped route verified in TASK-080 QA.
 Evidence Against Product OKR: current FB has graph-assisted context but does not
 yet prove deterministic graph-driven scheduling and change propagation.
 

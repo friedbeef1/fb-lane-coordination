@@ -72,9 +72,10 @@ available; it remains the fallback on unsupported hosts.
 
 Current: Complete — `0.7.1-beta+codex.20260809105651` is published, installed,
 and enabled.
-Next: open a new MÉJA Product/BFM task and invoke `$fb-setup`.
+Next: no FB release action remains; any consumer-project `$fb-setup` rerun is a
+separate project action using the installed build.
 Blocked: none.
-Deferred: publication and consumer-project reconciliation until **Push Live**.
+Deferred: none inside TASK-081's released FB scope.
 
 ## Task Receipt
 
@@ -88,7 +89,7 @@ Deferred: publication and consumer-project reconciliation until **Push Live**.
   cannot enter the join bundle.
 - Branch: `codex/fb-setup-complete-inventory`.
 - Candidate build: `0.7.1-beta+codex.20260809105651`; implementation commit
-  `b66502f` plus the pending release-candidate closeout commit.
+  `b66502f`; PR #64 merged the completed release as `3ef65a9`.
 - Changed surfaces: onboarding runtime and focused contract, setup skills,
   active setup/start guidance, package mirrors, board, handoff, and QA.
 - Verification: [TASK-081 QA](../qa/TASK-081.md).
@@ -109,20 +110,21 @@ Deferred: publication and consumer-project reconciliation until **Push Live**.
 
 ## Brief Validation
 
-Status: pass for the bounded candidate.
+Status: pass for the bounded candidate and completed live release.
 
 Satisfied criteria: complete capped inventory, exact project/root join,
 helper/subagent exclusion, current native title/pin confirmation, metadata-only
 evidence, fail-closed missing/contradictory/private evidence, package parity,
 syntax, doctor, and whitespace all have focused proof.
 
-Missing criteria and next action: none. The refreshed plugin must load in a new
-Codex task before the MÉJA reconciliation retry.
+Missing criteria and next action: none for TASK-081. A new Codex task was the
+required reload boundary after installation; later consumer-project setup is
+not part of this release record.
 
 ## Test This Now
 
 What this is:
-- Completed local plugin release candidate.
+- Completed and installed plugin release.
 
 Open:
 - [TASK-081 verification](../qa/TASK-081.md)
@@ -143,9 +145,9 @@ Pass criteria:
   adapter.
 
 Known limits:
-- This candidate is not published or installed. It does not yet reconcile the
-  six missing MÉJA workstream tasks.
+- The read-only adapter does not itself create, rename, or pin project tasks.
+  Consumer-project reconciliation remains a separate `$fb-setup` action.
 
 If it fails:
-- Record the failed proof and candidate commit in this handoff; do not weaken
-  duplicate detection or use local state alone as authority.
+- Record the installed build, failed proof, and project identity evidence; do
+  not weaken duplicate detection or use local state alone as authority.

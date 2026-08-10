@@ -17,8 +17,8 @@ FB currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
 setup paths when you are not installing through the plugin flow.
 
-The current release candidate is **FB 0.7.1-beta** build
-`0.7.1-beta+codex.20260809105651`.
+The current release candidate is **FB 0.8.0-beta** build
+`0.8.0-beta+codex.20260810034353`.
 
 ## Install or update from GitHub
 
@@ -94,7 +94,7 @@ fb_lane_tmp="$(mktemp -d)"
 trap 'rm -rf "$fb_lane_tmp"' EXIT
 curl -fsSL "$FB_LANE_ARCHIVE_URL" | tar -xz -C "$fb_lane_tmp" --strip-components=1
 mkdir -p tools docs/fb docs/evals templates/docs/learning
-cp "$fb_lane_tmp"/tools/fb-{lane,onboarding,session,eval,efficiency,changelog-closeout,records,project-graph,graph-scheduler,graph-propagation,graph-learning,graph-bfm,board-context,control-loop,workstream-handoff,learning}.cjs tools/
+cp "$fb_lane_tmp"/tools/fb-{lane,onboarding,session,eval,efficiency,changelog-closeout,records,release-preflight,project-graph,graph-scheduler,graph-propagation,graph-learning,graph-bfm,board-context,control-loop,workstream-handoff,learning}.cjs tools/
 cp "$fb_lane_tmp"/docs/fb/{README,start,workflow,evidence,guardrails,sessions,evals,records,graph,control-loop,learning}.md docs/fb/
 cp "$fb_lane_tmp"/docs/evals/{eval-record-template,agent-behavior-scorecard-template}.md docs/evals/
 cp "$fb_lane_tmp"/templates/docs/learning/index.md templates/docs/learning/
@@ -153,8 +153,17 @@ The installed runtime set includes `fb-graph-scheduler.cjs`,
 
 ## Manual upgrade fallback
 
-When the plugin source has been updated and merged, reinstall the plugin from the
-configured FB marketplace:
+In Product/BFM, explicit **Push Live** invokes the model-invoked `fb-release`
+skill. It verifies the exact candidate, follows this repository's release
+instructions, identifies whether the configured `fb-lane` marketplace source
+is local or Git, uses the matching refresh route, reinstalls the exact build,
+and verifies installed skills, runtime, manifest, and MCP resolution. It then
+requires a new Codex task so the replacement plugin is loaded.
+
+If the automated release route is unavailable, first inspect the configured
+marketplace source rather than assuming it is Git-backed. After the plugin
+source has been updated and merged, this is the ordinary Git-marketplace
+fallback:
 
 ```bash
 codex plugin marketplace upgrade fb-lane
@@ -171,6 +180,12 @@ Codex may leave older cache folders under `~/.codex/plugins/cache/`. They are
 not the active install unless `codex plugin list` points at that version. Start a
 new Codex thread after reinstalling so updated skills and MCP tools are loaded
 from the refreshed plugin cache.
+
+Installed verification checks the exact cache artifact: version and package
+identity, skill discovery, runtime syntax or required exports, packaged
+manifest, and bundled MCP resolution. Do not run root-only source-layout tests
+inside the installed cache. Keep public changelog and marketplace wording
+product-generic; project names and exact consumer smokes belong in linked QA.
 
 For same-version docs-only updates, verify the installed cache contains expected
 new wording after reinstall/update. If the active cache still has stale docs,

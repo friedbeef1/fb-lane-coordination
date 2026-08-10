@@ -489,6 +489,14 @@ test('bootstrap installs eleven pages and both templates while preserving projec
 
 test('documented fallback command sequence acquires every bootstrap runtime and canonical asset and runs exactly', () => {
   const setup = fs.readFileSync(path.join(repoRoot, 'docs', 'setup.md'), 'utf8');
+  const packageManifest = JSON.parse(fs.readFileSync(path.join(repoRoot, 'tools', 'fb-package-manifest.json'), 'utf8'));
+  const runtimeDependencies = packageManifest.filter(dependency => (
+    dependency.startsWith('tools/')
+    && dependency.endsWith('.cjs')
+    && !dependency.endsWith('.test.cjs')
+  ));
+  assert.ok(packageManifest.includes('docs/evals/eval-record-template.md'), 'package manifest must declare the eval record bootstrap template');
+  assert.ok(packageManifest.includes('docs/evals/agent-behavior-scorecard-template.md'), 'package manifest must declare the agent behavior bootstrap template');
   const match = setup.match(/## Manual CLI Bootstrap[\s\S]*?```bash\n([\s\S]*?)```/);
   assert.ok(match, 'manual fallback bash block must exist');
   const commands = match[1];
@@ -497,22 +505,22 @@ test('documented fallback command sequence acquires every bootstrap runtime and 
   const archiveParent = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-eval-archive-'));
   try {
     const archiveRoot = path.join(archiveParent, 'fb-lane-coordination-main');
-    fs.mkdirSync(path.join(archiveRoot, 'tools'), { recursive: true });
-    fs.mkdirSync(path.join(archiveRoot, 'docs', 'fb'), { recursive: true });
-    fs.mkdirSync(path.join(archiveRoot, 'docs', 'evals'), { recursive: true });
-    fs.mkdirSync(path.join(archiveRoot, 'templates', 'docs', 'learning'), { recursive: true });
-    for (const tool of ['fb-lane.cjs', 'fb-onboarding.cjs', 'fb-session.cjs', 'fb-eval.cjs', 'fb-efficiency.cjs', 'fb-changelog-closeout.cjs', 'fb-records.cjs', 'fb-project-graph.cjs', 'fb-graph-scheduler.cjs', 'fb-graph-propagation.cjs', 'fb-graph-learning.cjs', 'fb-graph-bfm.cjs', 'fb-board-context.cjs', 'fb-control-loop.cjs', 'fb-workstream-handoff.cjs', 'fb-learning.cjs']) fs.copyFileSync(path.join(repoRoot, 'tools', tool), path.join(archiveRoot, 'tools', tool));
-    for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md', 'control-loop.md', 'learning.md']) fs.copyFileSync(path.join(repoRoot, 'docs', 'fb', page), path.join(archiveRoot, 'docs', 'fb', page));
-    for (const asset of ['eval-record-template.md', 'agent-behavior-scorecard-template.md']) fs.copyFileSync(path.join(repoRoot, 'docs', 'evals', asset), path.join(archiveRoot, 'docs', 'evals', asset));
-    fs.copyFileSync(path.join(repoRoot, 'templates', 'docs', 'learning', 'index.md'), path.join(archiveRoot, 'templates', 'docs', 'learning', 'index.md'));
+    for (const dependency of packageManifest) {
+      const target = path.join(archiveRoot, dependency);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.copyFileSync(path.join(repoRoot, dependency), target);
+    }
+    for (const dependency of packageManifest) {
+      assert.ok(fs.existsSync(path.join(archiveRoot, dependency)), `fallback archive omitted declared package dependency ${dependency}`);
+    }
     const archive = path.join(archiveParent, 'source.tar.gz');
     execFileSync('tar', ['-czf', archive, '-C', archiveParent, 'fb-lane-coordination-main']);
     const output = execFileSync('bash', ['-eu', '-o', 'pipefail', '-c', commands], { cwd: root, env: { ...process.env, FB_LANE_ARCHIVE_URL: `file://${archive}` }, encoding: 'utf8' });
     assert.match(output, /FB bootstrapped successfully/i);
-    for (const tool of ['fb-lane.cjs', 'fb-onboarding.cjs', 'fb-session.cjs', 'fb-eval.cjs', 'fb-efficiency.cjs', 'fb-changelog-closeout.cjs', 'fb-records.cjs', 'fb-project-graph.cjs', 'fb-graph-scheduler.cjs', 'fb-graph-propagation.cjs', 'fb-graph-learning.cjs', 'fb-graph-bfm.cjs', 'fb-board-context.cjs', 'fb-control-loop.cjs', 'fb-workstream-handoff.cjs', 'fb-learning.cjs']) assert.strictEqual(fs.readFileSync(path.join(root, 'tools', tool), 'utf8'), fs.readFileSync(path.join(repoRoot, 'tools', tool), 'utf8'), tool);
+    for (const dependency of runtimeDependencies) assert.strictEqual(fs.readFileSync(path.join(root, dependency), 'utf8'), fs.readFileSync(path.join(repoRoot, dependency), 'utf8'), dependency);
     assert.doesNotThrow(() => execFileSync('node', ['-e', "require('./tools/fb-lane.cjs')"], { cwd: root, stdio: 'ignore' }));
     for (const page of ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md', 'control-loop.md', 'learning.md']) assert.strictEqual(fs.readFileSync(path.join(root, 'docs', 'fb', page), 'utf8'), fs.readFileSync(path.join(repoRoot, 'docs', 'fb', page), 'utf8'), page);
-    for (const asset of ['eval-record-template.md', 'agent-behavior-scorecard-template.md']) assert.strictEqual(fs.readFileSync(path.join(root, 'docs', 'evals', asset), 'utf8'), fs.readFileSync(path.join(repoRoot, 'docs', 'evals', asset), 'utf8'), asset);
+    for (const dependency of packageManifest.filter(entry => entry.startsWith('docs/evals/') && entry.endsWith('-template.md'))) assert.strictEqual(fs.readFileSync(path.join(root, dependency), 'utf8'), fs.readFileSync(path.join(repoRoot, dependency), 'utf8'), dependency);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
     fs.rmSync(archiveParent, { recursive: true, force: true });

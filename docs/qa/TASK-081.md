@@ -90,8 +90,8 @@ installed runtime authority.
 
 - This adapter is local-host and read-only. It does not create, rename, pin, or
   archive Codex tasks.
-- Publication, installation, and the MÉJA reconciliation retry remain outside
-  this candidate until **Push Live**.
+- Publication and installation completed after **Push Live**. Consumer-project
+  reconciliation remains a separate setup action after a fresh-task reload.
 - The smoke proved safe complete inventory construction, not the creation of
   the six missing MÉJA tasks. That mutation belongs to the post-install setup
   rerun in the MÉJA Product/BFM task.
