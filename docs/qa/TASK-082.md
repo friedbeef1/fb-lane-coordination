@@ -6,8 +6,8 @@ status: passed
 
 # TASK-082 QA
 
-Status: Passed — exact local source candidate and release checkpoint are green;
-GitHub review readiness remains before final handoff.
+Status: Passed and live — the exact candidate passed GitHub readiness, merged,
+and is installed and enabled from the configured local marketplace.
 
 ## Candidate
 
@@ -95,8 +95,30 @@ and whitespace proof instead.
 - Forward tests are bounded fresh-agent simulations, not live marketplace mutations.
 - Git history does not provide authoritative elapsed-time or provider-token savings.
 - Consumer-project evidence proves only the named setup behavior and is not a universal product or device claim.
-- This task prepares a review candidate only. Merge, publication, reinstall, and live verification still require **Push Live**.
+- This task proves the FB plugin release transaction; it does not prove behavior
+  inside a consumer project until a new Codex task loads the refreshed plugin.
+
+## Live release verification
+
+- **Authority:** James explicitly said **Push Live** in Product/BFM.
+- **GitHub:** [PR #65](https://github.com/friedbeef1/fb-lane-coordination/pull/65)
+  passed readiness and merged exact reviewed head `18d505b` as `742de6e`.
+- **Marketplace:** `codex plugin marketplace list --json` confirmed `fb-lane`
+  uses the local canonical checkout; that checkout was fast-forwarded to
+  `742de6e` before reinstall.
+- **Installed build:** `codex plugin list --json` reports
+  `0.8.0-beta+codex.20260810034353` installed and enabled.
+- **Installed parity:** All 86 manifest-declared files plus `plugin.json`,
+  `.codex-plugin/plugin.json`, and `.mcp.json` are byte-identical between the
+  release package and installed cache: 89/89 passed.
+- **Installed runtime:** Manifests parsed; `fb-lane.cjs`, `fb-session.cjs`, and
+  `fb-release-preflight.cjs` passed Node syntax; the installed MCP server
+  answered `tools/list` from `cwd: "."` and `./tools/fb-lane.cjs`.
+- **Reload boundary:** This task ends after closeout. A new Codex task is
+  required to load the refreshed skills and MCP runtime.
 
 ## Evidence boundary
 
-No release, merge, marketplace update, or reinstall is authorized before **Push Live**. Public release copy remains product-generic; named consumer evidence remains in linked historical QA.
+The release, merge, marketplace update, and reinstall occurred only after
+explicit **Push Live**. Public release copy remains product-generic; named
+consumer evidence remains in linked historical QA.

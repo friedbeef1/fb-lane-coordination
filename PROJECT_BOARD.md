@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-082 | Ready | FB-Product / BFM | Coordination retro, release hardening, and FB `0.8.0-beta+codex.20260810034353` | Retrospect commits `1da10b5..74a017b`; add one `fb-release` skill, targeted release preflight, manifest-derived archive fixtures, environment-specific proof, record repairs, and generated plugin mirrors | None; frozen review candidate | [Handoff](docs/handoffs/TASK-082.md); [QA](docs/qa/TASK-082.md) |
+| TASK-082 | Done | FB-Product / BFM | Coordination retro, release hardening, and FB `0.8.0-beta+codex.20260810034353` | Retrospect commits `1da10b5..74a017b`; add one `fb-release` skill, targeted release preflight, manifest-derived archive fixtures, environment-specific proof, record repairs, and generated plugin mirrors | None; published and installed | [PR #65](https://github.com/friedbeef1/fb-lane-coordination/pull/65) merged as `742de6e`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-082.md); [QA](docs/qa/TASK-082.md) |
 | TASK-081 | Done | FB-Product / BFM | Complete exact-project sidebar inventory and FB `0.7.1-beta+codex.20260809105651` | Replace the capped global non-pinned listing with a read-only, exact-root local candidate enumeration joined to current native project, thread-detail, and pinned-task evidence; preserve duplicate protection and fail closed | None; published and installed | [PR #64](https://github.com/friedbeef1/fb-lane-coordination/pull/64) merged as `3ef65a9`; exact build installed and enabled; [Changelog](CHANGELOG.md#071-beta--2026-08-09); [Handoff](docs/handoffs/TASK-081.md); [QA](docs/qa/TASK-081.md) |
 | TASK-080 | Done | FB-Product / BFM | Automatic Direct-vs-Graph BFM routing and `0.7.0-beta+codex.20260809013127` | Make `$bfm` select Direct, graph-driven, or authoritative-record fallback automatically while Markdown/Git remain authoritative | None; published and installed | [PR #63](https://github.com/friedbeef1/fb-lane-coordination/pull/63) merged as `c9d5d49`; exact build installed and enabled; router skill and bundled MCP route verified; [Handoff](docs/handoffs/TASK-080.md); [QA](docs/qa/TASK-080.md) |
 | TASK-079 | Superseded | FB-Product / BFM | Project-local recursive learning and `0.6.0-beta+codex.20260808104938` | Make each FB project learn bounded preventative lessons from its own verified delivery outcomes without creating nested repair loops | Learning runtime, harness guidance, plugin mirrors, focused contracts, version/release records | Candidate and evidence preserved; incorporated into TASK-080 / FB 0.7.0; [Handoff](docs/handoffs/TASK-079.md); [QA](docs/qa/TASK-079.md) |
@@ -36,9 +36,9 @@
 
 ### TASK-082 - FB coordination retro and release hardening
 
-*   **Status**: Ready to ship — the focused evidence, one whole-candidate review,
-    one consolidated repair, targeted preflight, Doctor, and single final release
-    checkpoint passed. GitHub review readiness is the remaining delivery check.
+*   **Status**: Done — PR #65 passed GitHub readiness and merged as `742de6e`;
+    the configured local marketplace was refreshed, and exact build
+    `0.8.0-beta+codex.20260810034353` is installed and enabled.
 *   **Owner / Thread**: FB-Product / BFM.
 *   **Area**: Coordination reliability, plugin release execution, records, packaging, and retrospective evidence.
 *   **Scope**: Produce the approved 46-commit retro; add exactly one model-invoked `fb-release` skill; shift complete candidate-record validation before broad gates; derive archive fixtures from the package manifest; repair current TASK-080/TASK-081 state drift; prepare FB `0.8.0-beta+codex.20260810034353`.
@@ -51,9 +51,8 @@
     *   **Approval**: approved — James supplied and explicitly requested implementation of TASK-082.
     *   **Justification**: The last three releases exposed repeatable late-record, dependency-closure, marketplace-source, and installed-proof mistakes that deterministic preflight and one narrow release owner can prevent.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-082.md) · [QA](docs/qa/TASK-082.md) · [retro](docs/retros/2026-08-10-fb-coordination-retro.md).
-*   **Locks**: None after candidate freeze. `MEJA-123` may claim the setup/runtime
-    package surfaces only after basing its focused follow-up on the eventual
-    TASK-082 release decision; it must not mutate this frozen candidate.
+*   **Locks**: None. `MEJA-123` owns its separate setup/runtime follow-up based
+    on the released TASK-082 commit and does not alter this completed record.
 
 ---
 
