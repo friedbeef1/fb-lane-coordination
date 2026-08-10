@@ -35,6 +35,7 @@ Strengthen the existing setup skill pair and onboarding runtime. Do not create a
 - Route duplicate-looking, rename, prefix, archive, and repair requests through the existing `$fb-setup` and `project-coordination-setup` owners.
 - Require a fresh Codex task after a plugin replacement before plugin-dependent mutation.
 - Generate package mirrors mechanically only after canonical review.
+- Exact candidate build: `0.8.1-beta+codex.20260810055302`.
 - Changelog expectation: required.
 
 ## Decisions and assumptions
@@ -90,10 +91,10 @@ Changelog expectation: required — repository-qualified task titles change visi
 - **Confirmed assumptions and approved scope changes:** `FB` remains the missing-key default; invalid configuration and configured-prefix drift fail closed; receipt-bound IDs cannot be replaced or adopted by title; `docs/setup.md` remains root-only because it is not manifest-managed; no new sidebar skill, archive planner action, consumer mutation, or sensitive operation was added.
 - **Branch, source commits, and changed surfaces:** Branch `codex/task-083-sidebar-identity-hardening`, source range `79475ccb7fcc526906da017b8a24b33d4e892a16..HEAD`; onboarding runtime/tests, existing setup skills, setup documentation, changelog, TASK-083 records, and five generated package mirrors.
 - **Checks, failures, recovery, and results:** Root and package onboarding passed 37/37 each; root and package native-setup and shortcut contracts passed; 86 mirrors are byte-identical; root/package runtime syntax, four skill validations, local links, normalized-record, changelog, preflight, and whitespace checks passed. The one whole-candidate review found two Important identity/wording issues and one changelog gap; one consolidated behavioral repair closed them. Candidate `883d786` then passed the targeted preflight, Doctor Ready, and the final full validator: 72 core, 34 checkout-migration, 39 session, 19 eval, 11 beginner, and 25 efficiency checks plus product-positioning and two-speed contracts.
-- **Review state, direct links, limits, and external gates:** Ready to ship; see [QA evidence](../qa/TASK-083.md) and the [TASK-083 changelog entry](../../CHANGELOG.md#task-083--project-qualified-sidebar-task-titles). Consumer acceptance is bounded local evidence, not installed-package proof. No merge, publication, marketplace refresh, reinstall, task mutation, or deployment is authorized before **Push Live**.
+- **Review state, direct links, limits, and external gates:** Ready to ship; see [QA evidence](../qa/TASK-083.md) and the [0.8.1-beta changelog entry](../../CHANGELOG.md#081-beta--2026-08-10). Consumer acceptance is bounded local evidence, not installed-package proof. No merge, publication, marketplace refresh, reinstall, task mutation, or deployment is authorized before **Push Live**.
 - **Repository state:** Source candidate `883d786` is committed in the isolated TASK-083 worktree; the final coordination closeout changes records only and does not change source or package bytes. TASK-082's frozen branch remains untouched.
 - **Remaining owner and action:** Product/BFM holds the candidate at **Ready to ship**. Only a later explicit **Push Live** may authorize merge, publication, marketplace refresh, reinstall, or consumer reconciliation.
-- **Changelog:** updated — [TASK-083 project-qualified sidebar task titles](../../CHANGELOG.md#task-083--project-qualified-sidebar-task-titles).
+- **Changelog:** updated — [0.8.1-beta project-qualified sidebar task titles](../../CHANGELOG.md#081-beta--2026-08-10).
 
 ## Brief Validation
 

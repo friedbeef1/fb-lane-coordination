@@ -1,6 +1,10 @@
 # Changelog
 
-## TASK-083 — Project-qualified sidebar task titles
+## 0.8.1-beta — 2026-08-10
+
+Build: `0.8.1-beta+codex.20260810055302`
+
+### TASK-083 — Project-qualified sidebar task titles
 
 **What changed:** Optional repository-local `taskTitlePrefix` now derives all
 seven visible FB task titles while preserving exact-project identity, stable IDs,
@@ -23,9 +27,10 @@ Codex task before running `$fb-setup` or a repair.
 candidate-faithful TASK-083 wording.
 
 **Release evidence and boundary:** Focused onboarding, native-setup, shortcut,
-syntax, and whitespace evidence is recorded in [TASK-083 QA](docs/qa/TASK-083.md).
-This candidate changes no version/build surface; merge, publication, installation,
-and release remain gated by **Push Live**.
+syntax, package-parity, targeted-preflight, Doctor, and release-checkpoint
+evidence is recorded in [TASK-083 QA](docs/qa/TASK-083.md). This candidate is
+versioned separately from the live 0.8.0 build; merge, publication,
+installation, and release remain gated by **Push Live**.
 
 ## 0.8.0-beta — 2026-08-10
 

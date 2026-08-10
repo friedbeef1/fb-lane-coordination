@@ -14,6 +14,7 @@ Status: Passed — source candidate `883d786` is Ready to ship; no release actio
 - Worktree: `/private/tmp/fb-task-083`
 - Base: `79475ccb7fcc526906da017b8a24b33d4e892a16`
 - Release-checkpoint source candidate: `883d7869cbb01cd1f93798ad71e830d6bcca2a40`
+- Integrated candidate build: `0.8.1-beta+codex.20260810055302`
 - Environment: local canonical-source worktree; no installed cache or consumer source mutation.
 
 ## Verification plan
