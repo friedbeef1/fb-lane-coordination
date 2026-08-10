@@ -69,9 +69,9 @@ Only the affected preflight/records proofs were rerun; both are green.
 
 ## Release checkpoint
 
-Release checkpoint: passed once for source candidate `bd32dd2` after the
-whole-candidate review, consolidated repair, 86-mirror parity, exact targeted
-preflight, and Doctor Ready result.
+Release checkpoint: requested and planned once, then passed for source candidate
+`bd32dd2` after the whole-candidate review, consolidated repair, 86-mirror
+parity, exact targeted preflight, and Doctor Ready result.
 
 - Result: passed.
 - Command: `node tools/fb-lane.validate.cjs`.
