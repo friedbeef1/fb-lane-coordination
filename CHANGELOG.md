@@ -67,8 +67,9 @@ candidate-faithful wording; reference TASK-082.
 **Release evidence:** Focused preflight, archive dependency, skill behavior,
 metadata, package-parity, syntax, link, Doctor, whitespace, candidate-review,
 and final release-checkpoint evidence is recorded in
-[TASK-082 QA](docs/qa/TASK-082.md). Publication and installation remain gated
-by **Push Live**.
+[TASK-082 QA](docs/qa/TASK-082.md). After explicit **Push Live**, PR #65 merged
+as `742de6e`; the configured local marketplace was refreshed and exact build
+`0.8.0-beta+codex.20260810034353` was installed and enabled.
 
 ## 0.7.1-beta — 2026-08-09
 

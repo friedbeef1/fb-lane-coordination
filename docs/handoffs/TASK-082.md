@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-082
 lane: fb-product
-status: ready
+status: done
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -98,9 +98,9 @@ Changelog expectation: required — this adds a user-visible release skill and c
 - **Confirmed assumptions and approved scope changes:** Consumer projects remain evidence only; historical records are preserved; the selected current release handoff must declare `record_model: normalized-v1`; no scope expansion or sensitive operation was introduced.
 - **Branch, source commits, and changed surfaces:** Branch `codex/task-082-retro-release-hardening`, source range `74a017b..HEAD`; release runtime and contracts, canonical operating guidance, BFM/Product/release skills, current TASK-080/TASK-081 state, version metadata, changelog, retro, and generated plugin package.
 - **Checks, failures, recovery, and results:** Focused root/package release and normalized-record contracts passed 31/31 in each context; eval/archive fallback passed 19/19; package-sync unit contracts passed 10/10; 86 generated mirrors agree; metadata, lifecycle/version, syntax, skill validation, links, Doctor, and whitespace passed. Three read-only fresh-agent probes correctly stopped incomplete evidence, selected the local-marketplace path, and rejected installed-build/public-copy mismatches. The one whole-candidate review found three Important record/integration issues and no Critical issue; one consolidated repair closed all three. The final release validator passed once at source candidate `bd32dd2` with 72 core, 34 checkout-migration, 39 session, 19 eval, 11 beginner, and 25 efficiency checks plus focused positioning, two-speed, Doctor, parity, and whitespace gates.
-- **Review state, direct links, limits, and external gates:** Ready to ship after GitHub review readiness; see [QA evidence](../qa/TASK-082.md), [retrospective](../retros/2026-08-10-fb-coordination-retro.md), and [0.8.0-beta changelog](../../CHANGELOG.md#080-beta--2026-08-10). No merge, publication, marketplace refresh, reinstall, or deployment is authorized before **Push Live**.
-- **Repository state:** Source candidate `bd32dd2` is clean and committed on the TASK-082 branch; canonical `main` remains at `74a017b` until a later release decision. The coordination-only closeout changes no runtime or package bytes and reuses the passing checkpoint through targeted record/Doctor/whitespace proof.
-- **Remaining owner and action:** Product/BFM pushes the review PR, observes GitHub readiness once, and stops at **Ready to ship**. A later explicit **Push Live** is required for merge, publication, marketplace refresh, and reinstall.
+- **Review state, direct links, limits, and external gates:** Completed build; [PR #65](https://github.com/friedbeef1/fb-lane-coordination/pull/65) passed GitHub readiness and merged as `742de6e`. See [QA evidence](../qa/TASK-082.md), [retrospective](../retros/2026-08-10-fb-coordination-retro.md), and [0.8.0-beta changelog](../../CHANGELOG.md#080-beta--2026-08-10). James explicitly supplied **Push Live** before merge, marketplace refresh, and reinstall.
+- **Repository state:** Reviewed branch head `18d505b` merged to canonical `main` as `742de6e`; the configured local `fb-lane` marketplace now resolves to that merge. Exact build `0.8.0-beta+codex.20260810034353` is installed and enabled, with 89 declared package/runtime artifacts byte-identical to the release package.
+- **Remaining owner and action:** No release action remains. Start a new Codex task before relying on the refreshed `fb-release` skill or MCP bundle; `MEJA-123` continues separately from the released commit.
 - **Changelog:** updated — [0.8.0-beta](../../CHANGELOG.md#080-beta--2026-08-10).
 
 ## Brief Validation
@@ -111,10 +111,10 @@ release checkpoint all passed for the frozen source candidate.
 
 Satisfied criteria and evidence: The focused contracts prove selected-record completeness, historical compatibility, source-type-aware release behavior, installed-runtime proof boundaries, archive dependency closure, version consistency, and the intended one-skill boundary.
 
-Missing criteria and next actions: GitHub readiness remains before the review
-candidate is reported Ready to ship. Merge, publication, marketplace refresh,
-reinstall, and live verification remain outside this candidate until **Push
-Live**. No approved scope change is pending.
+Missing criteria and next actions: None for TASK-082. GitHub readiness, merge,
+local-marketplace refresh, exact reinstall, installed-artifact parity, and MCP
+resolution all passed after explicit **Push Live**. No approved scope change is
+pending.
 
 ## Verification Handoff
 
