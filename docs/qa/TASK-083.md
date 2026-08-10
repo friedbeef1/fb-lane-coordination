@@ -75,7 +75,7 @@ is authorized.
 
 ## Release checkpoint
 
-Release checkpoint: passed once for repaired current-candidate input `d137fce793a6e4ed39aa74957902452b73fdb42e` after the targeted TASK-083 candidate preflight and Doctor Ready proof. The earlier checkpoint for `883d7869cbb01cd1f93798ad71e830d6bcca2a40` remains historical evidence only.
+Release checkpoint: planned once and passed once for repaired current-candidate input `d137fce793a6e4ed39aa74957902452b73fdb42e` after the targeted TASK-083 candidate preflight and Doctor Ready proof. The earlier checkpoint for `883d7869cbb01cd1f93798ad71e830d6bcca2a40` remains historical evidence only.
 
 - Command: `node tools/fb-lane.validate.cjs`.
 - Declared package mirrors: 86/86 byte-identical.
