@@ -64,6 +64,25 @@ Yes, record `node tools/fb-onboarding.cjs permission granted`, then own the
 native exact-project reconciliation below. The Node CLI plans and verifies
 inventory files; it does not call the sidebar or Codex-native task controls.
 
+### Sidebar identity repair
+
+An optional `.fb-lane.json` `taskTitlePrefix` defines this repository's
+expected visible titles; it defaults to `FB`. The prefix is presentation only,
+not identity authority. Exact project ID, canonical root, stable task ID,
+complete native details, and pinned state remain authoritative.
+
+Duplicate-looking suites and prefix, rename, archive, or repair requests must
+enter exact-project reconciliation before any task mutation. Migrate supported
+generic or legacy bindings by stable-ID rename and create only a role proved
+absent. `archive` is never a planner or
+`attemptedActions` action: reconcile first, then archive only an exact task ID
+for a noncanonical task with explicit authority; never archive from title alone
+or archive a canonical binding.
+
+After a prefix or rename mutation, fresh evidence and the receipt must prove all seven roles with exact titles and pinned state, including all seven repository-expected visible titles and the same task IDs.
+If FB was installed, upgraded, or replaced in this task, open a fresh Codex task
+before any plugin-dependent setup or repair mutation.
+
 ### Native exact-project reconciliation
 
 1. Resolve the canonical repository root. Call `list_projects` and select one
@@ -130,9 +149,10 @@ inventory files; it does not call the sidebar or Codex-native task controls.
    candidate, and `inventory-local`; do not reuse the pre-mutation evidence.
    Save the final JSON
    inventory with the normalized field `attemptedActions` (use `[]` when the
-   plan needed no native mutation). It must show all seven roles—
-   Product/BFM, User, Business, Design, Tech, Discovery, and Bugs—with exact
-   titles, executable task IDs, and pinned state.
+   plan needed no native mutation). It must show all seven repository-expected visible titles:
+   Product/BFM, User, Business, Design, Tech, Discovery, and Bugs. These are
+   exact titles with the same task IDs and pinned state; the strict receipt must
+   preserve those bindings.
 7. Only then run
    `node tools/fb-onboarding.cjs reconcile <final-inventory.json> --repository-root <canonical-root> --project-id <project-id>`.
    This strict route verifies the final inventory and writes the clone-local

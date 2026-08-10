@@ -1,8 +1,43 @@
 # Changelog
 
+## 0.8.1-beta — 2026-08-10
+
+Build: `0.8.1-beta+codex.20260810055302`
+
+### TASK-083 — Project-qualified sidebar task titles
+
+**What changed:** Optional repository-local `taskTitlePrefix` now derives all
+seven visible FB task titles while preserving exact-project identity, stable IDs,
+pins, complete-inventory proof, and receipts. Supported generic bindings rename
+in place; duplicate, stale, relabeled, role-swapped, prefix-drift receipt, or
+unrecognized project-qualified task evidence fails closed without creates or
+automatic adoption.
+
+**Why it matters:** Repositories can make their sidebar tasks unmistakable
+without allowing a title change to replace identity or create duplicate tasks.
+
+**Compatibility:** Default `FB · …` titles and existing generic aliases remain
+compatible. Generic-to-configured migrations retain the same bound IDs; a
+configured-prefix-to-configured-prefix drift requires explicit identity repair.
+
+**Installation or upgrade:** After explicit **Push Live**, refresh the configured
+`fb-lane` marketplace, reinstall `fb-lane-coordination@fb-lane`, and open a new
+Codex task before running `$fb-setup` or a repair.
+
+**Changelog approval:** Approved through Product/BFM standing delegation for
+candidate-faithful TASK-083 wording.
+
+**Release evidence and boundary:** Focused onboarding, native-setup, shortcut,
+syntax, package-parity, targeted-preflight, Doctor, and release-checkpoint
+evidence is recorded in [TASK-083 QA](docs/qa/TASK-083.md). This candidate is
+versioned separately from the live 0.8.0 build; merge, publication,
+installation, and release remain gated by **Push Live**.
+
 ## 0.8.0-beta — 2026-08-10
 
 Build: `0.8.0-beta+codex.20260810034353`
+
+### TASK-082 — Release hardening and exact installation proof
 
 **What changed:** FB now has one model-invoked `fb-release` skill for explicit
 **Push Live** in Product/BFM. Before broad release validation, a

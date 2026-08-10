@@ -15,6 +15,10 @@ const skill = fs.readFileSync(
   path.join(root, 'skills/project-coordination-setup/SKILL.md'),
   'utf8',
 );
+const shortcut = fs.readFileSync(
+  path.join(root, 'skills/fb-setup/SKILL.md'),
+  'utf8',
+);
 const onboarding = require('./fb-onboarding.cjs');
 if (!packaged) {
   const packageManifest = JSON.parse(fs.readFileSync(
@@ -80,6 +84,40 @@ assert.match(skill, /stop[\s\S]{0,180}role-specific[\s\S]{0,180}manual fallback/
 assert.match(skill, /newly created[\s\S]{0,180}(?:never|do not)[\s\S]{0,80}(?:create|recreate)[\s\S]{0,80}duplicate/i);
 assert.match(skill, /safe to run again[\s\S]{0,180}(?:complete inventory|plan)[\s\S]{0,180}create only[\s\S]{0,120}(?:still missing|missing)/i);
 assert.match(skill, /all seven[\s\S]{0,320}exact\s+titles?[\s\S]{0,180}pinned/i);
+assert.match(shortcut, /duplicate-looking[\s\S]{0,240}(?:prefix|rename|archive|repair)/i);
+assert.match(shortcut, /exact-project reconciliation[\s\S]{0,180}before any (?:sidebar|task) mutation/i);
+assert.match(shortcut, /(?:installed|upgraded|replaced)[\s\S]{0,180}(?:new|fresh) Codex task[\s\S]{0,180}before[\s\S]{0,120}plugin-dependent/i);
+
+const repairStart = skill.indexOf('### Sidebar identity repair');
+const nativeStart = skill.indexOf('### Native exact-project reconciliation');
+assert.notStrictEqual(repairStart, -1, 'setup must define sidebar identity repair');
+assert.ok(repairStart < nativeStart, 'sidebar identity repair must route into native exact-project reconciliation');
+const repair = skill.slice(repairStart, nativeStart);
+for (const term of ['duplicate-looking', 'prefix', 'rename', 'archive', 'repair']) {
+  assert.match(repair, new RegExp(term, 'i'), `repair route must cover ${term}`);
+}
+assert.match(repair, /\.fb-lane\.json[\s\S]{0,100}`taskTitlePrefix`/);
+assert.match(repair, /visible titles?[\s\S]{0,180}(?:presentation|not[\s\S]{0,60}identity)/i);
+assert.match(repair, /exact-project reconciliation[\s\S]{0,180}before any (?:sidebar|task) mutation/i);
+assert.match(repair, /archive[\s\S]{0,260}(?:not|never)[\s\S]{0,140}(?:plan|attemptedActions)[\s\S]{0,260}(?:exact task ID|explicit approval|explicit authority)/i);
+assert.match(repair, /(?:installed|upgraded|replaced)[\s\S]{0,180}(?:new|fresh) Codex task[\s\S]{0,180}before[\s\S]{0,120}plugin-dependent/i);
+
+const postMutationEnd = skill.indexOf('Product/User is a legacy');
+const postMutationProof = skill.slice(relist, postMutationEnd);
+assert.match(postMutationProof, /do not reuse the pre-mutation evidence/i);
+assert.match(postMutationProof, /all seven repository-expected visible titles/i);
+assert.match(postMutationProof, /(?:same|unchanged)[\s\S]{0,100}(?:task IDs|IDs)/i);
+assert.match(postMutationProof, /pinned state/i);
+assert.match(postMutationProof, /receipt/i);
+
+if (!packaged) {
+  const setupDocs = fs.readFileSync(path.join(root, 'docs/setup.md'), 'utf8');
+  assert.match(setupDocs, /taskTitlePrefix/);
+  assert.match(setupDocs, /default(?:s)? to `FB`/i);
+  assert.match(setupDocs, /visible titles?[\s\S]{0,180}(?:not|never)[\s\S]{0,100}(?:project identity|identity authority)/i);
+  assert.match(setupDocs, /duplicate-looking[\s\S]{0,220}\$fb-setup/i);
+  assert.match(setupDocs, /(?:new|fresh) Codex task[\s\S]{0,220}before[\s\S]{0,140}plugin-dependent/i);
+}
 
 assert.strictEqual(
   onboarding.reconcileRepositoryTaskInventory,

@@ -17,6 +17,15 @@ try {
 
 const REPO = '/work/projects/mirrorcam';
 const REPOSITORY = { projectId: 'project-mirrorcam', repositoryPath: REPO };
+const ROLE_LABELS = [
+  ['product', 'Product/BFM'],
+  ['user', 'User'],
+  ['business', 'Business'],
+  ['design', 'Design'],
+  ['tech', 'Tech'],
+  ['discovery', 'Discovery'],
+  ['bugs', 'Bugs'],
+];
 
 function completeInventory(repository = REPOSITORY) {
   return {
@@ -327,6 +336,401 @@ test('repository inventory planning migrates legacy titles and preserves pinned 
       ['reuse', 'bugs', 'bugs'],
     ],
   );
+});
+
+test('repository taskTitlePrefix renames all seven stable bindings without creating duplicates', t => {
+  const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-plan-'));
+  t.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+  fs.writeFileSync(
+    path.join(repositoryPath, '.fb-lane.json'),
+    `${JSON.stringify({ taskTitlePrefix: 'MÉJA' }, null, 2)}\n`,
+  );
+  const repository = { projectId: 'project-meja', repositoryPath };
+  const inventory = completeInventory(repository);
+  const plan = onboarding.planRepositoryTaskInventory(inventory, repository);
+
+  assert.strictEqual(plan.complete, true);
+  assert.strictEqual(plan.actions.filter(action => action.type === 'create').length, 0);
+  assert.strictEqual(plan.actions.filter(action => action.type === 'pin').length, 0);
+  assert.deepStrictEqual(
+    plan.actions.map(action => [action.type, action.workstream, action.taskId || null]),
+    ROLE_LABELS.flatMap(([key], index) => [
+      ['reuse', key, `task-${index}`],
+      ['rename', key, `task-${index}`],
+    ]),
+  );
+  assert.deepStrictEqual(
+    plan.actions.filter(action => action.type === 'rename').map(action => [
+      action.workstream,
+      action.taskId,
+      action.title,
+    ]),
+    ROLE_LABELS.map(([key, label], index) => [key, `task-${index}`, `MÉJA · ${label}`]),
+  );
+});
+
+test('a generic receipt migrates its unchanged bound IDs to a configured prefix', t => {
+  const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-receipt-migration-'));
+  t.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+  const repository = { projectId: 'project-receipt-migration', repositoryPath };
+  const genericInventory = completeInventory(repository);
+
+  onboarding.ensureOnboardingReceipt(repositoryPath);
+  onboarding.recordPermission(repositoryPath, 'granted');
+  onboarding.recordVerifiedReconciliation(
+    repositoryPath,
+    onboarding.verifyRepositoryTaskInventory(genericInventory, repository, {
+      requireAttemptedActions: true,
+    }),
+    repository,
+  );
+  fs.writeFileSync(path.join(repositoryPath, '.fb-lane.json'), `${JSON.stringify({ taskTitlePrefix: 'MÉJA' })}\n`);
+
+  const plan = onboarding.planRepositoryTaskInventory(genericInventory, repository);
+  assert.strictEqual(plan.complete, true);
+  assert.strictEqual(plan.actions.filter(action => action.type === 'create').length, 0);
+  assert.deepStrictEqual(
+    plan.actions.filter(action => action.type === 'rename').map(action => action.taskId),
+    ROLE_LABELS.map(([,], index) => `task-${index}`),
+  );
+});
+
+test('receipt-bound IDs relabeled outside every current role require identity repair', t => {
+  const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-receipt-identity-'));
+  t.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+  const repository = { projectId: 'project-receipt-identity', repositoryPath };
+  const genericInventory = completeInventory(repository);
+
+  onboarding.ensureOnboardingReceipt(repositoryPath);
+  onboarding.recordPermission(repositoryPath, 'granted');
+  onboarding.recordVerifiedReconciliation(
+    repositoryPath,
+    onboarding.verifyRepositoryTaskInventory(genericInventory, repository, {
+      requireAttemptedActions: true,
+    }),
+    repository,
+  );
+
+  const relabeledBoundInventory = {
+    ...genericInventory,
+    tasks: genericInventory.tasks.map(task => ({
+      ...task,
+      title: `OLD · ${task.title.replace(/^FB · /, '')}`,
+    })),
+  };
+  const competingGenericSuite = {
+    ...relabeledBoundInventory,
+    tasks: [
+      ...relabeledBoundInventory.tasks,
+      ...genericInventory.tasks.map((task, index) => ({ ...task, id: `generic-${index}` })),
+    ],
+  };
+
+  for (const inventory of [relabeledBoundInventory, competingGenericSuite]) {
+    const plan = onboarding.planRepositoryTaskInventory(inventory, repository);
+    assert.strictEqual(plan.complete, false);
+    assert.deepStrictEqual(plan.actions, []);
+    assert.match(
+      plan.failures.map(failure => failure.message).join(' '),
+      /identity repair.*task-0|task-0.*identity repair/i,
+    );
+  }
+});
+
+test('prefixed post-mutation inventory verifies exact titles and writes the strict receipt', t => {
+  const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-receipt-'));
+  t.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+  fs.writeFileSync(
+    path.join(repositoryPath, '.fb-lane.json'),
+    `${JSON.stringify({ taskTitlePrefix: 'MÉJA' }, null, 2)}\n`,
+  );
+  const repository = { projectId: 'project-meja', repositoryPath };
+  const attemptedActions = ROLE_LABELS.map(([key], index) => ({
+    sequence: index + 1,
+    action: 'rename',
+    workstream: key,
+    outcome: 'succeeded',
+    taskId: `task-${index}`,
+  }));
+  const inventory = {
+    complete: true,
+    attemptedActions,
+    tasks: ROLE_LABELS.map(([key, label], index) => ({
+      id: `task-${index}`,
+      title: `MÉJA · ${label}`,
+      projectId: repository.projectId,
+      projectPath: repositoryPath,
+      pinned: true,
+    })),
+  };
+
+  const plan = onboarding.planRepositoryTaskInventory(inventory, repository);
+  assert.deepStrictEqual(plan.actions.map(action => [action.type, action.workstream]),
+    ROLE_LABELS.map(([key]) => ['reuse', key]));
+  const verification = onboarding.verifyRepositoryTaskInventory(inventory, repository, {
+    requireAttemptedActions: true,
+  });
+  assert.strictEqual(verification.complete, true);
+  assert.deepStrictEqual(
+    Object.values(verification.taskBindings),
+    ROLE_LABELS.map(([, label], index) => ({
+      taskId: `task-${index}`,
+      title: `MÉJA · ${label}`,
+      pinned: true,
+    })),
+  );
+
+  onboarding.ensureOnboardingReceipt(repositoryPath);
+  onboarding.recordPermission(repositoryPath, 'granted');
+  const receipt = onboarding.recordVerifiedReconciliation(
+    repositoryPath,
+    verification,
+    repository,
+    { now: new Date('2026-08-10T04:00:00Z') },
+  );
+  assert.deepStrictEqual(receipt.taskBindings, verification.taskBindings);
+  assert.deepStrictEqual(receipt.attemptedActions, attemptedActions);
+  assert.strictEqual(
+    receipt.attemptedActionsHash,
+    require('node:crypto').createHash('sha256').update(JSON.stringify(attemptedActions)).digest('hex'),
+  );
+  assert.strictEqual(onboarding.needsTaskInventoryReconciliation(receipt, repositoryPath), false);
+});
+
+test('missing taskTitlePrefix keeps the current FB title contract', t => {
+  const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-default-'));
+  t.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+  const repository = { projectId: 'project-default', repositoryPath };
+  const inventory = completeInventory(repository);
+
+  fs.writeFileSync(path.join(repositoryPath, '.fb-lane.json'), '{}\n');
+
+  assert.deepStrictEqual(
+    onboarding.workstreamsForRepository(repository).map(workstream => workstream.title),
+    onboarding.WORKSTREAMS.map(workstream => workstream.title),
+  );
+  assert.deepStrictEqual(
+    onboarding.planRepositoryTaskInventory(inventory, repository).actions.map(action => action.type),
+    Array(7).fill('reuse'),
+  );
+});
+
+test('invalid taskTitlePrefix configuration fails closed', t => {
+  const invalidValues = [
+    ['empty', '   '],
+    ['overlong', 'x'.repeat(65)],
+    ['canonical separator', 'MÉJA · Legacy'],
+    ['control character', 'MÉJA\n'],
+    ['non-string', 123],
+    ['null', null],
+    ['boolean', true],
+    ['object', { name: 'MÉJA' }],
+    ['array', ['MÉJA']],
+  ];
+  for (const [label, taskTitlePrefix] of invalidValues) {
+    const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-invalid-'));
+    t.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+    fs.writeFileSync(path.join(repositoryPath, '.fb-lane.json'), `${JSON.stringify({ taskTitlePrefix })}\n`);
+    assert.throws(
+      () => onboarding.workstreamsForRepository({ repositoryPath }),
+      /taskTitlePrefix/i,
+      label,
+    );
+  }
+
+  const malformedRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-malformed-'));
+  t.after(() => fs.rmSync(malformedRoot, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(malformedRoot, '.fb-lane.json'), '{ invalid json\n');
+  assert.throws(
+    () => onboarding.workstreamsForRepository({ repositoryPath: malformedRoot }),
+    /parse.*\.fb-lane\.json|\.fb-lane\.json.*parse/i,
+  );
+
+  const unreadableRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-unreadable-'));
+  t.after(() => fs.rmSync(unreadableRoot, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(unreadableRoot, '.fb-lane.json'));
+  assert.throws(
+    () => onboarding.workstreamsForRepository({ repositoryPath: unreadableRoot }),
+    /\.fb-lane\.json/i,
+  );
+});
+
+test('configured titles remain isolated by project and same-project aliases remain duplicate failures', t => {
+  const mejaRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-meja-'));
+  const toughTalksRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-tt-'));
+  t.after(() => fs.rmSync(mejaRoot, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(toughTalksRoot, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(mejaRoot, '.fb-lane.json'), `${JSON.stringify({ taskTitlePrefix: 'MÉJA' })}\n`);
+  fs.writeFileSync(path.join(toughTalksRoot, '.fb-lane.json'), `${JSON.stringify({ taskTitlePrefix: 'TT' })}\n`);
+  const mejaRepository = { projectId: 'project-meja', repositoryPath: mejaRoot };
+  const otherTasks = ROLE_LABELS.map(([key, label]) => ({
+    id: `tt-${key}`,
+    title: `TT · ${label}`,
+    projectId: 'project-tt',
+    projectPath: toughTalksRoot,
+    pinned: true,
+  }));
+  const mejaInventory = completeInventory(mejaRepository);
+  mejaInventory.tasks.push(...otherTasks);
+  const isolated = onboarding.planRepositoryTaskInventory(mejaInventory, mejaRepository);
+  assert.strictEqual(isolated.complete, true);
+  assert.ok(isolated.actions.every(action => !String(action.taskId || '').startsWith('tt-')));
+
+  const duplicateInventory = completeInventory(mejaRepository);
+  duplicateInventory.tasks.push({
+    id: 'meja-user-prefixed',
+    title: 'MÉJA · User',
+    projectId: mejaRepository.projectId,
+    projectPath: mejaRoot,
+    pinned: true,
+  });
+  const duplicate = onboarding.planRepositoryTaskInventory(duplicateInventory, mejaRepository);
+  assert.strictEqual(duplicate.complete, false);
+  assert.deepStrictEqual(duplicate.actions, []);
+  assert.match(duplicate.failures.map(failure => failure.message).join(' '), /Ambiguous User.*meja-user-prefixed.*task-1|Ambiguous User.*task-1.*meja-user-prefixed/i);
+});
+
+test('a later prefix change never turns prior reconciled bindings into creates', t => {
+  const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-drift-'));
+  t.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+  const repository = { projectId: 'project-prefix-drift', repositoryPath };
+  fs.writeFileSync(path.join(repositoryPath, '.fb-lane.json'), `${JSON.stringify({ taskTitlePrefix: 'MÉJA' })}\n`);
+  const attemptedActions = [];
+  const oldInventory = {
+    complete: true,
+    attemptedActions,
+    tasks: ROLE_LABELS.map(([key, label], index) => ({
+      id: `task-${index}`,
+      title: `MÉJA · ${label}`,
+      projectId: repository.projectId,
+      projectPath: repositoryPath,
+      pinned: true,
+    })),
+  };
+  onboarding.ensureOnboardingReceipt(repositoryPath);
+  onboarding.recordPermission(repositoryPath, 'granted');
+  const oldVerification = onboarding.verifyRepositoryTaskInventory(oldInventory, repository, {
+    requireAttemptedActions: true,
+  });
+  const oldReceipt = onboarding.recordVerifiedReconciliation(
+    repositoryPath,
+    oldVerification,
+    repository,
+  );
+  assert.strictEqual(onboarding.needsTaskInventoryReconciliation(oldReceipt, repositoryPath), false);
+
+  fs.writeFileSync(path.join(repositoryPath, '.fb-lane.json'), `${JSON.stringify({ taskTitlePrefix: 'MJ' })}\n`);
+  assert.strictEqual(onboarding.needsTaskInventoryReconciliation(oldReceipt, repositoryPath), true);
+  const driftPlan = onboarding.planRepositoryTaskInventory(oldInventory, repository);
+  assert.strictEqual(driftPlan.complete, false);
+  assert.deepStrictEqual(driftPlan.actions, []);
+  assert.match(driftPlan.failures.map(failure => failure.message).join(' '), /prefix|receipt|previously reconciled/i);
+});
+
+test('an unreceipted project-qualified suite fails closed instead of creating duplicate roles', t => {
+  const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-unreceipted-'));
+  t.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(repositoryPath, '.fb-lane.json'), `${JSON.stringify({ taskTitlePrefix: 'MÉJA' })}\n`);
+  const repository = { projectId: 'project-prefix-unreceipted', repositoryPath };
+  const inventory = {
+    complete: true,
+    tasks: ROLE_LABELS.map(([key, label], index) => ({
+      id: `old-${index}`,
+      title: `OLD · ${label}`,
+      projectId: repository.projectId,
+      projectPath: repositoryPath,
+      pinned: true,
+    })),
+  };
+
+  const plan = onboarding.planRepositoryTaskInventory(inventory, repository);
+
+  assert.strictEqual(plan.complete, false);
+  assert.deepStrictEqual(plan.actions, []);
+  assert.match(
+    plan.failures.map(failure => failure.message).join(' '),
+    /project-qualified.*old-0.*identity repair/i,
+  );
+});
+
+test('configured exact-title proof repairs normalized punctuation and case variants', t => {
+  const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-exact-'));
+  t.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(repositoryPath, '.fb-lane.json'), `${JSON.stringify({ taskTitlePrefix: 'MÉJA' })}\n`);
+  const repository = { projectId: 'project-exact-title', repositoryPath };
+  const variants = ['MÉJA-Product/BFM', 'méja · user', 'MÉJA / Business', 'MÉJA  ·  Design'];
+  const inventory = {
+    complete: true,
+    tasks: ROLE_LABELS.map(([key, label], index) => ({
+      id: `task-${index}`,
+      title: variants[index] || `MÉJA · ${label}`,
+      projectId: repository.projectId,
+      projectPath: repositoryPath,
+      pinned: true,
+    })),
+  };
+  const plan = onboarding.planRepositoryTaskInventory(inventory, repository);
+  assert.strictEqual(plan.complete, true);
+  assert.deepStrictEqual(
+    plan.actions.filter(action => action.type === 'rename').map(action => [action.workstream, action.title]),
+    ROLE_LABELS.slice(0, variants.length).map(([key, label]) => [key, `MÉJA · ${label}`]),
+  );
+  assert.strictEqual(onboarding.verifyRepositoryTaskInventory(inventory, repository).complete, false);
+});
+
+test('configured idle prompts and fallback use repository-expected visible titles', t => {
+  const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-prompts-'));
+  t.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(repositoryPath, '.fb-lane.json'), `${JSON.stringify({ taskTitlePrefix: 'MÉJA' })}\n`);
+  const prompt = onboarding.renderIdleTaskPrompt(onboarding.WORKSTREAMS[1], {
+    repositoryName: 'MÉJA',
+    repositoryPath,
+  });
+  assert.match(prompt, /You are the MÉJA · User workstream/);
+  const fallback = onboarding.renderManualFallback(undefined, {
+    repositoryName: 'MÉJA',
+    repositoryPath,
+  });
+  for (const [, label] of ROLE_LABELS) assert.match(fallback, new RegExp(`MÉJA · ${label.replace('/', '\\/')}`));
+
+  const cli = spawnSync(process.execPath, [
+    path.join(__dirname, 'fb-onboarding.cjs'),
+    'prompt',
+    'discovery',
+    repositoryPath,
+  ], { encoding: 'utf8' });
+  assert.strictEqual(cli.status, 0, cli.stderr);
+  assert.match(cli.stdout, /MÉJA · Discovery/);
+});
+
+test('needs-reconciliation detects stale binding titles and malformed prefix configuration', t => {
+  const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-needs-'));
+  t.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(repositoryPath, '.fb-lane.json'), `${JSON.stringify({ taskTitlePrefix: 'MÉJA' })}\n`);
+  const receipt = {
+    schemaVersion: 1,
+    repositoryPath,
+    projectId: 'project-needs',
+    permission: 'granted',
+    workstreams: ROLE_LABELS.map(([key]) => key),
+    taskBindings: Object.fromEntries(ROLE_LABELS.map(([key, label], index) => [key, {
+      taskId: `task-${index}`,
+      title: `FB · ${label}`,
+      pinned: true,
+    }])),
+    attemptedActions: [],
+    reconciledAt: '2026-08-09T00:00:00.000Z',
+  };
+  assert.strictEqual(onboarding.needsTaskInventoryReconciliation(receipt, repositoryPath), true);
+
+  fs.writeFileSync(path.join(repositoryPath, '.fb-lane.json'), '{ malformed\n');
+  const cli = spawnSync(process.execPath, [
+    path.join(__dirname, 'fb-onboarding.cjs'),
+    'needs-reconciliation',
+    repositoryPath,
+  ], { encoding: 'utf8' });
+  assert.notStrictEqual(cli.status, 0);
+  assert.match(cli.stderr, /\.fb-lane\.json/i);
 });
 
 test('repository inventory planning never creates tasks from a partial or foreign inventory', () => {

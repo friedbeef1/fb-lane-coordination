@@ -59,6 +59,55 @@ function normalizeTitle(value) {
     .trim();
 }
 
+function repositoryPathForConfiguration(repository) {
+  const rawRepositoryPath = typeof repository === 'string'
+    ? repository
+    : repository?.repositoryPath || repository?.projectPath || repository?.path;
+  if (!String(rawRepositoryPath || '').trim()) {
+    throw new Error('A canonical repository path is required to resolve taskTitlePrefix.');
+  }
+  return path.resolve(String(rawRepositoryPath).trim());
+}
+
+function taskTitlePrefix(repository) {
+  const repositoryPath = repositoryPathForConfiguration(repository);
+  const configPath = path.join(repositoryPath, '.fb-lane.json');
+  if (!fs.existsSync(configPath)) return 'FB';
+
+  let config;
+  try {
+    config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  } catch (error) {
+    const operation = error instanceof SyntaxError ? 'parse' : 'read';
+    throw new Error(`Could not ${operation} .fb-lane.json at ${configPath}: ${error.message}`);
+  }
+  if (!config || Array.isArray(config) || typeof config !== 'object') {
+    throw new Error(`.fb-lane.json at ${configPath} must contain a JSON object.`);
+  }
+  if (!Object.prototype.hasOwnProperty.call(config, 'taskTitlePrefix')) return 'FB';
+  if (typeof config.taskTitlePrefix !== 'string') {
+    throw new Error('taskTitlePrefix must be a string between 1 and 64 characters.');
+  }
+  const rawPrefix = config.taskTitlePrefix;
+  const prefix = rawPrefix.trim();
+  if (!prefix || prefix.length > 64 || /[·\u0000-\u001f\u007f]/.test(rawPrefix)) {
+    throw new Error('taskTitlePrefix must be 1 to 64 characters and must not contain the canonical separator or control characters.');
+  }
+  return prefix;
+}
+
+function workstreamLabel(workstream) {
+  return WORKSTREAMS.find(item => item.key === workstream?.key)?.title.replace(/^FB · /, '') || '';
+}
+
+function workstreamsForRepository(repository) {
+  const prefix = taskTitlePrefix(repository);
+  return WORKSTREAMS.map(workstream => ({
+    ...workstream,
+    title: `${prefix} · ${workstreamLabel(workstream)}`,
+  }));
+}
+
 function taskTitle(task) {
   return task && (task.title || task.name || task.threadTitle || task.taskTitle);
 }
@@ -95,19 +144,35 @@ function belongsToRepository(task, repository) {
   return Boolean(expectedProjectId ? observedProjectId === expectedProjectId : sameRepository(observedPath, expectedPath));
 }
 
-function recognizedWorkstream(title) {
+function recognizedWorkstream(title, workstreams = WORKSTREAMS) {
   const normalized = normalizeTitle(title);
-  return WORKSTREAMS.find(item => item.aliases.includes(normalized)) || null;
+  return workstreams.find(item => (
+    normalizeTitle(item.title) === normalized
+    || item.aliases.includes(normalized)
+  )) || null;
+}
+
+function unrecognizedProjectQualifiedWorkstream(title, workstreams) {
+  const rawTitle = String(title || '');
+  const separatorIndex = rawTitle.indexOf('·');
+  if (separatorIndex <= 0) return null;
+  if (recognizedWorkstream(rawTitle, workstreams)) return null;
+  const suffix = normalizeTitle(rawTitle.slice(separatorIndex + 1));
+  return WORKSTREAMS.find(workstream => (
+    normalizeTitle(workstreamLabel(workstream)) === suffix
+    || workstream.aliases.includes(suffix)
+  )) || null;
 }
 
 function planMissingWorkstreams(tasks, repositoryPath) {
+  const workstreams = workstreamsForRepository(repositoryPath);
   const found = new Set();
   for (const task of Array.isArray(tasks) ? tasks : []) {
     if (!belongsToRepository(task, repositoryPath)) continue;
-    const workstream = recognizedWorkstream(taskTitle(task));
+    const workstream = recognizedWorkstream(taskTitle(task), workstreams);
     if (workstream) found.add(workstream.key);
   }
-  return WORKSTREAMS.filter(item => !found.has(item.key));
+  return workstreams.filter(item => !found.has(item.key));
 }
 
 function taskId(task) {
@@ -463,10 +528,64 @@ function actionTaskId(task) {
   return id === undefined || id === null ? undefined : String(id);
 }
 
-function needsTaskInventoryReconciliation(receipt) {
+function needsTaskInventoryReconciliation(receipt, repository = receipt?.repositoryPath) {
+  if (!repository && !receipt) return false;
+  const workstreams = workstreamsForRepository(repository);
   if (!receipt || receipt.permission !== 'granted') return false;
   const observed = new Set(Array.isArray(receipt.workstreams) ? receipt.workstreams : []);
-  return WORKSTREAMS.some(workstream => !observed.has(workstream.key));
+  return workstreams.some(workstream => {
+    const binding = receipt.taskBindings?.[workstream.key];
+    return !observed.has(workstream.key)
+      || !binding
+      || !String(binding.taskId || '').trim()
+      || binding.title !== workstream.title
+      || binding.pinned !== true;
+  });
+}
+
+function prefixDriftFailures(receipt, workstreams) {
+  if (!receipt || receipt.permission !== 'granted' || !receipt.taskBindings) return [];
+  return workstreams.flatMap(workstream => {
+    const binding = receipt.taskBindings[workstream.key];
+    if (!binding || binding.title === workstream.title) return [];
+    const previouslyRecognized = recognizedWorkstream(binding.title, workstreams);
+    if (previouslyRecognized?.key === workstream.key) return [];
+    return [{
+      operation: 'configuration',
+      message: `The previously reconciled ${workstreamLabel(workstream)} receipt binding uses ${binding.title || '(missing title)'}; taskTitlePrefix drift requires explicit identity repair before planning task mutations.`,
+    }];
+  });
+}
+
+function receiptIdentityFailures(receipt, tasks, repository, workstreams) {
+  if (!receipt || receipt.permission !== 'granted' || !receipt.taskBindings) return [];
+  return workstreams.flatMap(workstream => {
+    const binding = receipt.taskBindings[workstream.key];
+    const id = String(binding?.taskId || '').trim();
+    if (!id) {
+      return [{
+        operation: 'identity-repair',
+        message: `Receipt identity repair is required: ${workstreamLabel(workstream)} has no bound task ID.`,
+      }];
+    }
+    const matches = tasks.filter(task => (
+      belongsToRepository(task, repository) && actionTaskId(task) === id
+    ));
+    if (matches.length !== 1) {
+      return [{
+        operation: 'identity-repair',
+        message: `Receipt identity repair is required: bound task ID ${id} for ${workstreamLabel(workstream)} is missing or ambiguous in the complete exact-project inventory.`,
+      }];
+    }
+    const observed = recognizedWorkstream(taskTitle(matches[0]), workstreams);
+    if (observed?.key !== workstream.key) {
+      return [{
+        operation: 'identity-repair',
+        message: `Receipt identity repair is required: bound task ID ${id} no longer classifies as ${workstreamLabel(workstream)} under the current workstreams.`,
+      }];
+    }
+    return [];
+  });
 }
 
 function planRepositoryTaskInventory(inventory, repositoryPath) {
@@ -483,6 +602,16 @@ function planRepositoryTaskInventory(inventory, repositoryPath) {
       actions: [],
     };
   }
+  let workstreams;
+  try {
+    workstreams = workstreamsForRepository(repository);
+  } catch (error) {
+    return {
+      complete: false,
+      failures: [{ operation: 'configuration', message: error.message }],
+      actions: [],
+    };
+  }
   if (!snapshot.complete) {
     return {
       complete: false,
@@ -493,35 +622,74 @@ function planRepositoryTaskInventory(inventory, repositoryPath) {
     };
   }
 
+  let receipt = null;
+  if (fs.existsSync(repository.repositoryPath)) {
+    try {
+      receipt = readOnboardingReceipt(repository.repositoryPath);
+    } catch (error) {
+      return {
+        complete: false,
+        failures: [{ operation: 'receipt', message: error.message }],
+        actions: [],
+      };
+    }
+  }
+  const driftFailures = prefixDriftFailures(receipt, workstreams);
+  if (driftFailures.length > 0) {
+    return { complete: false, failures: driftFailures, actions: [] };
+  }
+  const identityFailures = receiptIdentityFailures(
+    receipt,
+    snapshot.tasks,
+    repository,
+    workstreams,
+  );
+  if (identityFailures.length > 0) {
+    return { complete: false, failures: identityFailures, actions: [] };
+  }
+
+  const unrecognizedQualifiedFailures = snapshot.tasks.flatMap(task => {
+    if (!belongsToRepository(task, repository)) return [];
+    const workstream = unrecognizedProjectQualifiedWorkstream(taskTitle(task), workstreams);
+    if (!workstream) return [];
+    return [{
+      operation: 'identity-repair',
+      message: `Unrecognized project-qualified ${workstreamLabel(workstream)} task ${actionTaskId(task) || '(unknown ID)'} requires identity repair before FB can create or rename tasks.`,
+    }];
+  });
+  if (unrecognizedQualifiedFailures.length > 0) {
+    return { complete: false, failures: unrecognizedQualifiedFailures, actions: [] };
+  }
+
   const available = new Map();
   for (const task of snapshot.tasks) {
     if (!belongsToRepository(task, repository)) continue;
-    const workstream = recognizedWorkstream(taskTitle(task));
+    const workstream = recognizedWorkstream(taskTitle(task), workstreams);
     if (!workstream) continue;
     const matches = available.get(workstream.key) || [];
     matches.push(task);
     available.set(workstream.key, matches);
   }
 
-  const duplicateFailures = WORKSTREAMS.flatMap(workstream => {
+  const duplicateFailures = workstreams.flatMap(workstream => {
     const matches = available.get(workstream.key) || [];
     if (matches.length < 2) return [];
     const ids = matches.map(task => actionTaskId(task) || '(unknown)').sort().join(', ');
     return [{
       operation: 'inventory',
-      message: `Ambiguous ${workstream.title.replace(/^FB · /, '')} tasks: ${ids}.`,
+      message: `Ambiguous ${workstreamLabel(workstream)} tasks: ${ids}.`,
     }];
   });
   if (duplicateFailures.length > 0) {
     return { complete: false, failures: duplicateFailures, actions: [] };
   }
 
-  const missingTargetFailures = WORKSTREAMS.flatMap(workstream => {
+  const missingTargetFailures = workstreams.flatMap(workstream => {
     const task = (available.get(workstream.key) || [])[0];
     if (!task || actionTaskId(task)) return [];
-    const label = workstream.title.replace(/^FB · /, '');
+    const label = workstreamLabel(workstream);
     const failures = [];
-    if (normalizeTitle(taskTitle(task)) !== normalizeTitle(workstream.title)) {
+    if (taskTitle(task) !== workstream.title) {
       failures.push({
         operation: 'inventory',
         message: `Cannot rename ${label} without an executable task/thread ID.`,
@@ -540,7 +708,7 @@ function planRepositoryTaskInventory(inventory, repositoryPath) {
   }
 
   const actions = [];
-  for (const workstream of WORKSTREAMS) {
+  for (const workstream of workstreams) {
     const task = (available.get(workstream.key) || [])[0];
     if (!task) {
       actions.push({ type: 'create', workstream: workstream.key, title: workstream.title });
@@ -550,7 +718,7 @@ function planRepositoryTaskInventory(inventory, repositoryPath) {
 
     const id = actionTaskId(task);
     actions.push({ type: 'reuse', workstream: workstream.key, ...(id ? { taskId: id } : {}) });
-    if (normalizeTitle(taskTitle(task)) !== normalizeTitle(workstream.title)) {
+    if (taskTitle(task) !== workstream.title) {
       actions.push({ type: 'rename', workstream: workstream.key, ...(id ? { taskId: id } : {}), title: workstream.title });
     }
     if (!taskIsPinned(task)) {
@@ -564,6 +732,7 @@ function planRepositoryTaskInventory(inventory, repositoryPath) {
 function verifyRepositoryTaskInventory(inventory, repository, options = {}) {
   const plan = planRepositoryTaskInventory(inventory, repository);
   if (!plan.complete) return { complete: false, failures: plan.failures, taskBindings: {} };
+  const workstreams = workstreamsForRepository(repository);
 
   const incomplete = plan.actions.filter(action => action.type !== 'reuse');
   if (incomplete.length > 0) {
@@ -580,19 +749,19 @@ function verifyRepositoryTaskInventory(inventory, repository, options = {}) {
 
   const snapshot = inventorySnapshot(inventory, options);
   const taskBindings = {};
-  for (const workstream of WORKSTREAMS) {
+  for (const workstream of workstreams) {
     const task = snapshot.tasks.find(candidate => (
       belongsToRepository(candidate, repository)
-      && recognizedWorkstream(taskTitle(candidate))?.key === workstream.key
+      && recognizedWorkstream(taskTitle(candidate), workstreams)?.key === workstream.key
     ));
     const id = actionTaskId(task);
-    if (!task || !id || normalizeTitle(taskTitle(task)) !== normalizeTitle(workstream.title) || !taskIsPinned(task)) {
+    if (!task || !id || taskTitle(task) !== workstream.title || !taskIsPinned(task)) {
       return {
         complete: false,
         failures: [{
           operation: 'verification',
           workstream: workstream.key,
-          message: `${workstream.title.replace(/^FB · /, '')} is not confirmed with an exact title, executable ID, and pinned state.`,
+          message: `${workstreamLabel(workstream)} is not confirmed with an exact title, executable ID, and pinned state.`,
         }],
         taskBindings: {},
       };
@@ -611,19 +780,19 @@ function verifyRepositoryTaskInventory(inventory, repository, options = {}) {
   };
 }
 
-function fallbackRoleAction(workstream, inventory, repository, executed = []) {
-  const label = workstream.title.replace(/^FB · /, '');
+function fallbackRoleAction(workstream, inventory, repository, executed = [], workstreams = WORKSTREAMS) {
+  const label = workstreamLabel(workstream);
   if (executed.some(action => action.type === 'create' && action.workstream === workstream.key)) {
     return `Verify newly created ${label}, capture its task ID, and pin it; do not create a duplicate`;
   }
   const tasks = inventorySnapshot(inventory).tasks.filter(task => (
     belongsToRepository(task, repository)
-    && recognizedWorkstream(taskTitle(task))?.key === workstream.key
+    && recognizedWorkstream(taskTitle(task), workstreams)?.key === workstream.key
   ));
   if (tasks.length > 1) return `Resolve ambiguous ${label} tasks before renaming, pinning, or creating anything`;
   if (tasks.length === 0) return `Check for ${label}; create only if absent`;
   const task = tasks[0];
-  if (normalizeTitle(taskTitle(task)) !== normalizeTitle(workstream.title)) {
+  if (taskTitle(task) !== workstream.title) {
     return `Rename existing ${label} task to ${workstream.title}`;
   }
   if (!taskIsPinned(task)) return `Pin existing ${label} task`;
@@ -635,12 +804,18 @@ function reconciliationFailure(failures, repository, options = {}, context = {})
     ? failures
     : [{ operation: 'reconciliation', message: 'Complete exact-project task state could not be proved.' }];
   const explanation = messages.map(failure => `- ${failure.operation}: ${failure.message}`).join('\n');
-  const prompts = renderManualFallback(WORKSTREAMS, {
+  let workstreams;
+  try {
+    workstreams = workstreamsForRepository(repository);
+  } catch (error) {
+    workstreams = WORKSTREAMS;
+  }
+  const prompts = renderManualFallback(workstreams, {
     repositoryName: options.repositoryName,
     repositoryPath: repository?.repositoryPath || repository?.projectPath || repository?.path,
-    roleActions: Object.fromEntries(WORKSTREAMS.map(workstream => [
+    roleActions: Object.fromEntries(workstreams.map(workstream => [
       workstream.key,
-      fallbackRoleAction(workstream, context.inventory, repository, context.actions),
+      fallbackRoleAction(workstream, context.inventory, repository, context.actions, workstreams),
     ])),
   });
   return {
@@ -815,20 +990,23 @@ function renderIdleTaskPrompt(workstream, options = {}) {
   }
   const repositoryName = options.repositoryName || path.basename(options.repositoryPath || process.cwd());
   const repositoryPath = path.resolve(options.repositoryPath || process.cwd());
-  if (workstream.key === 'product') {
+  const expectedWorkstream = options.repositoryPath
+    ? workstreamsForRepository({ repositoryPath }).find(item => item.key === workstream.key)
+    : workstream;
+  if (expectedWorkstream.key === 'product') {
     return [
-      `You are the ${workstream.title} control centre for this repository.`,
+      `You are the ${expectedWorkstream.title} control centre for this repository.`,
       `Repository: ${repositoryName} (${repositoryPath})`,
-      `Primary question: ${workstream.question}`,
+      `Primary question: ${expectedWorkstream.question}`,
       '',
       'Remain idle after acknowledging this setup until the user invokes `$bfm` in this task. Do not investigate, edit files, create a handoff, claim work, or start implementation before that invocation.',
       'When invoked from the active canonical checkout, show the complete intake ledger for User, Business, Design, Tech, Discovery, Bugs, and this separate Product/BFM control centre; disposition, reconcile, and sequence the approved scope; direct execution and verification; stop at Ready to ship. Only Push Live authorizes release.',
     ].join('\n');
   }
   return [
-    `You are the ${workstream.title} workstream for this repository.`,
+    `You are the ${expectedWorkstream.title} workstream for this repository.`,
     `Repository: ${repositoryName} (${repositoryPath})`,
-    `Primary question: ${workstream.question}`,
+    `Primary question: ${expectedWorkstream.question}`,
     '',
     'Remain idle after acknowledging this setup. Do not investigate, edit files, create a handoff, claim work, or start implementation until the user asks a concrete question in this task.',
     'This is one of six planning and evidence workstreams; Product/BFM is the separate control centre. When findings become actionable, create a repository-local handoff MD for Product/BFM. Source-changing integration happens from the canonical checkout through `$bfm`, and only Push Live authorizes release.',
@@ -836,7 +1014,9 @@ function renderIdleTaskPrompt(workstream, options = {}) {
 }
 
 function renderManualFallback(missing, options = {}) {
-  const workstreams = Array.isArray(missing) ? missing : WORKSTREAMS;
+  const workstreams = Array.isArray(missing)
+    ? missing
+    : (options.repositoryPath ? workstreamsForRepository(options) : WORKSTREAMS);
   const roleActions = options.roleActions && typeof options.roleActions === 'object'
     ? options.roleActions
     : null;
@@ -848,7 +1028,7 @@ function renderManualFallback(missing, options = {}) {
       '',
     ];
   for (const workstream of workstreams) {
-    lines.push(`### ${roleActions?.[workstream.key] || `Create ${workstream.title.replace(/^FB · /, '')}`}`);
+    lines.push(`### ${roleActions?.[workstream.key] || `Create ${workstreamLabel(workstream)}`}`);
     lines.push('');
     lines.push('```text');
     lines.push(renderIdleTaskPrompt(workstream, options));
@@ -874,7 +1054,7 @@ function runCli(args) {
     const rootDir = args[1] || process.cwd();
     const state = readOnboardingReceipt(rootDir);
     process.stdout.write(`${JSON.stringify({
-      needsReconciliation: needsTaskInventoryReconciliation(state),
+      needsReconciliation: needsTaskInventoryReconciliation(state, rootDir),
     }, null, 2)}\n`);
     return;
   }
@@ -934,7 +1114,7 @@ function runCli(args) {
   if (command === 'prompt') {
     const key = args[1];
     const rootDir = path.resolve(args[2] || process.cwd());
-    const workstream = WORKSTREAMS.find(item => item.key === key);
+    const workstream = workstreamsForRepository({ repositoryPath: rootDir }).find(item => item.key === key);
     if (!workstream) throw new Error(`Unknown workstream: ${key || '(missing)'}.`);
     process.stdout.write(`${renderIdleTaskPrompt(workstream, {
       repositoryName: path.basename(rootDir),
@@ -972,5 +1152,7 @@ module.exports = {
   recordVerifiedReconciliation,
   renderIdleTaskPrompt,
   renderManualFallback,
+  taskTitlePrefix,
   verifyRepositoryTaskInventory,
+  workstreamsForRepository,
 };

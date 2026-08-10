@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-083 | Ready | FB-Product / BFM | Project-qualified sidebar task titles; FB `0.8.1-beta+codex.20260810055302` | Add optional repository-visible task-title prefixes to the existing exact-project onboarding runtime and setup skills while preserving stable IDs, pins, duplicate protection, and fail-closed receipts | None; frozen review candidate | [Handoff](docs/handoffs/TASK-083.md); [QA](docs/qa/TASK-083.md); [Changelog](CHANGELOG.md#081-beta--2026-08-10) |
 | TASK-082 | Done | FB-Product / BFM | Coordination retro, release hardening, and FB `0.8.0-beta+codex.20260810034353` | Retrospect commits `1da10b5..74a017b`; add one `fb-release` skill, targeted release preflight, manifest-derived archive fixtures, environment-specific proof, record repairs, and generated plugin mirrors | None; published and installed | [PR #65](https://github.com/friedbeef1/fb-lane-coordination/pull/65) merged as `742de6e`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-082.md); [QA](docs/qa/TASK-082.md) |
 | TASK-081 | Done | FB-Product / BFM | Complete exact-project sidebar inventory and FB `0.7.1-beta+codex.20260809105651` | Replace the capped global non-pinned listing with a read-only, exact-root local candidate enumeration joined to current native project, thread-detail, and pinned-task evidence; preserve duplicate protection and fail closed | None; published and installed | [PR #64](https://github.com/friedbeef1/fb-lane-coordination/pull/64) merged as `3ef65a9`; exact build installed and enabled; [Changelog](CHANGELOG.md#071-beta--2026-08-09); [Handoff](docs/handoffs/TASK-081.md); [QA](docs/qa/TASK-081.md) |
 | TASK-080 | Done | FB-Product / BFM | Automatic Direct-vs-Graph BFM routing and `0.7.0-beta+codex.20260809013127` | Make `$bfm` select Direct, graph-driven, or authoritative-record fallback automatically while Markdown/Git remain authoritative | None; published and installed | [PR #63](https://github.com/friedbeef1/fb-lane-coordination/pull/63) merged as `c9d5d49`; exact build installed and enabled; router skill and bundled MCP route verified; [Handoff](docs/handoffs/TASK-080.md); [QA](docs/qa/TASK-080.md) |
@@ -31,6 +32,27 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-083 - Project-qualified sidebar task titles
+
+*   **Status**: Ready to ship — completion audit found and repaired one unreceipted project-qualified-suite duplicate risk at `79a813f`; root/package onboarding passes 38/38 and current-candidate checkpoint `d137fce` passed the complete validator. **Push Live** remains required.
+*   **Owner / Thread**: FB-Product / BFM, delegated from MÉJA Product/BFM.
+*   **Area**: Exact-project onboarding, sidebar identity, setup skills, and generated plugin package.
+*   **Scope**: Add optional repository-visible `taskTitlePrefix` configuration; derive the seven expected titles per repository; migrate supported generic/legacy bindings through stable-ID rename actions; prove the final titles, IDs, and pins through a fresh complete relist and receipt; keep setup repair in the existing skill pair.
+*   **Out of Scope**: Consumer-project source changes, installed-cache edits, a new sidebar skill, blind archive/rename, weakened inventory checks, TASK-082 mutation, merge, marketplace publication, reinstall, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make each repository's seven FB tasks visually unambiguous without weakening exact-project identity or duplicate protection.
+    *   **Key Results**: Configured prefix produces seven stable-ID renames and zero creates; strict post-mutation reconciliation becomes a seven-role no-op; default behavior remains compatible; invalid or ambiguous configuration fails closed; root/package guidance and runtime agree.
+    *   **Definition of Done**: Focused RED/GREEN onboarding and setup-skill contracts, one whole-candidate review, one consolidated repair maximum, generated package parity, syntax, links, Doctor, whitespace, and durable QA all pass at the appropriate boundary.
+    *   **Gate / Review Point**: Stop at **Ready to ship**. TASK-082 is live and
+        current `main` is integrated; TASK-083 still cannot merge, publish,
+        reinstall, or release without a later explicit **Push Live**.
+    *   **Approval**: approved — James approved the coordination-retro skill-hardening design and implementation on 2026-08-10.
+    *   **Justification**: Generic `FB · …` titles caused two exact-project suites to look interchangeable even though the duplicate-safe runtime was healthy; visible project qualification is a deterministic, reusable setup responsibility.
+*   **Locks**: None — the review candidate is frozen. TASK-082's frozen branch and release records remain untouched.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-083.md) · [QA](docs/qa/TASK-083.md) · MÉJA MEJA-122 consumer acceptance is summarized in TASK-083 QA and remains separate from package durability.
 
 ---
 
