@@ -1,12 +1,13 @@
 ---
 type: fb-verification-handoff
 task: TASK-083
-status: passed
+status: checking
 ---
 
 # TASK-083 QA
 
-Status: Passed — integrated versioned candidate `202b050` is Ready to ship; no
+Status: Checking — completion-audit duplicate guard `79a813f` passed focused
+root/package proof; the current-candidate release checkpoint is pending and no
 release action is authorized.
 
 ## Candidate
@@ -18,6 +19,7 @@ release action is authorized.
 - Release-checkpoint source candidate: `883d7869cbb01cd1f93798ad71e830d6bcca2a40`
 - Current-main integration commit: `bc8b4d340bcf9f226b9487f334e517c42547c1be`
 - Versioned integrated candidate: `202b050`
+- Completion-audit duplicate guard: `79a813f`
 - Integrated candidate build: `0.8.1-beta+codex.20260810055302`
 - Environment: local canonical-source worktree; no installed cache or consumer source mutation.
 
@@ -25,7 +27,9 @@ release action is authorized.
 
 - Focused onboarding runtime RED/GREEN contracts.
 - Existing setup-skill structural contract.
-- One whole-candidate review and at most one consolidated behavioral repair.
+- One whole-candidate review and one consolidated review repair; reopen only a
+  separately proven completion-audit defect, then rerun the current-candidate
+  checkpoint once.
 - Mechanical package generation and root/package parity.
 - Affected syntax, links, Doctor, and whitespace.
 
@@ -45,7 +49,7 @@ release action is authorized.
 ### Focused GREEN
 
 - `node --check tools/fb-onboarding.cjs`: passed.
-- `node --test tools/fb-onboarding.test.cjs`: 37/37 passed after the consolidated repair.
+- `node --test tools/fb-onboarding.test.cjs`: 38/38 passed after the completion-audit repair.
 - `node tools/fb-setup-native-onboarding.test.cjs`: passed.
 - The runtime now keeps `FB · …` as the compatibility default, derives exact repository titles from a validated `taskTitlePrefix`, recognizes supported generic/legacy aliases only inside the exact project, renames normalized variants to the exact display title, detects stale receipts, and stops prefix-to-prefix drift without planning creates.
 - The existing setup skill pair—not a new skill—now owns duplicate-looking, prefix, rename, archive, and repair intent. Archive remains outside the planner/action ledger and requires an exact noncanonical task ID plus explicit authority.
@@ -53,7 +57,7 @@ release action is authorized.
 ### Generated package proof
 
 - `node tools/fb-package-sync.cjs --write`: synchronized 86 manifest-managed mirrors; TASK-083 changed only the five declared onboarding/setup mirrors.
-- Root and generated package `node --test tools/fb-onboarding.test.cjs`: 37/37 passed in each environment.
+- Root and generated package `node --test tools/fb-onboarding.test.cjs`: 38/38 passed in each environment.
 - Root and generated package native setup and `fb-setup` shortcut contracts: passed.
 - `node tools/fb-package-sync.cjs --check`: checked 86 mirrors with no drift.
 - Root/package onboarding runtime syntax and root/package validation of both affected skills: passed.
@@ -65,12 +69,12 @@ release action is authorized.
 
 - The single whole-candidate review found that receipt-title drift alone did not protect receipt-bound task IDs, one legacy structural wording contract had regressed, and the required TASK-083 changelog subsection was absent.
 - One consolidated behavioral repair now requires every receipt-bound ID to appear exactly once in the complete exact-project inventory and still classify as its bound role. Missing, `OLD · …`, role-swapped, or competing-suite evidence fails closed with zero actions; generic-to-configured migration retains the same IDs and plans seven renames with zero creates.
-- The scoped re-review marked the identity and wording findings addressed. It found no Critical runtime regression and confirmed 37/37 onboarding tests, the native setup contract, runtime syntax, and whitespace.
+- The scoped re-review marked the identity and wording findings addressed. It found no Critical runtime regression and confirmed the then-current 37/37 onboarding tests, the native setup contract, runtime syntax, and whitespace.
 - Closeout restored sibling TASK-082/TASK-083 changelog headings and refreshed this test count; this documentation-only correction changes no runtime or package behavior.
 
 ## Release checkpoint
 
-Release checkpoint: planned once and passed once for source candidate `883d7869cbb01cd1f93798ad71e830d6bcca2a40` after the targeted TASK-083 candidate preflight and Doctor Ready proof.
+Release checkpoint: current-candidate checkpoint planned. The prior checkpoint passed for source candidate `883d7869cbb01cd1f93798ad71e830d6bcca2a40` after the targeted TASK-083 candidate preflight and Doctor Ready proof, but it does not cover the later runtime repair `79a813f`.
 
 - Command: `node tools/fb-lane.validate.cjs`.
 - Declared package mirrors: 86/86 byte-identical.
@@ -84,14 +88,18 @@ Release checkpoint: planned once and passed once for source candidate `883d7869c
 - Doctor: Ready on a clean TASK-083 branch.
 - Committed-diff whitespace: passed.
 
-This closeout changes board, handoff, index, and QA records only. It does not change source or package bytes, so the complete validator is not rerun; the final record commit receives targeted preflight, Doctor, parity, syntax, local-link, and whitespace proof instead.
+That prior result supported the earlier source candidate. It is preserved as
+historical evidence, but it is not claimed as the current checkpoint because
+`79a813f` changes runtime and package bytes. The repaired candidate therefore
+receives one new targeted preflight and complete validator run before returning
+to Ready to ship.
 
 ## Current-main integration and release identity
 
 - Current `main` `902c042` was merged once into the already-reviewed TASK-083
   branch. The only conflicts were current TASK-082 board/index state; resolution
   preserved TASK-083 Ready-to-ship routing and TASK-082's published state.
-- Root and packaged onboarding remained 37/37; native setup and shortcut
+- Root and packaged onboarding remained 37/37 before the completion audit; native setup and shortcut
   contracts passed in both contexts; package synchronization remained 86/86.
 - TASK-083 candidate preflight and Doctor both passed on clean integrated commit
   `bc8b4d3`.
@@ -107,6 +115,21 @@ This closeout changes board, handoff, index, and QA records only. It does not ch
   the exact title, body, base, head, and release boundary. No source, package,
   marketplace, installation, or release state changed. Future release bodies
   use file-based input rather than inline shell interpolation.
+
+## Completion-audit duplicate repair
+
+- A requirement-by-requirement audit constructed a complete exact-project
+  inventory with seven `OLD · …` tasks, a configured `MÉJA` prefix, and no
+  onboarding receipt. The planner incorrectly returned `complete: true` and
+  proposed creates because the existing qualified titles were unrecognized.
+- The focused RED failed on `true !== false`, proving the duplicate-risk path.
+  Repair `79a813f` detects unrecognized project-qualified role titles before
+  create planning, returns identity-repair findings containing the stable task
+  IDs, and emits zero actions.
+- Root and package onboarding pass 38/38; native setup and shortcut contracts,
+  86-mirror package parity, runtime syntax, changelog/metadata/lifecycle
+  contracts, and whitespace pass. The final current-candidate release
+  checkpoint remains pending.
 
 ## Known limits
 
