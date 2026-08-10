@@ -152,6 +152,18 @@ function recognizedWorkstream(title, workstreams = WORKSTREAMS) {
   )) || null;
 }
 
+function unrecognizedProjectQualifiedWorkstream(title, workstreams) {
+  const rawTitle = String(title || '');
+  const separatorIndex = rawTitle.indexOf('·');
+  if (separatorIndex <= 0) return null;
+  if (recognizedWorkstream(rawTitle, workstreams)) return null;
+  const suffix = normalizeTitle(rawTitle.slice(separatorIndex + 1));
+  return WORKSTREAMS.find(workstream => (
+    normalizeTitle(workstreamLabel(workstream)) === suffix
+    || workstream.aliases.includes(suffix)
+  )) || null;
+}
+
 function planMissingWorkstreams(tasks, repositoryPath) {
   const workstreams = workstreamsForRepository(repositoryPath);
   const found = new Set();
@@ -634,6 +646,19 @@ function planRepositoryTaskInventory(inventory, repositoryPath) {
   );
   if (identityFailures.length > 0) {
     return { complete: false, failures: identityFailures, actions: [] };
+  }
+
+  const unrecognizedQualifiedFailures = snapshot.tasks.flatMap(task => {
+    if (!belongsToRepository(task, repository)) return [];
+    const workstream = unrecognizedProjectQualifiedWorkstream(taskTitle(task), workstreams);
+    if (!workstream) return [];
+    return [{
+      operation: 'identity-repair',
+      message: `Unrecognized project-qualified ${workstreamLabel(workstream)} task ${actionTaskId(task) || '(unknown ID)'} requires identity repair before FB can create or rename tasks.`,
+    }];
+  });
+  if (unrecognizedQualifiedFailures.length > 0) {
+    return { complete: false, failures: unrecognizedQualifiedFailures, actions: [] };
   }
 
   const available = new Map();

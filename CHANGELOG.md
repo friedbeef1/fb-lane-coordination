@@ -9,8 +9,9 @@ Build: `0.8.1-beta+codex.20260810055302`
 **What changed:** Optional repository-local `taskTitlePrefix` now derives all
 seven visible FB task titles while preserving exact-project identity, stable IDs,
 pins, complete-inventory proof, and receipts. Supported generic bindings rename
-in place; duplicate, stale, relabeled, role-swapped, or prefix-drift receipt
-evidence fails closed without creates or automatic adoption.
+in place; duplicate, stale, relabeled, role-swapped, prefix-drift receipt, or
+unrecognized project-qualified task evidence fails closed without creates or
+automatic adoption.
 
 **Why it matters:** Repositories can make their sidebar tasks unmistakable
 without allowing a title change to replace identity or create duplicate tasks.

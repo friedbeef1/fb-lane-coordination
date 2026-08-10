@@ -627,6 +627,32 @@ test('a later prefix change never turns prior reconciled bindings into creates',
   assert.match(driftPlan.failures.map(failure => failure.message).join(' '), /prefix|receipt|previously reconciled/i);
 });
 
+test('an unreceipted project-qualified suite fails closed instead of creating duplicate roles', t => {
+  const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-unreceipted-'));
+  t.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(repositoryPath, '.fb-lane.json'), `${JSON.stringify({ taskTitlePrefix: 'MÉJA' })}\n`);
+  const repository = { projectId: 'project-prefix-unreceipted', repositoryPath };
+  const inventory = {
+    complete: true,
+    tasks: ROLE_LABELS.map(([key, label], index) => ({
+      id: `old-${index}`,
+      title: `OLD · ${label}`,
+      projectId: repository.projectId,
+      projectPath: repositoryPath,
+      pinned: true,
+    })),
+  };
+
+  const plan = onboarding.planRepositoryTaskInventory(inventory, repository);
+
+  assert.strictEqual(plan.complete, false);
+  assert.deepStrictEqual(plan.actions, []);
+  assert.match(
+    plan.failures.map(failure => failure.message).join(' '),
+    /project-qualified.*old-0.*identity repair/i,
+  );
+});
+
 test('configured exact-title proof repairs normalized punctuation and case variants', t => {
   const repositoryPath = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-onboarding-prefix-exact-'));
   t.after(() => fs.rmSync(repositoryPath, { recursive: true, force: true }));
