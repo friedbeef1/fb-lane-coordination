@@ -65,7 +65,7 @@ Status: Passed — source candidate `883d786` is Ready to ship; no release actio
 
 ## Release checkpoint
 
-Release checkpoint: passed once for source candidate `883d7869cbb01cd1f93798ad71e830d6bcca2a40` after the targeted TASK-083 candidate preflight and Doctor Ready proof.
+Release checkpoint: planned once and passed once for source candidate `883d7869cbb01cd1f93798ad71e830d6bcca2a40` after the targeted TASK-083 candidate preflight and Doctor Ready proof.
 
 - Command: `node tools/fb-lane.validate.cjs`.
 - Declared package mirrors: 86/86 byte-identical.
