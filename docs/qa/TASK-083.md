@@ -101,6 +101,12 @@ This closeout changes board, handoff, index, and QA records only. It does not ch
   contracts, manifest parsing, package parity, and whitespace passed.
 - The lifecycle contract's only repair made its Markdown phrase assertion
   whitespace-tolerant; the failed proof alone was rerun and passed.
+- The first PR-body command embedded Markdown backticks in a shell argument;
+  the shell evaluated four literals and stripped them from the body. The PR was
+  immediately corrected through `--body-file`, and GitHub was reread to verify
+  the exact title, body, base, head, and release boundary. No source, package,
+  marketplace, installation, or release state changed. Future release bodies
+  use file-based input rather than inline shell interpolation.
 
 ## Known limits
 
