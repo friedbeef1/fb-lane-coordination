@@ -97,15 +97,20 @@ function approvedBoardGoalAlignment(markdown) {
   return /(?:\*\*Approval\*\*|Approval):\s*approved\b/i.test(markdown);
 }
 
-function validateNormalizedRepository(root) {
+function validateNormalizedRepository(root, options = {}) {
   const findings = [];
+  const selectedTaskId = String(options.selectedTaskId || '').toUpperCase();
   const handoffDir = path.join(root, 'docs', 'handoffs');
   const handoffs = [];
   for (const file of markdownFiles(handoffDir)) {
     if (path.basename(file) === 'index.md') continue;
     const markdown = fs.readFileSync(file, 'utf8');
     const meta = frontmatter(markdown);
-    if (meta.record_model !== RECORD_MODEL) continue;
+    const fileTaskId = path.basename(file, '.md').toUpperCase();
+    const metadataTaskId = String(meta.task || '').toUpperCase();
+    const isSelected = Boolean(selectedTaskId)
+      && (selectedTaskId === fileTaskId || selectedTaskId === metadataTaskId);
+    if (meta.record_model !== RECORD_MODEL && !isSelected) continue;
     handoffs.push({ file, markdown, meta });
   }
   if (!handoffs.length) return findings;

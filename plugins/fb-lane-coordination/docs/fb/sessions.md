@@ -185,6 +185,12 @@ immediate safety/approval gate. A Product-owned handoff must explicitly request
 a release checkpoint before a full validator is eligible; a handoff Markdown
 file, owner transfer, staging, or review alone is not that request.
 
+Before a Full BFM release checkpoint, commit the exact candidate-bound board,
+handoff, QA, and changelog evidence and run the targeted release preflight
+documented in [evidence.md](evidence.md#release-preflight-and-proof-environment).
+It validates the selected current task regardless of historical marker behavior
+and must pass before any broad validator begins.
+
 The receipt records elapsed user wait, tool calls, focused and repeated checks,
 broad-validator count, repair loops, reviewer count, provider tokens or
 `unavailable`, and circuit-breaker state. Metrics are curated and local. They

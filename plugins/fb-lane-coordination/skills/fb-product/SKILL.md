@@ -174,9 +174,19 @@ a user-facing changelog entry. Before **Ready to ship**, confirm the Task
 Receipt has the matching canonical decision and that any required linked entry
 describes what changed, why it matters, compatibility, and upgrade action. See
 `workflow.md`; Quick and Normal work are exempt.
+Every new normalized Full BFM handoff declares
+`record_model: normalized-v1`. Immediately after the exact candidate and its
+board, handoff, QA, and changelog records are committed, run
+`node tools/fb-release-preflight.cjs --task TASK-ID --phase candidate --base BASE --candidate CANDIDATE`.
+It validates the selected task regardless of a missing historical marker and
+returns every record defect together. Do not enter broad release validation
+until the focused preflight passes.
 Follow [standing delegated approvals](../../docs/fb/workflow.md#standing-delegated-approvals).
 Product/BFM approves candidate-faithful changelog wording and authorizes one
 initial release checkpoint without a user prompt. Ask the user only for a
 changed user or product decision, material scope or priority change, weakened
 evidence, or a sensitive gate. **Push Live** remains the external release
 authorization.
+After explicit **Push Live** in Product/BFM, invoke `fb-release` for the live
+release, marketplace-source-specific refresh, exact installed-runtime proof,
+and final board/handoff/index/QA/changelog/Git reconciliation.

@@ -22,7 +22,10 @@ User Approval Needed: no — James supplied the plan and asked the current
 Product/BFM task to confirm and run it.
 Approval: approved — James approved the implementation plan and explicitly
 authorized the live release, publication, and installation in this task.
-Mini-loop Evidence: pending focused RED/GREEN implementation and task review.
+Mini-loop Evidence: focused router, compiler, scheduler, propagation, learning,
+intake, and package contracts passed; one whole-candidate review found the
+optional repository-wide path, and one consolidated repair produced the
+automatic candidate-scoped route verified in TASK-080 QA.
 Evidence Against Product OKR: current FB has graph-assisted context but does not
 yet prove deterministic graph-driven scheduling and change propagation.
 
@@ -70,7 +73,8 @@ Superseded: none.
 ## Current execution state
 
 Current: Complete — `0.7.0-beta+codex.20260809013127` is published and installed.
-Next: open a new Codex task to load the refreshed skills and MCP server.
+Next: no TASK-080 action remains; the required reload completed before later FB
+release work and newer releases now supersede this installed build.
 Blocked: none.
 Deferred: none inside the authorized release scope.
 
@@ -119,8 +123,8 @@ asked to choose.
   reinstall in the current Product/BFM task on 2026-08-09.
 - Repository state: PR #63 merged as `c9d5d49`; GitHub `main` and the local
   marketplace checkout agree.
-- Remaining owner/action: user opens a new Codex task so the refreshed plugin
-  loads; no further release action remains.
+- Remaining owner/action: none for TASK-080. The release-time new-task reload
+  completed before later FB tasks; no current action remains in this record.
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#070-beta--2026-08-09).
 
 ## Brief Validation

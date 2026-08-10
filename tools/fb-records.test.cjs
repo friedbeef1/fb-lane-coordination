@@ -127,6 +127,8 @@ test('canonical normalized handoff template contains the complete early goal-ali
   for (const field of ['## Goal Alignment Session', 'Product OKR:', 'Lane OKR Fit:', 'Mini-loop Evidence:', 'Evidence Against Product OKR:']) {
     assert.match(template, new RegExp(field.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `template missing ${field}`);
   }
+  assert.doesNotMatch(template, /^Supersedes:\s*None\s*$/im, 'a no-supersession record must omit the field instead of creating an invalid unlinked value');
+  assert.match(template, /Supersedes:\s*\[previous decision\]\(<path-or-url>\)/i, 'a real supersession must use a durable link');
 });
 
 test('focused goal validation preserves established Product Goal vocabulary', () => {

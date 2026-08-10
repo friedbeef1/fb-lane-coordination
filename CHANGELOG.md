@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.8.0-beta — 2026-08-10
+
+Build: `0.8.0-beta+codex.20260810034353`
+
+**What changed:** FB now has one model-invoked `fb-release` skill for explicit
+**Push Live** in Product/BFM. Before broad release validation, a
+targeted release preflight checks the selected task's complete board, handoff,
+Build Brief, Task
+Receipt, QA, changelog, status, links, candidate range, and clean Git state in
+one pass—even when a malformed current handoff omitted its normalized-record
+marker. Release execution identifies whether the configured marketplace is
+local or Git before refresh, verifies the exact installed runtime rather than
+running root-only source-layout tests in cache, reconciles durable live state,
+and requires a new Codex task after replacement. Archive fixtures now inherit
+their dependencies from the canonical package manifest.
+
+**Why it matters:** Incomplete release evidence fails before expensive broad
+suites, repeated missing fields can be repaired together, local and Git
+marketplaces use the correct path, and a matching version label can no longer
+stand in for proof of the installed skills, runtime, manifest, and MCP server.
+
+**Compatibility:** `$fb-setup`, `$bfm`, **Push Live**, the six workstreams,
+Product/BFM, board and handoff formats, plugin IDs, MCP paths, existing projects,
+and historical records remain compatible. New normalized handoffs declare
+`record_model: normalized-v1`; historical records are not retrofitted. The new
+skill adds no CLI command or additional phrase for users to remember.
+
+**Installation or upgrade:** After explicit **Push Live**, refresh the configured
+`fb-lane` marketplace through its proven local or Git route, reinstall
+`fb-lane-coordination@fb-lane`, verify the exact build, and open a new Codex
+task so the refreshed skill and MCP bundle loads.
+
+**Changelog approval:** Approved through Product/BFM standing delegation for
+candidate-faithful wording; reference TASK-082.
+
+**Release evidence:** Focused preflight, archive dependency, skill behavior,
+metadata, package-parity, syntax, link, Doctor, whitespace, candidate-review,
+and final release-checkpoint evidence is recorded in
+[TASK-082 QA](docs/qa/TASK-082.md). Publication and installation remain gated
+by **Push Live**.
+
 ## 0.7.1-beta — 2026-08-09
 
 Build: `0.7.1-beta+codex.20260809105651`

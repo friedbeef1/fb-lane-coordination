@@ -1,8 +1,8 @@
 # FB for Codex
 
-FB is the supported Codex distribution for **FB 0.7.1-beta: Graph Engineering
+FB is the supported Codex distribution for **FB 0.8.0-beta: Graph Engineering
 for Everyday People**. The current release candidate is
-`0.7.1-beta+codex.20260809105651`. FB is an open-source Codex plugin that turns
+`0.8.0-beta+codex.20260810034353`. FB is an open-source Codex plugin that turns
 scattered AI conversations into a living product-delivery graph. Codex provides
 threads, skills, and worktrees; FB connects their decisions, evidence,
 dependencies, implementation, verification, and release state.
@@ -34,6 +34,11 @@ control centre and seven pinned repository-scoped Codex tasks.
    shows the complete intake ledger from the canonical checkout, reconciles and
    prioritizes, creates the durable briefs, and BFM implements, tests, and stops at
    **Ready to ship**. Say **Push Live** only when you want merge and deployment.
+
+   **Push Live** invokes FB's release skill. It verifies the exact candidate,
+   refreshes the configured local or Git marketplace correctly, reinstalls the
+   exact build, proves the installed runtime and MCP, and requires a new Codex
+   task after replacement.
 
 Exact-project setup and checkout moves fail closed. Migration atomically records
 one canonical root, quarantines recoverable former roots, and rebinds all seven

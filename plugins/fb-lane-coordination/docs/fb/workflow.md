@@ -178,6 +178,17 @@ converts it into the exact material-decision or sensitive gate that genuinely
 needs the user. Do not repeatedly resurface a routine wording approval in later
 documentation reviews.
 
+For release work, create new normalized handoffs with
+`record_model: normalized-v1`. As soon as the exact candidate, board, handoff,
+QA, and changelog evidence are committed, run the targeted release preflight
+from [evidence.md](evidence.md#release-preflight-and-proof-environment). It
+checks the selected task even when an older or malformed handoff omitted the
+marker and returns the complete invariant in one result. A release preflight
+must pass before the broad validator starts. After **Push Live**, the
+model-invoked `fb-release` skill owns marketplace-source selection, live
+release execution, installed-runtime proof, and final durable-state
+reconciliation.
+
 For a user-visible UI plan, record `browser screenshot/mockup`, `imagegen
 asset/style option`, or `skip with reason`. Skip only for non-visual work or a
 tiny copy, spacing, or single-control change. Attach a feasible material visual
