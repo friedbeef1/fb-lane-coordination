@@ -1,19 +1,19 @@
 ---
 type: fb-verification-handoff
 task: TASK-083
-status: checking
+status: passed
 ---
 
 # TASK-083 QA
 
-Status: Checking — source and generated-package focused evidence is green; clean-candidate preflight and the final checkpoint remain.
+Status: Passed — source candidate `883d786` is Ready to ship; no release action is authorized.
 
 ## Candidate
 
 - Branch: `codex/task-083-sidebar-identity-hardening`
 - Worktree: `/private/tmp/fb-task-083`
 - Base: `79475ccb7fcc526906da017b8a24b33d4e892a16`
-- Frozen source candidate: `a848c73`
+- Release-checkpoint source candidate: `883d7869cbb01cd1f93798ad71e830d6bcca2a40`
 - Environment: local canonical-source worktree; no installed cache or consumer source mutation.
 
 ## Verification plan
@@ -27,7 +27,7 @@ Status: Checking — source and generated-package focused evidence is green; cle
 ## Focused verification
 
 - TASK-082 explicitly queued MEJA-123 as the next focused setup/runtime item and released the overlapping lock after freezing its candidate.
-- Source candidate `a848c73` was committed from the TASK-082 coordination closeout base; only preflight-driven record-shape corrections followed it.
+- Runtime/package candidate `a848c73` was followed only by preflight-driven record-shape corrections, producing clean checkpoint candidate `883d786`.
 - MÉJA's local acceptance proves the intended seven visible titles and stable task IDs only; package durability is not yet proven.
 
 ### Baseline and RED
@@ -65,7 +65,21 @@ Status: Checking — source and generated-package focused evidence is green; cle
 
 ## Release checkpoint
 
-Release checkpoint: requested and planned once after this candidate is committed, the targeted preflight resolves its exact range and links, and Doctor reports Ready. It will run `node tools/fb-lane.validate.cjs` exactly once for the final source candidate.
+Release checkpoint: passed once for source candidate `883d7869cbb01cd1f93798ad71e830d6bcca2a40` after the targeted TASK-083 candidate preflight and Doctor Ready proof.
+
+- Command: `node tools/fb-lane.validate.cjs`.
+- Declared package mirrors: 86/86 byte-identical.
+- Core regression checks: 72/72.
+- Checkout migration: 34/34.
+- Session lifecycle: 39/39.
+- Eval loop: 19/19.
+- Beginner experience: 11/11.
+- Efficiency controls: 25/25.
+- Product-positioning and two-speed contracts: passed.
+- Doctor: Ready on a clean TASK-083 branch.
+- Committed-diff whitespace: passed.
+
+This closeout changes board, handoff, index, and QA records only. It does not change source or package bytes, so the complete validator is not rerun; the final record commit receives targeted preflight, Doctor, parity, syntax, local-link, and whitespace proof instead.
 
 ## Known limits
 

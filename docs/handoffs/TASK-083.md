@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-083
 lane: fb-product
-status: implemented
+status: ready
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -89,12 +89,12 @@ Changelog expectation: required — repository-qualified task titles change visi
 - **Approved brief and decisions:** Implement generic repository-visible `taskTitlePrefix` support in the canonical FB source, strengthen the existing setup skill pair, preserve exact-project authority and stable IDs, generate package mirrors mechanically, and stop at **Ready to ship**.
 - **Confirmed assumptions and approved scope changes:** `FB` remains the missing-key default; invalid configuration and configured-prefix drift fail closed; receipt-bound IDs cannot be replaced or adopted by title; `docs/setup.md` remains root-only because it is not manifest-managed; no new sidebar skill, archive planner action, consumer mutation, or sensitive operation was added.
 - **Branch, source commits, and changed surfaces:** Branch `codex/task-083-sidebar-identity-hardening`, source range `79475ccb7fcc526906da017b8a24b33d4e892a16..HEAD`; onboarding runtime/tests, existing setup skills, setup documentation, changelog, TASK-083 records, and five generated package mirrors.
-- **Checks, failures, recovery, and results:** Root and package onboarding passed 37/37 each; root and package native-setup and shortcut contracts passed; 86 mirrors are byte-identical; root/package runtime syntax, four skill validations, and whitespace passed. The one whole-candidate review found two Important identity/wording issues and one changelog gap; one consolidated behavioral repair closed them. The scoped re-review confirmed identity and wording behavior, and its changelog hierarchy observation was corrected as record-only closeout.
-- **Review state, direct links, limits, and external gates:** Candidate checking; see [QA evidence](../qa/TASK-083.md) and the [TASK-083 changelog entry](../../CHANGELOG.md#task-083--project-qualified-sidebar-task-titles). Consumer acceptance is bounded local evidence, not installed-package proof. No merge, publication, marketplace refresh, reinstall, task mutation, or deployment is authorized before **Push Live**.
-- **Repository state:** The candidate is confined to the TASK-083 worktree and must be committed cleanly before the targeted preflight, Doctor Ready proof, and one final release checkpoint. TASK-082's frozen branch remains untouched.
-- **Remaining owner and action:** Product/BFM freezes the exact source candidate, runs the clean-candidate preflight and final checkpoint once, records closeout, and stops at **Ready to ship**.
+- **Checks, failures, recovery, and results:** Root and package onboarding passed 37/37 each; root and package native-setup and shortcut contracts passed; 86 mirrors are byte-identical; root/package runtime syntax, four skill validations, local links, normalized-record, changelog, preflight, and whitespace checks passed. The one whole-candidate review found two Important identity/wording issues and one changelog gap; one consolidated behavioral repair closed them. Candidate `883d786` then passed the targeted preflight, Doctor Ready, and the final full validator: 72 core, 34 checkout-migration, 39 session, 19 eval, 11 beginner, and 25 efficiency checks plus product-positioning and two-speed contracts.
+- **Review state, direct links, limits, and external gates:** Ready to ship; see [QA evidence](../qa/TASK-083.md) and the [TASK-083 changelog entry](../../CHANGELOG.md#task-083--project-qualified-sidebar-task-titles). Consumer acceptance is bounded local evidence, not installed-package proof. No merge, publication, marketplace refresh, reinstall, task mutation, or deployment is authorized before **Push Live**.
+- **Repository state:** Source candidate `883d786` is committed in the isolated TASK-083 worktree; the final coordination closeout changes records only and does not change source or package bytes. TASK-082's frozen branch remains untouched.
+- **Remaining owner and action:** Product/BFM holds the candidate at **Ready to ship**. Only a later explicit **Push Live** may authorize merge, publication, marketplace refresh, reinstall, or consumer reconciliation.
 - **Changelog:** updated — [TASK-083 project-qualified sidebar task titles](../../CHANGELOG.md#task-083--project-qualified-sidebar-task-titles).
 
 ## Brief Validation
 
-Status: checking — approved implementation, root/package focused evidence, one whole-candidate review, and the single consolidated behavioral repair are complete. Clean-candidate preflight, Doctor Ready proof, and the final checkpoint remain.
+Status: passed — approved implementation, root/package focused evidence, one whole-candidate review, the single consolidated behavioral repair, clean-candidate preflight, Doctor Ready proof, and the final checkpoint are complete. The candidate stops at **Ready to ship**.
