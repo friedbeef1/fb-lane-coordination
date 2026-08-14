@@ -75,5 +75,6 @@ Passed with no candidate finding. The review confirmed:
   candidate state.
 - `git diff --check`: passed.
 - Package synchronization: 86/86 mirrors match.
-- Final clean-worktree Doctor and candidate commit: pending immediately after
-  this record update.
+- Candidate implementation and evidence commit: `fc634c9`.
+- Final clean-worktree Doctor: Ready; zero active locks, no duplicate claims,
+  normalized records consistent, and package synchronization authoritative.
