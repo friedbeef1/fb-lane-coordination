@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-085 | In Progress | FB-Tech | Six-workstream intake false-negative repair and reload candidate | Select canonical User handoffs and Ready-to-ship records without weakening duplicate, drift, or exact-project gates; synchronize and verify the packaged plugin | `tools/fb-lane.cjs`, `tools/fb-bfm-intake-ledger.test.cjs`, `plugins/fb-lane-coordination/` | User approved repair and local upgrade; no Push Live, merge, push, publication, or consumer mutation; [Handoff](docs/handoffs/TASK-085.md) |
 | TASK-084 | Done | FB-Product / BFM + FB-Tech | Graph fallback precision and sensitive-output hardening; FB `0.8.2-beta+codex.20260815070021` | Harden graph fallback precision and sensitive matching, then publish the approved exact plugin build | None; published and installed | Push Live completed; source `11d8ed2`, merge `94829f6`, published main `73a29fd`; exact build installed and enabled with 91/91 artifact parity; [Handoff](docs/handoffs/TASK-084.md); [QA](docs/qa/TASK-084.md); [Changelog](CHANGELOG.md#082-beta--2026-08-15) |
 | TASK-083 | Done | FB-Product / BFM | Project-qualified sidebar task titles; FB `0.8.1-beta+codex.20260810055302` | Add optional repository-visible task-title prefixes to the existing exact-project onboarding runtime and setup skills while preserving stable IDs, pins, duplicate protection, and fail-closed receipts | None; published and installed | [PR #66](https://github.com/friedbeef1/fb-lane-coordination/pull/66) merged as `d310548`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-083.md); [QA](docs/qa/TASK-083.md); [Changelog](CHANGELOG.md#081-beta--2026-08-10) |
 | TASK-082 | Done | FB-Product / BFM | Coordination retro, release hardening, and FB `0.8.0-beta+codex.20260810034353` | Retrospect commits `1da10b5..74a017b`; add one `fb-release` skill, targeted release preflight, manifest-derived archive fixtures, environment-specific proof, record repairs, and generated plugin mirrors | None; published and installed | [PR #65](https://github.com/friedbeef1/fb-lane-coordination/pull/65) merged as `742de6e`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-082.md); [QA](docs/qa/TASK-082.md) |
@@ -33,6 +34,27 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-085 - Six-workstream intake false-negative repair and reload candidate
+
+*   **Status**: In Progress
+*   **Owner / Thread**: FB-Tech
+*   **Area**: Canonical BFM handoff scanning, intake selection, package parity, and installed-runtime reload readiness.
+*   **Scope**: Repair the canonical scanner so `fb-user` participates as one of the six evidence-producing workstreams and Ready-to-ship records remain selected rather than being reported as orphan false negatives. Add behavioral RED/GREEN proof, synchronize the generated plugin package, and prepare the exact locally installable candidate.
+*   **Out of Scope**: Unmirror application/source mutation, weakening duplicate or cross-root drift detection, task duplication, credential/provider changes, public merge, push, marketplace publication, or release without explicit current-conversation **Push Live**.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let Unmirror Product/BFM freeze the complete approved intake without losing User work or already verified Ready-to-ship candidates.
+    *   **Key Results**: User appears in the canonical six-workstream scan; Ready-to-ship records remain selected; duplicate and drift failures remain fail-closed; root/package behavior and representative files match; installed-runtime provenance can be re-proved from a fresh task.
+    *   **Definition of Done**: Focused RED/GREEN regression, relevant intake suites, package synchronization, syntax, whitespace, whole-candidate review, and an exact install/reload path that does not bypass the release boundary.
+    *   **Gate / Review Point**: James explicitly authorized the repair and local upgrade on 2026-08-15. Stop before any merge, push, public publication, or release because **Push Live** was not supplied.
+    *   **Approval**: approved — James said, “just make it happen,” “settle it,” and “I trust you.”
+    *   **Justification**: Current `0.8.2` source omits `user` from `BFM_WORKSTREAMS` and accepts only exact `ready`, reproducing the Unmirror `READINESS_FALSE_NEGATIVE` despite a complete six-workstream product contract.
+*   **Story Split Pass**: No split needed — one scanner behavior, one focused contract, and one mechanical package mirror share the same source surface and verification boundary.
+*   **Locks**: `tools/fb-lane.cjs`, `tools/fb-bfm-intake-ledger.test.cjs`, `plugins/fb-lane-coordination/`.
+*   **Visual Preview Decision**: Skip — nonvisual coordination runtime repair.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-085.md); QA to be created with the candidate.
 
 ---
 
