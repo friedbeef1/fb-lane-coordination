@@ -86,6 +86,11 @@ live closeout reconciles that expected split state for the succeeding run.
   contracts and passes.
 - Durable closeout, succeeding GitHub readiness, clean Doctor, and targeted
   live preflight complete the final evidence below.
+- [GitHub readiness run 31849569140](https://github.com/friedbeef1/fb-lane-coordination/actions/runs/31849569140)
+  passed on closeout commit `0a1ae9d` in 48 seconds. The only annotation is
+  GitHub's Node 20 action-runtime deprecation notice; validation itself passed.
+- Targeted live preflight passed for TASK-084 at `0a1ae9d`, using published
+  merge/board closeout `73a29fd` as the live-record base.
 
 ## Whole-candidate review
 
