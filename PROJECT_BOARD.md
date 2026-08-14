@@ -50,7 +50,7 @@
     *   **Definition of Done**: Focused RED/GREEN regression, relevant intake suites, package synchronization, syntax, whitespace, whole-candidate review, and an exact install/reload path that does not bypass the release boundary.
     *   **Gate / Review Point**: James explicitly authorized the repair and local upgrade on 2026-08-15. Stop before any merge, push, public publication, or release because **Push Live** was not supplied.
     *   **Approval**: approved — James said, “just make it happen,” “settle it,” and “I trust you.”
-    *   **Justification**: Current `0.8.2` source omits `user` from `BFM_WORKSTREAMS` and accepts only exact `ready`, reproducing the Unmirror `READINESS_FALSE_NEGATIVE` despite a complete six-workstream product contract.
+    *   **Justification**: Current `0.8.2` correctly maps `fb-user` into the historical Product scanner slot, but canonical selection accepts only exact `ready` while the audit treats `Ready to ship` as ready-like. That status mismatch reproduces the Unmirror `READINESS_FALSE_NEGATIVE` and prevents the complete intake from freezing.
 *   **Story Split Pass**: No split needed — one scanner behavior, one focused contract, and one mechanical package mirror share the same source surface and verification boundary.
 *   **Locks**: `tools/fb-lane.cjs`, `tools/fb-bfm-intake-ledger.test.cjs`, `plugins/fb-lane-coordination/`, `docs/handoffs/TASK-085.md`, `docs/qa/TASK-085.md`, `docs/handoffs/index.md`, `CHANGELOG.md`.
 *   **Visual Preview Decision**: Skip — nonvisual coordination runtime repair.
