@@ -93,8 +93,7 @@ Confirmed assumptions and approved scope changes: Consumer records remain
 unchanged; the 0.8.2-beta version and release-record updates are the only scope
 addition authorized by Push Live.
 
-Branch, source commits, and changed surfaces: Branch
-`tech/TASK-084-harden-graph-fallback-precision-and-sensitive-matching`; base
+Branch, source commits, and changed surfaces: Branch `tech/TASK-084-harden-graph-fallback-precision-and-sensitive-matching`; base
 `0594ee0`; implementation `fc634c9`; graph runtime, focused contracts,
 guidance, package mirrors, and release records; exact build
 `0.8.2-beta+codex.20260815070021`.
