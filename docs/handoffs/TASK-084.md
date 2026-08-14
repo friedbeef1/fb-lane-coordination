@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-084
 lane: fb-product
-status: ready-to-ship
+status: staging-qa
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -72,6 +72,12 @@ is present on untouched `main` and is not caused by this candidate.
 ## Gate
 
 Stop at **Ready to ship**. Merge, publication, installation, and release require a separate explicit **Push Live**.
+
+External gates: James must explicitly say **Push Live** before merge,
+publication, installation, or release.
+
+Remaining owner/action: Product/BFM preserves this isolated candidate until
+James either supplies Push Live or explicitly defers it.
 
 ## Task Receipt
 
