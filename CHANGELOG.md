@@ -1,5 +1,36 @@
 # Changelog
 
+## 0.8.2-beta — 2026-08-15
+
+Build: `0.8.2-beta+codex.20260815070021`
+
+### TASK-084 — Graph fallback precision and sensitive-output hardening
+
+**What changed:** Normalized graph fallbacks now identify their exact cause
+with stable reason codes. Active-context insufficiency includes only bounded,
+content-free connectivity diagnostics. Sensitive-output matching continues to
+fail closed for credential-shaped assignments and bearer authorization values,
+while harmless policy prose about explicitly blank provider tokens remains
+readable.
+
+**Why it matters:** Callers can distinguish an unhealthy graph from a missing
+task or an under-connected active subgraph, take the correct authoritative
+fallback route, and improve record connectivity without exposing graph content
+or weakening credential protection.
+
+**Compatibility:** Existing routes, human-readable reasons, Markdown/Git
+authority, and release gates remain unchanged. No consumer record is rewritten
+automatically.
+
+**Installation or upgrade:** After explicit **Push Live**, upgrade the
+configured `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, verify exact installed artifact parity, and
+open a new Codex task before using the replaced runtime.
+
+**Release boundary:** James explicitly supplied **Push Live** on 2026-08-15.
+The exact merge, publication, installation, and live proof remain pending until
+the recorded release transaction completes.
+
 ## 0.8.1-beta — 2026-08-10
 
 Build: `0.8.1-beta+codex.20260810055302`

@@ -30,6 +30,23 @@ When the current task ID and question are known:
    `docs/handoffs/index.md`, the linked handoff, and the relevant workstream
    card.
 
+Report the fallback's stable `reasonCode` accurately:
+
+- `invalid-query`: the task ID or question is unsafe or incomplete.
+- `graph-refresh-failed`: the derived graph could not be refreshed.
+- `graph-unhealthy`: validation found unsafe, invalid, or contradictory graph
+  output.
+- `task-not-represented`: the requested task is absent from the derived graph.
+- `active-context-insufficient`: the task exists, but its bounded active
+  subgraph does not contain enough connected evidence for targeted reading.
+
+`active-context-insufficient` must not be reported as graph unhealth. Its
+`diagnostics` contain only bounded counts, a task-presence boolean, and a fixed
+repair hint; use them to improve canonical board/index/handoff/card
+connectivity without treating the graph as authoritative or rewriting consumer
+records automatically. Other fallback categories do not expose connectivity
+diagnostics.
+
 Do not load broad project history merely because it exists. Do not treat a
 graph label or relationship as approval, product truth, test evidence, or
 release authority.
