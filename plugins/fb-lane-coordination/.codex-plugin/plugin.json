@@ -1,6 +1,6 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.8.1-beta+codex.20260810055302",
+  "version": "0.8.2-beta+codex.20260815070021",
   "description": "FB is an open-source Codex plugin for Graph Engineering: it turns scattered AI conversations into a living product-delivery graph.",
   "author": {
     "name": "FB Contributors",

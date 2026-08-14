@@ -8,8 +8,8 @@ sequence.
 
 **Graph Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.8.1-beta**
-(`0.8.1-beta+codex.20260810055302`).
+Current Codex release candidate: **FB 0.8.2-beta**
+(`0.8.2-beta+codex.20260815070021`).
 
 **FB is an open-source Codex plugin that turns scattered AI conversations into
 a living product-delivery graph.** It has six evidence-producing workstreams

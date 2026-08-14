@@ -15,9 +15,10 @@ retained below.
 - Branch: `tech/TASK-084-harden-graph-fallback-precision-and-sensitive-matching`
 - Worktree: `.worktrees/tech-TASK-084-harden-graph-fallback-precision-and-sensitive-matching`
 - Base: `0594ee0c5be480cc71a3134d02298cc85a1f9001`
+- Exact release candidate build: `0.8.2-beta+codex.20260815070021`
 - Release boundary: local isolated candidate only; no Push Live.
 
-## RED / GREEN evidence
+## Focused verification
 
 - RED context-plugin run: 5 passed and 4 failed on missing reason codes,
   missing bounded diagnostics, and the harmless policy-prose false positive.
@@ -49,6 +50,13 @@ retained below.
   TASK-084 does not lock or modify that setup skill, so this is retained as
   baseline repository debt rather than silently expanding the approved graph
   runtime repair.
+
+## Release checkpoint
+
+Status: planned — Push Live was approved on 2026-08-15. Product/BFM will run
+the targeted candidate preflight, complete validator, GitHub readiness,
+marketplace refresh, exact reinstall, installed artifact parity, durable live
+closeout, and targeted live preflight against the frozen release candidate.
 
 ## Whole-candidate review
 

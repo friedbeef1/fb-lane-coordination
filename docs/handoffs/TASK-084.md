@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-084
 lane: fb-product
-status: staging-qa
+status: ready
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -59,7 +59,7 @@ is present on untouched `main` and is not caused by this candidate.
 - Automatic repair of board, index, handoff, or card connectivity.
 - Quarantined-root scanner performance changes.
 - Installed-cache edits or credential inspection.
-- Version bump, merge, push, publication, installation, or release.
+- Consumer deployment or changes beyond the approved plugin release.
 
 ## Build Brief
 
@@ -69,27 +69,53 @@ is present on untouched `main` and is not caused by this candidate.
 - Generate package mirrors only after root behavior is green.
 - Run focused and relevant full verification, whole-candidate review, Doctor, and whitespace checks.
 
+Changelog expectation: Required — publish a candidate-faithful 0.8.2-beta
+entry with exact installation and release evidence.
+
 ## Gate
 
 Stop at **Ready to ship**. Merge, publication, installation, and release require a separate explicit **Push Live**.
 
-External gates: James must explicitly say **Push Live** before merge,
-publication, installation, or release.
+External gates: Complete — James explicitly said **Push Live** on 2026-08-15,
+authorizing merge, publication, installation, and release of this exact
+candidate after the release gates pass.
 
-Remaining owner/action: Product/BFM preserves this isolated candidate until
-James either supplies Push Live or explicitly defers it.
+Remaining owner/action: Product/BFM completes the exact candidate release,
+installed-runtime proof, and durable live closeout.
 
 ## Task Receipt
 
-- **Approval evidence**: James approved the three diagnosed FB-Lane graph
-  changes on 2026-08-15.
-- **Scope confirmation**: Runtime reason codes, content-free connectivity
-  diagnostics, sensitive matching, tests, guidance, generated mirrors, and
-  durable candidate records only.
-- **Excluded authority**: No merge, push, publication, installation, or release.
-- **Candidate identity**: Local branch
-  `tech/TASK-084-harden-graph-fallback-precision-and-sensitive-matching` in the
-  recorded isolated worktree.
+Approved brief and decisions: Implement the three approved graph repairs,
+preserve authoritative fallback and credential safety, then release only after
+James says Push Live.
+
+Confirmed assumptions and approved scope changes: Consumer records remain
+unchanged; the 0.8.2-beta version and release-record updates are the only scope
+addition authorized by Push Live.
+
+Branch, source commits, and changed surfaces: Branch
+`tech/TASK-084-harden-graph-fallback-precision-and-sensitive-matching`; base
+`0594ee0`; implementation `fc634c9`; graph runtime, focused contracts,
+guidance, package mirrors, and release records; exact build
+`0.8.2-beta+codex.20260815070021`.
+
+Checks, failures, recovery, and results: Focused root/package checks, graph
+suites, package parity, consumer smoke, records, syntax, whitespace, and Doctor
+passed. One unchanged canonical-explanation baseline failure is preserved in
+QA and reproduced on untouched main.
+
+Review state, direct links, limits, and external gates: Whole-candidate review
+passed; [QA evidence](../qa/TASK-084.md); [Changelog](../../CHANGELOG.md#082-beta--2026-08-15);
+no consumer deployment; Push Live approved on 2026-08-15.
+
+Repository state: Clean isolated candidate before release-record preparation;
+canonical main contains coordination commits only.
+
+Remaining owner and action: Product/BFM runs candidate preflight, release
+checkpoint, exact merge/publication/install proof, live reconciliation, and
+live preflight.
+
+Changelog: Updated — TASK-084 is the 0.8.2-beta release entry.
 
 ## Product/BFM Closeout
 

@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased candidate — 2026-08-15
+## 0.8.2-beta — 2026-08-15
+
+Build: `0.8.2-beta+codex.20260815070021`
 
 ### TASK-084 — Graph fallback precision and sensitive-output hardening
 
@@ -20,8 +22,14 @@ or weakening credential protection.
 authority, and release gates remain unchanged. No consumer record is rewritten
 automatically.
 
-**Release boundary:** This is an isolated candidate only. Merge, publication,
-installation, and release require a separate explicit **Push Live**.
+**Installation or upgrade:** After explicit **Push Live**, upgrade the
+configured `fb-lane` marketplace, reinstall
+`fb-lane-coordination@fb-lane`, verify exact installed artifact parity, and
+open a new Codex task before using the replaced runtime.
+
+**Release boundary:** James explicitly supplied **Push Live** on 2026-08-15.
+The exact merge, publication, installation, and live proof remain pending until
+the recorded release transaction completes.
 
 ## 0.8.1-beta — 2026-08-10
 
