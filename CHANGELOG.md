@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased candidate — 2026-08-15
+
+### TASK-084 — Graph fallback precision and sensitive-output hardening
+
+**What changed:** Normalized graph fallbacks now identify their exact cause
+with stable reason codes. Active-context insufficiency includes only bounded,
+content-free connectivity diagnostics. Sensitive-output matching continues to
+fail closed for credential-shaped assignments and bearer authorization values,
+while harmless policy prose about explicitly blank provider tokens remains
+readable.
+
+**Why it matters:** Callers can distinguish an unhealthy graph from a missing
+task or an under-connected active subgraph, take the correct authoritative
+fallback route, and improve record connectivity without exposing graph content
+or weakening credential protection.
+
+**Compatibility:** Existing routes, human-readable reasons, Markdown/Git
+authority, and release gates remain unchanged. No consumer record is rewritten
+automatically.
+
+**Release boundary:** This is an isolated candidate only. Merge, publication,
+installation, and release require a separate explicit **Push Live**.
+
 ## 0.8.1-beta — 2026-08-10
 
 Build: `0.8.1-beta+codex.20260810055302`

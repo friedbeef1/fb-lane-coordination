@@ -9,6 +9,7 @@ const test = require('node:test');
 const { spawnSync } = require('node:child_process');
 
 const {
+  buildProjectGraph,
   projectContextPacket,
 } = require('./fb-project-graph.cjs');
 
@@ -111,6 +112,7 @@ test('unknown task returns the normal authoritative route instead of guessing', 
     question: 'What verifies TASK-999?',
   });
   assert.strictEqual(packet.route, 'normalized-record-fallback');
+  assert.strictEqual(packet.reasonCode, 'task-not-represented');
   assert.match(packet.reason, /not represented|insufficient/i);
   assert.deepStrictEqual(packet.readableSources, [
     'PROJECT_BOARD.md',
@@ -136,7 +138,22 @@ test('insufficient graph evidence returns the ordered authoritative route for a 
   });
 
   assert.strictEqual(packet.route, 'normalized-record-fallback');
+  assert.strictEqual(packet.reasonCode, 'active-context-insufficient');
   assert.match(packet.reason, /insufficient/i);
+  assert.deepStrictEqual(packet.diagnostics, {
+    taskRepresented: true,
+    connectedNodeCount: 1,
+    activeEvidenceCount: 0,
+    readableSourceCount: 1,
+    repairHint: 'Connect the canonical task record to its governing decision, requirement, dependency, verification, or lesson records.',
+  });
+  assert.deepStrictEqual(Object.keys(packet.diagnostics).sort(), [
+    'activeEvidenceCount',
+    'connectedNodeCount',
+    'readableSourceCount',
+    'repairHint',
+    'taskRepresented',
+  ]);
   assert.deepStrictEqual(packet.readableSources, [
     'PROJECT_BOARD.md',
     'docs/handoffs/index.md',
@@ -145,6 +162,51 @@ test('insufficient graph evidence returns the ordered authoritative route for a 
   assert.deepStrictEqual(packet.citations, packet.readableSources);
   assert.ok(packet.instructions.some(instruction => /Git history/i.test(instruction)));
   assert.ok(!packet.readableSources.some(source => /git:/i.test(source)));
+});
+
+test('normalized fallbacks expose stable reason codes without collapsing distinct causes', () => {
+  const root = fixture();
+
+  const invalid = projectContextPacket(root, { taskId: 'unsafe task', question: '' });
+  assert.strictEqual(invalid.reasonCode, 'invalid-query');
+
+  const unavailable = projectContextPacket(path.join(root, 'PROJECT_BOARD.md'), {
+    taskId: 'TASK-200',
+    question: 'What governs TASK-200?',
+  });
+  assert.strictEqual(unavailable.reasonCode, 'graph-refresh-failed');
+
+  const unhealthyGraph = buildProjectGraph(root);
+  unhealthyGraph.nodes.find(node => node.id === 'task:TASK-200').type = 'not-a-node-type';
+  const unhealthy = projectContextPacket(root, {
+    taskId: 'TASK-200',
+    question: 'What governs TASK-200?',
+    graph: unhealthyGraph,
+  });
+  assert.strictEqual(unhealthy.reasonCode, 'graph-unhealthy');
+  assert.strictEqual(unhealthy.diagnostics, undefined);
+
+  unhealthyGraph.nodes = unhealthyGraph.nodes.filter(node => node.id !== 'task:TASK-200');
+  const unhealthyWithoutTask = projectContextPacket(root, {
+    taskId: 'TASK-200',
+    question: 'What governs TASK-200?',
+    graph: unhealthyGraph,
+  });
+  assert.strictEqual(unhealthyWithoutTask.reasonCode, 'graph-unhealthy');
+});
+
+test('harmless policy prose mentioning blank provider tokens does not invalidate the graph', () => {
+  const root = fixture();
+  const board = fs.readFileSync(path.join(root, 'PROJECT_BOARD.md'), 'utf8');
+  write(root, 'PROJECT_BOARD.md', board.replace(
+    'Route focused context',
+    'Provider token explicitly blank; prove zero provider requests',
+  ));
+
+  const graph = buildProjectGraph(root);
+  assert.strictEqual(graph.health.valid, true);
+  assert.ok(graph.nodes.some(node => String(node.objective).includes('Provider token explicitly blank')));
+  assert.ok(!JSON.stringify(graph).includes('[redacted-sensitive]'));
 });
 
 test('bundled MCP lists and serves the read-only project context tool', () => {
@@ -192,6 +254,15 @@ test('package and active guidance expose graph-first routing without changing au
   assert.ok(manifest.includes('tools/fb-project-graph.cjs'));
   assert.ok(manifest.includes('tools/fb-project-graph-plugin.test.cjs'));
   assert.ok(manifest.includes('docs/fb/graph.md'));
+  const graphGuidance = fs.readFileSync(path.join(surfaceRoot, 'docs/fb/graph.md'), 'utf8');
+  for (const reasonCode of [
+    'invalid-query',
+    'graph-refresh-failed',
+    'graph-unhealthy',
+    'task-not-represented',
+    'active-context-insufficient',
+  ]) assert.match(graphGuidance, new RegExp(`\\b${reasonCode}\\b`));
+  assert.match(graphGuidance, /must not be reported as graph unhealth/i);
 
   const cli = fs.readFileSync(path.join(surfaceRoot, 'tools/fb-lane.cjs'), 'utf8');
   assert.match(cli, /name:\s*'fb_project_context'/);

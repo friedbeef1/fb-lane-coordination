@@ -21,7 +21,7 @@ const EDGE_TYPES = new Set([
   'contains', 'supports', 'documented-by', 'references', 'implemented-by', 'released-as',
 ]);
 const AUTHORITY_EDGE_TYPES = new Set(['approved-by', 'authorizes', 'releases']);
-const SENSITIVE = /\b(?:authorization\s*:\s*bearer|api[_-]?key|password|secret|token)\b/i;
+const SENSITIVE = /(?:\bauthorization\s*:\s*bearer\s+\S+|\b(?:api[_-]?key|password|secret|token)\b\s*[:=]\s*(?:"[^"]+"|'[^']+'|[^\s,;]+))/i;
 const SAFE_TASK_ID = /^[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)$/;
 
 function normalizeTaskId(value) {
@@ -787,6 +787,7 @@ function projectContextPacket(root, options = {}) {
     const fallback = authoritativeFallback(root, taskId);
     return {
       route: 'normalized-record-fallback',
+      reasonCode: 'invalid-query',
       taskId,
       question,
       reason: 'A safe task ID and concrete question are required.',
@@ -806,6 +807,7 @@ function projectContextPacket(root, options = {}) {
     const fallback = authoritativeFallback(root, taskId);
     return {
       route: 'normalized-record-fallback',
+      reasonCode: 'graph-refresh-failed',
       taskId,
       question,
       reason: `Project graph could not be refreshed: ${error.message}`,
@@ -820,11 +822,13 @@ function projectContextPacket(root, options = {}) {
   const validation = validateProjectGraph(root, refresh.graph);
   if (!taskNode || validation.length) {
     const fallback = authoritativeFallback(root, taskId);
+    const graphUnhealthy = validation.length > 0;
     return {
       route: 'normalized-record-fallback',
+      reasonCode: graphUnhealthy ? 'graph-unhealthy' : 'task-not-represented',
       taskId,
       question,
-      reason: taskNode
+      reason: graphUnhealthy
         ? 'Project graph is unhealthy; use authoritative normalized records.'
         : `${taskId} is not represented in the project graph; context is insufficient.`,
       findings: validation,
@@ -854,11 +858,22 @@ function projectContextPacket(root, options = {}) {
   const hasActiveEvidence = facts.some(fact => fact.id !== taskNode.id);
   if (!readableSources.length || !hasActiveEvidence) {
     const fallback = authoritativeFallback(root, taskId);
+    const connectedNodeCount = new Set((refresh.graph.edges || [])
+      .filter(edge => edge.from === taskNode.id || edge.to === taskNode.id)
+      .map(edge => edge.from === taskNode.id ? edge.to : edge.from)).size;
     return {
       route: 'normalized-record-fallback',
+      reasonCode: 'active-context-insufficient',
       taskId,
       question,
       reason: 'Project graph active context is insufficient for targeted reading.',
+      diagnostics: {
+        taskRepresented: true,
+        connectedNodeCount,
+        activeEvidenceCount: uncappedFacts.filter(fact => fact.id !== taskNode.id).length,
+        readableSourceCount: readableSources.length,
+        repairHint: 'Connect the canonical task record to its governing decision, requirement, dependency, verification, or lesson records.',
+      },
       facts: [],
       citations: fallback.citations,
       readableSources: fallback.readableSources,
