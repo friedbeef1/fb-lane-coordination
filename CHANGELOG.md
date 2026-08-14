@@ -27,9 +27,13 @@ configured `fb-lane` marketplace, reinstall
 `fb-lane-coordination@fb-lane`, verify exact installed artifact parity, and
 open a new Codex task before using the replaced runtime.
 
-**Release boundary:** James explicitly supplied **Push Live** on 2026-08-15.
-The exact merge, publication, installation, and live proof remain pending until
-the recorded release transaction completes.
+**Release evidence and boundary:** James explicitly supplied **Push Live** on
+2026-08-15. Source candidate `11d8ed2` merged as `94829f6`; published main
+reached `73a29fd`; the configured local marketplace was reconciled to the clean
+canonical repository; and exact build
+`0.8.2-beta+codex.20260815070021` installed enabled with 91/91 artifact parity,
+runtime syntax, graph export, manifests, and a working 14-tool bundled MCP
+route. No consumer deployment was included.
 
 ## 0.8.1-beta — 2026-08-10
 

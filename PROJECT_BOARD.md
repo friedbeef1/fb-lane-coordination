@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-084 | Done | FB-Tech | Graph fallback precision and sensitive-output hardening | Harden graph fallback precision and sensitive matching | (None) | Push Live approved on 2026-08-15; release candidate build `0.8.2-beta+codex.20260815070021`; [Handoff](docs/handoffs/TASK-084.md); [QA](docs/qa/TASK-084.md) |
+| TASK-084 | Done | FB-Product / BFM + FB-Tech | Graph fallback precision and sensitive-output hardening; FB `0.8.2-beta+codex.20260815070021` | Harden graph fallback precision and sensitive matching, then publish the approved exact plugin build | None; published and installed | Push Live completed; source `11d8ed2`, merge `94829f6`, published main `73a29fd`; exact build installed and enabled with 91/91 artifact parity; [Handoff](docs/handoffs/TASK-084.md); [QA](docs/qa/TASK-084.md); [Changelog](CHANGELOG.md#082-beta--2026-08-15) |
 | TASK-083 | Done | FB-Product / BFM | Project-qualified sidebar task titles; FB `0.8.1-beta+codex.20260810055302` | Add optional repository-visible task-title prefixes to the existing exact-project onboarding runtime and setup skills while preserving stable IDs, pins, duplicate protection, and fail-closed receipts | None; published and installed | [PR #66](https://github.com/friedbeef1/fb-lane-coordination/pull/66) merged as `d310548`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-083.md); [QA](docs/qa/TASK-083.md); [Changelog](CHANGELOG.md#081-beta--2026-08-10) |
 | TASK-082 | Done | FB-Product / BFM | Coordination retro, release hardening, and FB `0.8.0-beta+codex.20260810034353` | Retrospect commits `1da10b5..74a017b`; add one `fb-release` skill, targeted release preflight, manifest-derived archive fixtures, environment-specific proof, record repairs, and generated plugin mirrors | None; published and installed | [PR #65](https://github.com/friedbeef1/fb-lane-coordination/pull/65) merged as `742de6e`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-082.md); [QA](docs/qa/TASK-082.md) |
 | TASK-081 | Done | FB-Product / BFM | Complete exact-project sidebar inventory and FB `0.7.1-beta+codex.20260809105651` | Replace the capped global non-pinned listing with a read-only, exact-root local candidate enumeration joined to current native project, thread-detail, and pinned-task evidence; preserve duplicate protection and fail closed | None; published and installed | [PR #64](https://github.com/friedbeef1/fb-lane-coordination/pull/64) merged as `3ef65a9`; exact build installed and enabled; [Changelog](CHANGELOG.md#071-beta--2026-08-09); [Handoff](docs/handoffs/TASK-081.md); [QA](docs/qa/TASK-081.md) |
@@ -38,20 +38,20 @@
 
 ### TASK-084 - Graph fallback precision and sensitive-output hardening
 
-*   **Status**: Done
-*   **Owner / Thread**: FB-Tech
+*   **Status**: Done — source candidate `11d8ed2` merged as `94829f6`, published through `73a29fd`, and exact build `0.8.2-beta+codex.20260815070021` is installed and enabled with 91/91 artifact parity.
+*   **Owner / Thread**: FB-Product / BFM + FB-Tech.
 *   **Area**: Project graph runtime, fallback reporting, sensitive-output safety, focused contracts, and generated plugin package.
 *   **Scope**: Add stable machine-readable fallback reason codes; expose bounded non-content diagnostics for active-context insufficiency; document accurate caller reporting; refine sensitive-output detection so credential-shaped assignments remain fail-closed and redacted while harmless policy prose such as explicitly blank provider-token guidance does not invalidate the graph.
-*   **Out of Scope**: Consumer-project mutation, automatic canonical-record rewrites, quarantined-root scanner performance, installed-cache edits, version bump, merge, push, publication, reinstall, or deployment.
+*   **Out of Scope**: Consumer-project mutation, automatic canonical-record rewrites, quarantined-root scanner performance, credential changes, provider changes, or consumer deployment. Versioning, merge, publication, and reinstall were added only after explicit Push Live.
 *   **Goal Alignment Session**:
     *   **Objective**: Make graph fallback safe, precise, and actionable without weakening credential protection.
     *   **Key Results**: Every normalized fallback has a stable reason code; active-context insufficiency is not reported as graph unhealth; its diagnostics contain only bounded counts/booleans and a fixed repair hint; harmless token-policy prose stays readable; credential-shaped values still trigger generic sensitive-output fallback and never persist.
     *   **Definition of Done**: Focused RED/GREEN graph tests, root/package parity, whole-candidate review, relevant full verification, Doctor, whitespace, durable QA/handoff closeout, and a clean isolated candidate pass.
-    *   **Gate / Review Point**: Stop at **Ready to ship**. A separate explicit **Push Live** is required for merge, publication, installation, or release.
+    *   **Gate / Review Point**: Passed — James explicitly supplied **Push Live** on 2026-08-15; exact merge, marketplace-source reconciliation, reinstall, and installed proof completed.
     *   **Approval**: approved — James said “OK do those changes to FB-Lane” on 2026-08-15.
     *   **Justification**: The Unmirror diagnosis exposed both a caller-level overstatement of a precise active-context fallback and a false-positive sensitive-output finding caused by harmless policy prose.
-*   **Locks**: To be allocated through the supported isolated-worktree claim.
-*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-084.md) · [QA](docs/qa/TASK-084.md).
+*   **Locks**: None.
+*   **Links & Deliverables**: [handoff](docs/handoffs/TASK-084.md) · [QA](docs/qa/TASK-084.md) · [changelog](CHANGELOG.md#082-beta--2026-08-15).
 
 ---
 

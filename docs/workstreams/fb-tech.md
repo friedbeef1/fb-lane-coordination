@@ -28,7 +28,7 @@ This card is a revisit summary only. PROJECT_BOARD.md remains the source of trut
 - None.
 
 ## Recently delivered
-- **TASK-084** (Done) — Harden graph fallback precision and sensitive matching — Push Live approved on 2026-08-15; release candidate build `0.8.2-beta+codex.20260815070021`; [Handoff](../handoffs/TASK-084.md); [QA](../qa/TASK-084.md)
+- **TASK-084** (Done) — Harden graph fallback precision and sensitive matching — published through `73a29fd`; exact build `0.8.2-beta+codex.20260815070021` installed and enabled with 91/91 parity; [Handoff](../handoffs/TASK-084.md); [QA](../qa/TASK-084.md)
 
 ## Historical lookup
 - [Handoff index](../handoffs/index.md)

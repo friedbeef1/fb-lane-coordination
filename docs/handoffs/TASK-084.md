@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-084
 lane: fb-product
-status: ready
+status: done
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -17,7 +17,7 @@ surface: FB project graph runtime and packaged Codex plugin
 
 ## Status
 
-Ready to ship — verified Full BFM candidate in an isolated worktree. No Push Live authority.
+Done — published and installed as `0.8.2-beta+codex.20260815070021` after explicit Push Live.
 
 ## Intake
 
@@ -74,7 +74,7 @@ entry with exact installation and release evidence.
 
 ## Gate
 
-Stop at **Ready to ship**. Merge, publication, installation, and release require a separate explicit **Push Live**.
+Release completed after the separate explicit **Push Live** gate.
 
 External gates: Complete — James explicitly said **Push Live** on 2026-08-15,
 authorizing merge, publication, installation, and release of this exact
@@ -107,28 +107,30 @@ Review state, direct links, limits, and external gates: Whole-candidate review
 passed; [QA evidence](../qa/TASK-084.md); [Changelog](../../CHANGELOG.md#082-beta--2026-08-15);
 no consumer deployment; Push Live approved on 2026-08-15.
 
-Repository state: Clean isolated candidate before release-record preparation;
-canonical main contains coordination commits only.
+Repository state: Source candidate `11d8ed2` merged as `94829f6`; published
+main reached `73a29fd`; the canonical checkout is the configured local
+marketplace source and the exact 0.8.2 build is installed and enabled.
 
-Remaining owner and action: Product/BFM runs candidate preflight, release
-checkpoint, exact merge/publication/install proof, live reconciliation, and
-live preflight.
+Remaining owner and action: None for TASK-084. Open a new Codex task before
+using the replaced 0.8.2 skills or MCP runtime.
 
 Changelog: Updated — TASK-084 is the 0.8.2-beta release entry.
 
 ## Product/BFM Closeout
 
-- **Status**: Ready to ship — local isolated candidate; no Push Live.
+- **Status**: Done — published and installed after explicit Push Live.
 - **Actioned By**: FB-Product / BFM.
 - **Result**: Stable fallback reason codes, bounded insufficiency diagnostics,
   narrower credential-shaped sensitive matching, caller guidance, tests, and
   generated mirrors are complete.
 - **Evidence**: [QA](../qa/TASK-084.md).
 - **Remaining**: The pre-existing setup-skill canonical-explanation drift is
-  separately recorded; merge, publication, installation, and release still
-  require explicit Push Live.
-- **Closeout Note**: Candidate is retained on its isolated local branch with
-  locks intact and no consumer or installed-cache mutation.
+  separately recorded; no consumer deployment was included.
+- **Closeout Note**: Source `11d8ed2` merged as `94829f6`; main `73a29fd` was
+  published; the stalled prior local-marketplace clone was replaced in Codex
+  configuration by the clean canonical repository; exact build
+  `0.8.2-beta+codex.20260815070021` installed with 91/91 byte parity and a
+  working 14-tool bundled MCP route.
 - **Loop Learning**: Callers should report the runtime's stable fallback cause,
   while credential detection should identify credential-shaped values rather
   than poisoning the graph for harmless policy vocabulary.

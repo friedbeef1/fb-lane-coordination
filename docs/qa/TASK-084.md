@@ -16,7 +16,10 @@ retained below.
 - Worktree: `.worktrees/tech-TASK-084-harden-graph-fallback-precision-and-sensitive-matching`
 - Base: `0594ee0c5be480cc71a3134d02298cc85a1f9001`
 - Exact release candidate build: `0.8.2-beta+codex.20260815070021`
-- Release boundary: local isolated candidate only; no Push Live.
+- Published source candidate: `11d8ed23705590bfaea89a97821d90d5c918352b`
+- Merge commit: `94829f6`
+- Published board/lock closeout: `73a29fdbf2edd8d2988b092dad4822c2e3aba4b4`
+- Release boundary: Push Live completed for the FB plugin only; no consumer deployment.
 
 ## Focused verification
 
@@ -53,10 +56,36 @@ retained below.
 
 ## Release checkpoint
 
-Status: planned — Push Live was approved on 2026-08-15. Product/BFM will run
-the targeted candidate preflight, complete validator, GitHub readiness,
-marketplace refresh, exact reinstall, installed artifact parity, durable live
-closeout, and targeted live preflight against the frozen release candidate.
+Result: passed — targeted candidate preflight passed at `11d8ed2`; the complete
+validator finished with Doctor Ready and committed-diff whitespace clean before
+merge. The first GitHub readiness run on interim merge/board commit `73a29fd`
+failed only because the board was Done while the handoff still said Ready; this
+live closeout reconciles that expected split state for the succeeding run.
+
+## Live release verification
+
+- Remote `main` and local canonical `main` both resolved to published commit
+  `73a29fdbf2edd8d2988b092dad4822c2e3aba4b4` before record closeout.
+- Configured marketplace: `fb-lane`, local source
+  `/Users/jamesyeang/Projects/fb-lane-coordination` at the published 0.8.2
+  manifest. The prior Documents-volume marketplace clone remained unchanged
+  after its Git status, remote pull, and local fetch probes stalled and were
+  stopped with exact-process evidence.
+- `codex plugin add fb-lane-coordination@fb-lane` installed
+  `/Users/jamesyeang/.codex/plugins/cache/fb-lane/fb-lane-coordination/0.8.2-beta+codex.20260815070021`.
+- `codex plugin list --json` reports the plugin installed and enabled at exact
+  build `0.8.2-beta+codex.20260815070021` from the canonical local marketplace.
+- Generated package versus installed cache: 91/91 files byte-identical; no
+  extra or missing artifact.
+- Installed-safe proof parsed both plugin manifests and `.mcp.json`, checked
+  executable CLI and graph runtime syntax, loaded `projectContextPacket`, and
+  verified a 14-tool bundled MCP list containing `fb_lane_status` and
+  `fb_project_context`.
+- One initial smoke incorrectly expected the root-only package manifest inside
+  the installed cache; the corrected install-safe smoke uses only packaged
+  contracts and passes.
+- Durable closeout, succeeding GitHub readiness, clean Doctor, and targeted
+  live preflight complete the final evidence below.
 
 ## Whole-candidate review
 
