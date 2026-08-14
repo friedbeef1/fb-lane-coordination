@@ -5,8 +5,7 @@ Lane: FB-Product/BFM
 
 <!-- FB-LANE:WORKSTREAM-SUMMARY:START -->
 ## Current
-- **TASK-FB-PRODUCT-BFM-RELIABILITY-20260807** (Staging QA) — Enforce the canonical checkout, complete seven-role intake ledger, exact-project onboarding, and transactional migration — Checking — consolidated whole-branch repair is focused-green; independent re-review pending; [Handoff](../handoffs/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md); [QA](../qa/TASK-FB-PRODUCT-BFM-RELIABILITY-20260807.md)
-- **TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807** (Staging QA) — Detect same-path handoff drift, model checkout lifecycle, block noncanonical writes, and expose pending task rebind — Review repair verified locally; [Handoff](../handoffs/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md); [QA](../qa/TASK-FB-CHECKOUT-MIGRATION-GUARD-20260807.md)
+- None.
 
 ## Next
 - None ready for Product intake.
@@ -15,9 +14,9 @@ Lane: FB-Product/BFM
 - None.
 
 ## Recently delivered
-- **TASK-076** (Superseded) — Add `$fb-setup`; let Product/BFM approve routine changelog wording and one release checkpoint without user prompts; preserve material, sensitive, and **Push Live** gates — Candidate preserved at `0b8039f`; release checkpoint superseded by the combined reliability candidate; [Handoff](../handoffs/TASK-076.md); [QA](../qa/TASK-076.md)
-- **TASK-075** (Done) — Replace Product/User with User, add the Product/BFM control centre, and converge onboarding on seven pinned repository tasks — Published and installed `0.5.9-beta+codex.20260805042523`; PR #59 merged as `3e7f31c`; [Handoff](../handoffs/TASK-075.md); [QA](../qa/TASK-075.md)
-- **TASK-074** (Done) — Make Graph Engineering the headline product category, align the public story and packaged plugin, and preserve existing runtime contracts — [Handoff](../handoffs/TASK-074.md); [QA](../qa/TASK-074.md); [PR #58](https://github.com/friedbeef1/fb-lane-coordination/pull/58) merged as `72bfab0`; exact build installed and enabled
+- **TASK-083** (Done) — Add optional repository-visible task-title prefixes to the existing exact-project onboarding runtime and setup skills while preserving stable IDs, pins, duplicate protection, and fail-closed receipts — [PR #66](https://github.com/friedbeef1/fb-lane-coordination/pull/66) merged as `d310548`; exact build installed and enabled; [Handoff](../handoffs/TASK-083.md); [QA](../qa/TASK-083.md); [Changelog](../../CHANGELOG.md#081-beta--2026-08-10)
+- **TASK-082** (Done) — Retrospect commits `1da10b5..74a017b`; add one `fb-release` skill, targeted release preflight, manifest-derived archive fixtures, environment-specific proof, record repairs, and generated plugin mirrors — [PR #65](https://github.com/friedbeef1/fb-lane-coordination/pull/65) merged as `742de6e`; exact build installed and enabled; [Handoff](../handoffs/TASK-082.md); [QA](../qa/TASK-082.md)
+- **TASK-081** (Done) — Replace the capped global non-pinned listing with a read-only, exact-root local candidate enumeration joined to current native project, thread-detail, and pinned-task evidence; preserve duplicate protection and fail closed — [PR #64](https://github.com/friedbeef1/fb-lane-coordination/pull/64) merged as `3ef65a9`; exact build installed and enabled; [Changelog](../../CHANGELOG.md#071-beta--2026-08-09); [Handoff](../handoffs/TASK-081.md); [QA](../qa/TASK-081.md)
 
 ## Historical lookup
 - [Handoff index](../handoffs/index.md)
