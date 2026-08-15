@@ -87,7 +87,7 @@ already correct; the approved correction is limited to aligning canonical
 selection with the existing ready-like audit contract. The exact consumer
 drift discovered by the smoke is routed back to Unmirror Product/BFM.
 
-Branch, source commits, and changed surfaces: Branch
+Branch, source commits, and changed surfaces: Candidate branch
 `tech/TASK-085-select-canonical-user-handoffs-and-ready-to-ship-records-without-weakening-duplicate-drift-or-exact-project-gates-synchronize-and-verify-the-packaged-plugin`;
 source commit `724374e5ef923e04b4c2c8ab6e7cfc8120bc1e53`;
 root scanner/test plus mechanically synchronized packaged mirrors.
