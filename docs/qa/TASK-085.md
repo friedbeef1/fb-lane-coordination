@@ -79,8 +79,8 @@ disposition, provider, or release gate is weakened.
 
 ## Release checkpoint
 
-Passed: targeted candidate preflight accepts the clean committed TASK-085
-worktree. It must be rerun after any future candidate change. Do not merge,
+Requested plan and result: targeted candidate preflight accepts the clean
+committed TASK-085 worktree. It must be rerun after any future candidate change. Do not merge,
 push, publish, install, or release without exact current-conversation **Push
 Live**.
 
