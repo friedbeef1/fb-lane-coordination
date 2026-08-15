@@ -13,6 +13,7 @@ const {
   freezeBfmIntake,
   gateBfmExecutionStart,
   renderBfmIntakeLedger,
+  scanWorkstreamHandoffs,
 } = require('./fb-lane.cjs');
 
 const ROLE_ORDER = ['User', 'Business', 'Design', 'Tech', 'Discovery', 'Bugs', 'Product/BFM'];
@@ -177,6 +178,29 @@ function configureVerifiedControlPlane(root, former = '') {
   writeMigrationManifest(root, former);
   writeVerifiedOnboardingReceipt(root);
 }
+
+test('canonical scan selects User Ready and Product Ready-to-ship handoffs', () => {
+  const candidates = [
+    { task: 'USER-READY', role: 'User', lane: 'fb-user', file: 'user-ready.md' },
+    { task: 'PRODUCT-SHIP', role: 'Product/BFM', lane: 'fb-product', file: 'product-ship.md' },
+  ];
+  const root = makeFixture(candidates);
+  try {
+    fs.writeFileSync(
+      path.join(root, 'docs', 'handoffs', 'product-ship.md'),
+      handoff({ task: 'PRODUCT-SHIP', lane: 'fb-product', status: 'Ready to ship' }),
+    );
+
+    const scan = scanWorkstreamHandoffs(root);
+
+    assert.deepEqual(scan.candidates, [
+      'docs/handoffs/product-ship.md',
+      'docs/handoffs/user-ready.md',
+    ]);
+  } finally {
+    remove(root);
+  }
+});
 
 test('complete empty intake proves all six None relevant and separates Product/BFM', () => {
   const root = makeFixture();

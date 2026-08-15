@@ -1142,18 +1142,22 @@ function handoffFrontmatter(markdown) {
   return metadata;
 }
 
+function readyHandoffStatus(value) {
+  const status = String(value || '').trim();
+  return /^ready(?:\b|\s|—|-|:)/i.test(status) ? status : '';
+}
+
 function readyLikeHandoffStatus(markdown) {
   const metadata = handoffFrontmatter(markdown);
-  if (metadata?.status && /^ready(?:\b|\s|—|-|:)/i.test(metadata.status.trim())) {
-    return metadata.status.trim();
-  }
+  const metadataStatus = readyHandoffStatus(metadata?.status);
+  if (metadataStatus) return metadataStatus;
   const matches = [
     ...String(markdown).matchAll(
       /^\s*(?:[-*+]\s+)?(?:\*\*)?Status(?::(?:\*\*)?|\*\*:)\s*(.+?)\s*$/gim
     ),
   ];
   const status = matches.at(-1)?.[1]?.replace(/\*\*$/u, '').trim() || '';
-  return /^ready(?:\b|\s|—|-|:)/i.test(status) ? status : '';
+  return readyHandoffStatus(status);
 }
 
 function handoffAuditRoots(rootDir) {
@@ -1388,7 +1392,7 @@ function scanWorkstreamHandoffs(rootDir) {
         role: bfmEvidenceRole(metadata.lane),
       });
     }
-    if (status !== 'ready') continue;
+    if (!readyHandoffStatus(status)) continue;
     const task = String(metadata.task || '').trim();
     if (!task) throw new Error(`Ready handoff ${relative} requires task metadata.`);
     if (selectedByTask.has(task)) {
