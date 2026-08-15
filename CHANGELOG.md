@@ -1,5 +1,26 @@
 # Changelog
 
+## Unreleased
+
+### TASK-085 — Complete Ready-like intake selection
+
+**What changed:** Canonical BFM handoff selection now uses the same ready-like
+status contract as the false-negative audit. User `Ready` handoffs retain their
+existing compatibility mapping, and Product `Ready to ship` handoffs remain
+visible for Product reconciliation instead of failing as unselected orphans.
+
+**Why it matters:** Product/BFM can preserve approved User work and verified
+release candidates in one complete intake without weakening duplicate, drift,
+onboarding, or exact-project gates.
+
+**Compatibility:** Existing exact `ready` and blocked records, workstream
+routing, dispositions, task identities, release authority, and provider
+boundaries remain unchanged.
+
+**Installation or upgrade:** Candidate only. Versioning, merge, marketplace
+publication, supported reinstall, and fresh-task reload remain behind the exact
+current-conversation **Push Live** gate.
+
 ## 0.8.2-beta — 2026-08-15
 
 Build: `0.8.2-beta+codex.20260815070021`
