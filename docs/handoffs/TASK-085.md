@@ -89,7 +89,7 @@ drift discovered by the smoke is routed back to Unmirror Product/BFM.
 
 Branch, source commits, and changed surfaces: Candidate branch
 `tech/TASK-085-select-canonical-user-handoffs-and-ready-to-ship-records-without-weakening-duplicate-drift-or-exact-project-gates-synchronize-and-verify-the-packaged-plugin`;
-source commit `b5a53946f035b94dac86f3270e1d59b6d76d71ea`;
+source commit `b5a539451f39f9222612e77b3be606b9b9249f91`;
 root scanner/test plus mechanically synchronized packaged mirrors.
 
 Checks, failures, recovery, and results: RED failed exactly on the skipped
@@ -116,7 +116,7 @@ Changelog: Updated — [Unreleased TASK-085 entry](../../CHANGELOG.md#unreleased
 
 ## Verification Handoff
 
-- Source candidate: `b5a53946f035b94dac86f3270e1d59b6d76d71ea` on the branch above.
+- Source candidate: `b5a539451f39f9222612e77b3be606b9b9249f91` on the branch above.
 - Test plan: [TASK-085 QA](../qa/TASK-085.md).
 - Environment: local macOS source worktree; provider-dark; no consumer writes.
 - Current Unmirror result: fail-closed `HANDOFF_CONTENT_DRIFT`, documented in

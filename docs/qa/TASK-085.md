@@ -14,7 +14,7 @@ consumer scan fails closed on exact same-path iOS handoff drift.
 - Branch: `tech/TASK-085-select-canonical-user-handoffs-and-ready-to-ship-records-without-weakening-duplicate-drift-or-exact-project-gates-synchronize-and-verify-the-packaged-plugin`
 - Worktree: `.worktrees/tech-TASK-085-select-canonical-user-handoffs-and-ready-to-ship-records-without-weakening-duplicate-drift-or-exact-project-gates-synchronize-and-verify-the-packaged-plugin`
 - Base: `origin/main` at task claim
-- Source candidate commit: `b5a53946f035b94dac86f3270e1d59b6d76d71ea`
+- Source candidate commit: `b5a539451f39f9222612e77b3be606b9b9249f91`
 - Test mode: local, provider-dark, temporary fixtures only
 
 ## RED
