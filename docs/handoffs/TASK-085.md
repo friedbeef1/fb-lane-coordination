@@ -17,7 +17,8 @@ surface: canonical BFM intake scanner and packaged Codex plugin
 ## Status
 
 Ready to ship — source candidate `b5a5394`. The focused RED/GREEN repair and
-root/package suites pass. The
+root/package suites, targeted candidate preflight, package parity, syntax,
+whitespace, and Doctor pass. The
 bounded Unmirror consumer scan now returns the next fail-closed gate:
 `HANDOFF_CONTENT_DRIFT` between the canonical iOS `Device QA` record and its
 retained implementation worktree's `Ready` record.
@@ -95,8 +96,8 @@ root scanner/test plus mechanically synchronized packaged mirrors.
 Checks, failures, recovery, and results: RED failed exactly on the skipped
 Product `Ready to ship` handoff; GREEN passed the focused regression, root and
 packaged intake suites, six-workstream/Product contracts, package parity,
-syntax, and whitespace. The bounded Unmirror smoke then failed closed on exact
-iOS handoff drift.
+syntax, whitespace, targeted candidate preflight, and Doctor. The bounded
+Unmirror smoke then failed closed on exact iOS handoff drift.
 
 Review state, direct links, limits, and external gates: Whole-candidate review
 found no source defect. See [QA verification](../qa/TASK-085.md) and the

@@ -79,17 +79,17 @@ disposition, provider, or release gate is weakened.
 
 ## Release checkpoint
 
-Planned and requested: run the targeted candidate preflight against the clean
-committed worktree, then run one final relevant verification pass. Do not merge,
+Passed: targeted candidate preflight accepts the clean committed TASK-085
+worktree. It must be rerun after any future candidate change. Do not merge,
 push, publish, install, or release without exact current-conversation **Push
 Live**.
 
 ## Final checks
 
-Current committed-candidate checks are root/package intake 13/13 each,
-Product-control and six-workstream contracts 4/4 across both mirrors, 86/86
-package parity, root/package syntax, and whitespace. Targeted preflight and
-Doctor remain to be run from the clean final candidate.
+Final committed-candidate checks are 30/30 across the root/package intake,
+Product-control, and six-workstream suites; 86/86 package mirrors; root/package
+syntax; whitespace; targeted candidate preflight; and Doctor `Ready` with zero
+in-progress tasks, zero active file locks, and a clean candidate worktree.
 
 ## Safety and release boundary
 
