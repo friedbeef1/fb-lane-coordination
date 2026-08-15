@@ -16,7 +16,7 @@ surface: canonical BFM intake scanner and packaged Codex plugin
 
 ## Status
 
-Ready to ship — candidate `075d5e8`. The focused RED/GREEN repair and
+Ready to ship — candidate `724374e`. The focused RED/GREEN repair and
 root/package suites pass. The
 bounded Unmirror consumer scan now returns the next fail-closed gate:
 `HANDOFF_CONTENT_DRIFT` between the canonical iOS `Device QA` record and its
@@ -84,7 +84,7 @@ current conversation does not contain the exact **Push Live** authorization.
 - Locked source: `tools/fb-lane.cjs`,
   `tools/fb-bfm-intake-ledger.test.cjs`, and generated
   `plugins/fb-lane-coordination/` mirrors.
-- Candidate: `075d5e8bff5d7ad313924d759f53a78df3d68275`.
+- Candidate: `724374e5ef923e04b4c2c8ab6e7cfc8120bc1e53`.
 - Verification: [TASK-085 QA](../qa/TASK-085.md).
 - Consumer gate: reconcile the retained iOS worktree's `Ready` handoff with the
   canonical `Device QA` handoff through Unmirror Product/BFM; do not delete or
@@ -94,7 +94,7 @@ current conversation does not contain the exact **Push Live** authorization.
 
 ## Verification Handoff
 
-- Candidate: `075d5e8bff5d7ad313924d759f53a78df3d68275` on the branch above.
+- Candidate: `724374e5ef923e04b4c2c8ab6e7cfc8120bc1e53` on the branch above.
 - Test plan: [TASK-085 QA](../qa/TASK-085.md).
 - Environment: local macOS source worktree; provider-dark; no consumer writes.
 - Current Unmirror result: fail-closed `HANDOFF_CONTENT_DRIFT`, documented in
