@@ -78,19 +78,41 @@ current conversation does not contain the exact **Push Live** authorization.
 
 ## Task Receipt
 
-- Approved brief: repair the intake false negative, verify the packaged plugin,
-  and make the supported reload path ready without disturbing Unmirror.
-- Branch: `tech/TASK-085-select-canonical-user-handoffs-and-ready-to-ship-records-without-weakening-duplicate-drift-or-exact-project-gates-synchronize-and-verify-the-packaged-plugin`.
-- Locked source: `tools/fb-lane.cjs`,
-  `tools/fb-bfm-intake-ledger.test.cjs`, and generated
-  `plugins/fb-lane-coordination/` mirrors.
-- Candidate: `724374e5ef923e04b4c2c8ab6e7cfc8120bc1e53`.
-- Verification: [TASK-085 QA](../qa/TASK-085.md).
-- Consumer gate: reconcile the retained iOS worktree's `Ready` handoff with the
-  canonical `Device QA` handoff through Unmirror Product/BFM; do not delete or
-  overwrite either record blindly.
-- Release boundary: no merge, push, publication, installation, or release has
-  occurred.
+Approved brief and decisions: Repair the intake false negative, verify the
+packaged plugin, and make the supported reload path ready without disturbing
+Unmirror or weakening fail-closed gates.
+
+Confirmed assumptions and approved scope changes: `fb-user` compatibility is
+already correct; the approved correction is limited to aligning canonical
+selection with the existing ready-like audit contract. The exact consumer
+drift discovered by the smoke is routed back to Unmirror Product/BFM.
+
+Branch, source commits, and changed surfaces: Branch
+`tech/TASK-085-select-canonical-user-handoffs-and-ready-to-ship-records-without-weakening-duplicate-drift-or-exact-project-gates-synchronize-and-verify-the-packaged-plugin`;
+source commit `724374e5ef923e04b4c2c8ab6e7cfc8120bc1e53`;
+root scanner/test plus mechanically synchronized packaged mirrors.
+
+Checks, failures, recovery, and results: RED failed exactly on the skipped
+Product `Ready to ship` handoff; GREEN passed the focused regression, root and
+packaged intake suites, six-workstream/Product contracts, package parity,
+syntax, and whitespace. The bounded Unmirror smoke then failed closed on exact
+iOS handoff drift.
+
+Review state, direct links, limits, and external gates: Whole-candidate review
+found no source defect. See [QA verification](../qa/TASK-085.md) and the
+[Unreleased changelog](../../CHANGELOG.md#unreleased). The consumer drift and
+exact **Push Live** release boundary remain external gates.
+
+Repository state: Source and evidence are committed in the isolated TASK-085
+worktree; canonical `main` contains only the authoritative claim/lock records
+and is not merged, pushed, published, or installed with this candidate.
+
+Remaining owner and action: Product/BFM runs candidate preflight and the final
+release checkpoint, then stops at Ready to ship. After a future exact **Push
+Live**, release installs the exact build, starts a fresh Codex task, reconciles
+the stale Product binding and iOS handoff drift, and resumes Unmirror intake.
+
+Changelog: Updated — [Unreleased TASK-085 entry](../../CHANGELOG.md#unreleased).
 
 ## Verification Handoff
 

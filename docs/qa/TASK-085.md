@@ -28,7 +28,7 @@ node --test --test-name-pattern='canonical scan selects User Ready and Product R
 Result: failed exactly with `READINESS_FALSE_NEGATIVE` for the Product
 `Ready to ship` handoff while the User `Ready` handoff was selected.
 
-## GREEN
+## Focused verification
 
 Commands:
 
@@ -69,6 +69,27 @@ returned immediately with `HANDOFF_CONTENT_DRIFT`:
 This is a real next reconciliation gate and does not count as a consumer pass.
 No Unmirror file, receipt, task binding, worktree, provider, or installed cache
 was changed.
+
+## Whole-candidate review
+
+Passed with no candidate finding. The shared predicate preserves the audit's
+existing ready-like grammar, canonical selection now consumes that same
+contract, User compatibility is unchanged, and no duplicate, drift, receipt,
+disposition, provider, or release gate is weakened.
+
+## Release checkpoint
+
+Planned and requested: run the targeted candidate preflight against the clean
+committed worktree, then run one final relevant verification pass. Do not merge,
+push, publish, install, or release without exact current-conversation **Push
+Live**.
+
+## Final checks
+
+Current committed-candidate checks are root/package intake 13/13 each,
+Product-control and six-workstream contracts 4/4 across both mirrors, 86/86
+package parity, root/package syntax, and whitespace. Targeted preflight and
+Doctor remain to be run from the clean final candidate.
 
 ## Safety and release boundary
 
