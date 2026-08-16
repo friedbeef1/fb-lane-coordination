@@ -16,15 +16,15 @@ surface: canonical BFM intake scanner and packaged Codex plugin
 
 ## Status
 
-In Progress — the source and packaged working-tree candidate now includes
+Ready to ship — the committed source and packaged candidate includes
 repository-aware onboarding evidence, a first-class User intake bucket, and a
 transactional routing-receipt refresh/rebuild path and migration receipt
 preservation. The bounded Unmirror recovery now also distinguishes historical
 content receipts from active-candidate routing receipts and accepts an approved
 post-migration revision only through an exact current-hash/source-root packet
 that matches one prior disposition. Focused root/package suites, package parity,
-syntax, whitespace, and second-pass whole-candidate review pass; the local
-candidate commit and preflight remain for Product/BFM integration.
+syntax, whitespace, and second-pass whole-candidate review pass. Source commit
+`87a5fcc` is local; the corrected record preflight and Doctor rerun remain.
 
 ## Product Start Brief
 
@@ -112,7 +112,7 @@ separate reconciliation gate.
 
 Branch, source commits, and changed surfaces: Candidate branch
 `tech/TASK-085-select-canonical-user-handoffs-and-ready-to-ship-records-without-weakening-duplicate-drift-or-exact-project-gates-synchronize-and-verify-the-packaged-plugin`;
-new working-tree source commit pending; root scanner/test plus mechanically
+source commit `87a5fcc`; root scanner/test plus mechanically
 synchronized packaged mirrors and updated TASK-085 records.
 
 Checks, failures, recovery, and results: RED failed independently on the
@@ -128,9 +128,10 @@ all four first-pass findings were resolved. See [QA verification](../qa/TASK-085
 [Unreleased changelog](../../CHANGELOG.md#unreleased). The consumer drift and
 exact **Push Live** release boundary remain external gates.
 
-Repository state: Source and evidence are intentionally dirty in the isolated
-TASK-085 worktree pending Product/BFM review and commit; canonical `main` is
-not merged, pushed, published, or installed with this candidate.
+Repository state: Source candidate `87a5fcc` is committed in the isolated
+TASK-085 worktree; the current durable record reconciliation is intentionally
+dirty pending its docs-only commit. Canonical `main` is not merged, pushed,
+published, or installed with this candidate.
 
 Remaining owner and action: Product/BFM runs candidate preflight and Doctor,
 commits the local candidate, performs the explicitly approved bounded local

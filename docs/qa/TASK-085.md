@@ -7,14 +7,15 @@ status: passed
 # TASK-085 QA
 
 Status: Source and packaged focused verification plus second-pass review pass
-for the current working-tree candidate; final candidate preflight and Doctor remain.
+for committed source candidate `87a5fcc`; corrected record preflight and Doctor
+rerun remain.
 
 ## Candidate
 
 - Branch: `tech/TASK-085-select-canonical-user-handoffs-and-ready-to-ship-records-without-weakening-duplicate-drift-or-exact-project-gates-synchronize-and-verify-the-packaged-plugin`
 - Worktree: `.worktrees/tech-TASK-085-select-canonical-user-handoffs-and-ready-to-ship-records-without-weakening-duplicate-drift-or-exact-project-gates-synchronize-and-verify-the-packaged-plugin`
 - Base: `origin/main` at task claim
-- Source candidate commit: pending after Product/BFM review
+- Source candidate commit: `87a5fcc`
 - Test mode: local, provider-dark, temporary fixtures only
 
 ## RED
@@ -104,9 +105,11 @@ current-conversation **Push Live**.
 
 ## Final checks
 
-Current working-tree checks are 186/186 across root/package intake, migration,
+Current candidate checks are 186/186 across root/package intake, migration,
 and onboarding suites; 86/86 package mirrors; root/package syntax; and
-whitespace. Final candidate preflight, Doctor, and committed-state checks remain.
+whitespace. The first committed-state preflight and Doctor correctly found the
+board/handoff status-family mismatch now repaired in the pending docs commit;
+their corrected-record rerun remains.
 
 ## Safety and release boundary
 
