@@ -2,24 +2,34 @@
 
 ## Unreleased
 
-### TASK-085 — Complete Ready-like intake selection
+### TASK-085 — Complete repository-aware BFM intake
 
 **What changed:** Canonical BFM handoff selection now uses the same ready-like
-status contract as the false-negative audit. User `Ready` handoffs retain their
-existing compatibility mapping, and Product `Ready to ship` handoffs remain
-visible for Product reconciliation instead of failing as unselected orphans.
+status contract as the false-negative audit and keeps User as its own evidence
+workstream. BFM onboarding validates the strict receipt against the
+repository-configured title prefix. A transactional `migration refresh-routing`
+path can refresh existing source-bound routing hashes after coherent board,
+index, or card changes without accepting handoff-content or source-root drift.
+Migration inventory now preserves identity-matched routing receipts by default;
+if an earlier supported migration erased them, refresh can rebuild only from
+exact, dispositioned migration hashes that still match every current source.
 
 **Why it matters:** Product/BFM can preserve approved User work and verified
-release candidates in one complete intake without weakening duplicate, drift,
-onboarding, or exact-project gates.
+release candidates in one complete intake, recognize configured titles such as
+`Unmirror · User`, and update routing records through a supported fail-closed
+path instead of editing clone-local receipts by hand.
 
-**Compatibility:** Existing exact `ready` and blocked records, workstream
-routing, dispositions, task identities, release authority, and provider
-boundaries remain unchanged.
+**Compatibility:** Existing exact `ready` and blocked records, dispositions,
+task identities, release authority, and provider boundaries remain unchanged.
+Routing refresh requires a managed canonical checkout and either an existing
+dispositioned receipt or exact matching dispositioned migration evidence;
+changed handoff content, changed source roots, incomplete routing, or unresolved
+migration drift still blocks the operation.
 
-**Installation or upgrade:** Candidate only. Versioning, merge, marketplace
-publication, supported reinstall, and fresh-task reload remain behind the exact
-current-conversation **Push Live** gate.
+**Installation or upgrade:** Candidate only. A bounded local reinstall and
+fresh-task reload were explicitly approved for consumer repair on 2026-08-16;
+versioning, merge, push, marketplace publication, and release remain behind the
+exact current-conversation **Push Live** gate.
 
 ## 0.8.2-beta — 2026-08-15
 

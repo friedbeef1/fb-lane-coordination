@@ -57,6 +57,7 @@ const {
   planRepositoryTaskInventory,
   readOnboardingReceipt,
   verifyRepositoryTaskInventory,
+  workstreamsForRepository,
 } = require('./fb-onboarding.cjs');
 const {
   classifyExecutionMode,
@@ -585,6 +586,15 @@ function inventoryCheckoutMigration(options = {}) {
   if (!options.canonicalPath) throw new Error('MIGRATION_CANONICAL_REQUIRED: canonicalPath is required.');
 
   const repository = canonicalMigrationRepository(canonicalPath, options.repository);
+  const existingMigration = loadCheckoutMigrationManifest(canonicalPath);
+  const existingProjectMatches = !existingMigration?.repository?.projectId
+    || String(existingMigration.repository.projectId) === String(repository.projectId || '');
+  if (existingMigration && !existingProjectMatches) {
+    throw new Error('MIGRATION_PROJECT_MISMATCH: existing migration receipts belong to another project identity.');
+  }
+  const routingReceipts = Object.prototype.hasOwnProperty.call(options, 'routingReceipts')
+    ? (options.routingReceipts && typeof options.routingReceipts === 'object' ? options.routingReceipts : {})
+    : (existingMigration?.routingReceipts || {});
   const taskInventory = options.taskInventory || { complete: false, tasks: [] };
   const taskPlan = planRepositoryTaskInventory(taskInventory, repository);
   const verification = verifyRepositoryTaskInventory(taskInventory, repository);
@@ -621,9 +631,7 @@ function inventoryCheckoutMigration(options = {}) {
       status: verification.complete ? 'complete' : 'awaiting-task-rebind',
       pending,
     },
-    routingReceipts: options.routingReceipts && typeof options.routingReceipts === 'object'
-      ? options.routingReceipts
-      : {},
+    routingReceipts,
     unresolvedDrift,
   };
 }
@@ -1104,7 +1112,7 @@ const WORKSTREAM_STATUS_CARDS = [
   { fileName: 'fb-bugs.md', ownerLane: 'Bugs', displayTitle: 'FB-Bugs Workstream' }
 ];
 
-const BFM_WORKSTREAMS = ['product', 'business', 'design', 'tech', 'discovery', 'bugs'];
+const BFM_WORKSTREAMS = ['user', 'business', 'design', 'tech', 'discovery', 'bugs', 'product'];
 const BFM_INTAKE_ROLES = ['User', 'Business', 'Design', 'Tech', 'Discovery', 'Bugs', 'Product/BFM'];
 const BFM_EVIDENCE_ROLE_FILES = new Map([
   ['User', 'fb-user.md'],
@@ -1125,10 +1133,7 @@ const BFM_DISPOSITIONS = new Set([
 ]);
 
 function scannerWorkstream(lane) {
-  const normalized = String(lane || '').replace(/^fb-/, '').toLowerCase();
-  // Preserve the historical `product` scanner slot and `fb-product` handoffs;
-  // new evidence is written by the dedicated User workstream.
-  return normalized === 'user' ? 'product' : normalized;
+  return String(lane || '').replace(/^fb-/, '').toLowerCase();
 }
 
 function handoffFrontmatter(markdown) {
@@ -1423,9 +1428,15 @@ function bfmEvidenceRole(lane) {
 }
 
 function bfmOnboardingEvidence(rootDir, migration) {
+  let repositoryWorkstreams;
+  try {
+    repositoryWorkstreams = workstreamsForRepository({ repositoryPath: rootDir });
+  } catch {
+    return { state: 'stale', missingRoles: [...BFM_INTAKE_ROLES] };
+  }
   const required = BFM_INTAKE_ROLES.map(role => {
     const key = role === 'Product/BFM' ? 'product' : role.toLowerCase();
-    const workstream = ONBOARDING_WORKSTREAMS.find(item => item.key === key);
+    const workstream = repositoryWorkstreams.find(item => item.key === key);
     return { key, role, title: workstream.title };
   });
   let receipt;
@@ -1728,6 +1739,120 @@ function assertBfmCrossRootRouting(migration, recordsByRelative) {
   if (findings.length > 0) {
     throw new Error(`HANDOFF_ROUTING_DRIFT: cross-root handoff or routing state is unreceipted: ${findings.join('; ')}.`);
   }
+}
+
+function refreshBfmRoutingReceipts(rootDir, options = {}) {
+  const canonicalRoot = pathIdentity(rootDir);
+  const snapshot = assertCanonicalCheckout(canonicalRoot, 'BFM routing receipt refresh');
+  const migration = loadCheckoutMigrationManifest(canonicalRoot);
+  if (!migration || !snapshot.managed) {
+    throw new Error('FB_CHECKOUT_MANIFEST_INVALID: routing receipt refresh requires a managed canonical checkout.');
+  }
+  if (migration.unresolvedDrift.length > 0) {
+    throw new Error('HANDOFF_CONTENT_DRIFT: routing receipt refresh requires every migration difference to remain dispositioned.');
+  }
+
+  const requested = Array.isArray(options.relatives) && options.relatives.length > 0
+    ? options.relatives
+    : Object.keys(migration.routingReceipts);
+  const relatives = [...new Set(requested.map(value => String(value || '').trim()))].sort();
+  if (relatives.length === 0) {
+    throw new Error('HANDOFF_ROUTING_RECEIPT_REQUIRED: no existing routing receipts were selected for refresh.');
+  }
+  for (const relative of relatives) {
+    const normalized = path.posix.normalize(relative.replace(/\\/g, '/'));
+    if (normalized !== relative
+      || !normalized.startsWith('docs/handoffs/')
+      || normalized === 'docs/handoffs/index.md'
+      || !normalized.endsWith('.md')) {
+      throw new Error(`HANDOFF_ROUTING_RECEIPT_INVALID: unsafe handoff path ${JSON.stringify(relative)}.`);
+    }
+  }
+
+  const inventories = collectBfmIntakeInventories(canonicalRoot);
+  const refreshed = { ...migration.routingReceipts };
+  for (const relative of relatives) {
+    const routeErrors = [];
+    const records = [];
+    for (const [auditRoot, inventory] of inventories) {
+      const absolute = path.join(auditRoot, relative);
+      if (!fs.existsSync(absolute)) continue;
+      let source;
+      try {
+        source = fs.readFileSync(absolute, 'utf8');
+      } catch (error) {
+        routeErrors.push(`${absolute} (${error.code || 'READ_ERROR'})`);
+        continue;
+      }
+      const record = bfmCandidateRoutingRecord(inventory, relative, source, routeErrors);
+      if (record) records.push(record);
+    }
+    if (routeErrors.length > 0) {
+      throw new Error(`BFM_INTAKE_INCOMPLETE: authoritative routing is incomplete or contradictory: ${routeErrors.join('; ')}.`);
+    }
+
+    const canonical = records.find(record => record.root === canonicalRoot);
+    const sources = records.filter(record => record.root !== canonicalRoot);
+    let previous = migration.routingReceipts[relative];
+    if ((!previous || !String(previous.disposition || '').trim() || !Array.isArray(previous.sources))
+      && options.rebuildMissing === true) {
+      const evidence = migration.differences.filter(difference => difference.kind === 'handoff'
+        && difference.relative === relative
+        && String(difference.disposition || '').trim());
+      const dispositions = [...new Set(evidence.map(difference => String(difference.disposition).trim()))];
+      const evidenceBySource = new Map(evidence.map(difference => [pathIdentity(difference.source?.root || ''), difference]));
+      const evidenceMatches = canonical
+        && dispositions.length === 1
+        && sources.length > 0
+        && evidence.length === sources.length
+        && evidence.every(difference => pathIdentity(difference.canonical?.root || '') === canonicalRoot
+          && difference.canonical?.value?.sha256 === canonical.sha256)
+        && sources.every(source => {
+          const difference = evidenceBySource.get(source.root);
+          return difference?.source?.value?.sha256 === source.sha256;
+        });
+      if (evidenceMatches) {
+        previous = {
+          canonicalSha256: canonical.sha256,
+          sources: sources.map(source => ({ root: source.root, sha256: source.sha256 })),
+          disposition: dispositions[0],
+        };
+      }
+    }
+    if (!previous || !String(previous.disposition || '').trim() || !Array.isArray(previous.sources)) {
+      throw new Error(`HANDOFF_ROUTING_RECEIPT_REQUIRED: ${relative} needs an existing receipt or exact dispositioned migration evidence.`);
+    }
+    const previousSources = new Map(previous.sources.map(record => [pathIdentity(record.root), record]));
+    const currentSourceRoots = sources.map(record => record.root).sort();
+    const previousSourceRoots = [...previousSources.keys()].sort();
+    const contentChanged = !canonical
+      || canonical.sha256 !== previous.canonicalSha256
+      || currentSourceRoots.length !== previousSourceRoots.length
+      || currentSourceRoots.some((value, index) => value !== previousSourceRoots[index])
+      || sources.some(record => previousSources.get(record.root)?.sha256 !== record.sha256);
+    if (contentChanged) {
+      throw new Error(
+        `HANDOFF_CONTENT_DRIFT: ${relative} content or source roots changed after its routing disposition; reconcile content before refreshing routing hashes.`
+      );
+    }
+
+    refreshed[relative] = {
+      ...previous,
+      canonicalSha256: canonical.sha256,
+      canonicalRoutingSha256: canonical.routingSha256,
+      sources: sources
+        .map(record => ({
+          root: record.root,
+          sha256: record.sha256,
+          routingSha256: record.routingSha256,
+        }))
+        .sort((left, right) => left.root.localeCompare(right.root)),
+    };
+  }
+
+  const manifest = { ...migration, routingReceipts: refreshed };
+  delete manifest.manifestPath;
+  return writeCheckoutMigrationManifest(manifest, options);
 }
 
 function assertNoContradictoryCanonicalHandoffs(rootDir) {
@@ -5094,6 +5219,16 @@ function handleMigrationCommand(args = []) {
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
     return;
   }
+  if (operation === 'refresh-routing') {
+    const requestPath = path.resolve(args[1] || '');
+    if (!args[1] || !fs.existsSync(requestPath)) {
+      throw new Error('Usage: node tools/fb-lane.cjs migration refresh-routing <request.json>');
+    }
+    const request = JSON.parse(fs.readFileSync(requestPath, 'utf8'));
+    const rootDir = path.resolve(request.rootDir || process.cwd());
+    process.stdout.write(`${JSON.stringify(refreshBfmRoutingReceipts(rootDir, request), null, 2)}\n`);
+    return;
+  }
   if (operation === 'rebind') {
     const inventoryPath = path.resolve(args[1] || '');
     const rootDir = path.resolve(args[2] || process.cwd());
@@ -5108,7 +5243,7 @@ function handleMigrationCommand(args = []) {
     process.stdout.write(`${JSON.stringify(recordCheckoutTaskRebind(rootDir, taskInventory, repository), null, 2)}\n`);
     return;
   }
-  throw new Error('Usage: node tools/fb-lane.cjs migration inventory|commit <request.json> | migration rebind <complete-inventory.json> [root] [project-id]');
+  throw new Error('Usage: node tools/fb-lane.cjs migration inventory|commit|refresh-routing <request.json> | migration rebind <complete-inventory.json> [root] [project-id]');
 }
 
 function readLearningJson(fileArgument, label) {
@@ -5159,7 +5294,7 @@ function main() {
   const sessionMutation = command === 'session'
     && new Set(['promote', 'checkpoint', 'close']).has(String(args[1] || '').toLowerCase());
   const migrationMutation = command === 'migration'
-    && new Set(['commit', 'rebind']).has(String(args[1] || '').toLowerCase());
+    && new Set(['commit', 'rebind', 'refresh-routing']).has(String(args[1] || '').toLowerCase());
   const learningMutation = command === 'learning'
     && new Set(['record', 'apply']).has(String(args[1] || '').toLowerCase());
   if (guardedMutations.has(command) || sessionMutation || migrationMutation || learningMutation) {
@@ -5261,6 +5396,7 @@ Usage:
   node tools/fb-lane.cjs doctor                         - Check FB-Lane setup health without writing files
   node tools/fb-lane.cjs status [--details|--context]   - Print beginner status, raw technical details, or bounded active context
   node tools/fb-lane.cjs migration inventory|commit <request.json> - Discover or atomically record checkout migration state
+  node tools/fb-lane.cjs migration refresh-routing <request.json> - Atomically refresh existing source-bound routing hashes only
   node tools/fb-lane.cjs migration rebind <inventory.json> [root] [project-id] - Complete exact-project task rebind
   node tools/fb-lane.cjs learning record <receipt.json>     - Record one validated project-local lesson
   node tools/fb-lane.cjs learning status [work-type ...]   - Show only active matching lessons
@@ -5305,6 +5441,7 @@ module.exports = {
   commitCheckoutMigration,
   inventoryCheckoutMigration,
   recordCheckoutTaskRebind,
+  refreshBfmRoutingReceipts,
   assertCanonicalCheckout,
   assertNoHandoffContentDrift,
   TASK_ID_PATTERN,

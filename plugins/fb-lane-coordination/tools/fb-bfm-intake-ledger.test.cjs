@@ -12,6 +12,7 @@ const { execFileSync, spawnSync } = require('node:child_process');
 const {
   freezeBfmIntake,
   gateBfmExecutionStart,
+  refreshBfmRoutingReceipts,
   renderBfmIntakeLedger,
   scanWorkstreamHandoffs,
 } = require('./fb-lane.cjs');
@@ -179,7 +180,7 @@ function configureVerifiedControlPlane(root, former = '') {
   writeVerifiedOnboardingReceipt(root);
 }
 
-test('canonical scan selects User Ready and Product Ready-to-ship handoffs', () => {
+test('canonical scan keeps User as an evidence workstream and selects Ready-to-ship handoffs', () => {
   const candidates = [
     { task: 'USER-READY', role: 'User', lane: 'fb-user', file: 'user-ready.md' },
     { task: 'PRODUCT-SHIP', role: 'Product/BFM', lane: 'fb-product', file: 'product-ship.md' },
@@ -194,11 +195,138 @@ test('canonical scan selects User Ready and Product Ready-to-ship handoffs', () 
     const scan = scanWorkstreamHandoffs(root);
 
     assert.deepEqual(scan.candidates, [
-      'docs/handoffs/product-ship.md',
       'docs/handoffs/user-ready.md',
+      'docs/handoffs/product-ship.md',
     ]);
+    assert.deepEqual(scan.workstreams.user.ready, ['docs/handoffs/user-ready.md']);
+    assert.deepEqual(scan.workstreams.product.ready, ['docs/handoffs/product-ship.md']);
   } finally {
     remove(root);
+  }
+});
+
+test('BFM onboarding validates repository-configured titles from the strict receipt', () => {
+  const root = makeFixture();
+  try {
+    initGitFixture(root);
+    fs.writeFileSync(path.join(root, '.fb-lane.json'), `${JSON.stringify({ taskTitlePrefix: 'Unmirror' })}\n`);
+    configureVerifiedControlPlane(root);
+    for (const relative of ['fb-onboarding.json', 'fb-checkout-migration.json']) {
+      const file = path.join(root, '.git', relative);
+      const value = JSON.parse(fs.readFileSync(file, 'utf8'));
+      for (const binding of Object.values(value.taskBindings)) {
+        binding.title = binding.title.replace(/^FB · /, 'Unmirror · ');
+      }
+      fs.writeFileSync(file, `${JSON.stringify(value)}\n`);
+    }
+
+    const ledger = freezeBfmIntake(root, { dispositions: {} });
+
+    assert.equal(ledger.onboardingState, 'verified');
+    assert.deepEqual(ledger.missingRoles, []);
+  } finally {
+    remove(root);
+  }
+});
+
+test('routing receipt refresh updates routing hashes without accepting content drift', () => {
+  const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
+  const root = makeFixture([candidate]);
+  const former = makeFixture([candidate]);
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-routing-registry-'));
+  try {
+    initGitFixture(root);
+    initGitFixture(former);
+    configureVerifiedControlPlane(root, former);
+    const manifestPath = path.join(root, '.git', 'fb-checkout-migration.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const source = fs.readFileSync(path.join(root, 'docs', 'handoffs', 'same.md'));
+    const sha256 = crypto.createHash('sha256').update(source).digest('hex');
+    manifest.routingReceipts = {
+      'docs/handoffs/same.md': {
+        canonicalSha256: sha256,
+        canonicalRoutingSha256: 'stale-routing-hash',
+        sources: [{ root: former, sha256, routingSha256: 'stale-routing-hash' }],
+        disposition: 'canonical-routing-retained',
+      },
+    };
+    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest)}\n`);
+    fs.appendFileSync(path.join(root, 'PROJECT_BOARD.md'), '\nCanonical routing changed.\n');
+
+    const requestPath = path.join(root, 'refresh-routing.json');
+    fs.writeFileSync(requestPath, `${JSON.stringify({
+      rootDir: root,
+      relatives: ['docs/handoffs/same.md'],
+      registryDir: registry,
+    })}\n`);
+    const command = spawnSync(
+      process.execPath,
+      [path.join(__dirname, 'fb-lane.cjs'), 'migration', 'refresh-routing', requestPath],
+      { cwd: root, encoding: 'utf8' },
+    );
+    assert.equal(command.status, 0, `${command.stdout}\n${command.stderr}`);
+    const refreshed = JSON.parse(command.stdout);
+    const receipt = refreshed.manifest.routingReceipts['docs/handoffs/same.md'];
+    assert.match(receipt.canonicalRoutingSha256, /^[a-f0-9]{64}$/);
+    assert.notEqual(receipt.canonicalRoutingSha256, 'stale-routing-hash');
+    assert.match(receipt.sources[0].routingSha256, /^[a-f0-9]{64}$/);
+    assert.doesNotThrow(() => freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } }));
+
+    const before = fs.readFileSync(manifestPath, 'utf8');
+    fs.appendFileSync(path.join(former, 'docs', 'handoffs', 'same.md'), '\ncontent drift\n');
+    assert.throws(
+      () => refreshBfmRoutingReceipts(root, {
+        relatives: ['docs/handoffs/same.md'],
+        registryDir: registry,
+      }),
+      /HANDOFF_CONTENT_DRIFT/,
+    );
+    assert.equal(fs.readFileSync(manifestPath, 'utf8'), before);
+  } finally {
+    remove(root);
+    remove(former);
+    remove(registry);
+  }
+});
+
+test('routing receipt refresh rebuilds an erased receipt only from matching dispositioned migration evidence', () => {
+  const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
+  const root = makeFixture([candidate]);
+  const former = makeFixture([candidate]);
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-routing-rebuild-registry-'));
+  try {
+    initGitFixture(root);
+    initGitFixture(former);
+    configureVerifiedControlPlane(root, former);
+    const manifestPath = path.join(root, '.git', 'fb-checkout-migration.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const source = fs.readFileSync(path.join(root, 'docs', 'handoffs', 'same.md'));
+    const sha256 = crypto.createHash('sha256').update(source).digest('hex');
+    manifest.differences = [{
+      id: 'migration:handoff:fixture',
+      kind: 'handoff',
+      relative: 'docs/handoffs/same.md',
+      canonical: { root, value: { sha256 } },
+      source: { root: former, value: { sha256 } },
+      disposition: 'canonical-routing-retained',
+    }];
+    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest)}\n`);
+
+    const refreshed = refreshBfmRoutingReceipts(root, {
+      relatives: ['docs/handoffs/same.md'],
+      rebuildMissing: true,
+      registryDir: registry,
+    });
+    const receipt = refreshed.manifest.routingReceipts['docs/handoffs/same.md'];
+    assert.equal(receipt.disposition, 'canonical-routing-retained');
+    assert.equal(receipt.canonicalSha256, sha256);
+    assert.equal(receipt.sources[0].root, fs.realpathSync(former));
+    assert.equal(receipt.sources[0].sha256, sha256);
+    assert.doesNotThrow(() => freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } }));
+  } finally {
+    remove(root);
+    remove(former);
+    remove(registry);
   }
 });
 
