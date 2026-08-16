@@ -6,16 +6,16 @@ status: passed
 
 # TASK-085 QA
 
-Status: Source and packaged focused verification plus second-pass review pass
-for committed source candidate `87a5fcc`; candidate preflight passed at
-`308feb1`, and Doctor reports Ready.
+Status: Source and packaged focused verification pass for committed follow-up
+candidate `ef0d064`; candidate preflight and Doctor rerun remain before the
+bounded local reinstall.
 
 ## Candidate
 
 - Branch: `tech/TASK-085-select-canonical-user-handoffs-and-ready-to-ship-records-without-weakening-duplicate-drift-or-exact-project-gates-synchronize-and-verify-the-packaged-plugin`
 - Worktree: `.worktrees/tech-TASK-085-select-canonical-user-handoffs-and-ready-to-ship-records-without-weakening-duplicate-drift-or-exact-project-gates-synchronize-and-verify-the-packaged-plugin`
 - Base: `origin/main` at task claim
-- Source candidate commit: `87a5fcc`
+- Source candidate commits: `87a5fcc`, `ef0d064`
 - Test mode: local, provider-dark, temporary fixtures only
 
 ## RED
@@ -39,6 +39,12 @@ accepted without being enumerated in the exact packet and recorded in refreshed
 migration evidence. They failed on the pre-repair runtime with the expected
 `BFM_INTAKE_INCOMPLETE` / `HANDOFF_ROUTING_RECEIPT_REQUIRED` boundaries.
 
+The 2026-08-17 consumer follow-up added two RED cases. Exact task IDs wrapped
+in Markdown code ticks produced a false missing-index route, and an erased
+receipt could not be rebuilt when an additional linked checkout was byte-for-
+byte canonical-identical but therefore had no migration difference row. A
+negative control changed that linked handoff and still required exact evidence.
+
 ## Focused verification
 
 Commands:
@@ -56,10 +62,10 @@ git diff --check
 
 Current results:
 
-- Focused regressions: 8/8 passed.
-- Root suites: intake 19/19, migration 35/35, onboarding 39/39.
+- Focused regressions: 10/10 passed.
+- Root suites: intake 21/21, migration 35/35, onboarding 60/60.
 - Package synchronization: 86/86 mirrors match.
-- Packaged suites: intake 19/19, migration 35/35, onboarding 39/39.
+- Packaged suites: intake 21/21, migration 35/35, onboarding 60/60.
 - Root/package syntax: passed.
 - Whitespace: passed.
 
@@ -86,6 +92,10 @@ hash-and-root packet tied to one prior disposition and durable approval
 reference, rejects duplicate roots, and still fails when that prior migration
 evidence is absent. The multi-source fixture rejects an omitted current root
 and atomically records exact migration evidence for every enumerated source.
+The linked-copy fixture accepts only a current source whose content SHA-256 is
+exactly canonical-identical while retaining the one prior disposition; its
+content-different control remains blocked. The index fixture accepts only an
+exact code-wrapped token that still passes the existing safe task-ID validator.
 
 ## Whole-candidate review
 
@@ -107,7 +117,7 @@ current-conversation **Push Live**.
 
 ## Final checks
 
-Current candidate checks are 186/186 across root/package intake, migration,
+Current candidate checks are 232/232 across root/package intake, migration,
 and onboarding suites; 86/86 package mirrors; root/package syntax; and
 whitespace. The first committed-state preflight and Doctor correctly found the
 board/handoff status-family mismatch repaired in status commit `308feb1`;

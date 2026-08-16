@@ -17,6 +17,10 @@ Historical records receive content-only receipts instead of invented current
 routing. An approved post-migration revision can be reconciled only by an exact
 current canonical/source hash-and-root packet tied to one unambiguous prior
 disposition.
+Exact index task IDs may be wrapped in a Markdown code span, and erased-receipt
+rebuild recognizes additional linked copies whose current content hash exactly
+matches canonical content. Every content-different source still requires exact
+dispositioned migration evidence.
 
 **Why it matters:** Product/BFM can preserve approved User work and verified
 release candidates in one complete intake, recognize configured titles such as
@@ -29,8 +33,8 @@ Routing refresh requires a managed canonical checkout and either an existing
 dispositioned receipt or exact matching dispositioned migration evidence;
 changed handoff content or source roots require an exact current reconciliation
 packet, while incomplete Ready-like routing, ambiguous or absent prior
-disposition, a mismatched packet, or unresolved migration drift still blocks
-the operation.
+disposition, a content-different unreceipted source, a mismatched packet, or
+unresolved migration drift still blocks the operation.
 
 **Installation or upgrade:** Candidate only. A bounded local reinstall and
 fresh-task reload were explicitly approved for consumer repair on 2026-08-16;

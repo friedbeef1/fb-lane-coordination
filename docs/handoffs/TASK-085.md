@@ -23,9 +23,12 @@ preservation. The bounded Unmirror recovery now also distinguishes historical
 content receipts from active-candidate routing receipts and accepts an approved
 post-migration revision only through an exact current-hash/source-root packet
 that matches one prior disposition. Focused root/package suites, package parity,
-syntax, whitespace, and second-pass whole-candidate review pass. Source commit
-`87a5fcc` is local; candidate preflight passed at `308feb1` and Doctor reports
-Ready. The bounded local reinstall and fresh-task consumer proof remain.
+syntax, whitespace, and second-pass whole-candidate review pass. The approved
+follow-up also accepts exact index task IDs wrapped in Markdown code ticks and
+rebuilds a missing receipt when linked-copy content is canonical-identical,
+without excusing any content-different source from exact migration evidence.
+Source commit `ef0d064` is local. The candidate preflight/Doctor rerun, bounded
+local reinstall, and fresh-task consumer proof remain.
 
 ## Product Start Brief
 
@@ -46,11 +49,13 @@ Lane OKR Fit: aligned.
 User Approval Needed: no — James explicitly authorized the repair and local
 upgrade on 2026-08-15.
 
-Mini-loop Evidence: Eight behavioral regressions reproduce the independent
+Mini-loop Evidence: Ten behavioral regressions reproduce the independent
 User-bucket, configured-title, routing-refresh, erased-receipt recovery, and
 migration-preservation defects, plus historical, approved-current, and
-multi-source recovery boundaries, and pass in both root and packaged runtimes
-without weakening content-drift rejection.
+multi-source recovery boundaries. The two follow-up cases cover backticked
+index task IDs and canonical-identical linked copies, including a negative
+content-different control. All pass in root and packaged runtimes without
+weakening content-drift rejection.
 
 Evidence Against Product OKR: The candidate-runtime scan against the full
 Unmirror checkout stops on exact same-path iOS handoff drift, so consumer intake
@@ -80,6 +85,12 @@ only routing hashes after coherent authoritative-record edits.
   from exact dispositioned migration hashes for every current source.
 - Rebuild historical content receipts without inventing modern board/index/card
   routes; keep those exact routing requirements for every Ready-like candidate.
+- Normalize an exact Markdown code span around the first index task-ID token
+  before applying the existing safe-task-ID validator.
+- During erased-receipt rebuild, require exact disposition evidence for every
+  content-different source while allowing a linked copy whose current content
+  SHA-256 exactly equals the canonical SHA-256 to share the one unambiguous
+  prior disposition.
 - Permit a changed approved handoff to reconcile only when the request names
   the exact current canonical/source hashes and roots and matches one
   unambiguous prior migration disposition; require a durable approval reference
@@ -113,16 +124,17 @@ separate reconciliation gate.
 
 Branch, source commits, and changed surfaces: Candidate branch
 `tech/TASK-085-select-canonical-user-handoffs-and-ready-to-ship-records-without-weakening-duplicate-drift-or-exact-project-gates-synchronize-and-verify-the-packaged-plugin`;
-source commit `87a5fcc`; root scanner/test plus mechanically
+source commits `87a5fcc` and `ef0d064`; root scanner/test plus mechanically
 synchronized packaged mirrors and updated TASK-085 records.
 
 Checks, failures, recovery, and results: RED failed independently on the
 collapsed User bucket, partial configured-title onboarding state, absent
 refresh command, legacy-record routing conflation, and missing exact-current
-revision recovery. GREEN passed 19/19 intake, 35/35 migration, and 39/39
-onboarding checks in each of root and packaged contexts, plus 86/86 package
-parity, syntax, and whitespace. Candidate preflight passed at `308feb1`; Doctor
-reported Ready with a clean committed worktree.
+revision recovery. The follow-up RED reproduced both the backticked-index false
+negative and the canonical-identical linked-copy receipt failure. GREEN passed
+21/21 intake, 35/35 migration, and 60/60 onboarding checks in each of root and
+packaged contexts, plus 86/86 package parity, syntax, and whitespace. Candidate
+preflight and Doctor will be rerun from the committed follow-up before install.
 
 Review state, direct links, limits, and external gates: Second-pass
 whole-candidate review found no Critical or Important defect after verifying
@@ -130,7 +142,7 @@ all four first-pass findings were resolved. See [QA verification](../qa/TASK-085
 [Unreleased changelog](../../CHANGELOG.md#unreleased). The consumer drift and
 exact **Push Live** release boundary remain external gates.
 
-Repository state: Source candidate `87a5fcc` and its durable evidence are
+Repository state: Source candidate `ef0d064` and its durable evidence are
 committed in the isolated TASK-085 worktree. Canonical `main` is not merged,
 pushed, published, or installed with this candidate.
 
