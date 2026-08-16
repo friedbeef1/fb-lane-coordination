@@ -24,7 +24,8 @@ content receipts from active-candidate routing receipts and accepts an approved
 post-migration revision only through an exact current-hash/source-root packet
 that matches one prior disposition. Focused root/package suites, package parity,
 syntax, whitespace, and second-pass whole-candidate review pass. Source commit
-`87a5fcc` is local; the corrected record preflight and Doctor rerun remain.
+`87a5fcc` is local; candidate preflight passed at `308feb1` and Doctor reports
+Ready. The bounded local reinstall and fresh-task consumer proof remain.
 
 ## Product Start Brief
 
@@ -120,7 +121,8 @@ collapsed User bucket, partial configured-title onboarding state, absent
 refresh command, legacy-record routing conflation, and missing exact-current
 revision recovery. GREEN passed 19/19 intake, 35/35 migration, and 39/39
 onboarding checks in each of root and packaged contexts, plus 86/86 package
-parity, syntax, and whitespace. Final candidate preflight and Doctor remain.
+parity, syntax, and whitespace. Candidate preflight passed at `308feb1`; Doctor
+reported Ready with a clean committed worktree.
 
 Review state, direct links, limits, and external gates: Second-pass
 whole-candidate review found no Critical or Important defect after verifying
@@ -128,14 +130,12 @@ all four first-pass findings were resolved. See [QA verification](../qa/TASK-085
 [Unreleased changelog](../../CHANGELOG.md#unreleased). The consumer drift and
 exact **Push Live** release boundary remain external gates.
 
-Repository state: Source candidate `87a5fcc` is committed in the isolated
-TASK-085 worktree; the current durable record reconciliation is intentionally
-dirty pending its docs-only commit. Canonical `main` is not merged, pushed,
-published, or installed with this candidate.
+Repository state: Source candidate `87a5fcc` and its durable evidence are
+committed in the isolated TASK-085 worktree. Canonical `main` is not merged,
+pushed, published, or installed with this candidate.
 
-Remaining owner and action: Product/BFM runs candidate preflight and Doctor,
-commits the local candidate, performs the explicitly approved bounded local
-reinstall, starts a fresh Codex task, repairs the erased Unmirror receipts
+Remaining owner and action: Product/BFM performs the explicitly approved bounded
+local reinstall, starts a fresh Codex task, repairs the erased Unmirror receipts
 through the supported exact-evidence route, and resumes intake. Merge, push,
 publication, deployment, and release remain blocked without **Push Live**.
 

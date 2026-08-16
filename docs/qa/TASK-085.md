@@ -7,8 +7,8 @@ status: passed
 # TASK-085 QA
 
 Status: Source and packaged focused verification plus second-pass review pass
-for committed source candidate `87a5fcc`; corrected record preflight and Doctor
-rerun remain.
+for committed source candidate `87a5fcc`; candidate preflight passed at
+`308feb1`, and Doctor reports Ready.
 
 ## Candidate
 
@@ -97,9 +97,9 @@ of absent modern routing surfaces, and preserves the complete Push Live gate.
 
 ## Release checkpoint
 
-Requested plan: run the targeted candidate preflight after Product/BFM review
-and commit, using the pre-claim base so the board claim remains inside the
-candidate evidence range. The bounded local reinstall is separately approved;
+Result: targeted candidate preflight passed at `308feb1` against pre-claim base
+`00c13928d0a12fbabca1584d230f93408e9ab496`; Doctor reported Ready with a clean
+committed worktree. The bounded local reinstall is separately approved;
 do not merge, push, publish, deploy, or release without exact
 current-conversation **Push Live**.
 
@@ -108,8 +108,9 @@ current-conversation **Push Live**.
 Current candidate checks are 186/186 across root/package intake, migration,
 and onboarding suites; 86/86 package mirrors; root/package syntax; and
 whitespace. The first committed-state preflight and Doctor correctly found the
-board/handoff status-family mismatch now repaired in the pending docs commit;
-their corrected-record rerun remains.
+board/handoff status-family mismatch repaired in status commit `308feb1`;
+the corrected-record rerun passed. Final docs-only closeout changes are
+covered by the same candidate preflight and Doctor rerun before install.
 
 ## Safety and release boundary
 
