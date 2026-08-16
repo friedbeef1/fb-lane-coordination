@@ -99,7 +99,9 @@ of absent modern routing surfaces, and preserves the complete Push Live gate.
 
 Result: targeted candidate preflight passed at `308feb1` against pre-claim base
 `00c13928d0a12fbabca1584d230f93408e9ab496`; Doctor reported Ready with a clean
-committed worktree. The bounded local reinstall is separately approved;
+committed worktree. Next plan: rerun candidate preflight and Doctor against the
+final docs-only closeout commit, then perform the separately approved bounded
+local reinstall and stop for a fresh-task runtime reload;
 do not merge, push, publish, deploy, or release without exact
 current-conversation **Push Live**.
 
