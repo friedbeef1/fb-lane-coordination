@@ -19,9 +19,12 @@ surface: canonical BFM intake scanner and packaged Codex plugin
 In Progress — the source and packaged working-tree candidate now includes
 repository-aware onboarding evidence, a first-class User intake bucket, and a
 transactional routing-receipt refresh/rebuild path and migration receipt
-preservation. Focused root/package suites, package parity, syntax, and
-whitespace pass; final candidate review and commit remain for Product/BFM
-integration.
+preservation. The bounded Unmirror recovery now also distinguishes historical
+content receipts from active-candidate routing receipts and accepts an approved
+post-migration revision only through an exact current-hash/source-root packet
+that matches one prior disposition. Focused root/package suites, package parity,
+syntax, whitespace, and second-pass whole-candidate review pass; the local
+candidate commit and preflight remain for Product/BFM integration.
 
 ## Product Start Brief
 
@@ -42,9 +45,10 @@ Lane OKR Fit: aligned.
 User Approval Needed: no — James explicitly authorized the repair and local
 upgrade on 2026-08-15.
 
-Mini-loop Evidence: Five behavioral regressions reproduce the independent
+Mini-loop Evidence: Eight behavioral regressions reproduce the independent
 User-bucket, configured-title, routing-refresh, erased-receipt recovery, and
-migration-preservation defects and pass in both root and packaged runtimes
+migration-preservation defects, plus historical, approved-current, and
+multi-source recovery boundaries, and pass in both root and packaged runtimes
 without weakening content-drift rejection.
 
 Evidence Against Product OKR: The candidate-runtime scan against the full
@@ -73,6 +77,12 @@ only routing hashes after coherent authoritative-record edits.
 - Preserve existing identity-matched routing receipts when migration inventory
   does not explicitly replace them, and allow erased receipts to rebuild only
   from exact dispositioned migration hashes for every current source.
+- Rebuild historical content receipts without inventing modern board/index/card
+  routes; keep those exact routing requirements for every Ready-like candidate.
+- Permit a changed approved handoff to reconcile only when the request names
+  the exact current canonical/source hashes and roots and matches one
+  unambiguous prior migration disposition; require a durable approval reference
+  and atomically refresh exact migration evidence for every current source.
 - Preserve duplicate-task, cross-root drift, exact-project, onboarding, and
   disposition gates.
 - Synchronize package mirrors only after the root regression is green.
@@ -85,8 +95,8 @@ versioning and release wording remain owned by a later explicit Push Live.
 ## Gate
 
 James authorized the repair and local upgrade. The candidate must still stop
-before merge, push, public marketplace publication, or release because the
-current conversation does not contain the exact **Push Live** authorization.
+before merge, push, public marketplace publication, deployment, or release
+because this conversation does not contain exact **Push Live**.
 
 ## Task Receipt
 
@@ -106,13 +116,15 @@ new working-tree source commit pending; root scanner/test plus mechanically
 synchronized packaged mirrors and updated TASK-085 records.
 
 Checks, failures, recovery, and results: RED failed independently on the
-collapsed User bucket, partial configured-title onboarding state, and absent
-refresh command. GREEN passed 16/16 intake, 35/35 migration, and 39/39
+collapsed User bucket, partial configured-title onboarding state, absent
+refresh command, legacy-record routing conflation, and missing exact-current
+revision recovery. GREEN passed 19/19 intake, 35/35 migration, and 39/39
 onboarding checks in each of root and packaged contexts, plus 86/86 package
 parity, syntax, and whitespace. Final candidate preflight and Doctor remain.
 
-Review state, direct links, limits, and external gates: Whole-candidate review
-found no source defect. See [QA verification](../qa/TASK-085.md) and the
+Review state, direct links, limits, and external gates: Second-pass
+whole-candidate review found no Critical or Important defect after verifying
+all four first-pass findings were resolved. See [QA verification](../qa/TASK-085.md) and the
 [Unreleased changelog](../../CHANGELOG.md#unreleased). The consumer drift and
 exact **Push Live** release boundary remain external gates.
 
@@ -134,8 +146,9 @@ Changelog: Updated — [Unreleased TASK-085 entry](../../CHANGELOG.md#unreleased
   final commit pending Product/BFM integration.
 - Test plan: [TASK-085 QA](../qa/TASK-085.md).
 - Environment: local macOS source worktree; provider-dark; no consumer writes.
-- Current Unmirror result: fail-closed `HANDOFF_CONTENT_DRIFT`, documented in
-  QA with both exact paths and statuses.
+- Current Unmirror result: installed runtime remains fail-closed
+  `HANDOFF_CONTENT_DRIFT`; the source candidate now contains the exact bounded
+  recovery required before a fresh-task consumer rerun.
 - Manual gate: none for the source repair. A fresh Codex task is required only
   after an authorized installed-plugin replacement.
 

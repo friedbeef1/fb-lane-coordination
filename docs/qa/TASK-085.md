@@ -6,8 +6,8 @@ status: passed
 
 # TASK-085 QA
 
-Status: Source and packaged focused verification pass for the current
-working-tree candidate; final candidate preflight and Doctor remain.
+Status: Source and packaged focused verification plus second-pass review pass
+for the current working-tree candidate; final candidate preflight and Doctor remain.
 
 ## Candidate
 
@@ -30,6 +30,14 @@ Result: five independent failures: User was collapsed into Product, the valid
 available; an ordinary migration erased existing receipts; and erased receipts
 could not be rebuilt from their still-matching dispositioned migration hashes.
 
+The Unmirror rerun added three bounded RED cases: historical handoffs were
+incorrectly forced through current board/index/card routing, and an approved
+post-migration handoff revision had no source-bound exact-current recovery.
+The review follow-up also proved a newly observed source root could not be
+accepted without being enumerated in the exact packet and recorded in refreshed
+migration evidence. They failed on the pre-repair runtime with the expected
+`BFM_INTAKE_INCOMPLETE` / `HANDOFF_ROUTING_RECEIPT_REQUIRED` boundaries.
+
 ## Focused verification
 
 Commands:
@@ -47,10 +55,10 @@ git diff --check
 
 Current results:
 
-- Focused regressions: 5/5 passed.
-- Root suites: intake 16/16, migration 35/35, onboarding 39/39.
+- Focused regressions: 8/8 passed.
+- Root suites: intake 19/19, migration 35/35, onboarding 39/39.
 - Package synchronization: 86/86 mirrors match.
-- Packaged suites: intake 16/16, migration 35/35, onboarding 39/39.
+- Packaged suites: intake 19/19, migration 35/35, onboarding 39/39.
 - Root/package syntax: passed.
 - Whitespace: passed.
 
@@ -70,12 +78,21 @@ starts with an erased receipt and succeeds only because the recorded canonical
 and source SHA-256 values, roots, and one disposition exactly match the current
 handoff inventory; the rebuilt receipt then passes BFM intake.
 
+The historical fixture proves non-candidate records receive content-only
+receipts and do not acquire invented modern routing. The approved-revision
+fixture rejects a wrong current hash, accepts only an exact canonical/source
+hash-and-root packet tied to one prior disposition and durable approval
+reference, rejects duplicate roots, and still fails when that prior migration
+evidence is absent. The multi-source fixture rejects an omitted current root
+and atomically records exact migration evidence for every enumerated source.
+
 ## Whole-candidate review
 
-Pending final Product/BFM candidate review. Current focused evidence shows the
-shared predicate preserves the audit grammar, User is distinct from Product,
-configured titles reuse the strict onboarding contract, and routing refresh
-cannot authorize content drift.
+Second-pass review passed with no Critical or Important findings. It verified
+that reconciliation exact-enumerates every current source, rejects duplicate or
+malformed entries, atomically refreshes source-bound migration evidence with a
+durable approval reference, leaves historical non-Ready recovery independent
+of absent modern routing surfaces, and preserves the complete Push Live gate.
 
 ## Release checkpoint
 
@@ -87,7 +104,7 @@ current-conversation **Push Live**.
 
 ## Final checks
 
-Current working-tree checks are 180/180 across root/package intake, migration,
+Current working-tree checks are 186/186 across root/package intake, migration,
 and onboarding suites; 86/86 package mirrors; root/package syntax; and
 whitespace. Final candidate preflight, Doctor, and committed-state checks remain.
 

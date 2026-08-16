@@ -1769,54 +1769,134 @@ function refreshBfmRoutingReceipts(rootDir, options = {}) {
     }
   }
 
-  const inventories = collectBfmIntakeInventories(canonicalRoot);
+  const contentAudit = handoffAuditRecords(canonicalRoot);
+  if (contentAudit.errors.length > 0) {
+    throw new Error(`READINESS_AUDIT_INCOMPLETE: handoff sources were unreadable: ${contentAudit.errors.join('; ')}`);
+  }
+  let inventories;
   const refreshed = { ...migration.routingReceipts };
+  let refreshedDifferences = [...migration.differences];
   for (const relative of relatives) {
-    const routeErrors = [];
-    const records = [];
-    for (const [auditRoot, inventory] of inventories) {
-      const absolute = path.join(auditRoot, relative);
-      if (!fs.existsSync(absolute)) continue;
-      let source;
-      try {
-        source = fs.readFileSync(absolute, 'utf8');
-      } catch (error) {
-        routeErrors.push(`${absolute} (${error.code || 'READ_ERROR'})`);
-        continue;
+    const contentRecords = contentAudit.records.get(relative) || [];
+    const canonicalContent = contentRecords.find(record => record.root === canonicalRoot);
+    let records = contentRecords;
+    if (canonicalContent) {
+      const canonicalSource = fs.readFileSync(path.join(canonicalRoot, relative), 'utf8');
+      const metadata = handoffFrontmatter(canonicalSource) || {};
+      const requiresRouting = metadata.type === 'fb-lane-handoff'
+        && readyHandoffStatus(String(metadata.status || '').toLowerCase());
+      if (requiresRouting) {
+        inventories ||= collectBfmIntakeInventories(canonicalRoot);
+        const routeErrors = [];
+        records = [];
+        for (const [auditRoot, inventory] of inventories) {
+          const absolute = path.join(auditRoot, relative);
+          if (!fs.existsSync(absolute)) continue;
+          let source;
+          try {
+            source = fs.readFileSync(absolute, 'utf8');
+          } catch (error) {
+            routeErrors.push(`${absolute} (${error.code || 'READ_ERROR'})`);
+            continue;
+          }
+          const record = bfmCandidateRoutingRecord(inventory, relative, source, routeErrors);
+          if (record) records.push(record);
+        }
+        if (routeErrors.length > 0) {
+          throw new Error(`BFM_INTAKE_INCOMPLETE: authoritative routing is incomplete or contradictory: ${routeErrors.join('; ')}.`);
+        }
       }
-      const record = bfmCandidateRoutingRecord(inventory, relative, source, routeErrors);
-      if (record) records.push(record);
-    }
-    if (routeErrors.length > 0) {
-      throw new Error(`BFM_INTAKE_INCOMPLETE: authoritative routing is incomplete or contradictory: ${routeErrors.join('; ')}.`);
     }
 
     const canonical = records.find(record => record.root === canonicalRoot);
     const sources = records.filter(record => record.root !== canonicalRoot);
+    const evidence = migration.differences.filter(difference => difference.kind === 'handoff'
+      && difference.relative === relative
+      && String(difference.disposition || '').trim());
+    const dispositions = [...new Set(evidence.map(difference => String(difference.disposition).trim()))];
+    const currentReceipt = disposition => ({
+      canonicalSha256: canonical.sha256,
+      sources: sources.map(source => ({ root: source.root, sha256: source.sha256 })),
+      disposition,
+    });
+    const requestedReconciliation = options.reconcileCurrent
+      && typeof options.reconcileCurrent === 'object'
+      ? options.reconcileCurrent[relative]
+      : null;
+    const rawRequestedSources = Array.isArray(requestedReconciliation?.sources)
+      ? requestedReconciliation.sources
+      : [];
+    const normalizedRequestedSources = rawRequestedSources
+      .filter(record => record
+        && typeof record.root === 'string'
+        && record.root.trim()
+        && typeof record.sha256 === 'string'
+        && record.sha256.trim())
+      .map(record => ({ ...record, root: pathIdentity(record.root) }));
+    const requestedSources = new Map(normalizedRequestedSources.map(record => [record.root, record]));
+    const reconciliationMatchesCurrent = requestedReconciliation
+      && canonical
+      && typeof requestedReconciliation.approvalRef === 'string'
+      && requestedReconciliation.approvalRef.trim() !== ''
+      && typeof requestedReconciliation.disposition === 'string'
+      && requestedReconciliation.disposition.trim() !== ''
+      && requestedReconciliation.canonicalSha256 === canonical.sha256
+      && rawRequestedSources.length === sources.length
+      && normalizedRequestedSources.length === rawRequestedSources.length
+      && requestedSources.size === sources.length
+      && sources.every(source => requestedSources.get(source.root)?.sha256 === source.sha256);
+    if (requestedReconciliation && !reconciliationMatchesCurrent) {
+      throw new Error(
+        `HANDOFF_CONTENT_DRIFT: ${relative} requested reconciliation does not match the current exact content and source roots.`
+      );
+    }
+    const reconciliationAuthorized = reconciliationMatchesCurrent
+      && dispositions.length === 1
+      && requestedReconciliation.disposition === dispositions[0];
+    if (reconciliationAuthorized && sources.length > 0) {
+      const sourceRoots = new Set(sources.map(source => source.root));
+      refreshedDifferences = refreshedDifferences.filter(difference => !(difference.kind === 'handoff'
+        && difference.relative === relative
+        && sourceRoots.has(pathIdentity(difference.source?.root || ''))));
+      const canonicalValue = {
+        sha256: canonical.sha256,
+        task: canonical.task,
+        status: canonical.status,
+      };
+      for (const source of sources) {
+        const sourceValue = {
+          sha256: source.sha256,
+          task: source.task,
+          status: source.status,
+        };
+        refreshedDifferences.push({
+          id: migrationDifferenceId(source.root, 'handoff', relative, canonicalValue, sourceValue),
+          kind: 'handoff',
+          relative,
+          canonical: { root: canonicalRoot, value: canonicalValue },
+          source: { root: source.root, value: sourceValue },
+          disposition: dispositions[0],
+          approvalRef: requestedReconciliation.approvalRef.trim(),
+        });
+      }
+      refreshedDifferences.sort((left, right) => String(left.id || '').localeCompare(String(right.id || '')));
+    }
     let previous = migration.routingReceipts[relative];
     if ((!previous || !String(previous.disposition || '').trim() || !Array.isArray(previous.sources))
       && options.rebuildMissing === true) {
-      const evidence = migration.differences.filter(difference => difference.kind === 'handoff'
-        && difference.relative === relative
-        && String(difference.disposition || '').trim());
-      const dispositions = [...new Set(evidence.map(difference => String(difference.disposition).trim()))];
-      const evidenceBySource = new Map(evidence.map(difference => [pathIdentity(difference.source?.root || ''), difference]));
+      const exactEvidence = sources.map(source => evidence.filter(difference =>
+        pathIdentity(difference.source?.root || '') === source.root
+        && pathIdentity(difference.canonical?.root || '') === canonicalRoot
+        && difference.canonical?.value?.sha256 === canonical.sha256
+        && difference.source?.value?.sha256 === source.sha256));
       const evidenceMatches = canonical
         && dispositions.length === 1
         && sources.length > 0
-        && evidence.length === sources.length
-        && evidence.every(difference => pathIdentity(difference.canonical?.root || '') === canonicalRoot
-          && difference.canonical?.value?.sha256 === canonical.sha256)
-        && sources.every(source => {
-          const difference = evidenceBySource.get(source.root);
-          return difference?.source?.value?.sha256 === source.sha256;
-        });
+        && exactEvidence.every(matches => matches.length === 1);
       if (evidenceMatches) {
-        previous = {
-          canonicalSha256: canonical.sha256,
-          sources: sources.map(source => ({ root: source.root, sha256: source.sha256 })),
-          disposition: dispositions[0],
-        };
+        previous = currentReceipt(dispositions[0]);
+      } else if (reconciliationAuthorized && sources.length > 0) {
+        previous = currentReceipt(dispositions[0]);
       }
     }
     if (!previous || !String(previous.disposition || '').trim() || !Array.isArray(previous.sources)) {
@@ -1830,7 +1910,9 @@ function refreshBfmRoutingReceipts(rootDir, options = {}) {
       || currentSourceRoots.length !== previousSourceRoots.length
       || currentSourceRoots.some((value, index) => value !== previousSourceRoots[index])
       || sources.some(record => previousSources.get(record.root)?.sha256 !== record.sha256);
-    if (contentChanged) {
+    if (contentChanged && reconciliationAuthorized && sources.length > 0) {
+      previous = currentReceipt(dispositions[0]);
+    } else if (contentChanged) {
       throw new Error(
         `HANDOFF_CONTENT_DRIFT: ${relative} content or source roots changed after its routing disposition; reconcile content before refreshing routing hashes.`
       );
@@ -1839,18 +1921,18 @@ function refreshBfmRoutingReceipts(rootDir, options = {}) {
     refreshed[relative] = {
       ...previous,
       canonicalSha256: canonical.sha256,
-      canonicalRoutingSha256: canonical.routingSha256,
+      ...(canonical.routingSha256 ? { canonicalRoutingSha256: canonical.routingSha256 } : {}),
       sources: sources
         .map(record => ({
           root: record.root,
           sha256: record.sha256,
-          routingSha256: record.routingSha256,
+          ...(record.routingSha256 ? { routingSha256: record.routingSha256 } : {}),
         }))
         .sort((left, right) => left.root.localeCompare(right.root)),
     };
   }
 
-  const manifest = { ...migration, routingReceipts: refreshed };
+  const manifest = { ...migration, differences: refreshedDifferences, routingReceipts: refreshed };
   delete manifest.manifestPath;
   return writeCheckoutMigrationManifest(manifest, options);
 }
@@ -5396,7 +5478,7 @@ Usage:
   node tools/fb-lane.cjs doctor                         - Check FB-Lane setup health without writing files
   node tools/fb-lane.cjs status [--details|--context]   - Print beginner status, raw technical details, or bounded active context
   node tools/fb-lane.cjs migration inventory|commit <request.json> - Discover or atomically record checkout migration state
-  node tools/fb-lane.cjs migration refresh-routing <request.json> - Atomically refresh existing source-bound routing hashes only
+  node tools/fb-lane.cjs migration refresh-routing <request.json> - Atomically rebuild or reconcile exact source-bound content/routing receipts
   node tools/fb-lane.cjs migration rebind <inventory.json> [root] [project-id] - Complete exact-project task rebind
   node tools/fb-lane.cjs learning record <receipt.json>     - Record one validated project-local lesson
   node tools/fb-lane.cjs learning status [work-type ...]   - Show only active matching lessons

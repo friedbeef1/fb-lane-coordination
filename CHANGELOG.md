@@ -13,6 +13,10 @@ index, or card changes without accepting handoff-content or source-root drift.
 Migration inventory now preserves identity-matched routing receipts by default;
 if an earlier supported migration erased them, refresh can rebuild only from
 exact, dispositioned migration hashes that still match every current source.
+Historical records receive content-only receipts instead of invented current
+routing. An approved post-migration revision can be reconciled only by an exact
+current canonical/source hash-and-root packet tied to one unambiguous prior
+disposition.
 
 **Why it matters:** Product/BFM can preserve approved User work and verified
 release candidates in one complete intake, recognize configured titles such as
@@ -23,8 +27,10 @@ path instead of editing clone-local receipts by hand.
 task identities, release authority, and provider boundaries remain unchanged.
 Routing refresh requires a managed canonical checkout and either an existing
 dispositioned receipt or exact matching dispositioned migration evidence;
-changed handoff content, changed source roots, incomplete routing, or unresolved
-migration drift still blocks the operation.
+changed handoff content or source roots require an exact current reconciliation
+packet, while incomplete Ready-like routing, ambiguous or absent prior
+disposition, a mismatched packet, or unresolved migration drift still blocks
+the operation.
 
 **Installation or upgrade:** Candidate only. A bounded local reinstall and
 fresh-task reload were explicitly approved for consumer repair on 2026-08-16;

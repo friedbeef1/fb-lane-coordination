@@ -330,6 +330,247 @@ test('routing receipt refresh rebuilds an erased receipt only from matching disp
   }
 });
 
+test('routing receipt refresh rebuilds historical content receipts without requiring intake routes', () => {
+  const root = makeFixture();
+  const former = makeFixture();
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-routing-legacy-registry-'));
+  const relative = 'docs/handoffs/legacy-product-note.md';
+  try {
+    fs.writeFileSync(path.join(root, relative), '# Canonical legacy note\n');
+    fs.writeFileSync(path.join(former, relative), '# Preserved former note\n');
+    initGitFixture(root);
+    initGitFixture(former);
+    configureVerifiedControlPlane(root, former);
+    fs.rmSync(path.join(former, 'PROJECT_BOARD.md'));
+    fs.rmSync(path.join(former, 'docs', 'handoffs', 'index.md'));
+    fs.rmSync(path.join(former, 'docs', 'workstreams'), { recursive: true });
+    const manifestPath = path.join(root, '.git', 'fb-checkout-migration.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const canonicalSha256 = crypto.createHash('sha256').update(fs.readFileSync(path.join(root, relative))).digest('hex');
+    const sourceSha256 = crypto.createHash('sha256').update(fs.readFileSync(path.join(former, relative))).digest('hex');
+    manifest.differences = [{
+      id: 'migration:handoff:legacy-fixture',
+      kind: 'handoff',
+      relative,
+      canonical: { root, value: { sha256: canonicalSha256 } },
+      source: { root: former, value: { sha256: sourceSha256 } },
+      disposition: 'canonical-history-authoritative-former-preserved',
+    }];
+    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest)}\n`);
+
+    const refreshed = refreshBfmRoutingReceipts(root, {
+      relatives: [relative],
+      rebuildMissing: true,
+      registryDir: registry,
+    });
+
+    const receipt = refreshed.manifest.routingReceipts[relative];
+    assert.equal(receipt.canonicalSha256, canonicalSha256);
+    assert.equal(receipt.sources[0].sha256, sourceSha256);
+    assert.equal(receipt.canonicalRoutingSha256, undefined);
+    assert.doesNotThrow(() => scanWorkstreamHandoffs(root));
+  } finally {
+    remove(root);
+    remove(former);
+    remove(registry);
+  }
+});
+
+test('routing receipt refresh reconciles approved current content only from an unambiguous prior disposition', () => {
+  const candidate = { task: 'USER-1', role: 'User', lane: 'fb-user', file: 'current.md' };
+  const root = makeFixture([candidate]);
+  const former = makeFixture([candidate]);
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-routing-current-registry-'));
+  const relative = 'docs/handoffs/current.md';
+  try {
+    initGitFixture(root);
+    initGitFixture(former);
+    configureVerifiedControlPlane(root, former);
+    fs.appendFileSync(path.join(root, relative), '\nApproved canonical revision.\n');
+    const manifestPath = path.join(root, '.git', 'fb-checkout-migration.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    manifest.differences = [{
+      id: 'migration:handoff:stale-fixture',
+      kind: 'handoff',
+      relative,
+      canonical: { root, value: { sha256: 'a'.repeat(64) } },
+      source: { root: former, value: { sha256: 'b'.repeat(64) } },
+      disposition: 'canonical-approved-source-preserved',
+    }];
+    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest)}\n`);
+    const canonicalSha256 = crypto.createHash('sha256').update(fs.readFileSync(path.join(root, relative))).digest('hex');
+    const sourceSha256 = crypto.createHash('sha256').update(fs.readFileSync(path.join(former, relative))).digest('hex');
+    const reconciliation = {
+      approvalRef: 'James approved the bounded Unmirror recovery on 2026-08-16',
+      disposition: 'canonical-approved-source-preserved',
+      canonicalSha256,
+      sources: [{ root: fs.realpathSync(former), sha256: sourceSha256 }],
+    };
+
+    assert.throws(
+      () => refreshBfmRoutingReceipts(root, {
+        relatives: [relative],
+        rebuildMissing: true,
+        registryDir: registry,
+      }),
+      /HANDOFF_ROUTING_RECEIPT_REQUIRED/,
+    );
+    assert.throws(
+      () => refreshBfmRoutingReceipts(root, {
+        relatives: [relative],
+        rebuildMissing: true,
+        reconcileCurrent: {
+          [relative]: { ...reconciliation, canonicalSha256: '0'.repeat(64) },
+        },
+        registryDir: registry,
+      }),
+      /HANDOFF_CONTENT_DRIFT/,
+    );
+    assert.throws(
+      () => refreshBfmRoutingReceipts(root, {
+        relatives: [relative],
+        rebuildMissing: true,
+        reconcileCurrent: {
+          [relative]: {
+            ...reconciliation,
+            sources: [
+              { root: fs.realpathSync(former), sha256: '0'.repeat(64) },
+              ...reconciliation.sources,
+            ],
+          },
+        },
+        registryDir: registry,
+      }),
+      /HANDOFF_CONTENT_DRIFT/,
+    );
+
+    const refreshed = refreshBfmRoutingReceipts(root, {
+      relatives: [relative],
+      rebuildMissing: true,
+      reconcileCurrent: { [relative]: reconciliation },
+      registryDir: registry,
+    });
+    const receipt = refreshed.manifest.routingReceipts[relative];
+    assert.equal(receipt.disposition, 'canonical-approved-source-preserved');
+    assert.equal(receipt.canonicalSha256, canonicalSha256);
+    assert.equal(receipt.sources[0].sha256, sourceSha256);
+    const refreshedEvidence = refreshed.manifest.differences.filter(difference =>
+      difference.kind === 'handoff'
+      && difference.relative === relative
+      && fs.realpathSync(difference.source.root) === fs.realpathSync(former)
+    );
+    assert.equal(refreshedEvidence.length, 1);
+    assert.equal(refreshedEvidence[0].canonical.value.sha256, canonicalSha256);
+    assert.equal(refreshedEvidence[0].source.value.sha256, sourceSha256);
+    assert.equal(refreshedEvidence[0].disposition, reconciliation.disposition);
+    assert.doesNotThrow(() => freezeBfmIntake(root, { dispositions: { 'USER-1': 'Include now' } }));
+
+    const withoutEvidence = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    withoutEvidence.routingReceipts = {};
+    withoutEvidence.differences = [];
+    fs.writeFileSync(manifestPath, `${JSON.stringify(withoutEvidence)}\n`);
+    assert.throws(
+      () => refreshBfmRoutingReceipts(root, {
+        relatives: [relative],
+        rebuildMissing: true,
+        reconcileCurrent: { [relative]: reconciliation },
+        registryDir: registry,
+      }),
+      /HANDOFF_ROUTING_RECEIPT_REQUIRED/,
+    );
+  } finally {
+    remove(root);
+    remove(former);
+    remove(registry);
+  }
+});
+
+test('current reconciliation enumerates and records every current source root', () => {
+  const candidate = { task: 'USER-2', role: 'User', lane: 'fb-user', file: 'multi-source.md' };
+  const root = makeFixture([candidate]);
+  const former = makeFixture([candidate]);
+  const added = makeFixture([candidate]);
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-routing-multi-registry-'));
+  const relative = 'docs/handoffs/multi-source.md';
+  try {
+    initGitFixture(root);
+    initGitFixture(former);
+    initGitFixture(added);
+    configureVerifiedControlPlane(root, former);
+    fs.appendFileSync(path.join(root, relative), '\nApproved canonical revision.\n');
+    fs.appendFileSync(path.join(added, relative), '\nAdditional preserved source.\n');
+    const manifestPath = path.join(root, '.git', 'fb-checkout-migration.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    manifest.checkouts[fs.realpathSync(added)] = { state: 'quarantined' };
+    manifest.differences = [{
+      id: 'migration:handoff:single-prior-source',
+      kind: 'handoff',
+      relative,
+      canonical: { root, value: { sha256: 'a'.repeat(64) } },
+      source: { root: former, value: { sha256: 'b'.repeat(64) } },
+      disposition: 'canonical-approved-sources-preserved',
+    }];
+    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest)}\n`);
+    const canonicalSha256 = crypto.createHash('sha256').update(fs.readFileSync(path.join(root, relative))).digest('hex');
+    const sources = [former, added].map(sourceRoot => ({
+      root: fs.realpathSync(sourceRoot),
+      sha256: crypto.createHash('sha256').update(fs.readFileSync(path.join(sourceRoot, relative))).digest('hex'),
+    })).sort((left, right) => left.root.localeCompare(right.root));
+    const reconciliation = {
+      approvalRef: 'James approved the bounded multi-source recovery on 2026-08-16',
+      disposition: 'canonical-approved-sources-preserved',
+      canonicalSha256,
+      sources,
+    };
+
+    assert.throws(
+      () => refreshBfmRoutingReceipts(root, {
+        relatives: [relative],
+        rebuildMissing: true,
+        reconcileCurrent: { [relative]: { ...reconciliation, sources: sources.slice(0, 1) } },
+        registryDir: registry,
+      }),
+      /HANDOFF_CONTENT_DRIFT/,
+    );
+
+    const refreshed = refreshBfmRoutingReceipts(root, {
+      relatives: [relative],
+      rebuildMissing: true,
+      reconcileCurrent: { [relative]: reconciliation },
+      registryDir: registry,
+    });
+    assert.deepEqual(
+      refreshed.manifest.routingReceipts[relative].sources.map(source => source.root),
+      sources.map(source => source.root),
+    );
+    const exactEvidence = refreshed.manifest.differences.filter(difference =>
+      difference.kind === 'handoff'
+      && difference.relative === relative
+      && sources.some(source => source.root === fs.realpathSync(difference.source.root))
+    );
+    assert.equal(exactEvidence.length, 2);
+    assert.deepEqual(
+      exactEvidence.map(difference => ({
+        root: fs.realpathSync(difference.source.root),
+        canonicalSha256: difference.canonical.value.sha256,
+        sourceSha256: difference.source.value.sha256,
+        approvalRef: difference.approvalRef,
+      })).sort((left, right) => left.root.localeCompare(right.root)),
+      sources.map(source => ({
+        root: source.root,
+        canonicalSha256,
+        sourceSha256: source.sha256,
+        approvalRef: reconciliation.approvalRef,
+      })),
+    );
+  } finally {
+    remove(root);
+    remove(former);
+    remove(added);
+    remove(registry);
+  }
+});
+
 test('complete empty intake proves all six None relevant and separates Product/BFM', () => {
   const root = makeFixture();
   try {
