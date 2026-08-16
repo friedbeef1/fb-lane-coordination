@@ -330,6 +330,116 @@ test('routing receipt refresh rebuilds an erased receipt only from matching disp
   }
 });
 
+test('routing receipt refresh accepts exact index routes whose task IDs use Markdown code ticks', () => {
+  const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
+  const root = makeFixture([candidate]);
+  const former = makeFixture([candidate]);
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-routing-code-tick-registry-'));
+  try {
+    for (const fixtureRoot of [root, former]) {
+      const indexPath = path.join(fixtureRoot, 'docs', 'handoffs', 'index.md');
+      fs.writeFileSync(
+        indexPath,
+        fs.readFileSync(indexPath, 'utf8').replace('| TECH-1 |', '| `TECH-1` |'),
+      );
+      initGitFixture(fixtureRoot);
+    }
+    configureVerifiedControlPlane(root, former);
+    const manifestPath = path.join(root, '.git', 'fb-checkout-migration.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const source = fs.readFileSync(path.join(root, 'docs', 'handoffs', 'same.md'));
+    const sha256 = crypto.createHash('sha256').update(source).digest('hex');
+    manifest.differences = [{
+      id: 'migration:handoff:code-tick-fixture',
+      kind: 'handoff',
+      relative: 'docs/handoffs/same.md',
+      canonical: { root, value: { sha256 } },
+      source: { root: former, value: { sha256 } },
+      disposition: 'canonical-routing-retained',
+    }];
+    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest)}\n`);
+
+    const refreshed = refreshBfmRoutingReceipts(root, {
+      relatives: ['docs/handoffs/same.md'],
+      rebuildMissing: true,
+      registryDir: registry,
+    });
+
+    assert.equal(
+      refreshed.manifest.routingReceipts['docs/handoffs/same.md'].disposition,
+      'canonical-routing-retained',
+    );
+  } finally {
+    remove(root);
+    remove(former);
+    remove(registry);
+  }
+});
+
+test('routing receipt rebuild accepts canonical-identical linked copies without inventing migration evidence', () => {
+  const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
+  const root = makeFixture([candidate]);
+  const former = makeFixture([candidate]);
+  const linked = makeFixture([candidate]);
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-routing-identical-linked-registry-'));
+  try {
+    fs.appendFileSync(path.join(former, 'docs', 'handoffs', 'same.md'), '\nPreserved former content.\n');
+    for (const fixtureRoot of [root, former, linked]) initGitFixture(fixtureRoot);
+    configureVerifiedControlPlane(root, former);
+    const manifestPath = path.join(root, '.git', 'fb-checkout-migration.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    manifest.checkouts[fs.realpathSync(linked)] = { state: 'quarantined' };
+    const canonicalSha256 = crypto.createHash('sha256')
+      .update(fs.readFileSync(path.join(root, 'docs', 'handoffs', 'same.md')))
+      .digest('hex');
+    const formerSha256 = crypto.createHash('sha256')
+      .update(fs.readFileSync(path.join(former, 'docs', 'handoffs', 'same.md')))
+      .digest('hex');
+    manifest.differences = [{
+      id: 'migration:handoff:differing-former-fixture',
+      kind: 'handoff',
+      relative: 'docs/handoffs/same.md',
+      canonical: { root, value: { sha256: canonicalSha256 } },
+      source: { root: former, value: { sha256: formerSha256 } },
+      disposition: 'canonical-authoritative-former-preserved',
+    }];
+    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest)}\n`);
+
+    const linkedHandoff = path.join(linked, 'docs', 'handoffs', 'same.md');
+    fs.appendFileSync(linkedHandoff, '\nUnreceipted linked drift.\n');
+    assert.throws(
+      () => refreshBfmRoutingReceipts(root, {
+        relatives: ['docs/handoffs/same.md'],
+        rebuildMissing: true,
+        registryDir: registry,
+      }),
+      /HANDOFF_ROUTING_RECEIPT_REQUIRED/,
+    );
+    fs.copyFileSync(path.join(root, 'docs', 'handoffs', 'same.md'), linkedHandoff);
+
+    const refreshed = refreshBfmRoutingReceipts(root, {
+      relatives: ['docs/handoffs/same.md'],
+      rebuildMissing: true,
+      registryDir: registry,
+    });
+    const receipt = refreshed.manifest.routingReceipts['docs/handoffs/same.md'];
+
+    assert.equal(receipt.disposition, 'canonical-authoritative-former-preserved');
+    assert.deepEqual(
+      receipt.sources.map(source => ({ root: source.root, sha256: source.sha256 })),
+      [
+        { root: fs.realpathSync(former), sha256: formerSha256 },
+        { root: fs.realpathSync(linked), sha256: canonicalSha256 },
+      ].sort((left, right) => left.root.localeCompare(right.root)),
+    );
+  } finally {
+    remove(root);
+    remove(former);
+    remove(linked);
+    remove(registry);
+  }
+});
+
 test('routing receipt refresh rebuilds historical content receipts without requiring intake routes', () => {
   const root = makeFixture();
   const former = makeFixture();

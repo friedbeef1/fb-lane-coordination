@@ -1584,7 +1584,8 @@ function exactTaskLines(source, task) {
 }
 
 function indexTaskId(cell) {
-  const value = String(cell || '').trim().split(/\s+/, 1)[0];
+  const token = String(cell || '').trim().split(/\s+/, 1)[0];
+  const value = /^`[^`]+`$/.test(token) ? token.slice(1, -1) : token;
   return isSafeTaskId(value) ? value : '';
 }
 
@@ -1892,7 +1893,8 @@ function refreshBfmRoutingReceipts(rootDir, options = {}) {
       const evidenceMatches = canonical
         && dispositions.length === 1
         && sources.length > 0
-        && exactEvidence.every(matches => matches.length === 1);
+        && sources.every((source, index) => source.sha256 === canonical.sha256
+          || exactEvidence[index].length === 1);
       if (evidenceMatches) {
         previous = currentReceipt(dispositions[0]);
       } else if (reconciliationAuthorized && sources.length > 0) {
