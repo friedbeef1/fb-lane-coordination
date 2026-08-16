@@ -37,7 +37,7 @@ disposition, a content-different unreceipted source, a mismatched packet, or
 unresolved migration drift still blocks the operation.
 
 **Installation or upgrade:** Candidate only. A bounded local reinstall and
-fresh-task reload were explicitly approved for consumer repair on 2026-08-16;
+fresh-task reload were explicitly approved for consumer repair on 2026-08-17;
 versioning, merge, push, marketplace publication, and release remain behind the
 exact current-conversation **Push Live** gate.
 

@@ -7,8 +7,8 @@ status: passed
 # TASK-085 QA
 
 Status: Source and packaged focused verification pass for committed follow-up
-candidate `ef0d064`; candidate preflight and Doctor rerun remain before the
-bounded local reinstall.
+candidate `ef0d064`; candidate preflight passed at `338f997`, Doctor reports
+Ready, and the bounded local reinstall remains.
 
 ## Candidate
 
@@ -107,11 +107,10 @@ of absent modern routing surfaces, and preserves the complete Push Live gate.
 
 ## Release checkpoint
 
-Result: targeted candidate preflight passed at `308feb1` against pre-claim base
+Result: targeted candidate preflight passed at `338f997` against pre-claim base
 `00c13928d0a12fbabca1584d230f93408e9ab496`; Doctor reported Ready with a clean
-committed worktree. Next plan: rerun candidate preflight and Doctor against the
-final docs-only closeout commit, then perform the separately approved bounded
-local reinstall and stop for a fresh-task runtime reload;
+committed worktree. Next plan: perform the separately approved bounded local
+reinstall and stop for a fresh-task runtime reload;
 do not merge, push, publish, deploy, or release without exact
 current-conversation **Push Live**.
 
@@ -131,6 +130,6 @@ covered by the same candidate preflight and Doctor rerun before install.
 - No credentials or provider state were read or changed.
 - No merge, push, marketplace publication, installation, or release occurred
   at this evidence checkpoint.
-- James explicitly authorized a bounded local install and fresh-task reload on
-  2026-08-16. Merge, push, publication, deployment, and release remain behind
+- James explicitly authorized the runtime repair, bounded local install, and
+  fresh-task reload on 2026-08-17. Merge, push, publication, deployment, and release remain behind
   exact current-conversation **Push Live**.

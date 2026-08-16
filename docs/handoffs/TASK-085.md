@@ -27,8 +27,9 @@ syntax, whitespace, and second-pass whole-candidate review pass. The approved
 follow-up also accepts exact index task IDs wrapped in Markdown code ticks and
 rebuilds a missing receipt when linked-copy content is canonical-identical,
 without excusing any content-different source from exact migration evidence.
-Source commit `ef0d064` is local. The candidate preflight/Doctor rerun, bounded
-local reinstall, and fresh-task consumer proof remain.
+Source commit `ef0d064` is local; candidate preflight passed at `338f997` and
+Doctor reports Ready. The bounded local reinstall and fresh-task consumer proof
+remain.
 
 ## Product Start Brief
 
@@ -134,7 +135,8 @@ revision recovery. The follow-up RED reproduced both the backticked-index false
 negative and the canonical-identical linked-copy receipt failure. GREEN passed
 21/21 intake, 35/35 migration, and 60/60 onboarding checks in each of root and
 packaged contexts, plus 86/86 package parity, syntax, and whitespace. Candidate
-preflight and Doctor will be rerun from the committed follow-up before install.
+preflight passed at `338f997`, and Doctor reported Ready from the clean
+committed follow-up.
 
 Review state, direct links, limits, and external gates: Second-pass
 whole-candidate review found no Critical or Important defect after verifying
