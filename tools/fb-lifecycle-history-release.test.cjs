@@ -22,8 +22,8 @@ function json(relativePath) {
 const manifest = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.codex-plugin/plugin.json'), 'utf8'));
 assert.match(
   manifest.version,
-  /^0\.8\.1-beta\+codex\.\d{14}$/,
-  'release build must use the 0.8.1-beta UTC build form',
+  /^0\.9\.0-beta\+codex\.\d{14}$/,
+  'release build must use the 0.9.0-beta UTC build form',
 );
 assert.strictEqual(JSON.parse(fs.readFileSync(path.join(pluginRoot, 'plugin.json'), 'utf8')).version, manifest.version);
 
@@ -84,7 +84,7 @@ if (!packaged) {
   assert.match(release, /new\s+Codex\s+task/i);
 
   for (const surface of ['README.md', 'FAQ.md', 'docs/setup.md', 'docs/versioning.md', 'platforms/codex/README.md']) {
-    assert.match(read(surface), /0\.8\.1-beta/, `${surface} must name 0.8.1-beta`);
+    assert.match(read(surface), /0\.9\.0-beta/, `${surface} must name 0.9.0-beta`);
   }
 
   const bfm = read('skills/bfm/SKILL.md');

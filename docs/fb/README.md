@@ -16,6 +16,13 @@ ship**. Only **Push Live** authorizes release.
 This graph is a delivery map, not a graph database, knowledge graph, or GraphQL
 requirement. See the [Full FB Graph Diagram](full-loop.md).
 
+The everyday workflow is **Goal → Split → only the relevant workstreams →
+Verify evidence → Merge findings → Implement → Verify candidate → One clear
+result**. When a workstream has an actionable recommendation, say **Send this
+to Product.** The board, receipt, identity, routing, worktree, and release
+machinery remains available underneath; it is not a second workflow the user
+must operate.
+
 Durable facts follow the [normalized records and efficient evidence contract](records.md):
 one authoritative home per fact, direct links elsewhere, deterministic
 verification reuse, and compact closeout.
@@ -62,6 +69,11 @@ Build Brief, and then starts execution of the included scope. FB keeps its
 risk and execution classification internal; the user never chooses a mode.
 See [start.md](start.md) for the public sequence and [workflow.md](workflow.md)
 for internal execution budgets and stop predicates.
+
+Setup, installation, upgrade, canonical-root changes, task drift, or duplicate
+evidence may trigger complete task-identity reconciliation. Ordinary `$bfm`
+cycles validate the existing receipt fingerprint without relisting or
+reconciling healthy sidebar tasks.
 
 Four reliability rules keep that beginner flow honest: FB mutates only the
 active canonical checkout; `$bfm` shows a complete intake ledger across the six

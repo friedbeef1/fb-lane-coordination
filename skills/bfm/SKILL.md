@@ -15,6 +15,16 @@ release checkpoint. Do not create separate review or re-review loops for
 individual slices. Safety, sensitive-operation, authority, worktree/lock,
 changelog, and **Push Live** gates remain unchanged.
 
+The visible workflow is **Goal → Split → only the relevant workstreams →
+Verify evidence → Merge findings → Implement → Verify candidate → One clear
+result**. A workstream's common action is **Send this to Product.** Product/BFM
+then synthesizes the evidence and owns one fresh-context integrated candidate
+verification after the bounded implementation slices.
+
+Board, receipts, identity hashes, and internal route names are diagnostic
+machinery, not user choices or ordinary milestones. Report them only when they
+explain drift, a blocker, or an audit result.
+
 BFM is the navigator and executor of FB's repository-local product-delivery
 graph. The graph is the map; workstream loops produce learning inside it; BFM
 reconciles, prioritizes, and executes the approved graph; **Push Live** remains
@@ -41,8 +51,15 @@ invokes `$bfm`, or authorizes release.
 intent to invoke this skill when possible; do not document or implement it as a
 second runtime command.
 
-After bootstrap, inspect the clone-local receipt with
-`node tools/fb-onboarding.cjs status`. Bootstrap already displayed the
+Full task discovery and identity reconciliation are lifecycle work. Run them on
+**setup, install, upgrade, canonical-root change, task drift, or duplicate**
+evidence—not on every delivery cycle. Routine `$bfm` validates the existing
+receipt fingerprint through the intake runtime and does not enumerate or
+reconcile sidebar tasks when that receipt remains healthy. An unhealthy,
+missing, or contradictory receipt fails closed and names the lifecycle repair.
+
+At bootstrap or a triggered lifecycle repair, inspect the clone-local receipt
+with `node tools/fb-onboarding.cjs status`. Bootstrap already displayed the
 permission question once. Do not ask it again on a later `$bfm`.
 
 - On explicit **Yes**, record
@@ -53,7 +70,7 @@ permission question once. Do not ask it again on a later `$bfm`.
   project setup is explicitly granted and verified.
 - When permission is pending, do not infer consent. `$bfm` must surface the
   pending setup action and stop before source execution.
-- Whenever permission is granted, run
+- During setup or a triggered lifecycle repair after permission is granted, run
   `node tools/fb-onboarding.cjs needs-reconciliation`. It decides from the
   canonical seven roles recorded in `workstreams`; an existing `reconciledAt`
   never overrides a missing role.
@@ -126,11 +143,13 @@ mini-loop and records ready or blocked evidence in `docs/handoffs/<TASK-ID>.md`.
 `$bfm` ignores `fb-workstream-handoff` artifacts because they are queued
 planning requests, not Product delivery inputs.
 Before intake or any source mutation, require the active canonical checkout
-record and a fresh clone-local receipt proving the exact project ID, canonical
-path, and all seven exact pinned task bindings. Missing, pending, declined,
+record and a valid clone-local receipt fingerprint proving the exact project
+ID, canonical path, and all seven exact pinned task bindings. This bounded
+validation does not relist or reconcile tasks. Missing, pending, declined,
 partial, or stale onboarding evidence closes both the execution and empty-queue
-gates. Every non-retired checkout in the migration manifest participates in the
-audit even when no separate audit-roots file names it.
+gates and routes to the lifecycle repair. Every non-retired checkout in the
+migration manifest participates in the audit even when no separate audit-roots
+file names it.
 Then call the runtime's complete intake semantics directly:
 
 ```js

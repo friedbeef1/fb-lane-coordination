@@ -10,6 +10,12 @@ release checkpoint. Do not create separate review or re-review loops for
 individual slices. Safety, sensitive-operation, authority, worktree/lock,
 changelog, and **Push Live** gates remain unchanged.
 
+The visible workflow is **Goal → Split → only the relevant workstreams →
+Verify evidence → Merge findings → Implement → Verify candidate → One clear
+result**. A relevant workstream uses **Send this to Product.** Product/BFM then
+owns one fresh-context integrated candidate verification before the clear
+result. Internal records and route names remain diagnostic.
+
 Read this file, then use `node tools/fb-lane.cjs status --context` (or MCP
 `fb_lane_status({context:true})`) for bounded active project state and locks.
 For a known task and concrete question, call MCP `fb_project_context` and open

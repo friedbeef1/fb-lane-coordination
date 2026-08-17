@@ -80,7 +80,7 @@ function assertExactFirstProjectContract(label, source) {
   assert.ok(source.includes(`**Progress:** ${exactProgress}`), `${label} must preserve the approved progress wording`);
   assert.ok(source.includes(`**Blocked:** ${exactBlocked}`), `${label} must keep blocked work actionable`);
   assert.match(source, /## The single public sequence/);
-  assert.match(source, /handoff ready for Product intake[\s\S]*`\$bfm`[\s\S]*disposition every candidate[\s\S]*Project Start Brief and Build Brief[\s\S]*BFM implements and verifies[\s\S]*Ready to ship[\s\S]*Push Live/i);
+  assert.match(source, /handoff ready for Product intake[\s\S]*`\$bfm`[\s\S]*disposition every candidate[\s\S]*Project Start Brief and Build Brief[\s\S]*bounded execution slices[\s\S]*fresh-context integrated candidate verification[\s\S]*Ready to ship[\s\S]*Push Live/i);
 
   const brief = source.match(/## Project Start Brief\n([\s\S]*?)(?=\n## |\s*$)/);
   assert.ok(brief, `${label} must include Project Start Brief`);

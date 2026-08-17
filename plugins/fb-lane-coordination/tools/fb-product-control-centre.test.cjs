@@ -140,7 +140,8 @@ status: ready
 `);
   const scan = scanWorkstreamHandoffs(handoffFixture);
   assert.deepStrictEqual(scan.candidates, ['docs/handoffs/user.md']);
-  assert.deepStrictEqual(scan.workstreams.product.ready, ['docs/handoffs/user.md'], 'new User evidence must retain the historical product scanner slot');
+  assert.deepStrictEqual(scan.workstreams.user.ready, ['docs/handoffs/user.md'], 'User evidence must retain its first-class workstream bucket');
+  assert.deepStrictEqual(scan.workstreams.product.ready, [], 'User evidence must not collapse into the Product/BFM control bucket');
 } finally {
   fs.rmSync(handoffFixture, { recursive: true, force: true });
 }

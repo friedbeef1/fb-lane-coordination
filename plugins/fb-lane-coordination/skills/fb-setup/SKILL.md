@@ -5,7 +5,9 @@ description: Use when a user wants to initialize, bootstrap, reconcile, repair, 
 
 # Set up FB
 
-The graph is the product-delivery map; Product/BFM navigates it and Codex executes its approved sequence.
+The graph is the product-delivery map. Workstream loops investigate and improve
+parts of it. Product/BFM navigates the graph, and Codex executes its approved
+sequence.
 
 **REQUIRED SUB-SKILL:** Use
 `fb-lane-coordination:project-coordination-setup`. Complete the canonical setup

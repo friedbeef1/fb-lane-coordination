@@ -1,5 +1,73 @@
 # Changelog
 
+## Unreleased
+
+## 0.9.0-beta — 2026-08-18
+
+Build: `0.9.0-beta+codex.20260817211319`
+
+### TASK-086 — Graph Blueprint workflow
+
+**What changed:** FB now presents one simple delivery sequence: define the goal,
+split it into only relevant workstream questions, verify and merge their
+findings, implement bounded slices, verify the integrated candidate once, and
+return one clear result. Workstreams share the plain-language **Send this to
+Product.** action. The operating manual distinguishes the evidence graph from
+the execution graph and limits full sidebar identity reconciliation to setup,
+upgrade, root-change, or detected-drift events.
+
+**Why it matters:** Everyday use now matches a familiar fan-out, verify, and
+merge graph without exposing boards, receipts, hashes, or internal route names
+as extra user steps. The durable records and fail-closed safety controls remain
+available when they are needed.
+
+**Compatibility:** Six workstreams, Product/BFM authority, `$bfm`, existing
+records, worktrees, verification gates, and **Push Live** are unchanged. All six
+workstreams remain available, but unrelated workstreams stay idle.
+
+**Installation or upgrade:** Upgrade the configured `fb-lane` marketplace,
+reinstall `fb-lane-coordination@fb-lane`, then start a new Codex task to load
+the refreshed guidance and runtime.
+
+### TASK-085 — Complete repository-aware BFM intake
+
+**What changed:** Canonical BFM handoff selection now uses the same ready-like
+status contract as the false-negative audit and keeps User as its own evidence
+workstream. BFM onboarding validates the strict receipt against the
+repository-configured title prefix. A transactional `migration refresh-routing`
+path can refresh existing source-bound routing hashes after coherent board,
+index, or card changes without accepting handoff-content or source-root drift.
+Migration inventory now preserves identity-matched routing receipts by default;
+if an earlier supported migration erased them, refresh can rebuild only from
+exact, dispositioned migration hashes that still match every current source.
+Historical records receive content-only receipts instead of invented current
+routing. An approved post-migration revision can be reconciled only by an exact
+current canonical/source hash-and-root packet tied to one unambiguous prior
+disposition.
+Exact index task IDs may be wrapped in a Markdown code span, and erased-receipt
+rebuild recognizes additional linked copies whose current content hash exactly
+matches canonical content. Every content-different source still requires exact
+dispositioned migration evidence.
+
+**Why it matters:** Product/BFM can preserve approved User work and verified
+release candidates in one complete intake, recognize configured titles such as
+`Unmirror · User`, and update routing records through a supported fail-closed
+path instead of editing clone-local receipts by hand.
+
+**Compatibility:** Existing exact `ready` and blocked records, dispositions,
+task identities, release authority, and provider boundaries remain unchanged.
+Routing refresh requires a managed canonical checkout and either an existing
+dispositioned receipt or exact matching dispositioned migration evidence;
+changed handoff content or source roots require an exact current reconciliation
+packet, while incomplete Ready-like routing, ambiguous or absent prior
+disposition, a content-different unreceipted source, a mismatched packet, or
+unresolved migration drift still blocks the operation.
+
+**Installation or upgrade:** Candidate only. A bounded local reinstall and
+fresh-task reload were explicitly approved for consumer repair on 2026-08-17;
+versioning, merge, push, marketplace publication, and release remain behind the
+exact current-conversation **Push Live** gate.
+
 ## 0.8.2-beta — 2026-08-15
 
 Build: `0.8.2-beta+codex.20260815070021`

@@ -10,6 +10,31 @@ release checkpoint. Do not create separate review or re-review loops for
 individual slices. Safety, sensitive-operation, authority, worktree/lock,
 changelog, and **Push Live** gates remain unchanged.
 
+## Two connected graphs, one visible workflow
+
+The visible workflow is **Goal → Split → only the relevant workstreams →
+Verify evidence → Merge findings → Implement → Verify candidate → One clear
+result**. A selected workstream uses one CTA—**Send this to Product.** Internal
+route names and record mechanics are not additional user steps.
+
+The **evidence graph** connects the goal to relevant workstream questions,
+decisions, assumptions, evidence, handoffs, conflicts, and acceptance criteria.
+Product verifies and merges those findings into one approved Build Brief. The
+**execution graph** then connects that brief to bounded implementation slices,
+dependencies, locks, focused proofs, integration, and release gates. Workstreams
+do not reread one another by default; Product receives their compact handoffs.
+
+Each slice gets the smallest focused proof. After integration, run **one
+fresh-context integrated candidate verification** using the approved brief,
+integrated candidate, changed evidence, acceptance criteria, and required
+proof—not the accumulated conversation history. Stop when those predicates
+pass. Do not add another reviewer or broad recheck unless a safety or release
+gate explicitly requires it.
+
+Board, receipts, identity hashes, and internal route names remain diagnostic
+and authoritative machinery. Show them when they explain a blocker, drift, or
+audit question; do not make them ordinary user choices or milestones.
+
 The public workstream-first and `$bfm` reconciliation contract lives in
 [start.md](start.md). Internal execution classification is not a user choice.
 When the approved Build Brief opts into transformation routing, pairwise

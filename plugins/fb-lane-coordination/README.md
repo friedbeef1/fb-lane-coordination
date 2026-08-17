@@ -10,8 +10,15 @@ FB harness. **FB — Graph Engineering for Everyday People** is an open-source
 Codex plugin that turns scattered AI conversations into a living
 product-delivery graph. It has six evidence-producing workstreams plus one
 Product/BFM control centre and seven pinned repository-scoped Codex tasks. The
-current release candidate is **FB 0.8.2-beta**
-`0.8.2-beta+codex.20260815070021`.
+current release candidate is **FB 0.9.0-beta**
+`0.9.0-beta+codex.20260817211319`.
+
+The visible workflow is **Goal → Split → only the relevant workstreams →
+Verify evidence → Merge findings → Implement → Verify candidate → One clear
+result**. A relevant workstream's common action is **Send this to Product.**
+Product/BFM performs one fresh-context integrated candidate verification after
+the bounded implementation slices; internal graph routing, records, and safety
+gates stay underneath this simple path.
 
 ## Install and start
 
@@ -40,7 +47,7 @@ Open the project and invoke `$fb-setup`. It is safe to run again.
 It updates only what is missing or outdated, preserves existing project work,
 and reconciles the seven pinned repository tasks. Then discuss questions in the
 relevant User, Business, Design, Tech, Discovery, or Bugs workstreams.
-For actionable findings say `Create a handoff MD for Product/BFM.` Then say
+For actionable findings say `Send this to Product.` Then say
 `$bfm`. Ready handoffs are queued for Product intake, not executable scope.
 Explicit `$bfm` freezes the intake; Product dispositions every candidate,
 prioritizes the included scope, and records the Build Brief before BFM

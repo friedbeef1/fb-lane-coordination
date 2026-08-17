@@ -66,12 +66,18 @@ recoverable until explicit retirement approval.
 
 ## The single public sequence
 
-1. FB starts in whichever workstream or workstreams match the question.
-2. Each relevant workstream investigates and creates a handoff ready for Product intake.
-3. When the actionable handoffs are assembled, the user says `$bfm`.
-4. `$bfm` executes only in Product/BFM. It freezes intake: Product/BFM scans all six evidence-producing workstreams and must disposition every candidate as **Include now**, **Blocked**, **Deferred**, **Duplicate**, **Rejected**, or **Superseded** before source execution. A disposition does not auto-close a task; all genuinely nonterminal candidates remain visible in the board and handoff records.
-5. Product/BFM reconciles duplicates, conflicts, and dependencies, then prioritizes and sequences only **Include now** candidates. Product/BFM records the consolidated Project Start Brief and Build Brief; those records define the BFM execution scope.
-6. BFM implements and verifies that reconciled scope, then stops at **Ready to ship**. Only **Push Live** authorizes release, merge, or deployment.
+The visible workflow is **Goal → Split → only the relevant workstreams →
+Verify evidence → Merge findings → Implement → Verify candidate → One clear
+result**.
+
+1. **Goal:** describe the outcome in the workstream that best matches the question.
+2. **Split:** FB identifies only the relevant workstream questions. Unrelated workstreams remain idle.
+3. **Relevant workstreams:** the selected workstreams investigate in parallel when independent. When a recommendation is actionable, say **Send this to Product.** That creates or updates its handoff ready for Product intake.
+4. **Verify evidence:** the user says `$bfm` in Product/BFM. Product freezes the intake and checks support, duplicates, contradictions, freshness, blockers, and acceptance criteria.
+5. **Merge findings:** Product must disposition every candidate before source execution, resolve dependencies and conflicts, and merge the included findings into one Project Start Brief and Build Brief. This is synthesis—not a Git merge.
+6. **Implement:** BFM turns the Product plan into bounded execution slices and integrates their focused, passing results.
+7. **Verify candidate:** Product/BFM performs one fresh-context integrated candidate verification against the approved brief and required evidence.
+8. **One clear result:** FB reports the delivered outcome, evidence, limits, and **Ready to ship**. Only **Push Live** authorizes release, Git merge, or deployment.
 
 The frozen view is a complete intake ledger, not just a list of selected
 handoffs. It keeps all six evidence workstreams plus Product/BFM visible and

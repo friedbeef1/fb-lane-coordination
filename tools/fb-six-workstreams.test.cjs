@@ -25,6 +25,7 @@ try {
     ['03-tech.md', handoff('TECH-1', 'fb-tech', 'ready')],
     ['04-design.md', handoff('DESIGN-1', 'fb-design', 'ready')],
     ['05-business.md', handoff('BUSINESS-1', 'fb-business', 'ready')],
+    ['06-user.md', handoff('USER-1', 'fb-user', 'ready')],
     ['06-product.md', handoff('PRODUCT-1', 'fb-product', 'ready')],
     ['07-design-blocked.md', handoff('DESIGN-2', 'fb-design', 'blocked', 'Blocked by a missing preview.')],
     ['08-tech-actioned.md', handoff('TECH-2', 'fb-tech', 'actioned')],
@@ -36,28 +37,31 @@ try {
 
   assert.deepStrictEqual(scanWorkstreamHandoffs(root), {
     workstreams: {
-      product: { ready: ['docs/handoffs/06-product.md'], blocked: [] },
+      user: { ready: ['docs/handoffs/06-user.md'], blocked: [] },
       business: { ready: ['docs/handoffs/05-business.md'], blocked: [] },
       design: { ready: ['docs/handoffs/04-design.md'], blocked: ['docs/handoffs/07-design-blocked.md'] },
       tech: { ready: ['docs/handoffs/03-tech.md'], blocked: [] },
       discovery: { ready: ['docs/handoffs/02-discovery.md'], blocked: [] },
       bugs: { ready: ['docs/handoffs/01-bugs.md'], blocked: [] },
+      product: { ready: ['docs/handoffs/06-product.md'], blocked: [] },
     },
     selected: [
-      'docs/handoffs/06-product.md',
+      'docs/handoffs/06-user.md',
       'docs/handoffs/05-business.md',
       'docs/handoffs/04-design.md',
       'docs/handoffs/03-tech.md',
       'docs/handoffs/02-discovery.md',
       'docs/handoffs/01-bugs.md',
+      'docs/handoffs/06-product.md',
     ],
     candidates: [
-      'docs/handoffs/06-product.md',
+      'docs/handoffs/06-user.md',
       'docs/handoffs/05-business.md',
       'docs/handoffs/04-design.md',
       'docs/handoffs/03-tech.md',
       'docs/handoffs/02-discovery.md',
       'docs/handoffs/01-bugs.md',
+      'docs/handoffs/06-product.md',
     ],
     blockedCandidates: [{
       relative: 'docs/handoffs/07-design-blocked.md',
@@ -72,7 +76,7 @@ try {
     fs.writeFileSync(path.join(sparse, 'docs', 'handoffs', 'product.md'), handoff('PRODUCT-ONLY', 'fb-product', 'ready'));
     const sparseScan = scanWorkstreamHandoffs(sparse);
     assert.deepStrictEqual(sparseScan.selected, ['docs/handoffs/product.md']);
-    for (const lane of ['business', 'design', 'tech', 'discovery', 'bugs']) {
+    for (const lane of ['user', 'business', 'design', 'tech', 'discovery', 'bugs']) {
       assert.deepStrictEqual(sparseScan.workstreams[lane], { ready: [], blocked: [], summary: 'None relevant' }, `${lane} must report an explicit None relevant disposition`);
     }
   } finally {
@@ -133,7 +137,7 @@ try {
     const managedSummary = productCard.slice(managedStartIndex + managedStart.length, managedEndIndex);
     assert.match(managedSummary, /## Next/, 'managed summary must include the Next section');
     assert.match(managedSummary, /Product intake:/, 'managed summary must include the Product-intake state');
-    for (const lane of ['product', 'business', 'design', 'tech', 'discovery', 'bugs']) {
+    for (const lane of ['product', 'user', 'business', 'design', 'tech', 'discovery', 'bugs']) {
       assert.ok(fs.existsSync(path.join(boot, 'docs', 'workstreams', `fb-${lane}.md`)), `bootstrap must provide ${lane} card`);
     }
     for (const relative of ['AGENTS.md', 'PROJECT_BOARD.md']) {
@@ -157,16 +161,16 @@ try {
   const read = relative => fs.readFileSync(path.join(__dirname, '..', relative), 'utf8');
   const readme = read('README.md');
   assert.match(readme, /\bUser\b[\s\S]*\bBusiness\b[\s\S]*\bDesign\b[\s\S]*\bTech\b[\s\S]*\bDiscovery\b[\s\S]*\bBugs\b/);
-  assert.match(readme, /Create a handoff MD for Product\/BFM/);
+  assert.match(readme, /Send this to Product/);
   assert.match(readme, /\$bfm[\s\S]*Ready[\s\S]*to ship[\s\S]*Push Live/);
   assert.match(readme, /codex plugin marketplace add friedbeef1\/fb-lane-coordination/);
 
   if (fs.existsSync(path.join(root, 'FAQ.md'))) {
-    assert.match(readme, /FB is a Codex plugin that connects six product workstreams in one continuous[\s\S]*delivery loop/);
-    assert.match(readme, /Question → Investigate → Gather evidence → Recommend → Create handoff MD/);
+    assert.match(readme, /FB is an open-source Codex plugin[\s\S]*living product-delivery graph/);
+    assert.match(readme, /Question → Investigate → Gather evidence → Recommend → Send this to Product/);
     assert.match(readme, /Vanilla Codex[\s\S]*Git worktrees[\s\S]*Kurrent Capacitor[\s\S]*BMAD[\s\S]*\*\*FB\*\*/);
-    assert.match(readme, /\| System \| Good because \| Gap FB addresses \|/);
-    assert.match(readme, /\| \*\*FB\*\* \|[^\n]+\| — \|/);
+    assert.match(readme, /\| System \| Good because \| Gap \| How FB addresses the gap \|/);
+    assert.match(readme, /\| \*\*FB\*\* \|[^\n]+\| — \| — \|/);
     assert.doesNotMatch(readme, /GitHub Spec Kit|Better choice when/i);
     assert.match(readme, /Focus Bridge/);
     const faq = read('FAQ.md');

@@ -37,6 +37,10 @@ BFM slice, verifies focused evidence, and records a ready or blocked
 `docs/handoffs/<TASK-ID>.md` for Product/BFM. BFM stops at **Ready to ship**;
 only **Push Live** authorizes merge or deployment.
 
+When the recommendation is actionable, use the common CTA: **Send this to
+Product.** That creates or updates a handoff **ready for Product intake**; it
+does not approve or execute the work.
+
 If the user says `$bfm` or `/bfm` here, finish or update the Product-ready
 handoff and redirect to Product/BFM. `$bfm` executes only in Product/BFM.
 Pinning never starts work or approves scope.

@@ -13,7 +13,8 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-085 | Ready | FB-Product / BFM + FB-Tech | Six-workstream intake false-negative repair and reload candidate | Select canonical User handoffs and Ready-to-ship records without weakening duplicate, drift, or exact-project gates; synchronize and verify the packaged plugin | Source candidate branch recorded in handoff; consumer gate is exact iOS handoff drift; locks retained until integration | Source/package candidate verified; no Push Live, merge, push, publication, install, release, or consumer mutation; [Handoff](docs/handoffs/TASK-085.md); [QA](docs/qa/TASK-085.md) |
+| TASK-086 | Ready | FB-Product / BFM | Graph Blueprint workflow simplification; FB `0.9.0-beta+codex.20260817211319` | Make the visible workflow Goal → Split → relevant parallel workstreams → verify → merge findings → bounded implementation → integrated verification → one clear result, while keeping the durable graph and safety machinery underneath | [Handoff](docs/handoffs/TASK-086.md); [QA](docs/qa/TASK-086.md); generated plugin mirrors; TASK-085 source is inherited and preserved | Focused proof, whole-candidate review, full validator, and GitHub readiness pass; **Push Live** received for the exact release transaction |
+| TASK-085 | Ready | FB-Product / BFM + FB-Tech | Six-workstream intake and erased-receipt recovery | Preserve User/Ready-to-ship selection, rebuild historical content receipts without invented routes, normalize exact backticked index IDs, recognize canonical-identical linked copies, and reconcile an approved changed handoff only from exact current hashes plus one prior disposition | Follow-up source/package repair committed as `ef0d064`; candidate preflight passed at `338f997`; Doctor Ready; locks released; bounded local reinstall remains the next gate | Root/package 21/21 intake, 35/35 migration, and 60/60 onboarding plus 86/86 parity; no Push Live, merge, push, publication, or release; [Handoff](docs/handoffs/TASK-085.md); [QA](docs/qa/TASK-085.md) |
 | TASK-084 | Done | FB-Product / BFM + FB-Tech | Graph fallback precision and sensitive-output hardening; FB `0.8.2-beta+codex.20260815070021` | Harden graph fallback precision and sensitive matching, then publish the approved exact plugin build | None; published and installed | Push Live completed; source `11d8ed2`, merge `94829f6`, published main `73a29fd`; exact build installed and enabled with 91/91 artifact parity; [Handoff](docs/handoffs/TASK-084.md); [QA](docs/qa/TASK-084.md); [Changelog](CHANGELOG.md#082-beta--2026-08-15) |
 | TASK-083 | Done | FB-Product / BFM | Project-qualified sidebar task titles; FB `0.8.1-beta+codex.20260810055302` | Add optional repository-visible task-title prefixes to the existing exact-project onboarding runtime and setup skills while preserving stable IDs, pins, duplicate protection, and fail-closed receipts | None; published and installed | [PR #66](https://github.com/friedbeef1/fb-lane-coordination/pull/66) merged as `d310548`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-083.md); [QA](docs/qa/TASK-083.md); [Changelog](CHANGELOG.md#081-beta--2026-08-10) |
 | TASK-082 | Done | FB-Product / BFM | Coordination retro, release hardening, and FB `0.8.0-beta+codex.20260810034353` | Retrospect commits `1da10b5..74a017b`; add one `fb-release` skill, targeted release preflight, manifest-derived archive fixtures, environment-specific proof, record repairs, and generated plugin mirrors | None; published and installed | [PR #65](https://github.com/friedbeef1/fb-lane-coordination/pull/65) merged as `742de6e`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-082.md); [QA](docs/qa/TASK-082.md) |
@@ -37,12 +38,33 @@
 
 ---
 
+### TASK-086 - Graph Blueprint workflow simplification
+
+*   **Status**: Ready to ship — build `0.9.0-beta+codex.20260817211319`; **Push Live** received and exact release transaction in progress.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Area**: Public workflow, graph/evidence model, BFM guidance, and generated Codex plugin.
+*   **Scope**: Present one simple Graph Blueprint sequence—Goal, split into only relevant workstreams, parallel investigation, evidence verification, merge into one Product plan, bounded implementation, one integrated candidate verification, and one clear result. Keep board, receipts, exact-project identity, internal route selection, worktrees, safety gates, and durable graph detail available underneath rather than making them ordinary user steps. Make `Send this to Product.` the common workstream CTA; separate the evidence graph from the execution graph; perform task-identity reconciliation only on lifecycle/drift triggers while routine BFM uses the verified receipt and fails closed on an unhealthy state.
+*   **Out of Scope**: Removing authoritative records, weakening duplicate/drift/sensitive/release gates, graph databases, consumer-repository mutation, plugin publication, installation, merge, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make FB feel as direct as the Graph Blueprint without losing the delivery controls proven necessary in real projects.
+    *   **Key Results**: One visible sequence; only relevant workstreams fan out; evidence and execution graphs are distinct; routine BFM avoids full task reconciliation; every slice gets focused proof and the integrated candidate gets one fresh-context verification; package guidance remains aligned.
+    *   **Definition of Done**: Focused RED/GREEN structural contract, generated package parity, directly affected graph/setup/skill checks, syntax/links/whitespace, one whole-candidate review, and durable handoff/QA evidence.
+    *   **Gate / Review Point**: James approved the recommendation in the current Product/BFM conversation. Stop at **Ready to ship**; **Push Live** remains the only release authorization.
+    *   **Approval**: approved — James said, “OK please make it happen. I agree with your recommendation.”
+    *   **Justification**: The current machinery is materially stronger than the simple diagram but exposes too much coordination detail. The approved change keeps those controls while making the everyday route match the mental model users already understand.
+*   **Story Split Pass**: One bounded candidate: add the structural contract first, update canonical guidance once, generate mirrors once, then run focused proof. No per-slice reviewer ceremony.
+*   **Locks**: Released after the verified candidate. TASK-085 runtime commits are inherited unchanged.
+*   **Visual Preview Decision**: Use Mermaid in README and the full-loop page; no application UI is changed.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-086.md); [QA](docs/qa/TASK-086.md); [FB 0.9.0-beta changelog](CHANGELOG.md#090-beta--2026-08-18).
+
+---
+
 ### TASK-085 - Six-workstream intake false-negative repair and reload candidate
 
-*   **Status**: Ready — source candidate branch recorded in the handoff; exact candidate preflight underway.
+*   **Status**: Ready — the approved follow-up consumer repair is committed as `ef0d064`; exact Markdown-code-span task-ID normalization and canonical-identical linked-copy recovery pass in root and packaged runtimes. Candidate preflight passed at `338f997`, Doctor reports Ready, and the bounded local reinstall is next.
 *   **Owner / Thread**: FB-Product / BFM + FB-Tech
 *   **Area**: Canonical BFM handoff scanning, intake selection, package parity, and installed-runtime reload readiness.
-*   **Scope**: Repair the canonical scanner so `fb-user` participates as one of the six evidence-producing workstreams and Ready-to-ship records remain selected rather than being reported as orphan false negatives. Add behavioral RED/GREEN proof, synchronize the generated plugin package, and prepare the exact locally installable candidate.
+*   **Scope**: Repair the canonical scanner so `fb-user` participates as one of the six evidence-producing workstreams and Ready-to-ship records remain selected rather than being reported as orphan false negatives. Rebuild historical content receipts without forcing them through modern routing, accept exact index task IDs wrapped in Markdown code ticks, recognize canonical-identical linked copies without inventing migration evidence, and reconcile an approved changed handoff only from an exact current source-bound packet plus one prior disposition. Add behavioral RED/GREEN proof, synchronize the generated plugin package, and prepare the exact locally installable candidate.
 *   **Out of Scope**: Unmirror application/source mutation, weakening duplicate or cross-root drift detection, task duplication, credential/provider changes, public merge, push, marketplace publication, or release without explicit current-conversation **Push Live**.
 *   **Goal Alignment Session**:
     *   **Objective**: Let Unmirror Product/BFM freeze the complete approved intake without losing User work or already verified Ready-to-ship candidates.
@@ -54,7 +76,7 @@
 *   **Story Split Pass**: No split needed — one scanner behavior, one focused contract, and one mechanical package mirror share the same source surface and verification boundary.
 *   **Locks**: `tools/fb-lane.cjs`, `tools/fb-bfm-intake-ledger.test.cjs`, `plugins/fb-lane-coordination/`, `docs/handoffs/TASK-085.md`, `docs/qa/TASK-085.md`, `docs/handoffs/index.md`, `CHANGELOG.md`.
 *   **Visual Preview Decision**: Skip — nonvisual coordination runtime repair.
-*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-085.md); [QA](docs/qa/TASK-085.md); candidate only — no merge, push, publication, install, or release without exact **Push Live**.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-085.md); [QA](docs/qa/TASK-085.md); candidate only — the bounded local reinstall is approved, while merge, push, public publication, and release remain blocked without exact **Push Live**.
 
 ---
 

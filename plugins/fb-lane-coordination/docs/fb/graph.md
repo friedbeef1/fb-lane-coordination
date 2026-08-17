@@ -15,6 +15,23 @@ Use the repository-local project graph to reduce broad orientation reads in
 long-lived work. The graph is a derived navigation layer. It never replaces or
 overrides the board, handoffs, QA evidence, Git, approvals, or release gates.
 
+## Evidence graph and execution graph
+
+FB uses two connected views of the same delivery map:
+
+- The **evidence graph** connects the goal, only the relevant workstreams,
+  decisions, assumptions, evidence, conflicts, and Product-ready handoffs.
+- The **execution graph** is created after Product synthesis. It connects the
+  approved Build Brief to bounded implementation slices, dependencies, locks,
+  focused proofs, integrated verification, and release state.
+
+The visible sequence remains **Goal → Split → only the relevant workstreams →
+Verify evidence → Merge findings → Implement → Verify candidate → One clear
+result**. Internally, graph health is checked first. A healthy graph supplies a
+small active packet; unhealthy, missing, or contradictory graph state falls
+back to the visible authoritative records. The fallback is slower but never
+weakens approval, safety, or release authority.
+
 ## Agent route
 
 When the current task ID and question are known:

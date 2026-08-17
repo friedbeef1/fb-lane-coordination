@@ -567,6 +567,55 @@ test('migration commit records one active canonical root, quarantines former roo
   }
 });
 
+test('migration inventory preserves existing routing receipts when none are supplied', () => {
+  const canonical = makeRepo();
+  const former = makeRepo('fb-checkout-former-preserve-receipts-');
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-checkout-registry-'));
+  const previousRegistry = process.env.FB_CHECKOUT_MIGRATION_REGISTRY;
+  try {
+    process.env.FB_CHECKOUT_MIGRATION_REGISTRY = registry;
+    const taskInventory = {
+      complete: true,
+      tasks: require('./fb-onboarding.cjs').WORKSTREAMS.map((workstream, index) => ({
+        id: `task-${index}`,
+        title: workstream.title,
+        projectId: 'project-fixture',
+        pinned: true,
+      })),
+    };
+    const routingReceipts = {
+      'docs/handoffs/TASK-PRESERVED.md': {
+        canonicalSha256: 'a'.repeat(64),
+        disposition: 'canonical-content-retained',
+      },
+    };
+    const initial = dispositionedMigration({
+      canonicalPath: canonical,
+      formerPaths: [former],
+      repository: { projectId: 'project-fixture', repositoryPath: canonical },
+      taskInventory,
+      routingReceipts,
+    });
+    commitCheckoutMigration(initial, { registryDir: registry });
+
+    const refreshed = dispositionedMigration({
+      canonicalPath: canonical,
+      formerPaths: [former],
+      repository: { projectId: 'project-fixture', repositoryPath: canonical },
+      taskInventory,
+    });
+    const result = commitCheckoutMigration(refreshed, { registryDir: registry });
+
+    assert.deepStrictEqual(result.manifest.routingReceipts, routingReceipts);
+  } finally {
+    if (previousRegistry === undefined) delete process.env.FB_CHECKOUT_MIGRATION_REGISTRY;
+    else process.env.FB_CHECKOUT_MIGRATION_REGISTRY = previousRegistry;
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(former, { recursive: true, force: true });
+    fs.rmSync(registry, { recursive: true, force: true });
+  }
+});
+
 test('a disposition is invalidated when discovered evidence changes before commit', () => {
   const canonical = makeRepo();
   const former = makeRepo('fb-checkout-former-stale-disposition-');

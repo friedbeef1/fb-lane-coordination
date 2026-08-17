@@ -15,6 +15,12 @@ release checkpoint. Do not create separate review or re-review loops for
 individual slices. Safety, sensitive-operation, authority, worktree/lock,
 changelog, and **Push Live** gates remain unchanged.
 
+The visible workflow is **Goal → Split → only the relevant workstreams →
+Verify evidence → Merge findings → Implement → Verify candidate → One clear
+result**. A selected workstream uses **Send this to Product.** Product/BFM then
+runs one fresh-context integrated candidate verification before it reports the
+clear result. Internal routing and record mechanics are not extra user steps.
+
 FB is **Graph Engineering for Everyday People**: an open-source Codex plugin
 that turns scattered AI conversations into a living product-delivery graph.
 The graph is the map connecting workstreams, decisions, evidence, dependencies,

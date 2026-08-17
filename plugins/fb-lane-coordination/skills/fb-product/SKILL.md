@@ -15,6 +15,16 @@ release checkpoint. Do not create separate review or re-review loops for
 individual slices. Safety, sensitive-operation, authority, worktree/lock,
 changelog, and **Push Live** gates remain unchanged.
 
+The visible workflow is **Goal → Split → only the relevant workstreams →
+Verify evidence → Merge findings → Implement → Verify candidate → One clear
+result**. Relevant workstreams use one CTA—**Send this to Product.** Product/BFM
+verifies the evidence, merges it into one plan, directs bounded implementation,
+and owns one fresh-context integrated candidate verification.
+
+Board, receipts, identity hashes, and internal route names are diagnostic
+machinery, not user choices or ordinary milestones. Show them only when they
+explain drift, a blocker, or an audit result.
+
 `fb-product` remains the technical identifier for the Product/BFM control
 centre. It is not an evidence-producing workstream. FB has six
 evidence-producing workstreams in canonical order: User, Business, Design,
@@ -43,12 +53,20 @@ Blocked inputs remain counted and linked but excluded from execution.
 Product/BFM uses that runtime ledger and does not recreate its scanner rules in
 guidance.
 
-After intake, refresh the derived graph, freeze the active-subgraph snapshot,
+Full sidebar discovery and reconciliation run only on **setup, install,
+upgrade, canonical-root change, task drift, or duplicate** evidence. Routine
+`$bfm` validates the existing receipt fingerprint and does not enumerate or
+reconcile sidebar tasks while identity remains healthy. Missing or
+contradictory identity still fails closed and routes to the canonical lifecycle
+repair.
+
+After intake, verify the evidence graph, refresh the derived graph, freeze the active-subgraph snapshot,
 record the consolidated Build Brief, and only then apply Product priorities to
-the scheduler. Handoffs remain queued Product inputs, not executable
+the execution graph scheduler. Handoffs remain queued Product inputs, not executable
 instructions. Record one integration-pass representation, attach verification,
 update authoritative records after each result, refresh the graph again, and
-stop at **Ready to ship**. If refresh fails, state that the authoritative
+run one fresh-context integrated candidate verification before stopping at
+**Ready to ship**. If refresh fails, state that the authoritative
 board/index/handoff/Git fallback is active and do not claim graph-driven
 sequencing.
 
