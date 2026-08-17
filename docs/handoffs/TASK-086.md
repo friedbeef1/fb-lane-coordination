@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-086
 lane: fb-product
-status: ready
+status: done
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -16,9 +16,9 @@ surface: public workflow, canonical harness, skills, generated plugin mirrors
 
 ## Status
 
-Ready to ship. The source and generated plugin now present the approved
+Published and installed. The source and generated plugin present the approved
 Graph Blueprint workflow while preserving TASK-085 and the existing safety,
-authority, exact-project, and release gates. Release build:
+authority, exact-project, and release gates. Exact installed build:
 `0.9.0-beta+codex.20260817211319`.
 
 ## Project Start Brief
@@ -73,8 +73,8 @@ eight-step sequence, conditional workstream activation, shared CTA, graph
 separation, lifecycle-only reconciliation, diagnostic internal machinery,
 fresh candidate verification, package parity, and unchanged release authority.
 
-Missing criteria and next actions: None for the candidate. Publication and
-installation remain the separate **Push Live** gate.
+Missing criteria and next actions: None. James supplied **Push Live** and the
+exact candidate was merged, published, reinstalled, and verified.
 
 Approved scope-change references: James approved the recommendation in the
 current Product/BFM conversation.
@@ -91,7 +91,8 @@ surface. Preserve and release the inherited, verified TASK-085 runtime changes.
 
 Branch, source commits, and changed surfaces: `codex/TASK-086-graph-blueprint-v2`,
 based on TASK-085 commit `969d8fe`; workflow commits `4e7a6d9` and `88afaae`;
-versioned release candidate `eaa7cf1` plus this evidence-only closeout.
+versioned release candidate `eaa7cf1`, final reviewed head `d26fc61`, and
+GitHub merge `823e51b` plus this live evidence closeout.
 Changed public/harness graph pages, Product/BFM/coordination/setup/workstream
 skills, generated bootstrap guidance, focused contracts, package mirrors, and
 release metadata for `0.9.0-beta+codex.20260817211319`.
@@ -107,15 +108,15 @@ mismatch; the one consolidated closeout repair restored technical board status
 Review state, direct links, limits, and external gates: not reviewable — this is
 documentation and agent-guidance behavior with no runnable UI; see
 [QA](../qa/TASK-086.md) and [PR #67](https://github.com/friedbeef1/fb-lane-coordination/pull/67).
-No consumer project was upgraded before release, and Mermaid rendering is
-intended for GitHub.
+No consumer project was changed or deployed by this release, and Mermaid
+rendering is intended for GitHub.
 
-Repository state: Candidate branch is clean and GitHub readiness passed. The
-exact release build is `0.9.0-beta+codex.20260817211319`.
+Repository state: PR #67 merged reviewed head `d26fc61` as `823e51b`. The
+GitHub marketplace now supplies exact installed and enabled build
+`0.9.0-beta+codex.20260817211319`; installed-runtime proof passed.
 
-Remaining owner and action: Product/BFM received explicit **Push Live** on
-2026-08-18 and will merge PR #67, publish through the configured marketplace,
-reinstall the exact build, and verify installed runtime provenance.
+Remaining owner and action: None for release. Start a new Codex task before
+using plugin-dependent behavior so skills and MCP load the new build.
 
 Changelog: updated — [FB 0.9.0-beta entry](../../CHANGELOG.md#090-beta--2026-08-18).
 

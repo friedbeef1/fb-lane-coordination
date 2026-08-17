@@ -86,7 +86,30 @@ Result: Candidate preflight passed at versioned commit `eaa7cf1`. The complete
 validator then passed once for `0.9.0-beta+codex.20260817211319`: CLI 72/72,
 checkout migration 35/35, sessions 39/39, evals 19/19, beginner experience
 11/11, efficiency 25/25, positioning, two-speed, package parity, Doctor Ready,
-and whitespace. James supplied explicit **Push Live** on 2026-08-18. Next:
-confirm updated GitHub readiness, merge PR #67, upgrade the configured
-marketplace, reinstall the exact build, and verify installed package and MCP
-provenance before live closeout.
+and whitespace. James supplied explicit **Push Live** on 2026-08-18. At this
+checkpoint, the remaining plan was to merge PR #67, update the marketplace,
+reinstall the exact build, and verify installed package and MCP provenance; the
+completed live proof follows.
+
+## Live release verification
+
+- **Authority:** James explicitly supplied **Push Live** for this release.
+- **GitHub:** [PR #67](https://github.com/friedbeef1/fb-lane-coordination/pull/67)
+  merged reviewed head `d26fc61fc2cdf414957da87082880e488eee56c1` as
+  `823e51bd707933b50688ccaf190372be0ceda8f2` after readiness passed.
+- **Marketplace:** the stale local TASK-085 worktree registration was replaced
+  with Git source `https://github.com/friedbeef1/fb-lane-coordination.git` at
+  exact merged `main` commit `823e51b`.
+- **Install:** `codex plugin list --json` reports
+  `0.9.0-beta+codex.20260817211319` installed and enabled from `fb-lane`.
+- **Artifact proof:** all 87 package-manifest files plus `plugin.json`,
+  `.codex-plugin/plugin.json`, and `.mcp.json` are byte-identical between the
+  merged marketplace snapshot and installed cache: 90/90.
+- **Runtime proof:** installed manifests and MCP configuration parse, key CLI,
+  session, graph, and release modules pass Node syntax, all required skills
+  exist, and installed `node ./tools/fb-lane.cjs mcp` answers `tools/list` with
+  14 tools including `fb_lane_status` and `fb_project_context`.
+- **Reload boundary:** existing tasks do not hot-reload replacement plugin
+  skills or MCP processes. Start a new Codex task before plugin-dependent work.
+- **No consumer release:** no consumer repository, provider, staging, or live
+  application state changed.

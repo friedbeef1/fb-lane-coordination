@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-085
 lane: fb-product
-status: ready
+status: done
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -16,7 +16,7 @@ surface: canonical BFM intake scanner and packaged Codex plugin
 
 ## Status
 
-Ready to ship — the committed source and packaged candidate includes
+Published and installed through FB 0.9.0 — the committed source and package include
 repository-aware onboarding evidence, a first-class User intake bucket, and a
 transactional routing-receipt refresh/rebuild path and migration receipt
 preservation. The bounded Unmirror recovery now also distinguishes historical
@@ -27,9 +27,9 @@ syntax, whitespace, and second-pass whole-candidate review pass. The approved
 follow-up also accepts exact index task IDs wrapped in Markdown code ticks and
 rebuilds a missing receipt when linked-copy content is canonical-identical,
 without excusing any content-different source from exact migration evidence.
-Source commit `ef0d064` is local; candidate preflight passed at `338f997` and
-Doctor reports Ready. The bounded local reinstall and fresh-task consumer proof
-remain.
+Source commit `ef0d064` was inherited by TASK-086, merged through PR #67, and
+installed as `0.9.0-beta+codex.20260817211319`. Consumer-specific acceptance
+remains separate from this generic plugin release.
 
 ## Product Start Brief
 
@@ -141,31 +141,28 @@ committed follow-up.
 Review state, direct links, limits, and external gates: Second-pass
 whole-candidate review found no Critical or Important defect after verifying
 all four first-pass findings were resolved. See [QA verification](../qa/TASK-085.md) and the
-[Unreleased changelog](../../CHANGELOG.md#unreleased). The consumer drift and
-exact **Push Live** release boundary remain external gates.
+[FB 0.9.0-beta changelog](../../CHANGELOG.md#090-beta--2026-08-18). Consumer
+receipt repair remains a separate project-scoped action; the generic plugin
+release gate is complete.
 
-Repository state: Source candidate `ef0d064` and its durable evidence are
-committed in the isolated TASK-085 worktree. Canonical `main` is not merged,
-pushed, published, or installed with this candidate.
+Repository state: Source candidate `ef0d064` is included in GitHub merge
+`823e51b` and installed build `0.9.0-beta+codex.20260817211319`.
 
-Remaining owner and action: Product/BFM performs the explicitly approved bounded
-local reinstall, starts a fresh Codex task, repairs the erased Unmirror receipts
-through the supported exact-evidence route, and resumes intake. Merge, push,
-publication, deployment, and release remain blocked without **Push Live**.
+Remaining owner and action: Generic plugin release is complete. Any consumer
+receipt repair starts in a new Codex task and remains scoped to that project.
 
-Changelog: Updated — [Unreleased TASK-085 entry](../../CHANGELOG.md#unreleased).
+Changelog: Updated — [FB 0.9.0-beta TASK-085 entry](../../CHANGELOG.md#task-085--complete-repository-aware-bfm-intake).
 
 ## Verification Handoff
 
-- Source candidate: current isolated TASK-085 working tree on the branch above;
-  final commit pending Product/BFM integration.
+- Source candidate: `ef0d064`, inherited by TASK-086 and merged in PR #67 as
+  `823e51b`.
 - Test plan: [TASK-085 QA](../qa/TASK-085.md).
 - Environment: local macOS source worktree; provider-dark; no consumer writes.
-- Current Unmirror result: installed runtime remains fail-closed
-  `HANDOFF_CONTENT_DRIFT`; the source candidate now contains the exact bounded
-  recovery required before a fresh-task consumer rerun.
-- Manual gate: none for the source repair. A fresh Codex task is required only
-  after an authorized installed-plugin replacement.
+- Current consumer result: not exercised during this generic plugin release;
+  any project-specific receipt repair must use a fresh task and exact evidence.
+- Manual gate: none for the completed plugin release. A fresh Codex task is
+  required to load the replacement plugin.
 
 ## Test This Now
 

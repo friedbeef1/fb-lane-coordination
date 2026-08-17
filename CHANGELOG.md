@@ -6,6 +6,11 @@
 
 Build: `0.9.0-beta+codex.20260817211319`
 
+Released from [PR #67](https://github.com/friedbeef1/fb-lane-coordination/pull/67)
+at merge `823e51b`. The Git-backed `fb-lane` marketplace and installed cache
+were verified against the exact merged package: 90/90 files match and the
+bundled MCP exposes all 14 expected tools.
+
 ### TASK-086 — Graph Blueprint workflow
 
 **What changed:** FB now presents one simple delivery sequence: define the goal,

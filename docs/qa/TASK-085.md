@@ -6,9 +6,9 @@ status: passed
 
 # TASK-085 QA
 
-Status: Source and packaged focused verification pass for committed follow-up
-candidate `ef0d064`; candidate preflight passed at `338f997`, Doctor reports
-Ready, and the bounded local reinstall remains.
+Status: Source and packaged focused verification passed for committed follow-up
+candidate `ef0d064`; it was inherited by TASK-086 and published and installed
+in FB `0.9.0-beta+codex.20260817211319`.
 
 ## Candidate
 
@@ -130,6 +130,14 @@ covered by the same candidate preflight and Doctor rerun before install.
 - No credentials or provider state were read or changed.
 - No merge, push, marketplace publication, installation, or release occurred
   at this evidence checkpoint.
-- James explicitly authorized the runtime repair, bounded local install, and
-  fresh-task reload on 2026-08-17. Merge, push, publication, deployment, and release remain behind
-  exact current-conversation **Push Live**.
+- At the candidate checkpoint, merge, push, publication, deployment, and
+  release remained behind exact current-conversation **Push Live**. James later
+  supplied that authority for TASK-086, which inherited this candidate.
+
+## Live release verification
+
+TASK-085 was released as inherited runtime scope in TASK-086. PR #67 merged as
+`823e51bd707933b50688ccaf190372be0ceda8f2`; the Git-backed marketplace and
+installed cache resolve to `0.9.0-beta+codex.20260817211319`. Installed artifact
+parity is 90/90 and the bundled MCP returns all 14 tools. No consumer project
+was modified or deployed during this generic plugin release.
