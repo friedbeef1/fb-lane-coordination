@@ -90,7 +90,8 @@ only relevant ones. Keep the durable graph and existing gates under the simple
 surface. Preserve and release the inherited, verified TASK-085 runtime changes.
 
 Branch, source commits, and changed surfaces: `codex/TASK-086-graph-blueprint-v2`,
-based on TASK-085 commit `969d8fe`; final TASK-086 commit recorded in Git.
+based on TASK-085 commit `969d8fe`; workflow commits `4e7a6d9` and `88afaae`;
+versioned release candidate `eaa7cf1` plus this evidence-only closeout.
 Changed public/harness graph pages, Product/BFM/coordination/setup/workstream
 skills, generated bootstrap guidance, focused contracts, package mirrors, and
 release metadata for `0.9.0-beta+codex.20260817211319`.

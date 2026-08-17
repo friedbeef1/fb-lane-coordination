@@ -77,9 +77,16 @@ Passed with no Critical or Important finding. The review confirmed that:
 
 ## Release checkpoint
 
-Status: requested — James supplied explicit **Push Live** on 2026-08-18.
+Status: passed.
 
-Plan: run the candidate preflight against the exact versioned commit, run the
-complete validator once, confirm GitHub readiness, merge PR #67, upgrade the
-configured marketplace, reinstall the exact build, and verify installed package
-and MCP provenance before live closeout.
+Plan: The requested candidate release checkpoint is complete; live publication
+and installed-runtime proof follow the approved release transaction below.
+
+Result: Candidate preflight passed at versioned commit `eaa7cf1`. The complete
+validator then passed once for `0.9.0-beta+codex.20260817211319`: CLI 72/72,
+checkout migration 35/35, sessions 39/39, evals 19/19, beginner experience
+11/11, efficiency 25/25, positioning, two-speed, package parity, Doctor Ready,
+and whitespace. James supplied explicit **Push Live** on 2026-08-18. Next:
+confirm updated GitHub readiness, merge PR #67, upgrade the configured
+marketplace, reinstall the exact build, and verify installed package and MCP
+provenance before live closeout.
