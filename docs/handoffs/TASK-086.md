@@ -18,7 +18,8 @@ surface: public workflow, canonical harness, skills, generated plugin mirrors
 
 Ready to ship. The source and generated plugin now present the approved
 Graph Blueprint workflow while preserving TASK-085 and the existing safety,
-authority, exact-project, and release gates.
+authority, exact-project, and release gates. Release build:
+`0.9.0-beta+codex.20260817211319`.
 
 ## Project Start Brief
 
@@ -84,14 +85,15 @@ Approved brief and decisions: Implement the recommended Graph Blueprint-aligned
 workflow across the repository, plugin guidance, generated harness, and public
 documentation.
 
-Confirmed assumptions and scope: Keep six available workstreams but activate
+Confirmed assumptions and approved scope changes: Keep six available workstreams but activate
 only relevant ones. Keep the durable graph and existing gates under the simple
-surface. Preserve TASK-085 unchanged.
+surface. Preserve and release the inherited, verified TASK-085 runtime changes.
 
-Branch, commits, and changed surfaces: `codex/TASK-086-graph-blueprint-v2`,
+Branch, source commits, and changed surfaces: `codex/TASK-086-graph-blueprint-v2`,
 based on TASK-085 commit `969d8fe`; final TASK-086 commit recorded in Git.
 Changed public/harness graph pages, Product/BFM/coordination/setup/workstream
-skills, generated bootstrap guidance, focused contracts, and package mirrors.
+skills, generated bootstrap guidance, focused contracts, package mirrors, and
+release metadata for `0.9.0-beta+codex.20260817211319`.
 
 Checks, failures, recovery, and results: Initial RED produced ten expected
 failures. The final focused suites, package synchronization, syntax, links, and
@@ -101,21 +103,24 @@ wording. GitHub's first readiness run caught a board/handoff status-family
 mismatch; the one consolidated closeout repair restored technical board status
 `Ready` while retaining the user-facing **Ready to ship** result.
 
-Review state: not reviewable — this is documentation and agent-guidance
-behavior with no runnable UI. GitHub diff review is optional after push.
+Review state, direct links, limits, and external gates: not reviewable — this is
+documentation and agent-guidance behavior with no runnable UI; see
+[QA](../qa/TASK-086.md) and [PR #67](https://github.com/friedbeef1/fb-lane-coordination/pull/67).
+No consumer project was upgraded before release, and Mermaid rendering is
+intended for GitHub.
 
-Limits and external gates: No consumer project was upgraded and the plugin was
-not published or installed. Mermaid rendering is intended for GitHub.
+Repository state: Candidate branch is clean and GitHub readiness passed. The
+exact release build is `0.9.0-beta+codex.20260817211319`.
 
-Repository state and remaining owner/action: The review candidate is committed
-and pushed separately. Product/BFM may merge, publish, and reinstall only after
-explicit **Push Live**.
+Remaining owner and action: Product/BFM received explicit **Push Live** on
+2026-08-18 and will merge PR #67, publish through the configured marketplace,
+reinstall the exact build, and verify installed runtime provenance.
 
-Changelog: updated — [TASK-086 Unreleased entry](../../CHANGELOG.md#task-086--graph-blueprint-workflow).
+Changelog: updated — [FB 0.9.0-beta entry](../../CHANGELOG.md#090-beta--2026-08-18).
 
 ## Verification Handoff
 
 - QA: [TASK-086 QA](../qa/TASK-086.md)
 - Board: [TASK-086 board record](../../PROJECT_BOARD.md#task-086---graph-blueprint-workflow-simplification)
-- Changelog: [Unreleased entry](../../CHANGELOG.md#task-086--graph-blueprint-workflow)
+- Changelog: [FB 0.9.0-beta](../../CHANGELOG.md#090-beta--2026-08-18)
 - System verification: passed; see QA for exact commands and results.

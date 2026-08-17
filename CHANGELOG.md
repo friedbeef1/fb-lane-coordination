@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.9.0-beta — 2026-08-18
+
+Build: `0.9.0-beta+codex.20260817211319`
+
 ### TASK-086 — Graph Blueprint workflow
 
 **What changed:** FB now presents one simple delivery sequence: define the goal,
@@ -21,9 +25,9 @@ available when they are needed.
 records, worktrees, verification gates, and **Push Live** are unchanged. All six
 workstreams remain available, but unrelated workstreams stay idle.
 
-**Installation or upgrade:** Candidate only. After an explicitly authorized
-release, update and reinstall the FB Codex plugin, then start a new Codex task
-to load the refreshed guidance.
+**Installation or upgrade:** Upgrade the configured `fb-lane` marketplace,
+reinstall `fb-lane-coordination@fb-lane`, then start a new Codex task to load
+the refreshed guidance and runtime.
 
 ### TASK-085 — Complete repository-aware BFM intake
 

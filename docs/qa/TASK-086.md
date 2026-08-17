@@ -10,6 +10,7 @@ status: passed
 
 - Branch: `codex/TASK-086-graph-blueprint-v2`
 - Base: TASK-085 commit `969d8fe`
+- Build: `0.9.0-beta+codex.20260817211319`
 - Environment: local, provider-dark, no consumer writes
 - Review state: not reviewable — documentation and plugin-guidance behavior
 
@@ -74,7 +75,11 @@ Passed with no Critical or Important finding. The review confirmed that:
 - unhealthy identity still fails closed; and
 - **Push Live** remains the sole release authority.
 
-## Release boundary
+## Release checkpoint
 
-No merge, marketplace publication, plugin reinstall, consumer mutation, or
-deployment is included. Those actions require explicit **Push Live**.
+Status: requested — James supplied explicit **Push Live** on 2026-08-18.
+
+Plan: run the candidate preflight against the exact versioned commit, run the
+complete validator once, confirm GitHub readiness, merge PR #67, upgrade the
+configured marketplace, reinstall the exact build, and verify installed package
+and MCP provenance before live closeout.
