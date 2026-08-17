@@ -40,6 +40,25 @@ bootstrap graph behavior, public positioning, six-workstream behavior,
 Product/BFM control-centre behavior, setup guidance, CLI bootstrap behavior,
 syntax, links, and whitespace are green.
 
+## GitHub readiness repair
+
+Failure: The first readiness run stopped in Doctor on a normalized-record
+status conflict.
+
+Observed: The handoff used technical status `ready`, while the board cell used
+the user-facing phrase `Ready to ship`.
+
+Cause: The closeout copied presentation wording into the technical board status
+instead of keeping the established `Ready` status family.
+
+Recovery attempted: One consolidated evidence-only repair changed the board
+cell to `Ready` and kept **Ready to ship** in the result and evidence text.
+
+Result: The normalized records agree; the final GitHub readiness rerun passed.
+
+Reusable lesson: Keep technical lifecycle values in status fields and put
+plain-language progress in descriptions and user-facing updates.
+
 ## Whole-candidate review
 
 Passed with no Critical or Important finding. The review confirmed that:

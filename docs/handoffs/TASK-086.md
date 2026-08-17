@@ -97,7 +97,9 @@ Checks, failures, recovery, and results: Initial RED produced ten expected
 failures. The final focused suites, package synchronization, syntax, links, and
 whitespace pass. Three stale assertions were updated to test the approved
 separated workflow rather than the superseded all-six/collapsed-verification
-wording.
+wording. GitHub's first readiness run caught a board/handoff status-family
+mismatch; the one consolidated closeout repair restored technical board status
+`Ready` while retaining the user-facing **Ready to ship** result.
 
 Review state: not reviewable — this is documentation and agent-guidance
 behavior with no runnable UI. GitHub diff review is optional after push.
@@ -117,4 +119,3 @@ Changelog: updated — [TASK-086 Unreleased entry](../../CHANGELOG.md#task-086--
 - Board: [TASK-086 board record](../../PROJECT_BOARD.md#task-086---graph-blueprint-workflow-simplification)
 - Changelog: [Unreleased entry](../../CHANGELOG.md#task-086--graph-blueprint-workflow)
 - System verification: passed; see QA for exact commands and results.
-
