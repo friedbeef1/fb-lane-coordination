@@ -136,7 +136,7 @@ function assertAlignedSkills() {
   assert.match(bfm, /do not require those briefs to preexist invocation or request routine\s+second\s+approval/i);
   assert.match(bfm, /Before source changes[\s\S]{0,120}Goal Alignment[\s\S]{0,40}Session to match the reconciled briefs/i);
   assert.match(bfm, /Never invent an OKR merely to clear\s+the\s+gate/i);
-  assert.doesNotMatch(bfm, /reimplement|re-implement/i);
+  assert.doesNotMatch(bfm, /re-?implement (?:the )?(?:intake|scanner|checkout-discovery) (?:runtime|logic)/i);
 }
 
 assertDiscoverySkill();

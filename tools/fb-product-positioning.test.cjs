@@ -374,7 +374,27 @@ function assertFbLoopDiagram(label, page) {
 }
 
 assertFbLoopDiagram('Why FB', canonical);
-assertFbLoopDiagram('README', rootReadme);
+
+function assertBlueprintDiagram(label, page) {
+  const diagram = [...page.matchAll(/```mermaid\s*\n([\s\S]*?)```/g)][0]?.[1] || '';
+  for (const step of [
+    '1. Goal',
+    '2. Split into relevant questions',
+    '3. Relevant workstreams',
+    '4. Verify evidence',
+    '5. Merge findings',
+    '6. Implement',
+    '7. Verify candidate',
+    '8. One clear result',
+    'Push Live?',
+    'Results and feedback',
+  ]) assert.ok(diagram.includes(step), `${label} must contain ${step}`);
+  assert.match(diagram, /G\[[^\n]+\]\s*-->\s*S[\s\S]*S\s*-->\s*W[\s\S]*W\s*-->\s*V[\s\S]*V\s*-->\s*M[\s\S]*M\s*-->\s*I[\s\S]*I\s*-->\s*C[\s\S]*C\s*-->\s*R/, `${label} must show the simple Graph Blueprint sequence`);
+  assert.match(diagram, /F\s*-->\s*G/, `${label} must return results and feedback to the goal`);
+  assert.doesNotMatch(diagram, /Capacitor|worktree|Quick BFM|Full BFM|Safe fallback/i);
+}
+
+assertBlueprintDiagram('README', rootReadme);
 
 for (const example of [
   'Creator-commerce project',

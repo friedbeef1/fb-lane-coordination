@@ -180,13 +180,17 @@ test('onboarding exposes one workstream-first path and reconciles only after $bf
   assert.match(start, /Product\/BFM[\s\S]*not a seventh evidence-producing workstream[\s\S]*universal intake coordinator/i);
   assert.match(start, /ready for Product intake/i);
   assert.match(start, /None relevant[^\n]*only[^\n]*six-workstream (?:scan|report)/i);
-  assertOrdered(start, ['ready for Product intake', 'the user says `$bfm`', 'It freezes intake', 'disposition every candidate', 'Project Start Brief', 'Build Brief', 'Ready to ship', 'Push Live'], 'single public sequence');
+  const publicSequence = section(start, 'The single public sequence');
+  assertOrdered(publicSequence, ['Goal:', 'Split:', 'Relevant workstreams:', 'ready for Product intake', 'Verify evidence:', 'the user says `$bfm`', 'freezes the intake', 'Merge findings:', 'disposition every candidate', 'Project Start Brief', 'Build Brief', 'Implement:', 'Verify candidate:', 'Ready to ship', 'Push Live'], 'single public sequence');
 
   const brief = section(start, 'Project Start Brief');
   const visibleFields = [...brief.matchAll(/^- \*\*([^:*]+):\*\*/gm)].map(match => match[1]);
   assert.deepStrictEqual(visibleFields, startBriefFields, 'Product reconciliation must retain the seven-field visible brief');
-  assert.match(start, /scans? all six/i);
-  assert.match(start, /duplicates[^\n]*conflicts[^\n]*dependencies/i);
+  assert.match(start, /only the relevant workstream questions/i);
+  assert.match(start, /complete intake ledger/i);
+  assert.match(start, /duplicates/i);
+  assert.match(start, /conflicts/i);
+  assert.match(start, /dependencies/i);
   assert.match(start, /must disposition every candidate[\s\S]*before\s+source execution/i);
   assert.doesNotMatch(start, /authorizes execution of (?:the )?already-approved ready scope/i);
   assert.match(start, /asks? again[^\n]*(?:changed decision|disputed priority|sensitive boundary|conflict|unclear scope)/i);

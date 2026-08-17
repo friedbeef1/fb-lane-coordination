@@ -8,13 +8,20 @@ verification, and release state. Workstream loops show how work learns and
 moves inside that map; `$bfm` navigates and executes it, while **Push Live**
 authorizes release. This is not a graph database, knowledge graph, or GraphQL
 architecture.
+**The graph is the map.**
 The [workflow](workflow.md) defines the detailed execution and return-loop
 contract.
 
+The **evidence graph** answers what should be built from relevant workstream
+findings. The **execution graph** answers how the approved Product plan is
+built and checked. Users see one sequence: **Goal → Split → only the relevant
+workstreams → Verify evidence → Merge findings → Implement → Verify candidate
+→ One clear result**.
+
 ```mermaid
 flowchart TB
-    G["Living product-delivery graph<br/>decisions · evidence · dependencies · implementation · verification"]
-    subgraph W["1. Six evidence-producing workstream loops"]
+    G["1. Goal"] --> SP["2. Split into only relevant questions"]
+    subgraph W["Evidence graph: selected workstream loops"]
         direction LR
         US["User<br/>Question → Evidence → Recommend → Question"]
         BU["Business<br/>Question → Evidence → Recommend → Question"]
@@ -24,13 +31,12 @@ flowchart TB
         BG["Bugs<br/>Question → Evidence → Recommend → Question"]
     end
 
-    PB["Product/BFM control centre<br/>reconcile · prioritize · execute · verify"]
-    G --> US
-    G --> BU
-    G --> DE
-    G --> TE
-    G --> DI
-    G --> BG
+    SP -.->|when relevant| US
+    SP -.->|when relevant| BU
+    SP -.->|when relevant| DE
+    SP -.->|when relevant| TE
+    SP -.->|when relevant| DI
+    SP -.->|when relevant| BG
     US --> RH
     BU --> RH
     DE --> RH
@@ -38,51 +44,43 @@ flowchart TB
     DI --> RH
     BG --> RH
 
-    subgraph I["2. Handoff intake"]
+    subgraph I["3. Relevant workstreams send handoffs"]
         RH["ready handoffs<br/>Product intake candidates"]
         BH["blocked handoffs<br/>Visible, not executed"]
         NR["None relevant<br/>No work manufactured"]
     end
 
-    RH --> BFM["User says $bfm in Product/BFM"]
-    BFM --> PR
+    RH --> BFM["Send this to Product<br/>User says $bfm in Product/BFM control centre"]
+    BFM --> EV["4. Verify evidence<br/>support · conflicts · blockers · criteria"]
+    EV --> PR
     BH --> PR
     NR --> PR
-    PR["Product/BFM freezes, reconciles, and prioritizes<br/>the graph before source execution"]
-    PR --> PB
-    PB --> G
-    PR --> G
+    PR["5. Merge findings into one Product plan<br/>(not a Git merge)"]
     PR --> A{"Approved and clear?"}
-    A -->|"Yes"| SP["Plan bounded slices<br/>outcome, locks, dependencies, proof"]
+    A -->|"Yes"| ES["Execution graph<br/>bounded slices · dependencies · focused proof"]
     A -->|"Changed decision, conflict, sensitive boundary, or unclear scope"| X["Paused<br/>Owner and next action"]
-    SP --> PA["Independent slices<br/>parallel agents"]
-    SP --> SE["Dependent or overlapping slices<br/>sequential"]
+    ES --> PA["Independent slices<br/>parallel agents"]
+    ES --> SE["Dependent or overlapping slices<br/>sequential"]
     PA --> C["BFM implements and integrates<br/>completed slices"]
     SE --> C
-    C --> V["Automated checks<br/>focused per slice, integration at boundaries"]
+    C --> V["6. Implement<br/>Automated checks: focused proof per slice"]
     V -->|"Focused failure evidence"| R["Scoped repair"]
     R --> C
-    V --> G
-    V -->|"Required checks pass"| O["Optional review links<br/>Your input needed: none, unless stated"]
-    O --> S["Ready to ship"]
+    V -->|"Slice proofs pass"| IV["7. Verify candidate<br/>one fresh-context integrated proof"]
+    IV -->|"Required checks pass"| O["Optional review links<br/>Your input needed: none, unless stated"]
+    O --> S["8. One clear result<br/>Ready to ship"]
     S --> L{"Push Live?"}
     L -->|"Not yet"| S
     L -->|"Approved"| D["Merge and deploy"]
     D --> Z["Results and feedback"]
-    Z --> N["New questions, opportunities, and defects"]
-    N --> US
-    N --> BU
-    N --> DE
-    N --> TE
-    N --> DI
-    N --> BG
-    X --> N
+    Z --> G
+    X --> G
 ```
 
 - A `ready` handoff is ready for Product intake, not approval or execution
   authority. `blocked` work remains visible, while **None relevant** prevents a
   workstream from inventing work.
-- `$bfm` freezes intake. Product must disposition every candidate as **Include
+- Product/BFM freezes and reconciles the `$bfm` intake. Product must disposition every candidate as **Include
   now**, **Blocked**, **Deferred**, **Duplicate**, **Rejected**, or
   **Superseded** before source execution. Product then reconciles duplicates,
   conflicts, and dependencies, prioritizes and sequences only **Include now**

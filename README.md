@@ -91,6 +91,19 @@ behind these problem mappings.
 
 ## The product-delivery graph
 
+The everyday path is intentionally simple:
+
+> **Goal → Split → only the relevant workstreams → Verify evidence → Merge
+> findings → Implement → Verify candidate → One clear result.**
+
+FB chooses the relevant workstreams from the goal; it does not make all six
+participate. Each selected workstream investigates its distinct question. When
+its recommendation is actionable, the one common action is: **Send this to
+Product.** Product/BFM verifies the evidence, merges the findings into one plan,
+and runs the approved implementation. “Merge findings” means synthesis into the
+Product plan—not a Git merge. Git merge and deployment still require **Push
+Live**.
+
 | Workstream | Its question |
 |---|---|
 | User | What user outcome should we deliver? |
@@ -105,55 +118,22 @@ Each relevant workstream follows:
 For the human-team interpretation, see [Agile Teams](docs/fb-for-agile-teams.md).
 
 ```text
-Question → Investigate → Gather evidence → Recommend → Create handoff MD
+Question → Investigate → Gather evidence → Recommend → Send this to Product
 ```
 
 ```mermaid
-flowchart TB
-    G["Living product-delivery graph<br/>decisions · evidence · dependencies · verification"]
-    subgraph M["Six evidence-producing workstream loops"]
-        direction LR
-        US["User<br/>Question → Evidence<br/>→ Recommendation → Question"]
-        BU["Business<br/>Question → Evidence<br/>→ Recommendation → Question"]
-        DE["Design<br/>Question → Evidence<br/>→ Recommendation → Question"]
-        TE["Tech<br/>Question → Evidence<br/>→ Recommendation → Question"]
-        DI["Discovery<br/>Question → Evidence<br/>→ Recommendation → Question"]
-        BG["Bugs<br/>Question → Evidence<br/>→ Recommendation → Question"]
-    end
-
-    PB["Product/BFM control centre<br/>reconcile · prioritize · execute · verify"]
-    G --> US
-    G --> BU
-    G --> DE
-    G --> TE
-    G --> DI
-    G --> BG
-    US --> H
-    BU --> H
-    DE --> H
-    TE --> H
-    DI --> H
-    BG --> H
-    H["Ready handoff MD files"]
-    B["$bfm in Product/BFM<br/>scans all six"]
-    P["Prioritize and sequence"]
-    C["Codex implements"]
-    T["Automated testing and repair"]
-    S["Ready to ship"]
-    L["Push Live"]
-    D["Merge and deploy"]
-    F["Results and feedback"]
-    N["New questions and results"]
-    H --> B --> PB --> P --> C --> T --> S --> L --> D --> F
-    P --> G
-    T --> G
-    F --> N
-    N --> US
-    N --> BU
-    N --> DE
-    N --> TE
-    N --> DI
-    N --> BG
+flowchart LR
+    G["1. Goal"] --> S["2. Split into relevant questions"]
+    S --> W["3. Relevant workstreams<br/>investigate in parallel"]
+    W --> V["4. Verify evidence"]
+    V --> M["5. Merge findings<br/>into one Product plan"]
+    M --> I["6. Implement<br/>bounded slices"]
+    I --> C["7. Verify candidate<br/>fresh integrated proof"]
+    C --> R["8. One clear result<br/>Ready to ship"]
+    R --> L{"Push Live?"}
+    L -->|"Yes"| D["Git merge and deploy"]
+    D --> F["Results and feedback"]
+    F --> G
 ```
 
 [Full FB Graph Diagram](docs/fb/full-loop.md) — handoff states, post-`$bfm`
@@ -169,7 +149,8 @@ does not start automatically. When you continue it, Design investigates and
 can later create a separate Product-ready handoff; the queued artifact itself
 never enters `$bfm`.
 
-When actionable ready handoffs exist, the user says `$bfm` in Product/BFM. The
+When actionable ready handoffs exist, say **Send this to Product.** Then the
+user says `$bfm` in Product/BFM. The
 control centre then
 freezes an intake snapshot, dispositions every candidate, reconciles and
 prioritizes the included work, and creates the Project Start Brief plus Build
@@ -219,7 +200,7 @@ codex plugin add fb-lane-coordination@fb-lane
    reconciles the seven pinned repository tasks without duplicating existing
    setup.
 2. Discuss your goal or question in the relevant workstream chats. This keeps different concerns clear without forcing every workstream to participate.
-3. When a discussion becomes actionable, say: `Create a handoff MD for Product/BFM.` This preserves the recommendation and evidence outside the chat.
+3. When a discussion becomes actionable, say: `Send this to Product.` This preserves the recommendation and evidence outside the chat.
 4. Say `$bfm` in Product/BFM. The control centre freezes the six-workstream intake, dispositions every candidate, reconciles conflicts, records one prioritized plan and Build Brief, and only then directs Codex implementation.
 5. FB runs automated checks and owns bounded repair. Review optional links only when useful.
 6. When FB reports **Ready to ship**, say **Push Live** to authorize merge and deployment.

@@ -9,6 +9,11 @@ dependencies, implementation, verification, and release state.
 The public model is six evidence-producing workstreams plus one Product/BFM
 control centre and seven pinned repository-scoped Codex tasks.
 
+The visible workflow is **Goal → Split → only the relevant workstreams →
+Verify evidence → Merge findings → Implement → Verify candidate → One clear
+result**. FB keeps its record, routing, worktree, and safety machinery beneath
+that one path.
+
 ## Start
 
 1. Paste this into Codex while your project is open:
@@ -29,7 +34,7 @@ control centre and seven pinned repository-scoped Codex tasks.
    seven pinned repository tasks without duplicating existing setup.
 3. Discuss questions in the relevant User, Business, Design, Tech,
    Discovery, or Bugs workstreams.
-4. For actionable findings say `Create a handoff MD for Product/BFM.`
+4. For actionable findings say `Send this to Product.`
 5. After actionable handoffs are ready, say `$bfm` in Product/BFM. The control centre scans all six,
    shows the complete intake ledger from the canonical checkout, reconciles and
    prioritizes, creates the durable briefs, and BFM implements, tests, and stops at

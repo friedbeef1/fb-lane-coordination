@@ -4892,6 +4892,13 @@ release checkpoint. Do not create separate review or re-review loops for
 individual slices. Safety, sensitive-operation, authority, worktree/lock,
 changelog, and **Push Live** gates remain unchanged.
 
+The visible workflow is **Goal → Split → only the relevant workstreams →
+Verify evidence → Merge findings → Implement → Verify candidate → One clear
+result**. A relevant workstream uses **Send this to Product.** Product/BFM owns
+one fresh-context integrated candidate verification before the clear result.
+Internal records and route names remain diagnostic rather than extra user
+steps.
+
 Read [the FB harness](docs/fb/README.md) after using
 \`node tools/fb-lane.cjs status --context\` or
 \`fb_lane_status({context:true})\` for active work and locks. Then follow
@@ -4909,6 +4916,11 @@ Product/BFM then reconciles all six, records the consolidated Project Start
 Brief and Build Brief, refreshes and freezes the active graph snapshot, resolves
 gaps and conflicts, and applies Product priorities. Handoffs stay queued inputs;
 BFM executes the approved graph sequence through one integration pass.
+
+Complete task identity reconciliation runs on setup, install, upgrade,
+canonical-root change, task drift, or duplicate evidence. Routine \`$bfm\`
+validates the healthy receipt fingerprint without enumerating or reconciling
+sidebar tasks.
 
 Setup and BFM mutate only the active canonical checkout. Before execution,
 Product/BFM shows the complete intake ledger across all six evidence workstreams
@@ -5110,8 +5122,9 @@ When a sidechat prepares work for Product/BFM, use this output shape:
     *   *2026-06-15*: Scoped task and marked ready for execution.
 
 ### Workstream-first route
+- Visible workflow: Goal → Split → only the relevant workstreams → Verify evidence → Merge findings → Implement → Verify candidate → One clear result.
 - Start in whichever evidence-producing workstream matches the question whenever planning or evidence is useful. User is selected for user needs, outcomes, requirements, feedback, acceptance criteria, or product priorities; Product/BFM is the control centre, not universal intake.
-- Relevant workstreams investigate and create handoffs ready for Product intake. Ready status is neither approval nor execution authority.
+- Relevant workstreams investigate and use **Send this to Product.** to create handoffs ready for Product intake. Ready status is neither approval nor execution authority.
 - After the user says \`$bfm\` in Product/BFM, Product/BFM freezes intake and must disposition every candidate before source execution. It scans all six evidence-producing workstreams, reconciles duplicates, conflicts, dependencies, and priorities, then records the consolidated Project Start Brief and Build Brief for **Include now** candidates.
 - Setup and BFM mutate only the active canonical checkout. Before execution, Product/BFM shows the complete intake ledger across all six evidence workstreams plus the control centre. Checkout moves use transactional migration and keep former roots quarantined and recoverable.
 - Pinning never starts work, approves scope, invokes \`$bfm\`, or authorizes release.

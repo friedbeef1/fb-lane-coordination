@@ -189,10 +189,17 @@ recoverable; retirement requires fresh matching evidence and explicit approval.
 Do not recreate migration discovery or drift rules in this skill.
 
 The installed [start.md](../../docs/fb/start.md) defines the single public
-workstream-first path. Relevant workstreams create handoffs ready for Product
+workstream-first path: **Goal → Split → only the relevant workstreams → Verify
+evidence → Merge findings → Implement → Verify candidate → One clear result**.
+Relevant workstreams use **Send this to Product.** to create handoffs ready for Product
 intake; ready is queued for Product review, not approval or execution. Only
 `$bfm` freezes the intake, makes Product disposition and sequence every
 candidate, records the Build Brief, and starts execution of the included scope.
+
+Complete task inventory and identity reconciliation run on setup, install,
+upgrade, canonical-root change, task drift, or duplicate evidence. Routine
+`$bfm` validates the healthy receipt fingerprint without enumerating or
+reconciling sidebar tasks.
 
 The installed [graph.md](../../docs/fb/graph.md) defines graph-directed
 orientation. For a known task and question, agents call MCP

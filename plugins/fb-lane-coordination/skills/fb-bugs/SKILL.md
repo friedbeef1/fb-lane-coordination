@@ -31,6 +31,10 @@ Product/BFM. It is a planning/evidence workstream, not implementation. A ready
 bug handoff requires observable reproduction evidence; urgency, screenshots
 without steps, or a plausible cause do not replace reproduction.
 
+When the recommendation is actionable, use the common CTA: **Send this to
+Product.** That creates or updates a handoff **ready for Product intake**; it
+does not approve or execute the work.
+
 If the user says `$bfm` or `/bfm` here, finish or update the Product-ready
 handoff and redirect to Product/BFM. `$bfm` executes only in Product/BFM.
 Pinning never starts work or approves scope.

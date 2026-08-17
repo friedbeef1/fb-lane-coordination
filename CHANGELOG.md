@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+### TASK-086 — Graph Blueprint workflow
+
+**What changed:** FB now presents one simple delivery sequence: define the goal,
+split it into only relevant workstream questions, verify and merge their
+findings, implement bounded slices, verify the integrated candidate once, and
+return one clear result. Workstreams share the plain-language **Send this to
+Product.** action. The operating manual distinguishes the evidence graph from
+the execution graph and limits full sidebar identity reconciliation to setup,
+upgrade, root-change, or detected-drift events.
+
+**Why it matters:** Everyday use now matches a familiar fan-out, verify, and
+merge graph without exposing boards, receipts, hashes, or internal route names
+as extra user steps. The durable records and fail-closed safety controls remain
+available when they are needed.
+
+**Compatibility:** Six workstreams, Product/BFM authority, `$bfm`, existing
+records, worktrees, verification gates, and **Push Live** are unchanged. All six
+workstreams remain available, but unrelated workstreams stay idle.
+
+**Installation or upgrade:** Candidate only. After an explicitly authorized
+release, update and reinstall the FB Codex plugin, then start a new Codex task
+to load the refreshed guidance.
+
 ### TASK-085 — Complete repository-aware BFM intake
 
 **What changed:** Canonical BFM handoff selection now uses the same ready-like

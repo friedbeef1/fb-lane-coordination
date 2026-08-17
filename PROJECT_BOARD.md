@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-086 | Ready to ship | FB-Product / BFM | Graph Blueprint workflow simplification | Make the visible workflow Goal → Split → relevant parallel workstreams → verify → merge findings → bounded implementation → integrated verification → one clear result, while keeping the durable graph and safety machinery underneath | [Handoff](docs/handoffs/TASK-086.md); [QA](docs/qa/TASK-086.md); generated plugin mirrors; TASK-085 source is inherited and preserved | Focused proof and whole-candidate review pass; merge, publication, installation, and release remain behind **Push Live** |
 | TASK-085 | Ready | FB-Product / BFM + FB-Tech | Six-workstream intake and erased-receipt recovery | Preserve User/Ready-to-ship selection, rebuild historical content receipts without invented routes, normalize exact backticked index IDs, recognize canonical-identical linked copies, and reconcile an approved changed handoff only from exact current hashes plus one prior disposition | Follow-up source/package repair committed as `ef0d064`; candidate preflight passed at `338f997`; Doctor Ready; locks released; bounded local reinstall remains the next gate | Root/package 21/21 intake, 35/35 migration, and 60/60 onboarding plus 86/86 parity; no Push Live, merge, push, publication, or release; [Handoff](docs/handoffs/TASK-085.md); [QA](docs/qa/TASK-085.md) |
 | TASK-084 | Done | FB-Product / BFM + FB-Tech | Graph fallback precision and sensitive-output hardening; FB `0.8.2-beta+codex.20260815070021` | Harden graph fallback precision and sensitive matching, then publish the approved exact plugin build | None; published and installed | Push Live completed; source `11d8ed2`, merge `94829f6`, published main `73a29fd`; exact build installed and enabled with 91/91 artifact parity; [Handoff](docs/handoffs/TASK-084.md); [QA](docs/qa/TASK-084.md); [Changelog](CHANGELOG.md#082-beta--2026-08-15) |
 | TASK-083 | Done | FB-Product / BFM | Project-qualified sidebar task titles; FB `0.8.1-beta+codex.20260810055302` | Add optional repository-visible task-title prefixes to the existing exact-project onboarding runtime and setup skills while preserving stable IDs, pins, duplicate protection, and fail-closed receipts | None; published and installed | [PR #66](https://github.com/friedbeef1/fb-lane-coordination/pull/66) merged as `d310548`; exact build installed and enabled; [Handoff](docs/handoffs/TASK-083.md); [QA](docs/qa/TASK-083.md); [Changelog](CHANGELOG.md#081-beta--2026-08-10) |
@@ -34,6 +35,27 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-086 - Graph Blueprint workflow simplification
+
+*   **Status**: Ready to ship — focused proof and whole-candidate review passed; release remains gated.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Area**: Public workflow, graph/evidence model, BFM guidance, and generated Codex plugin.
+*   **Scope**: Present one simple Graph Blueprint sequence—Goal, split into only relevant workstreams, parallel investigation, evidence verification, merge into one Product plan, bounded implementation, one integrated candidate verification, and one clear result. Keep board, receipts, exact-project identity, internal route selection, worktrees, safety gates, and durable graph detail available underneath rather than making them ordinary user steps. Make `Send this to Product.` the common workstream CTA; separate the evidence graph from the execution graph; perform task-identity reconciliation only on lifecycle/drift triggers while routine BFM uses the verified receipt and fails closed on an unhealthy state.
+*   **Out of Scope**: Removing authoritative records, weakening duplicate/drift/sensitive/release gates, graph databases, consumer-repository mutation, plugin publication, installation, merge, or deployment.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make FB feel as direct as the Graph Blueprint without losing the delivery controls proven necessary in real projects.
+    *   **Key Results**: One visible sequence; only relevant workstreams fan out; evidence and execution graphs are distinct; routine BFM avoids full task reconciliation; every slice gets focused proof and the integrated candidate gets one fresh-context verification; package guidance remains aligned.
+    *   **Definition of Done**: Focused RED/GREEN structural contract, generated package parity, directly affected graph/setup/skill checks, syntax/links/whitespace, one whole-candidate review, and durable handoff/QA evidence.
+    *   **Gate / Review Point**: James approved the recommendation in the current Product/BFM conversation. Stop at **Ready to ship**; **Push Live** remains the only release authorization.
+    *   **Approval**: approved — James said, “OK please make it happen. I agree with your recommendation.”
+    *   **Justification**: The current machinery is materially stronger than the simple diagram but exposes too much coordination detail. The approved change keeps those controls while making the everyday route match the mental model users already understand.
+*   **Story Split Pass**: One bounded candidate: add the structural contract first, update canonical guidance once, generate mirrors once, then run focused proof. No per-slice reviewer ceremony.
+*   **Locks**: Released after the verified candidate. TASK-085 runtime commits are inherited unchanged.
+*   **Visual Preview Decision**: Use Mermaid in README and the full-loop page; no application UI is changed.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-086.md); [QA](docs/qa/TASK-086.md); [Unreleased changelog](CHANGELOG.md#task-086--graph-blueprint-workflow).
 
 ---
 

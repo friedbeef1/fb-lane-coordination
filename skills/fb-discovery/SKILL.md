@@ -32,6 +32,10 @@ record observable evidence, and hand a recommendation to Product/BFM.
 Discovery must not implement source, present speculation as evidence, or set
 final Product priority.
 
+When the recommendation is actionable, use the common CTA: **Send this to
+Product.** That creates or updates a handoff **ready for Product intake**; it
+does not approve or execute the work.
+
 If the user says `$bfm` or `/bfm` here, finish or update the Product-ready
 handoff and redirect to Product/BFM. `$bfm` executes only in Product/BFM.
 Pinning never starts work or approves scope.

@@ -13,6 +13,13 @@ Product/BFM control centre and seven pinned repository-scoped Codex tasks. The
 current release candidate is **FB 0.8.2-beta**
 `0.8.2-beta+codex.20260815070021`.
 
+The visible workflow is **Goal → Split → only the relevant workstreams →
+Verify evidence → Merge findings → Implement → Verify candidate → One clear
+result**. A relevant workstream's common action is **Send this to Product.**
+Product/BFM performs one fresh-context integrated candidate verification after
+the bounded implementation slices; internal graph routing, records, and safety
+gates stay underneath this simple path.
+
 ## Install and start
 
 Paste this into Codex while your project is open:
@@ -40,7 +47,7 @@ Open the project and invoke `$fb-setup`. It is safe to run again.
 It updates only what is missing or outdated, preserves existing project work,
 and reconciles the seven pinned repository tasks. Then discuss questions in the
 relevant User, Business, Design, Tech, Discovery, or Bugs workstreams.
-For actionable findings say `Create a handoff MD for Product/BFM.` Then say
+For actionable findings say `Send this to Product.` Then say
 `$bfm`. Ready handoffs are queued for Product intake, not executable scope.
 Explicit `$bfm` freezes the intake; Product dispositions every candidate,
 prioritizes the included scope, and records the Build Brief before BFM
