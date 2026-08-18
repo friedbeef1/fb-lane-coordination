@@ -2,16 +2,16 @@
 
 ## Current
 
-- TASK-087 — repair BFM intake so a registered quarantined checkout with
-  dataless handoffs is reconciled from exact migration-manifest and routing
-  receipt evidence without opening those files.
+- TASK-088 — add one exact approval-bound onboarding receipt rebind so the
+  fresh canonical Unmirror Product/BFM task can replace its archived
+  predecessor without weakening strict seven-task identity.
 
 ## Next ready
 
-- Complete RED/GREEN proof, package parity, local reinstall, and fresh-runtime
-  acceptance in Unmirror.
+- Install the exact local TASK-088 candidate, reload once, reconcile the strict
+  Unmirror receipt, then resume TASK-087 exact-project acceptance.
 
 ## External blocks
 
-- A fresh Codex task is required after local plugin replacement before
-  plugin-dependent consumer mutation.
+- No external block. A fresh Codex task remains required after the local plugin
+  replacement before plugin-dependent consumer mutation.

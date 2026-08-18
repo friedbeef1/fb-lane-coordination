@@ -22,8 +22,8 @@ function json(relativePath) {
 const manifest = JSON.parse(fs.readFileSync(path.join(pluginRoot, '.codex-plugin/plugin.json'), 'utf8'));
 assert.match(
   manifest.version,
-  /^0\.9\.1-beta\+codex\.\d{14}$/,
-  'release build must use the 0.9.1-beta UTC build form',
+  /^0\.9\.2-beta\+codex\.\d{14}$/,
+  'release build must use the 0.9.2-beta UTC build form',
 );
 assert.strictEqual(JSON.parse(fs.readFileSync(path.join(pluginRoot, 'plugin.json'), 'utf8')).version, manifest.version);
 

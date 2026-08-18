@@ -5,6 +5,10 @@ Lane: FB-Product/BFM
 
 <!-- FB-LANE:WORKSTREAM-SUMMARY:START -->
 ## Current
+- **TASK-088** (In Progress) — Add one strict approval-bound receipt rebind for
+  the fresh canonical Unmirror Product/BFM task while preserving all other
+  exact bindings; focused root/package checks pass and full clean-candidate,
+  install, and fresh-task proof remain. [Handoff](../handoffs/TASK-088.md); [QA](../qa/TASK-088.md)
 - **TASK-087** (In Progress) — Repair BFM intake for registered quarantined
   roots whose handoffs are dataless, using exact migration-manifest and routing
   receipt evidence while failing closed on unrecorded drift; local-only

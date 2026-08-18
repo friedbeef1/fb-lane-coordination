@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-088 | In Progress | FB-Product / BFM | Exact onboarding receipt identity repair | Accept one durable approval-bound replacement of an archived canonical task while keeping every other exact task binding unchanged | `tools/fb-onboarding.cjs`, focused onboarding test, setup guidance, package/version records | Focused root/package candidate checks pass; full validator, commit, exact local install, and fresh-task consumer proof pending; no merge, push, publication, or release; [Handoff](docs/handoffs/TASK-088.md); [QA](docs/qa/TASK-088.md) |
 | TASK-087 | In Progress | FB-Product / BFM | Dataless quarantined-root BFM intake reliability | Make intake terminate deterministically from exact migration-manifest and routing-receipt evidence while failing closed on missing or changed evidence | `tools/fb-lane.cjs`, `tools/fb-bfm-intake-ledger.test.cjs`, generated plugin mirrors, TASK-087 records | **Safely paused — candidate checks passed; exact project proof pending.** Reinstall/fresh-runtime proof remains; no merge, push, publication, or release; [Handoff](docs/handoffs/TASK-087.md); [QA](docs/qa/TASK-087.md) |
 | TASK-BUG-FB-CONFIDENCE-20260818 | Done | FB-Bugs → FB-Product / BFM | Trustworthy recovery reporting | Prevent intermediate fixture proof from being reported as consumer success; expose Ready / Safely paused / Need your decision | Absorbed into TASK-087; no separate source lock | Accepted into TASK-087; exact-real-snapshot proof remains pending; [Handoff](docs/handoffs/TASK-BUG-FB-CONFIDENCE-20260818.md); [QA](docs/qa/TASK-BUG-FB-CONFIDENCE-20260818.md) |
 | TASK-086 | Done | FB-Product / BFM | Graph Blueprint workflow simplification; FB `0.9.0-beta+codex.20260817211319` | Make the visible workflow Goal → Split → relevant parallel workstreams → verify → merge findings → bounded implementation → integrated verification → one clear result, while keeping the durable graph and safety machinery underneath | None; published and installed | PR #67 merged as `823e51b`; Git marketplace tracks public `main`; exact build installed and enabled; 90/90 artifact parity and 14-tool MCP proof; [Handoff](docs/handoffs/TASK-086.md); [QA](docs/qa/TASK-086.md) |
@@ -37,6 +38,26 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-088 - Exact approved onboarding receipt rebind
+
+*   **Status**: In Progress — focused root/package candidate checks pass; full clean-candidate proof and local install remain.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Area**: Strict onboarding identity, setup guidance, focused regression, and generated plugin package.
+*   **Scope**: Permit one `receiptRebindings` record only when it exactly matches the prior bound task ID, one exact pinned same-role replacement, and a durable approval reference. Keep all other task bindings exact.
+*   **Out of Scope**: Weakening duplicate protection, task creation/rename/pin/archive, consumer source changes, merge, push, publication, or release.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reconcile the fresh canonical Unmirror Product/BFM task without hand-editing the strict receipt.
+    *   **Key Results**: Wrong prior IDs, wrong-role targets, unpinned targets, blank approval, duplicates, and ordinary missing identities fail closed; all unaffected bindings remain byte-for-byte equivalent.
+    *   **Definition of Done**: RED/GREEN focused root/package proof, package parity, complete validator, clean local commit, exact local install/runtime proof, and successful strict Unmirror reconcile from fresh native inventory.
+    *   **Gate / Review Point**: James explicitly authorized the fresh Product replacement and autonomous safe local recovery. Stop before merge, push, publication, or release.
+    *   **Approval**: approved — delegated continuation names the exact replacement task and preserves the Push Live gate.
+    *   **Justification**: Installed 0.9.1 correctly failed closed but offered no supported strict route to replace one archived canonical binding.
+*   **Locks**: `tools/fb-onboarding.cjs`, `tools/fb-setup-native-onboarding.test.cjs`, `skills/project-coordination-setup/SKILL.md`, generated plugin mirrors, TASK-088 version/records.
+*   **Visual Preview Decision**: Skip — nonvisual coordination identity repair.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-088.md); [QA](docs/qa/TASK-088.md).
 
 ---
 

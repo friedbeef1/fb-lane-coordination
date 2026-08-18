@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## 0.9.2-beta — 2026-08-18
+
+Build: `0.9.2-beta+codex.20260818123922`
+
+### TASK-088 — Exact approved onboarding receipt rebind
+
+**What changed:** Strict setup reconciliation now accepts one explicitly
+approved `receiptRebindings` entry when a canonical sidebar task was replaced
+by a fresh exact pinned task. The packet must match the prior receipt-bound ID,
+the exact replacement ID and role, and a durable approval reference. Every
+other binding remains unchanged.
+
+**Why it matters:** A required fresh-task reload can replace Product/BFM
+without forcing a hand-edited receipt or weakening duplicate and exact-project
+checks.
+
+**Compatibility:** Ordinary missing, ambiguous, unpinned, wrong-role, or
+unapproved task identities still fail closed. Receipt repair does not create,
+rename, pin, archive, start, or approve a task. This is a local candidate only;
+no merge, push, publication, or release is authorized.
+
 ## 0.9.1-beta — 2026-08-18
 
 Build: `0.9.1-beta+codex.20260818014014`
