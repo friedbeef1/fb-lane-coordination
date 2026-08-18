@@ -2,13 +2,16 @@
 
 ## Current
 
-- None. TASK-084 is published and installed as
-  `0.8.2-beta+codex.20260815070021`.
+- TASK-087 — repair BFM intake so a registered quarantined checkout with
+  dataless handoffs is reconciled from exact migration-manifest and routing
+  receipt evidence without opening those files.
 
 ## Next ready
 
-- None.
+- Complete RED/GREEN proof, package parity, local reinstall, and fresh-runtime
+  acceptance in Unmirror.
 
 ## External blocks
 
-- Open a new Codex task before using the replaced FB skills or MCP runtime.
+- A fresh Codex task is required after local plugin replacement before
+  plugin-dependent consumer mutation.

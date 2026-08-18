@@ -2,6 +2,39 @@
 
 ## Unreleased
 
+## 0.9.1-beta — 2026-08-18
+
+Build: `0.9.1-beta+codex.20260818014014`
+
+### TASK-087 — Dataless quarantined-root BFM intake repair
+
+**What changed:** BFM handoff audit and intake freeze now reconcile a registered
+quarantined checkout from its exact migration-manifest handoff snapshots and
+existing source-bound routing receipts instead of opening dataless source
+files. Live canonical content remains hash-verified. Exact dispositioned
+migration evidence is accepted for historical content differences, and
+canonical-identical linked copies no longer invalidate an exact receipt for a
+content-different source.
+
+**Why it matters:** A quarantined iCloud checkout can remain preserved and
+audited without causing intake to hang, while missing receipts, changed
+canonical content, malformed snapshots, and unrecorded source drift continue
+to fail closed.
+
+**Compatibility:** The supported `migration refresh-routing` path, exact
+source-root/hash reconciliation, complete six-workstream intake, and **Push
+Live** boundary are unchanged. This is a local repair candidate only; no merge,
+push, public marketplace publication, or release is authorized.
+
+**Reporting:** Routine recovery now exposes only **Ready**, **Safely paused**,
+or **Need your decision**. Fixture proof is explicitly candidate-only; Ready
+requires the exact real project snapshot to pass the same final command with no
+later invalidating mutation. Technical details remain in diagnostics and QA.
+
+**Installation or upgrade:** Generate the package, install the exact local
+candidate through the configured marketplace snapshot, and open a fresh Codex
+task before plugin-dependent consumer mutation.
+
 ## 0.9.0-beta — 2026-08-18
 
 Build: `0.9.0-beta+codex.20260817211319`

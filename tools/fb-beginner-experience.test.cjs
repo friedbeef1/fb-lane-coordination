@@ -4,6 +4,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { renderRecoveryOutcome } = require('./fb-lane.cjs');
 
 const containingRoot = path.resolve(__dirname, '..');
 const isPackagedCopy = path.basename(containingRoot) === 'fb-lane-coordination'
@@ -80,6 +81,70 @@ test('safe recovery stays with Product/BFM before asking the user to act', () =>
   assertCanonicalPauseShape(pause, 'safe-recovery pause card');
   assert.match(pause, /safe recovery/i);
   assert.match(pause, /Product\/BFM owns safe recovery/i);
+});
+
+test('recovery reporting uses three honest states and exact-project completion proof', () => {
+  for (const [label, relativePath] of [
+    ['canonical', 'docs/fb/guardrails.md'],
+    ['packaged', 'plugins/fb-lane-coordination/docs/fb/guardrails.md'],
+  ]) {
+    const contract = section(read(relativePath), 'Trustworthy recovery reporting');
+    assertOrdered(contract, ['Ready', 'Safely paused', 'Need your decision'], `${label} recovery states`);
+    assert.match(contract, /exact real project snapshot[\s\S]*same final command/i);
+    assert.match(contract, /candidate checks passed; exact project proof pending/i);
+    assert.match(contract, /(?:edit|mutation|change)[\s\S]*(?:invalidates|supersedes)[\s\S]*Ready/i);
+    assert.match(contract, /later[\s\S]*(?:failure|failed)[\s\S]*Safely paused/i);
+    assert.match(contract, /receipts?[\s\S]*quarantine[\s\S]*hash(?:es)?[\s\S]*diagnostics/i);
+    assert.match(contract, /Need your decision[\s\S]*(?:product|destructive|provider|release)/i);
+  }
+  const bfm = read('skills/bfm/SKILL.md');
+  assert.match(bfm, /Trustworthy recovery reporting/);
+  assert.match(bfm, /Ready[\s\S]*Safely paused[\s\S]*Need your decision/);
+  assert.match(bfm, /exact real project snapshot[\s\S]*candidate checks passed; exact project proof pending/i);
+});
+
+test('recovery outcome transitions require current exact-project proof', () => {
+  const fixtureOnly = renderRecoveryOutcome({
+    fixtureChecksPassed: true,
+    diagnostics: ['HANDOFF_CONTENT_DRIFT', 'quarantine root hash mismatch'],
+  });
+  assert.equal(fixtureOnly.state, 'Safely paused');
+  assert.match(fixtureOnly.headline, /candidate checks passed; exact project proof pending/i);
+  assert.doesNotMatch(fixtureOnly.headline, /HANDOFF_CONTENT_DRIFT|quarantine|hash/i);
+  assert.deepEqual(fixtureOnly.diagnostics, ['HANDOFF_CONTENT_DRIFT', 'quarantine root hash mismatch']);
+
+  const proof = {
+    fixtureChecksPassed: true,
+    exactProjectPassed: true,
+    finalCommand: 'freeze Unmirror',
+    candidateFingerprint: 'candidate-a',
+    snapshotFingerprint: 'snapshot-a',
+    currentCandidateFingerprint: 'candidate-a',
+    currentSnapshotFingerprint: 'snapshot-a',
+  };
+  assert.equal(renderRecoveryOutcome(proof).state, 'Ready');
+
+  for (const invalidated of [
+    { ...proof, currentCandidateFingerprint: 'candidate-b' },
+    { ...proof, currentSnapshotFingerprint: 'snapshot-b' },
+    { ...proof, failedRerun: true },
+  ]) {
+    const result = renderRecoveryOutcome({ ...invalidated, previousState: 'Ready' });
+    assert.equal(result.state, 'Safely paused');
+    assert.match(result.headline, /previous Ready (?:is )?superseded/i);
+  }
+
+  const routineRecovery = renderRecoveryOutcome({
+    routineRecovery: true,
+    diagnostics: ['MANIFEST_ROUTING_RECEIPT_MISSING_OR_MISMATCHED'],
+  });
+  assert.equal(routineRecovery.state, 'Safely paused');
+
+  const decision = renderRecoveryOutcome({
+    authorityGate: { type: 'release', decision: 'Say Push Live to release this exact candidate.' },
+  });
+  assert.equal(decision.state, 'Need your decision');
+  assert.match(decision.headline, /Say Push Live to release this exact candidate\./);
 });
 
 test('lock conflicts route to Product/BFM lock resolution', () => {

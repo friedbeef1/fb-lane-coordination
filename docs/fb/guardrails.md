@@ -201,6 +201,30 @@ requests a release checkpoint. Integration, staging, owner transfer, review,
 or the existence of a handoff file do not request one. Preserve every sensitive
 trigger and its immediate safety/approval gate.
 
+## Trustworthy recovery reporting
+
+Routine recovery exposes exactly three plain-language states to the user:
+
+1. **Ready** — the exact real project snapshot passed the declared checks with
+   the same final command, and no later edit, mutation, or evidence change has
+   invalidated that result.
+2. **Safely paused** — nothing unsafe changed; Product/BFM is repairing or
+   validating internal records automatically. A fixture-only pass is reported
+   exactly as **candidate checks passed; exact project proof pending**. A later
+   failure or any change after a pass supersedes the earlier claim and returns
+   the visible state to **Safely paused** until the exact snapshot passes again.
+3. **Need your decision** — a genuine product, destructive, provider, privacy,
+   payment, authority, or release choice requires the user. State the decision
+   in plain language and do not use this state for routine recoverable work.
+
+Receipt names, quarantine state, hashes, canonical-drift codes, and fail-closed
+reasons remain complete in diagnostics and durable QA. They are not the
+headline narrative and the user does not need to interpret them while
+Product/BFM has a safe bounded recovery. Do not say `green`, `ready`, `fixed`,
+`verified`, or equivalent consumer-success wording before the exact real
+project snapshot reaches **Ready**. Preserve every fail-closed check; this
+contract changes reporting and completion semantics only.
+
 ### Product-directed circuit-breaker recovery
 
 Product direction is not automatically a user prompt. A circuit breaker stops

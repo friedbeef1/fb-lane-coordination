@@ -222,6 +222,15 @@ For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must
 judge it.
 
+Follow **Trustworthy recovery reporting** in `guardrails.md`. Use only
+**Ready**, **Safely paused**, or **Need your decision** as the headline state
+during routine recovery. **Ready** requires the exact real project snapshot to
+pass the same final command with no subsequent mutation. A fixture-only result
+is **candidate checks passed; exact project proof pending**. Any later edit or
+failure supersedes prior success wording and returns to **Safely paused**.
+Reserve **Need your decision** for a genuine authority boundary; keep receipt,
+quarantine, hash, and fail-closed details in diagnostics and durable QA.
+
 Stop before claim/edit/deploy/closeout when Product's **Include now** scope or
 locks are unclear. Ready status does not attach approval to a handoff. After
 `$bfm`, Product records the dispositioned Project Start Brief and Build Brief;

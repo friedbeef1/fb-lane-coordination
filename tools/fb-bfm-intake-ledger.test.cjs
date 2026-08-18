@@ -229,6 +229,73 @@ test('BFM onboarding validates repository-configured titles from the strict rece
   }
 });
 
+test('BFM intake reconciles an offline quarantined root from exact manifest and routing receipts', () => {
+  const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
+  const root = makeFixture([candidate]);
+  const former = makeFixture([candidate]);
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-dataless-registry-'));
+  try {
+    initGitFixture(root);
+    initGitFixture(former);
+    configureVerifiedControlPlane(root, former);
+    const manifestPath = path.join(root, '.git', 'fb-checkout-migration.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const source = fs.readFileSync(path.join(root, 'docs', 'handoffs', 'same.md'));
+    const sha256 = crypto.createHash('sha256').update(source).digest('hex');
+    const snapshot = { sha256, task: 'TECH-1', status: 'ready' };
+    manifest.differences = [{
+      id: 'migration:handoff:dataless-fixture',
+      kind: 'handoff',
+      relative: 'docs/handoffs/same.md',
+      canonical: { root, value: snapshot },
+      source: { root: former, value: snapshot },
+      disposition: 'canonical-routing-retained',
+    }];
+    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest)}\n`);
+
+    refreshBfmRoutingReceipts(root, {
+      relatives: ['docs/handoffs/same.md'],
+      rebuildMissing: true,
+      registryDir: registry,
+    });
+
+    const snapshottedManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    snapshottedManifest.checkouts[fs.realpathSync(root)].handoffs = { 'docs/handoffs/same.md': snapshot };
+    snapshottedManifest.checkouts[fs.realpathSync(former)].handoffs = { 'docs/handoffs/same.md': snapshot };
+    fs.writeFileSync(manifestPath, `${JSON.stringify(snapshottedManifest)}\n`);
+
+    fs.rmSync(path.join(former, 'docs'), { recursive: true, force: true });
+    fs.rmSync(path.join(former, 'PROJECT_BOARD.md'), { force: true });
+
+    const ledger = freezeBfmIntake(root, {
+      dispositions: { 'TECH-1': 'Include now' },
+    });
+
+    assert.deepEqual(ledger.candidates.map(record => record.task), ['TECH-1']);
+    assert.deepEqual(ledger.recommendedOrder, ['TECH-1']);
+
+    const reconciledManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const missingReceipt = structuredClone(reconciledManifest);
+    delete missingReceipt.routingReceipts['docs/handoffs/same.md'];
+    fs.writeFileSync(manifestPath, `${JSON.stringify(missingReceipt)}\n`);
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } }),
+      /MANIFEST_ROUTING_RECEIPT_MISSING_OR_MISMATCHED/,
+    );
+
+    fs.writeFileSync(manifestPath, `${JSON.stringify(reconciledManifest)}\n`);
+    fs.appendFileSync(path.join(root, 'docs', 'handoffs', 'same.md'), '\ncanonical drift\n');
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } }),
+      /HANDOFF_CONTENT_DRIFT/,
+    );
+  } finally {
+    remove(root);
+    remove(former);
+    remove(registry);
+  }
+});
+
 test('routing receipt refresh updates routing hashes without accepting content drift', () => {
   const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
   const root = makeFixture([candidate]);

@@ -13,6 +13,8 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-087 | In Progress | FB-Product / BFM | Dataless quarantined-root BFM intake reliability | Make intake terminate deterministically from exact migration-manifest and routing-receipt evidence while failing closed on missing or changed evidence | `tools/fb-lane.cjs`, `tools/fb-bfm-intake-ledger.test.cjs`, generated plugin mirrors, TASK-087 records | **Safely paused — candidate checks passed; exact project proof pending.** Reinstall/fresh-runtime proof remains; no merge, push, publication, or release; [Handoff](docs/handoffs/TASK-087.md); [QA](docs/qa/TASK-087.md) |
+| TASK-BUG-FB-CONFIDENCE-20260818 | Done | FB-Bugs → FB-Product / BFM | Trustworthy recovery reporting | Prevent intermediate fixture proof from being reported as consumer success; expose Ready / Safely paused / Need your decision | Absorbed into TASK-087; no separate source lock | Accepted into TASK-087; exact-real-snapshot proof remains pending; [Handoff](docs/handoffs/TASK-BUG-FB-CONFIDENCE-20260818.md); [QA](docs/qa/TASK-BUG-FB-CONFIDENCE-20260818.md) |
 | TASK-086 | Done | FB-Product / BFM | Graph Blueprint workflow simplification; FB `0.9.0-beta+codex.20260817211319` | Make the visible workflow Goal → Split → relevant parallel workstreams → verify → merge findings → bounded implementation → integrated verification → one clear result, while keeping the durable graph and safety machinery underneath | None; published and installed | PR #67 merged as `823e51b`; Git marketplace tracks public `main`; exact build installed and enabled; 90/90 artifact parity and 14-tool MCP proof; [Handoff](docs/handoffs/TASK-086.md); [QA](docs/qa/TASK-086.md) |
 | TASK-085 | Done | FB-Product / BFM + FB-Tech | Six-workstream intake and erased-receipt recovery | Preserve User/Ready-to-ship selection, rebuild historical content receipts without invented routes, normalize exact backticked index IDs, recognize canonical-identical linked copies, and reconcile an approved changed handoff only from exact current hashes plus one prior disposition | None; inherited by FB 0.9.0 and published | Source `ef0d064` included in PR #67 merge `823e51b`; exact 0.9.0 build installed and enabled; [Handoff](docs/handoffs/TASK-085.md); [QA](docs/qa/TASK-085.md) |
 | TASK-084 | Done | FB-Product / BFM + FB-Tech | Graph fallback precision and sensitive-output hardening; FB `0.8.2-beta+codex.20260815070021` | Harden graph fallback precision and sensitive matching, then publish the approved exact plugin build | None; published and installed | Push Live completed; source `11d8ed2`, merge `94829f6`, published main `73a29fd`; exact build installed and enabled with 91/91 artifact parity; [Handoff](docs/handoffs/TASK-084.md); [QA](docs/qa/TASK-084.md); [Changelog](CHANGELOG.md#082-beta--2026-08-15) |
@@ -35,6 +37,27 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-087 - Dataless quarantined-root BFM intake repair
+
+*   **Status**: In Progress — **Safely paused; candidate checks passed; exact project proof pending.** Reinstall and fresh-runtime proof remain.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Area**: Canonical BFM handoff audit, cross-root routing inventory, focused regression, and generated plugin package.
+*   **Scope**: Reconcile registered quarantined handoffs from exact migration-manifest content snapshots and existing source-bound routing receipts without opening dataless source files. Verify live canonical hashes, preserve every quarantined root in the audit, and fail closed on incomplete, mismatched, or unrecorded evidence.
+*   **Absorbed Bugs Evidence**: TASK-BUG-FB-CONFIDENCE-20260818 adds the three-state recovery-reporting contract and exact-real-snapshot completion boundary. Intermediate fixture proof is reported only as `candidate checks passed; exact project proof pending`.
+*   **Out of Scope**: Consumer source changes, excluding quarantined roots, inventing dispositions, merge, push, marketplace publication, or release.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let complete BFM intake terminate over preserved dataless quarantine evidence without weakening drift detection.
+    *   **Key Results**: No quarantined-file opens during freeze; live canonical hashes remain verified; exact receipts/dispositions authorize only their recorded source tuples; missing or changed evidence fails closed.
+    *   **Definition of Done**: RED/GREEN regression, package parity, full validator, exact local install/runtime proof, supported Unmirror reconciliation, and successful complete intake freeze.
+    *   **Gate / Review Point**: James authorized the local repair and reinstall; stop before merge, push, publication, or release.
+    *   **Approval**: approved — James said, “Continue running. I authorise everything you recommend.”
+    *   **Justification**: The published 0.9.0 freeze opened iCloud dataless handoffs and could not complete the approved Unmirror intake.
+*   **Locks**: `tools/fb-lane.cjs`, `tools/fb-bfm-intake-ledger.test.cjs`, `plugins/fb-lane-coordination/`, `docs/handoffs/TASK-087.md`, `docs/qa/TASK-087.md`, `docs/handoffs/index.md`, `docs/workstreams/fb-product.md`, `.codex/current_task.md`.
+*   **Visual Preview Decision**: Skip — nonvisual runtime reliability repair.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-087.md); [QA](docs/qa/TASK-087.md).
 
 ---
 
