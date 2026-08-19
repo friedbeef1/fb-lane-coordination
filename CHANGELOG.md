@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### TASK-089 — Linked-worktree evidence precision
+
+**What changed:** BFM now treats linked worktrees as Git snapshots. It audits
+handoffs authored in branch-unique commits or present as dirty, staged, or
+untracked work, rather than treating every older untouched copy as a competing
+decision.
+
+**Why it matters:** Long-running projects can keep useful linked worktrees
+without generating false handoff conflicts whenever canonical coordination
+records advance.
+
+**Compatibility:** Canonical handoffs, configured former roots, quarantined
+manifest evidence, true branch-authored changes, and uncertain Git provenance
+retain their existing fail-closed protections.
+
+**Installation or upgrade:** This is an unreleased candidate. No installed or
+public plugin changes until a later versioned release completes the **Push
+Live** gate.
+
 ## 0.9.2-beta — 2026-08-18
 
 Build: `0.9.2-beta+codex.20260818123922`

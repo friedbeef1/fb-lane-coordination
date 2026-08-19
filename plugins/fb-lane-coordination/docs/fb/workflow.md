@@ -72,6 +72,13 @@ remain visible in canonical order; Product/BFM is shown separately as the
 control centre, including compatible `lane: fb-product` inputs. Every candidate receives exactly one
 allowed disposition or the execution gate stays closed.
 
+Linked worktrees contribute only handoffs that Git proves were authored in
+branch-unique commits or remain dirty, staged, or untracked there. An untouched
+older snapshot is not a second decision merely because canonical coordination moved
+forward after the branch was created. Canonical handoffs, configured former
+roots, and quarantined manifest evidence remain fully audited. If Git cannot
+prove a linked-worktree delta, intake fails closed instead of guessing.
+
 Missing roots, inaccessible authoritative records, same-path content or routing
 drift, hidden Ready work, incomplete role inventory, conflicting dispositions,
 dependency cycles, and noncanonical execution fail closed. Guidance consumes

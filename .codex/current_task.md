@@ -2,16 +2,15 @@
 
 ## Current
 
-- TASK-088 — add one exact approval-bound onboarding receipt rebind so the
-  fresh canonical Unmirror Product/BFM task can replace its archived
-  predecessor without weakening strict seven-task identity.
+- TASK-089 — bounded linked-worktree handoff delta candidate is verified and
+  awaiting a later versioned release cycle.
 
 ## Next ready
 
-- Install the exact local TASK-088 candidate, reload once, reconcile the strict
-  Unmirror receipt, then resume TASK-087 exact-project acceptance.
+- Reconcile the nineteen genuine Unmirror active-branch handoff conflicts in
+  their owning project; do not hide them in the FB plugin.
 
 ## External blocks
 
-- No external block. A fresh Codex task remains required after the local plugin
-  replacement before plugin-dependent consumer mutation.
+- No FB implementation block. Push, merge, publication, installation, and
+  release remain outside this candidate until explicit **Push Live**.

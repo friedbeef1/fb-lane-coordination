@@ -1225,6 +1225,87 @@ function handoffDigest(contents) {
   return crypto.createHash('sha256').update(contents).digest('hex');
 }
 
+function linkedWorktreeHandoffDeltas(rootDir) {
+  const canonicalRoot = pathIdentity(rootDir);
+  const migration = loadCheckoutMigrationManifest(rootDir);
+  let linked;
+  try {
+    linked = execFileSync('git', ['worktree', 'list', '--porcelain'], {
+      cwd: canonicalRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+      .split(/\r?\n/)
+      .filter(line => line.startsWith('worktree '))
+      .map(line => pathIdentity(line.slice('worktree '.length)))
+      .filter(root => root !== canonicalRoot);
+  } catch (error) {
+    const dotGit = path.join(canonicalRoot, '.git');
+    const hasGitMetadata = fs.existsSync(dotGit)
+      && (fs.statSync(dotGit).isFile() || fs.existsSync(path.join(dotGit, 'HEAD')));
+    if (hasGitMetadata) {
+      throw new Error(
+        `READINESS_AUDIT_INCOMPLETE: linked worktree handoff delta is unproven for ${canonicalRoot} (${error.code || 'GIT_ERROR'})`
+      );
+    }
+    return new Map();
+  }
+  if (linked.length === 0) return new Map();
+
+  let canonicalHead;
+  try {
+    canonicalHead = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: canonicalRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+  } catch (error) {
+    throw new Error(
+      `READINESS_AUDIT_INCOMPLETE: linked worktree handoff delta is unproven for ${canonicalRoot} (${error.code || 'GIT_ERROR'})`
+    );
+  }
+
+  const deltas = new Map();
+  for (const root of linked) {
+    if (migration?.checkouts?.[root]?.state === 'quarantined') continue;
+    try {
+      const mergeBase = execFileSync('git', ['merge-base', 'HEAD', canonicalHead], {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      }).trim();
+      const commands = [
+        ['diff', '--name-only', '-z', '--diff-filter=ACMRTUXB', `${mergeBase}..HEAD`, '--', 'docs/handoffs'],
+        ['diff', '--name-only', '-z', '--diff-filter=ACMRTUXB', 'HEAD', '--', 'docs/handoffs'],
+        ['ls-files', '--others', '--exclude-standard', '-z', '--', 'docs/handoffs'],
+      ];
+      const paths = new Set();
+      for (const args of commands) {
+        const output = execFileSync('git', args, {
+          cwd: root,
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'pipe'],
+        });
+        for (const relative of output.split('\0').filter(Boolean)) {
+          const normalized = relative.replace(/\\/g, '/');
+          if (/^docs\/handoffs\/[^/]+\.md$/u.test(normalized)
+            && normalized !== 'docs/handoffs/index.md') paths.add(normalized);
+        }
+      }
+      deltas.set(root, paths);
+    } catch (error) {
+      throw new Error(
+        `READINESS_AUDIT_INCOMPLETE: linked worktree handoff delta is unproven for ${root} (${error.code || 'GIT_ERROR'})`
+      );
+    }
+  }
+  return deltas;
+}
+
+function handoffIncludedForAudit(root, relative, linkedDeltas) {
+  return !linkedDeltas.has(root) || linkedDeltas.get(root).has(relative);
+}
+
 function quarantinedHandoffRecords(migration, root, errors) {
   const checkout = migration?.checkouts?.[root];
   if (checkout?.state !== 'quarantined') return null;
@@ -1264,7 +1345,9 @@ function handoffAuditRecords(rootDir, options = {}) {
   const records = new Map();
   const errors = [];
   const migration = loadCheckoutMigrationManifest(rootDir);
-  for (const root of handoffAuditRoots(rootDir)) {
+  const roots = handoffAuditRoots(rootDir);
+  const linkedDeltas = options.linkedDeltas || linkedWorktreeHandoffDeltas(rootDir);
+  for (const root of roots) {
     const manifestRecords = options.readQuarantined === true
       ? null
       : quarantinedHandoffRecords(migration, root, errors);
@@ -1288,6 +1371,7 @@ function handoffAuditRecords(rootDir, options = {}) {
     }
     for (const name of names) {
       const relative = `docs/handoffs/${name}`;
+      if (!handoffIncludedForAudit(root, relative, linkedDeltas)) continue;
       const absolute = path.join(directory, name);
       try {
         const contents = fs.readFileSync(absolute);
@@ -1351,11 +1435,11 @@ function validMigrationDisposition(migration, relative, canonical, source) {
       && difference.source?.value?.sha256 === source.sha256);
 }
 
-function assertNoHandoffContentDrift(rootDir) {
+function assertNoHandoffContentDrift(rootDir, options = {}) {
   const canonicalRoot = pathIdentity(rootDir);
   const snapshot = checkoutMigrationSnapshot(rootDir);
   const migration = loadCheckoutMigrationManifest(rootDir);
-  const { records, errors } = handoffAuditRecords(rootDir);
+  const { records, errors } = handoffAuditRecords(rootDir, options);
   if (errors.length > 0) {
     throw new Error(`READINESS_AUDIT_INCOMPLETE: handoff sources were unreadable: ${errors.join('; ')}`);
   }
@@ -1398,13 +1482,13 @@ function assertNoHandoffContentDrift(rootDir) {
   }
 }
 
-function assertNoOrphanReadyHandoffs(rootDir, selected) {
-  assertNoHandoffContentDrift(rootDir);
+function assertNoOrphanReadyHandoffs(rootDir, selected, options = {}) {
+  assertNoHandoffContentDrift(rootDir, options);
   const primary = pathIdentity(rootDir);
   const canonical = new Set();
   const selectedCanonical = new Set(selected);
   const ready = [];
-  const audit = handoffAuditRecords(rootDir);
+  const audit = handoffAuditRecords(rootDir, options);
   for (const candidates of audit.records.values()) {
     for (const record of candidates) {
       if (record.root === primary) canonical.add(record.relative);
@@ -1432,7 +1516,7 @@ function assertNoOrphanReadyHandoffs(rootDir, selected) {
   }
 }
 
-function scanWorkstreamHandoffs(rootDir) {
+function scanWorkstreamHandoffs(rootDir, options = {}) {
   const handoffsDir = path.join(rootDir, 'docs', 'handoffs');
   const workstreams = Object.fromEntries(BFM_WORKSTREAMS.map(workstream => [workstream, { ready: [], blocked: [] }]));
   const selectedByTask = new Map();
@@ -1469,7 +1553,7 @@ function scanWorkstreamHandoffs(rootDir) {
     if (result.ready.length === 0 && result.blocked.length === 0) result.summary = 'None relevant';
   }
   const candidates = BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready);
-  assertNoOrphanReadyHandoffs(rootDir, candidates);
+  assertNoOrphanReadyHandoffs(rootDir, candidates, options);
   return { workstreams, candidates, selected: candidates, blockedCandidates };
 }
 
@@ -1651,6 +1735,7 @@ function collectBfmIntakeInventories(canonicalRoot, options = {}) {
   const missing = [];
   const inventories = new Map();
   const migration = loadCheckoutMigrationManifest(canonicalRoot);
+  const linkedDeltas = options.linkedDeltas || linkedWorktreeHandoffDeltas(canonicalRoot);
   for (const root of handoffAuditRoots(canonicalRoot)) {
     const manifestErrors = [];
     const manifestRecords = options.readQuarantined === true
@@ -1660,6 +1745,7 @@ function collectBfmIntakeInventories(canonicalRoot, options = {}) {
       missing.push(...manifestErrors);
       continue;
     }
+    if (linkedDeltas.has(root) && linkedDeltas.get(root).size === 0) continue;
     try {
       if (!fs.statSync(root).isDirectory()) throw Object.assign(new Error('not a directory'), { code: 'ENOTDIR' });
       fs.accessSync(root, fs.constants.R_OK | fs.constants.X_OK);
@@ -2131,10 +2217,11 @@ function freezeBfmIntake(rootDir, options = {}) {
   // This is the canonical scanner. It performs linked-worktree/former-root
   // discovery, source-bound receipt validation, and Ready false-negative
   // detection before the routing inventory below is trusted.
-  const scan = scanWorkstreamHandoffs(canonicalRoot);
+  const linkedDeltas = linkedWorktreeHandoffDeltas(canonicalRoot);
+  const scan = scanWorkstreamHandoffs(canonicalRoot, { linkedDeltas });
   const onboarding = bfmOnboardingEvidence(canonicalRoot, migration);
   assertNoContradictoryCanonicalHandoffs(canonicalRoot);
-  const inventories = collectBfmIntakeInventories(canonicalRoot);
+  const inventories = collectBfmIntakeInventories(canonicalRoot, { linkedDeltas });
   const canonicalInventory = inventories.get(canonicalRoot);
   const boardTasks = canonicalInventory.boardTasks;
   const tasksById = new Map();
@@ -2154,6 +2241,7 @@ function freezeBfmIntake(rootDir, options = {}) {
     const records = [canonicalRecord];
     for (const [auditRoot, inventory] of inventories) {
       if (auditRoot === canonicalRoot) continue;
+      if (!handoffIncludedForAudit(auditRoot, relative, linkedDeltas)) continue;
       const absolute = path.join(auditRoot, relative);
       if (!fs.existsSync(absolute)) continue;
       let source;

@@ -862,6 +862,78 @@ test('same-filename drift and inaccessible former roots remain canonical scanner
   }
 });
 
+test('an untouched older linked-worktree snapshot does not become handoff drift', () => {
+  const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
+  const root = makeFixture([candidate]);
+  const linked = `${fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-ledger-stale-parent-'))}-worktree`;
+  try {
+    initGitFixture(root);
+    git(root, ['worktree', 'add', '-b', 'audit-stale-snapshot', linked]);
+    fs.appendFileSync(path.join(root, 'docs', 'handoffs', 'same.md'), '\nCanonical closeout after branch creation.\n');
+    git(root, ['add', 'docs/handoffs/same.md']);
+    git(root, ['commit', '-m', 'advance canonical handoff']);
+
+    const intake = freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } });
+    assert.deepEqual(intake.candidates.map(item => item.task), ['TECH-1']);
+  } finally {
+    try { git(root, ['worktree', 'remove', '--force', linked]); } catch {}
+    remove(linked);
+    remove(root);
+  }
+});
+
+test('linked-worktree-authored handoff changes remain visible to the drift gate', () => {
+  const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
+  const root = makeFixture([candidate]);
+  const linked = `${fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-ledger-authored-parent-'))}-worktree`;
+  try {
+    initGitFixture(root);
+    git(root, ['worktree', 'add', '-b', 'audit-authored-handoff', linked]);
+
+    fs.appendFileSync(path.join(linked, 'docs', 'handoffs', 'same.md'), '\nBranch-authored decision.\n');
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } }),
+      /HANDOFF_CONTENT_DRIFT.*same\.md/
+    );
+
+    git(linked, ['add', 'docs/handoffs/same.md']);
+    git(linked, ['commit', '-m', 'record branch handoff decision']);
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } }),
+      /HANDOFF_CONTENT_DRIFT.*same\.md/
+    );
+  } finally {
+    try { git(root, ['worktree', 'remove', '--force', linked]); } catch {}
+    remove(linked);
+    remove(root);
+  }
+});
+
+test('workflow and BFM skill explain exact linked-worktree handoff evidence', () => {
+  for (const relative of ['docs/fb/workflow.md', 'skills/bfm/SKILL.md']) {
+    const source = fs.readFileSync(path.join(__dirname, '..', relative), 'utf8');
+    assert.match(source, /linked (?:Git )?worktree/i, `${relative} must identify linked-worktree evidence`);
+    assert.match(source, /branch-unique\s+commits/i, `${relative} must identify branch-authored evidence`);
+    assert.match(source, /dirty, staged, or untracked/i, `${relative} must retain unfinished evidence`);
+    assert.match(source, /untouched\s+older\s+snapshot/i, `${relative} must reject stale-snapshot false drift`);
+    assert.match(source, /fail(?:s)? closed/i, `${relative} must retain fail-closed provenance`);
+  }
+});
+
+test('Git-backed intake fails closed when linked-worktree delta provenance is unavailable', () => {
+  const root = makeFixture();
+  try {
+    fs.mkdirSync(path.join(root, '.git'), { recursive: true });
+    fs.writeFileSync(path.join(root, '.git', 'HEAD'), 'ref: refs/heads/main\n');
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: {} }),
+      /READINESS_AUDIT_INCOMPLETE.*linked worktree handoff delta is unproven/
+    );
+  } finally {
+    remove(root);
+  }
+});
+
 test('cross-root routing drift requires a receipt bound to canonical and source routing hashes', () => {
   const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
   const root = makeFixture([candidate]);

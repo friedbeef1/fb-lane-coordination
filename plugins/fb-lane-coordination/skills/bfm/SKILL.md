@@ -169,6 +169,13 @@ locks, approval gates, external blockers, and task-rebind state. Missing or
 contradictory inventory fails closed. Do not duplicate scanner or
 checkout-discovery logic in this skill; the runtime owns those rules.
 
+Treat a linked Git worktree as evidence only for handoffs changed by its
+branch-unique commits or current dirty, staged, or untracked state. Do not turn
+an untouched older snapshot into a competing decision merely because the
+canonical checkout advanced later. Continue to audit canonical handoffs,
+configured former roots, and quarantined manifest evidence completely, and
+fail closed when Git cannot prove the linked-worktree delta.
+
 Immediately after the freeze, use the runtime's automatic route preflight and
 report its selected route plus deterministic reasons. Direct BFM is valid only
 for one bounded item with explicit lock/worktree isolation and no graph signal.
