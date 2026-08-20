@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-089
 lane: fb-product
-status: ready
+status: done
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -16,8 +16,8 @@ surface: linked-worktree handoff audit and packaged Codex plugin
 
 ## Status
 
-FB `0.9.3-beta+codex.20260820032957` candidate implemented and focused
-verification passed. Exact Unmirror
+FB `0.9.3-beta+codex.20260820032957` is published, installed, enabled, and
+runtime-verified. Exact Unmirror
 comparison removed two untouched stale handoffs while preserving nineteen
 handoffs changed by the active branch; that remaining real drift still blocks
 Unmirror intake and was not hidden or mutated by this task.
@@ -97,19 +97,21 @@ the current Unmirror checkout, the candidate removed two untouched stale
 handoffs and preserved nineteen branch-authored conflicts from the active
 Android reactivation worktree.
 
-Review state, direct links, limits, and external gates: not reviewable —
-nonvisual coordination behavior. See [TASK-089 QA](../qa/TASK-089.md). James
-has authorized **Push Live** for this exact candidate; publication still
-depends on the passing release checkpoint and exact installed-runtime proof.
+Review state, direct links, limits, and external gates: completed build —
+nonvisual coordination behavior. See [TASK-089 QA](../qa/TASK-089.md) and
+[PR #68](https://github.com/friedbeef1/fb-lane-coordination/pull/68). No FB
+release gate remains.
 
 Repository state: Isolated candidate branch; only TASK-089 runtime, focused
 test, canonical guidance, changelog, durable evidence, and generated mirrors
 changed.
 
-Remaining owner and action: Product/BFM publishes the release-checkpoint-passed
-exact build, then refreshes only Product/BFM in each verified active project.
-Existing six workstream tasks remain unchanged. Unmirror must reconcile the
-nineteen genuine active-branch handoffs separately.
+Remaining owner and action: Existing six workstream tasks remain unchanged and
+reusable. A Product/BFM refresh must start from a genuinely fresh app-created
+task after plugin reload; delegated tasks from the already-open release
+conversation inherited its stale skill catalog and were stopped without
+receipt or repository mutation. Unmirror must reconcile the nineteen genuine
+active-branch handoffs separately.
 
 Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#093-beta--2026-08-20).
 
@@ -117,5 +119,5 @@ Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#093-beta--2026-08-20).
 
 - QA: [TASK-089 QA](../qa/TASK-089.md)
 - Board: [TASK-089 board record](../../PROJECT_BOARD.md#task-089---linked-worktree-handoff-delta-audit)
-- System verification: passed for the bounded candidate. Exact Unmirror remains
+- System verification: passed for the released exact build. Exact Unmirror remains
   safely blocked by real active-branch evidence, not untouched snapshot noise.

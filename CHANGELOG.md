@@ -29,6 +29,11 @@ reinstall `fb-lane-coordination@fb-lane`, and open a fresh Codex task before
 plugin-dependent project reconciliation. Existing projects do not recreate
 their six workstreams; refresh Product/BFM only when a fresh runtime is needed.
 
+**Release evidence:** [PR #68](https://github.com/friedbeef1/fb-lane-coordination/pull/68)
+merged as `9fff83f`. The Git-backed marketplace and public `main` resolve to the
+same commit. Exact build `0.9.3-beta+codex.20260820032957` is installed and
+enabled with 92/92 file parity and all 14 bundled MCP tools resolving.
+
 ### TASK-089 — Linked-worktree evidence precision
 
 The linked-worktree delta filter is the final slice of this release and carries

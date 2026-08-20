@@ -81,7 +81,7 @@ green prematurely.
 
 ## Release checkpoint
 
-Result: the requested release checkpoint passed for the exact
+Result: passed — the requested release checkpoint covered the exact
 `0.9.3-beta+codex.20260820032957` candidate.
 
 - Targeted TASK-089 candidate preflight passed against public base `06dd95e`.
@@ -92,5 +92,23 @@ Result: the requested release checkpoint passed for the exact
 - Whole-candidate review found no remaining runtime or package defect. TASK-087
   and TASK-088 are correctly recorded as incorporated into TASK-089 rather than
   active independent releases.
-- **Push Live** is authorized for this exact build. GitHub merge, marketplace
-  refresh, installed-runtime proof, and Product/BFM-only project refresh remain.
+- **Push Live** was authorized and completed for this exact build. GitHub merge,
+  marketplace refresh, and installed-runtime proof are recorded below.
+
+## Live release verification
+
+- Status: passed.
+- [PR #68](https://github.com/friedbeef1/fb-lane-coordination/pull/68)
+  passed GitHub readiness and merged to public `main` as `9fff83f`.
+- The configured `fb-lane` marketplace is Git-backed and resolves to the same
+  `9fff83f` public-main commit.
+- Installed and enabled build:
+  `0.9.3-beta+codex.20260820032957`.
+- Installed cache proof: 92/92 source-package files are byte-identical and all
+  14 bundled MCP tools resolve from the installed runtime.
+- The six existing workstream tasks in MÉJA, Unmirror, and Tough Talks were not
+  recreated, renamed, repinned, rebound, or archived.
+- Product/BFM replacement attempts launched from this already-open 0.9.2-bound
+  conversation inherited its stale skill catalog. They failed closed before
+  mutation and are not valid replacements. Exact receipt rebind remains for a
+  genuinely fresh app-created Product/BFM task after plugin reload.
