@@ -2,24 +2,37 @@
 
 ## Unreleased
 
-### TASK-089 — Linked-worktree evidence precision
+## 0.9.3-beta — 2026-08-20
 
-**What changed:** BFM now treats linked worktrees as Git snapshots. It audits
-handoffs authored in branch-unique commits or present as dirty, staged, or
-untracked work, rather than treating every older untouched copy as a competing
-decision.
+Build: `0.9.3-beta+codex.20260820032957`
 
-**Why it matters:** Long-running projects can keep useful linked worktrees
-without generating false handoff conflicts whenever canonical coordination
-records advance.
+**What changed:** FB now reconciles preserved quarantined checkouts without
+reading dataless source files, supports an explicitly approved replacement of
+one receipt-bound sidebar task, and treats linked worktrees as Git snapshots.
+BFM audits handoffs authored in branch-unique commits or present as dirty,
+staged, or untracked work instead of treating every untouched historical copy
+as a competing decision.
+
+**Why it matters:** Existing projects can upgrade without rebuilding their six
+workstream tasks. Product/BFM can be refreshed safely, preserved former roots
+remain auditable, and long-running worktrees no longer create false conflicts
+merely because canonical coordination records advanced.
 
 **Compatibility:** Canonical handoffs, configured former roots, quarantined
 manifest evidence, true branch-authored changes, and uncertain Git provenance
-retain their existing fail-closed protections.
+retain their fail-closed protections. Existing User, Business, Design, Tech,
+Discovery, and Bugs tasks remain reusable; only a deliberately replaced task
+may be rebound through an exact approval-bound receipt.
 
-**Installation or upgrade:** This is an unreleased candidate. No installed or
-public plugin changes until a later versioned release completes the **Push
-Live** gate.
+**Installation or upgrade:** Upgrade the configured `fb-lane` marketplace,
+reinstall `fb-lane-coordination@fb-lane`, and open a fresh Codex task before
+plugin-dependent project reconciliation. Existing projects do not recreate
+their six workstreams; refresh Product/BFM only when a fresh runtime is needed.
+
+### TASK-089 — Linked-worktree evidence precision
+
+The linked-worktree delta filter is the final slice of this release and carries
+the combined TASK-087, TASK-088, and TASK-089 release evidence.
 
 ## 0.9.2-beta — 2026-08-18
 

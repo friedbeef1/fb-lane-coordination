@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-089
 lane: fb-product
-status: checking
+status: ready
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -16,7 +16,8 @@ surface: linked-worktree handoff audit and packaged Codex plugin
 
 ## Status
 
-Candidate implemented and focused verification passed. Exact Unmirror
+FB `0.9.3-beta+codex.20260820032957` candidate implemented and focused
+verification passed. Exact Unmirror
 comparison removed two untouched stale handoffs while preserving nineteen
 handoffs changed by the active branch; that remaining real drift still blocks
 Unmirror intake and was not hidden or mutated by this task.
@@ -83,8 +84,9 @@ Confirmed assumptions and approved scope changes: TASK-087 and TASK-088 source
 is inherited unchanged. No consumer source or coordination record is edited.
 
 Branch, source commits, and changed surfaces: Branch
-`codex/TASK-089-worktree-delta-audit`, based on local candidate `ca53bd3`;
-runtime, focused regression, generated mirror, and TASK-087–089 evidence only.
+`codex/TASK-089-worktree-delta-audit`, source stack `947852b`, `ca53bd3`, and
+`3da06b6`, versioned as `0.9.3-beta+codex.20260820032957`; runtime, focused
+regression, generated mirror, and TASK-087–089 evidence only.
 
 Checks, failures, recovery, and results: Exact Unmirror onboarding reports all
 seven pinned bindings and no reconciliation need. RED reproduced untouched
@@ -96,18 +98,20 @@ handoffs and preserved nineteen branch-authored conflicts from the active
 Android reactivation worktree.
 
 Review state, direct links, limits, and external gates: not reviewable —
-nonvisual coordination behavior. See [QA](../qa/TASK-089.md). Push, merge,
-publication, installation, and release remain gated.
+nonvisual coordination behavior. See [TASK-089 QA](../qa/TASK-089.md). James
+has authorized **Push Live** for this exact candidate; publication still
+depends on the passing release checkpoint and exact installed-runtime proof.
 
 Repository state: Isolated candidate branch; only TASK-089 runtime, focused
 test, canonical guidance, changelog, durable evidence, and generated mirrors
 changed.
 
-Remaining owner and action: Product/BFM may version and release this candidate
-with the inherited TASK-087/088 work in a later release cycle. Unmirror must
+Remaining owner and action: Product/BFM runs the one release checkpoint,
+publishes the exact build, then refreshes only Product/BFM in each verified
+active project. Existing six workstream tasks remain unchanged. Unmirror must
 reconcile the nineteen genuine active-branch handoffs separately.
 
-Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#task-089--linked-worktree-evidence-precision).
+Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#093-beta--2026-08-20).
 
 ## Verification Handoff
 

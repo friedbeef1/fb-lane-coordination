@@ -1,7 +1,7 @@
 ---
 type: fb-verification-handoff
 task: TASK-089
-status: checking
+status: passed
 ---
 
 # TASK-089 QA
@@ -9,7 +9,8 @@ status: checking
 ## Candidate
 
 - Branch: `codex/TASK-089-worktree-delta-audit`
-- Base: local 0.9.2 candidate `ca53bd3`
+- Base: public `main` at `06dd95e`
+- Build: `0.9.3-beta+codex.20260820032957`
 - Environment: isolated FB worktree plus read-only exact Unmirror probes
 - Review state: not reviewable — nonvisual coordination reliability behavior
 
@@ -35,7 +36,7 @@ Reusable lesson: Linked worktrees are Git snapshots. Cross-worktree evidence
 must come from branch-unique commits or dirty/untracked state, not file presence
 alone.
 
-## Verification
+## Focused verification
 
 | Proof | Result |
 |---|---|
@@ -74,4 +75,13 @@ green prematurely.
 - Unmirror application source and coordination records were not changed.
 - This proves the false-positive filter and preservation boundary, not that the
   remaining active branch is reconciled.
-- No plugin install, push, merge, publication, or release was performed.
+- Existing six workstream tasks remain reusable. The live continuation refreshes
+  only Product/BFM in each verified active project; ambiguous repository
+  identity fails closed rather than creating a duplicate task.
+
+## Release checkpoint
+
+Requested for the exact `0.9.3-beta+codex.20260820032957` candidate after all
+canonical release records and generated package mirrors are committed. The
+checkpoint will run once against the complete TASK-087–089 stack before merge
+and publication.

@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-089 | Staging QA | FB-Product / BFM | Linked-worktree handoff delta audit | Ignore untouched stale branch snapshots while preserving branch-authored, dirty, untracked, former-root, and quarantined handoff checks | None; bounded candidate source is complete | Intake 26/26 and migration 35/35 pass; 87 mirrors aligned; exact Unmirror comparison removes two stale copies and preserves nineteen genuine active-branch conflicts; no push, merge, publication, installation, or release; [Handoff](docs/handoffs/TASK-089.md); [QA](docs/qa/TASK-089.md) |
+| TASK-089 | Staging QA | FB-Product / BFM | FB `0.9.3-beta+codex.20260820032957` release | Publish the combined TASK-087–089 reliability stack while preserving existing six workstream tasks and refreshing only Product/BFM where exact project identity is proven | None; exact release checkpoint only | Focused candidate evidence passes; Push Live authorized; one complete release checkpoint, GitHub merge, marketplace refresh, installed-runtime proof, and verified Product/BFM-only project refresh remain; [Handoff](docs/handoffs/TASK-089.md); [QA](docs/qa/TASK-089.md) |
 | TASK-088 | Staging QA | FB-Product / BFM | Exact onboarding receipt identity repair | Accept one durable approval-bound replacement of an archived canonical task while keeping every other exact task binding unchanged | None; source is inherited by TASK-089 | Exact installed 0.9.2 runtime reports seven pinned bindings and `needsReconciliation: false` on real Unmirror; publication remains combined with the later candidate; [Handoff](docs/handoffs/TASK-088.md); [QA](docs/qa/TASK-088.md) |
 | TASK-087 | Superseded | FB-Product / BFM | Dataless quarantined-root BFM intake reliability | Make intake terminate deterministically from exact migration-manifest and routing-receipt evidence while failing closed on missing or changed evidence | None; source preserved and inherited by TASK-089 | Dataless probe now returns deterministically; exact Unmirror freeze exposed a distinct linked-worktree baseline false drift owned by TASK-089; [Handoff](docs/handoffs/TASK-087.md); [QA](docs/qa/TASK-087.md) |
 | TASK-BUG-FB-CONFIDENCE-20260818 | Done | FB-Bugs → FB-Product / BFM | Trustworthy recovery reporting | Prevent intermediate fixture proof from being reported as consumer success; expose Ready / Safely paused / Need your decision | Absorbed into TASK-087; no separate source lock | Accepted into TASK-087; exact-real-snapshot proof remains pending; [Handoff](docs/handoffs/TASK-BUG-FB-CONFIDENCE-20260818.md); [QA](docs/qa/TASK-BUG-FB-CONFIDENCE-20260818.md) |
@@ -44,20 +44,20 @@
 
 ### TASK-089 - Linked-worktree handoff delta audit
 
-*   **Status**: Staging QA — bounded candidate implemented and focused verification passes; release is separate.
+*   **Status**: Staging QA — `0.9.3-beta+codex.20260820032957` is Ready to ship and Push Live is authorized; exact release checkpoint remains.
 *   **Owner / Thread**: FB-Product / BFM.
 *   **Area**: Canonical BFM handoff audit, linked-worktree provenance, focused regression, and generated plugin package.
-*   **Scope**: In linked Git worktrees, audit handoffs changed by branch-unique commits or current dirty/untracked state. Ignore untouched files that differ only because canonical coordination advanced after the branch point. Preserve full auditing for canonical, former, and quarantined roots and fail closed when Git cannot prove the delta.
-*   **Out of Scope**: Ignoring branch-authored handoffs, weakening duplicate or source-root drift gates, consumer source changes, public merge, publication, installation, or release.
+*   **Scope**: Release the combined TASK-087–089 reliability stack. In linked Git worktrees, audit handoffs changed by branch-unique commits or current dirty/untracked state. Ignore untouched files that differ only because canonical coordination advanced after the branch point. Preserve full auditing for canonical, former, and quarantined roots and fail closed when Git cannot prove the delta. After installation, refresh only Product/BFM for exact verified active projects and preserve their six workstream task bindings.
+*   **Out of Scope**: Ignoring branch-authored handoffs, weakening duplicate or source-root drift gates, recreating workstream tasks, guessing project identity, or changing consumer application source.
 *   **Goal Alignment Session**:
     *   **Objective**: Keep BFM intake complete without treating ordinary stale branch snapshots as newly authored coordination evidence.
 *   **Key Results**: Untouched older worktree files do not block; committed branch changes, dirty changes, and untracked handoffs remain visible; uncertain Git provenance fails closed; exact Unmirror comparison removes two stale copies while preserving nineteen real active-branch conflicts.
     *   **Definition of Done**: Focused RED/GREEN root/package regression, exact Unmirror rerun, package parity, syntax, whitespace, one candidate review, and durable evidence.
-    *   **Gate / Review Point**: James authorized autonomous backward-compatible enhancement. Stop before **Push Live**.
+    *   **Gate / Review Point**: James explicitly said **Push Live** for this exact candidate. Run one release checkpoint and prove the published and installed build.
     *   **Approval**: approved — current Product/BFM request asks for evidence-based enhancements without breaking existing projects.
     *   **Justification**: Real Unmirror intake reports many content conflicts from a linked release worktree whose branch merely predates canonical coordination closeout; actual worktree-authored records must still fail closed.
 *   **Story Split Pass**: One bounded behavioral repair with one focused proof and one exact-project rerun.
-*   **Locks**: None — source slice is complete; versioning and release remain a later Product/BFM cycle.
+*   **Locks**: Exact release records and publication only; consumer workstream tasks are preserved.
 *   **Visual Preview Decision**: Skip — nonvisual coordination reliability work.
 *   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-089.md); [QA](docs/qa/TASK-089.md).
 
