@@ -232,6 +232,43 @@ function normalizeAttemptedActions(value, options = {}) {
   });
 }
 
+function normalizeReceiptRebindings(value) {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value)) throw new Error('receiptRebindings must be an approval-bound array.');
+  if (value.length > 1) throw new Error('receiptRebindings permits one bounded canonical task replacement at a time.');
+  const allowedFields = new Set(['workstream', 'fromTaskId', 'toTaskId', 'approvalRef']);
+  const workstreams = new Set(WORKSTREAMS.map(item => item.key));
+  const seen = new Set();
+  return value.map((entry, index) => {
+    if (!entry || Array.isArray(entry) || typeof entry !== 'object') {
+      throw new Error(`receiptRebindings[${index}] must be an approval-bound object.`);
+    }
+    const unsupported = Object.keys(entry).filter(key => !allowedFields.has(key));
+    if (unsupported.length > 0) {
+      throw new Error(`receiptRebindings[${index}] has unsupported field(s): ${unsupported.join(', ')}.`);
+    }
+    const workstream = String(entry.workstream || '').trim();
+    const fromTaskId = String(entry.fromTaskId || '').trim();
+    const toTaskId = String(entry.toTaskId || '').trim();
+    const approvalRef = String(entry.approvalRef || '').trim();
+    if (!workstreams.has(workstream) || seen.has(workstream)) {
+      throw new Error(`receiptRebindings[${index}].workstream must be one unique canonical role.`);
+    }
+    if (!fromTaskId || !toTaskId || fromTaskId === toTaskId
+        || fromTaskId.length > 512 || toTaskId.length > 512
+        || /[\u0000-\u001f\u007f]/.test(fromTaskId)
+        || /[\u0000-\u001f\u007f]/.test(toTaskId)) {
+      throw new Error(`receiptRebindings[${index}] requires two distinct privacy-safe task IDs.`);
+    }
+    if (!approvalRef || approvalRef.length > 1000 || /[\u0000-\u001f\u007f]/.test(approvalRef)
+        || /^(?:pending|unverified|none|n\/a)$/i.test(approvalRef)) {
+      throw new Error(`receiptRebindings[${index}].approvalRef requires durable explicit approval.`);
+    }
+    seen.add(workstream);
+    return { workstream, fromTaskId, toTaskId, approvalRef };
+  });
+}
+
 function attemptedActionsHash(actions) {
   return crypto.createHash('sha256').update(JSON.stringify(actions)).digest('hex');
 }
@@ -520,6 +557,7 @@ function inventorySnapshot(inventory, options = {}) {
     attemptedActions: normalizeAttemptedActions(value.attemptedActions, {
       required: options.requireAttemptedActions === true,
     }),
+    receiptRebindings: normalizeReceiptRebindings(value.receiptRebindings),
   };
 }
 
@@ -557,8 +595,9 @@ function prefixDriftFailures(receipt, workstreams) {
   });
 }
 
-function receiptIdentityFailures(receipt, tasks, repository, workstreams) {
+function receiptIdentityFailures(receipt, tasks, repository, workstreams, receiptRebindings = []) {
   if (!receipt || receipt.permission !== 'granted' || !receipt.taskBindings) return [];
+  const rebindings = new Map((receiptRebindings || []).map(record => [record.workstream, record]));
   return workstreams.flatMap(workstream => {
     const binding = receipt.taskBindings[workstream.key];
     const id = String(binding?.taskId || '').trim();
@@ -571,11 +610,36 @@ function receiptIdentityFailures(receipt, tasks, repository, workstreams) {
     const matches = tasks.filter(task => (
       belongsToRepository(task, repository) && actionTaskId(task) === id
     ));
-    if (matches.length !== 1) {
+    const rebind = rebindings.get(workstream.key);
+    if (matches.length === 1) {
+      if (rebind) {
+        return [{
+          operation: 'identity-repair',
+          message: `Receipt identity repair for ${workstreamLabel(workstream)} is invalid because bound task ID ${id} is still present.`,
+        }];
+      }
+    } else if (!rebind) {
       return [{
         operation: 'identity-repair',
         message: `Receipt identity repair is required: bound task ID ${id} for ${workstreamLabel(workstream)} is missing or ambiguous in the complete exact-project inventory.`,
       }];
+    } else {
+      const replacement = tasks.filter(task => (
+        belongsToRepository(task, repository) && actionTaskId(task) === rebind.toTaskId
+      ));
+      const recognized = replacement.length === 1
+        ? recognizedWorkstream(taskTitle(replacement[0]), workstreams)
+        : null;
+      if (rebind.fromTaskId !== id
+          || replacement.length !== 1
+          || recognized?.key !== workstream.key
+          || !taskIsPinned(replacement[0])) {
+        return [{
+          operation: 'identity-repair',
+          message: `Approved receipt rebind for ${workstreamLabel(workstream)} does not match the exact prior binding and one exact pinned replacement task.`,
+        }];
+      }
+      return [];
     }
     const observed = recognizedWorkstream(taskTitle(matches[0]), workstreams);
     if (observed?.key !== workstream.key) {
@@ -643,6 +707,7 @@ function planRepositoryTaskInventory(inventory, repositoryPath) {
     snapshot.tasks,
     repository,
     workstreams,
+    snapshot.receiptRebindings,
   );
   if (identityFailures.length > 0) {
     return { complete: false, failures: identityFailures, actions: [] };
@@ -777,6 +842,7 @@ function verifyRepositoryTaskInventory(inventory, repository, options = {}) {
     failures: [],
     taskBindings,
     ...(snapshot.attemptedActions !== undefined ? { attemptedActions: snapshot.attemptedActions } : {}),
+    ...(snapshot.receiptRebindings !== undefined ? { receiptRebindings: snapshot.receiptRebindings } : {}),
   };
 }
 
@@ -847,6 +913,9 @@ function recordVerifiedReconciliation(rootDir, verification, repository, options
     taskBindings: verification.taskBindings,
     attemptedActions,
     attemptedActionsHash: attemptedActionsHash(attemptedActions),
+    ...(verification.receiptRebindings !== undefined
+      ? { receiptRebindings: verification.receiptRebindings }
+      : {}),
     reconciledAt: now.toISOString(),
   };
   atomicWriteJson(receiptPath(rootDir), state);

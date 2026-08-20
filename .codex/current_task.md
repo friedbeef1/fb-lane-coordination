@@ -2,13 +2,15 @@
 
 ## Current
 
-- None. TASK-084 is published and installed as
-  `0.8.2-beta+codex.20260815070021`.
+- TASK-089 — bounded linked-worktree handoff delta candidate is verified and
+  awaiting a later versioned release cycle.
 
 ## Next ready
 
-- None.
+- Reconcile the nineteen genuine Unmirror active-branch handoff conflicts in
+  their owning project; do not hide them in the FB plugin.
 
 ## External blocks
 
-- Open a new Codex task before using the replaced FB skills or MCP runtime.
+- No FB implementation block. Push, merge, publication, installation, and
+  release remain outside this candidate until explicit **Push Live**.

@@ -2,6 +2,92 @@
 
 ## Unreleased
 
+## 0.9.3-beta — 2026-08-20
+
+Build: `0.9.3-beta+codex.20260820032957`
+
+**What changed:** FB now reconciles preserved quarantined checkouts without
+reading dataless source files, supports an explicitly approved replacement of
+one receipt-bound sidebar task, and treats linked worktrees as Git snapshots.
+BFM audits handoffs authored in branch-unique commits or present as dirty,
+staged, or untracked work instead of treating every untouched historical copy
+as a competing decision.
+
+**Why it matters:** Existing projects can upgrade without rebuilding their six
+workstream tasks. Product/BFM can be refreshed safely, preserved former roots
+remain auditable, and long-running worktrees no longer create false conflicts
+merely because canonical coordination records advanced.
+
+**Compatibility:** Canonical handoffs, configured former roots, quarantined
+manifest evidence, true branch-authored changes, and uncertain Git provenance
+retain their fail-closed protections. Existing User, Business, Design, Tech,
+Discovery, and Bugs tasks remain reusable; only a deliberately replaced task
+may be rebound through an exact approval-bound receipt.
+
+**Installation or upgrade:** Upgrade the configured `fb-lane` marketplace,
+reinstall `fb-lane-coordination@fb-lane`, and open a fresh Codex task before
+plugin-dependent project reconciliation. Existing projects do not recreate
+their six workstreams; refresh Product/BFM only when a fresh runtime is needed.
+
+### TASK-089 — Linked-worktree evidence precision
+
+The linked-worktree delta filter is the final slice of this release and carries
+the combined TASK-087, TASK-088, and TASK-089 release evidence.
+
+## 0.9.2-beta — 2026-08-18
+
+Build: `0.9.2-beta+codex.20260818123922`
+
+### TASK-088 — Exact approved onboarding receipt rebind
+
+**What changed:** Strict setup reconciliation now accepts one explicitly
+approved `receiptRebindings` entry when a canonical sidebar task was replaced
+by a fresh exact pinned task. The packet must match the prior receipt-bound ID,
+the exact replacement ID and role, and a durable approval reference. Every
+other binding remains unchanged.
+
+**Why it matters:** A required fresh-task reload can replace Product/BFM
+without forcing a hand-edited receipt or weakening duplicate and exact-project
+checks.
+
+**Compatibility:** Ordinary missing, ambiguous, unpinned, wrong-role, or
+unapproved task identities still fail closed. Receipt repair does not create,
+rename, pin, archive, start, or approve a task. This is a local candidate only;
+no merge, push, publication, or release is authorized.
+
+## 0.9.1-beta — 2026-08-18
+
+Build: `0.9.1-beta+codex.20260818014014`
+
+### TASK-087 — Dataless quarantined-root BFM intake repair
+
+**What changed:** BFM handoff audit and intake freeze now reconcile a registered
+quarantined checkout from its exact migration-manifest handoff snapshots and
+existing source-bound routing receipts instead of opening dataless source
+files. Live canonical content remains hash-verified. Exact dispositioned
+migration evidence is accepted for historical content differences, and
+canonical-identical linked copies no longer invalidate an exact receipt for a
+content-different source.
+
+**Why it matters:** A quarantined iCloud checkout can remain preserved and
+audited without causing intake to hang, while missing receipts, changed
+canonical content, malformed snapshots, and unrecorded source drift continue
+to fail closed.
+
+**Compatibility:** The supported `migration refresh-routing` path, exact
+source-root/hash reconciliation, complete six-workstream intake, and **Push
+Live** boundary are unchanged. This is a local repair candidate only; no merge,
+push, public marketplace publication, or release is authorized.
+
+**Reporting:** Routine recovery now exposes only **Ready**, **Safely paused**,
+or **Need your decision**. Fixture proof is explicitly candidate-only; Ready
+requires the exact real project snapshot to pass the same final command with no
+later invalidating mutation. Technical details remain in diagnostics and QA.
+
+**Installation or upgrade:** Generate the package, install the exact local
+candidate through the configured marketplace snapshot, and open a fresh Codex
+task before plugin-dependent consumer mutation.
+
 ## 0.9.0-beta — 2026-08-18
 
 Build: `0.9.0-beta+codex.20260817211319`

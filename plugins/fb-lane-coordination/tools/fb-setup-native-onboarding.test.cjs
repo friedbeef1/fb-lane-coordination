@@ -100,6 +100,8 @@ assert.match(repair, /\.fb-lane\.json[\s\S]{0,100}`taskTitlePrefix`/);
 assert.match(repair, /visible titles?[\s\S]{0,180}(?:presentation|not[\s\S]{0,60}identity)/i);
 assert.match(repair, /exact-project reconciliation[\s\S]{0,180}before any (?:sidebar|task) mutation/i);
 assert.match(repair, /archive[\s\S]{0,260}(?:not|never)[\s\S]{0,140}(?:plan|attemptedActions)[\s\S]{0,260}(?:exact task ID|explicit approval|explicit authority)/i);
+assert.match(repair, /receiptRebindings[\s\S]{0,260}fromTaskId[\s\S]{0,180}toTaskId[\s\S]{0,180}approvalRef/);
+assert.match(repair, /every other task binding[\s\S]{0,100}remain exact/i);
 assert.match(repair, /(?:installed|upgraded|replaced)[\s\S]{0,180}(?:new|fresh) Codex task[\s\S]{0,180}before[\s\S]{0,120}plugin-dependent/i);
 
 const postMutationEnd = skill.indexOf('Product/User is a legacy');
@@ -397,6 +399,78 @@ try {
     onboarding.readOnboardingReceipt(tempRoot).attemptedActions,
     completeInventory.attemptedActions,
   );
+
+  const replacementInventory = structuredClone(completeInventory);
+  replacementInventory.tasks[0].id = 'task-product-next';
+  const blockedReplacement = onboarding.planRepositoryTaskInventory(
+    replacementInventory,
+    exactRepository,
+  );
+  assert.strictEqual(blockedReplacement.complete, false);
+  assert.match(blockedReplacement.failures[0].message, /receipt identity repair/i);
+
+  replacementInventory.receiptRebindings = [{
+    workstream: 'product',
+    fromTaskId: 'task-product',
+    toTaskId: 'task-product-next',
+    approvalRef: 'James approved replacing the archived Product task on 2026-08-18',
+  }];
+  const plannedReplacement = onboarding.planRepositoryTaskInventory(
+    replacementInventory,
+    exactRepository,
+  );
+  assert.strictEqual(plannedReplacement.complete, true);
+  assert.ok(plannedReplacement.actions.every(action => action.type === 'reuse'));
+
+  for (const invalidRebinding of [
+    { ...replacementInventory.receiptRebindings[0], fromTaskId: 'wrong-old-task' },
+    { ...replacementInventory.receiptRebindings[0], toTaskId: 'task-user' },
+  ]) {
+    assert.strictEqual(
+      onboarding.planRepositoryTaskInventory({
+        ...replacementInventory,
+        receiptRebindings: [invalidRebinding],
+      }, exactRepository).complete,
+      false,
+    );
+  }
+  assert.throws(
+    () => onboarding.planRepositoryTaskInventory({
+      ...replacementInventory,
+      receiptRebindings: [{ ...replacementInventory.receiptRebindings[0], approvalRef: '' }],
+    }, exactRepository),
+    /approvalRef.*explicit approval/i,
+  );
+  assert.throws(
+    () => onboarding.planRepositoryTaskInventory({
+      ...replacementInventory,
+      receiptRebindings: [
+        replacementInventory.receiptRebindings[0],
+        { ...replacementInventory.receiptRebindings[0], workstream: 'user' },
+      ],
+    }, exactRepository),
+    /one bounded canonical task replacement/i,
+  );
+  assert.strictEqual(
+    onboarding.planRepositoryTaskInventory({
+      ...replacementInventory,
+      tasks: replacementInventory.tasks.map((task, index) => (
+        index === 0 ? { ...task, pinned: false } : task
+      )),
+    }, exactRepository).complete,
+    false,
+  );
+
+  const reboundReceipt = onboarding.recordReconciliation(tempRoot, replacementInventory, {
+    repository: exactRepository,
+    now: new Date('2026-08-18T02:00:00Z'),
+  });
+  assert.strictEqual(reboundReceipt.taskBindings.product.taskId, 'task-product-next');
+  assert.deepStrictEqual(
+    Object.fromEntries(Object.entries(reboundReceipt.taskBindings).filter(([role]) => role !== 'product')),
+    Object.fromEntries(Object.entries(receipt.taskBindings).filter(([role]) => role !== 'product')),
+  );
+  assert.deepStrictEqual(reboundReceipt.receiptRebindings, replacementInventory.receiptRebindings);
 } finally {
   fs.rmSync(tempRoot, { recursive: true, force: true });
 }

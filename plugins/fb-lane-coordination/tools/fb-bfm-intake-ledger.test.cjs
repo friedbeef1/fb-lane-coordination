@@ -229,6 +229,73 @@ test('BFM onboarding validates repository-configured titles from the strict rece
   }
 });
 
+test('BFM intake reconciles an offline quarantined root from exact manifest and routing receipts', () => {
+  const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
+  const root = makeFixture([candidate]);
+  const former = makeFixture([candidate]);
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-dataless-registry-'));
+  try {
+    initGitFixture(root);
+    initGitFixture(former);
+    configureVerifiedControlPlane(root, former);
+    const manifestPath = path.join(root, '.git', 'fb-checkout-migration.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const source = fs.readFileSync(path.join(root, 'docs', 'handoffs', 'same.md'));
+    const sha256 = crypto.createHash('sha256').update(source).digest('hex');
+    const snapshot = { sha256, task: 'TECH-1', status: 'ready' };
+    manifest.differences = [{
+      id: 'migration:handoff:dataless-fixture',
+      kind: 'handoff',
+      relative: 'docs/handoffs/same.md',
+      canonical: { root, value: snapshot },
+      source: { root: former, value: snapshot },
+      disposition: 'canonical-routing-retained',
+    }];
+    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest)}\n`);
+
+    refreshBfmRoutingReceipts(root, {
+      relatives: ['docs/handoffs/same.md'],
+      rebuildMissing: true,
+      registryDir: registry,
+    });
+
+    const snapshottedManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    snapshottedManifest.checkouts[fs.realpathSync(root)].handoffs = { 'docs/handoffs/same.md': snapshot };
+    snapshottedManifest.checkouts[fs.realpathSync(former)].handoffs = { 'docs/handoffs/same.md': snapshot };
+    fs.writeFileSync(manifestPath, `${JSON.stringify(snapshottedManifest)}\n`);
+
+    fs.rmSync(path.join(former, 'docs'), { recursive: true, force: true });
+    fs.rmSync(path.join(former, 'PROJECT_BOARD.md'), { force: true });
+
+    const ledger = freezeBfmIntake(root, {
+      dispositions: { 'TECH-1': 'Include now' },
+    });
+
+    assert.deepEqual(ledger.candidates.map(record => record.task), ['TECH-1']);
+    assert.deepEqual(ledger.recommendedOrder, ['TECH-1']);
+
+    const reconciledManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const missingReceipt = structuredClone(reconciledManifest);
+    delete missingReceipt.routingReceipts['docs/handoffs/same.md'];
+    fs.writeFileSync(manifestPath, `${JSON.stringify(missingReceipt)}\n`);
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } }),
+      /MANIFEST_ROUTING_RECEIPT_MISSING_OR_MISMATCHED/,
+    );
+
+    fs.writeFileSync(manifestPath, `${JSON.stringify(reconciledManifest)}\n`);
+    fs.appendFileSync(path.join(root, 'docs', 'handoffs', 'same.md'), '\ncanonical drift\n');
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } }),
+      /HANDOFF_CONTENT_DRIFT/,
+    );
+  } finally {
+    remove(root);
+    remove(former);
+    remove(registry);
+  }
+});
+
 test('routing receipt refresh updates routing hashes without accepting content drift', () => {
   const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
   const root = makeFixture([candidate]);
@@ -792,6 +859,78 @@ test('same-filename drift and inaccessible former roots remain canonical scanner
   } finally {
     remove(root);
     remove(former);
+  }
+});
+
+test('an untouched older linked-worktree snapshot does not become handoff drift', () => {
+  const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
+  const root = makeFixture([candidate]);
+  const linked = `${fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-ledger-stale-parent-'))}-worktree`;
+  try {
+    initGitFixture(root);
+    git(root, ['worktree', 'add', '-b', 'audit-stale-snapshot', linked]);
+    fs.appendFileSync(path.join(root, 'docs', 'handoffs', 'same.md'), '\nCanonical closeout after branch creation.\n');
+    git(root, ['add', 'docs/handoffs/same.md']);
+    git(root, ['commit', '-m', 'advance canonical handoff']);
+
+    const intake = freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } });
+    assert.deepEqual(intake.candidates.map(item => item.task), ['TECH-1']);
+  } finally {
+    try { git(root, ['worktree', 'remove', '--force', linked]); } catch {}
+    remove(linked);
+    remove(root);
+  }
+});
+
+test('linked-worktree-authored handoff changes remain visible to the drift gate', () => {
+  const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
+  const root = makeFixture([candidate]);
+  const linked = `${fs.mkdtempSync(path.join(os.tmpdir(), 'fb-bfm-ledger-authored-parent-'))}-worktree`;
+  try {
+    initGitFixture(root);
+    git(root, ['worktree', 'add', '-b', 'audit-authored-handoff', linked]);
+
+    fs.appendFileSync(path.join(linked, 'docs', 'handoffs', 'same.md'), '\nBranch-authored decision.\n');
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } }),
+      /HANDOFF_CONTENT_DRIFT.*same\.md/
+    );
+
+    git(linked, ['add', 'docs/handoffs/same.md']);
+    git(linked, ['commit', '-m', 'record branch handoff decision']);
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } }),
+      /HANDOFF_CONTENT_DRIFT.*same\.md/
+    );
+  } finally {
+    try { git(root, ['worktree', 'remove', '--force', linked]); } catch {}
+    remove(linked);
+    remove(root);
+  }
+});
+
+test('workflow and BFM skill explain exact linked-worktree handoff evidence', () => {
+  for (const relative of ['docs/fb/workflow.md', 'skills/bfm/SKILL.md']) {
+    const source = fs.readFileSync(path.join(__dirname, '..', relative), 'utf8');
+    assert.match(source, /linked (?:Git )?worktree/i, `${relative} must identify linked-worktree evidence`);
+    assert.match(source, /branch-unique\s+commits/i, `${relative} must identify branch-authored evidence`);
+    assert.match(source, /dirty, staged, or untracked/i, `${relative} must retain unfinished evidence`);
+    assert.match(source, /untouched\s+older\s+snapshot/i, `${relative} must reject stale-snapshot false drift`);
+    assert.match(source, /fail(?:s)? closed/i, `${relative} must retain fail-closed provenance`);
+  }
+});
+
+test('Git-backed intake fails closed when linked-worktree delta provenance is unavailable', () => {
+  const root = makeFixture();
+  try {
+    fs.mkdirSync(path.join(root, '.git'), { recursive: true });
+    fs.writeFileSync(path.join(root, '.git', 'HEAD'), 'ref: refs/heads/main\n');
+    assert.throws(
+      () => freezeBfmIntake(root, { dispositions: {} }),
+      /READINESS_AUDIT_INCOMPLETE.*linked worktree handoff delta is unproven/
+    );
+  } finally {
+    remove(root);
   }
 });
 

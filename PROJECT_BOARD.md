@@ -13,6 +13,10 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-089 | Ready | FB-Product / BFM | FB `0.9.3-beta+codex.20260820032957` release | Publish the combined TASK-087–089 reliability stack while preserving existing six workstream tasks and refreshing only Product/BFM where exact project identity is proven | None; publication and installed proof only | Final release checkpoint passed; Push Live authorized; GitHub merge, marketplace refresh, installed-runtime proof, and verified Product/BFM-only project refresh remain; [Handoff](docs/handoffs/TASK-089.md); [QA](docs/qa/TASK-089.md) |
+| TASK-088 | Superseded | FB-Product / BFM | Exact onboarding receipt identity repair | Accept one durable approval-bound replacement of an archived canonical task while keeping every other exact task binding unchanged | None; source is inherited by TASK-089 | Exact installed 0.9.2 runtime reports seven pinned bindings and `needsReconciliation: false` on real Unmirror; source and evidence are incorporated into TASK-089 / FB 0.9.3; [Handoff](docs/handoffs/TASK-088.md); [QA](docs/qa/TASK-088.md) |
+| TASK-087 | Superseded | FB-Product / BFM | Dataless quarantined-root BFM intake reliability | Make intake terminate deterministically from exact migration-manifest and routing-receipt evidence while failing closed on missing or changed evidence | None; source preserved and inherited by TASK-089 | Dataless probe now returns deterministically; exact Unmirror freeze exposed a distinct linked-worktree baseline false drift owned by TASK-089; [Handoff](docs/handoffs/TASK-087.md); [QA](docs/qa/TASK-087.md) |
+| TASK-BUG-FB-CONFIDENCE-20260818 | Done | FB-Bugs → FB-Product / BFM | Trustworthy recovery reporting | Prevent intermediate fixture proof from being reported as consumer success; expose Ready / Safely paused / Need your decision | Absorbed into TASK-087; no separate source lock | Accepted into TASK-087; exact-real-snapshot proof remains pending; [Handoff](docs/handoffs/TASK-BUG-FB-CONFIDENCE-20260818.md); [QA](docs/qa/TASK-BUG-FB-CONFIDENCE-20260818.md) |
 | TASK-086 | Done | FB-Product / BFM | Graph Blueprint workflow simplification; FB `0.9.0-beta+codex.20260817211319` | Make the visible workflow Goal → Split → relevant parallel workstreams → verify → merge findings → bounded implementation → integrated verification → one clear result, while keeping the durable graph and safety machinery underneath | None; published and installed | PR #67 merged as `823e51b`; Git marketplace tracks public `main`; exact build installed and enabled; 90/90 artifact parity and 14-tool MCP proof; [Handoff](docs/handoffs/TASK-086.md); [QA](docs/qa/TASK-086.md) |
 | TASK-085 | Done | FB-Product / BFM + FB-Tech | Six-workstream intake and erased-receipt recovery | Preserve User/Ready-to-ship selection, rebuild historical content receipts without invented routes, normalize exact backticked index IDs, recognize canonical-identical linked copies, and reconcile an approved changed handoff only from exact current hashes plus one prior disposition | None; inherited by FB 0.9.0 and published | Source `ef0d064` included in PR #67 merge `823e51b`; exact 0.9.0 build installed and enabled; [Handoff](docs/handoffs/TASK-085.md); [QA](docs/qa/TASK-085.md) |
 | TASK-084 | Done | FB-Product / BFM + FB-Tech | Graph fallback precision and sensitive-output hardening; FB `0.8.2-beta+codex.20260815070021` | Harden graph fallback precision and sensitive matching, then publish the approved exact plugin build | None; published and installed | Push Live completed; source `11d8ed2`, merge `94829f6`, published main `73a29fd`; exact build installed and enabled with 91/91 artifact parity; [Handoff](docs/handoffs/TASK-084.md); [QA](docs/qa/TASK-084.md); [Changelog](CHANGELOG.md#082-beta--2026-08-15) |
@@ -35,6 +39,68 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-089 - Linked-worktree handoff delta audit
+
+*   **Status**: Ready — `0.9.3-beta+codex.20260820032957` passed the final release checkpoint and Push Live is authorized.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Area**: Canonical BFM handoff audit, linked-worktree provenance, focused regression, and generated plugin package.
+*   **Scope**: Release the combined TASK-087–089 reliability stack. In linked Git worktrees, audit handoffs changed by branch-unique commits or current dirty/untracked state. Ignore untouched files that differ only because canonical coordination advanced after the branch point. Preserve full auditing for canonical, former, and quarantined roots and fail closed when Git cannot prove the delta. After installation, refresh only Product/BFM for exact verified active projects and preserve their six workstream task bindings.
+*   **Out of Scope**: Ignoring branch-authored handoffs, weakening duplicate or source-root drift gates, recreating workstream tasks, guessing project identity, or changing consumer application source.
+*   **Goal Alignment Session**:
+    *   **Objective**: Keep BFM intake complete without treating ordinary stale branch snapshots as newly authored coordination evidence.
+*   **Key Results**: Untouched older worktree files do not block; committed branch changes, dirty changes, and untracked handoffs remain visible; uncertain Git provenance fails closed; exact Unmirror comparison removes two stale copies while preserving nineteen real active-branch conflicts.
+    *   **Definition of Done**: Focused RED/GREEN root/package regression, exact Unmirror rerun, package parity, syntax, whitespace, one candidate review, and durable evidence.
+    *   **Gate / Review Point**: James explicitly said **Push Live** for this exact candidate. Run one release checkpoint and prove the published and installed build.
+    *   **Approval**: approved — current Product/BFM request asks for evidence-based enhancements without breaking existing projects.
+    *   **Justification**: Real Unmirror intake reports many content conflicts from a linked release worktree whose branch merely predates canonical coordination closeout; actual worktree-authored records must still fail closed.
+*   **Story Split Pass**: One bounded behavioral repair with one focused proof and one exact-project rerun.
+*   **Locks**: Exact release records and publication only; consumer workstream tasks are preserved.
+*   **Visual Preview Decision**: Skip — nonvisual coordination reliability work.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-089.md); [QA](docs/qa/TASK-089.md).
+
+---
+
+### TASK-088 - Exact approved onboarding receipt rebind
+
+*   **Status**: Superseded — source and evidence are incorporated into TASK-089 / FB 0.9.3.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Area**: Strict onboarding identity, setup guidance, focused regression, and generated plugin package.
+*   **Scope**: Permit one `receiptRebindings` record only when it exactly matches the prior bound task ID, one exact pinned same-role replacement, and a durable approval reference. Keep all other task bindings exact.
+*   **Out of Scope**: Weakening duplicate protection, task creation/rename/pin/archive, consumer source changes, merge, push, publication, or release.
+*   **Goal Alignment Session**:
+    *   **Objective**: Reconcile the fresh canonical Unmirror Product/BFM task without hand-editing the strict receipt.
+    *   **Key Results**: Wrong prior IDs, wrong-role targets, unpinned targets, blank approval, duplicates, and ordinary missing identities fail closed; all unaffected bindings remain byte-for-byte equivalent.
+    *   **Definition of Done**: RED/GREEN focused root/package proof, package parity, complete validator, clean local commit, exact local install/runtime proof, and successful strict Unmirror reconcile from fresh native inventory.
+    *   **Gate / Review Point**: James explicitly authorized the fresh Product replacement and autonomous safe local recovery. Stop before merge, push, publication, or release.
+    *   **Approval**: approved — delegated continuation names the exact replacement task and preserves the Push Live gate.
+    *   **Justification**: Installed 0.9.1 correctly failed closed but offered no supported strict route to replace one archived canonical binding.
+*   **Locks**: `tools/fb-onboarding.cjs`, `tools/fb-setup-native-onboarding.test.cjs`, `skills/project-coordination-setup/SKILL.md`, generated plugin mirrors, TASK-088 version/records.
+*   **Visual Preview Decision**: Skip — nonvisual coordination identity repair.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-088.md); [QA](docs/qa/TASK-088.md).
+
+---
+
+### TASK-087 - Dataless quarantined-root BFM intake repair
+
+*   **Status**: In Progress — **Safely paused; candidate checks passed; exact project proof pending.** Reinstall and fresh-runtime proof remain.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Area**: Canonical BFM handoff audit, cross-root routing inventory, focused regression, and generated plugin package.
+*   **Scope**: Reconcile registered quarantined handoffs from exact migration-manifest content snapshots and existing source-bound routing receipts without opening dataless source files. Verify live canonical hashes, preserve every quarantined root in the audit, and fail closed on incomplete, mismatched, or unrecorded evidence.
+*   **Absorbed Bugs Evidence**: TASK-BUG-FB-CONFIDENCE-20260818 adds the three-state recovery-reporting contract and exact-real-snapshot completion boundary. Intermediate fixture proof is reported only as `candidate checks passed; exact project proof pending`.
+*   **Out of Scope**: Consumer source changes, excluding quarantined roots, inventing dispositions, merge, push, marketplace publication, or release.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let complete BFM intake terminate over preserved dataless quarantine evidence without weakening drift detection.
+    *   **Key Results**: No quarantined-file opens during freeze; live canonical hashes remain verified; exact receipts/dispositions authorize only their recorded source tuples; missing or changed evidence fails closed.
+    *   **Definition of Done**: RED/GREEN regression, package parity, full validator, exact local install/runtime proof, supported Unmirror reconciliation, and successful complete intake freeze.
+    *   **Gate / Review Point**: James authorized the local repair and reinstall; stop before merge, push, publication, or release.
+    *   **Approval**: approved — James said, “Continue running. I authorise everything you recommend.”
+    *   **Justification**: The published 0.9.0 freeze opened iCloud dataless handoffs and could not complete the approved Unmirror intake.
+*   **Locks**: `tools/fb-lane.cjs`, `tools/fb-bfm-intake-ledger.test.cjs`, `plugins/fb-lane-coordination/`, `docs/handoffs/TASK-087.md`, `docs/qa/TASK-087.md`, `docs/handoffs/index.md`, `docs/workstreams/fb-product.md`, `.codex/current_task.md`.
+*   **Visual Preview Decision**: Skip — nonvisual runtime reliability repair.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-087.md); [QA](docs/qa/TASK-087.md).
 
 ---
 

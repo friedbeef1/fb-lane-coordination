@@ -1225,10 +1225,139 @@ function handoffDigest(contents) {
   return crypto.createHash('sha256').update(contents).digest('hex');
 }
 
-function handoffAuditRecords(rootDir) {
+function linkedWorktreeHandoffDeltas(rootDir) {
+  const canonicalRoot = pathIdentity(rootDir);
+  const migration = loadCheckoutMigrationManifest(rootDir);
+  let linked;
+  try {
+    linked = execFileSync('git', ['worktree', 'list', '--porcelain'], {
+      cwd: canonicalRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+      .split(/\r?\n/)
+      .filter(line => line.startsWith('worktree '))
+      .map(line => pathIdentity(line.slice('worktree '.length)))
+      .filter(root => root !== canonicalRoot);
+  } catch (error) {
+    const dotGit = path.join(canonicalRoot, '.git');
+    const hasGitMetadata = fs.existsSync(dotGit)
+      && (fs.statSync(dotGit).isFile() || fs.existsSync(path.join(dotGit, 'HEAD')));
+    if (hasGitMetadata) {
+      throw new Error(
+        `READINESS_AUDIT_INCOMPLETE: linked worktree handoff delta is unproven for ${canonicalRoot} (${error.code || 'GIT_ERROR'})`
+      );
+    }
+    return new Map();
+  }
+  if (linked.length === 0) return new Map();
+
+  let canonicalHead;
+  try {
+    canonicalHead = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: canonicalRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+  } catch (error) {
+    throw new Error(
+      `READINESS_AUDIT_INCOMPLETE: linked worktree handoff delta is unproven for ${canonicalRoot} (${error.code || 'GIT_ERROR'})`
+    );
+  }
+
+  const deltas = new Map();
+  for (const root of linked) {
+    if (migration?.checkouts?.[root]?.state === 'quarantined') continue;
+    try {
+      const mergeBase = execFileSync('git', ['merge-base', 'HEAD', canonicalHead], {
+        cwd: root,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      }).trim();
+      const commands = [
+        ['diff', '--name-only', '-z', '--diff-filter=ACMRTUXB', `${mergeBase}..HEAD`, '--', 'docs/handoffs'],
+        ['diff', '--name-only', '-z', '--diff-filter=ACMRTUXB', 'HEAD', '--', 'docs/handoffs'],
+        ['ls-files', '--others', '--exclude-standard', '-z', '--', 'docs/handoffs'],
+      ];
+      const paths = new Set();
+      for (const args of commands) {
+        const output = execFileSync('git', args, {
+          cwd: root,
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'pipe'],
+        });
+        for (const relative of output.split('\0').filter(Boolean)) {
+          const normalized = relative.replace(/\\/g, '/');
+          if (/^docs\/handoffs\/[^/]+\.md$/u.test(normalized)
+            && normalized !== 'docs/handoffs/index.md') paths.add(normalized);
+        }
+      }
+      deltas.set(root, paths);
+    } catch (error) {
+      throw new Error(
+        `READINESS_AUDIT_INCOMPLETE: linked worktree handoff delta is unproven for ${root} (${error.code || 'GIT_ERROR'})`
+      );
+    }
+  }
+  return deltas;
+}
+
+function handoffIncludedForAudit(root, relative, linkedDeltas) {
+  return !linkedDeltas.has(root) || linkedDeltas.get(root).has(relative);
+}
+
+function quarantinedHandoffRecords(migration, root, errors) {
+  const checkout = migration?.checkouts?.[root];
+  if (checkout?.state !== 'quarantined') return null;
+  if (!checkout.handoffs
+    || typeof checkout.handoffs !== 'object'
+    || Array.isArray(checkout.handoffs)) {
+    return null;
+  }
+  const records = [];
+  for (const [relative, snapshot] of Object.entries(checkout.handoffs).sort()) {
+    const normalized = path.posix.normalize(String(relative || '').replace(/\\/g, '/'));
+    if (normalized !== relative
+      || !normalized.startsWith('docs/handoffs/')
+      || normalized === 'docs/handoffs/index.md'
+      || !normalized.endsWith('.md')
+      || !snapshot
+      || typeof snapshot !== 'object'
+      || !/^[a-f0-9]{64}$/.test(String(snapshot.sha256 || ''))) {
+      errors.push(`${root}/${relative || 'docs/handoffs'} (MANIFEST_HANDOFF_INVALID)`);
+      continue;
+    }
+    const status = String(snapshot.status || '');
+    records.push({
+      root,
+      relative,
+      sha256: snapshot.sha256,
+      task: String(snapshot.task || ''),
+      status,
+      readyStatus: readyHandoffStatus(status),
+      manifestBacked: true,
+    });
+  }
+  return records;
+}
+
+function handoffAuditRecords(rootDir, options = {}) {
   const records = new Map();
   const errors = [];
-  for (const root of handoffAuditRoots(rootDir)) {
+  const migration = loadCheckoutMigrationManifest(rootDir);
+  const roots = handoffAuditRoots(rootDir);
+  const linkedDeltas = options.linkedDeltas || linkedWorktreeHandoffDeltas(rootDir);
+  for (const root of roots) {
+    const manifestRecords = options.readQuarantined === true
+      ? null
+      : quarantinedHandoffRecords(migration, root, errors);
+    if (manifestRecords) {
+      for (const record of manifestRecords) {
+        if (!records.has(record.relative)) records.set(record.relative, []);
+        records.get(record.relative).push(record);
+      }
+      continue;
+    }
     const directory = path.join(root, 'docs', 'handoffs');
     if (!fs.existsSync(directory)) continue;
     let names;
@@ -1242,6 +1371,7 @@ function handoffAuditRecords(rootDir) {
     }
     for (const name of names) {
       const relative = `docs/handoffs/${name}`;
+      if (!handoffIncludedForAudit(root, relative, linkedDeltas)) continue;
       const absolute = path.join(directory, name);
       try {
         const contents = fs.readFileSync(absolute);
@@ -1283,10 +1413,33 @@ function validRoutingReceipt(receipt, canonical, sources) {
     && recorded.every((value, index) => value === expected[index]);
 }
 
-function assertNoHandoffContentDrift(rootDir) {
+function validRoutingReceiptSource(receipt, canonical, source) {
+  return Boolean(receipt
+    && typeof receipt.disposition === 'string'
+    && receipt.disposition.trim() !== ''
+    && receipt.canonicalSha256 === canonical.sha256
+    && Array.isArray(receipt.sources)
+    && receipt.sources.some(record => record
+      && pathIdentity(record.root || '') === source.root
+      && record.sha256 === source.sha256));
+}
+
+function validMigrationDisposition(migration, relative, canonical, source) {
+  return Array.isArray(migration?.differences)
+    && migration.differences.some(difference => difference?.kind === 'handoff'
+      && difference.relative === relative
+      && String(difference.disposition || '').trim() !== ''
+      && pathIdentity(difference.canonical?.root || '') === canonical.root
+      && difference.canonical?.value?.sha256 === canonical.sha256
+      && pathIdentity(difference.source?.root || '') === source.root
+      && difference.source?.value?.sha256 === source.sha256);
+}
+
+function assertNoHandoffContentDrift(rootDir, options = {}) {
   const canonicalRoot = pathIdentity(rootDir);
   const snapshot = checkoutMigrationSnapshot(rootDir);
-  const { records, errors } = handoffAuditRecords(rootDir);
+  const migration = loadCheckoutMigrationManifest(rootDir);
+  const { records, errors } = handoffAuditRecords(rootDir, options);
   if (errors.length > 0) {
     throw new Error(`READINESS_AUDIT_INCOMPLETE: handoff sources were unreadable: ${errors.join('; ')}`);
   }
@@ -1312,7 +1465,8 @@ function assertNoHandoffContentDrift(rootDir) {
         || canonical.status !== record.status;
       if (!differs) continue;
       const receipt = snapshot.routingReceipts[relative];
-      if (validRoutingReceipt(receipt, canonical, external)) continue;
+      if (validRoutingReceiptSource(receipt, canonical, record)) continue;
+      if (validMigrationDisposition(migration, relative, canonical, record)) continue;
       findings.push(
         `${relative} canonical=${canonical.root} sha256=${canonical.sha256} `
         + `task=${canonical.task || '(missing)'} status=${canonical.status || '(missing)'}; `
@@ -1328,30 +1482,18 @@ function assertNoHandoffContentDrift(rootDir) {
   }
 }
 
-function assertNoOrphanReadyHandoffs(rootDir, selected) {
-  assertNoHandoffContentDrift(rootDir);
+function assertNoOrphanReadyHandoffs(rootDir, selected, options = {}) {
+  assertNoHandoffContentDrift(rootDir, options);
   const primary = pathIdentity(rootDir);
   const canonical = new Set();
   const selectedCanonical = new Set(selected);
   const ready = [];
-  const errors = [];
-  for (const root of handoffAuditRoots(rootDir)) {
-    const directory = path.join(root, 'docs', 'handoffs');
-    if (!fs.existsSync(directory)) continue;
-    for (const file of fs
-      .readdirSync(directory)
-      .filter(name => name.endsWith('.md') && name !== 'index.md')
-      .sort()
-      .reverse()) {
-      const relative = `docs/handoffs/${file}`;
-      if (root === primary) canonical.add(relative);
-      try {
-        const status = readyLikeHandoffStatus(
-          fs.readFileSync(path.join(directory, file), 'utf8')
-        );
-        if (status) ready.push({ root, relative, status });
-      } catch (error) {
-        errors.push(`${root}/${relative} (${error.code || 'READ_ERROR'})`);
+  const audit = handoffAuditRecords(rootDir, options);
+  for (const candidates of audit.records.values()) {
+    for (const record of candidates) {
+      if (record.root === primary) canonical.add(record.relative);
+      if (record.readyStatus) {
+        ready.push({ root: record.root, relative: record.relative, status: record.readyStatus });
       }
     }
   }
@@ -1367,14 +1509,14 @@ function assertNoOrphanReadyHandoffs(rootDir, selected) {
       `READINESS_FALSE_NEGATIVE: Ready-like handoffs remain unselected after the canonical scan: ${detail}`
     );
   }
-  if (errors.length > 0) {
+  if (audit.errors.length > 0) {
     throw new Error(
-      `READINESS_AUDIT_INCOMPLETE: handoff sources were unreadable: ${errors.join('; ')}`
+      `READINESS_AUDIT_INCOMPLETE: handoff sources were unreadable: ${audit.errors.join('; ')}`
     );
   }
 }
 
-function scanWorkstreamHandoffs(rootDir) {
+function scanWorkstreamHandoffs(rootDir, options = {}) {
   const handoffsDir = path.join(rootDir, 'docs', 'handoffs');
   const workstreams = Object.fromEntries(BFM_WORKSTREAMS.map(workstream => [workstream, { ready: [], blocked: [] }]));
   const selectedByTask = new Map();
@@ -1411,7 +1553,7 @@ function scanWorkstreamHandoffs(rootDir) {
     if (result.ready.length === 0 && result.blocked.length === 0) result.summary = 'None relevant';
   }
   const candidates = BFM_WORKSTREAMS.flatMap(workstream => workstreams[workstream].ready);
-  assertNoOrphanReadyHandoffs(rootDir, candidates);
+  assertNoOrphanReadyHandoffs(rootDir, candidates, options);
   return { workstreams, candidates, selected: candidates, blockedCandidates };
 }
 
@@ -1589,10 +1731,21 @@ function indexTaskId(cell) {
   return isSafeTaskId(value) ? value : '';
 }
 
-function collectBfmIntakeInventories(canonicalRoot) {
+function collectBfmIntakeInventories(canonicalRoot, options = {}) {
   const missing = [];
   const inventories = new Map();
+  const migration = loadCheckoutMigrationManifest(canonicalRoot);
+  const linkedDeltas = options.linkedDeltas || linkedWorktreeHandoffDeltas(canonicalRoot);
   for (const root of handoffAuditRoots(canonicalRoot)) {
+    const manifestErrors = [];
+    const manifestRecords = options.readQuarantined === true
+      ? null
+      : quarantinedHandoffRecords(migration, root, manifestErrors);
+    if (manifestRecords) {
+      missing.push(...manifestErrors);
+      continue;
+    }
+    if (linkedDeltas.has(root) && linkedDeltas.get(root).size === 0) continue;
     try {
       if (!fs.statSync(root).isDirectory()) throw Object.assign(new Error('not a directory'), { code: 'ENOTDIR' });
       fs.accessSync(root, fs.constants.R_OK | fs.constants.X_OK);
@@ -1632,6 +1785,40 @@ function collectBfmIntakeInventories(canonicalRoot) {
     throw new Error(`READINESS_AUDIT_INCOMPLETE: BFM routing roots or surfaces were missing or unreadable: ${missing.join('; ')}.`);
   }
   return inventories;
+}
+
+function quarantinedBfmRoutingRecords(migration, relative, errors) {
+  if (!migration) return [];
+  const receipt = migration.routingReceipts[relative];
+  const receiptSources = new Map(
+    Array.isArray(receipt?.sources)
+      ? receipt.sources
+        .filter(source => source && typeof source.root === 'string')
+        .map(source => [pathIdentity(source.root), source])
+      : []
+  );
+  const records = [];
+  for (const [root, checkout] of Object.entries(migration.checkouts)) {
+    if (checkout.state !== 'quarantined') continue;
+    const snapshot = checkout.handoffs?.[relative];
+    if (!snapshot) continue;
+    const source = receiptSources.get(root);
+    if (!source
+      || source.sha256 !== snapshot.sha256
+      || !/^[a-f0-9]{64}$/.test(String(source.routingSha256 || ''))) {
+      errors.push(`${root}/${relative} (MANIFEST_ROUTING_RECEIPT_MISSING_OR_MISMATCHED)`);
+      continue;
+    }
+    records.push({
+      root,
+      relative,
+      task: String(snapshot.task || ''),
+      status: String(snapshot.status || ''),
+      sha256: snapshot.sha256,
+      routingSha256: source.routingSha256,
+    });
+  }
+  return records;
 }
 
 function bfmCandidateRoutingRecord(inventory, relative, handoffSource, errors) {
@@ -1803,6 +1990,7 @@ function refreshBfmRoutingReceipts(rootDir, options = {}) {
           const record = bfmCandidateRoutingRecord(inventory, relative, source, routeErrors);
           if (record) records.push(record);
         }
+        records.push(...quarantinedBfmRoutingRecords(migration, relative, routeErrors));
         if (routeErrors.length > 0) {
           throw new Error(`BFM_INTAKE_INCOMPLETE: authoritative routing is incomplete or contradictory: ${routeErrors.join('; ')}.`);
         }
@@ -2021,6 +2209,7 @@ function recommendedBfmExecution(candidates) {
 function freezeBfmIntake(rootDir, options = {}) {
   const canonicalRoot = pathIdentity(rootDir);
   const migration = assertCanonicalCheckout(canonicalRoot, 'BFM intake freeze');
+  const migrationManifest = loadCheckoutMigrationManifest(canonicalRoot);
   if (migration.unresolvedDrift > 0) {
     throw new Error(`HANDOFF_CONTENT_DRIFT: ${migration.unresolvedDrift} unresolved migration drift record(s) block BFM intake.`);
   }
@@ -2028,10 +2217,11 @@ function freezeBfmIntake(rootDir, options = {}) {
   // This is the canonical scanner. It performs linked-worktree/former-root
   // discovery, source-bound receipt validation, and Ready false-negative
   // detection before the routing inventory below is trusted.
-  const scan = scanWorkstreamHandoffs(canonicalRoot);
+  const linkedDeltas = linkedWorktreeHandoffDeltas(canonicalRoot);
+  const scan = scanWorkstreamHandoffs(canonicalRoot, { linkedDeltas });
   const onboarding = bfmOnboardingEvidence(canonicalRoot, migration);
   assertNoContradictoryCanonicalHandoffs(canonicalRoot);
-  const inventories = collectBfmIntakeInventories(canonicalRoot);
+  const inventories = collectBfmIntakeInventories(canonicalRoot, { linkedDeltas });
   const canonicalInventory = inventories.get(canonicalRoot);
   const boardTasks = canonicalInventory.boardTasks;
   const tasksById = new Map();
@@ -2051,6 +2241,7 @@ function freezeBfmIntake(rootDir, options = {}) {
     const records = [canonicalRecord];
     for (const [auditRoot, inventory] of inventories) {
       if (auditRoot === canonicalRoot) continue;
+      if (!handoffIncludedForAudit(auditRoot, relative, linkedDeltas)) continue;
       const absolute = path.join(auditRoot, relative);
       if (!fs.existsSync(absolute)) continue;
       let source;
@@ -2063,12 +2254,13 @@ function freezeBfmIntake(rootDir, options = {}) {
       const record = bfmCandidateRoutingRecord(inventory, relative, source, routeErrors);
       if (record) records.push(record);
     }
+    records.push(...quarantinedBfmRoutingRecords(migrationManifest, relative, routeErrors));
     recordsByRelative.set(relative, records);
   }
   if (routeErrors.length > 0) {
     throw new Error(`BFM_INTAKE_INCOMPLETE: authoritative routing is incomplete or contradictory: ${routeErrors.join('; ')}.`);
   }
-  assertBfmCrossRootRouting(migration, recordsByRelative);
+  assertBfmCrossRootRouting(migrationManifest || migration, recordsByRelative);
 
   const dispositions = Object.prototype.hasOwnProperty.call(options, 'dispositions')
     && options.dispositions && typeof options.dispositions === 'object'
@@ -3029,6 +3221,61 @@ function workingModeFor(target, stage) {
     Complete: 'Complete',
     Blocked: 'Paused'
   }[stage] || 'Planning';
+}
+
+const RECOVERY_DECISION_TYPES = new Set([
+  'product',
+  'destructive',
+  'provider',
+  'privacy',
+  'payment',
+  'release',
+]);
+
+function renderRecoveryOutcome(options = {}) {
+  const diagnostics = Array.isArray(options.diagnostics) ? [...options.diagnostics] : [];
+  const authorityGate = options.authorityGate || {};
+  const authorityType = String(authorityGate.type || '').trim().toLowerCase();
+  const authorityDecision = String(authorityGate.decision || '').trim();
+  if (RECOVERY_DECISION_TYPES.has(authorityType) && authorityDecision) {
+    return {
+      state: 'Need your decision',
+      headline: `Need your decision — ${authorityDecision}`,
+      diagnostics,
+    };
+  }
+
+  const candidateFingerprint = String(options.candidateFingerprint || '').trim();
+  const snapshotFingerprint = String(options.snapshotFingerprint || '').trim();
+  const currentCandidateFingerprint = String(options.currentCandidateFingerprint || '').trim();
+  const currentSnapshotFingerprint = String(options.currentSnapshotFingerprint || '').trim();
+  const exactProjectProofIsCurrent = options.exactProjectPassed === true
+    && Boolean(String(options.finalCommand || '').trim())
+    && Boolean(candidateFingerprint)
+    && Boolean(snapshotFingerprint)
+    && candidateFingerprint === currentCandidateFingerprint
+    && snapshotFingerprint === currentSnapshotFingerprint
+    && options.failedRerun !== true;
+  if (exactProjectProofIsCurrent) {
+    return {
+      state: 'Ready',
+      headline: 'Ready — exact project proof passed.',
+      diagnostics,
+    };
+  }
+
+  const proofWasInvalidated = options.previousState === 'Ready'
+    && (options.failedRerun === true
+      || (Boolean(candidateFingerprint) && candidateFingerprint !== currentCandidateFingerprint)
+      || (Boolean(snapshotFingerprint) && snapshotFingerprint !== currentSnapshotFingerprint));
+  const detail = options.fixtureChecksPassed === true
+    ? 'candidate checks passed; exact project proof pending'
+    : 'safe internal recovery is continuing';
+  return {
+    state: 'Safely paused',
+    headline: `Safely paused — ${proofWasInvalidated ? 'previous Ready is superseded; ' : ''}${detail}.`,
+    diagnostics,
+  };
 }
 
 function renderBeginnerStatus(inputs = {}) {
@@ -5525,6 +5772,7 @@ module.exports = {
   formatAutomatedSubmission,
   resolveSubmissionSafetyGate,
   selectStatusTarget,
+  renderRecoveryOutcome,
   renderBeginnerStatus,
   renderTechnicalStatus,
   classifyBfmClass,

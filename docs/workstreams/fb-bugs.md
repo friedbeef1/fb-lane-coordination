@@ -13,7 +13,9 @@ This card is a managed current-state projection. PROJECT_BOARD.md remains the so
 - None.
 
 ## Recently delivered
-- None.
+- **TASK-BUG-FB-CONFIDENCE-20260818** (Accepted — absorbed into TASK-087) —
+  Require the three visible recovery states and exact-real-snapshot completion
+  boundary without weakening fail-closed evidence. [Handoff](../handoffs/TASK-BUG-FB-CONFIDENCE-20260818.md); [QA](../qa/TASK-BUG-FB-CONFIDENCE-20260818.md)
 
 ## Historical lookup
 - [Handoff index](../handoffs/index.md)

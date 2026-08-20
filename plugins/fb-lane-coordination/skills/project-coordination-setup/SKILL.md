@@ -80,6 +80,14 @@ for a noncanonical task with explicit authority; never archive from title alone
 or archive a canonical binding.
 
 After a prefix or rename mutation, fresh evidence and the receipt must prove all seven roles with exact titles and pinned state, including all seven repository-expected visible titles and the same task IDs.
+When the user explicitly replaces one canonical task with a fresh task, the
+strict final inventory may include one `receiptRebindings` entry for that role.
+It must name the exact receipt-bound `fromTaskId`, the one exact pinned
+replacement `toTaskId`, and a durable `approvalRef`. The old task must be absent
+from the complete active inventory, every other task binding must remain exact,
+and ordinary missing or ambiguous IDs still fail closed. This is receipt
+identity repair only; it never creates, renames, pins, archives, starts, or
+approves a task.
 If FB was installed, upgraded, or replaced in this task, open a fresh Codex task
 before any plugin-dependent setup or repair mutation.
 

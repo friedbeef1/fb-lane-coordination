@@ -169,6 +169,13 @@ locks, approval gates, external blockers, and task-rebind state. Missing or
 contradictory inventory fails closed. Do not duplicate scanner or
 checkout-discovery logic in this skill; the runtime owns those rules.
 
+Treat a linked Git worktree as evidence only for handoffs changed by its
+branch-unique commits or current dirty, staged, or untracked state. Do not turn
+an untouched older snapshot into a competing decision merely because the
+canonical checkout advanced later. Continue to audit canonical handoffs,
+configured former roots, and quarantined manifest evidence completely, and
+fail closed when Git cannot prove the linked-worktree delta.
+
 Immediately after the freeze, use the runtime's automatic route preflight and
 report its selected route plus deterministic reasons. Direct BFM is valid only
 for one bounded item with explicit lock/worktree isolation and no graph signal.
@@ -221,6 +228,15 @@ deployment.
 For approval waits or genuine stops, use the canonical beginner pause card in
 `guardrails.md`; keep internal evidence in durable records unless the user must
 judge it.
+
+Follow **Trustworthy recovery reporting** in `guardrails.md`. Use only
+**Ready**, **Safely paused**, or **Need your decision** as the headline state
+during routine recovery. **Ready** requires the exact real project snapshot to
+pass the same final command with no subsequent mutation. A fixture-only result
+is **candidate checks passed; exact project proof pending**. Any later edit or
+failure supersedes prior success wording and returns to **Safely paused**.
+Reserve **Need your decision** for a genuine authority boundary; keep receipt,
+quarantine, hash, and fail-closed details in diagnostics and durable QA.
 
 Stop before claim/edit/deploy/closeout when Product's **Include now** scope or
 locks are unclear. Ready status does not attach approval to a handoff. After

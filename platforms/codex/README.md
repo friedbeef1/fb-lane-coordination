@@ -1,8 +1,8 @@
 # FB for Codex
 
-FB is the supported Codex distribution for **FB 0.9.0-beta: Graph Engineering
+FB is the supported Codex distribution for **FB 0.9.3-beta: Graph Engineering
 for Everyday People**. The current release candidate is
-`0.9.0-beta+codex.20260817211319`. FB is an open-source Codex plugin that turns
+`0.9.3-beta+codex.20260820032957`. FB is an open-source Codex plugin that turns
 scattered AI conversations into a living product-delivery graph. Codex provides
 threads, skills, and worktrees; FB connects their decisions, evidence,
 dependencies, implementation, verification, and release state.
