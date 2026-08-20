@@ -83,8 +83,8 @@ repair and preserve all existing safety and release gates.
 Confirmed assumptions and approved scope changes: TASK-087 and TASK-088 source
 is inherited unchanged. No consumer source or coordination record is edited.
 
-Branch, source commits, and changed surfaces: Branch
-`codex/TASK-089-worktree-delta-audit`, source stack `947852b`, `ca53bd3`, and
+Branch, source commits, and changed surfaces: Branch `codex/TASK-089-worktree-delta-audit`,
+source stack `947852b`, `ca53bd3`, and
 `3da06b6`, versioned as `0.9.3-beta+codex.20260820032957`; runtime, focused
 regression, generated mirror, and TASK-087–089 evidence only.
 
