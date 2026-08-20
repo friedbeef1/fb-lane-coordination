@@ -81,7 +81,15 @@ green prematurely.
 
 ## Release checkpoint
 
-Requested for the exact `0.9.3-beta+codex.20260820032957` candidate after all
-canonical release records and generated package mirrors are committed. The
-checkpoint will run once against the complete TASK-087–089 stack before merge
-and publication.
+Result: passed for the exact `0.9.3-beta+codex.20260820032957` candidate.
+
+- Targeted TASK-089 candidate preflight passed against public base `06dd95e`.
+- The final repository validator passed after one consolidated lifecycle-record
+  repair: CLI 72/72, migration 35/35, session 39/39, eval 19/19,
+  beginner-experience 13/13, efficiency 25/25, Doctor Ready, package parity,
+  syntax, positioning, two-speed, and whitespace.
+- Whole-candidate review found no remaining runtime or package defect. TASK-087
+  and TASK-088 are correctly recorded as incorporated into TASK-089 rather than
+  active independent releases.
+- **Push Live** is authorized for this exact build. GitHub merge, marketplace
+  refresh, installed-runtime proof, and Product/BFM-only project refresh remain.

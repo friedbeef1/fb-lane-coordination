@@ -106,10 +106,10 @@ Repository state: Isolated candidate branch; only TASK-089 runtime, focused
 test, canonical guidance, changelog, durable evidence, and generated mirrors
 changed.
 
-Remaining owner and action: Product/BFM runs the one release checkpoint,
-publishes the exact build, then refreshes only Product/BFM in each verified
-active project. Existing six workstream tasks remain unchanged. Unmirror must
-reconcile the nineteen genuine active-branch handoffs separately.
+Remaining owner and action: Product/BFM publishes the release-checkpoint-passed
+exact build, then refreshes only Product/BFM in each verified active project.
+Existing six workstream tasks remain unchanged. Unmirror must reconcile the
+nineteen genuine active-branch handoffs separately.
 
 Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#093-beta--2026-08-20).
 
