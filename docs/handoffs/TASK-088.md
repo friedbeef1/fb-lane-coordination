@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-088
 lane: fb-product
-status: in-progress
+status: superseded
 approval: approved
 okr_fit: aligned
 record_model: normalized-v1
@@ -17,9 +17,9 @@ surface: strict onboarding receipt identity
 
 ## Status
 
-Focused root/package candidate checks pass. Complete clean-candidate validation,
-commit, exact local install, fresh-task reload, and Unmirror acceptance remain.
-No merge, push, publication, or release is authorized.
+Superseded by TASK-089 for release sequencing. The exact approval-bound receipt
+rebind and its focused evidence remain preserved in the combined 0.9.3
+candidate; no separate TASK-088 release remains.
 
 ## Project Start Brief
 

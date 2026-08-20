@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-087
 lane: fb-product
-status: in-progress
+status: superseded
 approval: approved
 okr_fit: aligned
 record_model: normalized-v1
@@ -17,10 +17,9 @@ surface: BFM intake and quarantined checkout audit
 
 ## Status
 
-**Safely paused — candidate checks passed; exact project proof pending.** James
-authorized the local repair, package rebuild, reinstall, and verification.
-Reinstall and fresh-runtime Unmirror acceptance remain. No merge, push, public
-publication, or release is authorized.
+Superseded by TASK-089 for release sequencing. The dataless-root repair and its
+evidence remain preserved unchanged in the combined 0.9.3 candidate; no
+separate TASK-087 release remains.
 
 ## Project Start Brief
 
