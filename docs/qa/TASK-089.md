@@ -81,7 +81,8 @@ green prematurely.
 
 ## Release checkpoint
 
-Result: passed for the exact `0.9.3-beta+codex.20260820032957` candidate.
+Result: the requested release checkpoint passed for the exact
+`0.9.3-beta+codex.20260820032957` candidate.
 
 - Targeted TASK-089 candidate preflight passed against public base `06dd95e`.
 - The final repository validator passed after one consolidated lifecycle-record
