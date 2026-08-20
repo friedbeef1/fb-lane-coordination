@@ -110,5 +110,11 @@ Result: passed — the requested release checkpoint covered the exact
   recreated, renamed, repinned, rebound, or archived.
 - Product/BFM replacement attempts launched from this already-open 0.9.2-bound
   conversation inherited its stale skill catalog. They failed closed before
-  mutation and are not valid replacements. Exact receipt rebind remains for a
-  genuinely fresh app-created Product/BFM task after plugin reload.
+  mutation and are not valid replacements. Failed attempts
+  `01a01d42-3ddb-7422-87d6-ba89f4a9fc82` and
+  `01a01d42-4740-75b0-9f0b-f7e74f90574a` were unpinned and archived only after
+  their no-mutation receipts completed.
+- A final native relist proves each active project still has exactly its seven
+  original pinned tasks: Product/BFM plus User, Business, Design, Tech,
+  Discovery, and Bugs. No onboarding receipt changed. Exact Product/BFM rebind
+  remains for a genuinely fresh app-created task after plugin reload.
