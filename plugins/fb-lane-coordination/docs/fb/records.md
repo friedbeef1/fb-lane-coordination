@@ -49,6 +49,12 @@ and bootstrap migration. It preserves every project-owned byte outside the
 markers. Read-only status and context calls never rewrite cards, boards, or
 historical records.
 
+After Product/BFM dispositions or acts on a workstream handoff, it first writes
+the canonical `## Product/BFM Result` in that handoff and refreshes this managed
+card. It then returns one grouped passive summary to the exact receipt-bound
+workstream task. The handoff and card remain authoritative if task messaging is
+unavailable; delivery stays explicitly pending rather than being inferred.
+
 ## Why compact context does not hide important work
 
 The active packet is a navigation layer, not a replacement for project truth.
@@ -178,6 +184,10 @@ Add narrative only for a failure, changed decision, scope exception, recovery,
 or reusable lesson. Keep complete test output in the QA artifact. Chat receives
 the compact result and direct evidence link. Failure updates include only the
 relevant failing excerpt and recovery state.
+
+For a workstream-originated handoff, the result block and grouped passive return
+defined in [workflow.md](workflow.md) are part of closeout. They report the
+existing result; they do not create another execution or review cycle.
 
 QA output is bounded and redacted. Secrets, tokens, environment values,
 unredacted private data, transcripts, and hidden reasoning are forbidden.

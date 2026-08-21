@@ -11,6 +11,7 @@
   "tools/fb-onboarding.cjs",
   "tools/fb-onboarding.test.cjs",
   "tools/fb-product-control-centre.test.cjs",
+  "tools/fb-workstream-result-return.test.cjs",
   "tools/fb-six-workstreams.test.cjs",
   "tools/fb-six-skills.test.cjs",
   "tools/fb-session.cjs",

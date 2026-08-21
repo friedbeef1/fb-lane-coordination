@@ -206,6 +206,18 @@ item must never conceal additional Ready work. Product must reconcile each
 artifact into its authoritative home.
 Planning work is not Ready when board, index, handoff, or workstream routing
 failed to persist. Record it as blocked with its recovery path instead.
+
+Before closing the BFM cycle, follow the canonical [Product/BFM result-return
+contract](../../docs/fb/workflow.md). Add `## Product/BFM Result` to every
+dispositioned or acted-on handoff with outcome, delivered work, evidence,
+remaining gate, final status, return delivery, and Result fingerprint. This
+includes **Include now**, **Blocked**, **Deferred**, **Duplicate**, **Rejected**,
+and **Superseded**. Refresh the originating workstream card, then group all
+changed results into one passive result summary per affected workstream per BFM
+cycle. Send it only to the exact receipt-bound task ID. The notice does not
+start work or invoke `$bfm`. Do not resend an unchanged result. When task
+messaging is unavailable, record `Return delivery: pending`, keep the durable
+card/result, provide a paste-ready summary, and never claim it was delivered.
 Stop on duplicate or contradictory ready-handoff errors. Product reconciles
 duplicates, conflicts, and dependencies, then prioritizes and sequences only
 **Include now** candidates. Product creates the Project Start Brief plus Build

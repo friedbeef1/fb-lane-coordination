@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+## 0.9.4-beta — 2026-08-21
+
+Build: `0.9.4-beta+codex.20260821034517`
+
+**What changed:** Product/BFM now returns the final disposition or delivery
+result to every originating workstream after acting on its handoff. The durable
+handoff records the outcome, delivered work, evidence, remaining gate, final
+status, and delivery receipt; the workstream card refreshes; and each affected
+sidebar task receives one grouped passive summary per BFM cycle.
+
+**Why it matters:** Reopening User, Business, Design, Tech, Discovery, or Bugs
+now shows what Product/BFM ultimately did with that workstream's input. Lanes no
+longer need to rediscover the result from Product history, and passive result
+notices cannot accidentally restart work.
+
+**Compatibility:** Existing handoffs and workstream tasks remain valid. Result
+delivery uses exact receipt-bound task IDs, skips unchanged fingerprints, and
+fails honestly to `Return delivery: pending` when Codex task messaging is
+unavailable. No new command, workstream, or release authority is introduced.
+
+**Installation or upgrade:** After **Push Live**, upgrade the configured
+`fb-lane` marketplace, reinstall `fb-lane-coordination@fb-lane`, and open a
+fresh Codex task. Existing project workstreams are reused.
+
 ## 0.9.3-beta — 2026-08-20
 
 Build: `0.9.3-beta+codex.20260820032957`

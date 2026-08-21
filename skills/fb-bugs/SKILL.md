@@ -108,3 +108,8 @@ Evidence Against Product OKR: <impact or regression evidence> | None identified
 
 Before closeout, rerun the reproduction or state why fresh evidence is blocked.
 Product/BFM owns prioritization, fix execution, verification, and release gates.
+
+When this task is reopened, read the current workstream card and any linked
+`## Product/BFM Result` before starting a new mini-loop. A passive result notice
+does not start work or invoke `$bfm`; it only reports what Product/BFM decided
+or delivered from this workstream's earlier handoff.

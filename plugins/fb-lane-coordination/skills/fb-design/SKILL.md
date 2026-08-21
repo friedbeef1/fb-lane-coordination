@@ -135,3 +135,8 @@ Do not say Design visual QA is complete unless the evidence is present in the ha
 Before closeout, return to the design intent, current UI, screenshot/viewport evidence or plan, and `PROJECT_BOARD.md`. If the visual slice or plan does not satisfy the handoff, update it or mark `blocked`, `out of scope`, or `explicitly deferred`.
 
 End with a passive closeout note for future visitors to the thread: `Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane.
+
+When this task is reopened, read the current workstream card and any linked
+`## Product/BFM Result` before starting a new mini-loop. A passive result notice
+does not start work or invoke `$bfm`; it only reports what Product/BFM decided
+or delivered from this workstream's earlier handoff.

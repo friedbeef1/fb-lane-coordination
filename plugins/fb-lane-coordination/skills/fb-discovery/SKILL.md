@@ -104,3 +104,8 @@ Evidence Against Product OKR: <counter-evidence> | None identified
 Before closeout, re-read the unknown, evidence, recommendation, and Product goal.
 If evidence is insufficient, report the exact gap instead of manufacturing
 confidence. Product/BFM owns prioritization, integration, and source execution.
+
+When this task is reopened, read the current workstream card and any linked
+`## Product/BFM Result` before starting a new mini-loop. A passive result notice
+does not start work or invoke `$bfm`; it only reports what Product/BFM decided
+or delivered from this workstream's earlier handoff.
