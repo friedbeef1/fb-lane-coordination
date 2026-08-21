@@ -114,7 +114,10 @@ copy, version metadata, changelog, focused contract, and generated package.
 Checks, failures, recovery, and results: The focused contract first failed on
 the absent result-return behavior, then passed in root and package. Existing
 Product/BFM guidance and plugin metadata contracts pass in both contexts; 88
-mirrors are aligned; affected syntax and whitespace pass.
+mirrors are aligned; affected syntax and whitespace pass. A disposable
+three-handoff mock grouped two Bugs results into one exact-task notice, kept an
+unavailable Design return pending with paste-ready evidence, and sent zero
+duplicate messages on an identical second cycle.
 
 Review state, direct links, limits, and external gates: completed nonvisual
 plugin candidate. See [TASK-090 QA](../qa/TASK-090.md). The current Codex CLI
@@ -141,4 +144,5 @@ unauthorized until **Push Live**.
 
 - QA: [TASK-090 QA](../qa/TASK-090.md)
 - Board: [TASK-090 board record](../../PROJECT_BOARD.md#task-090---workstream-result-return)
+- Staging review: [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69)
 - System verification: passed for the local `0.9.4-beta` candidate.

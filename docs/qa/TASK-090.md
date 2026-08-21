@@ -21,6 +21,24 @@
 | Affected Node syntax | Passed |
 | Whitespace | Passed |
 
+## Mock BFM cycle
+
+A disposable deterministic mock exercised three acted-on handoffs without
+touching any real project or sidebar task.
+
+| Scenario | Observed result |
+|---|---|
+| Two Bugs results in one cycle | One passive message containing both results |
+| Destination identity | Exact receipt-bound task ID `mock-project-bugs-task-7` |
+| Design task messaging unavailable | Durable evidence preserved and `Return delivery: pending` with paste-ready text |
+| Identical second cycle | Zero messages sent; duplicate return prevented |
+| Delivery receipt changed | Substantive result fingerprint remained unchanged |
+
+Mock result: **PASS**. This proves the grouping, exact-ID, pending-fallback, and
+idempotency rules deterministically. It does not claim that Codex sidebar task
+messaging was exercised against a real project; that installed-runtime smoke
+belongs after publication and reinstall.
+
 ## Covered behavior
 
 - Every Include now, Blocked, Deferred, Duplicate, Rejected, and Superseded
