@@ -62,5 +62,11 @@ The current Codex CLI has no `plugin validate` subcommand; that unsupported
 probe made no repository change. The focused metadata, skill, and mirror
 contracts are the applicable local package proof.
 
+GitHub readiness initially failed only because the prospective Staging QA
+handoff described the release boundary narratively instead of using the
+mechanically required `External gates` and `Remaining owner/action` fields. The
+single focused repair added those exact lifecycle fields without changing
+runtime or plugin behavior; Doctor is rerun as the failed proof.
+
 The final release checkpoint, GitHub push/merge, marketplace publication,
 reinstall, and installed-runtime verification remain gated by **Push Live**.

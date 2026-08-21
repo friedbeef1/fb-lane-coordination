@@ -146,3 +146,13 @@ unauthorized until **Push Live**.
 - Board: [TASK-090 board record](../../PROJECT_BOARD.md#task-090---workstream-result-return)
 - Staging review: [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69)
 - System verification: passed for the local `0.9.4-beta` candidate.
+
+## Gate
+
+External gates: James says **Push Live** for PR #69 before Product/BFM may
+merge, publish the marketplace build, reinstall the plugin, or claim installed
+runtime verification.
+
+Remaining owner/action: Product/BFM keeps PR #69 staged for optional review;
+after an explicit **Push Live**, run the exact release checkpoint and installed-
+runtime smoke for `0.9.4-beta+codex.20260821034517`.
