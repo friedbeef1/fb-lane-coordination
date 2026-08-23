@@ -4,8 +4,9 @@
 
 - Build: `0.9.4-beta+codex.20260821034517`
 - Branch: `codex/TASK-090-workstream-result-return`
-- Release state: local candidate; supported local install authorized, with no
-  merge or public marketplace publication
+- Source commit: `704f958ccddf0be2efc4ae0d2ba37f751eac92bc`
+- Release state: locally installed candidate; no merge or public marketplace
+  publication
 
 ## Source and runtime provenance
 
@@ -20,8 +21,25 @@
 
 The stale `/Users/jamesyeang/Projects/fb-lane-coordination` checkout was not
 used. The candidate is built from the configured canonical source lineage in
-the isolated TASK-090 worktree. Installation uses the supported plugin path;
-the installed cache is never edited in place.
+the isolated TASK-090 worktree. Installation used the supported plugin path;
+the installed cache was never edited in place.
+
+## Supported local installation proof
+
+| Proof | Result |
+|---|---|
+| GitHub candidate | PR #69 head is exact source commit `704f958`; readiness passed in 42 seconds |
+| Marketplace route | `fb-lane` is Git-backed at `friedbeef1/fb-lane-coordination`, ref `codex/TASK-090-workstream-result-return` |
+| Installed version | `0.9.4-beta+codex.20260821034517`, installed and enabled |
+| Package/cache parity | 93/93 installed files byte-identical to the candidate package |
+| Skills | 13/13 skill entrypoints present, including BFM, Product, coordination, setup, and six workstreams |
+| MCP contract | Installed `.mcp.json` resolves `cwd: "."` and `./tools/fb-lane.cjs mcp` |
+| MCP runtime | Installed runtime answered `tools/list` with 14 tools |
+| Representative hashes | BFM `a23d548e…`; runtime `31e9ccd1…`; plugin manifest `57943cd5…` |
+
+The GitHub runner emitted an informational Node 20 deprecation annotation for
+upstream `actions/checkout@v4` and `actions/setup-node@v4`; validation itself
+passed. This is not a TASK-090 behavior failure.
 
 ## Focused evidence
 
@@ -94,6 +112,6 @@ single focused repair added those exact lifecycle fields without changing
 runtime or plugin behavior; Doctor is rerun as the failed proof.
 
 GitHub merge and public marketplace publication remain gated by **Push Live**.
-James separately authorized a supported local install and installed-artifact
-verification of this exact candidate. A new Codex task is still required to
-load the replacement skill and MCP runtime.
+The supported local install and installed-artifact verification passed. This
+current task remains loaded from 0.9.3; a new Codex task is required to load the
+replacement 0.9.4 skill and MCP runtime.

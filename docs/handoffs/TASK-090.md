@@ -139,17 +139,17 @@ unavailable Design return pending with paste-ready evidence, and sent zero
 duplicate messages on an identical second cycle.
 
 Review state, direct links, limits, and external gates: completed nonvisual
-plugin candidate. See [TASK-090 QA](../qa/TASK-090.md). The current Codex CLI
-does not expose a `plugin validate` subcommand, so package metadata and mirror
-contracts provide the local plugin proof. Publication remains gated by **Push
-Live**.
+plugin candidate. See [TASK-090 QA](../qa/TASK-090.md). GitHub readiness passed
+for source commit `704f958`; the supported local install is enabled as exact
+build `0.9.4-beta+codex.20260821034517`, with 93/93 package/cache parity and 14
+installed MCP tools. Public merge/publication remains gated by **Push Live**.
 
 Repository state: Isolated worktree based on public `main`; candidate changes
 are scoped to TASK-090.
 
-Remaining owner and action: Product/BFM installs the exact candidate locally
-through the supported plugin path, verifies installed artifacts, and requires a
-fresh Codex task. Public merge/publication still requires **Push Live**.
+Remaining owner and action: Start a fresh Codex task to load the installed
+0.9.4 skill and MCP runtime. Public merge/publication still requires **Push
+Live**.
 
 Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#094-beta--2026-08-21).
 
@@ -164,14 +164,15 @@ release remains unauthorized until **Push Live**.
 - QA: [TASK-090 QA](../qa/TASK-090.md)
 - Board: [TASK-090 board record](../../PROJECT_BOARD.md#task-090---workstream-result-return)
 - Staging review: [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69)
-- System verification: passed for the local `0.9.4-beta` candidate.
+- System verification: passed for source, GitHub readiness, installed artifacts,
+  and installed MCP resolution for the `0.9.4-beta` candidate.
 
 ## Gate
 
 External gates: James says **Push Live** for PR #69 before Product/BFM may
-merge, publish the marketplace build, reinstall the plugin, or claim installed
-runtime verification.
+merge or publish the marketplace build. The separately authorized local
+candidate install and installed-artifact verification are complete.
 
-Remaining owner/action: Product/BFM keeps PR #69 staged for optional review;
-after an explicit **Push Live**, run the exact release checkpoint and installed-
-runtime smoke for `0.9.4-beta+codex.20260821034517`.
+Remaining owner/action: Open a fresh Codex task for loaded-runtime use.
+Product/BFM keeps PR #69 staged for optional review; after an explicit **Push
+Live**, run the public release checkpoint and merge/publish the exact build.

@@ -45,7 +45,7 @@
 
 ### TASK-090 - Workstream result return
 
-*   **Status**: Staging QA — FB `0.9.4-beta+codex.20260821034517` candidate.
+*   **Status**: Staging QA — Ready to ship; FB `0.9.4-beta+codex.20260821034517` is installed locally from PR #69, while public release remains gated.
 *   **Owner / Thread**: FB-Product / BFM.
 *   **Scope**: Require Product/BFM to send one passive kickoff after the Build Brief and slice ownership freeze to each materially involved exact receipt-bound workstream task, record every acted-on handoff result durably, refresh the originating workstream card, and send one grouped passive result per cycle. Include blocked and non-execution dispositions, notification caps, private-agent visibility, idempotency, and an honest pending fallback.
 *   **Out of Scope**: New commands, new workstreams, app-level task discovery, public marketplace publication, or merge. Supported local candidate installation is separately authorized for verification.
@@ -57,7 +57,7 @@
     *   **Approval**: approved — James explicitly approved this behavior in the current Product/BFM conversation.
     *   **Justification**: Durable records alone are discoverable but do not give the originating sidebar task an immediate result when it is reopened.
 *   **Locks**: Canonical workflow, BFM/Product/workstream skills, focused test, generated plugin mirrors, TASK-090 records.
-*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-090.md); [QA](docs/qa/TASK-090.md).
+*   **Links & Deliverables**: [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69); source `704f958`; 93/93 installed parity; 14-tool installed MCP proof; [Handoff](docs/handoffs/TASK-090.md); [QA](docs/qa/TASK-090.md).
 
 ---
 
