@@ -102,8 +102,9 @@ its recommendation is actionable, the one common action is: **Send this to
 Product.** Product/BFM verifies the evidence, merges the findings into one plan,
 and runs the approved implementation. It then records the outcome in each
 acted-on handoff, refreshes the originating workstream card, and returns one
-passive result summary to that workstream so the lane can see what happened
-when reopened. “Merge findings” means synthesis into the
+passive kickoff plus one passive result summary to each materially involved
+workstream so the lane can see what Product/BFM owns and what happened when
+reopened. These notices do not activate the lane. “Merge findings” means synthesis into the
 Product plan—not a Git merge. Git merge and deployment still require **Push
 Live**.
 

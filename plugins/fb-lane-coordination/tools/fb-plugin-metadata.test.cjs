@@ -82,8 +82,10 @@ function validatePluginPackage(root) {
   assert.match(prompts, /marketplace source[\s\S]*(?:local|Git)/i);
   assert.match(prompts, /installed runtime/i);
   assert.match(prompts, /new Codex (?:task|thread)/i);
-  assert.match(prompts, /Product\/BFM Result[\s\S]*exact receipt-bound task ID[\s\S]*Return delivery: pending/i);
-  assert.match(prompts, /result notice never starts work or invokes \$bfm/i);
+  assert.match(prompts, /Product\/BFM Kickoff[\s\S]*materially involved[\s\S]*exact receipt-bound workstream task/i);
+  assert.match(prompts, /Product\/BFM Result[\s\S]*Return delivery: pending[\s\S]*(?:watch|blocked)/i);
+  assert.match(prompts, /at most one kickoff and one terminal\/result notice per workstream per BFM run/i);
+  assert.match(prompts, /(?:result n|n)otices? never start(?:s)? work[\s\S]{0,120}invoke(?:s)? \$bfm/i);
   assert.doesNotMatch(prompts, /split this work across Product, Tech, Design, and Business/i, 'stale four-workstream prompt must not return');
   assertExactBuild('packaged README.md', read(root, 'README.md'), codexManifest.version);
 

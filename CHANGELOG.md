@@ -6,11 +6,13 @@
 
 Build: `0.9.4-beta+codex.20260821034517`
 
-**What changed:** Product/BFM now returns the final disposition or delivery
-result to every originating workstream after acting on its handoff. The durable
-handoff records the outcome, delivered work, evidence, remaining gate, final
-status, and delivery receipt; the workstream card refreshes; and each affected
-sidebar task receives one grouped passive summary per BFM cycle.
+**What changed:** After the Build Brief and slice ownership freeze, Product/BFM
+now leaves one passive kickoff in every materially involved exact workstream
+task, then returns the final disposition or delivery result after acting on its
+handoff. The durable handoff records the outcome, delivered work, evidence,
+remaining gate, final status, and delivery receipt; the workstream card
+refreshes; and each affected sidebar task receives at most one kickoff and one
+grouped terminal summary per BFM cycle.
 
 **Why it matters:** Reopening User, Business, Design, Tech, Discovery, or Bugs
 now shows what Product/BFM ultimately did with that workstream's input. Lanes no

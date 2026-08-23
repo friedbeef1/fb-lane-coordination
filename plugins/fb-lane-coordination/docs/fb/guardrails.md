@@ -92,6 +92,20 @@ planning and evidence; delivery requires a separate Product-ready handoff, and
 `$bfm` ignores the queued artifact. If task tools are unavailable, return a
 paste-ready notice. Sidechats remain parent-only.
 
+Product/BFM kickoff and result notices are a separate visibility trace. They
+never continue or activate a queued cross-workstream planning handoff and never
+replace the user's explicit `Continue the queued <source> handoff`. A passive
+notice may report what the approved BFM run owns or what it delivered, but it
+must not ask the destination task to execute, edit, review, invoke `$bfm`, or
+change provider or release state.
+
+Resolve every notice through the exact-project onboarding receipt and exact
+task binding. Preserve receipt/rebind gates and sidechat-parent-only routing: a
+sidechat still routes only to its originating parent. If task tools are
+unavailable or a binding cannot be proven, do not claim delivery; keep the
+repository result, return paste-ready text, and record the visibility gap as
+`watch` or `blocked` as the canonical workflow requires.
+
 A project may define `hooks.preflight` in `.fb-lane.json`. FB runs it before
 claim or quick-task mutation and surfaces the exact project command on failure.
 The hook is optional and project-owned: FB assumes no global Node version,

@@ -47,11 +47,11 @@
 
 *   **Status**: Staging QA — FB `0.9.4-beta+codex.20260821034517` candidate.
 *   **Owner / Thread**: FB-Product / BFM.
-*   **Scope**: Require Product/BFM to record every acted-on handoff result durably, refresh the originating workstream card, and send one grouped passive summary to the exact receipt-bound workstream task per cycle. Include blocked and non-execution dispositions, idempotency, and an honest pending fallback.
-*   **Out of Scope**: New commands, new workstreams, app-level task discovery, publication, merge, or installation.
+*   **Scope**: Require Product/BFM to send one passive kickoff after the Build Brief and slice ownership freeze to each materially involved exact receipt-bound workstream task, record every acted-on handoff result durably, refresh the originating workstream card, and send one grouped passive result per cycle. Include blocked and non-execution dispositions, notification caps, private-agent visibility, idempotency, and an honest pending fallback.
+*   **Out of Scope**: New commands, new workstreams, app-level task discovery, public marketplace publication, or merge. Supported local candidate installation is separately authorized for verification.
 *   **Goal Alignment Session**:
     *   **Objective**: Let a reopened workstream see what Product/BFM ultimately did with its handoff.
-    *   **Key Results**: Every disposition has a compact result; cards refresh; exact-task notices are grouped and idempotent; unavailable delivery remains visibly pending.
+    *   **Key Results**: Materially involved workstreams receive one passive kickoff; every disposition has a compact result; cards refresh; exact-task notices are bounded, grouped, and idempotent; unavailable delivery remains visibly pending.
     *   **Definition of Done**: Focused RED/GREEN root/package contract, generated parity, syntax, links, and whitespace.
     *   **Gate / Review Point**: Stop at Ready to ship; **Push Live** remains separate.
     *   **Approval**: approved — James explicitly approved this behavior in the current Product/BFM conversation.

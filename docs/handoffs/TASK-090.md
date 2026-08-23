@@ -18,8 +18,10 @@ Candidate build: `0.9.4-beta+codex.20260821034517`.
 
 ## Approved brief
 
-When Product/BFM acts on a workstream handoff, it must leave the result in the
-originating workstream rather than making the lane rediscover it later.
+When Product/BFM materially involves a workstream, it must leave a passive
+kickoff after the Build Brief is frozen and return the eventual result to the
+originating workstream rather than making the lane rediscover either boundary
+later.
 
 ## Goal Alignment Session
 
@@ -41,13 +43,23 @@ Evidence Against Product OKR: None identified.
 ## Build Brief
 
 - Record a compact Product/BFM result in every dispositioned handoff.
+- After the Build Brief and slice ownership are frozen, send one passive
+  kickoff to each materially involved, exact receipt-bound workstream task.
+- Include the task ID, assigned scope, expected evidence, Product/BFM ownership,
+  and repository brief link in that kickoff.
 - Refresh the exact originating workstream card after that record changes.
 - Send one grouped passive summary per affected workstream and BFM cycle to the
   exact receipt-bound sidebar task.
 - Include Include now, Blocked, Deferred, Duplicate, Rejected, and Superseded.
 - Do not resend an unchanged result.
+- Cap delivery at one kickoff and one terminal/result notice per involved
+  workstream per BFM run, except for a material status change requiring James's
+  attention.
 - When task messaging is unavailable, preserve the durable result, mark return
   delivery pending, and provide paste-ready text without claiming delivery.
+- A notice is visibility only. It never activates the task, continues a queued
+  cross-workstream handoff, delegates execution, or weakens sidechat-parent,
+  receipt/rebind, sensitive-operation, or **Push Live** gates.
 
 Changelog expectation: required.
 
@@ -66,15 +78,20 @@ existing workstream-card refresh provides the durable revisit surface.
 ## Acceptance Criteria
 
 - All six Product dispositions receive a result, including non-execution paths.
+- Every materially involved workstream receives one passive kickoff only after
+  the Build Brief and slice ownership are frozen.
 - Multiple changed results for one workstream produce one grouped notice.
 - An unchanged result is not resent.
 - Missing task messaging preserves durable evidence and reports pending.
 - A passive result never starts work, invokes `$bfm`, or changes release authority.
+- Private agents may implement, but the exact sidebar task still receives the
+  bounded visibility trail without being activated.
 
 ## Scope boundaries
 
-No new command, workstream, task discovery mechanism, release, merge,
-publication, or global installation.
+No new command, workstream, task discovery mechanism, public release, merge, or
+marketplace publication. James authorized supported local installation of this
+exact candidate for verification; installed-cache editing remains forbidden.
 
 ## Approval
 
@@ -93,16 +110,18 @@ Satisfied criteria and evidence: The focused canonical/package contract covers
 all dispositions, required result fields, exact task identity, grouping,
 idempotency, six workstream reopen behavior, and the unavailable-tool fallback.
 
-Missing criteria and next actions: Publication and installed-runtime proof are
-not authorized until **Push Live**.
+Missing criteria and next actions: Public marketplace publication and merge are
+not authorized until **Push Live**. Supported local candidate installation and
+installed-artifact proof are authorized in the current conversation.
 
 Approved scope-change references: James's approval in the current Product/BFM
 conversation.
 
 ## Task Receipt
 
-Approved brief and decisions: Return every Product/BFM result to its originating
-workstream durably and passively without creating another execution loop.
+Approved brief and decisions: Give every materially involved workstream one
+passive kickoff and return every Product/BFM result durably, without creating
+another execution loop.
 
 Confirmed assumptions and scope changes: Existing tasks, handoffs, commands,
 runtime interfaces, and historical closeouts stay compatible.
@@ -128,17 +147,17 @@ Live**.
 Repository state: Isolated worktree based on public `main`; candidate changes
 are scoped to TASK-090.
 
-Remaining owner and action: Product/BFM may run the release checkpoint only
-after **Push Live**, then publish/reinstall the exact build and require a fresh
-Codex task.
+Remaining owner and action: Product/BFM installs the exact candidate locally
+through the supported plugin path, verifies installed artifacts, and requires a
+fresh Codex task. Public merge/publication still requires **Push Live**.
 
 Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#094-beta--2026-08-21).
 
 ## Product/BFM Closeout
 
-The return-loop contract is implemented in canonical and packaged guidance.
-Focused root/package behavior and package parity passed. Release remains
-unauthorized until **Push Live**.
+The kickoff-and-return contract is implemented in canonical and packaged
+guidance. Focused root/package behavior and package parity passed. Public
+release remains unauthorized until **Push Live**.
 
 ## Verification Handoff
 

@@ -207,6 +207,16 @@ artifact into its authoritative home.
 Planning work is not Ready when board, index, handoff, or workstream routing
 failed to persist. Record it as blocked with its recovery path instead.
 
+After the Build Brief and slice ownership are frozen, identify every materially
+involved evidence workstream—User, Business, Design, Tech, Discovery, or Bugs.
+Send one `Product/BFM Kickoff` per involved workstream per BFM run to its exact
+receipt-bound task ID. Include task ID, assigned scope, expected evidence,
+`Product/BFM owns execution and verification`, and a repository handoff or
+Build Brief link. This is passive visibility: it does not activate the task,
+delegate execution, or invoke `$bfm`. Private agents or subagents may implement
+the work; the sidebar workstream task receives the trace even when it is not the
+worker.
+
 Before closing the BFM cycle, follow the canonical [Product/BFM result-return
 contract](../../docs/fb/workflow.md). Add `## Product/BFM Result` to every
 dispositioned or acted-on handoff with outcome, delivered work, evidence,
@@ -218,6 +228,12 @@ cycle. Send it only to the exact receipt-bound task ID. The notice does not
 start work or invoke `$bfm`. Do not resend an unchanged result. When task
 messaging is unavailable, record `Return delivery: pending`, keep the durable
 card/result, provide a paste-ready summary, and never claim it was delivered.
+At most one kickoff and one terminal/result notice may be delivered per
+involved workstream per BFM run. Add another notice only for a material status
+change requiring James's attention. If task tools are unavailable or the exact
+binding cannot be proven, send nothing, persist the repository closeout,
+provide paste-ready text, and record the delivery gap as `watch` or `blocked`
+according to whether execution identity remains safe.
 Stop on duplicate or contradictory ready-handoff errors. Product reconciles
 duplicates, conflicts, and dependencies, then prioritizes and sequences only
 **Include now** candidates. Product creates the Project Start Brief plus Build

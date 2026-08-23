@@ -4,7 +4,24 @@
 
 - Build: `0.9.4-beta+codex.20260821034517`
 - Branch: `codex/TASK-090-workstream-result-return`
-- Release state: local candidate only; no push, merge, publication, or install
+- Release state: local candidate; supported local install authorized, with no
+  merge or public marketplace publication
+
+## Source and runtime provenance
+
+| Surface | Proven state before candidate install |
+|---|---|
+| Current task loaded skill | `0.9.3-beta+codex.20260820032957` |
+| Configured `fb-lane` marketplace | Local marketplace source under `~/.codex/.tmp/marketplaces/fb-lane` |
+| Marketplace manifest | Exact `0.9.3-beta+codex.20260820032957` |
+| Installed cache manifest | Exact `0.9.3-beta+codex.20260820032957` |
+| Marketplace/cache BFM skill hash | Identical (`0580ad5c…`) |
+| Candidate | `0.9.4-beta+codex.20260821034517`; distinct BFM skill hash (`0342b052…` before this extension) |
+
+The stale `/Users/jamesyeang/Projects/fb-lane-coordination` checkout was not
+used. The candidate is built from the configured canonical source lineage in
+the isolated TASK-090 worktree. Installation uses the supported plugin path;
+the installed cache is never edited in place.
 
 ## Focused evidence
 
@@ -46,6 +63,14 @@ belongs after publication and reinstall.
 - Product/BFM refreshes the originating workstream card.
 - One grouped passive summary is sent per affected workstream and BFM cycle to
   the exact receipt-bound task ID.
+- One passive kickoff is sent after the Build Brief and slice ownership freeze
+  to each materially involved exact workstream task, with task ID, assigned
+  scope, expected evidence, Product/BFM ownership, and repository brief link.
+- Kickoff and terminal/result notices are capped at one each per involved
+  workstream per run; only a material status change requiring James's attention
+  permits an additional notice.
+- Private implementation agents do not remove the sidebar visibility trail or
+  activate the receiving workstream task.
 - Unchanged result fingerprints are not resent.
 - Unavailable task messaging records `Return delivery: pending`, preserves the
   durable result/card, and returns paste-ready text without claiming delivery.
@@ -68,5 +93,7 @@ mechanically required `External gates` and `Remaining owner/action` fields. The
 single focused repair added those exact lifecycle fields without changing
 runtime or plugin behavior; Doctor is rerun as the failed proof.
 
-The final release checkpoint, GitHub push/merge, marketplace publication,
-reinstall, and installed-runtime verification remain gated by **Push Live**.
+GitHub merge and public marketplace publication remain gated by **Push Live**.
+James separately authorized a supported local install and installed-artifact
+verification of this exact candidate. A new Codex task is still required to
+load the replacement skill and MCP runtime.

@@ -55,6 +55,13 @@ card. It then returns one grouped passive summary to the exact receipt-bound
 workstream task. The handoff and card remain authoritative if task messaging is
 unavailable; delivery stays explicitly pending rather than being inferred.
 
+After the Build Brief and slice ownership freeze, Product/BFM also leaves one
+passive kickoff in every materially involved exact workstream task. Kickoff and
+result notices link to repository records; they do not become another source of
+truth. Per BFM run, the durable receipt allows at most one kickoff and one
+terminal/result notice per involved workstream, unless a material status change
+requires James's attention.
+
 ## Why compact context does not hide important work
 
 The active packet is a navigation layer, not a replacement for project truth.
@@ -188,6 +195,11 @@ relevant failing excerpt and recovery state.
 For a workstream-originated handoff, the result block and grouped passive return
 defined in [workflow.md](workflow.md) are part of closeout. They report the
 existing result; they do not create another execution or review cycle.
+
+When an exact task binding or task tool is unavailable, the repository closeout
+still records the intended destination, paste-ready notice, and delivery state.
+Use `watch` when only sidebar visibility is missing; use `blocked` when the same
+identity gap also prevents safe execution or closeout.
 
 QA output is bounded and redacted. Secrets, tokens, environment values,
 unredacted private data, transcripts, and hidden reasoning are forbidden.
