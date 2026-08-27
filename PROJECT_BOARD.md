@@ -65,6 +65,21 @@
 
 ---
 
+### TASK-FB-GRAPH-LOOPS-20260826 - Discovery graph recommendation
+
+*   **Status**: Done — Product dispositioned the compatibility-first contract into TASK-091; later loop-run evidence remains deferred.
+*   **Owner / Thread**: FB-Discovery → FB-Product / BFM.
+*   **Goal Alignment Session**:
+    *   **Objective**: Identify the smallest safe step toward deterministic graph orchestration.
+    *   **Key Results**: One versioned node/edge/state contract is recommended with v1 compatibility and fail-closed authority.
+    *   **Definition of Done**: Product records a disposition and a linked Build Brief; Discovery receives the terminal result.
+    *   **Gate / Review Point**: Recommendation only; TASK-091 owns implementation and release gates.
+    *   **Approval**: approved — James approved the Discovery recommendation for Product sequencing.
+    *   **Justification**: A compatibility-first contract removes vocabulary drift without forcing a monolithic graph migration.
+*   **Links & Deliverables**: [Discovery handoff](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [TASK-091](docs/handoffs/TASK-091.md).
+
+---
+
 ### TASK-090 - Workstream result return
 
 *   **Status**: Staging QA — Ready to ship; FB `0.9.4-beta+codex.20260821034517` is installed locally from PR #69, while public release remains gated.

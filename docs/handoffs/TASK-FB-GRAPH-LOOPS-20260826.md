@@ -1,6 +1,6 @@
 ---
 type: fb-lane-handoff
-task: TASK-091
+task: TASK-FB-GRAPH-LOOPS-20260826
 lane: fb-discovery
 status: implemented
 approval: approved
