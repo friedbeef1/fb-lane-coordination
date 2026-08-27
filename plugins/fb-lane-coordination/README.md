@@ -10,8 +10,8 @@ FB harness. **FB — Graph Engineering for Everyday People** is an open-source
 Codex plugin that turns scattered AI conversations into a living
 product-delivery graph. It has six evidence-producing workstreams plus one
 Product/BFM control centre and seven pinned repository-scoped Codex tasks. The
-current release candidate is **FB 0.9.3-beta**
-`0.9.3-beta+codex.20260820032957`.
+current release candidate is **FB 0.9.4-beta**
+`0.9.4-beta+codex.20260821034517`.
 
 The visible workflow is **Goal → Split → only the relevant workstreams →
 Verify evidence → Merge findings → Implement → Verify candidate → One clear

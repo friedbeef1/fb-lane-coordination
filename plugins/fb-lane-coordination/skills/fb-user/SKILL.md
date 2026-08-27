@@ -113,3 +113,8 @@ Before closeout, re-read the user need, evidence, assumptions, recommendation,
 acceptance criteria, and approved goal. If the evidence is insufficient, name
 the exact gap. Product/BFM owns reconciliation, prioritization, implementation,
 verification, and release gates.
+
+When this task is reopened, read the current workstream card and any linked
+`## Product/BFM Result` before starting a new mini-loop. A passive result notice
+does not start work or invoke `$bfm`; it only reports what Product/BFM decided
+or delivered from this workstream's earlier handoff.

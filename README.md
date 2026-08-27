@@ -8,8 +8,8 @@ sequence.
 
 **Graph Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.9.3-beta**
-(`0.9.3-beta+codex.20260820032957`).
+Current Codex release candidate: **FB 0.9.4-beta**
+(`0.9.4-beta+codex.20260821034517`).
 
 **FB is an open-source Codex plugin that turns scattered AI conversations into
 a living product-delivery graph.** It has six evidence-producing workstreams
@@ -100,7 +100,11 @@ FB chooses the relevant workstreams from the goal; it does not make all six
 participate. Each selected workstream investigates its distinct question. When
 its recommendation is actionable, the one common action is: **Send this to
 Product.** Product/BFM verifies the evidence, merges the findings into one plan,
-and runs the approved implementation. “Merge findings” means synthesis into the
+and runs the approved implementation. It then records the outcome in each
+acted-on handoff, refreshes the originating workstream card, and returns one
+passive kickoff plus one passive result summary to each materially involved
+workstream so the lane can see what Product/BFM owns and what happened when
+reopened. These notices do not activate the lane. “Merge findings” means synthesis into the
 Product plan—not a Git merge. Git merge and deployment still require **Push
 Live**.
 

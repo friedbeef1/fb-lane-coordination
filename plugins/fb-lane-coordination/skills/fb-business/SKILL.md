@@ -134,3 +134,8 @@ Do not mark Business done when copy is only proposed. If source integration or a
 Before closeout, return to the business goal, current copy/docs/source targets, and Product goal. If the copy packet is not integrated or approved, mark `blocked`, `out of scope`, or `explicitly deferred` instead of done.
 
 End with a passive closeout note for future visitors to the thread: `Closeout note - <TASK-ID>: <status>. Delivered: ... Evidence: ... Remaining: ... Handoff: docs/handoffs/<TASK-ID>.md.` Do not include commands, `@`/`$` invocations, or instructions to open, start, run, or ask another lane.
+
+When this task is reopened, read the current workstream card and any linked
+`## Product/BFM Result` before starting a new mini-loop. A passive result notice
+does not start work or invoke `$bfm`; it only reports what Product/BFM decided
+or delivered from this workstream's earlier handoff.

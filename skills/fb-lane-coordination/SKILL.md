@@ -59,6 +59,23 @@ closed through the canonical runtime; guidance never duplicates its scanner
 logic. BFM stops at
 **Ready to ship**. Only **Push Live** authorizes merge or deployment.
 
+Once the Build Brief and slice ownership are frozen, BFM leaves one passive
+kickoff in each exact receipt-bound task for every materially involved
+workstream. It states task ID, assigned scope, expected evidence, Product/BFM
+ownership, and the repository brief link. At disposition or closeout it leaves
+one passive result with status, delivered work, evidence/candidate, remaining
+gate or next owner, and handoff/QA link. Private agents and subagents may do the
+implementation; sidebar workstream tasks receive the trace without becoming
+execution workers.
+
+Allow at most one kickoff and one terminal/result notice per involved
+workstream per BFM run, plus one additional notice only for a material status
+change requiring James's attention. Notices never activate a task, continue a
+queued planning handoff, or invoke `$bfm`. Resolve only exact-project receipt
+bindings. If task tools are unavailable or a binding cannot be proven, persist
+the repository closeout, provide paste-ready text, record `watch` or `blocked`,
+and never claim delivery.
+
 Checkout changes use one transactional migration contract: disposition every
 discovered difference, atomically record one canonical root, quarantine former
 roots, rebind the exact seven project tasks, and require explicit approval

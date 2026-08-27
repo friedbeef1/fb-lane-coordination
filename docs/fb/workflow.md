@@ -127,9 +127,83 @@ Read or refresh the index before detailed handoffs, then open only relevant
 detail unless doing a full closeout. For non-quick sequencing, refresh a
 missing, stale, or vague index. Its compact columns are `Task / Topic`, `Lane`,
 `Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`; full
-plans, OKRs, logs, and QA stay in the detailed handoff. Product/BFM adds
-`## Product/BFM Closeout` to that handoff, then refreshes the relevant compact
-workstream card after execution or explicit deferral.
+plans, OKRs, logs, and QA stay in the detailed handoff. Product/BFM adds the
+compact `## Product/BFM Result` contract below to every handoff it dispositions
+or acts on, then refreshes the exact originating workstream card. This applies
+to **Include now**, **Blocked**, **Deferred**, **Duplicate**, **Rejected**, and
+**Superseded** outcomes—not only implemented work.
+
+### Passive kickoff trail
+
+After the consolidated Build Brief and slice ownership are frozen, send the
+**Product/BFM Kickoff** trail to every evidence workstream materially involved
+in delivery: User, Business, Design, Tech, Discovery, and Bugs. Material
+involvement means the approved scope depends on that workstream's decision,
+evidence, acceptance criteria, risk, or verification—not merely that its
+handoff was scanned.
+
+Before execution begins, send **one passive kickoff notice per involved
+workstream per BFM run** to its exact receipt-bound task ID:
+
+```md
+## Product/BFM Kickoff
+
+- Task ID: <approved Product/BFM task or slice ID>
+- Assigned scope: <what this run will do with the workstream contribution>
+- Expected evidence: <proof Product/BFM will return>
+- Ownership: Product/BFM owns execution and verification
+- Brief: <repository handoff or Build Brief link>
+```
+
+The kickoff is visibility, not delegation. It does not activate the destination
+task, request execution, or invoke `$bfm`. Product/BFM may use private agents,
+subagents, or implementation workers; the exact sidebar workstream task still
+receives the trace even when it is not an execution worker.
+
+```md
+## Product/BFM Result
+
+- Outcome: <disposition and plain-language result>
+- Delivered work: <what changed, or why no execution occurred>
+- Evidence: <direct handoff, QA, candidate, or decision link>
+- Remaining gate: <next gate or None>
+- Final status: <implemented | blocked | deferred | duplicate | rejected | superseded>
+- Return delivery: delivered to <exact receipt-bound task ID> | pending
+- Result fingerprint: <stable digest of outcome, delivered work, evidence, remaining gate, and final status>
+```
+
+At the end of the BFM cycle, group multiple handoff results by originating
+workstream and send **one passive result summary per affected workstream per BFM
+cycle**. Resolve the destination only from the exact receipt-bound task ID;
+never guess from a title, recency, or another project. The notice links to the
+durable result and explicitly says: `This result summary does not start work or
+invoke $bfm.` It gives a reopened lane useful context without turning the lane
+into another execution loop.
+
+Delivery is idempotent. The fingerprint excludes the mutable delivery receipt.
+Compare it with the last delivered fingerprint for that workstream result and
+do not resend an unchanged result. A changed result resets Return delivery to
+pending before the next grouped summary.
+If task messaging is unavailable, keep the refreshed handoff and workstream
+card, record `Return delivery: pending`, and provide the user a paste-ready
+summary. Never claim or report that the result was delivered without a
+successful exact-task tool result. A later successful delivery updates only
+the delivery field; it does not reopen execution or verification.
+
+Notification budget: at most one kickoff and one terminal or result notice per
+involved workstream per BFM run. Send an additional notice only for a material
+status change requiring James's attention, such as a new sensitive gate,
+changed Product decision, or newly blocking external dependency.
+
+If task tools are unavailable or the exact project binding cannot be proven,
+send nothing and never guess. Persist the repository result/closeout, refresh
+the workstream card when safe, provide a paste-ready notice, and mark task
+delivery `watch` when durable records are complete or `blocked` when missing
+identity also prevents safe BFM continuation.
+
+Historical handoffs that already use `## Product/BFM Closeout` remain valid and
+are not retrofitted. Apply `## Product/BFM Result` prospectively whenever
+Product/BFM next dispositions or acts on a workstream handoff.
 
 ## Internal approval record
 

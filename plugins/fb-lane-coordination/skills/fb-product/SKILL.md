@@ -141,6 +141,29 @@ only for a changed decision, disputed priority, sensitive boundary, conflict,
 or unclear scope. BFM stops at **Ready to ship**. Only an
 explicit **Push Live** authorizes merge or deployment.
 
+After the Build Brief and slice ownership freeze, Product/BFM sends one passive
+`Product/BFM Kickoff` per materially involved evidence workstream per BFM run.
+It uses the exact receipt-bound task ID and includes task ID, assigned scope,
+expected evidence, Product/BFM execution/verification ownership, and the
+repository handoff or brief link. The workstream task remains idle even when a
+private agent or subagent performs the implementation.
+
+Product/BFM also owns the return path. For every **Include now**, **Blocked**,
+**Deferred**, **Duplicate**, **Rejected**, or **Superseded** handoff it
+dispositions or acts on, apply the canonical
+[Product/BFM result-return contract](../../docs/fb/workflow.md): write
+`## Product/BFM Result` with outcome, delivered work, evidence, remaining gate,
+final status, return delivery, and Result fingerprint; refresh the originating
+workstream card; and send one passive result summary per affected workstream
+per BFM cycle to the exact receipt-bound task ID. Group multiple results for
+the same lane. The summary does not start work or invoke `$bfm`. Do not resend
+an unchanged result. If task messaging is unavailable, record
+`Return delivery: pending`, provide paste-ready text, and never claim delivery.
+Keep at most one kickoff and one terminal/result notice per involved workstream
+per run; add another only for a material status change requiring James's
+attention. An unavailable task tool or unproven binding leaves the repository
+closeout authoritative and records the visibility gap as `watch` or `blocked`.
+
 `$bfm` ignores every `fb-workstream-handoff`; only a separate Product-ready
 delivery handoff enters Product reconciliation.
 

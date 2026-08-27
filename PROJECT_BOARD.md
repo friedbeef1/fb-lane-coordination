@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-090 | Staging QA | FB-Product / BFM | Workstream result return; FB `0.9.4-beta+codex.20260821034517` | Return every Product/BFM disposition and delivery result to its originating workstream through the durable handoff/card plus one exact-task passive summary per BFM cycle | `docs/fb/workflow.md`, Product/BFM and six workstream skills, focused contract, generated plugin mirrors | Ready to ship on [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69): focused root/package behavior, Product-control, metadata, 88-file parity, syntax, whitespace, and three-handoff mock passed; [Handoff](docs/handoffs/TASK-090.md); [QA](docs/qa/TASK-090.md) |
 | TASK-089 | Done | FB-Product / BFM | FB `0.9.3-beta+codex.20260820032957` release | Publish the combined TASK-087–089 reliability stack while preserving existing six workstream tasks and refreshing only Product/BFM where exact project identity is proven | None; released | PR #68 merged as `9fff83f`; Git marketplace and installed exact build verified; 92/92 parity and 14 MCP tools; final native relist proves all three active projects retain exactly seven original pinned tasks; stale delegated Product replacement attempts failed closed and were archived; [Handoff](docs/handoffs/TASK-089.md); [QA](docs/qa/TASK-089.md) |
 | TASK-088 | Superseded | FB-Product / BFM | Exact onboarding receipt identity repair | Accept one durable approval-bound replacement of an archived canonical task while keeping every other exact task binding unchanged | None; source is inherited by TASK-089 | Exact installed 0.9.2 runtime reports seven pinned bindings and `needsReconciliation: false` on real Unmirror; source and evidence are incorporated into TASK-089 / FB 0.9.3; [Handoff](docs/handoffs/TASK-088.md); [QA](docs/qa/TASK-088.md) |
 | TASK-087 | Superseded | FB-Product / BFM | Dataless quarantined-root BFM intake reliability | Make intake terminate deterministically from exact migration-manifest and routing-receipt evidence while failing closed on missing or changed evidence | None; source preserved and inherited by TASK-089 | Dataless probe now returns deterministically; exact Unmirror freeze exposed a distinct linked-worktree baseline false drift owned by TASK-089; [Handoff](docs/handoffs/TASK-087.md); [QA](docs/qa/TASK-087.md) |
@@ -39,6 +40,24 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-090 - Workstream result return
+
+*   **Status**: Staging QA — Ready to ship; FB `0.9.4-beta+codex.20260821034517` is installed locally from PR #69, while public release remains gated.
+*   **Owner / Thread**: FB-Product / BFM.
+*   **Scope**: Require Product/BFM to send one passive kickoff after the Build Brief and slice ownership freeze to each materially involved exact receipt-bound workstream task, record every acted-on handoff result durably, refresh the originating workstream card, and send one grouped passive result per cycle. Include blocked and non-execution dispositions, notification caps, private-agent visibility, idempotency, and an honest pending fallback.
+*   **Out of Scope**: New commands, new workstreams, app-level task discovery, public marketplace publication, or merge. Supported local candidate installation is separately authorized for verification.
+*   **Goal Alignment Session**:
+    *   **Objective**: Let a reopened workstream see what Product/BFM ultimately did with its handoff.
+    *   **Key Results**: Materially involved workstreams receive one passive kickoff; every disposition has a compact result; cards refresh; exact-task notices are bounded, grouped, and idempotent; unavailable delivery remains visibly pending.
+    *   **Definition of Done**: Focused RED/GREEN root/package contract, generated parity, syntax, links, and whitespace.
+    *   **Gate / Review Point**: Stop at Ready to ship; **Push Live** remains separate.
+    *   **Approval**: approved — James explicitly approved this behavior in the current Product/BFM conversation.
+    *   **Justification**: Durable records alone are discoverable but do not give the originating sidebar task an immediate result when it is reopened.
+*   **Locks**: Canonical workflow, BFM/Product/workstream skills, focused test, generated plugin mirrors, TASK-090 records.
+*   **Links & Deliverables**: [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69); source `704f958`; 93/93 installed parity; 14-tool installed MCP proof; [Handoff](docs/handoffs/TASK-090.md); [QA](docs/qa/TASK-090.md).
 
 ---
 
