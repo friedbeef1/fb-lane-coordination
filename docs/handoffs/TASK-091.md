@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-091
 lane: fb-product
-status: staging-qa
+status: in-progress
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -107,11 +107,13 @@ identity adapter and the Discovery recommendation.
 Approved brief and decisions: Preserve the existing task suite and implement
 the compatibility-first graph contract only.
 
-Confirmed assumptions and scope changes: Loop-run evidence and orchestration
+Confirmed assumptions and approved scope changes: Loop-run evidence and orchestration
 decomposition are deferred; no release is authorized.
 
-Branch and changed surfaces: `codex/TASK-091-graph-contract`; onboarding,
-graph contract/runtime/tests, plugin package, documentation, and release records.
+Branch, source commits, and changed surfaces: `codex/TASK-091-graph-contract`;
+identity repair `67030fe`, graph candidate `b4f56e7`, record normalization through
+`a47bf41`; onboarding, graph contract/runtime/tests, plugin package,
+documentation, and release records.
 
 Checks, failures, recovery, and results: Focused graph proof passed 72 checks;
 root/package onboarding passed 76 checks plus both native contracts; metadata,

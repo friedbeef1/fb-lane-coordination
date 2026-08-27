@@ -7,7 +7,14 @@ status: checking
 
 # TASK-091 QA — Versioned graph contract and legacy exact-task adapter
 
-Candidate: `0.10.0-beta+codex.20260827100222`
+## Candidate
+
+- Build: `0.10.0-beta+codex.20260827100222`
+- Branch: `codex/TASK-091-graph-contract`
+- Base: `25b607e8f9428f51af44dafc9f1308f1a9e34b0e`
+- Runtime candidate: `b4f56e7`
+- Coordination candidate: `a47bf41`
+
 Worktree: `/private/tmp/fb-graph-loops`  
 Environment: isolated canonical-source clone plus exact FB project lifecycle proof  
 Started: 2026-08-27  
@@ -26,7 +33,7 @@ Completed: pending
 | Stable-ID migration | Seven exact task IDs renamed from historical `FB-LANE` titles to current `FB` titles |
 | Strict receipt | All seven IDs, titles, pins, and attempted actions recorded; `needsReconciliation: false` |
 
-## Focused Checks
+## Focused verification
 
 | Command | Result |
 |---|---|
@@ -51,6 +58,12 @@ no success criterion or safety boundary was weakened.
 
 - Focused release preflight and Doctor.
 - One final repository release checkpoint.
+
+## Release checkpoint
+
+Release checkpoint: requested once for the exact committed TASK-091 candidate
+after the targeted preflight, Doctor Ready result, and clean repository state.
+Result: pending.
 
 ## Limits
 
