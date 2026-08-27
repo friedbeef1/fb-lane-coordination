@@ -7,7 +7,7 @@ status: in-progress
 
 # TASK-091 QA — Versioned graph contract and legacy exact-task adapter
 
-Candidate: pending  
+Candidate: `0.10.0-beta+codex.20260827100222`
 Worktree: `/private/tmp/fb-graph-loops`  
 Environment: isolated canonical-source clone plus exact FB project lifecycle proof  
 Started: 2026-08-27  
@@ -34,6 +34,7 @@ Completed: pending
 | `node --test tools/fb-onboarding.test.cjs` | 38/38 passed |
 | Exact `local-candidates` + `inventory-local` | Complete; nine exact-root user tasks, seven pinned canonical roles |
 | Strict `reconcile` + `status` + `needs-reconciliation` | Passed; lifecycle gate healthy |
+| Focused graph contract, compiler, propagation, scheduler, and BFM | 50/50 passed after observed RED |
 
 ## Remaining Proof
 

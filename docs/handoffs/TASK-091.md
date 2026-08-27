@@ -14,6 +14,8 @@ surface: exact-project onboarding and project graph contract
 
 # TASK-091 — Versioned graph contract and legacy exact-task adapter
 
+Candidate build: `0.10.0-beta+codex.20260827100222`.
+
 ## Goal Alignment Session
 
 Product Goal: Make FB's product-delivery graph deterministic and inspectable
@@ -124,7 +126,7 @@ Repository state: standalone isolated clone from canonical TASK-090 head
 Remaining owner and action: Product/BFM implements and verifies Slice 1, then
 stops at Ready to ship.
 
-Changelog: pending — required for the user-visible plugin candidate.
+Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#0100-beta--2026-08-27).
 
 ## Links
 

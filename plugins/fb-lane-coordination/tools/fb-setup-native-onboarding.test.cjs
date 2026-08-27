@@ -232,6 +232,60 @@ assert.strictEqual(cappedInventory.tasks.find(task => task.id === 'task-product'
 assert.ok(cappedInventory.tasks.filter(task => task.id !== 'task-product').every(task => task.pinned === false));
 assert.ok(cappedInventory.tasks.every(task => task.projectId === repository.projectId));
 
+// Legacy Codex sidebar tasks can predate native project IDs. Reuse is safe only
+// when saved-project, exact-root, complete local-candidate, pinned-title, and
+// read_thread evidence all converge on the same stable task IDs.
+const legacyPinnedEvidence = structuredClone(cappedNativeEvidence);
+legacyPinnedEvidence.threadList.pinnedThreads = onboarding.WORKSTREAMS.map((workstream, index) => ({
+  id: index === 0 ? 'task-product' : `task-${workstream.key}`,
+  projectId: index < 2 ? repository.projectId : null,
+  hostId: 'local',
+  cwd: repository.repositoryPath,
+  title: workstream.title,
+  pinnedIndex: index + 1,
+}));
+const legacyPinnedInventory = onboarding.buildCompleteLocalInventory(
+  legacyPinnedEvidence,
+  repository,
+  { ...classified, candidateIds: localRows.filter(row => row.source === 'vscode').map(row => row.id).sort() },
+);
+assert.strictEqual(
+  legacyPinnedInventory.complete,
+  true,
+  JSON.stringify(legacyPinnedInventory.failures),
+);
+assert.deepStrictEqual(
+  legacyPinnedInventory.tasks.filter(task => task.pinned).map(task => task.id).sort(),
+  onboarding.WORKSTREAMS.map(workstream => `task-${workstream.key}`).sort(),
+);
+
+const legacyTitleInventory = structuredClone(legacyPinnedInventory);
+for (const task of legacyTitleInventory.tasks) {
+  if (!task.pinned) continue;
+  task.title = task.title.replace(/^FB · /, 'FB-LANE · ');
+}
+legacyTitleInventory.tasks.find(task => task.id === 'task-product').title += ' - READY';
+const legacyTitlePlan = onboarding.planRepositoryTaskInventory(legacyTitleInventory, repository);
+assert.strictEqual(legacyTitlePlan.complete, true, JSON.stringify(legacyTitlePlan.failures));
+assert.deepStrictEqual(
+  legacyTitlePlan.actions.filter(action => action.type !== 'reuse').map(action => [action.type, action.taskId]),
+  onboarding.WORKSTREAMS.map(workstream => [
+    'rename',
+    workstream.key === 'product' ? 'task-product' : `task-${workstream.key}`,
+  ]),
+  'legacy FB-LANE titles must reuse stable task IDs and migrate without creating replacements',
+);
+
+const conflictingPinnedEvidence = structuredClone(legacyPinnedEvidence);
+conflictingPinnedEvidence.threadList.pinnedThreads[2].projectId = 'project-other';
+const conflictingPinnedInventory = onboarding.buildCompleteLocalInventory(
+  conflictingPinnedEvidence,
+  repository,
+  { ...classified, candidateIds: localRows.filter(row => row.source === 'vscode').map(row => row.id).sort() },
+);
+assert.strictEqual(conflictingPinnedInventory.complete, false);
+assert.match(conflictingPinnedInventory.failures[0].message, /contradicts|disagree/i);
+
 const dbAlone = onboarding.buildCompleteLocalInventory({}, repository, classified);
 assert.strictEqual(dbAlone.complete, false);
 assert.match(dbAlone.failures.map(item => item.message).join(' '), /project|native|pinned/i);

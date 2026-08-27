@@ -10,43 +10,43 @@ const WORKSTREAMS = Object.freeze([
   {
     key: 'product',
     title: 'FB · Product/BFM',
-    aliases: ['product', 'product bfm', 'fb product', 'fb product bfm'],
+    aliases: ['product', 'product bfm', 'fb product', 'fb product bfm', 'fb lane product bfm', 'fb lane product bfm ready'],
     question: 'How should we coordinate delivery and release?',
   },
   {
     key: 'user',
     title: 'FB · User',
-    aliases: ['user', 'fb user', 'product user', 'fb product user'],
+    aliases: ['user', 'fb user', 'product user', 'fb product user', 'fb lane user'],
     question: 'What user outcome should we deliver?',
   },
   {
     key: 'business',
     title: 'FB · Business',
-    aliases: ['business', 'fb business'],
+    aliases: ['business', 'fb business', 'fb lane business'],
     question: 'How can this succeed commercially?',
   },
   {
     key: 'design',
     title: 'FB · Design',
-    aliases: ['design', 'fb design'],
+    aliases: ['design', 'fb design', 'fb lane design'],
     question: 'How should the experience work and feel?',
   },
   {
     key: 'tech',
     title: 'FB · Tech',
-    aliases: ['tech', 'technical', 'fb tech', 'fb technical'],
+    aliases: ['tech', 'technical', 'fb tech', 'fb technical', 'fb lane tech', 'fb lane technical'],
     question: 'How can this be built safely and reliably?',
   },
   {
     key: 'discovery',
     title: 'FB · Discovery',
-    aliases: ['discovery', 'fb discovery'],
+    aliases: ['discovery', 'fb discovery', 'fb lane discovery'],
     question: 'What do we still need to learn?',
   },
   {
     key: 'bugs',
     title: 'FB · Bugs',
-    aliases: ['bug', 'bugs', 'fb bug', 'fb bugs'],
+    aliases: ['bug', 'bugs', 'fb bug', 'fb bugs', 'fb lane bug', 'fb lane bugs'],
     question: 'What is broken and how do we prove it?',
   },
 ]);
@@ -448,12 +448,14 @@ function buildCompleteLocalInventory(evidence, repository, localCandidates) {
     const id = safeTaskIdentifier(pinned?.id);
     if (!id || pinnedMap.has(id)) return fail('Native pinned-task evidence contains an unsafe, missing, or duplicate task ID.', 'native-evidence');
     pinnedMap.set(id, pinned);
-    const claimsProject = pinned.projectId === identity.projectId;
+    const pinnedProjectId = String(pinned.projectId || '').trim();
+    const claimsProject = pinnedProjectId === identity.projectId;
     const claimsRoot = sameRepository(pinned.cwd, identity.repositoryPath);
-    if (claimsProject !== claimsRoot) {
+    const isLegacyUnscopedAtExactRoot = !pinnedProjectId && claimsRoot;
+    if ((!claimsProject && !isLegacyUnscopedAtExactRoot) || (claimsProject && !claimsRoot)) {
       return fail(`Pinned task ${id} contradicts the requested project ID and canonical repository root.`, 'native-evidence');
     }
-    if (claimsProject && !candidateIds.includes(id)) {
+    if ((claimsProject || isLegacyUnscopedAtExactRoot) && !candidateIds.includes(id)) {
       return fail(`Pinned exact-project task ${id} is missing from the complete local candidate enumeration.`, 'native-evidence');
     }
   }
@@ -479,7 +481,8 @@ function buildCompleteLocalInventory(evidence, repository, localCandidates) {
     }
     const pinned = pinnedMap.get(id);
     const recent = recentMap.get(id);
-    if (pinned && (pinned.projectId !== identity.projectId
+    const pinnedProjectId = String(pinned?.projectId || '').trim();
+    if (pinned && ((pinnedProjectId && pinnedProjectId !== identity.projectId)
         || !sameRepository(pinned.cwd, identity.repositoryPath)
         || String(pinned.title || '') !== String(detail.title))) {
       return fail(`Pinned-task and read_thread evidence disagree for ${id}.`, 'native-evidence');
