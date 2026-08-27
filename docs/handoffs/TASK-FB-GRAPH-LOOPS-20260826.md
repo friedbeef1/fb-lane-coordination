@@ -9,8 +9,8 @@ record_model: normalized-v1
 
 # FB Graph, State, and Loop Model
 
-Date: 2026-08-26  
-Source: FB · Discovery  
+Date: 2026-08-26
+Source: FB · Discovery
 Next owner: Product/BFM
 
 ## Goal Alignment Session

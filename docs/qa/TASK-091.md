@@ -15,9 +15,9 @@ status: passed
 - Runtime candidate: `b4f56e7`
 - Coordination candidate: `a47bf41`
 
-Worktree: `/private/tmp/fb-graph-loops`  
-Environment: isolated canonical-source clone plus exact FB project lifecycle proof  
-Started: 2026-08-27  
+Worktree: `/private/tmp/fb-graph-loops`
+Environment: isolated canonical-source clone plus exact FB project lifecycle proof
+Started: 2026-08-27
 Completed: 2026-08-27
 
 ## Identity and Lifecycle Evidence
