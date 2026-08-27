@@ -54,6 +54,13 @@ One consolidated candidate repair corrected two stale metadata assertions and
 one whitespace defect. The graph and onboarding runtime proofs stayed green;
 no success criterion or safety boundary was weakened.
 
+The first GitHub readiness run then exposed one portability-only omission: the
+documented archive fallback copied `fb-project-graph.cjs` without its new graph
+contract runtime and JSON dependency. The single focused integration repair
+adds both files to that fallback. `node tools/fb-eval.test.cjs` passed 19/19,
+including an exact clean-room fallback execution; no runtime criterion or
+release gate was relaxed.
+
 ## Remaining Proof
 
 None for the approved candidate. Merge, marketplace publication, reinstall,

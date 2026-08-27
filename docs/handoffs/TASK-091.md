@@ -118,7 +118,10 @@ documentation, and release records.
 Checks, failures, recovery, and results: Focused graph proof passed 72 checks;
 root/package onboarding passed 76 checks plus both native contracts; metadata,
 91-file package parity, syntax, and whitespace passed. One stale metadata
-assertion batch was corrected without changing runtime behavior. See
+assertion batch was corrected without changing runtime behavior. GitHub's first
+readiness run found that the documented archive fallback omitted the new graph
+contract dependencies; one focused repair added them and its clean-room eval
+proof passed 19/19. See
 [TASK-091 QA](../qa/TASK-091.md).
 
 Review state, direct links, limits, and external gates: not reviewable. No
