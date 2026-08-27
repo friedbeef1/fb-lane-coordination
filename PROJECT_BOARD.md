@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-091 | In Progress | FB-Product / BFM + FB-Discovery | Versioned graph contract and legacy exact-task adapter | Preserve the seven proven sidebar tasks, then introduce one machine-readable graph/state/transition contract with v1 read compatibility and fail-closed authority semantics | `tools/fb-onboarding.cjs`, graph contract/runtime/tests, package manifest/mirrors, TASK-091 records | Graph-driven route: exact task receipt repaired without replacements; Slice 1 implementation underway; [Handoff](docs/handoffs/TASK-091.md); [Discovery input](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [QA](docs/qa/TASK-091.md) |
 | TASK-090 | Staging QA | FB-Product / BFM | Workstream result return; FB `0.9.4-beta+codex.20260821034517` | Return every Product/BFM disposition and delivery result to its originating workstream through the durable handoff/card plus one exact-task passive summary per BFM cycle | `docs/fb/workflow.md`, Product/BFM and six workstream skills, focused contract, generated plugin mirrors | Ready to ship on [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69): focused root/package behavior, Product-control, metadata, 88-file parity, syntax, whitespace, and three-handoff mock passed; [Handoff](docs/handoffs/TASK-090.md); [QA](docs/qa/TASK-090.md) |
 | TASK-089 | Done | FB-Product / BFM | FB `0.9.3-beta+codex.20260820032957` release | Publish the combined TASK-087–089 reliability stack while preserving existing six workstream tasks and refreshing only Product/BFM where exact project identity is proven | None; released | PR #68 merged as `9fff83f`; Git marketplace and installed exact build verified; 92/92 parity and 14 MCP tools; final native relist proves all three active projects retain exactly seven original pinned tasks; stale delegated Product replacement attempts failed closed and were archived; [Handoff](docs/handoffs/TASK-089.md); [QA](docs/qa/TASK-089.md) |
 | TASK-088 | Superseded | FB-Product / BFM | Exact onboarding receipt identity repair | Accept one durable approval-bound replacement of an archived canonical task while keeping every other exact task binding unchanged | None; source is inherited by TASK-089 | Exact installed 0.9.2 runtime reports seven pinned bindings and `needsReconciliation: false` on real Unmirror; source and evidence are incorporated into TASK-089 / FB 0.9.3; [Handoff](docs/handoffs/TASK-088.md); [QA](docs/qa/TASK-088.md) |
@@ -40,6 +41,27 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-091 - Versioned graph contract and legacy exact-task adapter
+
+*   **Status**: In Progress — identity repair passed against the exact FB project; graph contract Slice 1 is active.
+*   **Owner / Thread**: FB-Product / BFM with FB-Discovery evidence.
+*   **Area**: Exact-project onboarding compatibility, graph schema, state registry, transition validation, plugin packaging.
+*   **Scope**: Reuse the existing seven pinned tasks when legacy native records omit project IDs but complete saved-project, exact-root, local-candidate, pinned-title, and read-thread evidence agree. Recognize the historical `FB-LANE` task prefix only for stable-ID migration. Add one versioned machine-readable contract for graph nodes, edges, aliases, directionality, entity-scoped states, terminality, and allowed transitions. Preserve v1 reads, canonicalize new writes, and keep authority edges incapable of granting approval, verification, release, or **Push Live**.
+*   **Out of Scope**: Loop-run entities, orchestration decomposition, task replacement, graph database, transcript capture, merge, publication, global install, or live release.
+*   **Goal Alignment Session**:
+    *   **Objective**: Make FB's product-delivery graph deterministic and inspectable without weakening exact-project identity or release authority.
+    *   **Key Results**: Seven original task IDs reconcile with no duplicates; invalid graph types, directionality, transitions, aliases, and authority inference fail with actionable diagnostics; v1 artifacts remain readable.
+    *   **Definition of Done**: Focused RED/GREEN onboarding and graph contracts, exact-project receipt proof, generated package parity, affected syntax, links, and whitespace, one whole-candidate review, and release-candidate preflight.
+    *   **Gate / Review Point**: Stop at Ready to ship. **Push Live** remains the only merge/publication authority.
+    *   **Approval**: approved — James approved the identity-safe adapter recovery and the Discovery recommendation in the current Product/BFM task.
+    *   **Justification**: The existing graph vocabulary and procedural loops are useful, but states and transitions are fragmented; the exact project also exposed a safe legacy-identity case that should reuse rather than replace tasks.
+*   **Story Split Pass**: Slice A — legacy exact-task adapter and strict receipt; Slice 1 — versioned graph/state contract. Later loop evidence and orchestration decomposition remain separate Product decisions.
+*   **Locks**: `tools/fb-onboarding.cjs`, `tools/fb-setup-native-onboarding.test.cjs`, new graph contract/runtime/test, `tools/fb-project-graph.cjs`, package manifest/mirrors, version/changelog, TASK-091 records.
+*   **Visual Preview Decision**: Skip — nonvisual runtime and coordination work.
+*   **Links & Deliverables**: [Handoff](docs/handoffs/TASK-091.md); [Discovery input](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [QA](docs/qa/TASK-091.md).
 
 ---
 

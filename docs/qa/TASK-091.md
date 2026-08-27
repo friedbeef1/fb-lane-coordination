@@ -1,0 +1,48 @@
+---
+type: fb-qa-artifact
+task: TASK-091
+record_model: normalized-v1
+status: in-progress
+---
+
+# TASK-091 QA — Versioned graph contract and legacy exact-task adapter
+
+Candidate: pending  
+Worktree: `/private/tmp/fb-graph-loops`  
+Environment: isolated canonical-source clone plus exact FB project lifecycle proof  
+Started: 2026-08-27  
+Completed: pending
+
+## Identity and Lifecycle Evidence
+
+| Proof | Result |
+|---|---|
+| Source lineage | Branch from canonical TASK-090 head `25b607e8f9428f51af44dafc9f1308f1a9e34b0e` |
+| Exact project | `local-a28d2eb514af1cd94520f53b30abe79e` at `/Users/jamesyeang/Documents/fb-lane` |
+| Legacy failure | Five pinned tasks exposed null native project IDs while saved-project, exact-root, local-candidate, title, pin, and read-thread evidence agreed |
+| RED proof | Native onboarding contract failed at the intended null-ID rejection |
+| GREEN proof | Native contract passed; conflicting non-null project IDs remain rejected |
+| Real inventory | Seven pinned FB tasks plus two ordinary exact-root tasks; no duplicate or replacement task |
+| Stable-ID migration | Seven exact task IDs renamed from historical `FB-LANE` titles to current `FB` titles |
+| Strict receipt | All seven IDs, titles, pins, and attempted actions recorded; `needsReconciliation: false` |
+
+## Focused Checks
+
+| Command | Result |
+|---|---|
+| `node tools/fb-setup-native-onboarding.test.cjs` | Passed after observed RED |
+| `node --test tools/fb-onboarding.test.cjs` | 38/38 passed |
+| Exact `local-candidates` + `inventory-local` | Complete; nine exact-root user tasks, seven pinned canonical roles |
+| Strict `reconcile` + `status` + `needs-reconciliation` | Passed; lifecycle gate healthy |
+
+## Remaining Proof
+
+- Graph contract RED/GREEN.
+- Package generation and root/package parity.
+- Affected syntax, links, and whitespace.
+- One whole-candidate review and release-candidate preflight.
+
+## Limits
+
+No public merge, publication, global installation, or consumer project change
+has been authorized. Private thread content was not persisted in evidence.
