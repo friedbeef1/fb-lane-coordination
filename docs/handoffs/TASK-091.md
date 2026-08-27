@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-091
 lane: fb-product
-status: implemented
+status: done
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -124,24 +124,39 @@ contract dependencies; one focused repair added them and its clean-room eval
 proof passed 19/19. See
 [TASK-091 QA](../qa/TASK-091.md).
 
-Review state, direct links, limits, and external gates: not reviewable. No
-preview is applicable to this nonvisual plugin slice. **Push Live** remains the
-external release gate.
+Review state, direct links, limits, and external gates: completed build. No
+preview is applicable to this nonvisual plugin slice. The approved **Push Live**
+release completed through [PR #70](https://github.com/friedbeef1/fb-lane-coordination/pull/70).
 
-Repository state: standalone isolated clone from canonical TASK-090 head
-`25b607e8f9428f51af44dafc9f1308f1a9e34b0e`; identity repair commit
-`67030fe`; graph candidate commit `b4f56e7`.
+Repository state: reviewed candidate `5bdcecd`, ancestry-only identical-tree
+refresh `e1db933`, and public `main` merge `e1fcac5`.
 
-Remaining owner and action: Candidate is **Ready to ship**. James may say
-**Push Live** to authorize merge, marketplace publication, and reinstall.
+Remaining owner and action: None for TASK-091. Open a new Codex task so the
+installed 0.10.0 skills and MCP runtime load.
 
 Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#0100-beta--2026-08-27).
 
-External gates: **Push Live** is required for merge, marketplace publication,
-global reinstall, and installed-runtime verification.
+External gates: complete — James explicitly said **Push Live**; PRs #69 and
+#70, Git marketplace publication, reinstall, and installed-runtime verification
+completed without consumer-project mutation.
 
-Remaining owner/action: James may say **Push Live**; Product/BFM then owns the
-exact candidate release and fresh-task installed-runtime proof.
+Remaining owner/action: none for TASK-091; a fresh Codex task must load the
+replaced plugin before further plugin-dependent work.
+
+## Live release verification
+
+- PR #69 merged as `4527b6aa8167ba1d68acdbfc2bdf23ed54cb57f4`.
+- PR #70 merged the reviewed candidate as
+  `e1fcac5f41e0b040983d3808c90269c79e08fe32` after an ancestry-only refresh
+  proved the exact same tree hash and passed GitHub readiness.
+- The configured `fb-lane` Git marketplace now tracks `main` at `e1fcac5`.
+- Codex reports `0.10.0-beta+codex.20260827100222` installed and enabled.
+- All 91 declared package files plus three distribution manifests are
+  byte-identical between marketplace and installed cache: 94/94.
+- Installed manifests and graph contract JSON parse; required skills exist;
+  installed runtime modules pass syntax; bundled MCP returns 14 tools including
+  `fb_project_context`.
+- This task remains loaded from 0.9.4. A new Codex task is required.
 
 ## Links
 

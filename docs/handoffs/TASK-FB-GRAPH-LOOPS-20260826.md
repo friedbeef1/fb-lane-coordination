@@ -68,7 +68,7 @@ Outcome: completed.
 Delivered work: Exact-project identity recovery and the versioned graph
 contract were completed in TASK-091.
 Evidence: [TASK-091 QA](../qa/TASK-091.md).
-Remaining gate: explicit **Push Live** for merge, publication, and reinstall.
-Final status: implemented.
+Remaining gate: none; FB 0.10.0 is merged, published, and installed.
+Final status: done.
 Return delivery: terminal notice delivered to the exact receipt-bound Discovery task.
 Result fingerprint: `TASK-091:graph-contract:implemented`.

@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-090
 lane: fb-product
-status: staging-qa
+status: done
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -147,17 +147,15 @@ installed MCP tools. Public merge/publication remains gated by **Push Live**.
 Repository state: Isolated worktree based on public `main`; candidate changes
 are scoped to TASK-090.
 
-Remaining owner and action: Start a fresh Codex task to load the installed
-0.9.4 skill and MCP runtime. Public merge/publication still requires **Push
-Live**.
+Remaining owner and action: None for TASK-090. Its behavior is published and
+installed in FB 0.10.0; open a fresh Codex task to load that runtime.
 
 Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#094-beta--2026-08-21).
 
 ## Product/BFM Closeout
 
-The kickoff-and-return contract is implemented in canonical and packaged
-guidance. Focused root/package behavior and package parity passed. Public
-release remains unauthorized until **Push Live**.
+The kickoff-and-return contract is implemented, merged through PR #69 as
+`4527b6a`, and published and installed with FB 0.10.0.
 
 ## Verification Handoff
 
@@ -169,10 +167,8 @@ release remains unauthorized until **Push Live**.
 
 ## Gate
 
-External gates: James says **Push Live** for PR #69 before Product/BFM may
-merge or publish the marketplace build. The separately authorized local
-candidate install and installed-artifact verification are complete.
+External gates: complete — James explicitly said **Push Live**; PR #69 merged
+and its behavior is present in the published and installed 0.10.0 build.
 
-Remaining owner/action: Open a fresh Codex task for loaded-runtime use.
-Product/BFM keeps PR #69 staged for optional review; after an explicit **Push
-Live**, run the public release checkpoint and merge/publish the exact build.
+Remaining owner/action: none for TASK-090; open a fresh Codex task for
+loaded-runtime use.

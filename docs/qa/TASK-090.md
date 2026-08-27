@@ -111,7 +111,8 @@ mechanically required `External gates` and `Remaining owner/action` fields. The
 single focused repair added those exact lifecycle fields without changing
 runtime or plugin behavior; Doctor is rerun as the failed proof.
 
-GitHub merge and public marketplace publication remain gated by **Push Live**.
-The supported local install and installed-artifact verification passed. This
-current task remains loaded from 0.9.3; a new Codex task is required to load the
-replacement 0.9.4 skill and MCP runtime.
+James explicitly said **Push Live**. PR #69 merged as `4527b6a`, and its
+workstream result-return behavior is published and installed as part of FB
+`0.10.0-beta+codex.20260827100222`. The exact 0.10.0 installation passed 94/94
+artifact parity and a 14-tool MCP proof. This task remains loaded from 0.9.4; a
+new Codex task is required to load the replacement runtime.
