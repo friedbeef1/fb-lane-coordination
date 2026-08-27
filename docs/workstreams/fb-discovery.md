@@ -15,7 +15,7 @@ This card is a managed current-state projection. PROJECT_BOARD.md remains the so
 ## Recently delivered
 - TASK-091 — Discovery's compatibility-first graph recommendation was included;
   the versioned graph/state/transition contract passed focused proof and the
-  release checkpoint and is Ready to ship. [Result](../handoffs/TASK-FB-GRAPH-LOOPS-20260826.md#productbfm-result)
+  release checkpoint and is published and installed in FB 0.10.0. [Result](../handoffs/TASK-FB-GRAPH-LOOPS-20260826.md#productbfm-result)
 
 ## Historical lookup
 - [Handoff index](../handoffs/index.md)

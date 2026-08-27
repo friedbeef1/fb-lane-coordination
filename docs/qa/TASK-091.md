@@ -83,5 +83,19 @@ Doctor Ready result, whole-candidate review, and clean repository state.
 
 ## Limits
 
-No public merge, publication, global installation, or consumer project change
-has been authorized. Private thread content was not persisted in evidence.
+No consumer project was mutated or deployed. Private thread content was not
+persisted in evidence.
+
+## Live release verification
+
+| Layer | Result |
+|---|---|
+| Authority | James explicitly said **Push Live** in Product/BFM |
+| Dependency release | [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69) merged as `4527b6a` |
+| TASK-091 release | [PR #70](https://github.com/friedbeef1/fb-lane-coordination/pull/70) merged as `e1fcac5` after green readiness |
+| Candidate identity | Reviewed `5bdcecd`; ancestry-only `e1db933` had the identical tree hash before merge |
+| Marketplace | Git source `friedbeef1/fb-lane-coordination`, ref `main`, exact head `e1fcac5` |
+| Installed build | `0.10.0-beta+codex.20260827100222`, installed and enabled |
+| Installed parity | 94/94 declared package and distribution files byte-identical |
+| Installed runtime | Manifests/graph JSON parse, required skills present, runtime syntax passed, MCP returned 14 tools including `fb_project_context` |
+| Reload boundary | Open a new Codex task before further plugin-dependent work |

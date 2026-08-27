@@ -13,9 +13,9 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-091 | Staging QA | FB-Product / BFM + FB-Discovery | FB `0.10.0-beta`; versioned graph contract and legacy exact-task adapter | Preserve the seven proven sidebar tasks, then introduce one machine-readable graph/state/transition contract with v1 read compatibility and fail-closed authority semantics | None; candidate is committed and release-gated | Ready to ship: identity repair, focused proof, 91-file packaging, whole-candidate review, targeted preflight, Doctor, and one full release checkpoint passed; [Handoff](docs/handoffs/TASK-091.md); [Discovery input](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [QA](docs/qa/TASK-091.md) |
+| TASK-091 | Done | FB-Product / BFM + FB-Discovery | FB `0.10.0-beta`; versioned graph contract and legacy exact-task adapter | Preserve the seven proven sidebar tasks, then introduce one machine-readable graph/state/transition contract with v1 read compatibility and fail-closed authority semantics | None; released | PR #70 merged as `e1fcac5`; Git marketplace `main` and exact installed build `0.10.0-beta+codex.20260827100222` verified with 94/94 parity and 14 MCP tools; [Handoff](docs/handoffs/TASK-091.md); [Discovery input](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [QA](docs/qa/TASK-091.md) |
 | TASK-FB-GRAPH-LOOPS-20260826 | Done | FB-Discovery → FB-Product / BFM | Compatibility-first graph recommendation | Identify a versioned contract slice without forcing a monolithic graph migration | None; absorbed into TASK-091 | Product dispositioned the recommendation into TASK-091; [Discovery handoff](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [TASK-091 QA](docs/qa/TASK-091.md) |
-| TASK-090 | Staging QA | FB-Product / BFM | Workstream result return; FB `0.9.4-beta+codex.20260821034517` | Return every Product/BFM disposition and delivery result to its originating workstream through the durable handoff/card plus one exact-task passive summary per BFM cycle | `docs/fb/workflow.md`, Product/BFM and six workstream skills, focused contract, generated plugin mirrors | Ready to ship on [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69): focused root/package behavior, Product-control, metadata, 88-file parity, syntax, whitespace, and three-handoff mock passed; [Handoff](docs/handoffs/TASK-090.md); [QA](docs/qa/TASK-090.md) |
+| TASK-090 | Done | FB-Product / BFM | Workstream result return; released in FB `0.10.0-beta+codex.20260827100222` | Return every Product/BFM disposition and delivery result to its originating workstream through the durable handoff/card plus one exact-task passive summary per BFM cycle | None; released | [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69) merged as `4527b6a` and was published with TASK-091 through FB 0.10.0; [Handoff](docs/handoffs/TASK-090.md); [QA](docs/qa/TASK-090.md) |
 | TASK-089 | Done | FB-Product / BFM | FB `0.9.3-beta+codex.20260820032957` release | Publish the combined TASK-087–089 reliability stack while preserving existing six workstream tasks and refreshing only Product/BFM where exact project identity is proven | None; released | PR #68 merged as `9fff83f`; Git marketplace and installed exact build verified; 92/92 parity and 14 MCP tools; final native relist proves all three active projects retain exactly seven original pinned tasks; stale delegated Product replacement attempts failed closed and were archived; [Handoff](docs/handoffs/TASK-089.md); [QA](docs/qa/TASK-089.md) |
 | TASK-088 | Superseded | FB-Product / BFM | Exact onboarding receipt identity repair | Accept one durable approval-bound replacement of an archived canonical task while keeping every other exact task binding unchanged | None; source is inherited by TASK-089 | Exact installed 0.9.2 runtime reports seven pinned bindings and `needsReconciliation: false` on real Unmirror; source and evidence are incorporated into TASK-089 / FB 0.9.3; [Handoff](docs/handoffs/TASK-088.md); [QA](docs/qa/TASK-088.md) |
 | TASK-087 | Superseded | FB-Product / BFM | Dataless quarantined-root BFM intake reliability | Make intake terminate deterministically from exact migration-manifest and routing-receipt evidence while failing closed on missing or changed evidence | None; source preserved and inherited by TASK-089 | Dataless probe now returns deterministically; exact Unmirror freeze exposed a distinct linked-worktree baseline false drift owned by TASK-089; [Handoff](docs/handoffs/TASK-087.md); [QA](docs/qa/TASK-087.md) |
@@ -47,7 +47,7 @@
 
 ### TASK-091 - Versioned graph contract and legacy exact-task adapter
 
-*   **Status**: Staging QA — **Ready to ship**; identity repair, focused proof, packaging, one whole-candidate review, targeted preflight, Doctor, and one release checkpoint passed.
+*   **Status**: Done — PR #70 merged as `e1fcac5`; the Git marketplace and exact installed 0.10.0 build are verified.
 *   **Owner / Thread**: FB-Product / BFM with FB-Discovery evidence.
 *   **Area**: Exact-project onboarding compatibility, graph schema, state registry, transition validation, plugin packaging.
 *   **Scope**: Reuse the existing seven pinned tasks when legacy native records omit project IDs but complete saved-project, exact-root, local-candidate, pinned-title, and read-thread evidence agree. Recognize the historical `FB-LANE` task prefix only for stable-ID migration. Add one versioned machine-readable contract for graph nodes, edges, aliases, directionality, entity-scoped states, terminality, and allowed transitions. Preserve v1 reads, canonicalize new writes, and keep authority edges incapable of granting approval, verification, release, or **Push Live**.
@@ -83,7 +83,7 @@
 
 ### TASK-090 - Workstream result return
 
-*   **Status**: Staging QA — Ready to ship; FB `0.9.4-beta+codex.20260821034517` is installed locally from PR #69, while public release remains gated.
+*   **Status**: Done — PR #69 merged as `4527b6a`; its workstream return behavior is published and installed in FB `0.10.0-beta+codex.20260827100222`.
 *   **Owner / Thread**: FB-Product / BFM.
 *   **Scope**: Require Product/BFM to send one passive kickoff after the Build Brief and slice ownership freeze to each materially involved exact receipt-bound workstream task, record every acted-on handoff result durably, refresh the originating workstream card, and send one grouped passive result per cycle. Include blocked and non-execution dispositions, notification caps, private-agent visibility, idempotency, and an honest pending fallback.
 *   **Out of Scope**: New commands, new workstreams, app-level task discovery, public marketplace publication, or merge. Supported local candidate installation is separately authorized for verification.
@@ -94,8 +94,8 @@
     *   **Gate / Review Point**: Stop at Ready to ship; **Push Live** remains separate.
     *   **Approval**: approved — James explicitly approved this behavior in the current Product/BFM conversation.
     *   **Justification**: Durable records alone are discoverable but do not give the originating sidebar task an immediate result when it is reopened.
-*   **Locks**: Canonical workflow, BFM/Product/workstream skills, focused test, generated plugin mirrors, TASK-090 records.
-*   **Links & Deliverables**: [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69); source `704f958`; 93/93 installed parity; 14-tool installed MCP proof; [Handoff](docs/handoffs/TASK-090.md); [QA](docs/qa/TASK-090.md).
+*   **Locks**: None; released.
+*   **Links & Deliverables**: [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69) merged as `4527b6a`; source `704f958`; released with TASK-091 in the exact 0.10.0 installation; [Handoff](docs/handoffs/TASK-090.md); [QA](docs/qa/TASK-090.md).
 
 ---
 
