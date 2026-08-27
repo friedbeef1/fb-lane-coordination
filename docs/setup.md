@@ -17,8 +17,8 @@ FB currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
 setup paths when you are not installing through the plugin flow.
 
-The current release candidate is **FB 0.9.4-beta** build
-`0.9.4-beta+codex.20260821034517`.
+The current release candidate is **FB 0.10.0-beta** build
+`0.10.0-beta+codex.20260827100222`.
 
 ## Install or update from GitHub
 
@@ -115,7 +115,8 @@ fb_lane_tmp="$(mktemp -d)"
 trap 'rm -rf "$fb_lane_tmp"' EXIT
 curl -fsSL "$FB_LANE_ARCHIVE_URL" | tar -xz -C "$fb_lane_tmp" --strip-components=1
 mkdir -p tools docs/fb docs/evals templates/docs/learning
-cp "$fb_lane_tmp"/tools/fb-{lane,onboarding,session,eval,efficiency,changelog-closeout,records,release-preflight,project-graph,graph-scheduler,graph-propagation,graph-learning,graph-bfm,board-context,control-loop,workstream-handoff,learning}.cjs tools/
+cp "$fb_lane_tmp"/tools/fb-{lane,onboarding,session,eval,efficiency,changelog-closeout,records,release-preflight,graph-contract,project-graph,graph-scheduler,graph-propagation,graph-learning,graph-bfm,board-context,control-loop,workstream-handoff,learning}.cjs tools/
+cp "$fb_lane_tmp"/tools/fb-graph-contract.json tools/
 cp "$fb_lane_tmp"/docs/fb/{README,start,workflow,evidence,guardrails,sessions,evals,records,graph,control-loop,learning}.md docs/fb/
 cp "$fb_lane_tmp"/docs/evals/{eval-record-template,agent-behavior-scorecard-template}.md docs/evals/
 cp "$fb_lane_tmp"/templates/docs/learning/index.md templates/docs/learning/

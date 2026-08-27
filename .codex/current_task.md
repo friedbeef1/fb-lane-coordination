@@ -2,15 +2,15 @@
 
 ## Current
 
-- TASK-089 — bounded linked-worktree handoff delta candidate is verified and
-  awaiting a later versioned release cycle.
+- TASK-091 — exact-project lifecycle repair is complete; implement the approved
+  versioned graph/state contract Slice 1.
 
 ## Next ready
 
-- Reconcile the nineteen genuine Unmirror active-branch handoff conflicts in
-  their owning project; do not hide them in the FB plugin.
+- Finish focused graph contract proof, generate package mirrors once, review the
+  whole candidate once, and stop at Ready to ship.
 
 ## External blocks
 
-- No FB implementation block. Push, merge, publication, installation, and
-  release remain outside this candidate until explicit **Push Live**.
+- Push, merge, publication, global installation, and release remain outside
+  this candidate until explicit **Push Live**.

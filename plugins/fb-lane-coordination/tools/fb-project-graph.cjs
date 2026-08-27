@@ -6,21 +6,22 @@ const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
+const {
+  CONTRACT: GRAPH_CONTRACT,
+  supportsGraphRead,
+  canonicalNodeType,
+  canonicalEdgeType,
+  canonicalState,
+  validateStateTransition,
+  validateGraphEdge,
+} = require('./fb-graph-contract.cjs');
+
 const GRAPH_SCHEMA_VERSION = 1;
+const GRAPH_CONTRACT_VERSION = GRAPH_CONTRACT.contractVersion;
 const CONTEXT_SOURCE_CAP = 8;
-const NODE_TYPES = new Set([
-  'project', 'workstream', 'user-decision', 'assumption', 'requirement', 'handoff', 'task',
-  'implementation-slice', 'bug', 'verification', 'lesson', 'release',
-  // Level-1 aliases remain readable for existing graphs and historical artifacts.
-  'okr', 'decision', 'document', 'qa', 'commit',
-]);
-const EDGE_TYPES = new Set([
-  'depends-on', 'blocks', 'conflicts-with', 'supersedes', 'affects', 'implements',
-  'verified-by', 'learned-from', 'owned-by', 'included-in-release',
-  // Level-1 aliases remain readable for existing graphs and historical artifacts.
-  'contains', 'supports', 'documented-by', 'references', 'implemented-by', 'released-as',
-]);
-const AUTHORITY_EDGE_TYPES = new Set(['approved-by', 'authorizes', 'releases']);
+const NODE_TYPES = new Set([...Object.keys(GRAPH_CONTRACT.nodeTypes), ...Object.keys(GRAPH_CONTRACT.nodeAliases)]);
+const EDGE_TYPES = new Set([...Object.keys(GRAPH_CONTRACT.edgeTypes), ...Object.keys(GRAPH_CONTRACT.edgeAliases)]);
+const AUTHORITY_EDGE_TYPES = new Set(GRAPH_CONTRACT.authority.forbiddenEdgeTypes);
 const SENSITIVE = /(?:\bauthorization\s*:\s*bearer\s+\S+|\b(?:api[_-]?key|password|secret|token)\b\s*[:=]\s*(?:"[^"]+"|'[^']+'|[^\s,;]+))/i;
 const SAFE_TASK_ID = /^[A-Z][A-Z0-9]*(?:-[A-Z0-9][A-Z0-9-]*)$/;
 
@@ -417,6 +418,9 @@ function validateProjectGraph(root, graph) {
     message: 'Graph output contains sensitive-looking content in a persisted scalar field.',
   });
   const findings = [];
+  if (!supportsGraphRead(graph.schemaVersion)) {
+    findings.push({ code: 'unsupported-graph-schema', message: `Unsupported project graph schema: ${graph.schemaVersion}` });
+  }
   const pushFinding = finding => {
     const key = `${finding.code || ''}\0${finding.message || ''}\0${finding.source || ''}`;
     if (!findings.some(existing => `${existing.code || ''}\0${existing.message || ''}\0${existing.source || ''}` === key)) {
@@ -455,7 +459,22 @@ function validateProjectGraph(root, graph) {
   }
   for (const node of graph.nodes || []) {
     if (!NODE_TYPES.has(node.type)) findings.push({ code: 'invalid-node-type', message: `Invalid node type: ${node.type}` });
+    if (Number(graph.schemaVersion) >= GRAPH_CONTRACT.graphSchema.write && GRAPH_CONTRACT.nodeAliases[node.type]) {
+      findings.push({ code: 'noncanonical-node-type', message: `Graph schema ${graph.schemaVersion} must write canonical node type ${canonicalNodeType(node.type)}.` });
+    }
+    if (node.state !== undefined) {
+      try {
+        canonicalState(node.type, node.state);
+      } catch (error) {
+        findings.push({ code: 'invalid-state', message: error.message });
+      }
+    }
+    if (node.previousState !== undefined && node.state !== undefined) {
+      const transition = validateStateTransition(node.type, node.previousState, node.state);
+      if (!transition.valid) findings.push({ code: transition.code, message: transition.message });
+    }
   }
+  const nodeTypesById = new Map((graph.nodes || []).map(node => [node.id, node.type]));
   for (const edge of graph.edges || []) {
     if (!EDGE_TYPES.has(edge.type)) findings.push({ code: 'invalid-edge-type', message: `Invalid edge type: ${edge.type}` });
     if (!nodeIds.has(edge.from) || !nodeIds.has(edge.to)) findings.push({ code: 'missing-endpoint', message: 'Graph edge endpoint is missing.' });
@@ -464,6 +483,17 @@ function validateProjectGraph(root, graph) {
     }
     if (edge.type === 'verified-by' && edge.verificationState === 'passed') {
       findings.push({ code: 'derived-test-success', message: 'A derived graph cannot prove successful verification.' });
+    }
+    if (Number(graph.schemaVersion) >= GRAPH_CONTRACT.graphSchema.write && EDGE_TYPES.has(edge.type)) {
+      if (GRAPH_CONTRACT.edgeAliases[edge.type]) {
+        findings.push({ code: 'noncanonical-edge-type', message: `Graph schema ${graph.schemaVersion} must write canonical edge type ${canonicalEdgeType(edge.type).type}.` });
+      }
+      const direction = validateGraphEdge({
+        ...edge,
+        fromType: nodeTypesById.get(edge.from),
+        toType: nodeTypesById.get(edge.to),
+      });
+      if (!direction.valid) findings.push({ code: direction.code, message: direction.message });
     }
   }
   return findings;
@@ -725,7 +755,7 @@ function resolveProjectContext(root, query) {
     const graph = readProjectGraph(root);
     const current = buildProjectGraph(root, { generatedAt: graph.generatedAt });
     const validation = validateProjectGraph(root, graph);
-    if (graph.schemaVersion !== GRAPH_SCHEMA_VERSION) findings.push('Project graph schema is unsupported.');
+    if (!supportsGraphRead(graph.schemaVersion)) findings.push('Project graph schema is unsupported.');
     if (graph.sourceFingerprint?.hash !== current.sourceFingerprint.hash) findings.push('Project graph is stale; used normalized FB records.');
     findings.push(...validation.map(finding => finding.message));
     if (!findings.length) {
@@ -972,6 +1002,8 @@ function evaluateGraduation(input = {}) {
 
 module.exports = {
   GRAPH_SCHEMA_VERSION,
+  GRAPH_CONTRACT_VERSION,
+  supportsGraphRead,
   CONTEXT_SOURCE_CAP,
   SAFE_TASK_ID,
   normalizeTaskId,

@@ -11,6 +11,8 @@ const graphModule = path.join(__dirname, 'fb-project-graph.cjs');
 assert.ok(fs.existsSync(graphModule), 'fb-project-graph.cjs must implement the graduated graph contract');
 
 const {
+  GRAPH_CONTRACT_VERSION,
+  supportsGraphRead,
   buildProjectGraph,
   validateProjectGraph,
   writeProjectGraph,
@@ -276,6 +278,8 @@ test('builds a source-backed Level 1 graph without copying record prose', () => 
   const root = fixture();
   const graph = buildProjectGraph(root, { generatedAt: '2026-07-26T00:00:00.000Z' });
   assert.strictEqual(graph.schemaVersion, 1);
+  assert.strictEqual(GRAPH_CONTRACT_VERSION, 1);
+  assert.strictEqual(supportsGraphRead(1), true);
   assert.strictEqual(graph.level, 1);
   assert.ok(graph.nodes.some(node => node.id === 'task:TASK-100' && node.source === 'PROJECT_BOARD.md'));
   assert.ok(graph.nodes.some(node => node.id === 'handoff:docs/handoffs/TASK-100.md'));
@@ -287,6 +291,38 @@ test('builds a source-backed Level 1 graph without copying record prose', () => 
   assert.deepStrictEqual(validateProjectGraph(root, graph), []);
   assert.ok(!JSON.stringify(graph).includes('Use a deterministic project graph.'));
   assert.ok(!JSON.stringify(graph).includes('Command: `node --test`'));
+});
+
+test('uses the shared contract for v2 direction and transition validation while retaining v1 reads', () => {
+  const root = fixture();
+  const v1 = buildProjectGraph(root, { generatedAt: '2026-07-26T00:00:00.000Z' });
+  v1.nodes.push({
+    id: 'document:legacy', type: 'document', label: 'Legacy document', source: 'PROJECT_BOARD.md',
+    status: 'confirmed', citation: { source: 'PROJECT_BOARD.md' },
+  });
+  assert.ok(!validateProjectGraph(root, v1).some(finding => finding.code === 'invalid-node-type'));
+
+  const v2 = {
+    schemaVersion: 2,
+    contractVersion: 1,
+    compileFindings: [],
+    health: { findings: [] },
+    nodes: [
+      { id: 'task:TASK-100', type: 'task', state: 'done', previousState: 'ready', source: 'PROJECT_BOARD.md', citation: { source: 'PROJECT_BOARD.md' } },
+      { id: 'verification:TASK-100', type: 'verification', state: 'not-run', source: 'docs/qa/TASK-100.md', citation: { source: 'docs/qa/TASK-100.md' } },
+    ],
+    edges: [{
+      from: 'verification:TASK-100', to: 'task:TASK-100', type: 'verified-by', status: 'confirmed',
+      source: 'docs/qa/TASK-100.md', citation: { source: 'docs/qa/TASK-100.md' },
+    }],
+  };
+  const codes = validateProjectGraph(root, v2).map(finding => finding.code);
+  assert.ok(codes.includes('invalid-edge-direction'));
+  assert.ok(codes.includes('invalid-state-transition'));
+
+  const unsupported = structuredClone(v2);
+  unsupported.schemaVersion = 3;
+  assert.ok(validateProjectGraph(root, unsupported).some(finding => finding.code === 'unsupported-graph-schema'));
 });
 
 test('rejects unsafe, sensitive, and authority-bearing graph output', () => {

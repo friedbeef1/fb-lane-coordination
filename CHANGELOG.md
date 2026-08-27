@@ -2,6 +2,34 @@
 
 ## Unreleased
 
+## 0.10.0-beta — 2026-08-27
+
+Build: `0.10.0-beta+codex.20260827100222`
+
+**What changed:** FB now defines graph nodes, edges, aliases, directionality,
+entity-specific states, terminal states, and allowed transitions in one
+versioned machine-readable contract. Existing v1 graph records remain readable;
+contract-backed new writes use canonical schema-v2 names. Exact-project setup
+also reuses legacy pinned tasks whose native project ID is absent only when the
+saved project, canonical root, complete local inventory, stable IDs, titles,
+pins, and read-thread evidence all agree.
+
+**Why it matters:** Product/BFM can reason about graph state and invalid changes
+through one deterministic contract instead of several drifting vocabularies.
+Older FB projects can retain their existing sidebar tasks rather than replacing
+them simply because legacy Codex metadata is incomplete.
+
+**Compatibility:** Existing v1 graph artifacts and historical `FB-LANE` task
+titles remain readable and migrate through their proven stable IDs. Conflicting
+project IDs, roots, titles, details, missing candidates, and duplicates still
+fail closed. Graph edges and transitions cannot grant approval, verification,
+release, or **Push Live** authority. Loop-run entities and orchestration
+decomposition remain deferred.
+
+**Installation or upgrade:** After **Push Live**, upgrade the configured
+`fb-lane` marketplace, reinstall `fb-lane-coordination@fb-lane`, and open a
+fresh Codex task. Existing seven-task project topology is reused.
+
 ## 0.9.4-beta — 2026-08-21
 
 Build: `0.9.4-beta+codex.20260821034517`

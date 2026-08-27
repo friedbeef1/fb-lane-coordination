@@ -1,0 +1,53 @@
+{
+  "contractVersion": 1,
+  "graphSchema": {
+    "read": [1, 2],
+    "write": 2
+  },
+  "nodeTypes": {
+    "project": {"states":["active","archived"],"terminal":["archived"],"transitions":{"active":["archived"]}},
+    "workstream": {"states":["idle","investigating","ready","blocked"],"terminal":[],"transitions":{"idle":["investigating"],"investigating":["ready","blocked","idle"],"ready":["idle","investigating"],"blocked":["investigating","idle"]}},
+    "user-decision": {"states":["proposed","confirmed","superseded"],"terminal":["superseded"],"transitions":{"proposed":["confirmed","superseded"],"confirmed":["superseded"]}},
+    "assumption": {"states":["unconfirmed","confirmed","rejected","superseded"],"terminal":["rejected","superseded"],"transitions":{"unconfirmed":["confirmed","rejected","superseded"],"confirmed":["superseded"]}},
+    "requirement": {"states":["proposed","approved","implemented","verified","rejected","superseded"],"terminal":["verified","rejected","superseded"],"transitions":{"proposed":["approved","rejected","superseded"],"approved":["implemented","superseded"],"implemented":["verified","superseded"]}},
+    "handoff": {"states":["proposed","ready","in-progress","blocked","deferred","implemented","done","rejected","superseded"],"terminal":["done","rejected","superseded"],"transitions":{"proposed":["ready","rejected","superseded"],"ready":["in-progress","blocked","deferred","rejected","superseded"],"in-progress":["blocked","deferred","implemented","superseded"],"blocked":["in-progress","deferred","superseded"],"deferred":["ready","superseded"],"implemented":["done","blocked","superseded"]}},
+    "task": {"states":["inbox","ready","in-progress","blocked","staging-qa","done","deferred","rejected","superseded"],"terminal":["done","rejected","superseded"],"transitions":{"inbox":["ready","rejected","superseded"],"ready":["in-progress","blocked","deferred","rejected","superseded"],"in-progress":["blocked","staging-qa","deferred","superseded"],"blocked":["ready","in-progress","deferred","superseded"],"staging-qa":["in-progress","blocked","done","deferred","superseded"],"deferred":["ready","superseded"]}},
+    "implementation-slice": {"states":["planned","running","blocked","checking","completed","deferred","superseded"],"terminal":["completed","superseded"],"transitions":{"planned":["running","blocked","deferred","superseded"],"running":["blocked","checking","deferred","superseded"],"blocked":["running","deferred","superseded"],"checking":["running","blocked","completed","deferred","superseded"],"deferred":["planned","superseded"]}},
+    "bug": {"states":["reported","reproduced","triaged","in-progress","checking","resolved","blocked","deferred","rejected","superseded"],"terminal":["resolved","rejected","superseded"],"transitions":{"reported":["reproduced","triaged","rejected","superseded"],"reproduced":["triaged","blocked","superseded"],"triaged":["in-progress","blocked","deferred","rejected","superseded"],"in-progress":["checking","blocked","deferred","superseded"],"checking":["in-progress","blocked","resolved","deferred","superseded"],"blocked":["triaged","in-progress","deferred","superseded"],"deferred":["triaged","superseded"]}},
+    "verification": {"states":["not-run","running","passed","failed","blocked"],"terminal":["passed"],"transitions":{"not-run":["running","blocked"],"running":["passed","failed","blocked"],"failed":["running","blocked"],"blocked":["running"]}},
+    "lesson": {"states":["proposed","shadow","advisory","mechanical","retired"],"terminal":["retired"],"transitions":{"proposed":["shadow","retired"],"shadow":["advisory","retired"],"advisory":["shadow","mechanical","retired"],"mechanical":["advisory","retired"]}},
+    "release": {"states":["planned","checking","ready-to-ship","released","blocked","deferred"],"terminal":["released"],"transitions":{"planned":["checking","blocked","deferred"],"checking":["ready-to-ship","blocked","deferred"],"ready-to-ship":["checking","released","blocked","deferred"],"blocked":["checking","deferred"],"deferred":["planned"]}}
+  },
+  "nodeAliases": {
+    "okr": "requirement",
+    "decision": "user-decision",
+    "document": "handoff",
+    "qa": "verification",
+    "commit": "implementation-slice"
+  },
+  "edgeTypes": {
+    "depends-on": {"direction":"directed","from":["task","implementation-slice","bug","release"],"to":["task","implementation-slice","bug","release"]},
+    "blocks": {"direction":"directed","from":["task","implementation-slice","bug","release"],"to":["task","implementation-slice","bug","release"]},
+    "conflicts-with": {"direction":"symmetric","from":["*"],"to":["*"]},
+    "supersedes": {"direction":"directed","from":["*"],"to":["*"]},
+    "affects": {"direction":"directed","from":["*"],"to":["*"]},
+    "implements": {"direction":"directed","from":["task","implementation-slice"],"to":["user-decision","requirement","handoff","task","bug"]},
+    "verified-by": {"direction":"directed","from":["task","implementation-slice","bug","release"],"to":["verification"]},
+    "learned-from": {"direction":"directed","from":["task","implementation-slice","bug","release"],"to":["lesson"]},
+    "owned-by": {"direction":"directed","from":["task","implementation-slice","handoff","bug"],"to":["workstream"]},
+    "included-in-release": {"direction":"directed","from":["task","implementation-slice","handoff","bug"],"to":["release"]}
+  },
+  "edgeAliases": {
+    "contains": {"type":"owned-by","reverse":true},
+    "supports": {"type":"affects","reverse":false},
+    "documented-by": {"type":"affects","reverse":false},
+    "references": {"type":"affects","reverse":false},
+    "implemented-by": {"type":"implements","reverse":true},
+    "released-as": {"type":"included-in-release","reverse":false}
+  },
+  "authority": {
+    "forbiddenEdgeTypes": ["approved-by","authorizes","releases"],
+    "evidenceOnlyEdgeTypes": ["verified-by"],
+    "externalGates": ["approval","verification","release","push-live"]
+  }
+}

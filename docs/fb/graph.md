@@ -68,6 +68,25 @@ Do not load broad project history merely because it exists. Do not treat a
 graph label or relationship as approval, product truth, test evidence, or
 release authority.
 
+## Versioned graph contract
+
+`tools/fb-graph-contract.json` is the machine-readable source of truth for the
+graph vocabulary. It defines canonical node and edge types, v1 aliases,
+directionality, entity-scoped states, terminal states, and allowed transitions.
+The contract runtime reads existing schema-v1 artifacts and normalizes new
+contract-backed writes to canonical schema v2.
+
+Invalid types, wrong-direction edges, and impossible state transitions fail
+with named diagnostics. Authority remains outside the derived graph:
+`approved-by`, `authorizes`, and `releases` are forbidden graph edges, while
+`verified-by` records a requirement or evidence relationship and never proves a
+check passed. Product approval, authoritative verification, release readiness,
+and **Push Live** must still come from their canonical records and gates.
+
+This first contract slice does not add loop-run entities or refactor the
+orchestrator. Those remain later Product decisions after compatibility evidence
+is stable.
+
 ## Optional structured relationships
 
 New handoffs may declare relationships when Product has authoritative evidence:
