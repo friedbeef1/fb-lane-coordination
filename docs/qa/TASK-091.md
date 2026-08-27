@@ -2,7 +2,7 @@
 type: fb-qa-artifact
 task: TASK-091
 record_model: normalized-v1
-status: checking
+status: passed
 ---
 
 # TASK-091 QA — Versioned graph contract and legacy exact-task adapter
@@ -18,7 +18,7 @@ status: checking
 Worktree: `/private/tmp/fb-graph-loops`  
 Environment: isolated canonical-source clone plus exact FB project lifecycle proof  
 Started: 2026-08-27  
-Completed: pending
+Completed: 2026-08-27
 
 ## Identity and Lifecycle Evidence
 
@@ -56,14 +56,23 @@ no success criterion or safety boundary was weakened.
 
 ## Remaining Proof
 
-- Focused release preflight and Doctor.
-- One final repository release checkpoint.
+None for the approved candidate. Merge, marketplace publication, reinstall,
+and installed-runtime proof remain behind **Push Live**.
 
 ## Release checkpoint
 
-Release checkpoint: requested once for the exact committed TASK-091 candidate
-after the targeted preflight, Doctor Ready result, and clean repository state.
-Result: pending.
+Release checkpoint: requested and run once for exact committed candidate
+`884a3f76b92d3f3e606c7391eec3277ef245fca4` after the targeted preflight,
+Doctor Ready result, whole-candidate review, and clean repository state.
+
+- Result: passed.
+- Command: `node tools/fb-lane.validate.cjs`.
+- Package parity: 91/91 declared mirrors.
+- Core regression: 72/72.
+- Checkout migration: 35/35.
+- Doctor: Ready.
+- Targeted release preflight: passed for TASK-091 candidate `884a3f7`.
+- No second full validator or repair loop was run.
 
 ## Limits
 

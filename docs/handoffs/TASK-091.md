@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-091
 lane: fb-product
-status: in-progress
+status: implemented
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -129,8 +129,8 @@ Repository state: standalone isolated clone from canonical TASK-090 head
 `25b607e8f9428f51af44dafc9f1308f1a9e34b0e`; identity repair commit
 `67030fe`; graph candidate commit `b4f56e7`.
 
-Remaining owner and action: Product/BFM runs the single release checkpoint and
-stops at Ready to ship. **Push Live** remains James's release authority.
+Remaining owner and action: Candidate is **Ready to ship**. James may say
+**Push Live** to authorize merge, marketplace publication, and reinstall.
 
 Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#0100-beta--2026-08-27).
 
