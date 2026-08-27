@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-FB-GRAPH-LOOPS-20260826
 lane: fb-discovery
-status: implemented
+status: done
 approval: approved
 record_model: normalized-v1
 ---
