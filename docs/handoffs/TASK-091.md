@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-091
 lane: fb-product
-status: in-progress
+status: staging-qa
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -96,8 +96,8 @@ Satisfied criteria and evidence: User approval, exact-project identity, source
 provenance, Product disposition, scope, safety boundaries, acceptance criteria,
 and focused proof are explicit.
 
-Missing criteria and next actions: Complete graph contract implementation,
-candidate QA, package generation, review, and release preflight.
+Missing criteria and next actions: None for the approved implementation scope;
+the release checkpoint and **Push Live** remain separate gates.
 
 Approved scope-change references: James's current-task approval of the legacy
 identity adapter and the Discovery recommendation.
@@ -113,7 +113,10 @@ decomposition are deferred; no release is authorized.
 Branch and changed surfaces: `codex/TASK-091-graph-contract`; onboarding,
 graph contract/runtime/tests, plugin package, documentation, and release records.
 
-Checks, failures, recovery, and results: in progress; see
+Checks, failures, recovery, and results: Focused graph proof passed 72 checks;
+root/package onboarding passed 76 checks plus both native contracts; metadata,
+91-file package parity, syntax, and whitespace passed. One stale metadata
+assertion batch was corrected without changing runtime behavior. See
 [TASK-091 QA](../qa/TASK-091.md).
 
 Review state, direct links, limits, and external gates: not reviewable. No
@@ -121,10 +124,11 @@ preview is applicable to this nonvisual plugin slice. **Push Live** remains the
 external release gate.
 
 Repository state: standalone isolated clone from canonical TASK-090 head
-`25b607e8f9428f51af44dafc9f1308f1a9e34b0e`.
+`25b607e8f9428f51af44dafc9f1308f1a9e34b0e`; identity repair commit
+`67030fe`; graph candidate commit `b4f56e7`.
 
-Remaining owner and action: Product/BFM implements and verifies Slice 1, then
-stops at Ready to ship.
+Remaining owner and action: Product/BFM runs the single release checkpoint and
+stops at Ready to ship. **Push Live** remains James's release authority.
 
 Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#0100-beta--2026-08-27).
 

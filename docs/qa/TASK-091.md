@@ -2,7 +2,7 @@
 type: fb-qa-artifact
 task: TASK-091
 record_model: normalized-v1
-status: in-progress
+status: checking
 ---
 
 # TASK-091 QA — Versioned graph contract and legacy exact-task adapter
@@ -35,13 +35,22 @@ Completed: pending
 | Exact `local-candidates` + `inventory-local` | Complete; nine exact-root user tasks, seven pinned canonical roles |
 | Strict `reconcile` + `status` + `needs-reconciliation` | Passed; lifecycle gate healthy |
 | Focused graph contract, compiler, propagation, scheduler, and BFM | 50/50 passed after observed RED |
+| Canonical and packaged graph plus package-context contracts | 72/72 passed |
+| Canonical and packaged onboarding suites | 76/76 passed; both native onboarding contracts passed |
+| Plugin metadata | Canonical and packaged 0.10.0 build contracts passed |
+| Package synchronization | 91 declared mirrors aligned |
+| Whole-candidate review | Passed; contract ownership is centralized, v1 compatibility and authority gates remain explicit, no unrelated surface was reopened |
+
+## Repair Record
+
+One consolidated candidate repair corrected two stale metadata assertions and
+one whitespace defect. The graph and onboarding runtime proofs stayed green;
+no success criterion or safety boundary was weakened.
 
 ## Remaining Proof
 
-- Graph contract RED/GREEN.
-- Package generation and root/package parity.
-- Affected syntax, links, and whitespace.
-- One whole-candidate review and release-candidate preflight.
+- Focused release preflight and Doctor.
+- One final repository release checkpoint.
 
 ## Limits
 

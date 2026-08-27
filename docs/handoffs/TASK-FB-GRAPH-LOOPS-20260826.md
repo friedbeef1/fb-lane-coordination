@@ -1,8 +1,8 @@
 ---
 type: fb-lane-handoff
-task: TASK-FB-GRAPH-LOOPS-20260826
+task: TASK-091
 lane: fb-discovery
-status: in-progress
+status: implemented
 approval: approved
 record_model: normalized-v1
 ---
@@ -12,6 +12,20 @@ record_model: normalized-v1
 Date: 2026-08-26  
 Source: FB · Discovery  
 Next owner: Product/BFM
+
+## Goal Alignment Session
+
+Product Goal: Make FB's product-delivery graph deterministic and inspectable
+without weakening exact-project identity, verification, or release authority.
+
+Lane OKR Fit: aligned.
+
+Mini-loop Evidence: Discovery identified drifting graph vocabularies and a
+compatibility-first first slice; TASK-091 now proves that contract against v1
+reads and canonical v2 writes.
+
+Evidence Against Product OKR: None identified. Loop-run evidence and broader
+orchestration remain deferred to avoid an unsafe monolithic migration.
 
 ## User Decision
 
@@ -50,11 +64,11 @@ decisions.
 
 ## Product/BFM Result
 
-Outcome: in progress.  
-Delivered work: Exact-project identity recovery completed; graph contract Slice
-1 is underway.  
-Evidence: [TASK-091 QA](../qa/TASK-091.md).  
-Remaining gate: Focused graph proof, candidate review, and Ready to ship.  
-Final status: in progress.  
-Return delivery: kickoff pending.  
-Result fingerprint: pending.
+Outcome: completed.
+Delivered work: Exact-project identity recovery and the versioned graph
+contract were completed in TASK-091.
+Evidence: [TASK-091 QA](../qa/TASK-091.md).
+Remaining gate: Product/BFM release checkpoint and explicit **Push Live**.
+Final status: implemented.
+Return delivery: terminal notice pending.
+Result fingerprint: `TASK-091:graph-contract:implemented`.
