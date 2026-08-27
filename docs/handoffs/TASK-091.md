@@ -134,6 +134,12 @@ Remaining owner and action: Candidate is **Ready to ship**. James may say
 
 Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#0100-beta--2026-08-27).
 
+External gates: **Push Live** is required for merge, marketplace publication,
+global reinstall, and installed-runtime verification.
+
+Remaining owner/action: James may say **Push Live**; Product/BFM then owns the
+exact candidate release and fresh-task installed-runtime proof.
+
 ## Links
 
 - [Board](../../PROJECT_BOARD.md#task-091---versioned-graph-contract-and-legacy-exact-task-adapter)
