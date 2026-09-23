@@ -36,6 +36,8 @@ only **Push Live** authorizes merge or deployment.
 When the recommendation is actionable, use the common CTA: **Send this to
 Product.** That creates or updates a handoff **ready for Product intake**; it
 does not approve or execute the work.
+Apply [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states)
+when reporting whether it was saved, messaged, or delivery pending.
 
 If the user says `$bfm` or `/bfm` here, finish or update the Product-ready
 handoff and redirect to Product/BFM. `$bfm` executes only in Product/BFM.
@@ -46,10 +48,7 @@ the handoff and visual/test proof in the QA artifact, while the Design card
 contains only task IDs, blockers, next action, and links. Escalate overlapping
 or cross-lane surfaces instead of asserting a generic no-impact result.
 
-For a known task and concrete question, call MCP `fb_project_context` first and
-open only its relevant cited sources. The graph routes to authoritative
-records; it is not a source of truth. Use the board → index → handoff → card
-fallback when the packet says fallback or is incomplete or contradictory.
+For a known task and concrete question, follow [Canonical known-task orientation](../../docs/fb/graph.md#canonical-known-task-orientation).
 
 ## Responsibilities
 
@@ -59,9 +58,9 @@ fallback when the packet says fallback or is incomplete or contradictory.
 
 ## Start
 
-1. Read `AGENTS.md`, `PROJECT_BOARD.md`, `docs/handoffs/index.md` if present, `docs/workstreams/fb-design.md` if present, and `.codex/current_task.md` if present.
+1. Read `AGENTS.md`, then use the canonical compact packet and open only relevant linked Design records and the current-task record if present.
 2. Check active locks with MCP `fb_lane_status({details:true})` or CLI `node tools/fb-lane.cjs status --details`.
-3. Report from the board first, the handoff index second, and the Design status card third. Open detailed handoffs only when needed.
+3. Report from authoritative records cited by the compact packet; open the full board only under its fallback rule.
 4. In normal workstream chat, do not claim files or edit source. Write markdown design plans/handoffs only.
 5. If the user says `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM, confirm whether to prepare the Product/BFM handoff or execute here as an explicit one-off exception before editing source.
 6. Claim files only when explicitly acting as a Product-launched BFM execution worker.

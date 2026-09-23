@@ -10,6 +10,12 @@ and one final release checkpoint. Slice proof does not create a separate
 reviewer or re-review ceremony. Existing safety and release evidence gates
 remain unchanged.
 
+Before claiming a candidate review-ready, preserve its exact source in a
+commit on a durable branch and record a verified local Git bundle or equivalent
+preservation receipt. A temporary worktree alone is not durable. Record the
+branch, commit, bundle path, and verification result in QA; this does not
+authorize any automatic push, merge, or release.
+
 Store complete command output and verification fingerprints in the authoritative
 QA artifact described by [records.md](records.md). Handoffs and chat link to it
 instead of copying logs.

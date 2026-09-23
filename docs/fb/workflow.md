@@ -123,9 +123,11 @@ Never call a lane done or executed without its required evidence. Passive
 closeouts contain no commands, invocations, or instructions to start another
 lane; the board and handoffs remain the trigger source.
 
-Read or refresh the index before detailed handoffs, then open only relevant
-detail unless doing a full closeout. For non-quick sequencing, refresh a
-missing, stale, or vague index. Its compact columns are `Task / Topic`, `Lane`,
+For known-task orientation follow the
+[canonical compact-first route](graph.md#canonical-known-task-orientation).
+Open only the relevant indexed handoff detail unless doing a full closeout. For
+non-quick sequencing, refresh a missing, stale, or vague index. Its compact
+columns are `Task / Topic`, `Lane`,
 `Status`, `Depends / Blocks / Gate`, `Checks / Evidence`, and `Detail`; full
 plans, OKRs, logs, and QA stay in the detailed handoff. Product/BFM adds the
 compact `## Product/BFM Result` contract below to every handoff it dispositions
@@ -301,9 +303,29 @@ tiny copy, spacing, or single-control change. Attach a feasible material visual
 preview before BFM source execution; Product/BFM blocks or asks only when that
 material decision lacks a preview.
 
+## Product handoff delivery states
+
+Saving a ready workstream handoff and indexing it makes it discoverable by
+Product/BFM; it does not message the Product task or activate work. When no
+native task message was sent, use this exact user-facing wording:
+
+> Saved for Product intake. No message was sent to the Product task, and you do not need to copy or paste this handoff. In the Product/BFM task, invoke $bfm; it will discover the indexed handoff.
+
+Reserve **Sent** or **Delivered** for a successful exact receipt-bound native
+message to the Product task. If messaging fails or is unavailable, record
+**delivery pending** with the indexed handoff link; do not imply the Product
+task saw it. A saved handoff, successful message, or passive notice never
+starts Product execution automatically. Only the user's `$bfm` invocation in
+Product/BFM activates reconciliation, subject to the complete intake and
+identity gates. Workstream skills link to this contract rather than keeping
+separate delivery definitions.
+
 ## Before BFM source execution
 
-1. Read `AGENTS.md`, board, current-task record if present, the handoff index, then only linked handoffs.
+1. Follow the [canonical known-task orientation](graph.md#canonical-known-task-orientation),
+   then read the current-task record and only linked handoffs needed for this
+   decision. The runtime's full six-workstream intake scan below is separate
+   from the agent's compact orientation read.
 2. Show the target card: status, owner, scope, locks, blockers, gates, checks, links, intentional dirt, and approved goal.
 3. Scan the six evidence-producing workstreams in order: User, Business, Design, Tech,
    Discovery, Bugs. Each is linked to ready/blocked output or recorded as **None
@@ -379,6 +401,12 @@ Safety gates run first. Quick BFM owns exactly one committed
 `docs/handoffs/TASK-Q-*.md` Quick Record; it does not add a board row, index
 row, workstream card, session recap, separate Task Receipt, or separate
 Verification Handoff. Needing any of those reclassifies the task Full BFM.
+For a new Quick Record, capture the committed Scope baseline at creation:
+base, branch, owned locks, and hashes of pre-existing unrelated dirt. Submit
+must prove the task-owned commit range and may exempt only that unchanged
+captured dirt. New or changed outside-scope paths, outside-scope commits, or
+unrelated staging stop submission. Historical Quick Records without this
+baseline retain the conservative whole-candidate check.
 
 The time budget applies per execution slice, not to the complete outcome. Quick
 BFM is one bounded slice: documentation/coordination normally targets 5
