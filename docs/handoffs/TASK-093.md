@@ -109,6 +109,10 @@ Review state, direct links, limits, and external gates: Local candidate; no live
 
 Review state: not reviewable
 
+External gates: GitHub readiness, publication of the verified revision, exact global installed-runtime proof, and per-project managed upgrade evidence remain outstanding.
+
+Remaining owner/action: Product/BFM completes the authorized release checkpoint and verifies the framework rollout without changing app source or task topology.
+
 Environment: no installed plugin candidate or external review environment was created.
 
 Branch: `codex/TASK-093-release` in `/private/tmp/fb-task093-release`; verified implementation remains on durable `codex/TASK-093-focused-hardening` with restorable backups.

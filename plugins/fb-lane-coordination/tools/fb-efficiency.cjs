@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const SENSITIVE = /\b(?:feature|multi[- ]?lane|cross[- ]?lane|coordinate\s+(?:\w+[\s/-]+){1,5}and\s+(?:\w+[\s/-]+){0,3}lanes?|auth(?:entication|orization)?|privacy|private|analytics|payments?|secrets?|destructive|delete production|provider(?: state)?|release|live[- ]?release|deploy(?:ment)?|publication|publish externally|launch|OKR|production migration|external approval|architecture|core (?:product )?flow|multiple (?:owners?|repositories)|conflicting locks?|unresolved decision)\b/i;
+const SENSITIVE = /\b(?:feature|multi[- ]?lane|cross[- ]?lane|coordinate\s+(?:(?:the|all|multiple)\s+)?(?:lanes|workstreams)|coordinate\s+(?:\w+[\s/-]+){1,5}and\s+(?:\w+[\s/-]+){0,3}lanes?|auth(?:entication|orization)?|privacy|private|analytics|payments?|secrets?|destructive|delete production|provider(?: state)?|release|live[- ]?release|deploy(?:ment)?|publication|publish externally|launch|OKR|production migration|external approval|architecture|core (?:product )?flow|multiple (?:owners?|repositories)|conflicting locks?|unresolved decision)\b/i;
 const QUICK = /\b(?:fix|patch|correct|repair|typo|copy|documentation|docs-only|regression)\b/i;
 
 function affirmativeRisk(text) {

@@ -31,6 +31,28 @@ passing evidence. The clean release worktree is the changed recovery condition.
 
 ## Provenance
 
+### Release-checkpoint repair evidence
+
+The initial full checkpoint on `02eeb4e` passed 72 CLI and 35 migration checks,
+then stopped in the session contract: the bare request `coordinate lanes`
+incorrectly selected Quick BFM. The focused RED reproduced it; the consolidated
+release repair retains Full BFM for bare lane/workstream coordination without
+restoring false positives for harmless filenames or explicitly excluded work.
+No sensitive-operation or authority criterion was relaxed.
+
+The remaining downstream checks were inspected before the final full pass:
+19 eval checks, 13 beginner checks, positioning and two-speed passed. Doctor
+identified missing explicit external-gate/remaining-owner labels on TASK-093;
+those coordination fields were completed in the same release repair batch.
+Metadata checks caught missing build references and the old TASK-091 selection;
+only current release records and assertions were aligned, not historical evidence.
+
+The isolated supported installation succeeded in a temporary Codex profile.
+All 96 declared package/distribution artifacts matched byte-for-byte, and the
+installed checker passed the actual handoff index. The current Codex CLI has
+no `plugin validate` subcommand; package metadata, repository contracts and
+actual installer/runtime proof are used, not an invented validation result.
+
 Public main verified on 2026-09-23: `ce259d07b668ea81ef907beceffe9122f5f3c765`.
 Installed task-loaded plugin: `0.10.0-beta+codex.20260827100222`.
 New candidate starts from that exact public commit in a durable linked worktree.

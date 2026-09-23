@@ -83,6 +83,8 @@ test('inline code operations and affirmative cross-lane coordination retain Full
     'Fix `authentication` bypass',
     'Correct configuration then `deploy` to production',
     'Coordinate Product and Tech lanes',
+    'coordinate lanes',
+    'coordinate all workstreams',
   ]) assert.strictEqual(classifyExecutionMode({ ...bounded, scope }).mode, 'Full BFM', scope);
   assert.strictEqual(classifyExecutionMode({ ...bounded, scope: 'Fix wording in `docs/auth-guide.md`; no deployment' }).mode, 'Quick BFM');
 });
