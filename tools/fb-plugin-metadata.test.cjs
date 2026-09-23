@@ -107,15 +107,15 @@ if (!isPackagedCopy) {
     'CHANGELOG.md',
     'PROJECT_BOARD.md',
     'docs/handoffs/index.md',
-    'docs/handoffs/TASK-091.md',
-    'docs/qa/TASK-091.md',
+    'docs/handoffs/TASK-093.md',
+    'docs/qa/TASK-093.md',
     'docs/setup.md',
     'docs/versioning.md',
     'platforms/codex/README.md',
   ]) {
     assertExactBuild(activeSurface, read(repoRoot, activeSurface), version);
   }
-  assert.match(read(repoRoot, 'FAQ.md'), /0\.10\.0-beta/, 'FAQ.md intentionally names the release family');
+  assert.match(read(repoRoot, 'FAQ.md'), /0\.10\.1-beta/, 'FAQ.md intentionally names the release family');
   assert.match(read(repoRoot, 'docs/setup.md'), /codex plugin marketplace upgrade fb-lane/);
   assert.match(read(repoRoot, 'docs/setup.md'), /codex plugin add fb-lane-coordination@fb-lane/);
   assert.match(read(repoRoot, 'docs/setup.md'), /new Codex thread/i);

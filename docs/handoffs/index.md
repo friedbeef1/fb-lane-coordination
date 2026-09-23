@@ -10,6 +10,8 @@ Use this file as the first read for handoff discovery. `PROJECT_BOARD.md` remain
 
 ## Active / Decision-Relevant
 
+Current release candidate: `0.10.1-beta+codex.20260923044148` — TASK-093.
+
 | Task / Topic | Lane | Status | Depends / Blocks / Gate | Checks / Evidence | Detail |
 |---|---|---|---|---|---|
 | TASK-093 - Focused efficiency and evidence hardening | Product/BFM | Staging QA | Local proof complete; release checkpoint remains separate | Index-check regression resolved; package mirrors aligned; not installed | [Handoff](TASK-093.md); [QA](../qa/TASK-093.md) |

@@ -48,6 +48,8 @@
 
 ### TASK-093 - Focused efficiency and evidence hardening
 
+Release build: `0.10.1-beta+codex.20260923044148`.
+
 * **Owner / Thread**: FB-Product / BFM; current Product task.
 * **Scope**: One bounded hardening candidate based on verified public `ce259d07b668ea81ef907beceffe9122f5f3c765`.
 * **Out of Scope**: Recreating the missing eval runner, consumer mutation, task creation, paid experiments, publication, merge, installation, and deployment.
