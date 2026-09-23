@@ -24,6 +24,7 @@
   "tools/fb-two-speed.test.cjs",
   "tools/fb-efficiency.cjs",
   "tools/fb-efficiency.test.cjs",
+  "tools/fb-quick-scope.test.cjs",
   "tools/fb-ready-to-ship.test.cjs",
   "tools/fb-changelog-closeout.cjs",
   "tools/fb-changelog-closeout.test.cjs",
