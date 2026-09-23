@@ -53,7 +53,7 @@ The responses distinguished saved from delivered, kept recipients passive,
 and used bounded source-cited context with an explicit fallback. These are
 scenario responses, not proof of a real message being delivered.
 
-## Final candidate checks and circuit breaker
+## Initial final checks and circuit breaker (preserved history)
 
 The consolidated behavioral repair is commit `c520440`. Five new adversarial
 tests failed first and passed after repair. The remaining unfenced example URL
@@ -94,6 +94,33 @@ proof, synchronize the two affected mirrors, and reuse unchanged green evidence.
 
 Reusable lesson: a Markdown index and a task handoff share a directory, not a
 schema. Test real representative documents alongside synthetic fixtures.
+
+## User-directed narrow continuation — resolved 2026-09-23
+
+James requested that the candidate be made proper before continuing. The
+follow-up changes only the checker's metadata boundary and its regressions:
+task identity now comes from opening frontmatter, never body examples; the
+index is not a task handoff, but its real links are still validated. There was
+no new subagent, whole-candidate review, broad validator or unrelated repair.
+
+Two new tests failed on the old checker, then passed with the correction.
+They cover a handoff index with a fenced template, a real broken index link,
+legacy body examples, a mismatched real task ID and a normalized handoff with
+an empty task ID. Existing selected-record, safety and containment tests remain.
+
+| Final focused proof | Result |
+|---|---|
+| `node --test tools/fb-efficiency.test.cjs` | 36/36 pass |
+| Actual handoff index, TASK-093 handoff/QA and active README/evidence/workflow document check | Pass |
+| Packaged document checker against the actual index and TASK-093 handoff | Pass |
+| Mechanical package generation and parity | 93 mirrors aligned |
+| Changed checker/test Node syntax and whitespace | Pass |
+
+The previous 47-test and 24-test bundles remain historical same-source proof
+for unchanged parts, not newly rerun totals. The final index-check blocker is
+resolved. Local candidate is eligible for release sequencing, not installed,
+published or live. Final commit and restorable artifacts are recorded in the
+external `Documents/fb-lane/artifacts/TASK-093-preservation.md` receipt.
 
 ## Local efficiency evidence
 

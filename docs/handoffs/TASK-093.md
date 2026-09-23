@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-093
 lane: fb-product
-status: blocked
+status: implemented
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -76,12 +76,17 @@ operation or provider mutation is part of the test.
 
 ## Verification Plan
 
+Continuation decision (2026-09-23): James asked to make the candidate proper
+and continue. This authorizes the narrow diagnosed index-metadata correction
+and its focused proof without a routine reapproval, not a release or installation.
+
 Focused test-first regressions per slice; one whole-candidate review; at most one consolidated behavioral repair. No duplicate byte-identical package suites or unrelated broad validator. Preserve failures and limits in [QA](../qa/TASK-093.md).
 
 ## Task Receipt
 
-Status: locally implemented; blocked by the final real-index check after the
-single repair. Not release-checked, installed or published.
+Status: locally implemented and focused proof complete. The user-directed
+narrow follow-up resolved the real-index check. Not release-checked, installed
+or published.
 
 Review state: not reviewable
 
@@ -104,18 +109,18 @@ Preservation: durable branch plus a verified Git bundle and external receipt at
 final candidate commit, bundle digest and restore proof without a self-referential
 tracked commit hash.
 
-Remaining owner/action: Product/BFM must sequence the narrow index-metadata
-checker correction documented in QA before considering a release checkpoint.
+Remaining owner/action: Product/BFM may sequence the release checkpoint after
+the completed index-metadata correction documented in QA.
 TASK-092 recovery remains separate. This handoff authorizes neither publication nor
 installation. Exact passive task delivery is pending; the evidence is saved,
 not claimed sent.
 
 ## Brief Validation
 
-Result: blocked — regression, record/guidance and package-context suites pass,
-but the final checker against the actual handoff index incorrectly treats a
-fenced example as metadata. Preserve the green evidence in QA and correct only
-that failed proof next; do not restart the implementation or broad testing.
+Result: pass for the approved local hardening scope — regression,
+record/guidance and package-context evidence is preserved. The user-directed
+follow-up passes both the actual handoff index and adversarial metadata cases;
+all 36 efficiency tests pass with package parity, syntax and whitespace.
 Sensitive and unknown work remains conservative; legacy Quick Records retain
 their previous behavior.
 

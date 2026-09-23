@@ -75,11 +75,12 @@ function validateDocuments(root, selectedPaths) {
     const prose = markdownProse(source);
     if (/(?:[ \t]+\r?$)/m.test(source)) findings.push(`${relative}: trailing whitespace`);
     if (/^(?:<<<<<<< |=======\s*$|>>>>>>> )/m.test(source)) findings.push(`${relative}: conflict marker`);
-    if (/^docs\/handoffs\/[^/]+\.md$/.test(relative)) {
-      const declaredTask = source.match(/^task:\s*(\S+)\s*$/m)?.[1];
+    if (/^docs\/handoffs\/[^/]+\.md$/.test(relative) && path.basename(relative) !== 'index.md') {
+      const header = source.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---(?:[ \t]*\r?\n|[ \t]*$)/)?.[1] || '';
+      const declaredTask = header.match(/^task:[ \t]*([^\r\n]*)$/m)?.[1].trim();
       const filenameTask = path.basename(relative, '.md');
       if (declaredTask && declaredTask !== filenameTask) findings.push(`${relative}: task ID does not match filename`);
-      if (/^record_model:\s*normalized-v1\s*$/m.test(source) && !declaredTask) findings.push(`${relative}: normalized handoff requires a task ID`);
+      if (/^record_model:[ \t]*normalized-v1[ \t]*\r?$/m.test(header) && !declaredTask) findings.push(`${relative}: normalized handoff requires a task ID`);
     }
     for (const href of markdownLinks(prose)) {
       if (/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(href)) continue;

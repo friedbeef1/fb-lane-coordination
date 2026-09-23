@@ -582,6 +582,33 @@ test('focused document links and anchors ignore examples but validate live same-
   assert.match(validateDocuments(root, ['guide.md']).join('\n'), /broken link absent.md/);
 });
 
+test('handoff index examples are not task metadata and real index links remain checked', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-index-metadata-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const { validateDocuments } = require('./fb-doc-check.cjs');
+  const relative = 'docs/handoffs/index.md';
+  fs.mkdirSync(path.dirname(path.join(root, relative)), { recursive: true });
+  fs.writeFileSync(path.join(root, relative), '---\ntype: fb-lane-handoff-index\nstatus: active\n---\n# Index\n[Here](#index)\n```md\n---\ntype: fb-lane-handoff\ntask: TASK-EXAMPLE\nrecord_model: normalized-v1\n---\n```\n');
+  assert.deepStrictEqual(validateDocuments(root, [relative]), []);
+  fs.appendFileSync(path.join(root, relative), '[Missing](absent.md)\n');
+  assert.match(validateDocuments(root, [relative]).join('\n'), /broken link absent.md/);
+});
+
+test('handoff identity uses opening frontmatter, never body examples', t => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-handoff-metadata-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const { validateDocuments } = require('./fb-doc-check.cjs');
+  const relative = 'docs/handoffs/TASK-EXAMPLE.md';
+  fs.mkdirSync(path.dirname(path.join(root, relative)), { recursive: true });
+  const example = '# Legacy handoff\n```md\n---\ntask: TASK-OTHER\nrecord_model: normalized-v1\n---\n```\n';
+  fs.writeFileSync(path.join(root, relative), example);
+  assert.deepStrictEqual(validateDocuments(root, [relative]), []);
+  fs.writeFileSync(path.join(root, relative), `---\ntype: fb-lane-handoff\ntask: TASK-WRONG\n---\n${example}`);
+  assert.match(validateDocuments(root, [relative]).join('\n'), /task ID does not match filename/);
+  fs.writeFileSync(path.join(root, relative), `---\ntype: fb-lane-handoff\ntask:\nrecord_model: normalized-v1\n---\n${example}`);
+  assert.match(validateDocuments(root, [relative]).join('\n'), /normalized handoff requires a task ID/);
+});
+
 test('focused document check rejects symlink escapes before reading source or target', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-doc-containment-'));
   const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-doc-private-'));
