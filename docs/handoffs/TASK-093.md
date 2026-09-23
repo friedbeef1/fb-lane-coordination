@@ -186,3 +186,25 @@ The settlement evidence lives at
 `/Users/jamesyeang/Documents/fb-lane/artifacts/TASK-093-settlement-20260923/`.
 Existing application work, histories and extra tasks are preserved. No app
 deployment, provider change or release of unrelated app work occurred.
+
+
+### Intake preservation closeout
+
+The final Tough Talks readiness audit also recovered six historical handoffs,
+four linked evidence documents and the Ready Quick Fire handoff plus its spacing
+README, all byte-identical to preserved sources. Its exact existing board/index
+rows and Design-card summary retain Ready-for-later and Product-paused state.
+Two clean legacy worktrees with no task records or Ready handoffs are now
+registered as quarantined, recoverable sources; no checkout was removed.
+Four routing receipts were refreshed from the unchanged runtime's actual audit
+records, covering every selected source and preserving prior dispositions.
+
+Read-only intake now returns onboarding and canonical evidence `verified`,
+complete task rebind with zero pending, and no external blockers. The audit
+retained the three existing recorded dispositions and supplied `Deferred` only
+for the new canonical Quick Fire input, matching its existing later-intake
+instruction. No app task was started. Future Product intake still owns that
+proposal's disposition; no application execution or deployment was authorized
+by this setup audit. Evidence: `tough-talks/intake-final.json` in the settlement
+directory. Final consumer scope is 20 FB/runtime/coordination/recovered-record
+files; application source remains untouched.
