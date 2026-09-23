@@ -95,7 +95,7 @@ Focused test-first regressions per slice; one whole-candidate review; at most on
 
 ## Task Receipt
 
-Status: published and globally installed; per-project managed adoption is partial and explicitly tracked in QA.
+Status: published and globally installed; approved managed consumer upgrades completed on 2026-09-23 from main 507f5e0. Exact-project task setup limits remain explicitly tracked in QA.
 
 Approved brief and decisions: The scoped hardening and explicit Push Live amendment above govern this candidate.
 
@@ -109,9 +109,9 @@ Review state, direct links, limits, and external gates: [PR #72](https://github.
 
 Review state: not reviewable
 
-External gates: Framework publication and installation passed. MÉJA custom harness reconciliation, Unmirror overlapping edits, Tough Talks migration identity, and fresh-task plugin loading remain distinct consumer gates.
+External gates: Framework publication, installation and fresh-task loading passed. MÉJA/Unmirror managed reconciliation and Tough Talks canonical identity repair passed. Tough Talks parent-root task rebinding remains pending; MÉJA current unpinned task topology is preserved. No app deployment is authorized by this upgrade.
 
-Remaining owner/action: Fresh Product/BFM continues only the documented consumer-adoption gaps, preserving app source and existing task topology.
+Remaining owner/action: The safe managed rollout is complete. Product/BFM may separately address the recorded task setup compatibility/health limits while preserving app source and existing task identities.
 
 Environment: published Git marketplace and global installed cache both verified at `0.10.1-beta+codex.20260923044148`; isolated installation smoke also passed.
 
@@ -132,8 +132,7 @@ Preservation: durable branch plus a verified Git bundle and external receipt at
 final candidate commit, bundle digest and restore proof without a self-referential
 tracked commit hash.
 
-Remaining owner and action: Fresh Product/BFM resolves the per-consumer gaps in
-QA. Framework release is complete; cross-project adoption is not claimed complete.
+Remaining owner and action: Managed cross-project adoption is complete; see the consumer continuation receipt in QA for the exact task setup limits. Framework release remains complete.
 Exact passive delivery
 remains pending unless a non-activating receipt-bound transport is proved.
 
