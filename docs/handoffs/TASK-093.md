@@ -52,6 +52,12 @@ Changelog expectation: required.
 | Candidate scope and preservation | Product/BFM; CLI, scope tests, records | Shared API unchanged | Real temporary Git fixtures and verified bundle |
 | Integration | Product/BFM | All slices | One review, parity, syntax, affected links, whitespace |
 
+Worktree mapping: `TASK-093-A` uses `codex/TASK-093-A-runtime` in the durable
+`Documents/fb-lane/hardening-runtime` worktree. `TASK-093-B` uses
+`codex/TASK-093-B-guidance` in `Documents/fb-lane/hardening-guidance`.
+Product integrates their commits into `codex/TASK-093-focused-hardening`.
+These are private implementation slices, not new sidebar tasks.
+
 ## Scope Boundaries
 
 No source reconstruction of TASK-092, consumer source changes, paid/model benchmarks, version publication, merge, deployment, or global installation. Existing historical evidence is preserved. No full validator is requested for this local implementation slice.
