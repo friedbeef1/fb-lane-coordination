@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-093 | Done | FB-Product / BFM; task 01a0ccc1 | FB 0.10.1 scoped managed upgrades | MÉJA, Unmirror and TT upgraded; Memory verified; exact setup limitations in QA | Locks released; app work and all observed task identities/topology preserved | [Handoff](docs/handoffs/TASK-093.md); [QA](docs/qa/TASK-093.md); PR #72 merged `aa03038` |
+| TASK-093 | Done | FB-Product / BFM; task 01a0ccc1 | FB 0.10.1 scoped managed upgrades | MÉJA, Unmirror and TT upgraded; Memory verified; MÉJA and TT setup settled | Locks released; existing task IDs/history and app work preserved | [Handoff](docs/handoffs/TASK-093.md); [QA](docs/qa/TASK-093.md); PR #72 merged `aa03038` |
 | TASK-091 | Done | FB-Product / BFM + FB-Discovery | FB `0.10.0-beta`; versioned graph contract and legacy exact-task adapter | Preserve the seven proven sidebar tasks, then introduce one machine-readable graph/state/transition contract with v1 read compatibility and fail-closed authority semantics | None; released | PR #70 merged as `e1fcac5`; Git marketplace `main` and exact installed build `0.10.0-beta+codex.20260827100222` verified with 94/94 parity and 14 MCP tools; [Handoff](docs/handoffs/TASK-091.md); [Discovery input](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [QA](docs/qa/TASK-091.md) |
 | TASK-FB-GRAPH-LOOPS-20260826 | Done | FB-Discovery → FB-Product / BFM | Compatibility-first graph recommendation | Identify a versioned contract slice without forcing a monolithic graph migration | None; absorbed into TASK-091 | Product dispositioned the recommendation into TASK-091; [Discovery handoff](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [TASK-091 QA](docs/qa/TASK-091.md) |
 | TASK-090 | Done | FB-Product / BFM | Workstream result return; released in FB `0.10.0-beta+codex.20260827100222` | Return every Product/BFM disposition and delivery result to its originating workstream through the durable handoff/card plus one exact-task passive summary per BFM cycle | None; released | [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69) merged as `4527b6a` and was published with TASK-091 through FB 0.10.0; [Handoff](docs/handoffs/TASK-090.md); [QA](docs/qa/TASK-090.md) |
@@ -741,3 +741,9 @@ Release build: `0.10.1-beta+codex.20260923044148`.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-066.md) ·
     [QA](docs/qa/TASK-066.md) · release build
     `0.5.3-beta+codex.20260801141345`.
+
+### TASK-093 setup settlement — approved follow-up
+
+James asked to settle Tough Talks and MÉJA. Owner: task 01a0ccc1, Product/BFM. Scope: tested native-inventory/parent-task-root compatibility, existing-task title/pin reconciliation and current receipts. Locks: tools/fb-onboarding.cjs, tools/fb-lane.cjs, focused onboarding/migration tests and consumer copies, exact setup records. No app source, deployment, task creation, history deletion or unrelated task mutation. Existing seven role task IDs remain fixed; additional noncanonical tasks remain intact.
+
+Settlement outcome: both projects now have their original seven lanes pinned and verified. TT parent-root compatibility and native project receipt are repaired; zero migration rebindings remain. Focused tests and independent review pass. Source repair is local, mirrored and preserved; no new global publication or app deployment.

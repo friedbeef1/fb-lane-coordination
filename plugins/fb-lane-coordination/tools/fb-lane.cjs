@@ -53,6 +53,7 @@ const {
 } = require('./fb-board-context.cjs');
 const {
   WORKSTREAMS: ONBOARDING_WORKSTREAMS,
+  codexTaskRoot,
   ensureOnboardingReceipt,
   planRepositoryTaskInventory,
   readOnboardingReceipt,
@@ -694,7 +695,18 @@ function recordCheckoutTaskRebind(rootDir, taskInventory, repository, options = 
   const projectMismatch = expectedRepository.projectId
     ? String(observedRepository.projectId || '') !== String(expectedRepository.projectId)
     : false;
-  if (projectMismatch) {
+  const taskRoot = codexTaskRoot(observedRepository);
+  const nativeIdentity = taskInventory && taskInventory.nativeProjectIdentity;
+  const upgradesLegacyIdentity = projectMismatch
+    && expectedRepository.projectId === `codex-app-server-cwd:${taskRoot}`
+    && nativeIdentity
+    && nativeIdentity.projectId === observedRepository.projectId
+    && !String(nativeIdentity.projectId).startsWith('codex-app-server-cwd:')
+    && typeof nativeIdentity.repositoryPath === 'string' && nativeIdentity.repositoryPath.trim()
+    && typeof nativeIdentity.taskRoot === 'string' && nativeIdentity.taskRoot.trim()
+    && pathIdentity(nativeIdentity.repositoryPath) === migration.canonicalPath
+    && pathIdentity(nativeIdentity.taskRoot) === pathIdentity(taskRoot);
+  if (projectMismatch && !upgradesLegacyIdentity) {
     throw new Error('MIGRATION_PROJECT_MISMATCH: task rebind inventory must match the migration repository identity.');
   }
   const verification = verifyRepositoryTaskInventory(taskInventory, observedRepository);
@@ -705,6 +717,7 @@ function recordCheckoutTaskRebind(rootDir, taskInventory, repository, options = 
   const manifest = {
     ...migration,
     manifestPath: undefined,
+    repository: observedRepository,
     taskBindings: verification.taskBindings,
     taskRecords: Object.entries(verification.taskBindings).map(([workstream, binding]) => ({
       workstream,
@@ -1571,8 +1584,10 @@ function bfmEvidenceRole(lane) {
 
 function bfmOnboardingEvidence(rootDir, migration) {
   let repositoryWorkstreams;
+  let repositoryTaskRoot;
   try {
     repositoryWorkstreams = workstreamsForRepository({ repositoryPath: rootDir });
+    repositoryTaskRoot = codexTaskRoot({ repositoryPath: rootDir });
   } catch {
     return { state: 'stale', missingRoles: [...BFM_INTAKE_ROLES] };
   }
@@ -1621,12 +1636,14 @@ function bfmOnboardingEvidence(rootDir, migration) {
   const migrationProjectId = String(migration?.repository?.projectId || '').trim();
   const exactRoot = Boolean(receiptPath)
     && pathIdentity(receiptPath) === pathIdentity(rootDir);
+  const exactTaskRoot = pathIdentity(receipt.taskRoot || receiptPath) === pathIdentity(repositoryTaskRoot);
   const exactProject = Boolean(receiptProjectId)
     && (!migration?.managed || (Boolean(migrationProjectId) && receiptProjectId === migrationProjectId));
   if (!attemptedActions
     || receipt.attemptedActionsHash !== expectedActionsHash
     || !Number.isFinite(reconciledAt)
     || !exactRoot
+    || !exactTaskRoot
     || !exactProject) {
     return { state: 'stale', missingRoles: [] };
   }

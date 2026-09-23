@@ -278,3 +278,35 @@ is the durable result; task delivery remains pending.
 ## Links
 
 - [Handoff](../handoffs/TASK-093.md)
+
+
+## Approved setup settlement — 2026-09-23
+
+James subsequently asked Product/BFM to settle Tough Talks and MÉJA. Both now
+reuse their original seven role task IDs with exact titles and native pinned
+state. MÉJA needed seven pin actions only. Tough Talks needed six legacy-title
+renames and seven pins; its additional Discovery task remains unchanged and
+unpinned. No task was created, archived, messaged or activated.
+
+Tough Talks explicitly stores its tasks at the Fluentflow3 parent folder. The
+reviewed two-file local compatibility repair keeps that native task root
+separate from the canonical tough-talks Git checkout, requires prefix-specific
+roles at shared roots, rejects contradictory native identities, detects stale
+root fingerprints in setup and BFM execution, and upgrades the historical cwd
+project alias only with joined native proof. The source package mirrors contain
+the repair; the installed global plugin remains the published 0.10.1 package.
+No additional publication is claimed.
+
+Fresh native metadata and complete read-only local enumeration verify every
+original task ID. Both setup receipts report `needsReconciliation: false`.
+Tough Talks records its current native saved-project ID, canonical Git root and
+parent task root; migration is active with task rebind complete, zero pending,
+and zero unresolved handoff drift. The former anchor remains quarantined.
+
+Focused verification: 42 onboarding tests, 36 checkout-migration checks,
+27 BFM intake tests, 72 CLI checks, native setup contract, syntax, package parity
+and scoped whitespace. Review findings received regressions and were repaired.
+The settlement evidence lives at
+`/Users/jamesyeang/Documents/fb-lane/artifacts/TASK-093-settlement-20260923/`.
+Existing application work, histories and extra tasks are preserved. No app
+deployment, provider change or release of unrelated app work occurred.

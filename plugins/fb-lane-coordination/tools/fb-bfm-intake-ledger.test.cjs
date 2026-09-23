@@ -229,6 +229,45 @@ test('BFM onboarding validates repository-configured titles from the strict rece
   }
 });
 
+test('BFM execution rejects a receipt after its configured task root changes', () => {
+  const ready = { task: 'TECH-ROOT', role: 'Tech', lane: 'fb-tech', file: 'root.md', boardStatus: 'Ready' };
+  const root = makeFixture([ready]);
+  try {
+    initGitFixture(root);
+    const configPath = path.join(root, '.fb-lane.json');
+    const parent = path.dirname(root);
+    fs.writeFileSync(configPath, JSON.stringify({ taskTitlePrefix: 'TT', codexTaskRoot: '..' }));
+    configureVerifiedControlPlane(root);
+    for (const relative of ['fb-onboarding.json', 'fb-checkout-migration.json']) {
+      const file = path.join(root, '.git', relative);
+      const value = JSON.parse(fs.readFileSync(file, 'utf8'));
+      for (const binding of Object.values(value.taskBindings)) {
+        binding.title = binding.title.replace(/^FB · /, 'TT · ');
+      }
+      if (relative === 'fb-onboarding.json') value.taskRoot = parent;
+      fs.writeFileSync(file, JSON.stringify(value));
+    }
+    const options = { dispositions: { 'TECH-ROOT': 'Include now' } };
+    let ledger = freezeBfmIntake(root, options);
+    assert.equal(ledger.onboardingState, 'verified');
+    assert.equal(ledger.executionAllowed, true);
+
+    // The IDs, titles, pins and canonical repository remain identical. Only
+    // the configured native task root changes, invalidating their receipt.
+    for (const config of [
+      { taskTitlePrefix: 'TT' },
+      { taskTitlePrefix: 'TT', codexTaskRoot: '../..' },
+    ]) {
+      fs.writeFileSync(configPath, JSON.stringify(config));
+      ledger = freezeBfmIntake(root, options);
+      assert.equal(ledger.onboardingState, 'stale');
+      assert.equal(ledger.executionAllowed, false);
+    }
+  } finally {
+    remove(root);
+  }
+});
+
 test('BFM intake reconciles an offline quarantined root from exact manifest and routing receipts', () => {
   const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
   const root = makeFixture([candidate]);

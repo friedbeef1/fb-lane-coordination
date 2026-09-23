@@ -727,6 +727,56 @@ test('pending task rebind closes only with a complete exact-project pinned inven
   }
 });
 
+test('legacy cwd identity rebind requires native proof of the configured task root', () => {
+  const canonical = fs.realpathSync(makeRepo('fb-native-rebind-'));
+  const taskRoot = path.dirname(canonical);
+  const registry = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-native-registry-'));
+  const previousRegistry = process.env.FB_CHECKOUT_MIGRATION_REGISTRY;
+  try {
+    process.env.FB_CHECKOUT_MIGRATION_REGISTRY = registry;
+    fs.writeFileSync(path.join(canonical, '.fb-lane.json'), JSON.stringify({ taskTitlePrefix: 'TT', codexTaskRoot: '..' }));
+    const legacyId = `codex-app-server-cwd:${taskRoot}`;
+    const repository = { projectId: 'native-project', repositoryPath: canonical };
+    const initial = activeManifest(canonical, {
+      repository: { ...repository, projectId: legacyId },
+      taskRebind: { status: 'awaiting-task-rebind', pending: ['product'] },
+    });
+    writeManifest(canonical, initial);
+    const inventory = {
+      complete: true,
+      nativeProjectIdentity: { ...repository, taskRoot },
+      tasks: require('./fb-onboarding.cjs').workstreamsForRepository(repository).map((role, index) => ({
+        id: `task-${index}`, title: role.title, projectId: repository.projectId,
+        repositoryPath: taskRoot, pinned: true,
+      })),
+    };
+    const manifestPath = path.join(gitDirectory(canonical), 'fb-checkout-migration.json');
+    const original = fs.readFileSync(manifestPath, 'utf8');
+    for (const proof of [undefined, repository, { projectId: repository.projectId, taskRoot }, { ...repository, taskRoot: canonical }, { ...repository, projectId: 'foreign', taskRoot }]) {
+      assert.throws(() => recordCheckoutTaskRebind(canonical, { ...inventory, nativeProjectIdentity: proof }, repository,
+        { registryDir: registry }), /MIGRATION_PROJECT_MISMATCH/);
+      assert.strictEqual(fs.readFileSync(manifestPath, 'utf8'), original);
+    }
+    assert.throws(() => recordCheckoutTaskRebind(canonical, {
+      ...inventory, tasks: inventory.tasks.map(task => ({ ...task, pinned: false })),
+    }, repository, { registryDir: registry }), /TASK_REBIND_PENDING/);
+    recordCheckoutTaskRebind(canonical, inventory, repository, { registryDir: registry });
+    const settled = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    assert.strictEqual(settled.repository.projectId, repository.projectId);
+    assert.strictEqual(settled.repository.repositoryPath, canonical);
+    assert.strictEqual(settled.taskRebind.status, 'complete');
+    assert.deepStrictEqual(Object.values(settled.taskBindings).map(binding => binding.taskId), inventory.tasks.map(task => task.id));
+    writeManifest(canonical, { ...initial, repository: { ...repository, projectId: 'unrelated-native-project' } });
+    assert.throws(() => recordCheckoutTaskRebind(canonical, inventory, repository,
+      { registryDir: registry }), /MIGRATION_PROJECT_MISMATCH/);
+  } finally {
+    if (previousRegistry === undefined) delete process.env.FB_CHECKOUT_MIGRATION_REGISTRY;
+    else process.env.FB_CHECKOUT_MIGRATION_REGISTRY = previousRegistry;
+    fs.rmSync(canonical, { recursive: true, force: true });
+    fs.rmSync(registry, { recursive: true, force: true });
+  }
+});
+
 test('retirement requires explicit approval and a two-step lifecycle transition', () => {
   const canonical = makeRepo();
   const former = makeRepo('fb-checkout-former-retirement-');
