@@ -78,6 +78,22 @@ test('mode routing ignores negated risk and lock names but retains affirmative s
   assert.strictEqual(classifyExecutionMode({ ...bounded, scope: 'Correct copy; no deployment', safetySignals: ['no release'] }).mode, 'Quick BFM');
   assert.strictEqual(classifyExecutionMode({ ...bounded, scope: 'Correct copy; no deployment', safetySignals: ['no release', 'authentication'] }).mode, 'Full BFM');
 });
+test('inline code operations and affirmative cross-lane coordination retain Full BFM gates', () => {
+  for (const scope of [
+    'Fix `authentication` bypass',
+    'Correct configuration then `deploy` to production',
+    'Coordinate Product and Tech lanes',
+  ]) assert.strictEqual(classifyExecutionMode({ ...bounded, scope }).mode, 'Full BFM', scope);
+  assert.strictEqual(classifyExecutionMode({ ...bounded, scope: 'Fix wording in `docs/auth-guide.md`; no deployment' }).mode, 'Quick BFM');
+});
+test('unassessed safety signals are unresolved rather than explicit exclusions', () => {
+  for (const safetySignals of ['not assessed', 'no assessment performed', 'authentication not assessed']) {
+    assert.strictEqual(classifyExecutionMode({ ...bounded, safetySignals }).mode, 'Full BFM', safetySignals);
+  }
+  for (const safetySignals of ['no release', 'without deployment', 'none', false]) {
+    assert.strictEqual(classifyExecutionMode({ ...bounded, safetySignals }).mode, 'Quick BFM', String(safetySignals));
+  }
+});
 test('runtime Quick Records use focused evidence without a slice reviewer and legacy records keep their reviewer rule', () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-efficiency-'));
   const markdown = renderQuickRecord({
@@ -496,7 +512,7 @@ test('automated checks select deterministic coordination and project runtime com
   fs.writeFileSync(path.join(repoRoot, 'package.json'), JSON.stringify({ scripts: { test: 'node test.cjs' } }));
   assert.deepStrictEqual(selectAutomatedChecks(['docs/fb/evidence.md', 'PROJECT_BOARD.md'], repoRoot), [
     { id: 'structure-and-links', command: process.execPath, args: [path.join(__dirname, 'fb-doc-check.cjs'), 'docs/fb/evidence.md', 'PROJECT_BOARD.md'], timeoutMs: 300000 },
-    { id: 'whitespace', command: 'git', args: ['diff', '--check'], timeoutMs: 300000 },
+    { id: 'whitespace', command: 'git', args: ['diff', '--check', '--', 'docs/fb/evidence.md', 'PROJECT_BOARD.md'], timeoutMs: 300000 },
   ]);
   assert.strictEqual(selectAutomatedChecks(['docs/fb/evidence.md'], repoRoot)
     .filter(check => check.id === 'structure-and-links').length, 1);
@@ -532,6 +548,51 @@ test('focused document check validates affected links and anchors without scanni
   fs.writeFileSync(path.join(repoRoot, 'docs', 'target.md'), '# 0.8.2-beta — 2026-08-15\n');
   fs.writeFileSync(path.join(repoRoot, 'docs', 'guide.md'), '[Release history](target.md#082-beta--2026-08-15)\n');
   assert.doesNotThrow(() => runAutomatedCheck(focused, repoRoot));
+});
+
+test('selected whitespace checks inspect index and worktree without unrelated dirty files', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-whitespace-'));
+  const git = (...args) => require('node:child_process').execFileSync('git', args, { cwd: root, stdio: 'pipe' });
+  git('init', '-q');
+  git('config', 'user.email', 'fixture@example.test');
+  git('config', 'user.name', 'Fixture');
+  fs.writeFileSync(path.join(root, 'selected.md'), '# Selected\n');
+  fs.writeFileSync(path.join(root, 'unrelated.md'), '# Unrelated\n');
+  git('add', '.');
+  git('commit', '-qm', 'baseline');
+  const whitespace = selectAutomatedChecks(['selected.md'], root).find(check => check.id === 'whitespace');
+  fs.writeFileSync(path.join(root, 'unrelated.md'), '# Unrelated  \n');
+  assert.doesNotThrow(() => runAutomatedCheck(whitespace, root));
+  fs.writeFileSync(path.join(root, 'selected.md'), '# Selected  \n');
+  assert.throws(() => runAutomatedCheck(whitespace, root), /whitespace failed/);
+  git('add', 'selected.md');
+  fs.writeFileSync(path.join(root, 'selected.md'), '# Selected\n');
+  assert.throws(() => runAutomatedCheck(whitespace, root), /whitespace failed/);
+});
+
+test('focused document links and anchors ignore examples but validate live same-file fragments', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-doc-examples-'));
+  const { validateDocuments } = require('./fb-doc-check.cjs');
+  const doc = path.join(root, 'guide.md');
+  fs.writeFileSync(doc, '# Guide\n[Good](#guide)\n`[Example](absent.md)`\n<!-- [Comment](absent.md) -->\n```md\n# Fake Anchor\n[Example](absent.md)\n```\n');
+  assert.deepStrictEqual(validateDocuments(root, ['guide.md']), []);
+  fs.appendFileSync(doc, '[Bad](#fake-anchor)\n');
+  assert.match(validateDocuments(root, ['guide.md']).join('\n'), /broken anchor #fake-anchor/);
+  fs.appendFileSync(doc, '[Nearby bad](absent.md)\n');
+  assert.match(validateDocuments(root, ['guide.md']).join('\n'), /broken link absent.md/);
+});
+
+test('focused document check rejects symlink escapes before reading source or target', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-doc-containment-'));
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-doc-private-'));
+  const { validateDocuments } = require('./fb-doc-check.cjs');
+  fs.writeFileSync(path.join(outside, 'private.md'), '# Secret Anchor\n');
+  fs.symlinkSync(path.join(outside, 'private.md'), path.join(root, 'outside.md'));
+  assert.match(validateDocuments(root, ['outside.md']).join('\n'), /outside.md: path leaves repository/);
+  fs.writeFileSync(path.join(root, 'guide.md'), '[Private](outside.md#secret-anchor)\n');
+  const findings = validateDocuments(root, ['guide.md']).join('\n');
+  assert.match(findings, /link leaves repository outside.md#secret-anchor/);
+  assert.doesNotMatch(findings, /broken anchor/);
 });
 
 test('focused normalized handoff checks selected record identity without inspecting unrelated records', () => {
