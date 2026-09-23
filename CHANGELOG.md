@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased — Focused efficiency and evidence hardening
+## 0.10.1-beta — 2026-09-23
+
+Build: `0.10.1-beta+codex.20260923044148`.
 
 **What changed:** Bounded corrections distinguish real sensitive operations
 from harmless filenames and explicitly excluded work. Documentation checks
@@ -17,9 +19,10 @@ prevent synthetic tests from being presented as measured product benefits.
 remain supported. Sensitive operations, changed scope, unexplained overlap,
 exact task identity and **Push Live** retain their existing gates.
 
-**Installation or upgrade:** This is an uninstalled local candidate, not a
-published plugin version. No user action is required until a separately
-authorized release is published.
+**Installation or upgrade:** After publication, refresh the `fb-lane`
+marketplace and install `fb-lane-coordination@fb-lane` through Codex. Existing
+workstreams and project work are preserved. A fresh Product/BFM task loads the
+updated plugin; project-local runtime copies need a scoped managed upgrade.
 
 ## Unreleased
 

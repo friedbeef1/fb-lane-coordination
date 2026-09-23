@@ -1,4 +1,33 @@
+---
+task: TASK-093
+status: checking
+---
+
 # TASK-093 — Focused hardening evidence
+
+## Candidate
+
+Patch release `0.10.1-beta+codex.20260923044148`, based on public `ce259d07`
+and verified implementation `bb15411`. Release preparation uses the clean
+`codex/TASK-093-release` worktree at `/private/tmp/fb-task093-release`.
+The original durable worktree and verified backup remain preserved.
+
+## Focused verification
+
+The detailed checks and failures below remain the source of proof. The final
+metadata-boundary correction passed 36 efficiency tests, real-index/record
+checks, packaged checker proof and 93-mirror parity. One whole-candidate review
+preceded the consolidated repair; the subsequent narrow correction was
+explicitly user-directed. Release metadata receives its focused contract.
+
+## Release checkpoint
+
+Requested by James's current Push Live instruction. Plan: targeted record
+preflight on the clean committed release candidate, then one full repository
+validator, plugin metadata/validation, and GitHub readiness. Merge and global
+installation happen only after these required checks pass. The original
+worktree preflight produced no output and timed out at 30 seconds; it is not
+passing evidence. The clean release worktree is the changed recovery condition.
 
 ## Provenance
 
@@ -131,8 +160,10 @@ been run or advertised.
 
 ## Authority and limits
 
-User approved implementation. No release checkpoint, push, merge, publication,
-global installation or consumer adoption has been performed or authorized here.
+Implementation and release are now explicitly approved. At release preparation,
+no push, merge, publication, global installation or consumer adoption has yet
+been performed. Earlier local-only boundaries above are historical evidence,
+superseded only by the current handoff's scoped release amendment.
 Passive task notices are not sent: exact destination bindings and a passive
 non-activating transport have not been proven in this task. Repository evidence
 is the durable result; task delivery remains pending.

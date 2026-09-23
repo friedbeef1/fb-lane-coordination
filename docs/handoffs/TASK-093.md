@@ -43,6 +43,14 @@ Success looks like: The lightweight path is genuinely focused; unresolved risk s
 
 Changelog expectation: required.
 
+Release amendment (2026-09-23): James explicitly requested Push Live and use
+across his projects. Product approves candidate-faithful patch release
+`0.10.1-beta+codex.20260923044148`, one release checkpoint, GitHub publication,
+supported global installation and scoped managed-file upgrades of verified
+active FB projects. Preserve dirty work, project-owned instructions, task IDs,
+and sidebar topology. This does not authorize app deployment or unrelated app
+bug fixes. Missing TASK-092 source remains excluded.
+
 ## Execution slices
 
 | Slice | Owner / files | Dependency | Focused proof |
@@ -60,7 +68,10 @@ These are private implementation slices, not new sidebar tasks.
 
 ## Scope Boundaries
 
-No source reconstruction of TASK-092, consumer source changes, paid/model benchmarks, version publication, merge, deployment, or global installation. Existing historical evidence is preserved. No full validator is requested for this local implementation slice.
+The original implementation excluded release and installation. The approved
+release amendment above now authorizes those framework steps and managed
+consumer upgrades, not app source changes, app deployment, paid/model
+benchmarks or reconstruction of TASK-092. Historical evidence remains preserved.
 
 Immediate safety gate: Changes to routing must preserve conservative handling
 of authentication, privacy, payment, secrets, destructive data, provider state,
@@ -84,22 +95,30 @@ Focused test-first regressions per slice; one whole-candidate review; at most on
 
 ## Task Receipt
 
-Status: locally implemented and focused proof complete. The user-directed
-narrow follow-up resolved the real-index check. Not release-checked, installed
-or published.
+Status: preparing the authorized release checkpoint; not yet installed or published.
+
+Approved brief and decisions: The scoped hardening and explicit Push Live amendment above govern this candidate.
+
+Confirmed assumptions and approved scope changes: The update is patch release 0.10.1; existing project work and task topology remain unchanged; TASK-092 is excluded.
+
+Branch, source commits, and changed surfaces: Release branch `codex/TASK-093-release` contains verified implementation `bb15411` plus release metadata and evidence; runtime, skills, documentation and generated plugin mirrors are affected.
+
+Checks, failures, recovery, and results: Focused evidence and the resolved real-index regression are preserved in [QA evidence](../qa/TASK-093.md); the initial original-worktree preflight stalled and was not counted as passing.
+
+Review state, direct links, limits, and external gates: Local candidate; no live claim before passing release and installed-runtime proof. [QA evidence](../qa/TASK-093.md) tracks the exact gates.
 
 Review state: not reviewable
 
 Environment: no installed plugin candidate or external review environment was created.
 
-Branch: `codex/TASK-093-focused-hardening` in the durable `Documents/fb-lane/focused-hardening` linked worktree.
+Branch: `codex/TASK-093-release` in `/private/tmp/fb-task093-release`; verified implementation remains on durable `codex/TASK-093-focused-hardening` with restorable backups.
 
 Repository state: isolated from public `ce259d07`; stale primary checkout and untracked work preserved.
 
 Changed surfaces: scoped routing and checks, candidate-bound Quick submission,
 active harness/skills, mechanically generated plugin mirrors and focused tests.
 
-Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#unreleased--focused-efficiency-and-evidence-hardening).
+Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#0101-beta--2026-09-23).
 
 Evidence: [QA and Verification Handoff](../qa/TASK-093.md). One whole-candidate
 review and one consolidated behavioral repair; no unrelated full validator.
@@ -109,11 +128,10 @@ Preservation: durable branch plus a verified Git bundle and external receipt at
 final candidate commit, bundle digest and restore proof without a self-referential
 tracked commit hash.
 
-Remaining owner/action: Product/BFM may sequence the release checkpoint after
-the completed index-metadata correction documented in QA.
-TASK-092 recovery remains separate. This handoff authorizes neither publication nor
-installation. Exact passive task delivery is pending; the evidence is saved,
-not claimed sent.
+Remaining owner and action: Product/BFM runs the approved release checkpoint,
+publishes and installs only the passing exact candidate, and records each
+verified consumer upgrade or its concrete blocker. Exact passive delivery
+remains pending unless a non-activating receipt-bound transport is proved.
 
 ## Brief Validation
 
