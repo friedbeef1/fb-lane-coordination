@@ -5,8 +5,30 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
-const SENSITIVE = /\b(?:feature|lanes?|multi[- ]?lane|auth(?:entication|orization)?|privacy|private|analytics|payments?|secrets?|destructive|delete production|provider(?: state)?|release|live[- ]?release|deploy(?:ment)?|publication|publish externally|launch|OKR|production migration|external approval|architecture|core (?:product )?flow|multiple (?:owners?|repositories)|conflicting locks?|unresolved decision)\b/i;
+const SENSITIVE = /\b(?:feature|multi[- ]?lane|cross[- ]?lane|coordinate\s+(?:\w+[\s/-]+){1,5}and\s+(?:\w+[\s/-]+){0,3}lanes?|auth(?:entication|orization)?|privacy|private|analytics|payments?|secrets?|destructive|delete production|provider(?: state)?|release|live[- ]?release|deploy(?:ment)?|publication|publish externally|launch|OKR|production migration|external approval|architecture|core (?:product )?flow|multiple (?:owners?|repositories)|conflicting locks?|unresolved decision)\b/i;
 const QUICK = /\b(?:fix|patch|correct|repair|typo|copy|documentation|docs-only|regression)\b/i;
+
+function affirmativeRisk(text) {
+  const prose = String(text || '').replace(/\b[^\s`]+\.(?:md|js|cjs|mjs|ts|tsx|json|sql)\b|\brelease[- ]notes?\b/gi, ' ').replace(/`/g, ' ');
+  const matches = prose.matchAll(new RegExp(SENSITIVE.source, 'gi'));
+  for (const match of matches) {
+    const before = prose.slice(Math.max(0, match.index - 60), match.index);
+    if (!/(?:^|[^\w])(?:no|not|without|exclude|excluded|excluding|avoid|avoiding|never)(?:[\s-]+(?:the|a|any|planned|external|live|production|new|further|actual|real|changing|touching)){0,2}[\s-]+$/i.test(before)) return true;
+  }
+  return false;
+}
+
+function positiveSafetySignal(value) {
+  if (value == null || value === false) return false;
+  if (Array.isArray(value)) return value.some(positiveSafetySignal);
+  if (typeof value === 'object') return Object.values(value).some(positiveSafetySignal);
+  if (value === true) return true;
+  const signal = String(value).trim();
+  if (!signal || /^(?:none|no|false|low|safe|not applicable|non-sensitive)$/i.test(signal)) return false;
+  const exclusion = signal.match(/^(?:no|not|without|exclude|excluded)\s+(.+)$/i);
+  if (exclusion && SENSITIVE.test(exclusion[1]) && !affirmativeRisk(signal)) return false;
+  return true; // Unknown declared safety signals fail closed.
+}
 
 function classifyExecutionMode(task = {}, options = {}) {
   const details = task.details || {};
@@ -16,11 +38,15 @@ function classifyExecutionMode(task = {}, options = {}) {
   if (executionPlan && (executionPlan.slices.length > 1 || executionPlan.slices.some(slice => slice.mode === 'Full BFM'))) {
     return result('Full BFM', 'Full BFM coordinates multiple execution slices or any slice requiring safety gates');
   }
-  const text = [task.area, task.owner, task.scope, task.locks].filter(Boolean).join(' ');
+  const lockPaths = String(task.locks || '').split(',').map(value => value.replace(/`/g, '').trim()).filter(Boolean);
+  const sensitive = positiveSafetySignal(task.safetySignals) || positiveSafetySignal(options.safetySignals)
+    || positiveSafetySignal(task.sensitivity) || positiveSafetySignal(options.sensitivity)
+    || affirmativeRisk(task.scope) || affirmativeRisk(task.area)
+    || classifyChangedSurface(lockPaths) === 'sensitive';
   const approved = /^approved\b/i.test(String(details.approval || task.approval || ''));
   const owners = String(task.owner || '').split(/\s*(?:\+|,|\band\b)\s*/i).filter(Boolean);
   const ambiguous = options.ambiguous || !String(task.scope || '').trim();
-  if (options.lockConflict || ambiguous || owners.length > 1 || SENSITIVE.test(text)) {
+  if (options.lockConflict || ambiguous || owners.length > 1 || sensitive) {
     return result('Full BFM', 'material risk, ambiguity, multiple ownership, or lock conflict requires Full BFM');
   }
   const bounded = /quick[- ]?fix/i.test(String(task.area || '')) || QUICK.test(String(task.scope || ''));
@@ -203,7 +229,7 @@ function validateQuickRecordForSubmit(markdown, options = {}) {
 function classifyChangedSurface(paths = []) {
   const values = paths.map(String);
   const coordination = /^(?:PROJECT_BOARD\.md|AGENTS\.md|CHANGELOG\.md|\.codex\/(?:rules|current_task)\.md|docs\/(?:handoffs|workstreams|sessions)\/)/;
-  if (values.some(file => /(?:supabase\/migrations|secrets?|auth|payments?|release|deploy|\.github\/workflows)/i.test(file))) return 'sensitive';
+  if (values.some(file => !/\.md$/i.test(file) && /(?:supabase\/migrations|secrets?|auth|payments?|release|deploy|\.github\/workflows)/i.test(file))) return 'sensitive';
   if (values.length === 0 || values.every(file => coordination.test(file))) return 'coordination';
   const nonCoordination = values.filter(file => !coordination.test(file));
   const isTest = file => /(?:\.test\.|\/tests?\/)/.test(file);
@@ -352,8 +378,8 @@ function selectAutomatedChecks(paths = [], repoRoot = process.cwd()) {
   const timeoutMs = focusedMinutes * 60_000;
   if (surface === 'coordination' || surface === 'documentation') {
     return [
-      { id: 'structure-and-links', command: process.execPath, args: ['tools/fb-lane.cjs', 'doctor'], timeoutMs },
-      { id: 'whitespace', command: 'git', args: ['diff', '--check'], timeoutMs },
+      { id: 'structure-and-links', command: process.execPath, args: [path.join(__dirname, 'fb-doc-check.cjs'), ...paths.map(String)], timeoutMs },
+      { id: 'whitespace', command: 'git', args: ['diff', '--check', '--', ...paths.map(String)], timeoutMs },
     ];
   }
   const focusedTest = String(config.hooks?.focusedTest || '').trim();
@@ -382,11 +408,17 @@ function runAutomatedCheck(check, repoRoot = process.cwd()) {
       timeout: check.timeoutMs,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
+    if (check.id === 'whitespace') {
+      execFileSync('git', ['diff', '--cached', '--check', '--', ...check.args.slice(3)], {
+        cwd: repoRoot, env: process.env, timeout: check.timeoutMs, stdio: ['ignore', 'pipe', 'pipe'],
+      });
+    }
   } catch (err) {
     if (err && (err.code === 'ETIMEDOUT' || err.killed === true || err.signal === 'SIGTERM')) {
       throw new Error(`Focused check ${check.id} timed out; this candidate exceeds Quick BFM and requires Full BFM.`);
     }
-    throw new Error(`Checking: automated check ${check.id} failed.`);
+    const detail = check.id === 'structure-and-links' ? String(err.stderr || '').trim().slice(0, 1500) : '';
+    throw new Error(`Checking: automated check ${check.id} failed.${detail ? ` ${detail}` : ''}`);
   }
 }
 

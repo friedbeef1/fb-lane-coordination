@@ -16,12 +16,11 @@ it.** A short linked summary is allowed. A competing copy is not.
 | QA artifact | Command, candidate, worktree, environment, timestamps, exit status, counts, and bounded redacted output | Product decisions or board status |
 | Git | Source and commit history | Coordination interpretation |
 
-Read only what the current task needs. Start with
-`node tools/fb-lane.cjs status --context` or MCP
-`fb_lane_status({context:true})`, then follow its links to the index, current
-handoff, and relevant workstream card. The compact packet contains active work
-and locks, not completed history or detailed task blocks. Open the full board
-only when the packet is missing, contradictory, or insufficient. Open
+Read only what the current task needs. Follow the
+[canonical known-task orientation](graph.md#canonical-known-task-orientation).
+The compact packet contains active work and locks, not completed history or
+detailed task blocks. Open the full board only when the packet is missing,
+truncated, contradictory, or insufficient. Open
 historical records through links when the current task depends on them. A
 replacement decision records
 `Supersedes: [previous decision](<path-or-url>)`.
@@ -84,13 +83,11 @@ If completed work becomes relevant again, Product/BFM reactivates it or links
 it from a current handoff. Do not keep every historical row in every agent
 prompt merely because it could conceivably matter later.
 
-When MCP `fb_project_context` is available and the current task and question
-are known, use its graph-directed packet of at most eight unique authoritative
-sources before the broad route. Open
-only the packet's relevant cited sources. The graph is derived navigation;
-these authoritative records remain source of truth. If the packet is missing,
-stale, unhealthy, incomplete, or contradictory, fall back to the board → index
-→ handoff → card route and report that fallback.
+For known-task questions, the graph-directed packet contains at most eight
+unique authoritative sources. Open only relevant citations. If the packet is
+missing, stale, unhealthy, truncated, incomplete, or contradictory, follow
+the canonical fallback and report it. Derived navigation never replaces
+authoritative records.
 
 ## Historical compatibility
 

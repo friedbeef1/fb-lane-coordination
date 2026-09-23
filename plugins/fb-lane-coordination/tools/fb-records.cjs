@@ -168,6 +168,83 @@ function validateNormalizedRepository(root, options = {}) {
   return findings;
 }
 
+function validateAffectedRecords(root, changedPaths = []) {
+  const findings = [];
+  const selected = new Set(changedPaths.map(String));
+  const handoffPaths = [...selected].filter(file => /^docs\/handoffs\/[^/]+\.md$/.test(file) && file !== 'docs/handoffs/index.md');
+  const boardPath = path.join(root, 'PROJECT_BOARD.md');
+  const boardMarkdown = fs.existsSync(boardPath) ? fs.readFileSync(boardPath, 'utf8') : '';
+  const currentRows = boardRows(boardMarkdown);
+  if (selected.has('PROJECT_BOARD.md')) {
+    for (const task of currentRows.keys()) {
+      const relative = `docs/handoffs/${task}.md`;
+      const file = path.join(root, relative);
+      if (fs.existsSync(file) && frontmatter(fs.readFileSync(file, 'utf8')).record_model === RECORD_MODEL && !handoffPaths.includes(relative)) {
+        handoffPaths.push(relative);
+      }
+    }
+  }
+  let archiveFiles;
+  function matchingBoardRecord(task) {
+    if (currentRows.has(task)) return { row: currentRows.get(task), section: boardTaskSection(boardMarkdown, task) };
+    archiveFiles ??= markdownFiles(path.join(root, 'docs', 'board', 'archive'));
+    for (const file of archiveFiles) {
+      const source = fs.readFileSync(file, 'utf8');
+      const row = boardRows(source).get(task);
+      if (row) return { row, section: boardTaskSection(source, task) };
+    }
+    return { row: null, section: '' };
+  }
+  for (const relative of handoffPaths) {
+    const file = path.join(root, relative);
+    if (!fs.existsSync(file)) continue;
+    const markdown = fs.readFileSync(file, 'utf8');
+    const meta = frontmatter(markdown);
+    if (meta.record_model !== RECORD_MODEL) continue;
+    const task = String(meta.task || '').toUpperCase();
+    if (!SAFE_TASK_ID.test(task) || task !== path.basename(file, '.md').toUpperCase()) {
+      findings.push({ code: 'handoff-task-id', file: relative, message: 'Normalized handoff requires a matching safe task ID.' });
+      continue;
+    }
+    if (/^##\s+(Approved Decision|User Decision|Decision)\b/im.test(markdown)
+      && !/^(approved|rejected|pending|blocked)$/i.test(meta.approval || '')) {
+      findings.push({ code: 'handoff-approval', file: relative, message: 'Decision-bearing handoff requires an explicit approval state.' });
+    }
+    if (!/^TASK-Q-/i.test(task) && !completeHandoffGoalAlignment(markdown)) {
+      findings.push({ code: 'handoff-goal-alignment', file: relative, message: 'Non-quick normalized handoff requires the complete Goal Alignment Session contract.' });
+    }
+    const board = matchingBoardRecord(task);
+    if (!/^TASK-Q-/i.test(task) && !approvedBoardGoalAlignment(board.section)) {
+      findings.push({ code: 'board-goal-alignment', file: 'PROJECT_BOARD.md', message: `${task} requires an approved complete board Goal Alignment Session.` });
+    }
+    if (board.row && statusFamily(board.row.status) !== statusFamily(meta.status)) {
+      findings.push({ code: 'status-conflict', file: relative, message: `${task} status conflicts with PROJECT_BOARD.md.` });
+    }
+    if (board.row && statusFamily(board.row.status) === 'done') {
+      if (!/\[[^\]]*handoff[^\]]*\]\([^)]+\)/i.test(board.row.line)) {
+        findings.push({ code: 'board-handoff-link', file: 'PROJECT_BOARD.md', message: `${task} completion requires a handoff link.` });
+      }
+      if (!/\[[^\]]*(evidence|qa)[^\]]*\]\([^)]+\)/i.test(board.row.line)) {
+        findings.push({ code: 'board-evidence-link', file: 'PROJECT_BOARD.md', message: `${task} completion requires an evidence link.` });
+      }
+    }
+    for (const line of markdown.match(/^Supersedes:\s*.*$/gim) || []) {
+      if (!linkTarget(line)) findings.push({ code: 'supersedes-link', file: relative, message: 'Supersedes must link to the replacement or replaced decision.' });
+    }
+  }
+  for (const relative of selected) {
+    if (!/^docs\/workstreams\/[^/]+\.md$/.test(relative)) continue;
+    const file = path.join(root, relative);
+    if (!fs.existsSync(file)) continue;
+    const markdown = fs.readFileSync(file, 'utf8');
+    if (frontmatter(markdown).record_model !== RECORD_MODEL) continue;
+    if (/^##\s+(Scope|Checks?|Decisions?|Acceptance Criteria|Test Results?)\s*$/im.test(markdown)) {
+      findings.push({ code: 'card-copied-detail', file: relative, message: 'Normalized workstream cards route to detail instead of copying it.' });
+    }
+  }
+  return findings;
+}
+
 function concreteNoImpact(value) {
   const match = String(value || '').match(/^no impact detected\s+[—-]\s+(.+)$/i);
   if (!match) return false;
@@ -269,6 +346,7 @@ function redactAndBoundLog(value, maxBytes = 8192) {
 module.exports = {
   RECORD_MODEL,
   validateNormalizedRepository,
+  validateAffectedRecords,
   decideLaneReview,
   createVerificationFingerprint,
   compareVerificationFingerprint,

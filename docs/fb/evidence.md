@@ -60,7 +60,8 @@ does not ask the user to perform routine manual testing:
 - **System verification:** passed — smoke/result/evidence are recorded below.
 - **Your input needed:** none.
 - **Outcome type:** Runnable sandbox for the approved build
-- **Direct links:** Optional review links — [Open the review surface](review/sandbox.html)
+- **Direct links:** Optional review links — replace the example
+  `[Open the review surface](review/sandbox.html)` with the actual candidate URL.
 - **Exact steps and expectations:**
   1. System smoke opens the candidate and records the result/evidence.
   2. System verification confirms the approved flow and expected result.

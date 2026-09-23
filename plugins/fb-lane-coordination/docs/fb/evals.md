@@ -8,6 +8,13 @@ FB evals are curated Markdown evidence, not an autonomous judge. Product/BFM
 selects only scenarios relevant to the approved brief. Do not run all catalog evals.
 Mechanical checks remain deterministic. Product judgment remains explicit and visible.
 
+Synthetic mocks and generated labels verify plumbing, not observed effectiveness
+or human calibration. Label their provenance and do not turn them into claims
+about real users, outcomes, or candidate quality. Semantic evals remain shadow
+until separately supported and approved; this guidance adds no runner, paid
+model work, or authority promotion. Historical benchmark entries remain as
+recorded and are not retroactively reclassified.
+
 ## Record contract
 
 Create a stable, unique repo-local `Eval ID` in `docs/evals/` from

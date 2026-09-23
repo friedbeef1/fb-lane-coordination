@@ -4270,6 +4270,7 @@ function handleQuick(lane, lockedFiles, scopeDescription = '', options = {}) {
   const quickRoot = worktreePath || path.dirname(boardPath);
   const relativeRecord = path.join('docs', 'handoffs', `${taskId}.md`);
   const quickRecordPath = path.join(quickRoot, relativeRecord);
+  const scopeBaseline = captureQuickCandidateScope(quickRoot, lockedFiles, relativeRecord);
   fs.mkdirSync(path.dirname(quickRecordPath), { recursive: true });
   fs.writeFileSync(quickRecordPath, renderQuickRecord({
     id: taskId,
@@ -4286,7 +4287,7 @@ function handleQuick(lane, lockedFiles, scopeDescription = '', options = {}) {
     candidate: branchName,
     feedback: scopeDescription,
     requiredEvidence: `Focused evidence for ${lockedFiles}.`,
-  }));
+  }) + `\n## Candidate Scope\n\nScope baseline: ${JSON.stringify(scopeBaseline)}\n`);
   if (worktreePath) {
     execFileSync('git', ['-C', worktreePath, 'add', relativeRecord], {
       encoding: 'utf8',
@@ -4412,6 +4413,127 @@ function workspaceGit(workspaceRoot, args) {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   }).trim();
+}
+
+function quickGitPaths(root, args) {
+  return execFileSync('git', [...args, '-z'], {
+    cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+  }).split('\0').filter(Boolean);
+}
+
+function safeQuickPath(value) {
+  const name = String(value).replace(/`/g, '').trim().replace(/\/$/, '');
+  if (!name || path.isAbsolute(name) || path.win32.isAbsolute(name)
+      || /[\\\r\n\0*?\[\]]/.test(name) || name.split('/').some(part => !part || part === '.' || part === '..')
+      || name.split('/').includes('.git')) {
+    throw new Error('Quick scope requires safe repository-relative exact file or directory locks.');
+  }
+  return name;
+}
+
+function quickOwnedPaths(locks, record) {
+  return [...new Set([...String(locks).split(',').map(safeQuickPath), safeQuickPath(record), '.codex/current_task.md'])].sort();
+}
+
+function quickOwns(file, owned) {
+  return owned.some(lock => file === lock || file.startsWith(`${lock}/`));
+}
+
+function quickDirtyPaths(root) {
+  return [...new Set([
+    ...quickGitPaths(root, ['diff', '--name-only', '--no-renames', 'HEAD']),
+    ...quickGitPaths(root, ['ls-files', '--others', '--exclude-standard']),
+  ])].sort();
+}
+
+function quickPathFingerprint(root, file) {
+  safeQuickPath(file);
+  let current = root;
+  for (const segment of file.split('/')) {
+    current = path.join(current, segment);
+    try {
+      if (fs.lstatSync(current).isSymbolicLink()) throw new Error(`Quick scope cannot prove symlink ownership: ${file}`);
+    } catch (error) { if (error.code !== 'ENOENT') throw error; }
+  }
+  const index = execFileSync('git', ['ls-files', '--stage', '-z', '--', file], { cwd: root });
+  const hash = crypto.createHash('sha256').update(index);
+  try {
+    const stat = fs.lstatSync(path.join(root, file));
+    if (!stat.isFile()) throw new Error(`Quick scope requires a regular file: ${file}`);
+    hash.update(`file:${stat.mode & 0o777}:`).update(fs.readFileSync(path.join(root, file)));
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error;
+    hash.update('missing');
+  }
+  return hash.digest('hex');
+}
+
+function captureQuickCandidateScope(root, locks, record) {
+  const owned = quickOwnedPaths(locks, record);
+  if (quickGitPaths(root, ['diff', '--cached', '--name-only']).length) {
+    throw new Error('Quick creation requires staged files to be reconciled before it writes or commits a record.');
+  }
+  const branch = workspaceGit(root, ['branch', '--show-current']);
+  if (!branch || /^(?:main|master)$/.test(branch)) throw new Error('Quick scope requires a non-default candidate branch.');
+  const dirty = quickDirtyPaths(root);
+  if (dirty.some(file => quickOwns(file, owned))) throw new Error('Quick scope overlaps pre-existing dirty owned files; reconcile before starting.');
+  const preserved = Object.fromEntries(dirty.map(file => [file, quickPathFingerprint(root, file)]));
+  return { version: 1, baseCommit: workspaceGit(root, ['rev-parse', 'HEAD']), branch, owned, preserved };
+}
+
+function quickCandidateFingerprint(root, paths) {
+  return crypto.createHash('sha256').update(JSON.stringify({
+    head: workspaceGit(root, ['rev-parse', 'HEAD']),
+    files: paths.map(file => [file, quickPathFingerprint(root, file)]),
+  })).digest('hex');
+}
+
+function assertQuickCandidateUnchanged(before, after) {
+  if (before.fingerprint !== after.fingerprint) {
+    throw new Error('Quick candidate changed during verification or its hook; rerun the focused proof for the changed candidate.');
+  }
+}
+
+function collectQuickCandidateChanges(root, record, markdown) {
+  record = safeQuickPath(record);
+  const staged = quickGitPaths(root, ['diff', '--cached', '--name-only']);
+  if (staged.some(file => file !== record)) throw new Error('Quick closeout refuses staged files other than its own record; commit owned source separately and preserve unrelated staging.');
+  const creations = workspaceGit(root, ['log', '--diff-filter=A', '--format=%H', '--', record]).split(/\r?\n/).filter(Boolean);
+  if (creations.length !== 1) throw new Error('Quick BFM submit requires one unambiguous committed record creation.');
+  const creation = creations[0];
+  const original = workspaceGit(root, ['show', `${creation}:${record}`]);
+  const baselineLine = source => (source.match(/^Scope baseline:\s*(.+)$/m) || [])[1];
+  const originalLine = baselineLine(original);
+  const baseCommit = workspaceGit(root, ['rev-parse', `${creation}^`]);
+  const committed = quickGitPaths(root, ['diff', '--name-only', '--no-renames', `${baseCommit}..HEAD`]);
+  const dirty = quickDirtyPaths(root);
+  if (!originalLine) {
+    if (baselineLine(markdown)) throw new Error('Legacy Quick records cannot invent a retrospective scope baseline.');
+    const changedPaths = [...new Set([...committed, ...dirty])].sort();
+    return { legacy: true, baseCommit, changedPaths, preservedPaths: [], fingerprint: quickCandidateFingerprint(root, changedPaths) };
+  }
+  if (baselineLine(markdown) !== originalLine) throw new Error('Quick scope baseline changed; Product must reconcile the candidate.');
+  const baseline = JSON.parse(originalLine);
+  const lockedField = (markdown.match(/^Locked files:\s*(.+)$/m) || [])[1];
+  const owned = quickOwnedPaths(lockedField || '', record);
+  if (baseline.version !== 1 || baseline.baseCommit !== baseCommit || JSON.stringify(owned) !== JSON.stringify(baseline.owned)) {
+    throw new Error('Quick scope changed from its committed approval baseline.');
+  }
+  if (workspaceGit(root, ['branch', '--show-current']) !== baseline.branch) throw new Error('Quick candidate branch changed; reconcile ownership before closeout.');
+  workspaceGit(root, ['merge-base', '--is-ancestor', baseCommit, 'HEAD']);
+  const unexplained = committed.filter(file => !quickOwns(file, owned));
+  const preservedPaths = Object.keys(baseline.preserved || {}).sort();
+  for (const file of [...new Set([...dirty, ...preservedPaths])]) {
+    if (quickOwns(file, owned)) {
+      quickPathFingerprint(root, file);
+    } else if (!Object.hasOwn(baseline.preserved || {}, file) || !dirty.includes(file)
+        || quickPathFingerprint(root, file) !== baseline.preserved[file]) {
+      unexplained.push(file);
+    }
+  }
+  if (unexplained.length) throw new Error(`Changes outside the approved Quick scope require reconciliation: ${[...new Set(unexplained)].sort().join(', ')}`);
+  const changedPaths = [...new Set([...committed, ...dirty].filter(file => quickOwns(file, owned)))].sort();
+  return { legacy: false, baseCommit, changedPaths, preservedPaths, fingerprint: quickCandidateFingerprint(root, changedPaths) };
 }
 
 function formatAutomatedSubmission(result) {
@@ -4542,24 +4664,21 @@ function handleSubmit(taskId, stagingUrl = '', options = {}) {
   if (quickPath) {
     const markdown = fs.readFileSync(quickPath, 'utf8');
     let changedPaths;
+    let checkedCandidate;
     try {
       const relative = path.relative(workspaceRoot, quickPath);
-      const creationCommits = workspaceGit(workspaceRoot, ['log', '--diff-filter=A', '--format=%H', '--', relative])
-        .split(/\r?\n/).filter(Boolean);
-      if (creationCommits.length === 0) throw new Error('Quick BFM submit cannot identify the Quick Record creation commit.');
-      const baseCommit = workspaceGit(workspaceRoot, ['rev-parse', `${creationCommits[creationCommits.length - 1]}^`]);
-      changedPaths = [...new Set([
-        ...workspaceGit(workspaceRoot, ['diff', '--name-only', `${baseCommit}..HEAD`]).split(/\r?\n/),
-        ...workspaceGit(workspaceRoot, ['diff', '--name-only', 'HEAD']).split(/\r?\n/),
-        ...workspaceGit(workspaceRoot, ['diff', '--cached', '--name-only']).split(/\r?\n/),
-        ...workspaceGit(workspaceRoot, ['ls-files', '--others', '--exclude-standard']).split(/\r?\n/),
-      ].filter(Boolean))].sort();
+      checkedCandidate = collectQuickCandidateChanges(workspaceRoot, relative, markdown);
+      changedPaths = checkedCandidate.changedPaths;
       runQuickSubmissionChecks(markdown, changedPaths, workspaceRoot);
+      assertQuickCandidateUnchanged(checkedCandidate, collectQuickCandidateChanges(workspaceRoot, relative, fs.readFileSync(quickPath, 'utf8')));
     } catch (err) {
       console.error(`❌ Error: ${err.message}`);
       process.exit(1);
     }
-    try { runHook('pre-submit', boardPath); } catch (err) {
+    try {
+      runHook('pre-submit', boardPath);
+      assertQuickCandidateUnchanged(checkedCandidate, collectQuickCandidateChanges(workspaceRoot, path.relative(workspaceRoot, quickPath), fs.readFileSync(quickPath, 'utf8')));
+    } catch (err) {
       console.error(`❌ Hook pre-submit failed: ${err.message}`);
       process.exit(1);
     }
@@ -5763,6 +5882,9 @@ if (require.main === module) {
 }
 
 module.exports = {
+  captureQuickCandidateScope,
+  collectQuickCandidateChanges,
+  assertQuickCandidateUnchanged,
   runGit,
   assertSafeTaskId,
   assertSafeLane,

@@ -2,12 +2,12 @@
 type: fb-lane-handoff
 task: TASK-093
 lane: fb-product
-status: in progress
+status: blocked
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
 work_types: runtime, tests, documentation, plugin
-sensitive: false
+sensitive: true
 ---
 
 # TASK-093 — Focused efficiency and evidence hardening
@@ -62,6 +62,12 @@ These are private implementation slices, not new sidebar tasks.
 
 No source reconstruction of TASK-092, consumer source changes, paid/model benchmarks, version publication, merge, deployment, or global installation. Existing historical evidence is preserved. No full validator is requested for this local implementation slice.
 
+Immediate safety gate: Changes to routing must preserve conservative handling
+of authentication, privacy, payment, secrets, destructive data, provider state,
+release, multi-owner work and unclear scope. Focused adversarial regressions
+and the single whole-candidate review own this proof; no real sensitive
+operation or provider mutation is part of the test.
+
 ## Intake disposition
 
 - Include now: approved review findings and TASK-BUG-PRODUCT-DELIVERY-WORDING-20260901.
@@ -74,13 +80,49 @@ Focused test-first regressions per slice; one whole-candidate review; at most on
 
 ## Task Receipt
 
-Status: implementation in progress.
+Status: locally implemented; blocked by the final real-index check after the
+single repair. Not release-checked, installed or published.
+
+Review state: not reviewable
+
+Environment: no installed plugin candidate or external review environment was created.
 
 Branch: `codex/TASK-093-focused-hardening` in the durable `Documents/fb-lane/focused-hardening` linked worktree.
 
 Repository state: isolated from public `ce259d07`; stale primary checkout and untracked work preserved.
 
-Remaining owner/action: Product/BFM implements, verifies and preserves the candidate; publication is not authorized.
+Changed surfaces: scoped routing and checks, candidate-bound Quick submission,
+active harness/skills, mechanically generated plugin mirrors and focused tests.
+
+Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#unreleased--focused-efficiency-and-evidence-hardening).
+
+Evidence: [QA and Verification Handoff](../qa/TASK-093.md). One whole-candidate
+review and one consolidated behavioral repair; no unrelated full validator.
+
+Preservation: durable branch plus a verified Git bundle and external receipt at
+`Documents/fb-lane/artifacts/TASK-093-preservation.md`. The receipt identifies the
+final candidate commit, bundle digest and restore proof without a self-referential
+tracked commit hash.
+
+Remaining owner/action: Product/BFM must sequence the narrow index-metadata
+checker correction documented in QA before considering a release checkpoint.
+TASK-092 recovery remains separate. This handoff authorizes neither publication nor
+installation. Exact passive task delivery is pending; the evidence is saved,
+not claimed sent.
+
+## Brief Validation
+
+Result: blocked — regression, record/guidance and package-context suites pass,
+but the final checker against the actual handoff index incorrectly treats a
+fenced example as metadata. Preserve the green evidence in QA and correct only
+that failed proof next; do not restart the implementation or broad testing.
+Sensitive and unknown work remains conservative; legacy Quick Records retain
+their previous behavior.
+
+Limits: no claim of measured time/token savings, real task-message delivery,
+consumer adoption, live plugin replacement, or recovered TASK-092 source. The
+bounded recovery search is complete; recovering that separate candidate remains
+blocked rather than silently omitted or fabricated.
 
 ## Links
 

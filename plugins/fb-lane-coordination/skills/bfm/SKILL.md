@@ -20,6 +20,7 @@ Verify evidence → Merge findings → Implement → Verify candidate → One cl
 result**. A workstream's common action is **Send this to Product.** Product/BFM
 then synthesizes the evidence and owns one fresh-context integrated candidate
 verification after the bounded implementation slices.
+Workstream reporting follows [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states).
 
 Board, receipts, identity hashes, and internal route names are diagnostic
 machinery, not user choices or ordinary milestones. Report them only when they
@@ -99,9 +100,10 @@ missing.
 
 After actionable workstream handoffs are ready for Product intake, `$bfm`
 activates Product reconciliation. It does not authorize execution from ready
-status. Read [the FB harness](../../docs/fb/README.md), then use bounded current
-board truth, the handoff index, task-linked handoffs, and applicable current
-workstream cards.
+status. Read [the FB harness](../../docs/fb/README.md), then follow
+[Canonical known-task orientation](../../docs/fb/graph.md#canonical-known-task-orientation)
+for targeted reading. The runtime's complete intake scan below still checks
+all six workstreams and Product/BFM independently of that compact orientation.
 
 Apply the canonical [execution authority by conversation
 context](../../docs/fb/guardrails.md#execution-authority-by-conversation-context).
@@ -124,11 +126,8 @@ a physical-device action, unavailable credential or account access, payment or
 provider-state approval, subjective Product judgment, destructive action, or
 explicit live release approval.
 
-For each known task question, call MCP `fb_project_context` before broad
-orientation and open only its relevant cited sources. The graph routes to
-authoritative records; it is not a source of truth. Use the board → index →
-handoff → card fallback when the packet says fallback or is incomplete,
-ambiguous, or contradictory.
+For each known task question, the canonical graph route opens relevant
+authoritative records; derived graph facts alone are not source of truth.
 
 Routine BFM orientation reads genuine active state. Retrieve completed work on
 demand when a predecessor, regression, shared surface, release, conflict, or
