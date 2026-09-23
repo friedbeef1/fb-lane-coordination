@@ -10,6 +10,12 @@ and one final release checkpoint. Slice proof does not create a separate
 reviewer or re-review ceremony. Existing safety and release evidence gates
 remain unchanged.
 
+Before claiming a substantial unpushed candidate review-ready, preserve its exact source in a
+commit on a durable branch and record a verified local Git bundle or equivalent
+preservation receipt. A temporary worktree alone is not durable. Record the
+branch, commit, bundle path, and verification result in QA; this does not
+authorize any automatic push, merge, or release.
+
 Store complete command output and verification fingerprints in the authoritative
 QA artifact described by [records.md](records.md). Handoffs and chat link to it
 instead of copying logs.
@@ -54,7 +60,8 @@ does not ask the user to perform routine manual testing:
 - **System verification:** passed — smoke/result/evidence are recorded below.
 - **Your input needed:** none.
 - **Outcome type:** Runnable sandbox for the approved build
-- **Direct links:** Optional review links — [Open the review surface](review/sandbox.html)
+- **Direct links:** Optional review links — replace the example
+  `[Open the review surface](review/sandbox.html)` with the actual candidate URL.
 - **Exact steps and expectations:**
   1. System smoke opens the candidate and records the result/evidence.
   2. System verification confirms the approved flow and expected result.

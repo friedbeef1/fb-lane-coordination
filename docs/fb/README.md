@@ -29,7 +29,7 @@ verification reuse, and compact closeout.
 
 For a known task and concrete question, agents first use
 `fb_project_context` as described in [graph.md](graph.md). A healthy graph
-routes to at most three relevant authoritative files. An insufficient or
+routes to at most eight relevant authoritative files. An insufficient or
 unhealthy result uses the safe fallback route below. The graph never becomes a
 source of truth.
 

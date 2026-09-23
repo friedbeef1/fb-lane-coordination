@@ -20,6 +20,7 @@ Verify evidence → Merge findings → Implement → Verify candidate → One cl
 result**. Relevant workstreams use one CTA—**Send this to Product.** Product/BFM
 verifies the evidence, merges it into one plan, directs bounded implementation,
 and owns one fresh-context integrated candidate verification.
+Workstream reporting follows [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states).
 
 Board, receipts, identity hashes, and internal route names are diagnostic
 machinery, not user choices or ordinary milestones. Show them only when they
@@ -101,8 +102,8 @@ and merge/release gates after actionable workstream handoffs are ready and the
 user says `$bfm`. It is not universal intake. User handles user needs, user
 outcomes, requirements, feedback, acceptance criteria, and product-priority
 evidence. Read [the workstream-first start contract](../../docs/fb/start.md),
-then bounded current board truth, handoff routing, linked detail, and current
-workstream summaries.
+then follow [Canonical known-task orientation](../../docs/fb/graph.md#canonical-known-task-orientation)
+for targeted reading. The complete BFM intake scan remains separate.
 
 Apply the canonical [execution authority by conversation
 context](../../docs/fb/guardrails.md#execution-authority-by-conversation-context).
@@ -115,11 +116,7 @@ chat carry only compact links. Product expands lane review when risk, overlap,
 conflict, or cross-lane acceptance requires it and treats savings targets as
 hypotheses until measured.
 
-For a known task and concrete question, call MCP `fb_project_context` before
-broad orientation and open only its relevant cited sources. The graph routes to
-authoritative records; it is not a source of truth. Use the board → index →
-handoff → card fallback when the packet says fallback or is incomplete,
-ambiguous, or contradictory.
+The graph routes to authoritative records; it is not a source of truth.
 
 Routine orientation reads genuine active state. When a prior decision,
 regression, release, or user request makes completed work relevant, retrieve it

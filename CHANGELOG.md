@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.10.1-beta — 2026-09-23
+
+Build: `0.10.1-beta+codex.20260923044148`.
+
+**What changed:** Bounded corrections distinguish real sensitive operations
+from harmless filenames and explicitly excluded work. Documentation checks
+follow affected files and records; Quick verification stays tied to its own
+approved candidate. FB uses compact context first and distinguishes saved
+handoffs from messages actually delivered to Product.
+
+**Why it matters:** Unrelated history, another task's files, or wording such as
+“no deployment” should not turn a small correction into a larger process.
+Candidate preservation and honest evidence labels keep results recoverable and
+prevent synthetic tests from being presented as measured product benefits.
+
+**Compatibility:** Existing workstreams, handoffs and legacy Quick Records
+remain supported. Sensitive operations, changed scope, unexplained overlap,
+exact task identity and **Push Live** retain their existing gates.
+
+**Installation or upgrade:** After publication, refresh the `fb-lane`
+marketplace and install `fb-lane-coordination@fb-lane` through Codex. Existing
+workstreams and project work are preserved. A fresh Product/BFM task loads the
+updated plugin; project-local runtime copies need a scoped managed upgrade.
+
 ## Unreleased
 
 ## 0.10.0-beta — 2026-08-27

@@ -31,8 +31,9 @@ release.
 Read the [FB harness](../../docs/fb/README.md), then use
 `node tools/fb-lane.cjs status --context` (or MCP
 `fb_lane_status({context:true})`) for bounded current-state orientation. Follow
-its links to the handoff index, current handoff, and relevant workstream card.
-Open the full board only when that packet is incomplete or contradictory.
+only relevant links. For a known task and concrete question, follow
+[Canonical known-task orientation](../../docs/fb/graph.md#canonical-known-task-orientation);
+the full board is a fallback, not a mandatory read.
 Use `node tools/fb-lane.cjs status` for state during ordinary health checks.
 
 ## Workstream and execution boundary
@@ -44,6 +45,8 @@ Product/BFM is the control centre, not universal intake. Each relevant
 workstream runs its mini-loop and creates a
 blocked or ready handoff in `docs/handoffs/<TASK-ID>.md`. Ready means `ready for
 Product intake`: queued for Product review, **not approval or execution**.
+Report saved versus messaged state through the canonical
+[Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states).
 
 Only `$bfm` in the Product/BFM parent task starts delivery. It freezes the
 complete intake ledger from the active canonical checkout, keeps all six
@@ -95,9 +98,8 @@ instead of implying that another task was updated.
 
 ## Context and history
 
-Routine reads use genuine active state, not completed narrative. For a known
-task and question, call MCP `fb_project_context` and open only its cited
-authoritative records. The graph is navigation, never a source of truth.
+Routine reads use genuine active state, not completed narrative. The graph is
+navigation, never a source of truth.
 
 For on-demand historical retrieval, follow the board archive, handoff index,
 exact handoff, QA artifact, changelog, and Git history as relevant. If graph

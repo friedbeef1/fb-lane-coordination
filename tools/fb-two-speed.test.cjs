@@ -117,7 +117,8 @@ assert.match(guardrails, /no global Node version/i);
 for (const contract of ['one consolidated\\s+behavioral\\s+repair', 'repeated broad', 'fb-package-sync\\.cjs[\\s\\S]{0,30}--check', 'after[\\s\\S]{0,80}review', 'release checkpoint', 'explicitly\\s+requests']) assert.match(guardrails, new RegExp(contract, 'i'));
 
 const cliSource = fs.readFileSync(path.join(surfaceRoot, 'tools', 'fb-lane.cjs'), 'utf8');
-assert.match(cliSource, /diff['"],\s*['"]--name-only['"],\s*`\$\{baseCommit\}\.\.HEAD`/);
+// Candidate ownership and baseline behavior are exercised with real Git in
+// fb-quick-scope.test.cjs; do not pin the CLI to a particular git-diff spelling.
 assert.match(cliSource, /runQuickSubmissionChecks\(markdown,\s*changedPaths,\s*workspaceRoot\)/);
 assert.match(cliSource, /runAutomatedCheck\(check,\s*workspaceRoot\)/);
 

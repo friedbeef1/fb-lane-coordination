@@ -36,6 +36,8 @@ only **Push Live** authorizes merge or deployment.
 When the recommendation is actionable, use the common CTA: **Send this to
 Product.** That creates or updates a handoff **ready for Product intake**; it
 does not approve or execute the work.
+Apply [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states)
+when reporting whether it was saved, messaged, or delivery pending.
 
 If the user says `$bfm` or `/bfm` here, finish or update the Product-ready
 handoff and redirect to Product/BFM. `$bfm` executes only in Product/BFM.
@@ -51,10 +53,7 @@ Product/BFM resolves routine changelog wording without a user prompt. Escalate
 only a changed user or product decision, material commercial scope, or sensitive
 gate. **Push Live** remains the external release authorization.
 
-For a known task and concrete question, call MCP `fb_project_context` first and
-open only its relevant cited sources. The graph routes to authoritative
-records; it is not a source of truth. Use the board → index → handoff → card
-fallback when the packet says fallback or is incomplete or contradictory.
+For a known task and concrete question, follow [Canonical known-task orientation](../../docs/fb/graph.md#canonical-known-task-orientation).
 
 ## Responsibilities
 
@@ -63,9 +62,9 @@ fallback when the packet says fallback or is incomplete or contradictory.
 
 ## Start
 
-1. Read `AGENTS.md`, `PROJECT_BOARD.md`, `docs/handoffs/index.md` if present, `docs/workstreams/fb-business.md` if present, and relevant docs.
+1. Read `AGENTS.md`, then use the canonical compact packet and open only relevant linked Business records.
 2. Check active locks with MCP `fb_lane_status({details:true})` or CLI `node tools/fb-lane.cjs status --details`.
-3. Report from the board first, the handoff index second, and the Business status card third. Open detailed handoffs only when needed.
+3. Report from authoritative records cited by the compact packet; open the full board only under its fallback rule.
 4. In normal workstream chat, write markdown copy plans/handoffs only. Claim documentation tasks only when Product/BFM asks you to update coordination markdown.
 5. If the user says `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM, confirm whether to prepare the Product/BFM handoff or execute here as an explicit one-off exception before editing source.
 

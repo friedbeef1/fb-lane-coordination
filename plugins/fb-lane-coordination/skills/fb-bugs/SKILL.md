@@ -34,6 +34,8 @@ without steps, or a plausible cause do not replace reproduction.
 When the recommendation is actionable, use the common CTA: **Send this to
 Product.** That creates or updates a handoff **ready for Product intake**; it
 does not approve or execute the work.
+Apply [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states)
+when reporting whether it was saved, messaged, or delivery pending.
 
 If the user says `$bfm` or `/bfm` here, finish or update the Product-ready
 handoff and redirect to Product/BFM. `$bfm` executes only in Product/BFM.
@@ -48,15 +50,12 @@ Use [records.md](../../docs/fb/records.md): defect scope and acceptance remain
 in the handoff, complete reproduction output remains in the QA artifact, and
 the Bugs card links to them without copying the evidence.
 
-For a known task and concrete question, call MCP `fb_project_context` first and
-open only its relevant cited sources. The graph routes to authoritative
-records; it is not a source of truth. Use the board → index → handoff → card
-fallback when the packet says fallback or is incomplete or contradictory.
+For a known task and concrete question, follow [Canonical known-task orientation](../../docs/fb/graph.md#canonical-known-task-orientation).
 
 ## Mini-loop
 
-1. Read `AGENTS.md`, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, the linked
-   handoff, `docs/workstreams/fb-bugs.md`, and relevant prior bug evidence.
+1. Read `AGENTS.md`, then use the canonical compact packet and open the linked
+   handoff, Bugs card, and relevant prior bug evidence only as needed.
 2. Record environment, preconditions, minimal steps, expected behavior, actual
    behavior, frequency, affected users, and initial severity.
 3. Reproduce on the smallest representative surface and capture observable

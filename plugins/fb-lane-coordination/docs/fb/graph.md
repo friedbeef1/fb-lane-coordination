@@ -32,20 +32,29 @@ small active packet; unhealthy, missing, or contradictory graph state falls
 back to the visible authoritative records. The fallback is slower but never
 weakens approval, safety, or release authority.
 
-## Agent route
+## Canonical known-task orientation
 
-When the current task ID and question are known:
+For a known task and concrete question, read `AGENTS.md`, then use this route:
 
 1. Call MCP `fb_project_context` with `taskId`, `question`, and the workspace
-   path when needed.
-2. If the response route is `project-graph`, inspect its compact facts and open
-   only the listed `readableSources` required for the answer. The routine
-   packet is capped deterministically at eight unique authoritative sources.
+   path when needed. If MCP is unavailable, use
+   `node tools/fb-lane.cjs status --context` (or MCP
+   `fb_lane_status({context:true})`).
+2. Treat the compact packet as navigation, not authority. Open only the
+   relevant cited authoritative records, including the exact handoff and
+   workstream card when the question needs them. The graph packet is capped
+   deterministically at eight unique authoritative sources.
 3. Cite the authoritative files actually used.
-4. If the packet is ambiguous, incomplete, contradictory, unhealthy, or returns
-   `normalized-record-fallback`, read `PROJECT_BOARD.md`, then
-   `docs/handoffs/index.md`, the linked handoff, and the relevant workstream
-   card.
+4. If the packet is missing, truncated, insufficient, ambiguous,
+   contradictory, unhealthy, or returns `normalized-record-fallback`, use the
+   compact status packet if available; then open the full `PROJECT_BOARD.md`
+   and only the relevant index, exact handoff, and workstream card. Never use
+   graph or compact output as approval, verification, or task-identity proof.
+
+The full board is for a missing, truncated, insufficient, or contradictory
+packet, not a mandatory startup read. Preserve the complete runtime BFM intake
+scan, canonical checkout and exact-project seven-task receipt checks, active
+locks, approval/safety gates, and historical lookup on demand.
 
 Report the fallback's stable `reasonCode` accurately:
 

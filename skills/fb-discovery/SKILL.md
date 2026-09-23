@@ -35,6 +35,8 @@ final Product priority.
 When the recommendation is actionable, use the common CTA: **Send this to
 Product.** That creates or updates a handoff **ready for Product intake**; it
 does not approve or execute the work.
+Apply [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states)
+when reporting whether it was saved, messaged, or delivery pending.
 
 If the user says `$bfm` or `/bfm` here, finish or update the Product-ready
 handoff and redirect to Product/BFM. `$bfm` executes only in Product/BFM.
@@ -49,15 +51,12 @@ Use [records.md](../../docs/fb/records.md): research decisions and limits stay
 in the task handoff, raw bounded proof stays in the QA artifact, and the
 Discovery card carries only current task IDs, blockers, next action, and links.
 
-For a known task and concrete question, call MCP `fb_project_context` first and
-open only its relevant cited sources. The graph routes to authoritative
-records; it is not a source of truth. Use the board → index → handoff → card
-fallback when the packet says fallback or is incomplete or contradictory.
+For a known task and concrete question, follow [Canonical known-task orientation](../../docs/fb/graph.md#canonical-known-task-orientation).
 
 ## Mini-loop
 
-1. Read `AGENTS.md`, `PROJECT_BOARD.md`, `docs/handoffs/index.md`, the linked
-   handoff, `docs/workstreams/fb-discovery.md`, and relevant existing evidence.
+1. Read `AGENTS.md`, then use the canonical compact packet and open the linked
+   handoff, Discovery card, and relevant evidence only as the question requires.
 2. State the unknown, decision it blocks, hypothesis, success/failure signal,
    scope, and timebox before research or an experiment.
 3. Gather the smallest useful research, experiment, competitor, opportunity, or

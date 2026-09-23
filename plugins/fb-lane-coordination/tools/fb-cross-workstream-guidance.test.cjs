@@ -69,4 +69,42 @@ test('installed prompt preserves truthful routing and release boundaries', () =>
   assert.match(manifest, /Push Live/);
 });
 
+test('active skills use one compact-first known-task route without mandatory full-board startup', () => {
+  const graph = read('docs/fb/graph.md');
+  assert.match(graph, /## Canonical known-task orientation/);
+  assert.match(graph, /fb_project_context/);
+  assert.match(graph, /status --context/);
+  assert.match(graph, /missing, truncated, insufficient, or contradictory/);
+  for (const skill of [...workstreamSkills, 'fb-user', 'bfm', 'fb-lane-coordination']) {
+    const source = read(`skills/${skill}/SKILL.md`);
+    assert.match(source, /Canonical known-task orientation/);
+    assert.doesNotMatch(source, /1\. Read `AGENTS\.md`, `PROJECT_BOARD\.md`/);
+  }
+  const workflow = read('docs/fb/workflow.md');
+  assert.doesNotMatch(workflow, /1\. Read `AGENTS\.md`, board, current-task record/);
+});
+
+test('saved Product handoff is distinguished from exact-task message delivery', () => {
+  const workflow = read('docs/fb/workflow.md').replace(/\s+/g, ' ');
+  assert.match(workflow, /Saved for Product intake\. No message was sent to the Product task, and you do not need to copy or paste this handoff\. In the Product\/BFM task, invoke \$bfm; it will discover the indexed handoff\./);
+  assert.match(workflow, /Sent|Delivered/);
+  assert.match(workflow, /successful exact receipt-bound native message/);
+  assert.match(workflow, /delivery pending/);
+  for (const skill of [...workstreamSkills, 'fb-user', 'bfm', 'fb-lane-coordination']) {
+    assert.match(read(`skills/${skill}/SKILL.md`), /Product handoff delivery states/);
+  }
+});
+
+test('candidate preservation and semantic-eval evidence remain truthfully bounded', () => {
+  const evidence = read('docs/fb/evidence.md').replace(/\s+/g, ' ');
+  assert.match(evidence, /exact source in a commit on a durable branch/);
+  assert.match(evidence, /verified local Git bundle/);
+  assert.match(evidence, /temporary worktree alone is not durable/);
+  assert.match(evidence, /does not authorize any automatic push/i);
+  const evals = read('docs/fb/evals.md').replace(/\s+/g, ' ');
+  assert.match(evals, /synthetic mocks and generated labels/i);
+  assert.match(evals, /plumbing, not observed effectiveness or human calibration/i);
+  assert.match(evals, /semantic evals? remain(?:s)? shadow/i);
+});
+
 console.log(`FB cross-workstream guidance contract passed in ${packaged ? 'package' : 'root'} context.`);
