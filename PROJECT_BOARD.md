@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-093 | In Progress | FB-Product / BFM | Focused efficiency and evidence hardening | Correct false escalation, verification scope, compact orientation, and delivery truth; preserve a durable local candidate | `tools/fb-efficiency*`, `tools/fb-lane.cjs`, focused tests, active harness/skills, generated mirrors | [Handoff](docs/handoffs/TASK-093.md); [QA](docs/qa/TASK-093.md); no publication or installation |
 | TASK-091 | Done | FB-Product / BFM + FB-Discovery | FB `0.10.0-beta`; versioned graph contract and legacy exact-task adapter | Preserve the seven proven sidebar tasks, then introduce one machine-readable graph/state/transition contract with v1 read compatibility and fail-closed authority semantics | None; released | PR #70 merged as `e1fcac5`; Git marketplace `main` and exact installed build `0.10.0-beta+codex.20260827100222` verified with 94/94 parity and 14 MCP tools; [Handoff](docs/handoffs/TASK-091.md); [Discovery input](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [QA](docs/qa/TASK-091.md) |
 | TASK-FB-GRAPH-LOOPS-20260826 | Done | FB-Discovery → FB-Product / BFM | Compatibility-first graph recommendation | Identify a versioned contract slice without forcing a monolithic graph migration | None; absorbed into TASK-091 | Product dispositioned the recommendation into TASK-091; [Discovery handoff](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [TASK-091 QA](docs/qa/TASK-091.md) |
 | TASK-090 | Done | FB-Product / BFM | Workstream result return; released in FB `0.10.0-beta+codex.20260827100222` | Return every Product/BFM disposition and delivery result to its originating workstream through the durable handoff/card plus one exact-task passive summary per BFM cycle | None; released | [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69) merged as `4527b6a` and was published with TASK-091 through FB 0.10.0; [Handoff](docs/handoffs/TASK-090.md); [QA](docs/qa/TASK-090.md) |
@@ -42,6 +43,23 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-093 - Focused efficiency and evidence hardening
+
+* **Owner / Thread**: FB-Product / BFM; current Product task.
+* **Scope**: One bounded hardening candidate based on verified public `ce259d07b668ea81ef907beceffe9122f5f3c765`.
+* **Out of Scope**: Recreating the missing eval runner, consumer mutation, task creation, paid experiments, publication, merge, installation, and deployment.
+* **Goal Alignment Session**:
+    * **Objective**: Remove demonstrated coordination overhead without weakening authority, safety, or evidence truth.
+    * **Key Results**: Negated risk wording and safe document names do not over-escalate; sensitive changes still gate; focused checks prove owned changes; saved handoffs are not reported as delivered.
+    * **Definition of Done**: Focused regression proof, one integrated review, generated parity, syntax, links, whitespace, and durable candidate preservation.
+    * **Gate / Review Point**: Local reviewed candidate only; release checkpoint and **Push Live** remain separate.
+    * **Approval**: approved — James said “Great, make it happen” after the once-off recommendations.
+    * **Justification**: Published routing and verification defects were reproduced; contradictory guidance and saved-versus-delivered evidence create avoidable overhead and confusion.
+* **Locks**: Scoped paths in the active row; unrelated work remains untouched.
+* **Links & Deliverables**: [Handoff](docs/handoffs/TASK-093.md); [QA](docs/qa/TASK-093.md).
 
 ---
 
