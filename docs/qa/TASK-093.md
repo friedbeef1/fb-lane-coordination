@@ -1,6 +1,6 @@
 ---
 task: TASK-093
-status: checking
+status: passed
 ---
 
 # TASK-093 — Focused hardening evidence
@@ -36,6 +36,42 @@ worktree preflight produced no output and timed out at 30 seconds; it is not
 passing evidence. The clean release worktree is the changed recovery condition.
 
 ## Provenance
+
+## Live release verification
+
+James's current Push Live instruction authorized this release. [PR #72](https://github.com/friedbeef1/fb-lane-coordination/pull/72)
+passed GitHub readiness (44 seconds) and merged as
+`aa03038ae40d696be66890f6be4c86ad88bd2f26`. The published candidate is
+`e8d2efa4308388689c8c3c1501360a9f434a4dc7`; final runtime proof applies to
+`90af5f9`, with only coordination evidence added afterward.
+
+The configured Git marketplace upgraded to that exact merge. Supported
+`codex plugin add fb-lane-coordination@fb-lane` installed and enabled
+`0.10.1-beta+codex.20260923044148`. All 96 declared distribution artifacts
+match the release bytes. Installed manifests resolve correctly and the bundled
+MCP runtime returns 14 tools, including `fb_project_context`. No cache edits,
+app deployments, sidebar recreation or paid evaluation calls occurred.
+
+The source checkout remains clean after the record closeout commit. The primary
+checkout and all unrelated work are preserved. A fresh Product/BFM task must
+load the new plugin before further plugin-dependent work; existing evidence
+workstreams need not be recreated. This old task performs only release-record
+closeout after installation.
+
+### Active-project adoption — partial, not blanket completion
+
+| Project | Verified result | Remaining owner/action |
+|---|---|---|
+| FB framework | Published, globally installed, exact runtime proof passed | Fresh Product/BFM task loads replaced skills |
+| Memory App | Eleven managed files updated; all 31 runtime/harness files match; syntax, status, whitespace and unchanged-file hashes pass; same seven pinned tasks reused | Local managed edits intentionally uncommitted alongside active app work; next Product refresh rebuilds stale derived graph |
+| MÉJA | Exact root verified; local harness includes five files not matching known published history | Product reconciles custom onboarding/records/workflow/evidence/session files in an isolated managed slice before adoption |
+| Unmirror | Exact active canonical root verified; 51 tracked dirty files include FB runtime, harness and instructions | Product resolves active overlapping FB-file ownership; no overwrite attempted |
+| Tough Talks | Current Git worktree identified, but migration manifest refers to the former bare checkout; customized runtime/harness also present | Product repairs canonical migration identity with evidence, then reconciles managed differences; do not flip bare configuration or update the old root |
+
+Shared plugin availability does not prove every repository-local runtime was
+upgraded, every existing task reloaded, or every application bug was fixed.
+Other visible projects without a verified FB harness were not bootstrapped.
+No consumer application source or live application was changed.
 
 ### Release-checkpoint repair evidence
 

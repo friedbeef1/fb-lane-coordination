@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-093
 lane: fb-product
-status: implemented
+status: done
 approval: approved
 record_model: normalized-v1
 fb_harness: v3
@@ -95,7 +95,7 @@ Focused test-first regressions per slice; one whole-candidate review; at most on
 
 ## Task Receipt
 
-Status: preparing the authorized release checkpoint; not yet installed or published.
+Status: published and globally installed; per-project managed adoption is partial and explicitly tracked in QA.
 
 Approved brief and decisions: The scoped hardening and explicit Push Live amendment above govern this candidate.
 
@@ -105,19 +105,19 @@ Branch, source commits, and changed surfaces: Release branch `codex/TASK-093-rel
 
 Checks, failures, recovery, and results: Focused evidence and the resolved real-index regression are preserved in [QA evidence](../qa/TASK-093.md); the initial original-worktree preflight stalled and was not counted as passing.
 
-Review state, direct links, limits, and external gates: Local candidate; no live claim before passing release and installed-runtime proof. [QA evidence](../qa/TASK-093.md) tracks the exact gates.
+Review state, direct links, limits, and external gates: [PR #72](https://github.com/friedbeef1/fb-lane-coordination/pull/72) merged as `aa03038`; exact installed build and runtime passed. [QA evidence](../qa/TASK-093.md) records consumer adoption limits separately.
 
 Review state: not reviewable
 
-External gates: GitHub readiness, publication of the verified revision, exact global installed-runtime proof, and per-project managed upgrade evidence remain outstanding.
+External gates: Framework publication and installation passed. MÉJA custom harness reconciliation, Unmirror overlapping edits, Tough Talks migration identity, and fresh-task plugin loading remain distinct consumer gates.
 
-Remaining owner/action: Product/BFM completes the authorized release checkpoint and verifies the framework rollout without changing app source or task topology.
+Remaining owner/action: Fresh Product/BFM continues only the documented consumer-adoption gaps, preserving app source and existing task topology.
 
-Environment: no installed plugin candidate or external review environment was created.
+Environment: published Git marketplace and global installed cache both verified at `0.10.1-beta+codex.20260923044148`; isolated installation smoke also passed.
 
 Branch: `codex/TASK-093-release` in `/private/tmp/fb-task093-release`; verified implementation remains on durable `codex/TASK-093-focused-hardening` with restorable backups.
 
-Repository state: isolated from public `ce259d07`; stale primary checkout and untracked work preserved.
+Repository state: release branch includes published merge `aa03038` and the subsequent coordination-only closeout; stale primary checkout and untracked work preserved.
 
 Changed surfaces: scoped routing and checks, candidate-bound Quick submission,
 active harness/skills, mechanically generated plugin mirrors and focused tests.
@@ -132,9 +132,9 @@ Preservation: durable branch plus a verified Git bundle and external receipt at
 final candidate commit, bundle digest and restore proof without a self-referential
 tracked commit hash.
 
-Remaining owner and action: Product/BFM runs the approved release checkpoint,
-publishes and installs only the passing exact candidate, and records each
-verified consumer upgrade or its concrete blocker. Exact passive delivery
+Remaining owner and action: Fresh Product/BFM resolves the per-consumer gaps in
+QA. Framework release is complete; cross-project adoption is not claimed complete.
+Exact passive delivery
 remains pending unless a non-activating receipt-bound transport is proved.
 
 ## Brief Validation

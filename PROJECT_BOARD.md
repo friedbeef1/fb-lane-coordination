@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-093 | Staging QA | FB-Product / BFM | FB 0.10.1 focused hardening release | Push Live approved; release checkpoint and verified consumer rollout pending | Release metadata, TASK-093 evidence, generated package; preserve consumer source | [Handoff](docs/handoffs/TASK-093.md); [QA](docs/qa/TASK-093.md); not yet published or installed |
+| TASK-093 | Done | FB-Product / BFM | FB 0.10.1 focused hardening release | Published and installed; consumer adoption partial with exact gaps in QA | No active locks; preserve consumer source and task topology | [Handoff](docs/handoffs/TASK-093.md); [QA](docs/qa/TASK-093.md); PR #72 merged `aa03038` |
 | TASK-091 | Done | FB-Product / BFM + FB-Discovery | FB `0.10.0-beta`; versioned graph contract and legacy exact-task adapter | Preserve the seven proven sidebar tasks, then introduce one machine-readable graph/state/transition contract with v1 read compatibility and fail-closed authority semantics | None; released | PR #70 merged as `e1fcac5`; Git marketplace `main` and exact installed build `0.10.0-beta+codex.20260827100222` verified with 94/94 parity and 14 MCP tools; [Handoff](docs/handoffs/TASK-091.md); [Discovery input](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [QA](docs/qa/TASK-091.md) |
 | TASK-FB-GRAPH-LOOPS-20260826 | Done | FB-Discovery → FB-Product / BFM | Compatibility-first graph recommendation | Identify a versioned contract slice without forcing a monolithic graph migration | None; absorbed into TASK-091 | Product dispositioned the recommendation into TASK-091; [Discovery handoff](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [TASK-091 QA](docs/qa/TASK-091.md) |
 | TASK-090 | Done | FB-Product / BFM | Workstream result return; released in FB `0.10.0-beta+codex.20260827100222` | Return every Product/BFM disposition and delivery result to its originating workstream through the durable handoff/card plus one exact-task passive summary per BFM cycle | None; released | [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69) merged as `4527b6a` and was published with TASK-091 through FB 0.10.0; [Handoff](docs/handoffs/TASK-090.md); [QA](docs/qa/TASK-090.md) |
@@ -52,7 +52,7 @@ Release build: `0.10.1-beta+codex.20260923044148`.
 
 * **Owner / Thread**: FB-Product / BFM; current Product task.
 * **Scope**: One bounded hardening candidate based on verified public `ce259d07b668ea81ef907beceffe9122f5f3c765`.
-* **Out of Scope**: Recreating the missing eval runner, consumer mutation, task creation, paid experiments, publication, merge, installation, and deployment.
+* **Out of Scope**: Recreating the missing eval runner, app-source mutation, task creation, paid experiments and app deployment. James's September 23 release amendment authorizes framework publication/install and safe managed upgrades only.
 * **Goal Alignment Session**:
     * **Objective**: Remove demonstrated coordination overhead without weakening authority, safety, or evidence truth.
     * **Key Results**: Negated risk wording and safe document names do not over-escalate; sensitive changes still gate; focused checks prove owned changes; saved handoffs are not reported as delivered.
@@ -60,7 +60,7 @@ Release build: `0.10.1-beta+codex.20260923044148`.
     * **Gate / Review Point**: James authorized Push Live on 2026-09-23; required release and installed-runtime proof must pass before completion.
     * **Approval**: approved — James said “Great, make it happen” after the once-off recommendations.
     * **Justification**: Published routing and verification defects were reproduced; contradictory guidance and saved-versus-delivered evidence create avoidable overhead and confusion.
-* **Locks**: Scoped release metadata and TASK-093 records; managed consumer upgrades only after exact-project inspection. App source and task topology are excluded.
+* **Locks**: Released. Framework live proof passed; Memory App managed upgrade verified. Other consumers remain explicit follow-ups in QA; app source and task topology stay excluded.
 * **Links & Deliverables**: [Handoff](docs/handoffs/TASK-093.md); [QA](docs/qa/TASK-093.md).
 
 ---
