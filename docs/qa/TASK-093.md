@@ -22,6 +22,12 @@ explicitly user-directed. Release metadata receives its focused contract.
 
 ## Release checkpoint
 
+Result: passed. Final full validation on source candidate `90af5f9` passed:
+72 CLI, 35 migration, 39 session, 19 eval, 13 beginner, 36 efficiency checks,
+positioning/two-speed contracts, 93-mirror parity, Doctor and whitespace.
+The isolated installed MCP server exposes 14 tools. No further runtime changes
+or local broad reruns are included in the coordination-only publication record.
+
 Requested by James's current Push Live instruction. Plan: targeted record
 preflight on the clean committed release candidate, then one full repository
 validator, plugin metadata/validation, and GitHub readiness. Merge and global
