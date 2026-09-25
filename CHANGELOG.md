@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.10.2-beta — 2026-09-25
+
+Build: `0.10.2-beta+codex.20260925083556`.
+
+**What changed:** Product/BFM shows the complete proposed work queue before
+execution. You can change its order, add or remove work, or defer an item before
+saying okay. Planning can inspect pending handoffs without granting execution
+authority. Receipt refresh ignores untouched historical worktree snapshots.
+
+**Why it matters:** You can see what will happen next and change priorities
+without starting work accidentally. Old worktree history remains accessible
+without being mistaken for newly conflicting recommendations.
+
+**Compatibility:** Existing tasks, workstreams, handoffs and active project
+changes remain intact. Incomplete intake still blocks; approval applies only
+to the displayed scope. Sensitive-operation gates and **Push Live** are unchanged.
+
+**Installation or upgrade:** After publication, update the `fb-lane` marketplace
+and `fb-lane-coordination@fb-lane`. Apply the managed project upgrade in existing
+Product/BFM tasks; do not recreate evidence workstreams. Existing tasks must read
+the updated project guidance; a refreshed plugin context is needed to load new
+plugin instructions. Local candidate adoption is not public publication.
+
 ## 0.10.1-beta — 2026-09-23
 
 Build: `0.10.1-beta+codex.20260923044148`.

@@ -242,9 +242,14 @@ Bad examples; reusable categories alone are not a test.
 ## Queue preview and approval
 
 `$bfm` authorizes intake and planning, not automatic execution of the resulting
-queue. Use one complete canonical `freezeBfmIntake` result; do not add a second
+queue. Use one complete canonical `freezeBfmIntake(root, { planningOnly: true })`
+result; do not add a second
 file scan. Product reconciles and dispositions every discovered candidate.
 The runtime's `executionAllowed` means technical eligibility, not user approval.
+Planning intake always disables execution and can expose candidates awaiting
+Product disposition. Product assigns all six allowed dispositions using that
+same snapshot. After approval, the execution gate validates current records
+with the approved disposition map; a changed scope returns to preview.
 
 Show the product name, candidate count, Include now count, blocked/deferred
 counts, and whether intake is complete. Then show every candidate, grouped by
@@ -262,6 +267,10 @@ items visible. Never turn scanner errors into an empty-queue claim: report
 known candidates and the exact incomplete/contradictory intake blocker.
 
 **Wait for “okay” before source execution.** Record the displayed Include now
+scope only after the user has had the opportunity to change it. Invite plain
+language edits such as “do B first”, “defer A”, or “add C”. Reconcile each edit
+against dependencies, conflicts and gates, then show the revised preview and
+wait for approval; never silently execute a requested queue change. Record the
 scope and its approval in the existing Build Brief/handoff. Approval covers
 only that current scope through Ready to ship; a new ordinary handoff waits
 for the next cycle. Material scope, priority, decision, dependency, lock or

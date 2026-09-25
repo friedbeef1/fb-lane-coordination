@@ -1974,7 +1974,8 @@ function refreshBfmRoutingReceipts(rootDir, options = {}) {
     }
   }
 
-  const contentAudit = handoffAuditRecords(canonicalRoot);
+  const linkedDeltas = linkedWorktreeHandoffDeltas(canonicalRoot);
+  const contentAudit = handoffAuditRecords(canonicalRoot, { linkedDeltas });
   if (contentAudit.errors.length > 0) {
     throw new Error(`READINESS_AUDIT_INCOMPLETE: handoff sources were unreadable: ${contentAudit.errors.join('; ')}`);
   }
@@ -1991,10 +1992,11 @@ function refreshBfmRoutingReceipts(rootDir, options = {}) {
       const requiresRouting = metadata.type === 'fb-lane-handoff'
         && readyHandoffStatus(String(metadata.status || '').toLowerCase());
       if (requiresRouting) {
-        inventories ||= collectBfmIntakeInventories(canonicalRoot);
+        inventories ||= collectBfmIntakeInventories(canonicalRoot, { linkedDeltas });
         const routeErrors = [];
         records = [];
         for (const [auditRoot, inventory] of inventories) {
+          if (!handoffIncludedForAudit(auditRoot, relative, linkedDeltas)) continue;
           const absolute = path.join(auditRoot, relative);
           if (!fs.existsSync(absolute)) continue;
           let source;
@@ -2287,7 +2289,9 @@ function freezeBfmIntake(rootDir, options = {}) {
   const dispositionErrors = [];
   for (const candidate of candidates) {
     const value = dispositions[candidate.task];
-    if (!BFM_DISPOSITIONS.has(value)) dispositionErrors.push(candidate.task);
+    if ((value === undefined || value === '') && options.planningOnly === true) {
+      candidate.disposition = 'Pending Product decision';
+    } else if (!BFM_DISPOSITIONS.has(value)) dispositionErrors.push(candidate.task);
     else candidate.disposition = value;
   }
   const extras = Object.keys(dispositions).filter(task => !candidateTasks.has(task));
@@ -2371,7 +2375,7 @@ function freezeBfmIntake(rootDir, options = {}) {
     recommendedOrder: recommendation.order,
     recommendedWaves: recommendation.waves,
     emptyQueueProven: candidates.length === 0 && scan.blockedCandidates.length === 0 && evidenceReady,
-    executionAllowed: includeCount > 0
+    executionAllowed: options.planningOnly !== true && includeCount > 0
       && evidenceReady
       && migration.taskRebind.pending.length === 0
       && migration.taskRebind.status !== 'awaiting-task-rebind'

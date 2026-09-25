@@ -12,6 +12,8 @@ Use this file as the first read for handoff discovery. `PROJECT_BOARD.md` remain
 
 Current published and installed release: `0.10.1-beta+codex.20260923044148` — TASK-093.
 
+TASK-094 local candidate: `0.10.2-beta+codex.20260925083556`; publication and installation remain pending.
+
 | Task / Topic | Lane | Status | Depends / Blocks / Gate | Checks / Evidence | Detail |
 |---|---|---|---|---|---|
 | TASK-094 - Queue preview and existing-task adoption | Product/BFM | Staging QA | No app execution or publication; real preview demonstrations blocked on existing intake issues | Guidance passed; all four existing tasks adopted | [Handoff](TASK-094.md); [QA](../qa/TASK-094.md) |

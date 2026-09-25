@@ -156,7 +156,7 @@ const {
   freezeBfmIntake,
   renderBfmIntakeLedger,
 } = require('./tools/fb-lane.cjs');
-const intake = freezeBfmIntake(projectRoot);
+const intake = freezeBfmIntake(projectRoot, { planningOnly: true });
 const ledger = renderBfmIntakeLedger(intake);
 ```
 
@@ -173,6 +173,12 @@ show every candidate with product, linked handoff, simple outcome, disposition,
 and priority/reason; then the execution scaffold. Wait for “okay” before source
 execution. Technical ledger eligibility is not user approval. A materially
 changed scope needs a refreshed preview; okay never authorizes Push Live.
+Planning intake may show `Pending Product decision`; replace every pending
+item with a proposed disposition before presenting the approval preview. Let
+the user reorder, add, remove or defer proposed items, then show the revision.
+After approval, the execution gate revalidates current authoritative records
+with the approved `dispositions` and without `planningOnly`; it must still
+reject missing dispositions or changed material scope.
 
 Treat a linked Git worktree as evidence only for handoffs changed by its
 branch-unique commits or current dirty, staged, or untracked state. Do not turn

@@ -1,4 +1,50 @@
+---
+task: TASK-094
+status: checking
+---
+
 # TASK-094 — Queue preview evidence
+
+## Candidate
+
+FB 0.10.2 local candidate on codex/TASK-093-consumer-rollout, preserving f70a0a2
+and the earlier TASK-093 commits. Runtime and guidance are synchronized, but
+the installed build remains 0.10.1. No app release is included.
+
+## Focused verification
+
+The completion-amendment table below records the runtime regressions, complete
+28-check suite, package metadata and per-consumer real intake evidence. Original
+adoption failures are retained separately below rather than overwritten.
+
+## Release checkpoint
+
+Planned after the consumer-recovery result is known and the exact candidate is
+committed: targeted record preflight, one whole-candidate review and one final
+release validator. Public publication/install still requires Push Live; no
+current evidence claims the new plugin is installed.
+
+## Completion amendment evidence
+
+Local plugin candidate: `0.10.2-beta+codex.20260925083556`; not published or installed.
+The approved completion amendment extends the original guidance-only scope
+below with two narrow runtime repairs and consumer coordination recovery.
+
+| Check | Result |
+|---|---|
+| Planning-only intake regression | Reproduced missing-disposition failure; pending candidates now visible, execution always false |
+| Historical worktree receipt regression | Reproduced false content drift when another file changed in a linked worktree; receipt refresh now shares the scanner's exact delta filter |
+| Complete canonical intake contract | 28/28 passed; missing routes, content drift, identity and execution gates preserved |
+| Existing skill contract | Passed |
+| Package synchronization and syntax | 93 mirrors aligned; affected runtime syntax passed |
+| MÉJA real intake | Complete: one pending User candidate and one blocked Tech record; execution false; separate canonical execution setup gate remains visible |
+| Tough Talks real intake | Complete: seven candidates, editable proposed dispositions, execution false; exact routes and four receipts repaired |
+| Memory App | Git packs now resident through Finder Keep Downloaded; a linked-worktree handoff read still blocked the scan; targeted evidence download underway |
+| Unmirror | Scoped runtime adoption and bounded real scan in progress; not yet claimed complete |
+
+Existing Product/BFM task IDs and active app source were preserved. Consumer
+receipts below are authoritative for their current state. Earlier failed scans
+remain historical evidence, not the final result of the completion amendment.
 
 ## Candidate and boundaries
 
