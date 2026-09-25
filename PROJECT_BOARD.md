@@ -13,7 +13,8 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-093 | Done | FB-Product / BFM | FB 0.10.1 focused hardening release | Published and installed; consumer adoption partial with exact gaps in QA | No active locks; preserve consumer source and task topology | [Handoff](docs/handoffs/TASK-093.md); [QA](docs/qa/TASK-093.md); PR #72 merged `aa03038` |
+| TASK-094 | Staging QA | Product/BFM, current task | Editable queue preview and complete intake repair | All four real planning scans pass; FB 0.10.2 candidate Ready to ship, not published | None; source frozen, app work preserved; Push Live remains | [Handoff](docs/handoffs/TASK-094.md); [QA](docs/qa/TASK-094.md); checkpoint passed with focused stale-test repair |
+| TASK-093 | Done | FB-Product / BFM; task 01a0ccc1 | FB 0.10.1 scoped managed upgrades | MÉJA, Unmirror and TT upgraded; Memory verified; MÉJA and TT setup settled | Locks released; existing task IDs/history and app work preserved | [Handoff](docs/handoffs/TASK-093.md); [QA](docs/qa/TASK-093.md); PR #72 merged `aa03038` |
 | TASK-091 | Done | FB-Product / BFM + FB-Discovery | FB `0.10.0-beta`; versioned graph contract and legacy exact-task adapter | Preserve the seven proven sidebar tasks, then introduce one machine-readable graph/state/transition contract with v1 read compatibility and fail-closed authority semantics | None; released | PR #70 merged as `e1fcac5`; Git marketplace `main` and exact installed build `0.10.0-beta+codex.20260827100222` verified with 94/94 parity and 14 MCP tools; [Handoff](docs/handoffs/TASK-091.md); [Discovery input](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [QA](docs/qa/TASK-091.md) |
 | TASK-FB-GRAPH-LOOPS-20260826 | Done | FB-Discovery → FB-Product / BFM | Compatibility-first graph recommendation | Identify a versioned contract slice without forcing a monolithic graph migration | None; absorbed into TASK-091 | Product dispositioned the recommendation into TASK-091; [Discovery handoff](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [TASK-091 QA](docs/qa/TASK-091.md) |
 | TASK-090 | Done | FB-Product / BFM | Workstream result return; released in FB `0.10.0-beta+codex.20260827100222` | Return every Product/BFM disposition and delivery result to its originating workstream through the durable handoff/card plus one exact-task passive summary per BFM cycle | None; released | [PR #69](https://github.com/friedbeef1/fb-lane-coordination/pull/69) merged as `4527b6a` and was published with TASK-091 through FB 0.10.0; [Handoff](docs/handoffs/TASK-090.md); [QA](docs/qa/TASK-090.md) |
@@ -46,6 +47,23 @@
 
 ---
 
+### TASK-094 - Queue preview and existing-task adoption
+
+Local plugin candidate: `0.10.2-beta+codex.20260925083556`; not published or installed.
+
+* **Owner / Thread**: Product/BFM, current task.
+* **Scope**: Approved editable queue preview, shared intake repairs, four exact consumer coordination recoveries and FB 0.10.2 candidate preparation.
+* **Out of Scope**: App source, backlog execution, new tasks, installation, publication and deployment.
+* **Goal Alignment Session**:
+    * **Objective**: Show James what BFM intends to process before execution.
+    * **Key Results**: Complete candidate preview; okay bound to current Include now scope; all four existing consumers instructed and adoption evidence recorded.
+    * **Definition of Done**: Focused skill proof, generated parity, changed-doc checks and consumer status receipts.
+    * **Gate / Review Point**: Future queue execution needs okay; publication and release still need Push Live.
+    * **Approval**: approved — James said “Yep, let's do it” after the rollout plan and implementation-gap check.
+    * **Justification**: Existing active guidance bypasses the explicitly requested preview approval.
+* **Locks**: Released after source freeze and four successful real planning scans; publication remains separate.
+* **Links & Deliverables**: [Handoff](docs/handoffs/TASK-094.md); [QA](docs/qa/TASK-094.md).
+
 ### TASK-093 - Focused efficiency and evidence hardening
 
 Release build: `0.10.1-beta+codex.20260923044148`.
@@ -60,7 +78,7 @@ Release build: `0.10.1-beta+codex.20260923044148`.
     * **Gate / Review Point**: James authorized Push Live on 2026-09-23; required release and installed-runtime proof must pass before completion.
     * **Approval**: approved — James said “Great, make it happen” after the once-off recommendations.
     * **Justification**: Published routing and verification defects were reproduced; contradictory guidance and saved-versus-delivered evidence create avoidable overhead and confusion.
-* **Locks**: Released. Framework live proof passed; Memory App managed upgrade verified. Other consumers remain explicit follow-ups in QA; app source and task topology stay excluded.
+* **Locks**: Released. Framework live proof passed; approved managed consumer rollout completed from 507f5e0. MÉJA, Unmirror and Tough Talks upgraded; Memory App verified and missing reference documents restored. App source and task topology preserved. Tough Talks task rebinding and MÉJA pin-state limitations remain explicit in QA.
 * **Links & Deliverables**: [Handoff](docs/handoffs/TASK-093.md); [QA](docs/qa/TASK-093.md).
 
 ---
@@ -741,3 +759,9 @@ Release build: `0.10.1-beta+codex.20260923044148`.
 *   **Links & Deliverables**: [handoff](docs/handoffs/TASK-066.md) ·
     [QA](docs/qa/TASK-066.md) · release build
     `0.5.3-beta+codex.20260801141345`.
+
+### TASK-093 setup settlement — approved follow-up
+
+James asked to settle Tough Talks and MÉJA. Owner: task 01a0ccc1, Product/BFM. Scope: tested native-inventory/parent-task-root compatibility, existing-task title/pin reconciliation and current receipts. Locks: tools/fb-onboarding.cjs, tools/fb-lane.cjs, focused onboarding/migration tests and consumer copies, exact setup records. No app source, deployment, task creation, history deletion or unrelated task mutation. Existing seven role task IDs remain fixed; additional noncanonical tasks remain intact.
+
+Settlement outcome: both projects now have their original seven lanes pinned and verified. TT parent-root compatibility and native project receipt are repaired; zero migration rebindings remain. Focused tests and independent review pass. Source repair is local, mirrored and preserved; no new global publication or app deployment.

@@ -8,8 +8,8 @@ sequence.
 
 **Graph Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.10.1-beta**
-(`0.10.1-beta+codex.20260923044148`).
+Current Codex release candidate: **FB 0.10.2-beta**
+(`0.10.2-beta+codex.20260925083556`).
 
 **FB is an open-source Codex plugin that turns scattered AI conversations into
 a living product-delivery graph.** It has six evidence-producing workstreams
@@ -158,7 +158,9 @@ user says `$bfm` in Product/BFM. The
 control centre then
 freezes an intake snapshot, dispositions every candidate, reconciles and
 prioritizes the included work, and creates the Project Start Brief plus Build
-Brief before BFM executes that consolidated scope; see [the start
+Brief, then shows a [prioritized queue preview](docs/fb/workflow.md#queue-preview-and-approval).
+Say **okay** to execute that current Include now scope. **Push Live** remains
+separate; see [the start
 contract](docs/fb/start.md). A ready handoff is queued for Product intake, not
 approval or execution authority.
 
@@ -168,7 +170,7 @@ it matters, FB follows the archive, handoff index, exact handoff, QA evidence,
 and Git history on demand. See [durable records](docs/fb/records.md) and
 [graph-directed historical retrieval](docs/fb/graph.md#historical-retrieval).
 For substantial work, FB plans a dependency graph up front and breaks the
-outcome into small verifiable slices. After `$bfm`, FB automatically creates or
+outcome into small verifiable slices. After queue approval, FB automatically creates or
 reuses a linked worktree for every independent source-changing slice and can run
 those agents in parallel; dependent or overlapping work stays sequential. You
 do not need to create, choose, or organize implementation worktrees.

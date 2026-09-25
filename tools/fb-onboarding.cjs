@@ -69,10 +69,10 @@ function repositoryPathForConfiguration(repository) {
   return path.resolve(String(rawRepositoryPath).trim());
 }
 
-function taskTitlePrefix(repository) {
+function readFbLaneConfiguration(repository) {
   const repositoryPath = repositoryPathForConfiguration(repository);
   const configPath = path.join(repositoryPath, '.fb-lane.json');
-  if (!fs.existsSync(configPath)) return 'FB';
+  if (!fs.existsSync(configPath)) return {};
 
   let config;
   try {
@@ -84,6 +84,11 @@ function taskTitlePrefix(repository) {
   if (!config || Array.isArray(config) || typeof config !== 'object') {
     throw new Error(`.fb-lane.json at ${configPath} must contain a JSON object.`);
   }
+  return config;
+}
+
+function taskTitlePrefix(repository) {
+  const config = readFbLaneConfiguration(repository);
   if (!Object.prototype.hasOwnProperty.call(config, 'taskTitlePrefix')) return 'FB';
   if (typeof config.taskTitlePrefix !== 'string') {
     throw new Error('taskTitlePrefix must be a string between 1 and 64 characters.');
@@ -96,15 +101,38 @@ function taskTitlePrefix(repository) {
   return prefix;
 }
 
+function codexTaskRoot(repository) {
+  const repositoryPath = repositoryPathForConfiguration(repository);
+  const config = readFbLaneConfiguration(repository);
+  if (!Object.prototype.hasOwnProperty.call(config, 'codexTaskRoot')) return repositoryPath;
+  if (typeof config.codexTaskRoot !== 'string' || !config.codexTaskRoot.trim()
+      || /[\u0000-\u001f\u007f]/.test(config.codexTaskRoot)) {
+    throw new Error('codexTaskRoot must be a nonempty path without control characters.');
+  }
+  const taskRoot = path.resolve(repositoryPath, config.codexTaskRoot.trim());
+  const relative = path.relative(taskRoot, repositoryPath);
+  if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
+    throw new Error('codexTaskRoot must be the canonical repository root or one of its ancestors.');
+  }
+  if (taskRoot !== repositoryPath && (!Object.prototype.hasOwnProperty.call(config, 'taskTitlePrefix')
+      || normalizeTitle(taskTitlePrefix(repository)) === 'fb')) {
+    throw new Error('An ancestor codexTaskRoot requires an explicit project-qualified taskTitlePrefix.');
+  }
+  return taskRoot;
+}
+
 function workstreamLabel(workstream) {
   return WORKSTREAMS.find(item => item.key === workstream?.key)?.title.replace(/^FB · /, '') || '';
 }
 
 function workstreamsForRepository(repository) {
   const prefix = taskTitlePrefix(repository);
+  const sharedTaskRoot = codexTaskRoot(repository) !== repositoryPathForConfiguration(repository);
   return WORKSTREAMS.map(workstream => ({
     ...workstream,
     title: `${prefix} · ${workstreamLabel(workstream)}`,
+    aliases: [...(sharedTaskRoot ? [] : workstream.aliases), normalizeTitle(`${prefix} ${workstreamLabel(workstream)}`),
+      ...(workstream.key === 'product' ? [normalizeTitle(`${prefix} Product`)] : [])],
   }));
 }
 
@@ -137,7 +165,7 @@ function belongsToRepository(task, repository) {
     : (repository || {});
   const expectedProjectId = identity.projectId;
   const observedProjectId = taskProjectId(task);
-  const expectedPath = identity.repositoryPath || identity.projectPath || identity.path;
+  const expectedPath = identity.taskRoot || codexTaskRoot(identity);
   const observedPath = taskRepositoryPath(task);
   if (expectedProjectId && observedProjectId !== expectedProjectId) return false;
   if (expectedPath && observedPath && !sameRepository(observedPath, expectedPath)) return false;
@@ -279,10 +307,12 @@ function verifiedRepositoryIdentity(repository) {
   if (!projectId || !String(rawRepositoryPath || '').trim()) {
     throw new Error('Both a nonempty verified project ID and canonical repository path are required before task mutation or reconciliation.');
   }
-  return {
-    projectId,
-    repositoryPath: path.resolve(String(rawRepositoryPath).trim()),
-  };
+  const repositoryPath = path.resolve(String(rawRepositoryPath).trim());
+  const taskRoot = codexTaskRoot({ repositoryPath });
+  if (repository.taskRoot && !sameRepository(repository.taskRoot, taskRoot)) {
+    throw new Error('Supplied taskRoot must match the repository configured codexTaskRoot.');
+  }
+  return { projectId, repositoryPath, ...(taskRoot !== repositoryPath ? { taskRoot } : {}) };
 }
 
 function safeTaskIdentifier(value) {
@@ -320,7 +350,7 @@ function classifyLocalTaskRows(rows, repository) {
     if (!row || typeof row !== 'object') {
       return localInventoryFailure('The read-only Codex local-state query returned a malformed task row.');
     }
-    if (Number(row.archived || 0) !== 0 || !sameRepository(row.cwd, identity.repositoryPath)) continue;
+    if (Number(row.archived || 0) !== 0 || !sameRepository(row.cwd, identity.taskRoot || identity.repositoryPath)) continue;
     if (row.source !== 'vscode') {
       if (isExcludedLocalHelperSource(row.source)) continue;
       return localInventoryFailure(`Exact-root task ${safeTaskIdentifier(row.id) || '(unknown)'} has unsupported local source metadata; setup cannot prove whether it is a user-visible sidebar task.`);
@@ -405,7 +435,7 @@ function buildCompleteLocalInventory(evidence, repository, localCandidates) {
   if (matchingProjects.length !== 1
       || matchingProjects[0].projectKind !== 'local'
       || matchingProjects[0].hostId !== 'local'
-      || !sameRepository(matchingProjects[0].path, identity.repositoryPath)) {
+      || !sameRepository(matchingProjects[0].path, identity.taskRoot || identity.repositoryPath)) {
     return fail('Native project evidence does not prove one local saved project with the requested project ID and canonical repository root.', 'project');
   }
   if (!threadList || Number(threadList.schemaVersion || 0) < 4
@@ -450,7 +480,7 @@ function buildCompleteLocalInventory(evidence, repository, localCandidates) {
     pinnedMap.set(id, pinned);
     const pinnedProjectId = String(pinned.projectId || '').trim();
     const claimsProject = pinnedProjectId === identity.projectId;
-    const claimsRoot = sameRepository(pinned.cwd, identity.repositoryPath);
+    const claimsRoot = sameRepository(pinned.cwd, identity.taskRoot || identity.repositoryPath);
     const isLegacyUnscopedAtExactRoot = !pinnedProjectId && claimsRoot;
     if ((!claimsProject && !isLegacyUnscopedAtExactRoot) || (claimsProject && !claimsRoot)) {
       return fail(`Pinned task ${id} contradicts the requested project ID and canonical repository root.`, 'native-evidence');
@@ -475,7 +505,8 @@ function buildCompleteLocalInventory(evidence, repository, localCandidates) {
   for (const id of candidateIds) {
     const detail = detailMap.get(id);
     if (detail.kind !== 'codex' || detail.hostId !== 'local'
-        || !sameRepository(detail.cwd, identity.repositoryPath)
+        || (String(detail.projectId || '').trim() && detail.projectId !== identity.projectId)
+        || !sameRepository(detail.cwd, identity.taskRoot || identity.repositoryPath)
         || !String(detail.title || '').trim()) {
       return fail(`Native read_thread detail for ${id} does not prove a current local Codex task at the canonical repository root.`, 'native-evidence');
     }
@@ -483,12 +514,12 @@ function buildCompleteLocalInventory(evidence, repository, localCandidates) {
     const recent = recentMap.get(id);
     const pinnedProjectId = String(pinned?.projectId || '').trim();
     if (pinned && ((pinnedProjectId && pinnedProjectId !== identity.projectId)
-        || !sameRepository(pinned.cwd, identity.repositoryPath)
+        || !sameRepository(pinned.cwd, identity.taskRoot || identity.repositoryPath)
         || String(pinned.title || '') !== String(detail.title))) {
       return fail(`Pinned-task and read_thread evidence disagree for ${id}.`, 'native-evidence');
     }
     if (recent && (recent.projectId !== identity.projectId
-        || !sameRepository(recent.cwd, identity.repositoryPath)
+        || !sameRepository(recent.cwd, identity.taskRoot || identity.repositoryPath)
         || String(recent.title || '') !== String(detail.title))) {
       return fail(`Recent-task and read_thread evidence disagree for ${id}.`, 'native-evidence');
     }
@@ -496,11 +527,13 @@ function buildCompleteLocalInventory(evidence, repository, localCandidates) {
       id,
       title: String(detail.title).trim(),
       projectId: identity.projectId,
-      repositoryPath: identity.repositoryPath,
+      repositoryPath: identity.taskRoot || identity.repositoryPath,
       pinned: Boolean(pinned),
     });
   }
-  return { complete: true, failures: [], tasks };
+  return { complete: true, failures: [], tasks,
+    nativeProjectIdentity: { projectId: identity.projectId, repositoryPath: identity.repositoryPath,
+      taskRoot: identity.taskRoot || identity.repositoryPath } };
 }
 
 function defaultCodexStateDb() {
@@ -528,7 +561,7 @@ function readLocalTaskCandidates(repository, options = {}) {
   if (!fs.existsSync(stateDb) || !fs.statSync(stateDb).isFile()) {
     return localInventoryFailure(`Read-only Codex local state is unavailable at ${stateDb}.`);
   }
-  const escapedRoot = canonicalRoot.replace(/'/g, "''");
+  const escapedRoot = (identity.taskRoot || canonicalRoot).replace(/'/g, "''");
   const query = `SELECT id, cwd, archived, source FROM threads WHERE archived = 0 AND cwd = '${escapedRoot}' ORDER BY id`;
   let rows;
   try {
@@ -573,6 +606,11 @@ function needsTaskInventoryReconciliation(receipt, repository = receipt?.reposit
   if (!repository && !receipt) return false;
   const workstreams = workstreamsForRepository(repository);
   if (!receipt || receipt.permission !== 'granted') return false;
+  const taskRoot = codexTaskRoot(repository);
+  const repositoryPath = repositoryPathForConfiguration(repository);
+  if ((receipt.taskRoot || taskRoot !== repositoryPath)
+      && (!sameRepository(receipt.repositoryPath, repositoryPath)
+      || !sameRepository(receipt.taskRoot || receipt.repositoryPath, taskRoot))) return true;
   const observed = new Set(Array.isArray(receipt.workstreams) ? receipt.workstreams : []);
   return workstreams.some(workstream => {
     const binding = receipt.taskBindings?.[workstream.key];
@@ -912,6 +950,7 @@ function recordVerifiedReconciliation(rootDir, verification, repository, options
     ...current,
     repositoryPath: identity.repositoryPath,
     projectId: identity.projectId,
+    ...(identity.taskRoot ? {taskRoot: identity.taskRoot, identitySource: 'codex-native-project'} : {}),
     workstreams: WORKSTREAMS.map(item => item.key),
     taskBindings: verification.taskBindings,
     attemptedActions,
@@ -921,6 +960,10 @@ function recordVerifiedReconciliation(rootDir, verification, repository, options
       : {}),
     reconciledAt: now.toISOString(),
   };
+  if (!identity.taskRoot) {
+    delete state.taskRoot;
+    delete state.identitySource;
+  }
   atomicWriteJson(receiptPath(rootDir), state);
   return state;
 }
@@ -1210,6 +1253,7 @@ module.exports = {
   WORKSTREAMS,
   buildCompleteLocalInventory,
   classifyLocalTaskRows,
+  codexTaskRoot,
   ensureOnboardingReceipt,
   isBfmIntent,
   needsTaskInventoryReconciliation,

@@ -65,7 +65,8 @@ Bugs. Product/BFM is the control centre, not universal intake. Relevant workstre
 create handoffs ready for Product intake. Ready means queued for Product
 review, not approval or execution. Only `$bfm` freezes that intake, makes
 Product disposition and sequence every candidate, records the consolidated
-Build Brief, and then starts execution of the included scope. FB keeps its
+Build Brief, and shows the [queue preview](workflow.md#queue-preview-and-approval).
+Say **okay** to execute that current included scope; **Push Live** stays separate. FB keeps its
 risk and execution classification internal; the user never chooses a mode.
 See [start.md](start.md) for the public sequence and [workflow.md](workflow.md)
 for internal execution budgets and stop predicates.

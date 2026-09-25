@@ -95,7 +95,7 @@ Focused test-first regressions per slice; one whole-candidate review; at most on
 
 ## Task Receipt
 
-Status: published and globally installed; per-project managed adoption is partial and explicitly tracked in QA.
+Status: published and globally installed; approved managed consumer upgrades completed on 2026-09-23 from main 507f5e0. Exact-project task setup limits remain explicitly tracked in QA.
 
 Approved brief and decisions: The scoped hardening and explicit Push Live amendment above govern this candidate.
 
@@ -109,9 +109,9 @@ Review state, direct links, limits, and external gates: [PR #72](https://github.
 
 Review state: not reviewable
 
-External gates: Framework publication and installation passed. MÉJA custom harness reconciliation, Unmirror overlapping edits, Tough Talks migration identity, and fresh-task plugin loading remain distinct consumer gates.
+External gates: Framework publication, installation and fresh-task loading passed. MÉJA/Unmirror managed reconciliation and Tough Talks canonical identity repair passed. Tough Talks parent-root task rebinding remains pending; MÉJA current unpinned task topology is preserved. No app deployment is authorized by this upgrade.
 
-Remaining owner/action: Fresh Product/BFM continues only the documented consumer-adoption gaps, preserving app source and existing task topology.
+Remaining owner/action: The safe managed rollout is complete. Product/BFM may separately address the recorded task setup compatibility/health limits while preserving app source and existing task identities.
 
 Environment: published Git marketplace and global installed cache both verified at `0.10.1-beta+codex.20260923044148`; isolated installation smoke also passed.
 
@@ -132,8 +132,7 @@ Preservation: durable branch plus a verified Git bundle and external receipt at
 final candidate commit, bundle digest and restore proof without a self-referential
 tracked commit hash.
 
-Remaining owner and action: Fresh Product/BFM resolves the per-consumer gaps in
-QA. Framework release is complete; cross-project adoption is not claimed complete.
+Remaining owner and action: Managed cross-project adoption is complete; see the consumer continuation receipt in QA for the exact task setup limits. Framework release remains complete.
 Exact passive delivery
 remains pending unless a non-activating receipt-bound transport is proved.
 
@@ -155,3 +154,57 @@ blocked rather than silently omitted or fabricated.
 
 - [Board](../../PROJECT_BOARD.md#task-093---focused-efficiency-and-evidence-hardening)
 - [QA](../qa/TASK-093.md)
+
+
+## Approved setup settlement — 2026-09-23
+
+James subsequently asked Product/BFM to settle Tough Talks and MÉJA. Both now
+reuse their original seven role task IDs with exact titles and native pinned
+state. MÉJA needed seven pin actions only. Tough Talks needed six legacy-title
+renames and seven pins; its additional Discovery task remains unchanged and
+unpinned. No task was created, archived, messaged or activated.
+
+Tough Talks explicitly stores its tasks at the Fluentflow3 parent folder. The
+reviewed two-file local compatibility repair keeps that native task root
+separate from the canonical tough-talks Git checkout, requires prefix-specific
+roles at shared roots, rejects contradictory native identities, detects stale
+root fingerprints in setup and BFM execution, and upgrades the historical cwd
+project alias only with joined native proof. The source package mirrors contain
+the repair; the installed global plugin remains the published 0.10.1 package.
+No additional publication is claimed.
+
+Fresh native metadata and complete read-only local enumeration verify every
+original task ID. Both setup receipts report `needsReconciliation: false`.
+Tough Talks records its current native saved-project ID, canonical Git root and
+parent task root; migration is active with task rebind complete, zero pending,
+and zero unresolved handoff drift. The former anchor remains quarantined.
+
+Focused verification: 42 onboarding tests, 36 checkout-migration checks,
+27 BFM intake tests, 72 CLI checks, native setup contract, syntax, package parity
+and scoped whitespace. Review findings received regressions and were repaired.
+The settlement evidence lives at
+`/Users/jamesyeang/Documents/fb-lane/artifacts/TASK-093-settlement-20260923/`.
+Existing application work, histories and extra tasks are preserved. No app
+deployment, provider change or release of unrelated app work occurred.
+
+
+### Intake preservation closeout
+
+The final Tough Talks readiness audit also recovered six historical handoffs,
+four linked evidence documents and the Ready Quick Fire handoff plus its spacing
+README, all byte-identical to preserved sources. Its exact existing board/index
+rows and Design-card summary retain Ready-for-later and Product-paused state.
+Two clean legacy worktrees with no task records or Ready handoffs are now
+registered as quarantined, recoverable sources; no checkout was removed.
+Four routing receipts were refreshed from the unchanged runtime's actual audit
+records, covering every selected source and preserving prior dispositions.
+
+Read-only intake now returns onboarding and canonical evidence `verified`,
+complete task rebind with zero pending, and no external blockers. The audit
+retained the three existing recorded dispositions and supplied `Deferred` only
+for the new canonical Quick Fire input, matching its existing later-intake
+instruction. No app task was started. Future Product intake still owns that
+proposal's disposition; no application execution or deployment was authorized
+by this setup audit. Evidence: `tough-talks/intake-final.json` in the settlement
+directory. Final consumer scope is 20 FB/runtime/coordination/recovered-record
+files; application source remains untouched.

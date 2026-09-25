@@ -233,12 +233,64 @@ After `$bfm`, Product freezes intake and must disposition every candidate as
 not approval or execution authority. A disposition does not auto-close a task;
 all genuinely nonterminal candidates remain visible in authoritative records.
 Product then records the consolidated Build Brief for the **Include now** scope.
-This does not require a routine second approval; pause only for changed
-decisions, disputed priorities, sensitive boundaries, conflicts, or unclear
-scope. The Build Brief repeats the quality bar, selected eval IDs and authority,
+Apply [Queue preview and approval](#queue-preview-and-approval) before source
+execution. The Build Brief repeats the quality bar, selected eval IDs and authority,
 mechanical versus judgment evidence, and remaining user judgment. See
 [evals.md](evals.md). Product defines concrete product scenarios with Good and
 Bad examples; reusable categories alone are not a test.
+
+## Queue preview and approval
+
+`$bfm` authorizes intake and planning, not automatic execution of the resulting
+queue. Use one complete canonical `freezeBfmIntake(root, { planningOnly: true, dispositions: {} })`
+result; do not add a second
+file scan. Product reconciles and dispositions every discovered candidate.
+The runtime's `executionAllowed` means technical eligibility, not user approval.
+Planning intake always disables execution and can expose candidates awaiting
+Product disposition. Product assigns all six allowed dispositions using that
+same snapshot. After approval, the execution gate validates current records
+with the approved disposition map; a changed scope returns to preview.
+The initial empty disposition map keeps workstream labels such as "ready for
+intake" separate from Product's decisions. Original recorded dispositions stay
+visible as evidence; preserve an already approved unchanged Product plan rather
+than asking for its approval again.
+
+Show the product name, candidate count, Include now count, blocked/deferred
+counts, and whether intake is complete. Then show every candidate, grouped by
+disposition with Include now first in recommended execution order:
+
+| Product | Handoff | What it does | Decision | Order / reason |
+|---|---|---|---|---|
+| Plain product name | Human-readable name linked to its handoff | One simple sentence describing the user outcome | Include now / Blocked / Deferred / Duplicate / Rejected / Superseded | Recommended order, dependency, gate, or why it will not run |
+
+Follow with a short scaffold: **First**, **Next**, **Then**, expected visible
+outcome, and material dependencies, conflicts or gates. Product sets priorities
+from evidence: urgent user harm and release blockers, then prerequisites, then
+outcome and readiness. Keep independent work identifiable and non-runnable
+items visible. Never turn scanner errors into an empty-queue claim: report
+known candidates and the exact incomplete/contradictory intake blocker.
+
+**Wait for “okay” before source execution.** Record the displayed Include now
+scope only after the user has had the opportunity to change it. Invite plain
+language edits such as “do B first”, “defer A”, or “add C”. Reconcile each edit
+against dependencies, conflicts and gates, then show the revised preview and
+wait for approval; never silently execute a requested queue change. Record the
+scope and its approval in the existing Build Brief/handoff. Approval covers
+only that current scope through Ready to ship; a new ordinary handoff waits
+for the next cycle. Material scope, priority, decision, dependency, lock or
+safety changes require a refreshed preview and any applicable gate. Reuse the
+approved preview when nothing material changed; do not ask between slices or
+routine repairs. A complete queue with no Include now work stops without asking
+for meaningless execution approval.
+
+This queue-specific approval supersedes older no-second-approval guidance and
+standing general permission to proceed. It is not permission to release:
+**“okay” does not mean Push Live**. Onboarding, exact-task identity, locks,
+worktrees, sensitive operations, verification and Push Live gates still apply.
+An explicit approval of a displayed implementation plan counts for that exact
+scope; do not ask again merely to change the format of its approval.
+
+## Full BFM Build Brief requirements
 
 The Build Brief may opt into `controlLoop` capabilities and name the applicable
 criteria, profile manifest, golden-fixture manifest, gates, and evidence. Clear

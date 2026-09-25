@@ -71,6 +71,15 @@ expected visible titles; it defaults to `FB`. The prefix is presentation only,
 not identity authority. Exact project ID, canonical root, stable task ID,
 complete native details, and pinned state remain authoritative.
 
+For an existing suite saved at an ancestor folder, `.fb-lane.json` may set
+`codexTaskRoot` to that ancestor (for example `".."`) with an explicit project
+prefix. Keep the canonical Git root and the native saved-project/task root
+separate: inventory and native details must prove the configured task root,
+while mutation guards still require the canonical Git checkout. Shared-root
+roles accept only the configured prefix, including its supported legacy
+spelling; generic or foreign project titles are not adopted. Preserve existing
+receipt-bound IDs. A root change requires fresh reconciliation.
+
 Duplicate-looking suites and prefix, rename, archive, or repair requests must
 enter exact-project reconciliation before any task mutation. Migrate supported
 generic or legacy bindings by stable-ID rename and create only a role proved
@@ -94,7 +103,8 @@ before any plugin-dependent setup or repair mutation.
 ### Native exact-project reconciliation
 
 1. Resolve the canonical repository root. Call `list_projects` and select one
-   exact project ID whose canonical repository path identifies that root. If
+   exact project ID whose path identifies that root, or the explicit ancestor
+   `codexTaskRoot` when configured. If
    the project is absent, ambiguous, or path identity disagrees, stop without
    mutation and give the role-specific manual fallback.
 2. Call `list_threads({"limit":50})`; `limit` is its only reliably supported
@@ -122,7 +132,8 @@ before any plugin-dependent setup or repair mutation.
    per-task native details, and native pinned-task set agree. Unsupported local
    row kinds, missing details, unavailable native sources, or contradictory
    project/root/pin evidence fail closed before mutation. Save only the
-   adapter's proven-complete object with `complete: true` and `tasks`.
+   adapter's proven-complete object with `complete: true` and `tasks`; retain
+   its `nativeProjectIdentity` proof when repairing a legacy cwd project ID.
 3. Run
    `node tools/fb-onboarding.cjs plan <initial-inventory.json> --repository-root <canonical-root> --project-id <project-id>`.
    Stop on `complete: false`. Execute only the deterministic action objects
@@ -137,7 +148,9 @@ before any plugin-dependent setup or repair mutation.
    Never put prompts, titles, provider responses, error messages, or timestamps
    in `attemptedActions`. Then use
    the real Codex controls: `create_thread` for `create`, `set_thread_title`
-   for `rename`, and `set_thread_pinned({ pinned: true })` for `pin`. A created
+   for `rename`, and `set_thread_pinned({ pinned: true })` for `pin` (or
+   `move_thread_to_sidebar_section({sectionId: "pinned", threadId})` on current
+   hosts). A created
    task uses the exact project, a local environment rather than a worktree, and
    the idle prompt from
    `node tools/fb-onboarding.cjs prompt <workstream> <canonical-root>`. Pass the

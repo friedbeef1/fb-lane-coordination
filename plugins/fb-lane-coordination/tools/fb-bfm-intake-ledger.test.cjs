@@ -229,6 +229,45 @@ test('BFM onboarding validates repository-configured titles from the strict rece
   }
 });
 
+test('BFM execution rejects a receipt after its configured task root changes', () => {
+  const ready = { task: 'TECH-ROOT', role: 'Tech', lane: 'fb-tech', file: 'root.md', boardStatus: 'Ready' };
+  const root = makeFixture([ready]);
+  try {
+    initGitFixture(root);
+    const configPath = path.join(root, '.fb-lane.json');
+    const parent = path.dirname(root);
+    fs.writeFileSync(configPath, JSON.stringify({ taskTitlePrefix: 'TT', codexTaskRoot: '..' }));
+    configureVerifiedControlPlane(root);
+    for (const relative of ['fb-onboarding.json', 'fb-checkout-migration.json']) {
+      const file = path.join(root, '.git', relative);
+      const value = JSON.parse(fs.readFileSync(file, 'utf8'));
+      for (const binding of Object.values(value.taskBindings)) {
+        binding.title = binding.title.replace(/^FB · /, 'TT · ');
+      }
+      if (relative === 'fb-onboarding.json') value.taskRoot = parent;
+      fs.writeFileSync(file, JSON.stringify(value));
+    }
+    const options = { dispositions: { 'TECH-ROOT': 'Include now' } };
+    let ledger = freezeBfmIntake(root, options);
+    assert.equal(ledger.onboardingState, 'verified');
+    assert.equal(ledger.executionAllowed, true);
+
+    // The IDs, titles, pins and canonical repository remain identical. Only
+    // the configured native task root changes, invalidating their receipt.
+    for (const config of [
+      { taskTitlePrefix: 'TT' },
+      { taskTitlePrefix: 'TT', codexTaskRoot: '../..' },
+    ]) {
+      fs.writeFileSync(configPath, JSON.stringify(config));
+      ledger = freezeBfmIntake(root, options);
+      assert.equal(ledger.onboardingState, 'stale');
+      assert.equal(ledger.executionAllowed, false);
+    }
+  } finally {
+    remove(root);
+  }
+});
+
 test('BFM intake reconciles an offline quarantined root from exact manifest and routing receipts', () => {
   const candidate = { task: 'TECH-1', role: 'Tech', lane: 'fb-tech', file: 'same.md' };
   const root = makeFixture([candidate]);
@@ -820,6 +859,29 @@ test('every candidate receives exactly one allowed disposition with hash-bound r
   }
 });
 
+test('planning intake exposes undispositioned work without authorizing execution', () => {
+  const root = makeFixture([{ task: 'USER-PLAN', role: 'User', lane: 'fb-user', file: 'plan.md' }]);
+  try {
+    initGitFixture(root);
+    configureVerifiedControlPlane(root);
+    const ledger = freezeBfmIntake(root, { planningOnly: true });
+    assert.equal(ledger.candidates.length, 1);
+    assert.equal(ledger.candidates[0].task, 'USER-PLAN');
+    assert.equal(ledger.candidates[0].disposition, 'Pending Product decision');
+    assert.equal(ledger.executionAllowed, false);
+    assert.equal(ledger.emptyQueueProven, false);
+    assert.throws(() => freezeBfmIntake(root), /BFM_DISPOSITION_INCOMPLETE/);
+    const selected = freezeBfmIntake(root, { planningOnly: true, dispositions: { 'USER-PLAN': 'Include now' } });
+    assert.equal(selected.executionAllowed, false, 'even a complete proposed selection cannot execute in planning mode');
+    assert.throws(() => gateBfmExecutionStart(root, 'bfm', { planningOnly: true, dispositions: { 'USER-PLAN': 'Include now' } }), /BFM_EXECUTION_BLOCKED/);
+    assert.throws(() => freezeBfmIntake(root, { planningOnly: true, dispositions: { 'USER-PLAN': 'invalid' } }), /BFM_DISPOSITION_INCOMPLETE/);
+    fs.unlinkSync(path.join(root, 'docs', 'handoffs', 'index.md'));
+    assert.throws(() => freezeBfmIntake(root, { planningOnly: true }), /INCOMPLETE|FALSE_NEGATIVE/);
+  } finally {
+    remove(root);
+  }
+});
+
 test('hidden Ready work and incomplete board/index/card inventory fail closed', () => {
   const candidate = { task: 'DESIGN-1', role: 'Design', lane: 'fb-design', file: 'design.md' };
   const root = makeFixture([candidate]);
@@ -872,9 +934,22 @@ test('an untouched older linked-worktree snapshot does not become handoff drift'
     fs.appendFileSync(path.join(root, 'docs', 'handoffs', 'same.md'), '\nCanonical closeout after branch creation.\n');
     git(root, ['add', 'docs/handoffs/same.md']);
     git(root, ['commit', '-m', 'advance canonical handoff']);
+    fs.writeFileSync(path.join(linked, 'docs/handoffs/branch-notes.md'), '# Unrelated branch notes\n');
+    fs.writeFileSync(path.join(root, 'docs/handoffs/branch-notes.md'), '# Unrelated branch notes\n');
 
     const intake = freezeBfmIntake(root, { dispositions: { 'TECH-1': 'Include now' } });
     assert.deepEqual(intake.candidates.map(item => item.task), ['TECH-1']);
+    configureVerifiedControlPlane(root);
+    const manifestPath = path.join(root, '.git', 'fb-checkout-migration.json');
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    manifest.routingReceipts['docs/handoffs/same.md'] = {
+      canonicalSha256: crypto.createHash('sha256').update(fs.readFileSync(path.join(root, 'docs/handoffs/same.md'))).digest('hex'),
+      sources: [],
+      disposition: 'canonical-routing-retained',
+    };
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest));
+    refreshBfmRoutingReceipts(root, { relatives: ['docs/handoffs/same.md'], registryDir: path.join(root, '.git', 'test-registry') });
+    assert.deepEqual(JSON.parse(fs.readFileSync(manifestPath, 'utf8')).routingReceipts['docs/handoffs/same.md'].sources, []);
   } finally {
     try { git(root, ['worktree', 'remove', '--force', linked]); } catch {}
     remove(linked);

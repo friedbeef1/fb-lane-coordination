@@ -166,7 +166,7 @@ Authority: shadow
 Trigger: A new request needs planning or evidence, relevant workstream handoffs become ready, or the user says `$bfm`.
 Scenario: Follow one visible workstream-first route from the matching workstream discussions through ready handoffs, `$bfm`, Product reconciliation, consolidated Project Start Brief and Build Brief recording, and execution.
 Quality target: The user sees one continuous route and is never asked to choose an execution mode.
-Must pass: User is selected for user needs, outcomes, requirements, feedback, acceptance criteria, or product-priority evidence; relevant workstreams create ready handoffs before `$bfm`; after invocation in Product/BFM, the control centre scans all six, reconciles, and records both briefs without a routine second approval.
+Must pass: User is selected for user needs, outcomes, requirements, feedback, acceptance criteria, or product-priority evidence; relevant workstreams create ready handoffs before `$bfm`; after invocation in Product/BFM, the control centre scans all six, reconciles, records both briefs, and follows [Queue preview and approval](workflow.md#queue-preview-and-approval). Source execution waits for okay on the current Include now scope; material changes require a refreshed preview. Okay is not Push Live.
 Must not happen: Product/BFM must not become universal intake, Project Start Brief must not precede workstream handoffs, and FB must not expose a mode menu or mode-selection rationale.
 Evidence required: The visible workstream-first sequence, conditional User selection, ready-handoff evidence, and post-`$bfm` Product/BFM reconciliation/brief record.
 Owner: Product/BFM

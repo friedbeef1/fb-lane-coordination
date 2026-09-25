@@ -58,7 +58,7 @@ load the new plugin before further plugin-dependent work; existing evidence
 workstreams need not be recreated. This old task performs only release-record
 closeout after installation.
 
-### Active-project adoption — partial, not blanket completion
+### Initial active-project adoption — historical partial result
 
 | Project | Verified result | Remaining owner/action |
 |---|---|---|
@@ -72,6 +72,49 @@ Shared plugin availability does not prove every repository-local runtime was
 upgraded, every existing task reloaded, or every application bug was fixed.
 Other visible projects without a verified FB harness were not bootstrapped.
 No consumer application source or live application was changed.
+
+### Consumer continuation — 2026-09-23
+
+James authorized the fresh-task continuation from exact GitHub main
+`507f5e0a39d01167274cd5560422f6fada47c1e2`, safe FB upgrades only. The enabled
+0.10.1 installed package and all 98 source package files match. No app source
+or deployment changed, and no native task action was performed.
+
+| Project | Result | Preservation and limits |
+|---|---|---|
+| MÉJA | 23 managed/instruction/reference changes; prefix regression, 19 syntax and 14-page link checks pass | All 398 non-delta tracked files, instructions outside managed blocks and onboarding receipt preserved. Existing seven unpinned tasks unchanged. |
+| Unmirror | 37 managed/reference changes; 20 runtime/contract exact matches, 19 syntax and focused link/whitespace checks pass | All 789 other existing files and three FB receipts unchanged. Two local persistence rules retained. Existing lifecycle record failures and graph fallback are recorded, not silently fixed. |
+| Tough Talks | 32 managed/instruction/reference changes; 20 runtime/contract matches, 19 syntax and 14-document checks pass | Canonical identity repaired through supported inventory/commit; old bare anchor quarantined, all 96 dirty entries unchanged, 18 differences preserved, config/onboarding unchanged. All seven task rebindings honestly pending; parent-root compatibility remains outside 507f5e0. |
+| Memory App | Existing 31 managed files verified; three missing published reference documents added and checked | Seven pinned task IDs unchanged. Exclusive-create additions only; 36 existing managed/instruction/coordination files plus onboarding preserved. Stale graph retains authoritative fallback. |
+
+Before/after native metadata proves all 31 observed target task records
+unchanged in ID, title, project/root and pinned state. The global non-pinned
+list is capped; no global inventory completeness is claimed. No task was
+created, renamed, pinned, archived, activated or messaged.
+
+The default bootstrap omits linked published reference documents. The consumer
+upgrades include full-loop, why-fb and the referenced two-speed evidence where
+missing. FB overview links are pinned to the approved FB README, preserving
+consumer app READMEs. This corrects local document closure without patching or
+publishing another framework runtime.
+
+Tough Talks migration was run from the registered former root with a reviewed
+read-only Git adapter: explicit existing git-dir/work-tree, eight exact
+inventory argument arrays, optional locks disabled, no persistent config
+change. The official command re-inspected all roots and dispositions before
+writing the canonical manifest/registry. An initial run from the new root
+correctly failed the canonical guard without mutation; the supported retry
+from the registered root passed. Historical registry and original onboarding
+receipt remain preserved. A separately scoped task-compatibility correction is
+needed for full exact-project setup; no stale successful binding was copied.
+
+Tough Talks retains an append-only board/notes/ownership/index closeout and a
+local QA receipt. All consumer edits remain intentionally uncommitted beside
+existing app work. No app builds, device operations or deployments occurred.
+Detailed deltas, backups, protected hashes and native metadata: local durable
+`/Users/jamesyeang/Documents/fb-lane/artifacts/TASK-093-rollout-20260923/README.md`.
+The existing app and graph/record limitations are consumer state, not failed
+managed-file upgrades or fabricated green setup.
 
 ### Release-checkpoint repair evidence
 
@@ -235,3 +278,57 @@ is the durable result; task delivery remains pending.
 ## Links
 
 - [Handoff](../handoffs/TASK-093.md)
+
+
+## Approved setup settlement — 2026-09-23
+
+James subsequently asked Product/BFM to settle Tough Talks and MÉJA. Both now
+reuse their original seven role task IDs with exact titles and native pinned
+state. MÉJA needed seven pin actions only. Tough Talks needed six legacy-title
+renames and seven pins; its additional Discovery task remains unchanged and
+unpinned. No task was created, archived, messaged or activated.
+
+Tough Talks explicitly stores its tasks at the Fluentflow3 parent folder. The
+reviewed two-file local compatibility repair keeps that native task root
+separate from the canonical tough-talks Git checkout, requires prefix-specific
+roles at shared roots, rejects contradictory native identities, detects stale
+root fingerprints in setup and BFM execution, and upgrades the historical cwd
+project alias only with joined native proof. The source package mirrors contain
+the repair; the installed global plugin remains the published 0.10.1 package.
+No additional publication is claimed.
+
+Fresh native metadata and complete read-only local enumeration verify every
+original task ID. Both setup receipts report `needsReconciliation: false`.
+Tough Talks records its current native saved-project ID, canonical Git root and
+parent task root; migration is active with task rebind complete, zero pending,
+and zero unresolved handoff drift. The former anchor remains quarantined.
+
+Focused verification: 42 onboarding tests, 36 checkout-migration checks,
+27 BFM intake tests, 72 CLI checks, native setup contract, syntax, package parity
+and scoped whitespace. Review findings received regressions and were repaired.
+The settlement evidence lives at
+`/Users/jamesyeang/Documents/fb-lane/artifacts/TASK-093-settlement-20260923/`.
+Existing application work, histories and extra tasks are preserved. No app
+deployment, provider change or release of unrelated app work occurred.
+
+
+### Intake preservation closeout
+
+The final Tough Talks readiness audit also recovered six historical handoffs,
+four linked evidence documents and the Ready Quick Fire handoff plus its spacing
+README, all byte-identical to preserved sources. Its exact existing board/index
+rows and Design-card summary retain Ready-for-later and Product-paused state.
+Two clean legacy worktrees with no task records or Ready handoffs are now
+registered as quarantined, recoverable sources; no checkout was removed.
+Four routing receipts were refreshed from the unchanged runtime's actual audit
+records, covering every selected source and preserving prior dispositions.
+
+Read-only intake now returns onboarding and canonical evidence `verified`,
+complete task rebind with zero pending, and no external blockers. The audit
+retained the three existing recorded dispositions and supplied `Deferred` only
+for the new canonical Quick Fire input, matching its existing later-intake
+instruction. No app task was started. Future Product intake still owns that
+proposal's disposition; no application execution or deployment was authorized
+by this setup audit. Evidence: `tough-talks/intake-final.json` in the settlement
+directory. Final consumer scope is 20 FB/runtime/coordination/recovered-record
+files; application source remains untouched.

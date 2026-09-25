@@ -1012,3 +1012,92 @@ test('first-run guidance creates, pins, verifies, and only then reconciles works
   assert.match(setup, /pin the named task[\s\S]*create only if absent/i);
   assert.ok(setup.indexOf('all seven roles') < setup.indexOf('fb-onboarding.cjs reconcile'));
 });
+
+test('current native inventory proves configured ancestor tasks without changing their roots', () => {
+  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-parent-native-'));
+  const root = path.join(parent, 'app'); fs.mkdirSync(root);
+  fs.writeFileSync(path.join(root, '.fb-lane.json'), JSON.stringify({taskTitlePrefix:'TT',codexTaskRoot:'..'}));
+  const repository = {projectId:'native-parent', repositoryPath:root};
+  const titles = ['TT Product','TT · User','TT Business','TT Design','TT Tech','TT Discovery','TT Bugs'];
+  const rows = titles.map((title,i)=>({id:`existing-${i}`,cwd:parent,archived:0,source:'vscode'}));
+  const details = titles.map((title,i)=>({id:`existing-${i}`,title,cwd:parent,kind:'codex',hostId:'local',projectId:repository.projectId}));
+  const evidence = {projects:[{projectId:repository.projectId,path:parent,projectKind:'local',hostId:'local'}],threadList:{schemaVersion:4,pinnedThreads:[],threads:details,unavailableHosts:[],unavailableSources:[]},threadDetails:details};
+  try {
+    const candidates = onboarding.classifyLocalTaskRows(rows,repository);
+    assert.equal(candidates.candidateIds.length,7);
+    const inventory = onboarding.buildCompleteLocalInventory(evidence,repository,candidates);
+    assert.equal(inventory.complete,true,JSON.stringify(inventory.failures));
+    assert.ok(inventory.tasks.every(t=>t.repositoryPath===parent));
+    const plan = onboarding.planRepositoryTaskInventory(inventory,repository);
+    assert.equal(plan.complete,true,JSON.stringify(plan.failures));
+    assert.equal(plan.actions.filter(a=>a.type==='reuse').length,7);
+    assert.equal(plan.actions.filter(a=>a.type==='rename').length,6);
+    assert.equal(plan.actions.filter(a=>a.type==='pin').length,7);
+    assert.equal(plan.actions.filter(a=>a.type==='create').length,0);
+    const unknown=structuredClone(evidence);unknown.threadList.schemaVersion=2;
+    assert.equal(onboarding.buildCompleteLocalInventory(unknown,repository,candidates).complete,false);
+    const missing=structuredClone(evidence);delete missing.threadList.unavailableSources;
+    assert.equal(onboarding.buildCompleteLocalInventory(missing,repository,candidates).complete,false);
+    const wrong=structuredClone(evidence);wrong.projects[0].path=root;
+    assert.equal(onboarding.buildCompleteLocalInventory(wrong,repository,candidates).complete,false);
+    const wrongDetail=structuredClone(evidence);wrongDetail.threadDetails[0].cwd=root;
+    assert.equal(onboarding.buildCompleteLocalInventory(wrongDetail,repository,candidates).complete,false);
+    const wrongIdentity=structuredClone(evidence);wrongIdentity.threadDetails[0].projectId='foreign-project';wrongIdentity.threadList.threads=[];
+    assert.equal(onboarding.buildCompleteLocalInventory(wrongIdentity,repository,candidates).complete,false);
+    const duplicate=structuredClone(inventory);duplicate.tasks.push({...duplicate.tasks[5],id:'extra-discovery'});
+    assert.equal(onboarding.planRepositoryTaskInventory(duplicate,repository).complete,false);
+  } finally {fs.rmSync(parent,{recursive:true,force:true});}
+});
+
+test('configured task roots reject child paths, generic parent prefixes and symlink escapes', () => {
+  const parent=fs.mkdtempSync(path.join(os.tmpdir(),'fb-task-root-'));
+  const root=path.join(parent,'app');fs.mkdirSync(root);
+  const file=path.join(root,'.fb-lane.json');
+  try {
+    for (const config of [{codexTaskRoot:'..'},{taskTitlePrefix:'FB',codexTaskRoot:'..'},{taskTitlePrefix:'TT',codexTaskRoot:'child'},{taskTitlePrefix:'TT',codexTaskRoot:'../sibling'}]) {
+      fs.writeFileSync(file,JSON.stringify(config));
+      assert.equal(onboarding.planRepositoryTaskInventory({complete:true,tasks:[]},{projectId:'native-parent',repositoryPath:root}).complete,false,JSON.stringify(config));
+    }
+    const elsewhere=path.join(parent,'elsewhere');fs.mkdirSync(elsewhere);fs.symlinkSync(elsewhere,path.join(root,'escape'));
+    fs.writeFileSync(file,JSON.stringify({taskTitlePrefix:'TT',codexTaskRoot:'escape'}));
+    assert.equal(onboarding.planRepositoryTaskInventory({complete:true,tasks:[]},{projectId:'native-parent',repositoryPath:root}).complete,false);
+  } finally {fs.rmSync(parent,{recursive:true,force:true});}
+});
+
+test('configured ancestor reconciliation records both roots and detects stale root fingerprints', () => {
+  const parent=fs.mkdtempSync(path.join(os.tmpdir(),'fb-task-root-receipt-'));const root=path.join(parent,'app');fs.mkdirSync(root);
+  fs.writeFileSync(path.join(root,'.fb-lane.json'),JSON.stringify({taskTitlePrefix:'TT',codexTaskRoot:'..'}));
+  const repository={projectId:'native-parent',repositoryPath:root};
+  try {
+    onboarding.ensureOnboardingReceipt(root);onboarding.recordPermission(root,'granted');
+    const inventory={complete:true,attemptedActions:[],tasks:ROLE_LABELS.map(([key,label],i)=>({id:`original-${i}`,title:`TT · ${label}`,projectId:repository.projectId,repositoryPath:parent,pinned:true}))};
+    const state=onboarding.recordReconciliation(root,inventory,{repository});
+    assert.equal(state.taskRoot,parent);assert.equal(state.repositoryPath,root);assert.equal(state.identitySource,'codex-native-project');
+    assert.equal(onboarding.needsTaskInventoryReconciliation(state,root),false);
+    assert.equal(onboarding.needsTaskInventoryReconciliation({...state,taskRoot:root},root),true);
+    assert.equal(onboarding.needsTaskInventoryReconciliation({...state,repositoryPath:parent},root),true);
+    fs.writeFileSync(path.join(root,'.fb-lane.json'),JSON.stringify({taskTitlePrefix:'TT'}));
+    assert.equal(onboarding.needsTaskInventoryReconciliation(state,root),true);
+    const canonicalInventory={...inventory,tasks:inventory.tasks.map(task=>({...task,repositoryPath:root}))};
+    const current=onboarding.recordReconciliation(root,canonicalInventory,{repository});
+    assert.equal(current.taskRoot,undefined);
+    assert.equal(current.identitySource,undefined);
+    assert.equal(onboarding.needsTaskInventoryReconciliation(current,root),false);
+  } finally {fs.rmSync(parent,{recursive:true,force:true});}
+});
+
+
+test('ancestor task roots do not adopt generic or foreign project role titles', () => {
+  const parent = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-shared-parent-'));
+  const root = path.join(parent, 'app');
+  fs.mkdirSync(root);
+  fs.writeFileSync(path.join(root, '.fb-lane.json'), JSON.stringify({ taskTitlePrefix: 'TT', codexTaskRoot: '..' }));
+  try {
+    const roles = onboarding.workstreamsForRepository({ repositoryPath: root });
+    for (const title of ['FB · Product/BFM', 'FB · Design', 'Design', 'MÉJA · Tech']) {
+      assert.equal(onboarding.recognizedWorkstream(title, roles), null, title);
+    }
+    assert.equal(onboarding.recognizedWorkstream('TT Product', roles).key, 'product');
+    assert.equal(onboarding.recognizedWorkstream('TT · Design', roles).key, 'design');
+  } finally { fs.rmSync(parent, { recursive: true, force: true }); }
+});

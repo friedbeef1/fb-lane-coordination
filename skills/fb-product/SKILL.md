@@ -180,9 +180,10 @@ judge it.
 Keep ordinary worker lanes plan-only. Ready handoffs are Product intake
 candidates, not approvals. After invocation, Product records each candidate's
 disposition and the consolidated Project Start Brief and Build Brief before BFM
-starts source-changing work, without a routine second approval; pause only for
-a changed decision, disputed priority, sensitive boundary, conflict, or unclear
-scope. Product closes only with aligned board, repository, evidence, and Git
+starts source-changing work. Follow [Queue preview and approval](../../docs/fb/workflow.md#queue-preview-and-approval)
+and wait for “okay” on the displayed Include now scope. After that approval,
+pause for a changed decision, disputed priority, sensitive boundary, conflict,
+or unclear scope; do not request per-slice approvals. Product closes only with aligned board, repository, evidence, and Git
 state. Product authors the semantic Brief
 Validation comparison; the CLI enforces complete actionable structure only.
 In the same update that creates a non-quick board task after reconciliation, Product
