@@ -36,6 +36,8 @@ below with two narrow runtime repairs and consumer coordination recovery.
 | Historical worktree receipt regression | Reproduced false content drift when another file changed in a linked worktree; receipt refresh now shares the scanner's exact delta filter |
 | Complete canonical intake contract | 28/28 passed; missing routes, content drift, identity and execution gates preserved |
 | Existing skill contract | Passed |
+| Whole-candidate independent review | No critical/important defects; one stale guidance-only label corrected during record reconciliation |
+| Root and packaged metadata contracts | Passed for 0.10.2-beta+codex.20260925083556 |
 | Package synchronization and syntax | 93 mirrors aligned; affected runtime syntax passed |
 | MÉJA real intake | Complete: one pending User candidate and one blocked Tech record; execution false; separate canonical execution setup gate remains visible |
 | Tough Talks real intake | Complete: seven candidates, editable proposed dispositions, execution false; exact routes and four receipts repaired |

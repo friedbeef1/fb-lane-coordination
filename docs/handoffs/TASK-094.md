@@ -4,6 +4,7 @@ task: TASK-094
 lane: fb-product
 status: in-progress
 record_model: normalized-v1
+approval: approved
 ---
 
 # Queue preview and existing-task adoption
@@ -79,7 +80,7 @@ successful previews. Source baseline be6f5fb; installed plugin remains
 - Verification: root/package skill contract, 93 mirrors, changed-guide links,
   syntax and whitespace; fresh old/new skill scenario and candidate review.
 - Evidence: [QA](../qa/TASK-094.md).
-- Review state: not reviewable; guidance-only candidate, no app build.
+- Review state: not reviewable; framework runtime/guidance candidate, no app build.
 - External gates: future publication/version/changelog/release checkpoint;
   Push Live not authorized here.
 - Remaining owner/action: MÉJA and TT complete real previews; Memory App and
