@@ -2,15 +2,15 @@
 type: fb-lane-handoff
 task: TASK-094
 lane: fb-product
-status: implemented
+status: done
 record_model: normalized-v1
 approval: approved
 ---
 
 # Queue preview and existing-task adoption
 
-Local plugin candidate: `0.10.2-beta+codex.20260925083556`.
-Published/installed: `0.10.1-beta+codex.20260923044148`.
+Published and installed plugin: `0.10.2-beta+codex.20260925083556`.
+Source candidate `b16c7be` merged through [PR #73](https://github.com/friedbeef1/fb-lane-coordination/pull/73) as `ad765f5`.
 
 ## Project Start Brief
 
@@ -60,19 +60,21 @@ and shows the revised queue. Existing tasks remain in use. Consumer application
 feature work is outside this repair. Prepare publication/install evidence;
 Push Live remains the final release boundary.
 
-Ready to ship. All four real planning scans pass, with editable proposed queues
+Released after James's Push Live. All four real planning scans pass, with editable proposed queues
 and execution disabled during preview. The reviewed runtime is de28454; the
 final scoped guidance/test repair is 7b54868. The release checkpoint passed by
 preserving the initial green checks, rerunning the failed onboarding proof,
-then completing the unchanged remaining checks. Installed plugin remains
-0.10.1-beta+codex.20260923044148. Publication is not authorized by this task.
+then completing the unchanged remaining checks. The Git marketplace was
+refreshed to `ad765f5`; exact 0.10.2 is installed and enabled. Existing
+project tasks and consumer app work remain intact.
 
 ## Brief Validation
 
 pass — complete real planning evidence exists for all four exact projects;
 the queue can be edited before approval and no task was recreated. Runtime
 fail-closed checks, independent review and package/checkpoint evidence passed.
-This does not claim consumer app readiness or public plugin installation.
+This does not claim consumer app readiness or deployment; plugin publication and
+installation are verified in [QA](../qa/TASK-094.md).
 
 ## Task Receipt
 
@@ -80,8 +82,8 @@ This does not claim consumer app readiness or public plugin installation.
 - Confirmed assumptions and approved scope changes: completion amendment includes planning-only runtime and historical-worktree receipt consistency, preserving existing task IDs and dirty app changes.
 - Branch, source commits, and changed surfaces: codex/TASK-093-consumer-rollout atop f70a0a2; runtime, regression tests, active guidance, generated plugin mirrors and 0.10.2 metadata.
 - Checks, failures, recovery, and results: 28 intake checks pass after reproducing missing dispositions and false historical worktree drift; exact consumer results are in QA.
-- Review state, direct links, limits, and external gates: not reviewable as an app build; [QA evidence](../qa/TASK-094.md); planning intake verified, public publication/install await Push Live.
-- Remaining owner and action: Product/BFM publishes and verifies the exact build after Push Live, preserving existing evidence workstreams and project changes.
+- Review state, direct links, limits, and external gates: not reviewable as an app build; [QA evidence](../qa/TASK-094.md); public plugin release completed under Push Live, with no consumer app deployment.
+- Remaining owner and action: Existing Product/BFM tasks may use the upgraded plugin in a new Codex task; existing workstream tasks and app changes remain untouched.
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#0102-beta-2026-09-25)
 
 - Delivered: queue-specific approval rule and references in canonical and
@@ -90,9 +92,9 @@ This does not claim consumer app readiness or public plugin installation.
   syntax and whitespace; fresh old/new skill scenario and candidate review.
 - Evidence: [QA](../qa/TASK-094.md).
 - Review state: not reviewable; framework runtime/guidance candidate, no app build.
-- External gates: public publication and installed-cache verification;
-  Push Live not authorized here.
-- Remaining owner/action: all four projects have complete real planning scans;
-  plugin checkpoint passed; publication remains separate from local adoption.
-- Repository state: local source candidate atop preserved TASK-093 commits;
-  consumer managed edits coexist with their intentionally preserved active work.
+- External gates: Public plugin publication and installed-cache verification
+  completed under James's Push Live; app deployment remains separate.
+- Remaining owner/action: Open a new Codex task to load 0.10.2 runtime; existing
+  Product/BFM and workstream task histories are preserved.
+- Repository state: candidate `b16c7be` merged as `ad765f5`; release closeout
+  is committed separately; consumer active work remains preserved.

@@ -19,7 +19,7 @@ adoption failures are retained separately below rather than overwritten.
 
 ## Release checkpoint
 
-Planned checkpoint result: passed as a bounded resumed checkpoint. Initial full validator on
+Result: passed as a bounded resumed checkpoint. Initial full validator on
 bd62a3a passed syntax, metadata, CLI, migration, session and eval checks, then
 failed the obsolete onboarding sequence assertion requiring "Implement:".
 One focused repair in 7b54868 now requires queue, okay, then execution; all
@@ -30,6 +30,31 @@ pass. Package parity remains 93/93; independent review found no important
 defects. The candidate-phase release preflight passed at bd62a3a; final changes
 after runtime review are guidance/test alignment and coordination evidence.
 Public publication/install still requires Push Live. No installed 0.10.2 claim.
+
+The preceding sentence describes the candidate phase. James subsequently said
+Push Live; public release and installation proof is recorded below.
+
+## Live release verification
+
+James explicitly authorized Push Live on 2026-09-25. Source candidate
+`b16c7be792999dec0b17e07a5fc0ba2a0e04e5af` passed the candidate preflight
+against base `507f5e0`. [PR #73](https://github.com/friedbeef1/fb-lane-coordination/pull/73)
+passed GitHub FB-Lane Readiness run `36145762769`, then merged as
+`ad765f573e6e101527c61ebb1a9dab4e7c742532` on public `main`.
+
+A fresh clone of public main passed `node tools/fb-lane.validate.cjs` with Doctor
+Ready and 93/93 package mirrors. The configured `fb-lane` Git marketplace was
+refreshed to the exact merge commit. `codex plugin add
+fb-lane-coordination@fb-lane` installed and enabled
+`0.10.2-beta+codex.20260925083556`. All 93 manifest-selected files plus four
+plugin metadata/README files matched the installed cache byte for byte (97/97).
+The installed MCP server initialized and advertised 14 tools, including
+`fb_project_context`; all six workstream skills, BFM and release skills are
+present. No consumer application was deployed or existing task recreated.
+
+The running Codex task was started with 0.10.1, so a new task is required to
+load the 0.10.2 skill/MCP runtime. This is runtime reload, not replacement of
+the existing workstream tasks or project history.
 
 ## Completion amendment evidence
 

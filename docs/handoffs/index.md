@@ -10,13 +10,13 @@ Use this file as the first read for handoff discovery. `PROJECT_BOARD.md` remain
 
 ## Active / Decision-Relevant
 
-Current published and installed release: `0.10.1-beta+codex.20260923044148` — TASK-093.
+Current published and installed release: `0.10.2-beta+codex.20260925083556` — TASK-094.
 
-TASK-094 local candidate: `0.10.2-beta+codex.20260925083556`; publication and installation remain pending.
+TASK-094 release: [PR #73](https://github.com/friedbeef1/fb-lane-coordination/pull/73) merged as `ad765f5`; exact Git marketplace and installed build verified.
 
 | Task / Topic | Lane | Status | Depends / Blocks / Gate | Checks / Evidence | Detail |
 |---|---|---|---|---|---|
-| TASK-094 - Queue preview and existing-task adoption | Product/BFM | Staging QA | Ready to ship; Push Live required for public plugin update | Four real planning scans pass; 0.10.2 candidate checkpoint passed | [Handoff](TASK-094.md); [QA](../qa/TASK-094.md) |
+| TASK-094 - Queue preview and existing-task adoption | Product/BFM | Done | Push Live completed for plugin only; consumer apps not deployed | Four real planning scans, release checkpoint, GitHub readiness, 97 installed file matches and 14-tool MCP smoke passed | [PR #73](https://github.com/friedbeef1/fb-lane-coordination/pull/73); [Handoff](TASK-094.md); [QA](../qa/TASK-094.md) |
 | TASK-093 - Focused efficiency and evidence hardening | Product/BFM | Done | PR #72 merged `aa03038`; exact global install passed | 96 artifacts and 14-tool MCP verified; four-consumer managed rollout complete; MÉJA and TT original-task setup settled | [Handoff](TASK-093.md); [QA](../qa/TASK-093.md) |
 | TASK-091 - FB `0.10.0-beta+codex.20260827100222`; versioned graph contract and legacy exact-task adapter | Product/BFM control centre + Discovery | Done | Later loop entities remain deferred | PR #70 merged as `e1fcac5`; Git marketplace and exact installation verified at 94/94 parity with 14 MCP tools | [TASK-091.md](TASK-091.md); [Discovery input](TASK-FB-GRAPH-LOOPS-20260826.md); [QA](../qa/TASK-091.md) |
 | TASK-090 - Workstream kickoff and result return | Product/BFM control centre | Done | Released with FB 0.10.0 | PR #69 merged as `4527b6a`; exact 0.10.0 install includes the result-return contract | [TASK-090.md](TASK-090.md); [QA](../qa/TASK-090.md) |
