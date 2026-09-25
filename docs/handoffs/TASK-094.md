@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-094
 lane: fb-product
-status: in-progress
+status: implemented
 record_model: normalized-v1
 approval: approved
 ---
@@ -60,10 +60,19 @@ and shows the revised queue. Existing tasks remain in use. Consumer application
 feature work is outside this repair. Prepare publication/install evidence;
 Push Live remains the final release boundary.
 
-Canonical implementation and focused proof passed. Consumer adoption evidence
-is tracked in [QA](../qa/TASK-094.md); real intake blockers are not concealed as
-successful previews. Source baseline be6f5fb; installed plugin remains
+Ready to ship. All four real planning scans pass, with editable proposed queues
+and execution disabled during preview. The reviewed runtime is de28454; the
+final scoped guidance/test repair is 7b54868. The release checkpoint passed by
+preserving the initial green checks, rerunning the failed onboarding proof,
+then completing the unchanged remaining checks. Installed plugin remains
 0.10.1-beta+codex.20260923044148. Publication is not authorized by this task.
+
+## Brief Validation
+
+pass — complete real planning evidence exists for all four exact projects;
+the queue can be edited before approval and no task was recreated. Runtime
+fail-closed checks, independent review and package/checkpoint evidence passed.
+This does not claim consumer app readiness or public plugin installation.
 
 ## Task Receipt
 
@@ -71,8 +80,8 @@ successful previews. Source baseline be6f5fb; installed plugin remains
 - Confirmed assumptions and approved scope changes: completion amendment includes planning-only runtime and historical-worktree receipt consistency, preserving existing task IDs and dirty app changes.
 - Branch, source commits, and changed surfaces: codex/TASK-093-consumer-rollout atop f70a0a2; runtime, regression tests, active guidance, generated plugin mirrors and 0.10.2 metadata.
 - Checks, failures, recovery, and results: 28 intake checks pass after reproducing missing dispositions and false historical worktree drift; exact consumer results are in QA.
-- Review state, direct links, limits, and external gates: not reviewable as an app build; [QA evidence](../qa/TASK-094.md); all-consumer health and final release checkpoint are still pending.
-- Remaining owner and action: Product/BFM completes exact consumer intake recovery and release preparation; Push Live remains required before publication.
+- Review state, direct links, limits, and external gates: not reviewable as an app build; [QA evidence](../qa/TASK-094.md); planning intake verified, public publication/install await Push Live.
+- Remaining owner and action: Product/BFM publishes and verifies the exact build after Push Live, preserving existing evidence workstreams and project changes.
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#0102-beta-2026-09-25)
 
 - Delivered: queue-specific approval rule and references in canonical and
@@ -81,9 +90,9 @@ successful previews. Source baseline be6f5fb; installed plugin remains
   syntax and whitespace; fresh old/new skill scenario and candidate review.
 - Evidence: [QA](../qa/TASK-094.md).
 - Review state: not reviewable; framework runtime/guidance candidate, no app build.
-- External gates: future publication/version/changelog/release checkpoint;
+- External gates: public publication and installed-cache verification;
   Push Live not authorized here.
 - Remaining owner/action: all four projects have complete real planning scans;
-  final plugin checkpoint and publication remain separate from local adoption.
+  plugin checkpoint passed; publication remains separate from local adoption.
 - Repository state: local source candidate atop preserved TASK-093 commits;
   consumer managed edits coexist with their intentionally preserved active work.

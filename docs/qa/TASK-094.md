@@ -1,6 +1,6 @@
 ---
 task: TASK-094
-status: checking
+status: passed
 ---
 
 # TASK-094 — Queue preview evidence
@@ -19,10 +19,17 @@ adoption failures are retained separately below rather than overwritten.
 
 ## Release checkpoint
 
-Planned after the consumer-recovery result is known and the exact candidate is
-committed: targeted record preflight, one whole-candidate review and one final
-release validator. Public publication/install still requires Push Live; no
-current evidence claims the new plugin is installed.
+Planned checkpoint result: passed as a bounded resumed checkpoint. Initial full validator on
+bd62a3a passed syntax, metadata, CLI, migration, session and eval checks, then
+failed the obsolete onboarding sequence assertion requiring "Implement:".
+One focused repair in 7b54868 now requires queue, okay, then execution; all
+13 onboarding checks passed. The unchanged validator remainder (positioning,
+two-speed, efficiency, Doctor and whitespace) then passed. Previously green
+checks were preserved, not rerun. This is not an uninterrupted full-validator
+pass. Package parity remains 93/93; independent review found no important
+defects. The candidate-phase release preflight passed at bd62a3a; final changes
+after runtime review are guidance/test alignment and coordination evidence.
+Public publication/install still requires Push Live. No installed 0.10.2 claim.
 
 ## Completion amendment evidence
 
@@ -92,7 +99,7 @@ conflicting guidance, then try one bounded read-only intake. Incomplete intake
 is an explicit blocked demonstration, never successful queue proof. No broader
 intake repair is authorized by that consumer adoption message.
 
-Final adoption status: all four existing tasks persisted the rule. None produced
+Initial adoption status before the completion amendment: all four existing tasks persisted the rule. None produced
 a complete real queue in this bounded demonstration; these are existing intake
 failures, not passing end-to-end queue evidence. No app backlog was started.
 
@@ -103,7 +110,7 @@ Project-local receipts:
 - MÉJA: `docs/qa/TASK-094-meja-queue-preview-adoption-2026-09-25.md`.
 - Tough Talks: `docs/qa/TASK-094-QUEUE-PREVIEW-20260925.md`.
 
-Remaining work is separate: diagnose bounded freeze timeouts in Unmirror and
+Original follow-up at that checkpoint was: diagnose bounded freeze timeouts in Unmirror and
 Memory App; reconcile MÉJA's missing worktree reference without deleting
 evidence; restore TT's missing exact board/index routes. Preserve the current
 guidance candidate and do not publish it or replace installed caches here.
