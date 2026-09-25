@@ -246,7 +246,7 @@ test('onboarding exposes one workstream-first path and reconciles only after $bf
   assert.match(start, /ready for Product intake/i);
   assert.match(start, /None relevant[^\n]*only[^\n]*six-workstream (?:scan|report)/i);
   const publicSequence = section(start, 'The single public sequence');
-  assertOrdered(publicSequence, ['Goal:', 'Split:', 'Relevant workstreams:', 'ready for Product intake', 'Verify evidence:', 'the user says `$bfm`', 'freezes the intake', 'Merge findings:', 'disposition every candidate', 'Project Start Brief', 'Build Brief', 'Implement:', 'Verify candidate:', 'Ready to ship', 'Push Live'], 'single public sequence');
+  assertOrdered(publicSequence, ['Goal:', 'Split:', 'Relevant workstreams:', 'ready for Product intake', 'Verify evidence:', 'the user says `$bfm`', 'freezes the intake', 'Merge findings:', 'disposition every candidate', 'Project Start Brief', 'Build Brief', 'prioritized queue', 'okay', 'bounded execution slices', 'Verify candidate:', 'Ready to ship', 'Push Live'], 'single public sequence');
 
   const brief = section(start, 'Project Start Brief');
   const visibleFields = [...brief.matchAll(/^- \*\*([^:*]+):\*\*/gm)].map(match => match[1]);

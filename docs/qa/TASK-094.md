@@ -41,8 +41,8 @@ below with two narrow runtime repairs and consumer coordination recovery.
 | Package synchronization and syntax | 93 mirrors aligned; affected runtime syntax passed |
 | MÉJA real intake | Complete: one pending User candidate and one blocked Tech record; execution false; separate canonical execution setup gate remains visible |
 | Tough Talks real intake | Complete: seven candidates, editable proposed dispositions, execution false; exact routes and four receipts repaired |
-| Memory App | Git packs now resident through Finder Keep Downloaded; a linked-worktree handoff read still blocked the scan; targeted evidence download underway |
-| Unmirror | Scoped runtime adoption and bounded real scan in progress; not yet claimed complete |
+| Memory App | Complete in 450 ms: five pending candidates and one blocked bug, execution false; Git/evidence made resident, two strict-subset handoffs additively synchronized and six exact routing links repaired |
+| Unmirror | Complete: three pending candidates, onboarding verified, execution false; explicit empty planning disposition map preserves original intake labels as evidence without treating them as Product decisions |
 
 Existing Product/BFM task IDs and active app source were preserved. Consumer
 receipts below are authoritative for their current state. Earlier failed scans

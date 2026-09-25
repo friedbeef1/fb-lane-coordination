@@ -156,7 +156,7 @@ const {
   freezeBfmIntake,
   renderBfmIntakeLedger,
 } = require('./tools/fb-lane.cjs');
-const intake = freezeBfmIntake(projectRoot, { planningOnly: true });
+const intake = freezeBfmIntake(projectRoot, { planningOnly: true, dispositions: {} });
 const ledger = renderBfmIntakeLedger(intake);
 ```
 

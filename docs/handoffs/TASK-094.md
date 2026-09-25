@@ -83,7 +83,7 @@ successful previews. Source baseline be6f5fb; installed plugin remains
 - Review state: not reviewable; framework runtime/guidance candidate, no app build.
 - External gates: future publication/version/changelog/release checkpoint;
   Push Live not authorized here.
-- Remaining owner/action: MÉJA and TT complete real previews; Memory App and
-  Unmirror recovery remain in progress. Future framework publication is separate.
+- Remaining owner/action: all four projects have complete real planning scans;
+  final plugin checkpoint and publication remain separate from local adoption.
 - Repository state: local source candidate atop preserved TASK-093 commits;
   consumer managed edits coexist with their intentionally preserved active work.

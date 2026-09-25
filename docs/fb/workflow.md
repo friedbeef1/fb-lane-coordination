@@ -242,7 +242,7 @@ Bad examples; reusable categories alone are not a test.
 ## Queue preview and approval
 
 `$bfm` authorizes intake and planning, not automatic execution of the resulting
-queue. Use one complete canonical `freezeBfmIntake(root, { planningOnly: true })`
+queue. Use one complete canonical `freezeBfmIntake(root, { planningOnly: true, dispositions: {} })`
 result; do not add a second
 file scan. Product reconciles and dispositions every discovered candidate.
 The runtime's `executionAllowed` means technical eligibility, not user approval.
@@ -250,6 +250,10 @@ Planning intake always disables execution and can expose candidates awaiting
 Product disposition. Product assigns all six allowed dispositions using that
 same snapshot. After approval, the execution gate validates current records
 with the approved disposition map; a changed scope returns to preview.
+The initial empty disposition map keeps workstream labels such as "ready for
+intake" separate from Product's decisions. Original recorded dispositions stay
+visible as evidence; preserve an already approved unchanged Product plan rather
+than asking for its approval again.
 
 Show the product name, candidate count, Include now count, blocked/deferred
 counts, and whether intake is complete. Then show every candidate, grouped by
