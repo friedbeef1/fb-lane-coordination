@@ -13,7 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
-| TASK-094 | Staging QA | Product/BFM, current task | Editable queue preview and complete intake repair | All four real planning scans pass; FB 0.10.2 candidate Ready to ship, not published | None; source frozen, app work preserved; Push Live remains | [Handoff](docs/handoffs/TASK-094.md); [QA](docs/qa/TASK-094.md); checkpoint passed with focused stale-test repair |
+| TASK-094 | Done | Product/BFM, current task | Editable queue preview and complete intake repair | All four real planning scans passed; FB 0.10.2 merged, published through the Git marketplace, and installed | None; locks released and app work preserved | [PR #73](https://github.com/friedbeef1/fb-lane-coordination/pull/73); [Handoff](docs/handoffs/TASK-094.md); [QA](docs/qa/TASK-094.md) |
 | TASK-093 | Done | FB-Product / BFM; task 01a0ccc1 | FB 0.10.1 scoped managed upgrades | MÉJA, Unmirror and TT upgraded; Memory verified; MÉJA and TT setup settled | Locks released; existing task IDs/history and app work preserved | [Handoff](docs/handoffs/TASK-093.md); [QA](docs/qa/TASK-093.md); PR #72 merged `aa03038` |
 | TASK-091 | Done | FB-Product / BFM + FB-Discovery | FB `0.10.0-beta`; versioned graph contract and legacy exact-task adapter | Preserve the seven proven sidebar tasks, then introduce one machine-readable graph/state/transition contract with v1 read compatibility and fail-closed authority semantics | None; released | PR #70 merged as `e1fcac5`; Git marketplace `main` and exact installed build `0.10.0-beta+codex.20260827100222` verified with 94/94 parity and 14 MCP tools; [Handoff](docs/handoffs/TASK-091.md); [Discovery input](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [QA](docs/qa/TASK-091.md) |
 | TASK-FB-GRAPH-LOOPS-20260826 | Done | FB-Discovery → FB-Product / BFM | Compatibility-first graph recommendation | Identify a versioned contract slice without forcing a monolithic graph migration | None; absorbed into TASK-091 | Product dispositioned the recommendation into TASK-091; [Discovery handoff](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [TASK-091 QA](docs/qa/TASK-091.md) |
@@ -49,11 +49,11 @@
 
 ### TASK-094 - Queue preview and existing-task adoption
 
-Local plugin candidate: `0.10.2-beta+codex.20260925083556`; not published or installed.
+Released plugin build: `0.10.2-beta+codex.20260925083556`. PR #73 merged as `ad765f5`; the Git marketplace and enabled local installation match this build.
 
 * **Owner / Thread**: Product/BFM, current task.
 * **Scope**: Approved editable queue preview, shared intake repairs, four exact consumer coordination recoveries and FB 0.10.2 candidate preparation.
-* **Out of Scope**: App source, backlog execution, new tasks, installation, publication and deployment.
+* **Out of Scope**: App source, backlog execution, new tasks, and consumer-app deployment. Plugin publication and installation were separately authorized by James's Push Live instruction.
 * **Goal Alignment Session**:
     * **Objective**: Show James what BFM intends to process before execution.
     * **Key Results**: Complete candidate preview; okay bound to current Include now scope; all four existing consumers instructed and adoption evidence recorded.
@@ -61,7 +61,7 @@ Local plugin candidate: `0.10.2-beta+codex.20260925083556`; not published or ins
     * **Gate / Review Point**: Future queue execution needs okay; publication and release still need Push Live.
     * **Approval**: approved — James said “Yep, let's do it” after the rollout plan and implementation-gap check.
     * **Justification**: Existing active guidance bypasses the explicitly requested preview approval.
-* **Locks**: Released after source freeze and four successful real planning scans; publication remains separate.
+* **Locks**: Released. Four real planning scans and the public release checks passed; existing consumer tasks and active app work were preserved.
 * **Links & Deliverables**: [Handoff](docs/handoffs/TASK-094.md); [QA](docs/qa/TASK-094.md).
 
 ### TASK-093 - Focused efficiency and evidence hardening
