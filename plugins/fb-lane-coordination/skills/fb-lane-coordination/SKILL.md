@@ -5,6 +5,11 @@ description: Use when an FB project needs board-aware routing, handoffs, current
 
 # FB task coordination
 
+Product/BFM follows [Queue preview and approval](../../docs/fb/workflow.md#queue-preview-and-approval):
+`$bfm` plans the complete queue; the user's okay approves its current Include
+now scope. Do not treat ready status, delivery, or technical eligibility as
+execution approval. Push Live remains separate.
+
 The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.

@@ -168,6 +168,12 @@ locks, approval gates, external blockers, and task-rebind state. Missing or
 contradictory inventory fails closed. Do not duplicate scanner or
 checkout-discovery logic in this skill; the runtime owns those rules.
 
+Apply [Queue preview and approval](../../docs/fb/workflow.md#queue-preview-and-approval):
+show every candidate with product, linked handoff, simple outcome, disposition,
+and priority/reason; then the execution scaffold. Wait for “okay” before source
+execution. Technical ledger eligibility is not user approval. A materially
+changed scope needs a refreshed preview; okay never authorizes Push Live.
+
 Treat a linked Git worktree as evidence only for handoffs changed by its
 branch-unique commits or current dirty, staged, or untracked state. Do not turn
 an untouched older snapshot into a competing decision merely because the
@@ -236,8 +242,9 @@ according to whether execution identity remains safe.
 Stop on duplicate or contradictory ready-handoff errors. Product reconciles
 duplicates, conflicts, and dependencies, then prioritizes and sequences only
 **Include now** candidates. Product creates the Project Start Brief plus Build
-Brief before BFM execution. Pause only for a changed decision, disputed
-priority, sensitive boundary, conflict, or unclear scope. Do not duplicate
+Brief and obtains the queue-specific okay before BFM execution. After approval,
+pause for a changed decision, disputed priority, sensitive boundary, conflict,
+or unclear scope. Do not duplicate
 scanner selection rules in the skill. Integrate only relevant **Include now**
 work and stop at **Ready to ship**. Only **Push Live** authorizes merge or
 deployment.
@@ -268,8 +275,9 @@ quarantine, hash, and fail-closed details in diagnostics and durable QA.
 Stop before claim/edit/deploy/closeout when Product's **Include now** scope or
 locks are unclear. Ready status does not attach approval to a handoff. After
 `$bfm`, Product records the dispositioned Project Start Brief and Build Brief;
-do not require those briefs to preexist invocation or request routine second
-approval. Before source changes, require the board target's Goal Alignment
+do not require those briefs to preexist invocation. Wait for “okay” on the
+displayed queue, then do not request repeated per-slice approval. Before source
+changes, require the board target's Goal Alignment
 Session to match the reconciled briefs. Never invent an OKR merely to clear the
 gate. Execute only **Include now**, unlocked work in the approved scope; close
 only after the board, source, docs, evidence, and Git state agree or exceptions

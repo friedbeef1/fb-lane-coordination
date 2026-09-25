@@ -75,7 +75,7 @@ result**.
 3. **Relevant workstreams:** the selected workstreams investigate in parallel when independent. When a recommendation is actionable, say **Send this to Product.** That creates or updates its indexed handoff ready for Product intake. Follow the [Product handoff delivery states](workflow.md#product-handoff-delivery-states) for saved versus messaged wording.
 4. **Verify evidence:** the user says `$bfm` in Product/BFM. Product freezes the intake and checks support, duplicates, contradictions, freshness, blockers, and acceptance criteria.
 5. **Merge findings:** Product must disposition every candidate before source execution, resolve dependencies and conflicts, and merge the included findings into one Project Start Brief and Build Brief. This is synthesis—not a Git merge.
-6. **Implement:** BFM turns the Product plan into bounded execution slices and integrates their focused, passing results.
+6. **Preview, then implement:** Product shows the [prioritized queue and short scaffold](workflow.md#queue-preview-and-approval). Say **okay** to approve its current Include now scope. BFM then turns that plan into bounded execution slices and integrates their focused, passing results; no repeated per-slice approvals.
 7. **Verify candidate:** Product/BFM performs one fresh-context integrated candidate verification against the approved brief and required evidence.
 8. **One clear result:** FB reports the delivered outcome, evidence, limits, and **Ready to ship**. Only **Push Live** authorizes release, Git merge, or deployment.
 

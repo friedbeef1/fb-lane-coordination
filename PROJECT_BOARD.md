@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-094 | Staging QA | Product/BFM, current task | Queue preview and existing-task adoption | Canonical/package rule verified and adopted in all four existing tasks; real queue demonstrations blocked by existing intake failures | Locks released; no app source or task topology changed | [Handoff](docs/handoffs/TASK-094.md); [QA](docs/qa/TASK-094.md); local candidate only, not published |
 | TASK-093 | Done | FB-Product / BFM; task 01a0ccc1 | FB 0.10.1 scoped managed upgrades | MÉJA, Unmirror and TT upgraded; Memory verified; MÉJA and TT setup settled | Locks released; existing task IDs/history and app work preserved | [Handoff](docs/handoffs/TASK-093.md); [QA](docs/qa/TASK-093.md); PR #72 merged `aa03038` |
 | TASK-091 | Done | FB-Product / BFM + FB-Discovery | FB `0.10.0-beta`; versioned graph contract and legacy exact-task adapter | Preserve the seven proven sidebar tasks, then introduce one machine-readable graph/state/transition contract with v1 read compatibility and fail-closed authority semantics | None; released | PR #70 merged as `e1fcac5`; Git marketplace `main` and exact installed build `0.10.0-beta+codex.20260827100222` verified with 94/94 parity and 14 MCP tools; [Handoff](docs/handoffs/TASK-091.md); [Discovery input](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [QA](docs/qa/TASK-091.md) |
 | TASK-FB-GRAPH-LOOPS-20260826 | Done | FB-Discovery → FB-Product / BFM | Compatibility-first graph recommendation | Identify a versioned contract slice without forcing a monolithic graph migration | None; absorbed into TASK-091 | Product dispositioned the recommendation into TASK-091; [Discovery handoff](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [TASK-091 QA](docs/qa/TASK-091.md) |
@@ -45,6 +46,21 @@
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
 
 ---
+
+### TASK-094 - Queue preview and existing-task adoption
+
+* **Owner / Thread**: Product/BFM, current task.
+* **Scope**: Approved queue-preview guidance and adoption in four existing Product/BFM tasks.
+* **Out of Scope**: App source, backlog execution, new tasks, installation, publication and deployment.
+* **Goal Alignment Session**:
+    * **Objective**: Show James what BFM intends to process before execution.
+    * **Key Results**: Complete candidate preview; okay bound to current Include now scope; all four existing consumers instructed and adoption evidence recorded.
+    * **Definition of Done**: Focused skill proof, generated parity, changed-doc checks and consumer status receipts.
+    * **Gate / Review Point**: Future queue execution needs okay; publication and release still need Push Live.
+    * **Approval**: approved — James said “Yep, let's do it” after the rollout plan and implementation-gap check.
+    * **Justification**: Existing active guidance bypasses the explicitly requested preview approval.
+* **Locks**: Released after scoped guidance proof and four consumer adoptions; unresolved intake failures are recorded in QA, not silently repaired.
+* **Links & Deliverables**: [Handoff](docs/handoffs/TASK-094.md); [QA](docs/qa/TASK-094.md).
 
 ### TASK-093 - Focused efficiency and evidence hardening
 
