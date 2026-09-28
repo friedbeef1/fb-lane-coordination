@@ -358,18 +358,29 @@ material decision lacks a preview.
 ## Product handoff delivery states
 
 Saving a ready workstream handoff and indexing it makes it discoverable by
-Product/BFM; it does not message the Product task or activate work. When no
-native task message was sent, use this exact user-facing wording:
+Product/BFM. A handoff arrival is a queue update, not a new Product/BFM turn.
+Never use `send_message_to_thread` for a workstream-to-Product/BFM arrival:
+Codex treats that message as a follow-up prompt and may wake the task even if
+the words say “FYI only.” Do not start reconciliation, prioritization,
+coordination changes, or execution on arrival.
 
-> Saved for Product intake. No message was sent to the Product task, and you do not need to copy or paste this handoff. In the Product/BFM task, invoke $bfm; it will discover the indexed handoff.
+After the handoff and index are saved, an optional visual cue may mark the
+**exact receipt-bound Product/BFM task** unread with
+`set_thread_read_state({ threadId, read: false })` when that non-running Codex
+control is available. Verify the repository/project binding first and report
+the unread cue only after the tool succeeds. This does not append a message,
+deliver handoff contents, or start a task. Repeated handoffs need no duplicate
+cue. If identity, tool access, or the read-state update is unavailable, leave
+the repository queue intact and report **saved-only**; do not guess a task,
+create a replacement, send a prompt instead, or claim a ping was delivered.
 
-Reserve **Sent** or **Delivered** for a successful exact receipt-bound native
-message to the Product task. If messaging fails or is unavailable, record
-**delivery pending** with the indexed handoff link; do not imply the Product
-task saw it. A saved handoff, successful message, or passive notice never
-starts Product execution automatically. Only the user's `$bfm` invocation in
+Tell the user: **Queued for Product/BFM; no Product/BFM run started.** Include
+the handoff link and say whether the optional unread cue succeeded or was
+unavailable. Do not say **Sent** or **Delivered** merely because a handoff was
+saved or a task was marked unread. Only the user's `$bfm` invocation in
 Product/BFM activates reconciliation, subject to the complete intake and
-identity gates. Workstream skills link to this contract rather than keeping
+identity gates; the later queue preview and approval still precede source
+execution. Workstream skills link to this contract rather than keeping
 separate delivery definitions.
 
 ## Before BFM source execution

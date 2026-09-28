@@ -21,6 +21,8 @@ result**. Relevant workstreams use one CTA—**Send this to Product.** Product/B
 verifies the evidence, merges it into one plan, directs bounded implementation,
 and owns one fresh-context integrated candidate verification.
 Workstream reporting follows [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states).
+An arriving workstream handoff remains in the repository queue; do not wake
+this task or begin intake until James invokes `$bfm` here.
 
 Board, receipts, identity hashes, and internal route names are diagnostic
 machinery, not user choices or ordinary milestones. Show them only when they

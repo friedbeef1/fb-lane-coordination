@@ -21,6 +21,8 @@ result**. A workstream's common action is **Send this to Product.** Product/BFM
 then synthesizes the evidence and owns one fresh-context integrated candidate
 verification after the bounded implementation slices.
 Workstream reporting follows [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states).
+An arrival is not a BFM invocation: do not send a follow-up task prompt as its
+notification, and do not start a run until James explicitly invokes `$bfm`.
 
 Board, receipts, identity hashes, and internal route names are diagnostic
 machinery, not user choices or ordinary milestones. Report them only when they

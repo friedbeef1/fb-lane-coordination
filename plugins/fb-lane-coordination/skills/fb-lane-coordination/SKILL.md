@@ -50,8 +50,10 @@ Product/BFM is the control centre, not universal intake. Each relevant
 workstream runs its mini-loop and creates a
 blocked or ready handoff in `docs/handoffs/<TASK-ID>.md`. Ready means `ready for
 Product intake`: queued for Product review, **not approval or execution**.
-Report saved versus messaged state through the canonical
+Report queued, unread-cue, or saved-only state through the canonical
 [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states).
+For Product intake, a native task message is not passive: queue the handoff and
+use only the exact-task unread cue when available. Arrival never wakes BFM.
 
 Only `$bfm` in the Product/BFM parent task starts delivery. It freezes the
 complete intake ledger from the active canonical checkout, keeps all six

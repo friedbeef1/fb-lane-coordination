@@ -41,7 +41,7 @@ When the recommendation is actionable, use the common CTA: **Send this to
 Product.** That creates or updates a handoff **ready for Product intake**; it
 does not approve or execute the work.
 Apply [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states)
-when reporting whether it was saved, messaged, or delivery pending.
+when reporting whether it was queued, marked unread, or saved-only.
 
 If the user says `$bfm` or `/bfm` here, finish or update the Product-ready
 handoff and redirect to Product/BFM. `$bfm` executes only in Product/BFM.

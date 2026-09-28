@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.10.3-beta — 2026-09-28
+
+Build: `0.10.3-beta+codex.20260928093237`.
+
+**What changed:** Ready workstream handoffs now enter the Product/BFM queue
+without sending a follow-up prompt. Where Codex supports it and the exact
+project task is verified, FB may mark Product/BFM unread as a passive cue.
+
+**Why it matters:** A handoff no longer starts an unexpected Product/BFM run.
+James decides when to reconcile and prioritize the queue by invoking `$bfm`.
+
+**Compatibility:** Existing handoffs and sidebar tasks remain in place. If a
+passive cue is unavailable, the indexed handoff remains discoverable and FB
+reports it as saved-only. The approval and **Push Live** gates are unchanged.
+
+**Installation or upgrade:** After publication, refresh the `fb-lane`
+marketplace and install `fb-lane-coordination@fb-lane`. Existing chats should
+read their updated project workflow when resumed; a new Codex task is needed
+to load the refreshed plugin skill definitions.
+
 ## 0.10.2-beta — 2026-09-25
 
 Build: `0.10.2-beta+codex.20260925083556`.

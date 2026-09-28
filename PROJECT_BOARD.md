@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-095 | Staging QA | Product/BFM, current task | Passive Product intake signal; FB `0.10.3-beta+codex.20260928093237` candidate | Stop handoff notifications from waking Product/BFM; keep exact-project unread cue and indexed handoff; adopt in existing FB-managed projects | Canonical delivery contract, Product/BFM/coordination skills, focused contract, package mirrors; consumer workflow sections only | [Handoff](docs/handoffs/TASK-095.md); [QA](docs/qa/TASK-095.md); no app source or task creation; public release waits for Push Live |
 | TASK-094 | Done | Product/BFM, current task | Editable queue preview and complete intake repair | All four real planning scans passed; FB 0.10.2 merged, published through the Git marketplace, and installed | None; locks released and app work preserved | [PR #73](https://github.com/friedbeef1/fb-lane-coordination/pull/73); [Handoff](docs/handoffs/TASK-094.md); [QA](docs/qa/TASK-094.md) |
 | TASK-093 | Done | FB-Product / BFM; task 01a0ccc1 | FB 0.10.1 scoped managed upgrades | MÉJA, Unmirror and TT upgraded; Memory verified; MÉJA and TT setup settled | Locks released; existing task IDs/history and app work preserved | [Handoff](docs/handoffs/TASK-093.md); [QA](docs/qa/TASK-093.md); PR #72 merged `aa03038` |
 | TASK-091 | Done | FB-Product / BFM + FB-Discovery | FB `0.10.0-beta`; versioned graph contract and legacy exact-task adapter | Preserve the seven proven sidebar tasks, then introduce one machine-readable graph/state/transition contract with v1 read compatibility and fail-closed authority semantics | None; released | PR #70 merged as `e1fcac5`; Git marketplace `main` and exact installed build `0.10.0-beta+codex.20260827100222` verified with 94/94 parity and 14 MCP tools; [Handoff](docs/handoffs/TASK-091.md); [Discovery input](docs/handoffs/TASK-FB-GRAPH-LOOPS-20260826.md); [QA](docs/qa/TASK-091.md) |
@@ -44,6 +45,23 @@
 | TASK-067 | Done | FB-Product / BFM | Conversation execution authority + Plugin Release | Define conversation authority and publish FB `0.5.4-beta+codex.20260801143809` | None; published and installed globally | [Handoff](docs/handoffs/TASK-067.md); [QA](docs/qa/TASK-067.md); PR #53 merged as `cfa1632` |
 | TASK-066 | Done | FB-Product / BFM | Verification autonomy + Plugin Release | Require BFM to run every safe locally executable check itself and publish FB 0.5.3-beta after explicit Push Live approval | None; published and installed | [Handoff](docs/handoffs/TASK-066.md); [QA](docs/qa/TASK-066.md); published build `0.5.3-beta+codex.20260801141345` |
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
+
+---
+
+### TASK-095 - Passive Product intake signal
+
+* **Owner / Thread**: Product/BFM, current task.
+* **Scope**: Handoff arrival records a durable indexed queue entry and, when an exact Product/BFM task is proven, a non-running unread cue. A handoff does not send a follow-up prompt or wake Product/BFM. Apply the same managed workflow rule to FB, Unmirror, MÉJA, Tough Talks, and Memory App without replacing tasks.
+* **Out of Scope**: Consumer app source, backlog execution, new sidebar tasks, public plugin publication, marketplace replacement, and app deployment. Push Live remains separate.
+* **Goal Alignment Session**:
+    * **Objective**: Preserve useful handoff awareness without spending agent turns or accidentally changing priorities before `$bfm`.
+    * **Key Results**: No task message on arrival; exact-project unread cue only when available; queued handoffs remain discoverable; all five active FB-managed groups receive the rule.
+    * **Definition of Done**: Focused RED/GREEN contract, mechanical package parity, targeted consumer-diff proof and truthful delivery states.
+    * **Gate / Review Point**: Public plugin release and installed-cache upgrade require separate Push Live; project-local guidance may be adopted under this task.
+    * **Approval**: approved — James said “Please execute” and asked to roll this behavior out to all active Codex projects.
+    * **Justification**: A Codex task message is a follow-up prompt, not a passive notification; the old wording conflates no source execution with no agent turn.
+* **Locks**: Canonical delivery policy and focused contract; consumer workflow sections only. Preserve unrelated active diffs.
+* **Links & Deliverables**: [Handoff](docs/handoffs/TASK-095.md); [QA](docs/qa/TASK-095.md).
 
 ---
 

@@ -84,12 +84,12 @@ test('active skills use one compact-first known-task route without mandatory ful
   assert.doesNotMatch(workflow, /1\. Read `AGENTS\.md`, board, current-task record/);
 });
 
-test('saved Product handoff is distinguished from exact-task message delivery', () => {
+test('saved Product handoff queues a passive cue without waking Product', () => {
   const workflow = read('docs/fb/workflow.md').replace(/\s+/g, ' ');
-  assert.match(workflow, /Saved for Product intake\. No message was sent to the Product task, and you do not need to copy or paste this handoff\. In the Product\/BFM task, invoke \$bfm; it will discover the indexed handoff\./);
-  assert.match(workflow, /Sent|Delivered/);
-  assert.match(workflow, /successful exact receipt-bound native message/);
-  assert.match(workflow, /delivery pending/);
+  assert.match(workflow, /Queued for Product\/BFM; no Product\/BFM run started/);
+  assert.match(workflow, /Never use `send_message_to_thread`/);
+  assert.match(workflow, /set_thread_read_state\(\{ threadId, read: false \}\)/);
+  assert.match(workflow, /saved-only/);
   for (const skill of [...workstreamSkills, 'fb-user', 'bfm', 'fb-lane-coordination']) {
     assert.match(read(`skills/${skill}/SKILL.md`), /Product handoff delivery states/);
   }
