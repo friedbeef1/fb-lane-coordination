@@ -8,6 +8,19 @@ blocked, and what should wait. **You set the business priorities. Product/BFM
 works through the delivery implications.** Codex still plans the technical work
 and writes the code.
 
+**Think deeply in each workstream—not just once.** Keep returning to the same
+chats to ask follow-up questions, challenge assumptions, explore alternatives
+and revisit earlier conclusions. Discuss design while another workstream
+investigates technical constraints. You can keep exploring even when nothing
+is being built; a conversation does not have to produce a task.
+
+When something becomes actionable, capture its decisions, evidence and open
+questions in a handoff. Product/BFM connects those conclusions when you invoke
+`$bfm`; it does not replace the deep conversations or start building because
+you sent a handoff. Results return to the workstreams to inform the next
+discussion. Durable records preserve important conclusions—not every message
+or a promise of unlimited chat memory.
+
 You can use separate Codex chats and native plan mode without this plugin.
 FB packages a consistent way to connect their findings, decisions and outcomes;
 it does not make parallel conversations possible or guarantee better decisions.

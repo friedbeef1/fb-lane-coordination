@@ -2,7 +2,7 @@
 
 Status: script and storyboard candidate, not a rendered video.
 Audience: hands-on product managers and founders using Codex across several
-conversations. Target: 75–90 seconds, landscape 16:9, captioned, legible on a
+conversations. Target: 100–115 seconds, landscape 16:9, captioned, legible on a
 phone. Suggested production: Hyperframes, original diagram/card animation;
 no private conversations, customer data, invented testimonials or savings.
 
@@ -10,17 +10,20 @@ no private conversations, customer data, invented testimonials or savings.
 
 | Time | Narration | On-screen visual |
 |---|---|---|
-| 0–10s | You can have several useful conversations with AI. But when they all contribute to one product, what should happen next? | Three clean cards: customer feedback, design proposal, technical constraint. Title: “What should happen next?” |
-| 10–23s | FB is an open-source Codex plugin. Explore user needs, business, design, technology, discovery and bugs in separate workstreams—even before you're ready to build. | Six labelled workstream cards. Some remain idle. Caption: “Explore first. Commit deliberately.” |
-| 23–36s | Save actionable findings as handoffs. A notification can be acknowledged without starting work. When you invoke BFM in Product, it brings the recorded findings into one proposed queue. | Handoff cards enter an inbox, not a code editor. Show “Noted. No work started.” Then show `$bfm` and a queue. |
-| 36–49s | You see what should proceed, what must happen first, what is blocked, and what should wait—with reasons. You can change that proposed order before execution. | Queue columns: Next / Must happen first / Blocked / Deferred. A blocker shows owner and next action. |
-| 49–68s | What if the CEO needs a demo first? That becomes the business priority. But the login fix still needs security approval. FB explains the prerequisite, which work would move, and what can safely continue. | Label “Illustrative example.” CEO demo rises in business priority but remains linked to blocked login fix. Reporting moves to “Proposed deferral.” Unrelated approved copy stays unchanged. |
-| 68–80s | You set the priorities. Product/BFM works through the delivery implications. Codex plans the technical work and implements the approved scope. Push Live remains a separate release decision. | User priority → Product/BFM queue → Codex implementation → verification → Ready to ship → Push Live. Never animate an automatic release. |
-| 80–90s | You don't need FB to use separate chats. Use it when you want a consistent way to connect their findings, decisions and delivery. | “Know what to do next—and what changes when priorities change.” Repository link; optional `$fb-setup` CTA. |
+| 0–12s | Product thinking isn't one prompt and one answer. It's a deep conversation: asking why, challenging assumptions, exploring alternatives, and coming back with new evidence. | One persistent conversation develops through several exchanges. Caption: “A place to think—not just a task to finish.” |
+| 12–29s | FB is an open-source Codex plugin with six workstreams. Keep discussing design while Tech investigates constraints and Business explores the market. Return to those same chats, even when nothing is being built. | Six labelled cards: User, Business, Design, Tech, Discovery, Bugs. Zoom into three ongoing conversations; some cards remain idle. No private chat footage. |
+| 29–43s | These aren't one-shot agents. You can keep exploring, change your mind, or leave a question open. When a conclusion becomes actionable, capture its evidence and decisions in a handoff—not the entire conversation. | Design question → alternative → challenge → revised conclusion. One conclusion becomes a handoff; the conversation stays open. |
+| 43–57s | Sending a handoff does not start a build. When you invoke BFM in Product, it connects the recorded conclusions and proposes what goes first, what's blocked, and what should wait—with reasons. | Inbox shows “Noted. No work started.” Then `$bfm` → proposed queue with prerequisites and blocker owner. |
+| 57–77s | What if the CEO needs a demo first? That becomes the business priority. But the login fix still needs security approval. FB explains the prerequisite, which work would move, and what can safely continue. | Label “Illustrative example.” Demo linked to blocked login fix; reporting marked “Proposed deferral”; unrelated approved copy unchanged. |
+| 77–96s | You can change the proposed priorities. Codex implements the approved scope; Push Live stays a separate release decision. Results return to the workstreams, giving your next conversation something concrete to build on. | Approved queue → implementation → verification → Ready to ship → Push Live. Results arrow returns to the same workstream chats. Never animate automatic release. |
+| 96–110s | You can have these conversations without FB. FB gives you a consistent way to connect deep thinking across workstreams to decisions, priorities and delivery—without turning every discussion into a build. | “Think deeply. Connect conclusions. Decide what happens next.” Repository link and optional `$fb-setup` CTA. |
 
 ## Production notes
 
-- Primary visual: a changing queue with reasons, not a wall of graph nodes.
+- Give ongoing conversations the opening third of the film, not a passing mention.
+- Show repeated questions and revisions in the same chats, not six instant answers.
+- Then connect selected conclusions to a changing queue with reasons.
+- Do not imply unlimited chat memory, transcript capture or automatic chat access.
 - Graph relationships appear only when explaining a prerequisite or impact.
 - Use 3–4 short labels at a time; distinguish priority from execution order.
 - Use captions plus optional narration; do not depend on audio to explain gates.

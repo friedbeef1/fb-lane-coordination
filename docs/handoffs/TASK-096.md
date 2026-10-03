@@ -19,8 +19,12 @@ Your decisions: explain observable help rather than unmeasured savings; users
 set business importance; Product/BFM recommends feasible sequence. Notifications
 may consume a small acknowledgment turn but must not launch a BFM cycle.
 
+User follow-up: foreground ongoing deep workstream conversations in the public
+documentation and video, not merely their handoff outputs. The script now allows
+100–115 seconds to show repeated discussion before delivery coordination.
+
 Assumptions: use the existing graph, dispositions and Build Brief, not a new
-priority engine. Prepare a 60–90 second script, not an unapproved rendered or
+priority engine. Prepare an explainer script, not an unapproved rendered or
 published video. Preserve the existing historical demo.
 
 ## Goal Alignment Session

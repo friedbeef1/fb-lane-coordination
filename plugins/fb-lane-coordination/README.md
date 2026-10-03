@@ -7,6 +7,12 @@ You set business importance; Product/BFM explains delivery implications. Native
 Codex remains the planning and execution engine. Use only relevant workstreams.
 See [priority handling](docs/fb/workflow.md#product-priorities-and-delivery-implications).
 
+Workstreams are ongoing thinking spaces: return to the same chats for deep
+discussion, follow-up questions, challenged assumptions and new evidence—even
+when nothing is being built. Handoffs carry actionable conclusions, not whole
+transcripts; Product/BFM connects them when you invoke `$bfm`, then returns
+results to inform the next discussion. See [deep conversations](docs/why-fb.md#deep-conversations-connected-when-you-are-ready).
+
 The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.

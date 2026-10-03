@@ -12,6 +12,30 @@ the reusable coordination convention; it does not guarantee that independent
 chats fail without it, replace product judgment, or promise time savings.
 For one clear task in one conversation, native planning may be sufficient.
 
+## Deep conversations, connected when you are ready
+
+The workstreams are ongoing thinking spaces, not six one-shot assignments.
+Return to the same chat, ask why, challenge the answer, compare alternatives,
+bring new evidence and change your mind. A long Design discussion can continue
+while Tech investigates feasibility and Business explores a commercial question.
+You do not have to start implementation—or manufacture a handoff—to make that
+exploration worthwhile.
+
+For example, you might debate onboarding in Design over several conversations,
+discover an access constraint in Tech, and reconsider the intended audience in
+Business. These are illustrative discussions, not claims of measured outcomes.
+When their conclusions are ready, handoffs preserve the decisions, evidence,
+assumptions and unresolved questions. Product/BFM then reconciles them into a
+proposed sequence when you invoke `$bfm`. A notification alone does not start it.
+Delivery results feed the next conversation; a handoff is a bridge, not the end
+of the workstream.
+
+Separate chats can support this without FB. FB adds a repeatable way to connect
+their conclusions, expose conflicts and return outcomes without treating every
+discussion as an instruction to build. It does not promise unlimited chat
+memory or automatic access to every conversation; important context belongs in
+curated project records, not copied transcripts.
+
 ## When a priority is forced in
 
 Illustrative example, not a measured project result: the CEO needs an enterprise

@@ -36,6 +36,13 @@ found and no scheduler implementation changed.
 
 ## Remaining gates
 
+Follow-up documentation amendment: James asked to foreground ongoing deep
+conversations in each workstream. README, Why FB, package overview and script
+now show repeated discussion, selective handoffs and results returning to the
+same chats. Script target is 100–115 seconds; no render performed. Canonical
+positioning, changed-document links, 94-mirror synchronization and whitespace
+passed. No runtime changed, so runtime suites and another review were not rerun.
+
 No full release validator, live message experiment, video render, install,
 consumer upgrade, merge or publication was performed. The existing historical
 video remains available; the new deliverable is a script/storyboard only.
