@@ -2,7 +2,7 @@
 
 Status: script and storyboard candidate, not a rendered video.
 Audience: hands-on product managers and founders using Codex across several
-conversations. Target: 100–115 seconds, landscape 16:9, captioned, legible on a
+conversations. Target: 100–115 seconds, landscape 16:9, narrated, legible on a
 phone. Suggested production: Hyperframes, original diagram/card animation;
 no private conversations, customer data, invented testimonials or savings.
 
@@ -24,6 +24,47 @@ comparison of old and new FB, nor a measured performance demonstration.
 
 ## Production notes
 
+### Narration carries detail; the screen carries key points
+
+User direction: normal-speed viewers must have time to read without pausing.
+Do not display the narration as paragraphs or rapidly replace text. Explain
+detail aloud; use graphics and short headlines to illustrate the important
+points. The storyboard's visual descriptions are production instructions, not
+copy to paste onto the screen.
+
+- One main headline at a time, normally 3–6 words. At most two short supporting
+  labels when needed; aim for no more than 12 essential words visible together.
+- Hold a headline fully visible and stationary for roughly 5–7 seconds. For a
+  paired comparison or dependency graphic, allow roughly 8–10 seconds to read
+  both sides and understand the relationship. These are production starting
+  points, not claims about a universal reading speed.
+- Count the reading hold after the entrance animation finishes and before the
+  exit starts. Do not animate, scroll or replace words during that hold.
+- Keep the headline while the voice explains it. Do not change text with every
+  spoken phrase. If a scene feels crowded, remove text or extend the beat;
+  never solve it by flashing words faster or shrinking the type.
+- Speak the full narration. No burned-in transcript, karaoke words or blocks
+  of subtitles in the main composition. Optional viewer-enabled captions may
+  be supplied separately for accessibility; they are not the visual design.
+- Review the rendered sequence at normal playback speed on a phone-sized
+  preview. Confirm each headline can be read comfortably once, then the visual
+  understood, before it changes. Adjust timing to the recorded voice; do not
+  speed up speech just to force the draft duration.
+
+Suggested headline beats (not simultaneous text):
+
+| Scene | Main headline | Optional short labels |
+|---|---|---|
+| Deep discussion | Keep the conversation going | Design / Tech / Business |
+| Combined uncertainty | What happens next? | Decided? / Blocked? |
+| Deliberate intake | Ideas aren't instructions | Queued, not started |
+| Explained sequence | Know what goes first | First / Blocked / Later |
+| Forced priority | What gets pushed back? | Must happen first / Can continue |
+| Return to discussion | See what happened | Outcome / Evidence |
+| Closing | Deep thinking. Clear next steps. | FB Lanes / repository address |
+
+### Story and claim boundaries
+
 - Give ongoing conversations the opening third of the film, not a passing mention.
 - Keep “Without FB Lanes” and “With FB Lanes” labels explicit throughout the comparison.
 - Each comparison beat must show a PM uncertainty first, then the matching FB response—not two lists of features.
@@ -33,8 +74,8 @@ comparison of old and new FB, nor a measured performance demonstration.
 - Then connect selected conclusions to a changing queue with reasons.
 - Do not imply unlimited chat memory, transcript capture or automatic chat access.
 - Graph relationships appear only when explaining a prerequisite or impact.
-- Use 3–4 short labels at a time; distinguish priority from execution order.
-- Use captions plus optional narration; do not depend on audio to explain gates.
+- Distinguish priority from execution order using short labels and the graphic.
+- Show the key release boundary briefly but readably; explain its meaning aloud.
 - No speed, token, revenue, adoption or guaranteed-error-prevention claims.
 - No simulated UI presented as a live Codex screen. Label diagram examples.
 - Reuse the old demo only as historical reference, not current product footage.
