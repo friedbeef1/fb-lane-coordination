@@ -36,6 +36,12 @@ found and no scheduler implementation changed.
 
 ## Remaining gates
 
+Comparison follow-up: README and Why FB now explicitly compare without/with
+FB Lanes, and the storyboard uses the same illustrative inputs on both sides.
+Native planning, parallel discussion and successful delivery are not presented
+as FB-exclusive. Positioning, changed links/anchors, mirror generation and
+whitespace passed again for this documentation-only amendment.
+
 Follow-up documentation amendment: James asked to foreground ongoing deep
 conversations in each workstream. README, Why FB, package overview and script
 now show repeated discussion, selective handoffs and results returning to the

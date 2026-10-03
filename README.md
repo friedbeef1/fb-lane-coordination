@@ -25,13 +25,22 @@ You can use separate Codex chats and native plan mode without this plugin.
 FB packages a consistent way to connect their findings, decisions and outcomes;
 it does not make parallel conversations possible or guarantee better decisions.
 
-| Your question | What FB helps make clear |
-|---|---|
-| What should we do next? | A recommended order with reasons and prerequisites |
-| Why is this blocked? | The missing condition, resolution owner and next action |
-| What can happen together? | Relevant independent work, subject to ownership and locks |
-| The CEO needs this first—what changes? | A revised proposal showing prerequisites, displaced work and uncertain impacts |
-| What are we not doing? | Explicit deferrals with conditions for reconsideration |
+## Before and after: without FB Lanes / with FB Lanes
+
+The same person, Codex and Git worktrees can do the work in both cases. This
+compares the coordination workflow, not model intelligence or measured savings.
+
+| Situation | Before — without FB Lanes | After — with FB Lanes |
+|---|---|---|
+| Deep, ongoing discussion | Keep separate chats, ask follow-ups and explore concurrently. You choose how to organize and connect them. | Keep returning to named workstream chats; selected conclusions enter a shared delivery process. |
+| Turning discussion into action | Ask Codex to gather relevant conclusions and plan; supply or arrange access to the context it needs. | Capture actionable conclusions in durable handoffs; `$bfm` reconciles the recorded inputs into a proposed queue. |
+| What goes first, and what is blocked? | Codex can reason about dependencies and priorities when given the relevant context and instructions. | Product/BFM routinely explains recommended order, prerequisites, blockers, owners and deferrals together. |
+| “The CEO needs this first” | Ask for an impact assessment and make sure competing commitments are included. | The priority-change contract calls for prerequisites, displaced work, safe pauses and uncertain impacts before changed execution. |
+| Continuing after delivery | Ask for results and bring them back to the relevant conversations. | The result-return contract connects dispositions and evidence back to the originating workstreams, with delivery gaps reported. |
+
+You can build these conventions yourself without the plugin. FB packages them
+so you have an established process to use; it does not guarantee perfect
+coordination, eliminate your judgment or make every project need six streams.
 
 See the [priority-change example](docs/why-fb.md#when-a-priority-is-forced-in)
 and [new explainer script](docs/media/fb-priorities-explainer.md). The script is

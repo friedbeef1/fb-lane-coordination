@@ -36,6 +36,29 @@ discussion as an instruction to build. It does not promise unlimited chat
 memory or automatic access to every conversation; important context belongs in
 curated project records, not copied transcripts.
 
+## Before and after: without FB Lanes / with FB Lanes
+
+Hold the person, model and Git worktrees constant. Both approaches support
+deep conversations, concurrent investigation, planning, implementation and
+tests. The difference below is an established coordination contract—not a
+claim that ordinary Codex fails or cannot reproduce it.
+
+| Situation | Before — without FB Lanes | After — with FB Lanes |
+|---|---|---|
+| Thinking over many conversations | Return to separate chats and challenge ideas. Organize their relationships yourself or through your own instructions. | Return to persistent workstream chats; capture useful conclusions without requiring every discussion to become work. |
+| Combining conclusions | Give a coordinating chat the relevant findings and ask it to reconcile them. Its coverage depends on the context and process you provide. | Product/BFM follows the documented intake of repository handoffs and records dispositions before an execution plan. |
+| Priorities and blockers | Ask Codex to analyze sequence, dependencies and missing conditions. It can do this with suitable context. | The standard queue explanation includes reasons, prerequisites, blocker owners/actions and deferred work. |
+| An imposed priority | Ask what changes and ensure existing commitments, dependencies and gates are considered. | The priority-change contract explicitly calls for displacement, affected work, unknowns and a revised proposal. Importance does not make blocked work executable. |
+| Findings that are not ready | Use your own convention to distinguish discussion from execution instructions. | Handoffs are queued inputs. Notification alone does not start BFM; blocked and deferred inputs remain visible. |
+| Returning to the discussion | Request the result and reconnect it to the original chats or project notes. | Product/BFM records outcomes and follows the workstream result-return contract; it must report missing delivery rather than claim success. |
+
+These are workflow differences, not measured before/after outcomes. Equivalent
+project instructions can provide similar organization without FB. FB's value is
+making that convention reusable across projects. Its [priority contract](fb/workflow.md#product-priorities-and-delivery-implications),
+[intake boundary](fb/workflow.md#product-handoff-delivery-states) and
+[workflow](fb/workflow.md) describe what it requires; they are not guarantees
+that every model or external tool will always comply.
+
 ## When a priority is forced in
 
 Illustrative example, not a measured project result: the CEO needs an enterprise

@@ -23,6 +23,11 @@ User follow-up: foreground ongoing deep workstream conversations in the public
 documentation and video, not merely their handoff outputs. The script now allows
 100–115 seconds to show repeated discussion before delivery coordination.
 
+Comparison clarification: “before” means without FB Lanes and “after” means
+with FB Lanes, not old versus new FB. Public tables and the storyboard hold
+the person, Codex and inputs constant, acknowledge native capabilities, and
+compare self-arranged coordination with FB's reusable conventions.
+
 Assumptions: use the existing graph, dispositions and Build Brief, not a new
 priority engine. Prepare an explainer script, not an unapproved rendered or
 published video. Preserve the existing historical demo.

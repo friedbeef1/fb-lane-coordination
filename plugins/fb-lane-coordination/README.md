@@ -13,6 +13,10 @@ when nothing is being built. Handoffs carry actionable conclusions, not whole
 transcripts; Product/BFM connects them when you invoke `$bfm`, then returns
 results to inform the next discussion. See [deep conversations](docs/why-fb.md#deep-conversations-connected-when-you-are-ready).
 
+See [without FB Lanes / with FB Lanes](docs/why-fb.md#before-and-after-without-fb-lanes--with-fb-lanes)
+for the same work compared fairly: Codex can plan and execute in both; FB adds
+reusable coordination conventions, not exclusive model capabilities.
+
 The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.

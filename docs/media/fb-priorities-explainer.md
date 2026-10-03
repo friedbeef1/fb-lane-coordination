@@ -8,19 +8,25 @@ no private conversations, customer data, invented testimonials or savings.
 
 ## Script and storyboard
 
+Before means **without FB Lanes**; after means **with FB Lanes**. Use the same
+illustrative project, person, model and inputs on both sides. This is not a
+comparison of old and new FB, nor a measured performance demonstration.
+
 | Time | Narration | On-screen visual |
 |---|---|---|
-| 0–12s | Product thinking isn't one prompt and one answer. It's a deep conversation: asking why, challenging assumptions, exploring alternatives, and coming back with new evidence. | One persistent conversation develops through several exchanges. Caption: “A place to think—not just a task to finish.” |
-| 12–29s | FB is an open-source Codex plugin with six workstreams. Keep discussing design while Tech investigates constraints and Business explores the market. Return to those same chats, even when nothing is being built. | Six labelled cards: User, Business, Design, Tech, Discovery, Bugs. Zoom into three ongoing conversations; some cards remain idle. No private chat footage. |
-| 29–43s | These aren't one-shot agents. You can keep exploring, change your mind, or leave a question open. When a conclusion becomes actionable, capture its evidence and decisions in a handoff—not the entire conversation. | Design question → alternative → challenge → revised conclusion. One conclusion becomes a handoff; the conversation stays open. |
-| 43–57s | Sending a handoff does not start a build. When you invoke BFM in Product, it connects the recorded conclusions and proposes what goes first, what's blocked, and what should wait—with reasons. | Inbox shows “Noted. No work started.” Then `$bfm` → proposed queue with prerequisites and blocker owner. |
-| 57–77s | What if the CEO needs a demo first? That becomes the business priority. But the login fix still needs security approval. FB explains the prerequisite, which work would move, and what can safely continue. | Label “Illustrative example.” Demo linked to blocked login fix; reporting marked “Proposed deferral”; unrelated approved copy unchanged. |
-| 77–96s | You can change the proposed priorities. Codex implements the approved scope; Push Live stays a separate release decision. Results return to the workstreams, giving your next conversation something concrete to build on. | Approved queue → implementation → verification → Ready to ship → Push Live. Results arrow returns to the same workstream chats. Never animate automatic release. |
-| 96–110s | You can have these conversations without FB. FB gives you a consistent way to connect deep thinking across workstreams to decisions, priorities and delivery—without turning every discussion into a build. | “Think deeply. Connect conclusions. Decide what happens next.” Repository link and optional `$fb-setup` CTA. |
+| 0–16s | Without FB Lanes, you can already have deep, ongoing conversations with Codex: debate design, investigate technical constraints, explore the market. Ask follow-ups. Challenge answers. Keep thinking even when nothing is being built. | Persistent label “Without FB Lanes.” Three chats each show several exchanges; investigation overlaps. Show competent, useful outputs, not artificial chaos. |
+| 16–32s | When you're ready to act, you can ask Codex to combine the findings and plan. You arrange the context and coordination: which conclusions matter, which commitments still apply, and how results return to each discussion. | Same chats → “Gather relevant conclusions” → “Ask for a combined plan.” Codex produces a useful plan. Caption: “Your own coordination process.” |
+| 32–48s | With FB Lanes, keep those deep conversations. The plugin organizes them into ongoing workstreams. Capture actionable decisions and evidence in handoffs; leave other questions open. A handoff notification does not start a build. | Switch label to “With FB Lanes.” Same inputs become named workstream chats. One conclusion becomes a handoff; chats stay open. Inbox: “Noted. No work started.” |
+| 48–64s | Invoke BFM in Product. Its established process brings recorded findings into a proposed queue: what goes first, prerequisites, blockers and deferrals—with reasons. You can change the proposal before execution. | `$bfm` → reasoned queue. Caption: “A reusable coordination process.” Blocker includes owner and next action. |
+| 64–86s | Say the CEO needs a demo first. Without FB, ask Codex to assess the impact. With FB, that check is part of the priority-change contract: the security prerequisite remains, displaced work is shown, and uncertain impacts stay visible. | Paired “Without FB Lanes” / “With FB Lanes” view of the same demo. Left: explicit impact-analysis request. Right: standard priority-impact explanation. Both retain security gate; no fabricated failure on the left. |
+| 86–102s | Codex does the implementation in both cases. FB adds the handoff, verification and result-return conventions. The results inform your next deep discussion. Push Live remains its separate release boundary. | Same execution engine on both sides. FB side returns linked results to original chats and shows Ready to ship → Push Live. |
+| 102–115s | You can create these conventions yourself. FB packages them: think deeply across workstreams, connect conclusions, and decide what happens next. | Side-by-side labels remain. Closing: “Your own process / A reusable FB process.” Repository link and optional `$fb-setup` CTA. |
 
 ## Production notes
 
 - Give ongoing conversations the opening third of the film, not a passing mention.
+- Keep “Without FB Lanes” and “With FB Lanes” labels explicit throughout the comparison.
+- Never portray vanilla as incapable of planning, coordination or safety; show the difference in supplied conventions.
 - Show repeated questions and revisions in the same chats, not six instant answers.
 - Then connect selected conclusions to a changing queue with reasons.
 - Do not imply unlimited chat memory, transcript capture or automatic chat access.
