@@ -435,4 +435,20 @@ for (const forbidden of [
   assert.doesNotMatch(canonical, forbidden);
 }
 
+// Public positioning must connect a concrete coordination problem to its response.
+for (const page of ['README.md', 'docs/why-fb.md']) {
+  const copy = read(page);
+  assert.match(copy, /Before — without FB Lanes: the problem/);
+  assert.match(copy, /After — with FB Lanes: the response/);
+  for (const concept of [/decisions/i, /blocked/i, /displac/i, /notification/i, /result-return/i]) {
+    assert.match(copy, concept, `${page} must cover the coordination problem map`);
+  }
+  assert.match(copy, /Codex can perform these coordination tasks when instructed/);
+}
+const explainer = read('docs/media/fb-priorities-explainer.md');
+assert.match(explainer, /Without FB Lanes/);
+assert.match(explainer, /With FB Lanes/);
+assert.match(explainer, /PM uncertainty first, then the matching FB response/);
+assert.match(explainer, /Illustrative example/);
+
 console.log('FB product-positioning contract passed.');

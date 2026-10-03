@@ -7,6 +7,9 @@ prerequisites, blockers, deferrals and the impact of user-forced priorities.
 Authorized handoff notifications can receive a brief acknowledgment without
 starting intake or implementation. Public documentation leads with the human
 PM's coordination questions and includes a replacement explainer script.
+The without/with FB explanation maps concrete pain points—unclear decisions,
+cross-chat blockers, displaced priorities and missing delivery outcomes—to
+their corresponding FB responses while preserving deep ongoing discussion.
 
 **Why it matters:** The queue distinguishes business importance from what is
 actually ready, and makes displaced work and uncertain impacts visible.

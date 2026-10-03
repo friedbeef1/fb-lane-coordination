@@ -27,20 +27,23 @@ it does not make parallel conversations possible or guarantee better decisions.
 
 ## Before and after: without FB Lanes / with FB Lanes
 
-The same person, Codex and Git worktrees can do the work in both cases. This
-compares the coordination workflow, not model intelligence or measured savings.
+**Your conversations can each be excellent. The difficulty is managing what
+they mean together.** These are the coordination problems when separate chats
+have no shared process—not inevitable failures of Codex.
 
-| Situation | Before — without FB Lanes | After — with FB Lanes |
+| Situation | Before — without FB Lanes: the problem | After — with FB Lanes: the response |
 |---|---|---|
-| Deep, ongoing discussion | Keep separate chats, ask follow-ups and explore concurrently. You choose how to organize and connect them. | Keep returning to named workstream chats; selected conclusions enter a shared delivery process. |
-| Turning discussion into action | Ask Codex to gather relevant conclusions and plan; supply or arrange access to the context it needs. | Capture actionable conclusions in durable handoffs; `$bfm` reconciles the recorded inputs into a proposed queue. |
-| What goes first, and what is blocked? | Codex can reason about dependencies and priorities when given the relevant context and instructions. | Product/BFM routinely explains recommended order, prerequisites, blockers, owners and deferrals together. |
-| “The CEO needs this first” | Ask for an impact assessment and make sure competing commitments are included. | The priority-change contract calls for prerequisites, displaced work, safe pauses and uncertain impacts before changed execution. |
-| Continuing after delivery | Ask for results and bring them back to the relevant conversations. | The result-return contract connects dispositions and evidence back to the originating workstreams, with delivery gaps reported. |
+| Deep, ongoing discussion | After several useful conversations, what is still an idea, what was decided, and what should become work? There is no shared view unless you arrange one. | Handoffs distinguish findings, decisions, assumptions and open questions; Product/BFM brings actionable conclusions into one proposed queue. |
+| Recommendations across chats | A useful Design recommendation may depend on blocked Tech work. That relationship can remain outside either chat's immediate context. | Product/BFM reconciles recorded recommendations and dependencies before sequencing implementation. |
+| What goes first? | Several requests are worthwhile, but which can run together and which must wait? Combining their constraints becomes another coordination task. | The proposed plan explains order, prerequisites, blockers and deferrals—not just a list of tasks. |
+| “The CEO needs this first” | What does it displace, and does it actually have everything needed to proceed? Moving it to the top does not answer either question. | FB calls for an impact assessment: displaced commitments, prerequisites, affected work and unresolved decisions. |
+| Still exploring | A recommendation is not necessarily a decision to build. Without an explicit boundary, that intention is unclear. | Handoffs wait for Product/BFM intake. Notifications do not authorize execution. |
+| Returning to an earlier discussion | Delivery happened elsewhere. Was this recommendation implemented, blocked, deferred or rejected? The original conversation may not contain the answer. | The result-return process records the outcome, evidence and next action, and reports any failure to deliver the update. |
 
-You can build these conventions yourself without the plugin. FB packages them
-so you have an established process to use; it does not guarantee perfect
-coordination, eliminate your judgment or make every project need six streams.
+Codex can perform these coordination tasks when instructed. FB makes them a
+consistent working process rather than something you have to arrange anew.
+It helps reduce confusion about how conclusions become coordinated work; it
+does not guarantee perfect decisions or measured time savings.
 
 See the [priority-change example](docs/why-fb.md#when-a-priority-is-forced-in)
 and [new explainer script](docs/media/fb-priorities-explainer.md). The script is

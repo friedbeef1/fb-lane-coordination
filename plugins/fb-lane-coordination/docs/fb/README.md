@@ -7,7 +7,11 @@ importance; Product/BFM explains feasible order and trade-offs. Use the
 with the existing queue. Codex remains the planning and execution engine.
 
 The graph is the product-delivery map. Workstream loops investigate and improve
-parts of it. Product/BFM navigates the graph, and Codex executes its approved
+parts of it. The human problem is not a lack of useful conversations: it is
+uncertainty about which conclusions belong together, what can proceed and what
+a changed priority displaces. See the [problem-to-response explanation](../why-fb.md#before-and-after-without-fb-lanes--with-fb-lanes).
+
+Product/BFM navigates the graph, and Codex executes its approved
 sequence.
 
 FB is an open-source Codex plugin that turns scattered AI conversations into a

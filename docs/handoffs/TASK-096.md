@@ -28,6 +28,11 @@ with FB Lanes, not old versus new FB. Public tables and the storyboard hold
 the person, Codex and inputs constant, acknowledge native capabilities, and
 compare self-arranged coordination with FB's reusable conventions.
 
+Final positioning clarification: lead each without/with comparison with the
+human coordination problem and its matching FB response, not parallel feature
+lists. Apply across active public entry points and script; retain deep ongoing
+discussion and one qualification that Codex can do this when instructed.
+
 Assumptions: use the existing graph, dispositions and Build Brief, not a new
 priority engine. Prepare an explainer script, not an unapproved rendered or
 published video. Preserve the existing historical demo.

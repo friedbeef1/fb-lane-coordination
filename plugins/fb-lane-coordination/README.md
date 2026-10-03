@@ -14,8 +14,10 @@ transcripts; Product/BFM connects them when you invoke `$bfm`, then returns
 results to inform the next discussion. See [deep conversations](docs/why-fb.md#deep-conversations-connected-when-you-are-ready).
 
 See [without FB Lanes / with FB Lanes](docs/why-fb.md#before-and-after-without-fb-lanes--with-fb-lanes)
-for the same work compared fairly: Codex can plan and execute in both; FB adds
-reusable coordination conventions, not exclusive model capabilities.
+for the problems and their responses: which conclusions became decisions, what
+is blocked, what an urgent request displaces, and what happened after delivery.
+FB connects recorded conclusions, explains the queue and returns outcomes.
+Codex can do this when instructed; FB supplies a consistent working process.
 
 The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved

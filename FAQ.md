@@ -16,6 +16,16 @@ But Focus Bridge is the official name.
 Yes. FB adds product coordination, durable handoffs, automated verification,
 and a release boundary around Codex software execution.
 
+## Why use FB if I can already use separate Codex chats?
+
+Each chat can be useful while the combined picture is unclear: which ideas
+became decisions, which recommendation depends on blocked work, what an urgent
+request displaces, and what happened after delivery elsewhere. FB connects
+recorded conclusions into a proposed queue with reasons and returns outcomes
+to the workstreams. Keep the deep conversations; add a shared delivery process.
+Codex can do this with equivalent instructions; FB packages the convention.
+See [without FB / with FB](docs/why-fb.md#before-and-after-without-fb-lanes--with-fb-lanes).
+
 ## Is there a beginner process and a normal process?
 
 No. There is one process: discuss, capture actionable handoffs, say `$bfm`, let

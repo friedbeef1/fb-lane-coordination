@@ -4,6 +4,11 @@ FB helps you decide what should happen next, what must happen first, and what
 should wait. You set business priorities; Product/BFM explains their delivery
 implications. Native Codex still plans technical work and implements it.
 
+Keep deep, ongoing discussions in the relevant chats. When their conclusions
+leave you asking “What was decided, what is blocked, and what should go first?”,
+capture actionable findings for Product/BFM to reconcile. A recommendation or
+notification alone is not permission to build. See [the problem-to-response map](../why-fb.md#before-and-after-without-fb-lanes--with-fb-lanes).
+
 Describe the objective or question. FB has six evidence-producing workstreams
 plus one Product/BFM control centre and seven pinned repository-scoped Codex
 tasks. Whenever planning or evidence would help, start in the matching

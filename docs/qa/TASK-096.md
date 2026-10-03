@@ -36,6 +36,14 @@ found and no scheduler implementation changed.
 
 ## Remaining gates
 
+Problem-first positioning amendment: README, FAQ, Why FB, Agile Teams, Codex
+guide, harness overview/start/full diagram introduction, plugin overview and
+video storyboard now explain concrete coordination uncertainty followed by
+the matching FB response. Historical evidence and runtime are unchanged.
+Root/package positioning contracts (including problem/response coverage),
+94-mirror synchronization, affected document links, test syntax and whitespace
+passed. No runtime suite, second candidate review or video render was needed.
+
 Comparison follow-up: README and Why FB now explicitly compare without/with
 FB Lanes, and the storyboard uses the same illustrative inputs on both sides.
 Native planning, parallel discussion and successful delivery are not presented

@@ -15,6 +15,14 @@ release approval.
 
 ## The short version
 
+Useful discussions are not yet a coordinated backlog. A Design conclusion may
+depend on blocked Tech work; an urgent request may displace an existing
+commitment; the original discussion may never receive the delivery result.
+FB addresses these gaps through recorded conclusions, Product/BFM reconciliation,
+an explained delivery sequence and results returned to the workstreams.
+Keep exploring deeply in the same chats—even before anything is being built.
+See the [without FB / with FB problem map](why-fb.md#before-and-after-without-fb-lanes--with-fb-lanes).
+
 In a human agile team, people discuss work, refine it, decide what is ready,
 prioritise it, build it, check it, review it, release it, and learn from the
 result. FB creates the same continuous delivery loop with six
