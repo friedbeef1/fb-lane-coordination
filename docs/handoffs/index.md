@@ -16,6 +16,7 @@ TASK-094 release: [PR #73](https://github.com/friedbeef1/fb-lane-coordination/pu
 
 | Task / Topic | Lane | Status | Depends / Blocks / Gate | Checks / Evidence | Detail |
 |---|---|---|---|---|---|
+| TASK-096 - PM-first priority coordination | Product/BFM | Staging QA | Extends PR #75 candidate; no release or consumer mutation | Focused proof, 94-mirror parity and one review passed | [Handoff](TASK-096.md); [QA](../qa/TASK-096.md) |
 | TASK-095 - Passive Product intake signal | Product/BFM | Staging QA | Public plugin release waits for Push Live; no consumer backlog runs | `0.10.3-beta+codex.20260928093237` candidate; exact-project non-running cue plus durable handoff; focused contract and five-project adoption | [Handoff](TASK-095.md); [QA](../qa/TASK-095.md) |
 | TASK-094 - Queue preview and existing-task adoption | Product/BFM | Done | Push Live completed for plugin only; consumer apps not deployed | Four real planning scans, release checkpoint, GitHub readiness, 97 installed file matches and 14-tool MCP smoke passed | [PR #73](https://github.com/friedbeef1/fb-lane-coordination/pull/73); [Handoff](TASK-094.md); [QA](../qa/TASK-094.md) |
 | TASK-093 - Focused efficiency and evidence hardening | Product/BFM | Done | PR #72 merged `aa03038`; exact global install passed | 96 artifacts and 14-tool MCP verified; four-consumer managed rollout complete; MÉJA and TT original-task setup settled | [Handoff](TASK-093.md); [QA](../qa/TASK-093.md) |

@@ -1,5 +1,11 @@
 # FB Harness — Graph Engineering for Everyday People
 
+FB helps the person managing a product understand what should happen next,
+what is blocked, and what a changed priority displaces. The user sets business
+importance; Product/BFM explains feasible order and trade-offs. Use the
+[priority and change-impact contract](workflow.md#product-priorities-and-delivery-implications)
+with the existing queue. Codex remains the planning and execution engine.
+
 The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.

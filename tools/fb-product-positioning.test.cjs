@@ -186,7 +186,7 @@ const comparisonRows = [
 ];
 
 const exceptionalFitRows = [
-  ['The task is completely specified, mechanical, disposable, finishable in one session, and needs no durable decisions, coordination, follow-up, sensitive handling, or release governance.', 'Vanilla Codex', 'It executes immediately without creating records that will never be reused.'],
+  ['One clear task fits in one conversation, or your existing project instructions already coordinate the work well.', 'Vanilla Codex', 'Native planning and execution may be sufficient without another coordination framework.'],
   ['A mature engineering organization already owns requirements, prioritization, CI, review, and release—and needs only native branch isolation.', 'Git worktrees', 'Worktrees provide isolation without introducing another coordination system.'],
   ['The primary requirement is comprehensive or forensic capture of large volumes of agent-session activity across teams.', 'Kurrent Capacitor', 'Capacitor provides richer automatic session telemetry and history than FB’s curated records.'],
   ['The organization explicitly wants a prescribed, role-heavy methodology with formal personas and lifecycle ceremonies.', 'BMAD', 'BMAD provides a broader formal methodology than FB’s repository-local delivery loop.'],
@@ -201,9 +201,9 @@ const stackRows = [
 
 for (const [label, page] of [['README', rootReadme], ['Why FB', canonical], ['packaged Why FB', packaged]]) {
   assert.ok(page.includes('## When something else is genuinely a better fit'), `${label} must document exceptional alternatives`);
-  assert.ok(page.includes('Most product work benefits from FB when decisions, implementation, verification, and release must remain connected. Another tool is a better fit only when one of these narrower conditions describes the primary goal.'), `${label} must introduce the narrow exceptional cases`);
+  assert.match(page, /FB is optional\./, `${label} must not claim native planning requires FB`);
   for (const row of exceptionalFitRows) assert.ok(page.includes(`| ${row.join(' | ')} |`), `${label} must contain exceptional fit row: ${row[1]}`);
-  assert.ok(page.includes('If these conditions sound unusually specific, they probably are. Ordinary evolving product work still benefits from FB connecting decisions, implementation, verification, and release.'), `${label} must explain why the exceptions are narrow`);
+  assert.doesNotMatch(page, /better fit only when|Most product work benefits from FB/, `${label} must avoid unsupported universal fit claims`);
   assert.ok(page.includes('Describe the outcome and use FB normally. FB decides how much coordination, evidence, and verification the situation requires.'), `${label} must state automatic FB routing`);
   assert.ok(page.includes('## How FB works with your existing stack'), `${label} must document stack augmentation`);
   assert.ok(page.includes('| Existing tool | Keep using it for | What FB adds | Integration boundary |'), `${label} must contain the exact stack table headers`);

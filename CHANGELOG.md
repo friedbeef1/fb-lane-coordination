@@ -1,5 +1,24 @@
 # Changelog
 
+## Unreleased — Product priorities and delivery implications
+
+**What changed:** Product/BFM guidance now explains recommended next work,
+prerequisites, blockers, deferrals and the impact of user-forced priorities.
+Authorized handoff notifications can receive a brief acknowledgment without
+starting intake or implementation. Public documentation leads with the human
+PM's coordination questions and includes a replacement explainer script.
+
+**Why it matters:** The queue distinguishes business importance from what is
+actually ready, and makes displaced work and uncertain impacts visible.
+
+**Compatibility:** Existing workstreams, handoffs, scheduler and safety gates
+remain. No automatic model switching, new priority engine or task creation.
+This candidate supersedes the unshipped no-message rule below; it does not
+claim that a message consumes zero tokens or never wakes a recipient turn.
+
+**Installation or upgrade:** Not published or installed. Continue using the
+current published build until a separately verified release is authorized.
+
 ## 0.10.3-beta — 2026-09-28
 
 Build: `0.10.3-beta+codex.20260928093237`.

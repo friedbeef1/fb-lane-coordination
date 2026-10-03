@@ -1,5 +1,12 @@
 # FB Coordination for Codex
 
+**Know what to do next—and what changes when priorities change.**
+FB helps you reconcile product requests into a reasoned queue: prerequisites,
+blockers, parallel opportunities, deferrals and the impact of a forced priority.
+You set business importance; Product/BFM explains delivery implications. Native
+Codex remains the planning and execution engine. Use only relevant workstreams.
+See [priority handling](docs/fb/workflow.md#product-priorities-and-delivery-implications).
+
 The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.

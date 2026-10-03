@@ -1,5 +1,35 @@
 # Why FB
 
+**You set the business priorities. FB helps explain what they mean for delivery.**
+
+For a person managing several AI conversations, the useful question is not
+"How many agents can I run?" It is "What should happen next, what is blocked,
+and what must change when I change the priority?" FB connects recorded findings
+to a queue with reasons, prerequisites, owners and deferral conditions.
+
+Separate chats and native plan mode can do this when instructed. FB supplies
+the reusable coordination convention; it does not guarantee that independent
+chats fail without it, replace product judgment, or promise time savings.
+For one clear task in one conversation, native planning may be sufficient.
+
+## When a priority is forced in
+
+Illustrative example, not a measured project result: the CEO needs an enterprise
+demo first. Product/BFM checks what that means rather than merely moving a card.
+
+| Item | Revised recommendation | Why |
+|---|---|---|
+| Account-access fix | Must happen first, but blocked | Security approval is still required; name its owner and next action |
+| Enterprise demo | Highest business priority; waits for account access | Urgency does not remove the prerequisite |
+| Reporting improvement | Proposed deferral or safe pause | Show the displaced commitment; preserve completed work |
+| Unrelated approved copy | May continue if useful and independent | Do not stop unrelated work or start extra work merely to occupy agents |
+
+Product shows the impact and the revised scope before changed execution. It
+does not promise Friday when feasibility is unknown, silently resolve competing
+mandatory requests, or treat a demo as permission to deploy. **Push Live** stays
+separate. Known relationships guide the check; missing links do not prove that
+all other work is unaffected. See the [operating contract](fb/workflow.md#product-priorities-and-delivery-implications).
+
 [Overview](../README.md) · [Agile Teams](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/fb-for-agile-teams.md) · [Why FB](why-fb.md) · [Full Loop](fb/full-loop.md)
 
 **FB — Graph Engineering for Everyday People.**
@@ -118,16 +148,18 @@ and [BMAD](https://github.com/bmad-code-org/BMAD-METHOD).
 
 ## When something else is genuinely a better fit
 
-Most product work benefits from FB when decisions, implementation, verification, and release must remain connected. Another tool is a better fit only when one of these narrower conditions describes the primary goal.
+FB is optional. Native planning or an existing team workflow may already provide
+the coordination you need; use FB when its shared conventions help your work.
 
 | Condition | Better fit | Why |
 |---|---|---|
-| The task is completely specified, mechanical, disposable, finishable in one session, and needs no durable decisions, coordination, follow-up, sensitive handling, or release governance. | Vanilla Codex | It executes immediately without creating records that will never be reused. |
+| One clear task fits in one conversation, or your existing project instructions already coordinate the work well. | Vanilla Codex | Native planning and execution may be sufficient without another coordination framework. |
 | A mature engineering organization already owns requirements, prioritization, CI, review, and release—and needs only native branch isolation. | Git worktrees | Worktrees provide isolation without introducing another coordination system. |
 | The primary requirement is comprehensive or forensic capture of large volumes of agent-session activity across teams. | Kurrent Capacitor | Capacitor provides richer automatic session telemetry and history than FB’s curated records. |
 | The organization explicitly wants a prescribed, role-heavy methodology with formal personas and lifecycle ceremonies. | BMAD | BMAD provides a broader formal methodology than FB’s repository-local delivery loop. |
 
-If these conditions sound unusually specific, they probably are. Ordinary evolving product work still benefits from FB connecting decisions, implementation, verification, and release.
+These are ordinary alternatives, not exceptional failures. FB's value is a
+consistent product workflow, not an exclusive capability to plan or use agents.
 
 Describe the outcome and use FB normally. FB decides how much coordination, evidence, and verification the situation requires.
 

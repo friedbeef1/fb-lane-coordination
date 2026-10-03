@@ -11,15 +11,17 @@ const packaged = path.basename(root) === 'fb-lane-coordination'
 const read = relative => fs.readFileSync(path.join(root, relative), 'utf8');
 const section = markdown => markdown.split('## Product handoff delivery states\n')[1]?.split('\n## ')[0] || '';
 
-test('ready handoff arrival uses an indexed queue and never sends a wake-up prompt', () => {
-  const policy = section(read('docs/fb/workflow.md'));
+test('ready handoff policy distinguishes acknowledgment from a BFM execution cycle', () => {
+  const policy = section(read('docs/fb/workflow.md')).replace(/\s+/g, ' ');
   assert.match(policy, /save[^\n]*handoff|saving a ready workstream handoff/i);
   assert.match(policy, /index/i);
-  assert.match(policy, /never use `send_message_to_thread`[^\n]*Product\/BFM/i);
-  assert.match(policy, /set_thread_read_state\([^\n]*read:\s*false/i);
+  assert.match(policy, /acknowledg/i);
+  assert.match(policy, /no (?:BFM )?cycle|not a BFM cycle/i);
+  assert.match(policy, /no[^\n]*coordination-record mutation/i);
+  assert.match(policy, /successful[^\n]*receipt|receipt[^\n]*successful/i);
   assert.match(policy, /exact[^\n]*Product\/BFM[^\n]*task/i);
   assert.match(policy, /saved-only|saved for Product intake/i);
-  assert.match(policy, /\$bfm[^\n]*only|only[^\n]*\$bfm/i);
+  assert.match(policy, /\$bfm[^\n]*activates|\$bfm[^\n]*starts/i);
 });
 
 test('coordination, Product and BFM route workstream arrival to the canonical passive policy', () => {

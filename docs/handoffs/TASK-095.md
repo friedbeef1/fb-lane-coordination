@@ -9,6 +9,11 @@ approval: approved
 
 # Passive Product intake signal
 
+Current amendment: [TASK-096](TASK-096.md) supersedes this unshipped no-message
+policy. James permits a short acknowledgment turn, not automatic intake or
+execution. The original decision and proof below remain historical; amended
+consumer adoption and plugin installation have not occurred.
+
 ## Project Start Brief
 
 James wants workstream handoffs to remain visible to Product/BFM without

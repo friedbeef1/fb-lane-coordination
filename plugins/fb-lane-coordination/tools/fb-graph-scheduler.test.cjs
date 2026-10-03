@@ -205,3 +205,33 @@ test('applies recorded Product priority only within an otherwise ready wave', ()
     'task:TASK-903', 'task:TASK-901', 'task:TASK-902',
   ]);
 });
+
+test('a forced demo priority cannot bypass its blocked prerequisite or a sensitive gate', () => {
+  const projection = scheduleGraph(graph([
+    node('task:LOGIN', 'Blocked', { worktree: 'login', locks: ['auth.js'] }),
+    node('task:DEMO', 'Ready', { worktree: 'demo', locks: ['demo.js'] }),
+    node('task:PAYMENT', 'Ready', { worktree: 'payment', locks: ['pay.js'], sensitive: true }),
+    node('task:COPY', 'Ready', { worktree: 'copy', locks: ['copy.md'] }),
+  ], [edge('task:DEMO', 'task:LOGIN', 'depends-on')]), {
+    priorityOrder: ['task:DEMO', 'task:PAYMENT', 'task:LOGIN'],
+  });
+  assert.deepStrictEqual(ids(projection.parallelReady), ['task:COPY']);
+  assert.deepStrictEqual(ids(projection.blocked).sort(), ['task:DEMO', 'task:LOGIN']);
+  assert.ok(projection.deferred.some(item => item.id === 'task:PAYMENT'
+    && item.reasons.some(reason => reason.code === 'sensitive-operation-gate')));
+});
+
+test('reordering ready work does not preempt an active lock owner or mutate the input', () => {
+  const input = graph([
+    node('task:ACTIVE', 'In Progress', { worktree: 'active', locks: ['shared.js'] }),
+    node('task:URGENT', 'Ready', { worktree: 'urgent', locks: ['shared.js'] }),
+    node('task:INDEPENDENT', 'Ready', { worktree: 'independent', locks: ['other.js'] }),
+  ]);
+  const before = JSON.stringify(input);
+  const projection = scheduleGraph(input, { priorityOrder: ['task:URGENT'] });
+  assert.deepStrictEqual(ids(projection.current), ['task:ACTIVE']);
+  assert.deepStrictEqual(ids(projection.parallelReady), ['task:INDEPENDENT']);
+  assert.ok(projection.next.some(item => item.id === 'task:URGENT'
+    && item.reasons.some(reason => reason.code === 'shared-lock')));
+  assert.equal(JSON.stringify(input), before);
+});

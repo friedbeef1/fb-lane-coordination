@@ -1,5 +1,29 @@
 # FB
 
+**Know what to do next—and what changes when priorities change.**
+
+FB helps product managers bring findings from separate AI conversations into
+one clear delivery queue: what should proceed, what must happen first, what is
+blocked, and what should wait. **You set the business priorities. Product/BFM
+works through the delivery implications.** Codex still plans the technical work
+and writes the code.
+
+You can use separate Codex chats and native plan mode without this plugin.
+FB packages a consistent way to connect their findings, decisions and outcomes;
+it does not make parallel conversations possible or guarantee better decisions.
+
+| Your question | What FB helps make clear |
+|---|---|
+| What should we do next? | A recommended order with reasons and prerequisites |
+| Why is this blocked? | The missing condition, resolution owner and next action |
+| What can happen together? | Relevant independent work, subject to ownership and locks |
+| The CEO needs this first—what changes? | A revised proposal showing prerequisites, displaced work and uncertain impacts |
+| What are we not doing? | Explicit deferrals with conditions for reconsideration |
+
+See the [priority-change example](docs/why-fb.md#when-a-priority-is-forced-in)
+and [new explainer script](docs/media/fb-priorities-explainer.md). The script is
+not a rendered video; the [older video](codex-lane-demo/README.md) is historical.
+
 The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.
@@ -41,6 +65,9 @@ model, not additional mandatory agents.
 
 ## Measured repair-efficiency evidence
 
+<details>
+<summary>Historical experiments—not a promise about your project</summary>
+
 In one prospective benchmark of **six paired historical tasks**, Efficient-Graph
 FB used **23.6% less wall time** and **15.8% fewer provider-reported tokens**
 than fresh Vanilla Codex runs. Repair tokens fell 69.3%, and accepted outcomes
@@ -58,6 +85,8 @@ context format: Efficient-Graph FB used **44.0% fewer raw provider tokens** and
 passing every defined local outcome. The difficult Graph case was 18.2% slower,
 so the evidence supports token efficiency more strongly than universal speed.
 See the [measurements, calibration correction, and limits](docs/benchmarks/difficulty-tiers/TASK-059-directional-results.md).
+
+</details>
 
 These are product-delivery and coordination gaps that can arise around ordinary
 Codex use, not defects in Codex itself.
@@ -254,16 +283,18 @@ and [BMAD](https://github.com/bmad-code-org/BMAD-METHOD).
 
 ## When something else is genuinely a better fit
 
-Most product work benefits from FB when decisions, implementation, verification, and release must remain connected. Another tool is a better fit only when one of these narrower conditions describes the primary goal.
+FB is optional. Native planning or an existing team workflow may already provide
+the coordination you need; use FB when its shared conventions help your work.
 
 | Condition | Better fit | Why |
 |---|---|---|
-| The task is completely specified, mechanical, disposable, finishable in one session, and needs no durable decisions, coordination, follow-up, sensitive handling, or release governance. | Vanilla Codex | It executes immediately without creating records that will never be reused. |
+| One clear task fits in one conversation, or your existing project instructions already coordinate the work well. | Vanilla Codex | Native planning and execution may be sufficient without another coordination framework. |
 | A mature engineering organization already owns requirements, prioritization, CI, review, and release—and needs only native branch isolation. | Git worktrees | Worktrees provide isolation without introducing another coordination system. |
 | The primary requirement is comprehensive or forensic capture of large volumes of agent-session activity across teams. | Kurrent Capacitor | Capacitor provides richer automatic session telemetry and history than FB’s curated records. |
 | The organization explicitly wants a prescribed, role-heavy methodology with formal personas and lifecycle ceremonies. | BMAD | BMAD provides a broader formal methodology than FB’s repository-local delivery loop. |
 
-If these conditions sound unusually specific, they probably are. Ordinary evolving product work still benefits from FB connecting decisions, implementation, verification, and release.
+These are ordinary alternatives, not exceptional failures. FB's value is a
+consistent product workflow, not an exclusive capability to plan or use agents.
 
 Describe the outcome and use FB normally. FB decides how much coordination, evidence, and verification the situation requires.
 
