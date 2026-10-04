@@ -6,10 +6,12 @@ repository-scoped Codex tasks.
 
 ## What does FB stand for?
 
-FB officially stands for **Focus Bridge**: it bridges user goals, six
-workstreams, Codex implementation, verification, and delivery. It could have
-been Feature Builder, Flow Booster, Fast Build—or, naturally, **Fried Beef**.
-But Focus Bridge is the official name.
+FB stands for **Flow Builder**. It connects six workstreams, product decisions,
+Codex implementation, verification, and delivery. The earlier name was Focus
+Bridge. It could have been Feature Builder, Flow Booster, Fast Build—or,
+naturally, **Fried Beef**. Flow Builder is the current public name.
+
+Product/BFM means **Build For Me**; `$bfm` remains the supported invocation.
 
 ## Is FB a Codex plugin?
 

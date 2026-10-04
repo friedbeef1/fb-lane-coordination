@@ -61,7 +61,8 @@
     * **Approval**: approved — James said “Okay, please do that” and requested GitHub and explainer updates.
     * **Justification**: The human PM needs understandable priorities and implications, not another execution engine or unsupported savings promise.
 * **Locks**: Source changes complete; no consumer, installed-cache or release mutations.
-* **Links & Deliverables**: [Handoff](docs/handoffs/TASK-096.md); [QA](docs/qa/TASK-096.md); [Script](docs/media/fb-priorities-explainer.md).
+* **Links & Deliverables**: [Handoff](docs/handoffs/TASK-096.md); [QA](docs/qa/TASK-096.md); [Script](docs/media/fb-priorities-explainer.md); [19-slide presentation](docs/media/slides/README.md).
+* **2026-10-04 sharing candidate**: Flow Builder public naming and the current deck PDF are prepared for GitHub readers. PDF rendered for visual review; positioning and whitespace checks passed. Editable Google source remains private. Documentation only; no plugin release, install or main merge.
 
 ### TASK-095 - Passive Product intake signal
 

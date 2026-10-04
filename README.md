@@ -1,4 +1,12 @@
-# FB
+# Flow Builder (FB)
+
+**Deep conversations. Coordinated delivery.**
+
+[View the 19-slide introduction](docs/media/slides/flow-builder-introduction.pdf) · [Presentation and sharing guide](docs/media/slides/README.md)
+
+The presentation includes matched problem/response tables, a real pre-build
+queue preview, priority trade-offs, and step-by-step setup. The PDF is hosted
+in this repository and does not require Google access.
 
 **Know what to do next—and what changes when priorities change.**
 
@@ -67,8 +75,8 @@ tasks. `$bfm` reconciles and prioritizes ready recommendations in Product/BFM,
 directs Codex implementation, runs automated checks, and prepares the result
 for release.
 
-FB means **Focus Bridge**: it bridges discussion, evidence, implementation, and
-delivery.
+FB means **Flow Builder**. Previously called Focus Bridge, it connects deep
+workstream discussions to a shared delivery plan. Product/BFM means **Build For Me**.
 
 ## What is graph engineering?
 
