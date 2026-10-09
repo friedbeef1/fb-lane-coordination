@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-098
 lane: fb-product
-status: staging-qa
+status: ready
 approval: approved
 record_model: normalized-v1
 ---
