@@ -444,8 +444,9 @@ cue is not delivery. Do not guess a destination or create a replacement task.
 Deduplicate unchanged notices; keep at most one arrival notice per changed handoff.
 
 Only the user's `$bfm` invocation activates reconciliation in Product/BFM,
-subject to complete intake and identity gates. Queue preview and approval still
-precede source execution. Workstream skills link here rather than duplicating
+subject to complete intake and identity gates. Show the queue preview and record
+the Build Brief, then proceed within the invoked scope without another routine
+approval. Workstream skills link here rather than duplicating
 delivery definitions.
 
 ## Before BFM source execution

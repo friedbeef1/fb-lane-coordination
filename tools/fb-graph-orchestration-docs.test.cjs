@@ -8,7 +8,7 @@ const test = require('node:test');
 
 const root = path.join(__dirname, '..');
 const explanation = 'The graph is the product-delivery map. Workstream loops investigate and improve parts of it. Product/BFM navigates the graph, and Codex executes its approved sequence.';
-const leanProcess = /focused proof per slice[\s\S]{0,220}one consolidated behavioral\s+repair[\s\S]{0,220}one whole-candidate review[\s\S]{0,220}one final\s+release checkpoint/i;
+const leanProcess = /focused proof per slice[\s\S]{0,100}one whole-candidate review[\s\S]{0,100}one final\s+release checkpoint[\s\S]{0,120}autonomy\.md/i;
 
 function read(relative) {
   return fs.readFileSync(path.join(root, relative), 'utf8');

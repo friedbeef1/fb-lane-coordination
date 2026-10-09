@@ -179,7 +179,7 @@ In Product/BFM, explicit **Push Live** invokes the model-invoked `fb-release`
 skill. It verifies the exact candidate, follows this repository's release
 instructions, identifies whether the configured `fb-lane` marketplace source
 is local or Git, uses the matching refresh route, reinstalls the exact build,
-and verifies installed skills, runtime, manifest, and MCP resolution. It then
+and verifies installed skills, local-command runtime and manifest. It then
 requires a new Codex task so the replacement plugin is loaded.
 
 If the automated release route is unavailable, first inspect the configured
@@ -200,12 +200,12 @@ codex plugin list | rg "fb-lane-coordination"
 
 Codex may leave older cache folders under `~/.codex/plugins/cache/`. They are
 not the active install unless `codex plugin list` points at that version. Start a
-new Codex thread after reinstalling so updated skills and MCP tools are loaded
+new Codex thread after reinstalling so updated skills and local tools are loaded
 from the refreshed plugin cache.
 
 Installed verification checks the exact cache artifact: version and package
 identity, skill discovery, runtime syntax or required exports, packaged
-manifest, and bundled MCP resolution. Do not run root-only source-layout tests
+manifest, and bundled local-command resolution. Do not run root-only source-layout tests
 inside the installed cache. Keep public changelog and marketplace wording
 product-generic; project names and exact consumer smokes belong in linked QA.
 

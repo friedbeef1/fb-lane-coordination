@@ -62,9 +62,11 @@ test('installed prompt preserves truthful routing and release boundaries', () =>
     ? '.codex-plugin/plugin.json'
     : 'plugins/fb-lane-coordination/.codex-plugin/plugin.json';
   const manifest = read(manifestPath);
-  assert.match(manifest, /planning only; waiting for you/i);
+  const coordination = read('skills/fb-lane-coordination/SKILL.md').replace(/\s+/g, ' ');
+  assert.match(coordination, /planning only; waiting for you/i);
   assert.match(manifest, /Product\/BFM[\s\S]{0,120}\$bfm|\$bfm[\s\S]{0,120}Product\/BFM/i);
-  assert.match(manifest, /task tools[^\n]*unavailable[^\n]*paste-ready/i);
+  assert.match(coordination, /task tools.{0,120}unavailable.{0,120}paste-ready/i);
+  assert.match(manifest, /Passive handoff pings never invoke BFM/i);
   assert.doesNotMatch(manifest, /arrival[^\n]*(?:starts|activates|executes|delegates)/i);
   assert.match(manifest, /Push Live/);
 });
@@ -84,10 +86,15 @@ test('active skills use one compact-first known-task route without mandatory ful
   assert.doesNotMatch(workflow, /1\. Read `AGENTS\.md`, board, current-task record/);
 });
 
-test('saved Product handoff queues a passive cue without waking Product', () => {
+test('authorized Product notification permits acknowledgment but never automatic execution', () => {
   const workflow = read('docs/fb/workflow.md').replace(/\s+/g, ' ');
-  assert.match(workflow, /Queued for Product\/BFM; no Product\/BFM run started/);
-  assert.match(workflow, /Never use `send_message_to_thread`/);
+  assert.match(workflow, /explicit user authorization to notify/);
+  assert.match(workflow, /exact receipt-bound Product\/BFM task/);
+  assert.match(workflow, /notification only; no BFM cycle or execution authorized/);
+  assert.match(workflow, /Noted for the next BFM intake\. No work started/);
+  assert.match(workflow, /no queue scan, prioritization, claim, delegation, source edit, commit or coordination-record mutation/);
+  assert.match(workflow, /Only a successful exact-task message receipt supports/);
+  assert.match(workflow, /Only the user's `\$bfm` invocation activates reconciliation/);
   assert.match(workflow, /set_thread_read_state\(\{ threadId, read: false \}\)/);
   assert.match(workflow, /saved-only/);
   for (const skill of [...workstreamSkills, 'fb-user', 'bfm', 'fb-lane-coordination']) {

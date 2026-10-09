@@ -1007,7 +1007,7 @@ function assertCodexBootstrap(args) {
       assert.match(source, /node tools\/fb-lane\.cjs status --context/, `${label} must use bounded active context for routine orientation`);
       assert.match(source, /local-tools\.md/, `${label} must route structured operations to the local runtime`);
       assert.match(source, /returning-project health[\s\S]*\$fb-lane status/i, `${label} must keep default status for returning health`);
-      assert.match(source, /focused proof per slice[\s\S]{0,220}one consolidated behavioral\s+repair[\s\S]{0,220}one whole-candidate review[\s\S]{0,220}one final\s+release checkpoint/i, `${label} must generate the lean candidate-level execution process`);
+      assert.match(source, /focused proof per slice[\s\S]{0,100}one whole-candidate review[\s\S]{0,100}one final\s+release checkpoint[\s\S]{0,120}autonomy\.md/i, `${label} must generate the bounded candidate process and shared recovery route`);
       assert.doesNotMatch(source, /runtime(?:\/test| and test)[\s\S]{0,80}(?:exactly one|one) reviewer/i, `${label} must not generate the retired runtime per-slice reviewer rule`);
     }
     assert.doesNotMatch(board + agents, /Mode Selection Trigger Rule|normal\/simple|FB light/i, 'generated coordination guidance must not expose internal mode routing');

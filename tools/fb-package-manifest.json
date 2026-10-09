@@ -1,5 +1,6 @@
 [
   "PRIVACY.md",
+  "ACCESSIBILITY.md",
   "tools/fb-lane.cjs",
   "tools/fb-lane.test.cjs",
   "tools/fb-checkout-migration.test.cjs",

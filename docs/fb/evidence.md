@@ -5,8 +5,9 @@ parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.
 
 Focused proof attaches evidence to each slice. The complete canonical candidate
-receives one whole-candidate review, at most one consolidated behavioral repair,
-and one final release checkpoint. Slice proof does not create a separate
+receives one whole-candidate review and one final release checkpoint.
+Full recovery follows [Autonomous BFM](autonomy.md); each correction reruns
+only the affected proof within the cumulative issue budget. Slice proof does not create a separate
 reviewer or re-review ceremony. Existing safety and release evidence gates
 remain unchanged.
 
