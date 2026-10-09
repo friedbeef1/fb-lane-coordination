@@ -65,8 +65,8 @@ sequence.
 
 **Graph Engineering for Everyday People**
 
-Current Codex release candidate: **FB 0.10.3-beta**
-(`0.10.3-beta+codex.20260928093237`).
+Current Codex release candidate: **FB 0.10.5-beta**
+(`0.10.5-beta+codex.20261009113735`).
 
 **FB is an open-source Codex plugin that turns scattered AI conversations into
 a living product-delivery graph.** It has six evidence-producing workstreams
@@ -221,7 +221,7 @@ control centre then
 freezes an intake snapshot, dispositions every candidate, reconciles and
 prioritizes the included work, and creates the Project Start Brief plus Build
 Brief, then shows a [prioritized queue preview](docs/fb/workflow.md#queue-preview-and-approval).
-Say **okay** to execute that current Include now scope. **Push Live** remains
+An explicit `$bfm` shows the plan and proceeds within the requested scope without another okay. **Push Live** remains
 separate; see [the start
 contract](docs/fb/start.md). A ready handoff is queued for Product intake, not
 approval or execution authority.

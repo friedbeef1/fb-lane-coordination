@@ -1404,7 +1404,12 @@ test('MCP submit commits and pushes before a competing blocking checkpoint proce
       taskId: 'TASK-001',
       workspacePath: worktree,
     }, { FB_SESSION_TEST_LIFECYCLE_GATE: gate });
-    await waitForPath(path.join(gate, 'started'));
+    const gateStartedAt = Date.now();
+    await Promise.race([
+      waitForPath(path.join(gate, 'started')),
+      submitPromise.then(result => { throw new Error(`Submit exited before lifecycle gate: ${JSON.stringify(result)}`); }),
+    ]);
+    console.log(`  lifecycle gate reached after ${Date.now() - gateStartedAt}ms`);
     let checkpointSettled = false;
     const checkpointPromise = spawnRun(worktree, ['session', 'checkpoint', '--reason', 'blocked', '--session-id', 'submit-blocked-serialized'])
       .then(result => { checkpointSettled = true; return result; });
@@ -1907,7 +1912,10 @@ test('public session behavior is identical through the packaged CLI', () => {
 });
 
 (async () => {
-  for (const [name, fn] of tests) {
+  const filter = process.argv[2];
+  const selected = filter ? tests.filter(([name]) => name === filter) : tests;
+  if (!selected.length) throw new Error(`No session test matches: ${filter}`);
+  for (const [name, fn] of selected) {
     await fn();
     passed += 1;
     console.log(`  ✓ ${name}`);

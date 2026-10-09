@@ -3,22 +3,26 @@ name: fb-lane-coordination
 description: Use when an FB project needs board-aware routing, handoffs, current-state orientation, or Product/BFM integration.
 ---
 
+Use [local tools](../../docs/fb/local-tools.md) for FB runtime operations.
+The plugin does not register an MCP server. Run the bundled or project-managed
+CLI with an explicit target repository; preserve all existing authority gates.
+
+
 # FB task coordination
 
 Product/BFM follows [Queue preview and approval](../../docs/fb/workflow.md#queue-preview-and-approval):
-`$bfm` plans the complete queue; the user's okay approves its current Include
-now scope. Do not treat ready status, delivery, or technical eligibility as
+`$bfm` shows the complete queue and proceeds within the user-invoked scope. Do not treat ready status, delivery, or technical eligibility as
 execution approval. Push Live remains separate.
 
 The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.
 
-Default execution uses focused proof per slice, one consolidated behavioral
-repair maximum across the candidate, one whole-candidate review, and one final
-release checkpoint. Do not create separate review or re-review loops for
-individual slices. Safety, sensitive-operation, authority, worktree/lock,
-changelog, and **Push Live** gates remain unchanged.
+Default execution uses focused proof per slice, one whole-candidate review,
+and one final release checkpoint. Product-directed Full BFM recovery follows
+[Autonomous BFM](../../docs/fb/autonomy.md): up to five distinct evidence-backed
+attempts per issue, with a cumulative ledger across slices and resumes.
+Quick slice budgets, safety, locks and **Push Live** gates remain controlling.
 
 The visible workflow is **Goal → Split → only the relevant workstreams →
 Verify evidence → Merge findings → Implement → Verify candidate → One clear
@@ -34,8 +38,7 @@ learn inside it; `$bfm` navigates and executes it; **Push Live** authorizes
 release.
 
 Read the [FB harness](../../docs/fb/README.md), then use
-`node tools/fb-lane.cjs status --context` (or MCP
-`fb_lane_status({context:true})`) for bounded current-state orientation. Follow
+`node tools/fb-lane.cjs status --context` for bounded current-state orientation. Follow
 only relevant links. For a known task and concrete question, follow
 [Canonical known-task orientation](../../docs/fb/graph.md#canonical-known-task-orientation);
 the full board is a fallback, not a mandatory read.

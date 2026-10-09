@@ -1,5 +1,8 @@
 # FB Harness — Graph Engineering for Everyday People
 
+Flow Builder runs through [local commands](local-tools.md); no FB MCP server
+is required. Use the same `$fb-setup` and `$bfm` workflow.
+
 FB helps the person managing a product understand what should happen next,
 what is blocked, and what a changed priority displaces. The user sets business
 importance; Product/BFM explains feasible order and trade-offs. Use the
@@ -47,8 +50,7 @@ source of truth.
 
 Read the smallest relevant layer, in this order:
 
-1. `node tools/fb-lane.cjs status --context` or MCP
-   `fb_lane_status({context:true})` — bounded active scope, ownership, locks,
+1. `node tools/fb-lane.cjs status --context` — bounded active scope, ownership, locks,
    gates, and links.
 2. `docs/handoffs/index.md` — compact routing to the relevant handoff.
 3. The linked detailed handoff — plan, rationale, evidence, and closeout.
@@ -115,3 +117,6 @@ owner transfer, staging, or review does not request one.
   configuration evolution: [control-loop.md](control-loop.md)
 - Turning verified project outcomes into bounded lessons for later relevant
   work: [learning.md](learning.md)
+
+Use the shared [autonomy policy](autonomy.md)
+for generated project guidance. Setup preserves existing chats and active work.

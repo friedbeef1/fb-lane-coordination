@@ -558,6 +558,42 @@ function evaluateRepairOutcome(input = {}) {
   return { status: 'checking', reason: 'material-improvement-but-proof-still-fails', continue: false };
 }
 
+// Full BFM recovery ledger. The caller persists state in the existing QA
+// artifact; tool permissions, intake authority and release gates remain external.
+function evaluateBfmRecovery(saved, event = {}) {
+  const initial = { version: 1, issues: {} };
+  const validText = value => typeof value === 'string' && value.trim().length > 0;
+  const validAttempt = item => item && ['approach', 'evidenceRef', 'deltaRef'].every(key => validText(item[key]))
+    && ['failed', 'passed'].includes(item.outcome);
+  const source = saved === undefined ? initial : saved;
+  const valid = source && source.version === 1 && source.issues && !Array.isArray(source.issues)
+    && typeof source.issues === 'object' && Object.values(source.issues).every(issue =>
+      issue && Array.isArray(issue.attempts) && issue.attempts.length <= 5
+      && issue.attempts.every(validAttempt)
+      && issue.attempts.every((item, index, all) => item.outcome !== 'passed' || index === all.length - 1)
+      && new Set(issue.attempts.map(item => item.approach)).size === issue.attempts.length
+      && new Set(issue.attempts.map(item => item.deltaRef)).size === issue.attempts.length);
+  if (!valid) return { action: 'stop', state: saved, note: 'Recovery ledger is invalid; restore its evidence before continuing. Do not reset the count.' };
+  const state = JSON.parse(JSON.stringify(source));
+  const stop = note => ({ action: 'stop', state, note });
+  if (validText(event.blockingGate)) return stop(`Recovery paused: ${event.blockingGate}. Resolve this exact gate; Full Access does not authorize it.`);
+  if (!validText(event.issueId) || ['__proto__', 'constructor', 'prototype'].includes(event.issueId)) return stop('A stable issue ID is required.');
+  const issue = Object.hasOwn(state.issues, event.issueId) ? state.issues[event.issueId] : { attempts: [] };
+  if (issue.attempts.at(-1)?.outcome === 'passed') return { action: 'complete', state, note: `${event.issueId}: focused proof passed; stop recovery.` };
+  const exhausted = () => stop(`${event.issueId}: 5 unsuccessful recovery attempts. `
+    + issue.attempts.map((item, index) => `${index + 1}. ${item.approach} — ${item.evidenceRef}`).join('; ')
+    + '. Preserve the candidate and send the user the unresolved criterion and smallest needed decision/access. No sixth automatic attempt.');
+  if (issue.attempts.length >= 5) return exhausted();
+  if (!validAttempt(event)) return stop('Recovery needs a concrete approach, changed candidate/evidence reference, focused proof reference, and observed outcome.');
+  const entry = Object.fromEntries(['approach', 'evidenceRef', 'deltaRef', 'outcome'].map(key => [key, event[key].trim()]));
+  if (issue.attempts.some(item => item.approach === entry.approach || item.deltaRef === entry.deltaRef)) return stop('Unchanged recovery is not another attempt. Choose a distinct evidence-backed correction or report the blocker.');
+  issue.attempts.push(entry);
+  state.issues[event.issueId] = issue;
+  if (entry.outcome === 'passed') return { action: 'complete', state, note: `${event.issueId}: focused proof passed; stop recovery.` };
+  if (issue.attempts.length >= 5) return exhausted();
+  return { action: 'continue', state, note: `${event.issueId}: attempt ${issue.attempts.length}/5 failed. Continue with a distinct in-scope correction if available; no routine approval prompt.` };
+}
+
 function renderEfficiencyReceipt(metrics = {}) {
   const forbidden = Object.keys(metrics).find(key => /transcript|history|reasoning|secret|tokenValue|environment/i.test(key));
   if (forbidden) throw new Error('Efficiency metrics must exclude private, transcript, secret, and environment inputs.');
@@ -577,4 +613,4 @@ Circuit breaker triggered: ${metrics.circuitBreakerTriggered ? 'yes' : 'no'}
 `;
 }
 
-module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, quickPolicyForPaths, planExecutionSlices, verificationBudget, selectAutomatedChecks, runAutomatedCheck, runQuickSubmissionChecks, automatedVerificationDecision, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, createDeltaRepairPacket, evaluateRepairOutcome, renderEfficiencyReceipt };
+module.exports = { classifyExecutionMode, renderQuickRecord, parseQuickRecord, findQuickRecord, closeQuickRecord, validateQuickRecordForSubmit, classifyChangedSurface, quickPolicyForPaths, planExecutionSlices, verificationBudget, selectAutomatedChecks, runAutomatedCheck, runQuickSubmissionChecks, automatedVerificationDecision, evaluateRunBudget, hasMaterialProgress, minimalWorkerContext, createDeltaRepairPacket, evaluateRepairOutcome, evaluateBfmRecovery, renderEfficiencyReceipt };

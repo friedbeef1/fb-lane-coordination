@@ -3,6 +3,11 @@ name: fb-setup
 description: Use when a user wants to initialize, bootstrap, reconcile, repair, rename, archive, or resolve duplicate-looking FB coordination tasks in the current Codex project.
 ---
 
+Use [local tools](../../docs/fb/local-tools.md) for FB runtime operations.
+The plugin does not register an MCP server. Run the bundled or project-managed
+CLI with an explicit target repository; preserve all existing authority gates.
+
+
 # Set up FB
 
 The graph is the product-delivery map. Workstream loops investigate and improve
@@ -39,3 +44,6 @@ Report unavailable task creation, discovery, renaming, or pinning honestly and
 provide the canonical manual fallback. On a capped native non-pinned task list, use the canonical read-only local candidate plus native-detail join; never use `state_5.sqlite` alone or weaken duplicate detection. Do not duplicate setup policy here.
 This shortcut does not invoke `$bfm`, start workstream investigations, approve
 source changes, merge, publish, or deploy.
+
+Use the shared [autonomy policy](../../docs/fb/autonomy.md)
+for generated project guidance. Setup preserves existing chats and active work.

@@ -1,4 +1,5 @@
 [
+  "PRIVACY.md",
   "tools/fb-lane.cjs",
   "tools/fb-lane.test.cjs",
   "tools/fb-checkout-migration.test.cjs",
@@ -24,6 +25,8 @@
   "tools/fb-plugin-metadata.test.cjs",
   "tools/fb-two-speed.test.cjs",
   "tools/fb-efficiency.cjs",
+  "tools/fb-autonomy.test.cjs",
+  "tools/fb-local-operations.test.cjs",
   "tools/fb-doc-check.cjs",
   "tools/fb-efficiency.test.cjs",
   "tools/fb-quick-scope.test.cjs",
@@ -66,6 +69,8 @@
   "docs/evals/eval-record-template.md",
   "docs/evals/agent-behavior-scorecard-template.md",
   "docs/fb/README.md",
+  "docs/fb/autonomy.md",
+  "docs/fb/local-tools.md",
   "docs/fb/start.md",
   "docs/fb/workflow.md",
   "docs/fb/evidence.md",

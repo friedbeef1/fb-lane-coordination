@@ -1009,10 +1009,10 @@ function runHook(hookName, boardPath) {
   }
   if (config.hooks && config.hooks[hookName]) {
     const command = config.hooks[hookName];
-    console.log(`🏃 Running hook: ${hookName} ("${command}")...`);
+    console.error(`🏃 Running hook: ${hookName} ("${command}")...`);
     try {
-      execSync(command, { stdio: 'inherit', cwd: path.dirname(boardPath) });
-      console.log(`✅ Hook ${hookName} completed successfully.`);
+      execSync(command, { stdio: ['inherit', 2, 2], cwd: path.dirname(boardPath) });
+      console.error(`✅ Hook ${hookName} completed successfully.`);
     } catch (err) {
       throw new Error(`Hook ${hookName} failed: ${err.message}`);
     }
@@ -4890,6 +4890,171 @@ function sendMcpResponse(id, result, error = null) {
   process.stdout.write(JSON.stringify(response) + '\n');
 }
 
+// Both interfaces share the same operations and safety checks. No server is
+// started by the local command. Legacy MCP remains an opt-in compatibility API.
+function executeLocalOperation(name, toolArgs = {}, transport = 'local') {
+  if (!toolArgs || typeof toolArgs !== 'object' || Array.isArray(toolArgs)) {
+    throw new Error('Local operation input must be a JSON object.');
+  }
+  let message = '';
+  let structuredContent;
+  const boardPath = findBoardPath(resolveWorkspaceStart(toolArgs));
+  if (!boardPath) {
+    throw new Error('PROJECT_BOARD.md not found.');
+  }
+  const workspaceRoot = path.dirname(boardPath);
+  const previousCwd = process.cwd();
+  process.chdir(workspaceRoot);
+
+  try {
+    if (MCP_MUTATIONS.has(name)) {
+      assertCanonicalCheckout(workspaceRoot, `${name} local operation mutation`);
+    }
+    if (name === 'fb_control_event_validate') {
+      const { workspacePath, ...event } = toolArgs;
+      structuredContent = validateMcpStageEvent(event);
+      message = JSON.stringify(structuredContent);
+    } else if (name === 'fb_control_event_record') {
+      const { workspacePath, ...event } = toolArgs;
+      structuredContent = appendStageEvent(workspaceRoot, validateMcpStageEvent(event));
+      message = JSON.stringify(structuredContent);
+    } else if (name === 'fb_control_route') {
+      const { workspacePath, ...input } = toolArgs;
+      message = JSON.stringify(routeArtifact(input));
+    } else if (name === 'fb_lane_status') {
+      const migration = checkoutMigrationSnapshot(workspaceRoot);
+      const lifecycle = migration.managed ? checkoutMigrationStatusLines(migration).join('\n') : '';
+      if (!isCanonicalCheckout(migration)) {
+        throw new Error(`${lifecycle}\nFB_CHECKOUT_NOT_CANONICAL: canonical checkout is ${migration.canonicalPath}.`);
+      }
+      if (toolArgs.context) {
+        message = renderBoardContext(fs.readFileSync(boardPath, 'utf8'));
+      } else {
+        const { tasks } = parseBoard(boardPath);
+        message = toolArgs.details
+          ? renderTechnicalStatus(tasks, { format: 'mcp', workspaceRoot })
+          : renderBeginnerStatus(statusInputs(workspaceRoot, tasks));
+      }
+      if (lifecycle) message = `${message}\n${lifecycle}`;
+    } else if (name === 'fb_checkout_migration_inventory') {
+      const { workspacePath, ...request } = toolArgs;
+      message = JSON.stringify(inventoryCheckoutMigration(request), null, 2);
+    } else if (name === 'fb_checkout_migration_commit') {
+      const { workspacePath, ...request } = toolArgs;
+      const inventory = inventoryCheckoutMigration(request);
+      message = JSON.stringify(commitCheckoutMigration(inventory), null, 2);
+    } else if (name === 'fb_checkout_migration_rebind') {
+      message = JSON.stringify(recordCheckoutTaskRebind(
+        workspaceRoot,
+        toolArgs.taskInventory,
+        toolArgs.repository,
+      ), null, 2);
+    } else if (name === 'fb_project_context') {
+      const { taskId, question } = toolArgs;
+      assertSafeTaskId(taskId);
+      if (typeof question !== 'string' || question.trim().length < 8 || question.length > 500) {
+        throw new Error('A concrete context question between 8 and 500 characters is required.');
+      }
+      message = JSON.stringify(projectContextPacket(workspaceRoot, {
+        taskId,
+        question: question.trim(),
+      }), null, 2);
+    } else if (name === 'fb_learning_record') {
+      const receipt = validateLearningReceipt(toolArgs.receipt);
+      const existing = readLearningRegistry(workspaceRoot).filter(item => item.lessonId !== receipt.lessonId);
+      writeLearningRegistry(workspaceRoot, [...existing, receipt]);
+      recordLearningObservation(workspaceRoot, receipt);
+      message = JSON.stringify({ recorded: receipt.lessonId, state: receipt.state, releaseAuthorized: false });
+    } else if (name === 'fb_learning_status') {
+      const lessons = readLearningRegistry(workspaceRoot);
+      const selected = Array.isArray(toolArgs.workTypes) && toolArgs.workTypes.length
+        ? selectApplicableLessons(lessons, { workTypes: toolArgs.workTypes })
+        : lessons.filter(lesson => lesson.active);
+      message = JSON.stringify({ count: selected.length, lessons: selected.map(lesson => ({ lessonId: lesson.lessonId, state: lesson.state, workTypes: lesson.workTypes, treatment: lesson.treatment, owningRecord: lesson.owningRecord })) }, null, 2);
+    } else if (name === 'fb_learning_apply') {
+      const result = applyLearningObservation(workspaceRoot, toolArgs.lessonId, toolArgs.observation);
+      message = JSON.stringify({ lessonId: result.lessonId, state: result.state, reason: result.reason, releaseAuthorized: false });
+    } else if (name === 'fb_lane_claim') {
+      const { taskId, lane, lockedFiles } = toolArgs;
+      assertSafeTaskId(taskId);
+      assertSafeLane(lane);
+      const output = execFileSync(process.execPath, [__filename, 'claim', taskId, lane, lockedFiles || '(None)'], {
+        cwd: workspaceRoot,
+        env: process.env,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+      const branch = (output.match(/^\s*- Branch:\s*(.+)$/mi) || [])[1];
+      const worktreeLine = (output.match(/^\s*- Worktree:\s*(.+)$/mi) || [])[1];
+      const worktree = worktreeLine ? worktreeLine.replace(/\s+\(board stays authoritative.*$/, '').trim() : '';
+      if (!branch || !worktree) throw new Error('Linked-worktree claim completed without branch/worktree details.');
+      const formattedLocks = !lockedFiles ? '(None)' : lockedFiles.split(',').map(file => `\`${file.trim()}\``).join(', ');
+      message = `Successfully claimed ${taskId}.\nBranch: ${branch.trim()}\nWorktree: ${worktree}\nLocks: ${formattedLocks}`;
+    } else if (name === 'fb_lane_submit') {
+      const { taskId, stagingUrl } = toolArgs;
+      const result = performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl: stagingUrl, bypassRequested: false, transport });
+      message = formatAutomatedSubmission(result);
+    } else if (name === 'fb_lane_merge') {
+      const { taskId } = toolArgs;
+      assertSafeTaskId(taskId);
+
+      runHook('pre-merge', boardPath);
+
+      const { tasks } = parseBoard(boardPath);
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) throw new Error(`Task ${taskId} not found.`);
+
+      const slug = task.scope.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      let targetBranch = '';
+      try {
+        const branches = runGit('branch --list').split('\n').map(b => b.replace('*', '').trim());
+        targetBranch = branches.find(b => b.includes(taskId)) || '';
+      } catch (err) {}
+      if (!targetBranch) {
+        const ownerLane = task.owner.replace('FB-', '').toLowerCase();
+        targetBranch = `${ownerLane}/${taskId}-${slug}`;
+      }
+
+      runGit('checkout main');
+      runGit('pull origin main');
+      runGit(["merge", assertSafeBranchName(targetBranch)]);
+
+      const compaction = completeBoardTask(boardPath, taskId);
+      const archivePaths = compaction.archivePath
+        ? [path.relative(path.dirname(boardPath), compaction.archivePath)]
+        : [];
+
+      commitBoard(`docs: complete ${taskId} and release locks`, [...archivePaths, ...compaction.managedCardPaths]);
+      runGit('push origin main');
+
+      try { runGit(["branch", "-d", assertSafeBranchName(targetBranch)]); } catch (e) {}
+      const contextPath = path.join(path.dirname(boardPath), '.codex', 'current_task.md');
+      if (fs.existsSync(contextPath)) {
+        try { fs.unlinkSync(contextPath); } catch(e) {}
+      }
+
+      runHook('post-merge', boardPath);
+
+      message = `Successfully merged ${targetBranch} and completed ${taskId}. Locks released.`;
+    } else {
+      throw new Error(`Unknown tool name: ${name}`);
+    }
+  } finally {
+    process.chdir(previousCwd);
+  }
+
+  const response = {
+    content: [
+      {
+        type: 'text',
+        text: message
+      }
+    ]
+  };
+  if (structuredContent) response.structuredContent = structuredContent;
+  return response;
+}
+
 function handleMcpRequest(request) {
   const { method, id, params } = request;
 
@@ -5093,175 +5258,16 @@ function handleMcpRequest(request) {
   if (method === 'tools/call') {
     const { name, arguments: toolArgs = {} } = params;
     try {
-      let message = '';
-      let structuredContent;
-      const boardPath = findBoardPath(resolveWorkspaceStart(toolArgs));
-      if (!boardPath) {
-        throw new Error('PROJECT_BOARD.md not found.');
-      }
-      const workspaceRoot = path.dirname(boardPath);
-      const previousCwd = process.cwd();
-      process.chdir(workspaceRoot);
-
-      try {
-        if (MCP_MUTATIONS.has(name)) {
-          assertCanonicalCheckout(workspaceRoot, `${name} MCP mutation`);
-        }
-        if (name === 'fb_control_event_validate') {
-          const { workspacePath, ...event } = toolArgs;
-          structuredContent = validateMcpStageEvent(event);
-          message = JSON.stringify(structuredContent);
-        } else if (name === 'fb_control_event_record') {
-          const { workspacePath, ...event } = toolArgs;
-          structuredContent = appendStageEvent(workspaceRoot, validateMcpStageEvent(event));
-          message = JSON.stringify(structuredContent);
-        } else if (name === 'fb_control_route') {
-          const { workspacePath, ...input } = toolArgs;
-          message = JSON.stringify(routeArtifact(input));
-        } else if (name === 'fb_lane_status') {
-          const migration = checkoutMigrationSnapshot(workspaceRoot);
-          const lifecycle = migration.managed ? checkoutMigrationStatusLines(migration).join('\n') : '';
-          if (!isCanonicalCheckout(migration)) {
-            throw new Error(`${lifecycle}\nFB_CHECKOUT_NOT_CANONICAL: canonical checkout is ${migration.canonicalPath}.`);
-          }
-          if (toolArgs.context) {
-            message = renderBoardContext(fs.readFileSync(boardPath, 'utf8'));
-          } else {
-            const { tasks } = parseBoard(boardPath);
-            message = toolArgs.details
-              ? renderTechnicalStatus(tasks, { format: 'mcp', workspaceRoot })
-              : renderBeginnerStatus(statusInputs(workspaceRoot, tasks));
-          }
-          if (lifecycle) message = `${message}\n${lifecycle}`;
-        } else if (name === 'fb_checkout_migration_inventory') {
-          const { workspacePath, ...request } = toolArgs;
-          message = JSON.stringify(inventoryCheckoutMigration(request), null, 2);
-        } else if (name === 'fb_checkout_migration_commit') {
-          const { workspacePath, ...request } = toolArgs;
-          const inventory = inventoryCheckoutMigration(request);
-          message = JSON.stringify(commitCheckoutMigration(inventory), null, 2);
-        } else if (name === 'fb_checkout_migration_rebind') {
-          message = JSON.stringify(recordCheckoutTaskRebind(
-            workspaceRoot,
-            toolArgs.taskInventory,
-            toolArgs.repository,
-          ), null, 2);
-        } else if (name === 'fb_project_context') {
-          const { taskId, question } = toolArgs;
-          assertSafeTaskId(taskId);
-          if (typeof question !== 'string' || question.trim().length < 8 || question.length > 500) {
-            throw new Error('A concrete context question between 8 and 500 characters is required.');
-          }
-          message = JSON.stringify(projectContextPacket(workspaceRoot, {
-            taskId,
-            question: question.trim(),
-          }), null, 2);
-        } else if (name === 'fb_learning_record') {
-          const receipt = validateLearningReceipt(toolArgs.receipt);
-          const existing = readLearningRegistry(workspaceRoot).filter(item => item.lessonId !== receipt.lessonId);
-          writeLearningRegistry(workspaceRoot, [...existing, receipt]);
-          recordLearningObservation(workspaceRoot, receipt);
-          message = JSON.stringify({ recorded: receipt.lessonId, state: receipt.state, releaseAuthorized: false });
-        } else if (name === 'fb_learning_status') {
-          const lessons = readLearningRegistry(workspaceRoot);
-          const selected = Array.isArray(toolArgs.workTypes) && toolArgs.workTypes.length
-            ? selectApplicableLessons(lessons, { workTypes: toolArgs.workTypes })
-            : lessons.filter(lesson => lesson.active);
-          message = JSON.stringify({ count: selected.length, lessons: selected.map(lesson => ({ lessonId: lesson.lessonId, state: lesson.state, workTypes: lesson.workTypes, treatment: lesson.treatment, owningRecord: lesson.owningRecord })) }, null, 2);
-        } else if (name === 'fb_learning_apply') {
-          const result = applyLearningObservation(workspaceRoot, toolArgs.lessonId, toolArgs.observation);
-          message = JSON.stringify({ lessonId: result.lessonId, state: result.state, reason: result.reason, releaseAuthorized: false });
-        } else if (name === 'fb_lane_claim') {
-          const { taskId, lane, lockedFiles } = toolArgs;
-          assertSafeTaskId(taskId);
-          assertSafeLane(lane);
-          const output = execFileSync(process.execPath, [__filename, 'claim', taskId, lane, lockedFiles || '(None)'], {
-            cwd: workspaceRoot,
-            env: process.env,
-            encoding: 'utf8',
-            stdio: ['ignore', 'pipe', 'pipe'],
-          });
-          const branch = (output.match(/^\s*- Branch:\s*(.+)$/mi) || [])[1];
-          const worktreeLine = (output.match(/^\s*- Worktree:\s*(.+)$/mi) || [])[1];
-          const worktree = worktreeLine ? worktreeLine.replace(/\s+\(board stays authoritative.*$/, '').trim() : '';
-          if (!branch || !worktree) throw new Error('Linked-worktree claim completed without branch/worktree details.');
-          const formattedLocks = !lockedFiles ? '(None)' : lockedFiles.split(',').map(file => `\`${file.trim()}\``).join(', ');
-          message = `Successfully claimed ${taskId}.\nBranch: ${branch.trim()}\nWorktree: ${worktree}\nLocks: ${formattedLocks}`;
-        } else if (name === 'fb_lane_submit') {
-          const { taskId, stagingUrl } = toolArgs;
-          const result = performAutomatedSubmission({ workspaceRoot, taskId, optionalReviewUrl: stagingUrl, bypassRequested: false, transport: 'mcp' });
-          message = formatAutomatedSubmission(result);
-        } else if (name === 'fb_lane_merge') {
-          const { taskId } = toolArgs;
-          assertSafeTaskId(taskId);
-
-          runHook('pre-merge', boardPath);
-
-          const { tasks } = parseBoard(boardPath);
-          const task = tasks.find(t => t.id === taskId);
-          if (!task) throw new Error(`Task ${taskId} not found.`);
-
-          const slug = task.scope.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-          let targetBranch = '';
-          try {
-            const branches = runGit('branch --list').split('\n').map(b => b.replace('*', '').trim());
-            targetBranch = branches.find(b => b.includes(taskId)) || '';
-          } catch (err) {}
-          if (!targetBranch) {
-            const ownerLane = task.owner.replace('FB-', '').toLowerCase();
-            targetBranch = `${ownerLane}/${taskId}-${slug}`;
-          }
-
-          runGit('checkout main');
-          runGit('pull origin main');
-          runGit(["merge", assertSafeBranchName(targetBranch)]);
-
-          const compaction = completeBoardTask(boardPath, taskId);
-          const archivePaths = compaction.archivePath
-            ? [path.relative(path.dirname(boardPath), compaction.archivePath)]
-            : [];
-
-          commitBoard(`docs: complete ${taskId} and release locks`, [...archivePaths, ...compaction.managedCardPaths]);
-          runGit('push origin main');
-
-          try { runGit(["branch", "-d", assertSafeBranchName(targetBranch)]); } catch (e) {}
-          const contextPath = path.join(path.dirname(boardPath), '.codex', 'current_task.md');
-          if (fs.existsSync(contextPath)) {
-            try { fs.unlinkSync(contextPath); } catch(e) {}
-          }
-
-          runHook('post-merge', boardPath);
-
-          message = `Successfully merged ${targetBranch} and completed ${taskId}. Locks released.`;
-        } else {
-          throw new Error(`Unknown tool name: ${name}`);
-        }
-      } finally {
-        process.chdir(previousCwd);
-      }
-
-      const response = {
-        content: [
-          {
-            type: 'text',
-            text: message
-          }
-        ]
-      };
-      if (structuredContent) response.structuredContent = structuredContent;
-      return sendMcpResponse(id, response);
+      return sendMcpResponse(id, executeLocalOperation(name, toolArgs, 'mcp'));
     } catch (err) {
-      return sendMcpResponse(id, null, {
-        code: -32603,
-        message: err.message
-      });
+      return sendMcpResponse(id, null, { code: -32603, message: err.message });
     }
   }
 
   // Ignore other JSON-RPC methods (like notifications)
 }
 
-const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md', 'control-loop.md', 'learning.md'];
+const FB_HARNESS_PAGES = ['README.md', 'start.md', 'workflow.md', 'evidence.md', 'guardrails.md', 'sessions.md', 'evals.md', 'records.md', 'graph.md', 'control-loop.md', 'learning.md', 'local-tools.md', 'autonomy.md'];
 const FB_HARNESS_ROUTE_START = '<!-- fb-harness-route-start -->';
 const FB_HARNESS_ROUTE_END = '<!-- fb-harness-route-end -->';
 
@@ -5273,11 +5279,12 @@ The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.
 
-Default execution uses focused proof per slice, one consolidated behavioral
-repair maximum across the candidate, one whole-candidate review, and one final
-release checkpoint. Do not create separate review or re-review loops for
-individual slices. Safety, sensitive-operation, authority, worktree/lock,
-changelog, and **Push Live** gates remain unchanged.
+Default execution uses focused proof per slice, one whole-candidate review,
+and one final release checkpoint. Follow [Autonomous BFM](docs/fb/autonomy.md):
+an explicit user invocation shows the plan and continues routine authorized
+work without another okay. Full BFM recovery permits up to five distinct,
+evidence-backed attempts per issue; counts survive slices and resumes. Quick
+budgets, safety, authority, locks and **Push Live** gates remain controlling.
 
 The visible workflow is **Goal → Split → only the relevant workstreams →
 Verify evidence → Merge findings → Implement → Verify candidate → One clear
@@ -5287,8 +5294,7 @@ Internal records and route names remain diagnostic rather than extra user
 steps.
 
 Read [the FB harness](docs/fb/README.md) after using
-\`node tools/fb-lane.cjs status --context\` or
-\`fb_lane_status({context:true})\` for active work and locks. Then follow
+\`node tools/fb-lane.cjs status --context\` for active work and locks. Then follow
 \`docs/handoffs/index.md\` and the linked handoff. Open the full
 \`PROJECT_BOARD.md\` only when the compact packet is insufficient or
 contradictory. Use the focused page that matches the task:
@@ -5316,8 +5322,9 @@ former roots quarantined and recoverable. Only **Push Live** authorizes release.
 
 For returning-project health, use \`$fb-lane status\` for the beginner card.
 For routine operational orientation, use CLI
-\`node tools/fb-lane.cjs status --context\` or MCP
-\`fb_lane_status({context:true})\`. Reserve \`--details\` for raw diagnostics.
+\`node tools/fb-lane.cjs status --context\`. Reserve \`--details\` for raw diagnostics.
+Use [local tools](docs/fb/local-tools.md) for structured operations; no MCP
+server is registered or required by the plugin.
 
 - First project, plan, lanes, or approval: [start.md](docs/fb/start.md)
 - Ownership, BFM execution, and closeout: [workflow.md](docs/fb/workflow.md)
@@ -5796,7 +5803,29 @@ function main() {
     }
   }
 
-  if (command === 'session') {
+  if (command === 'local') {
+    try {
+      if (args.length !== 3) throw new Error('Usage: local <operation> <request.json>');
+      const requestPath = path.resolve(args[2]);
+      const stat = fs.statSync(requestPath);
+      if (!stat.isFile() || stat.size > 1024 * 1024) throw new Error('Request must be a regular JSON file no larger than 1 MiB.');
+      const input = JSON.parse(fs.readFileSync(requestPath, 'utf8'));
+      let result;
+      const previousLog = console.log;
+      try {
+        // Human diagnostics (including commit/no-change messages) must not
+        // contaminate this command's single machine-readable stdout value.
+        console.log = (...messages) => console.error(...messages);
+        result = executeLocalOperation(args[1], input);
+      } finally {
+        console.log = previousLog;
+      }
+      console.log(JSON.stringify({ ok: true, result }));
+    } catch (error) {
+      console.log(JSON.stringify({ ok: false, error: error.message }));
+      process.exitCode = 1;
+    }
+  } else if (command === 'session') {
     try {
       runSessionCommand(args.slice(1));
     } catch (err) {
@@ -5875,6 +5904,7 @@ function main() {
 🤖 FB-Lane Automation Tool
 ==========================
 Usage:
+  node tools/fb-lane.cjs local <operation> <request.json> - Run a structured local operation without MCP
   ${sessionUsage()}
   node tools/fb-lane.cjs bootstrap [--platform codex]   - Bootstrap project board, rules, tools, and folders
   node tools/fb-lane.cjs doctor                         - Check FB-Lane setup health without writing files
@@ -5903,6 +5933,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  executeLocalOperation,
   captureQuickCandidateScope,
   collectQuickCandidateChanges,
   assertQuickCandidateUnchanged,

@@ -63,7 +63,7 @@ For a known task and concrete question, follow [Canonical known-task orientation
 ## Start
 
 1. Read `AGENTS.md`, then use the canonical compact packet and open only relevant linked Business records.
-2. Check active locks with MCP `fb_lane_status({details:true})` or CLI `node tools/fb-lane.cjs status --details`.
+2. Check active locks with `node tools/fb-lane.cjs status --details`.
 3. Report from authoritative records cited by the compact packet; open the full board only under its fallback rule.
 4. In normal workstream chat, write markdown copy plans/handoffs only. Claim documentation tasks only when Product/BFM asks you to update coordination markdown.
 5. If the user says `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM, confirm whether to prepare the Product/BFM handoff or execute here as an explicit one-off exception before editing source.

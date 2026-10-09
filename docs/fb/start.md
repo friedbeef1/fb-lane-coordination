@@ -81,10 +81,10 @@ result**.
 
 1. **Goal:** describe the outcome in the workstream that best matches the question.
 2. **Split:** FB identifies only the relevant workstream questions. Unrelated workstreams remain idle.
-3. **Relevant workstreams:** investigate the questions that matter, in parallel when independent. Say **Send this to Product** when a recommendation is actionable. This saves its handoff and authorizes an exact-task notification. Product may acknowledge it, but does not start a BFM cycle. See [delivery states](workflow.md#product-handoff-delivery-states) for honest saved-only fallback.
+3. **Relevant workstreams:** investigate the questions that matter, in parallel when independent. Say **Send this to Product** when a recommendation is actionable and ready for Product intake. This saves its handoff and authorizes an exact-task notification. Product may acknowledge it, but does not start a BFM cycle. See [delivery states](workflow.md#product-handoff-delivery-states) for honest saved-only fallback.
 4. **Verify evidence:** the user says `$bfm` in Product/BFM. Product freezes the intake and checks support, duplicates, contradictions, freshness, blockers, and acceptance criteria.
 5. **Merge findings:** Product must disposition every candidate before source execution, resolve dependencies and conflicts, and merge the included findings into one Project Start Brief and Build Brief. This is synthesis—not a Git merge.
-6. **Preview, then implement:** Product shows the [prioritized queue and short scaffold](workflow.md#queue-preview-and-approval). Say **okay** to approve its current Include now scope. BFM then turns that plan into bounded execution slices and integrates their focused, passing results; no repeated per-slice approvals.
+6. **Preview, then implement:** Product shows the [prioritized queue and short scaffold](workflow.md#queue-preview-and-approval). An explicit `$bfm` invokes the cycle; after the preview BFM proceeds within that scope without another okay. BFM then turns that plan into bounded execution slices and integrates their focused, passing results; no repeated per-slice approvals.
 7. **Verify candidate:** Product/BFM performs one fresh-context integrated candidate verification against the approved brief and required evidence.
 8. **One clear result:** FB reports the delivered outcome, evidence, limits, and **Ready to ship**. Only **Push Live** authorizes release, Git merge, or deployment.
 

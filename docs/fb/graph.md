@@ -36,10 +36,10 @@ weakens approval, safety, or release authority.
 
 For a known task and concrete question, read `AGENTS.md`, then use this route:
 
-1. Call MCP `fb_project_context` with `taskId`, `question`, and the workspace
-   path when needed. If MCP is unavailable, use
-   `node tools/fb-lane.cjs status --context` (or MCP
-   `fb_lane_status({context:true})`).
+1. Run `node tools/fb-lane.cjs local fb_project_context request.json` with
+   `taskId`, `question`, and `workspacePath` in the JSON request. See
+   [local tools](local-tools.md). If the context packet is unavailable, use
+   `node tools/fb-lane.cjs status --context`.
 2. Treat the compact packet as navigation, not authority. Open only the
    relevant cited authoritative records, including the exact handoff and
    workstream card when the question needs them. The graph packet is capped

@@ -13,6 +13,7 @@
 
 | ID | Status | Owner | Area | Scope | Affected Screens / Locks | Links & Deliverables |
 |---|---|---|---|---|---|---|
+| TASK-098 | Staging QA | Product/BFM current task | Flow Builder `0.10.5-beta+codex.20261009113735` | Recovered local-command plugin and autonomous BFM release | Source frozen; release checks pending | [Handoff](docs/handoffs/TASK-098.md); [QA](docs/qa/TASK-098.md) |
 | TASK-096 | Staging QA | Product/BFM, current task | PM-first prioritization and priority-change guidance | Explain recommended sequence, blockers, displacement and native-agent boundary; notification-only acknowledgment; explainer script | Source complete in isolated `codex/pm-priority-explainer`; no consumer locks | [Handoff](docs/handoffs/TASK-096.md); [QA](docs/qa/TASK-096.md); focused checks and one review passed; not installed or released |
 | TASK-095 | Staging QA | Product/BFM, current task | Passive Product intake signal; FB `0.10.3-beta+codex.20260928093237` candidate | Unshipped no-message policy amended by TASK-096: brief acknowledgment allowed, no automatic BFM cycle | No new consumer changes; historical adoption proof retained | [Handoff](docs/handoffs/TASK-095.md); [QA](docs/qa/TASK-095.md); amended consumer adoption not claimed; release waits for Push Live |
 | TASK-094 | Done | Product/BFM, current task | Editable queue preview and complete intake repair | All four real planning scans passed; FB 0.10.2 merged, published through the Git marketplace, and installed | None; locks released and app work preserved | [PR #73](https://github.com/friedbeef1/fb-lane-coordination/pull/73); [Handoff](docs/handoffs/TASK-094.md); [QA](docs/qa/TASK-094.md) |
@@ -48,6 +49,20 @@
 | TASK-Q-20260713-SIDECHAT-PARENT | Done | FB-Product | Coordination | Define and distribute a parent-thread-only sidechat handoff rule for this project and the Codex FB-Lane plugin | `docs/sidechat-parent-thread-routing.md`, `AGENTS.md`, bundled FB-Lane coordination skills and docs | [Handoff](docs/handoffs/TASK-Q-20260713-SIDECHAT-PARENT.md); released in [PR #39](https://github.com/friedbeef1/fb-lane-coordination/pull/39) as `0.2.0-beta+codex.20260716052513` |
 
 ---
+
+### TASK-098 - Autonomous Flow Builder release
+
+* **Owner / Thread**: Product/BFM current task.
+* **Scope**: Canonical autonomy, recovered submitted local-command plugin, generated mirrors, metadata, GitHub and portal release.
+* **Goal Alignment Session**:
+    * **Objective**: Continue routine BFM work independently with bounded evidence-backed recovery.
+    * **Key Results**: Visible plan followed by execution; passive arrivals stay idle; fifth failed correction stops; package and remote identity verified.
+    * **Definition of Done**: Focused proof, parity, candidate review, release checkpoint and exact publication results recorded.
+    * **Gate / Review Point**: Candidate checks precede release; portal approval controls publication.
+    * **Approval**: approved — James explicitly requests update, upload, publication and GitHub update in this conversation.
+    * **Justification**: Repeated routine approval stops obstruct authorized progress while existing sensitive and release gates remain necessary.
+* **Locks**: Runtime, skills, docs, plugin and release records in isolated checkout.
+* **Links & Deliverables**: [Handoff](docs/handoffs/TASK-098.md); [QA](docs/qa/TASK-098.md).
 
 ### TASK-096 - PM-first priorities and explainer
 

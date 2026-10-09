@@ -1,4 +1,12 @@
-# FB Coordination for Codex
+# Flow Builder (FB) for Codex
+
+Skills and local commands; no FB MCP server is required. See
+[local tools](docs/fb/local-tools.md) for runtime access and compatibility.
+The existing `$fb-setup` and `$bfm` workflow, project records, tasks and release
+gates are unchanged.
+
+Finding Flow Builder useful? You can [star the project on GitHub](https://github.com/friedbeef1/fb-lane-coordination).
+This is optional and never required to install or use the plugin.
 
 **Know what to do next—and what changes when priorities change.**
 FB helps you reconcile product requests into a reasoned queue: prerequisites,
@@ -29,8 +37,8 @@ FB harness. **FB — Graph Engineering for Everyday People** is an open-source
 Codex plugin that turns scattered AI conversations into a living
 product-delivery graph. It has six evidence-producing workstreams plus one
 Product/BFM control centre and seven pinned repository-scoped Codex tasks. The
-current release candidate is **FB 0.10.3-beta**
-`0.10.3-beta+codex.20260928093237`.
+current release candidate is **FB 0.10.5-beta**
+`0.10.5-beta+codex.20261009113735`.
 
 The visible workflow is **Goal → Split → only the relevant workstreams →
 Verify evidence → Merge findings → Implement → Verify candidate → One clear

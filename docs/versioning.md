@@ -2,11 +2,11 @@
 
 ## Current Naming
 
-The current GitHub documentation line uses the FB 0.10.3-beta product name and
+The current GitHub documentation line uses the FB 0.10.5-beta product name and
 the tagline **Graph Engineering for Everyday People**.
 
 The Codex plugin manifest for this line is
-`0.10.3-beta+codex.20260928093237`. This is the current release candidate.
+`0.10.5-beta+codex.20261009113735`. This is the current release candidate.
 
 Codex is the only supported and released integration. Claude Code and
 Antigravity are paused; contributors can use the
@@ -14,7 +14,7 @@ Antigravity are paused; contributors can use the
 
 ## Before And After
 
-| Area | v1: four-lane coordination plugin | Latest: FB 0.10.3-beta |
+| Area | v1: four-lane coordination plugin | Latest: FB 0.10.5-beta |
 |---|---|---|
 | Core idea | Split work across Product, Tech, Design, and Business lanes. | Use Graph Engineering to connect six evidence-producing workstreams through one Product/BFM control centre. |
 | Product role | Sequence and review lane work. | Product/BFM owns goals, BFM execution launch, reconciliation, merge gates, and release decisions. |
@@ -31,12 +31,12 @@ Antigravity are paused; contributors can use the
 | Closeout visibility | Status could live only in Product chat or a summary card. | Every acted-on handoff gets `## Product/BFM Result`, its originating workstream card refreshes, and one exact-task passive result summary returns to that lane. |
 | Safety | Basic board locks and lane boundaries. | `doctor`, CI readiness, clean/intentionally dirty state, and provider cleanup evidence. |
 | Learning | Mostly manual retros. | `Loop Learning` proposes guardrails, automation, or evals only after repeated failures. |
-| Autonomy | User approves most decisions. | Shadow Approval first; bounded self-approval only after user-approved phase changes. |
+| Autonomy | Routine steps often returned to the user. | Explicit BFM invocation shows the plan and proceeds within scope, with five cumulative recovery attempts per issue and preserved safety/release gates. |
 | Safe unblock | Blockers often became user prompts. | BFM recommends and executes safe unblock paths inside approved scope; hard gates still stop. |
 | Frontend planning | Visual decisions could stay in chat. | Frontend handoffs name `Visual Preview Decision` before source execution when visual uncertainty matters. |
 | Returning lanes | Re-read board and handoffs. | Workstream status cards show what Product/BFM already executed or deferred. |
 | Historical orientation | Completed narrative commonly remained in routine context. | Current packets and cards show genuine active state; archives, exact handoffs, QA, and Git remain searchable when needed. |
-| Plugin builds | Build labels could look stale after docs changed. | The current Codex release candidate is `0.10.3-beta+codex.20260928093237`; explicit **Push Live** invokes `fb-release` for source-aware publication and installed-runtime proof. |
+| Plugin builds | Build labels could look stale after docs changed. | The current Codex release candidate is `0.10.5-beta+codex.20261009113735`; explicit **Push Live** invokes `fb-release` for source-aware publication and installed-runtime proof. |
 
 ## Practical Meaning
 

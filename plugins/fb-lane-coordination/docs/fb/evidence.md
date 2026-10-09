@@ -159,7 +159,7 @@ Choose proof by environment:
 | Canonical source checkout | Source/runtime contracts, package generation and parity, targeted record preflight, Doctor, and the repository release validator. |
 | Fresh clone or CI | Portability, clean-checkout behavior, package generation, and supported repository tests without clone-local state. |
 | Configured marketplace | Proven source identity and the refresh route appropriate to its local or Git source type. |
-| Installed cache | Exact installed version and package identity, skill discovery, runtime syntax or exports, bundled manifest, and MCP resolution. |
+| Installed cache | Exact installed version and package identity, skill discovery, runtime syntax or exports, bundled manifest, and local-command resolution. |
 
 An installed cache is not a source checkout. Do not use a root-only package
 manifest or source-layout test as installed-runtime authority. Public release

@@ -4,11 +4,11 @@ The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.
 
-Default execution uses focused proof per slice, one consolidated behavioral
-repair maximum across the candidate, one whole-candidate review, and one final
-release checkpoint. Do not create separate review or re-review loops for
-individual slices. Safety, sensitive-operation, authority, worktree/lock,
-changelog, and **Push Live** gates remain unchanged.
+Default execution uses focused proof per slice, one whole-candidate review,
+and one final release checkpoint. Product-directed Full BFM recovery follows
+[Autonomous BFM](autonomy.md): up to five distinct evidence-backed
+attempts per issue, with a cumulative ledger across slices and resumes.
+Quick slice budgets, safety, locks and **Push Live** gates remain controlling.
 
 The [generic control loop](control-loop.md) inherits every safety, approval,
 repair, time, and release boundary here. Routing cannot bypass a safety trigger;
@@ -241,18 +241,12 @@ contract changes reporting and completion semantics only.
 
 ### Product-directed circuit-breaker recovery
 
-Product direction is not automatically a user prompt. A circuit breaker stops
-automatic workers and repeated gates; it does not return routine recovery
-ownership to the user. Product/BFM may authorize one bounded Product-directed
-recovery when the failure has a concrete cause, the correction stays inside
-approved scope, and no user decision or safety/hard gate changes. Make one
-consolidated correction, run the focused proof, then run the necessary final
-release pass when that checkpoint was already approved.
-
-Ask the user only when recovery changes the product outcome, scope, or priority;
-weakens acceptance or evidence; crosses a safety or hard gate; has no concrete
-correction or material progress; or the one Product-directed recovery fails.
-There is at most one such recovery per checkpoint.
+Follow [Autonomous BFM](autonomy.md): continue routine authorized work and
+record up to five distinct evidence-backed recovery attempts per issue. Counts
+survive reslicing, worker changes and resumes. Stop on success, the fifth failure,
+a real gate, or when no safe supported correction remains. Keep the initial
+plus final broad release-checkpoint limit; five focused attempts do not permit
+five validators or reviewers.
 
 The time limits apply per planned slice, not to the whole product outcome.
 Quick BFM is one slice: documentation/coordination normally targets 5 minutes
@@ -262,9 +256,8 @@ No slice gets its own review loop; the combined candidate gets one
 whole-candidate review. Full BFM may run for hours by
 coordinating multiple slices. It may use agents or subagents concurrently only
 for independent, non-overlapping locks; dependencies, shared files, sensitive
-work, and unresolved decisions remain sequential. All slices stop on success, a
-repeated broad validator, one no-progress cycle, or an exceeded declared slice
-budget. Replan or resplit unfinished work without invalidating completed slices.
+work, and unresolved decisions remain sequential. Quick slices retain their bounded budget; Product-directed Full recovery
+uses the cumulative issue ceiling. All work stops on success or a real gate. Replan or resplit unfinished work without invalidating completed slices.
 A release checkpoint permits one initial full
 pass and, only after that pass fails and a consolidated material repair batch,
 one final pass. A third repair, no progress, an unjustified repeated broad gate,

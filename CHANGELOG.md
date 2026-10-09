@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.10.5-beta — 2026-10-09
+
+Build: `0.10.5-beta+codex.20261009113735`.
+
+**What changed:** Flow Builder shows the prioritized plan and continues routine
+work after an explicit BFM invocation. Full BFM can make up to five distinct,
+evidence-backed recovery attempts per issue. The plugin uses local commands
+without registering an MCP server, and keeps passive handoff acknowledgments
+separate from BFM execution.
+
+**Why it matters:** Product managers can explore deeply in existing workstream
+chats and start an explained delivery cycle without repeatedly saying proceed.
+Failures retain one cumulative recovery history and a clear stopping point.
+
+**Compatibility:** Existing chats, task IDs, project work, handoffs and local
+commands remain compatible. Full Access does not replace scope, privacy,
+spending or release authority. Existing safety and Push Live gates remain.
+
+**Installation or upgrade:** Update the `fb-lane` marketplace and install
+`fb-lane-coordination@fb-lane` through Codex. Updated skills load in fresh task
+context; existing chat history is retained. Official portal publication depends
+on review approval. No consumer app deployment is included.
+
 ## Unreleased — Product priorities and delivery implications
 
 **What changed:** Product/BFM guidance now explains recommended next work,

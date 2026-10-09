@@ -56,3 +56,10 @@ Setup and `$bfm` mutate only the active canonical checkout. Before execution,
 Product/BFM shows the complete intake ledger for all six evidence workstreams
 plus the control centre. Checkout moves use transactional migration and keep
 former roots quarantined and recoverable. Only **Push Live** authorizes release.
+
+## Autonomous BFM
+
+Follow [Autonomous BFM](docs/fb/autonomy.md) for routine continuation after an
+explicit user invocation, the cumulative five-attempt recovery ceiling and
+permission versus scope. Passive handoff pings stay queued. End user-facing
+updates with separate **TLDR:** and **Recommendation:** lines.

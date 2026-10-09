@@ -4,11 +4,11 @@ The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.
 
-Default execution uses focused proof per slice, one consolidated behavioral
-repair maximum across the candidate, one whole-candidate review, and one final
-release checkpoint. Do not create separate review or re-review loops for
-individual slices. Safety, sensitive-operation, authority, worktree/lock,
-changelog, and **Push Live** gates remain unchanged.
+Default execution uses focused proof per slice, one whole-candidate review,
+and one final release checkpoint. Product-directed Full BFM recovery follows
+[Autonomous BFM](autonomy.md): up to five distinct evidence-backed
+attempts per issue, with a cumulative ledger across slices and resumes.
+Quick slice budgets, safety, locks and **Push Live** gates remain controlling.
 
 ## Two connected graphs, one visible workflow
 
@@ -270,25 +270,21 @@ outcome and readiness. Keep independent work identifiable and non-runnable
 items visible. Never turn scanner errors into an empty-queue claim: report
 known candidates and the exact incomplete/contradictory intake blocker.
 
-**Wait for “okay” before source execution.** Record the displayed Include now
-scope only after the user has had the opportunity to change it. Invite plain
-language edits such as “do B first”, “defer A”, or “add C”. Reconcile each edit
-against dependencies, conflicts and gates, then show the revised preview and
-wait for approval; never silently execute a requested queue change. Record the
-scope and its approval in the existing Build Brief/handoff. Approval covers
-only that current scope through Ready to ship; a new ordinary handoff waits
-for the next cycle. Material scope, priority, decision, dependency, lock or
-safety changes require a refreshed preview and any applicable gate. Reuse the
-approved preview when nothing material changed; do not ask between slices or
-routine repairs. A complete queue with no Include now work stops without asking
-for meaningless execution approval.
+An explicit user `$bfm` invocation in Product/BFM authorizes the routine
+planning and execution cycle within the stated outcome. Recognize `/bfm` as
+that intent where supported. Show the complete prioritized queue and record
+the Build Brief, then proceed without a second okay/go-ahead request. The user
+can reorder, add, remove or defer items; reconcile those changes and refresh
+the visible plan. Pause only for a missing material decision, disputed priority,
+unclear scope or an existing sensitive-operation gate. An empty Include now
+queue stops with an empty-queue report. Passive handoff notifications remain
+queued and do not invoke the cycle.
 
-This queue-specific approval supersedes older no-second-approval guidance and
-standing general permission to proceed. It is not permission to release:
-**“okay” does not mean Push Live**. Onboarding, exact-task identity, locks,
-worktrees, sensitive operations, verification and Push Live gates still apply.
-An explicit approval of a displayed implementation plan counts for that exact
-scope; do not ask again merely to change the format of its approval.
+Follow [Autonomous BFM](autonomy.md) for continuing routine work and the
+cumulative five-attempt issue recovery ceiling. Full Access supplies tool
+capability; it does not supply new scope, spending or release authority.
+Exact-task identity, locks, worktrees, verification and **Push Live** gates
+remain controlling. Review-only requests remain read-only.
 
 ## Product priorities and delivery implications
 
@@ -392,7 +388,7 @@ approves the changelog without a user prompt and records
 
 After focused checks and candidate-bound changelog verification pass,
 Product/BFM also authorizes one initial release checkpoint without a user
-prompt. The existing one-repair and no-progress circuit breakers still apply.
+prompt. The cumulative recovery ceiling in [Autonomous BFM](autonomy.md) applies; Quick and release-checkpoint limits remain unchanged.
 This delegation never authorizes a changed product outcome, material scope or
 priority decision, weakened evidence, privacy/auth/payment/provider/destructive
 operation, or other sensitive gate. Ask the user only for that concrete
@@ -581,14 +577,12 @@ before starting the worker. No candidate change or no readiness improvement is
 a harness failure and ends the repair path; it is not permission for broader
 rediscovery or another diagnosis loop.
 
-Product direction is not automatically a user prompt. After a circuit breaker,
-Product/BFM may own one bounded Product-directed recovery when there is a
-concrete cause, the correction remains inside approved scope, and no user
-decision or safety/hard gate changes. Apply one consolidated correction, run
-the focused proof, then the necessary final release pass if already
-authorized. Ask the user only if the recovery changes product outcome, scope,
-or priority; weakens evidence; crosses a safety or hard gate; lacks concrete
-progress; or that single Product-directed recovery fails.
+Product-directed Full BFM recovery follows [Autonomous BFM](autonomy.md).
+Keep the stable issue ID and cumulative evidence ledger. Continue with a
+distinct supported correction within scope; stop on success, after five failed
+attempts, or earlier at a real gate or when no safe correction remains.
+Each Quick slice retains one consolidated behavioral repair maximum. Moving
+to Full BFM retains earlier attempts rather than resetting the issue ledger.
 
 Run only the smallest focused proof after each slice. At an integration or
 release checkpoint, run only the proof appropriate to that boundary: an

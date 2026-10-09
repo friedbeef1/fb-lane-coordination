@@ -7,6 +7,10 @@ it.** A short linked summary is allowed. A competing copy is not.
 
 ## Authoritative homes
 
+For a known task, use the local `fb_project_context` operation described in
+[graph.md](graph.md) to locate relevant authoritative records. Keep the
+board/index fallback when a packet is missing or insufficient.
+
 | Surface | Owns | Must not duplicate |
 |---|---|---|
 | Project board | Active status, owner, scope, gate, blockers, and links | Full decisions, test logs, implementation narration |

@@ -114,7 +114,7 @@ for (const contract of ['Efficiency Receipt', 'without requiring\\s+a board row'
 const guardrails = readHarness('guardrails.md');
 assert.match(guardrails, /hooks\.preflight/);
 assert.match(guardrails, /no global Node version/i);
-for (const contract of ['one consolidated\\s+behavioral\\s+repair', 'repeated broad', 'fb-package-sync\\.cjs[\\s\\S]{0,30}--check', 'after[\\s\\S]{0,80}review', 'release checkpoint', 'explicitly\\s+requests']) assert.match(guardrails, new RegExp(contract, 'i'));
+for (const contract of ['one consolidated\\s+behavioral\\s+repair', 'autonomy\\.md', 'fb-package-sync\\.cjs[\\s\\S]{0,30}--check', 'after[\\s\\S]{0,80}review', 'release checkpoint', 'explicitly\\s+requests']) assert.match(guardrails, new RegExp(contract, 'i'));
 
 const cliSource = fs.readFileSync(path.join(surfaceRoot, 'tools', 'fb-lane.cjs'), 'utf8');
 // Candidate ownership and baseline behavior are exercised with real Git in
