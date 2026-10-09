@@ -66,7 +66,7 @@ sequence.
 **Graph Engineering for Everyday People**
 
 Current Codex release candidate: **FB 0.10.5-beta**
-(`0.10.5-beta+codex.20261009113735`).
+(`0.10.5-beta+codex.20261009115545`).
 
 **FB is an open-source Codex plugin that turns scattered AI conversations into
 a living product-delivery graph.** It has six evidence-producing workstreams

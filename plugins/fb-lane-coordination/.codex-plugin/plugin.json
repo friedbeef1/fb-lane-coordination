@@ -1,6 +1,6 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.10.5-beta+codex.20261009113735",
+  "version": "0.10.5-beta+codex.20261009115545",
   "description": "Flow Builder helps product managers turn deep workstream conversations into a coordinated, explained delivery plan in Codex.",
   "author": {
     "name": "James Yeang",
@@ -33,8 +33,7 @@
     "defaultPrompt": [
       "Set up Flow Builder in this project while preserving existing work and chats.",
       "Preview the queued handoffs, priorities, dependencies and blockers.",
-      "Use $bfm in Product/BFM to plan and execute the ready handoffs.",
-      "On an explicit user $bfm or /bfm invocation in Product/BFM, show the prioritized queue and proceed through routine authorized work without a second okay. Apply the shared autonomy policy: up to five distinct evidence-backed recovery attempts per issue, preserved across slices and resumes. Passive handoff pings never invoke BFM. Full Access is capability, not scope or release approval. Preserve safety and Push Live. End progress and final messages with TLDR and Recommendation."
+      "Run $bfm in Product/BFM: preview, then proceed. Passive handoff pings never invoke BFM. Preserve safety and Push Live."
     ],
     "brandColor": "#0F766E",
     "composerIcon": "./assets/icon.svg",

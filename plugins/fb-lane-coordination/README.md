@@ -38,7 +38,7 @@ Codex plugin that turns scattered AI conversations into a living
 product-delivery graph. It has six evidence-producing workstreams plus one
 Product/BFM control centre and seven pinned repository-scoped Codex tasks. The
 current release candidate is **FB 0.10.5-beta**
-`0.10.5-beta+codex.20261009113735`.
+`0.10.5-beta+codex.20261009115545`.
 
 The visible workflow is **Goal → Split → only the relevant workstreams →
 Verify evidence → Merge findings → Implement → Verify candidate → One clear
