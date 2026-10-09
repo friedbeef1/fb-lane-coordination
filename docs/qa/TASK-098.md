@@ -75,7 +75,7 @@ application deployment evidence.
 ## External state
 
 GitHub release and supported local upgrade are completed. Official portal upload
-is completed, but review submission and publication are not. No account permission
+and review submission are completed, but official publication is not. No account permission
 is weakened, and legal declarations are not approved on James's behalf.
 
 GitHub PR #76 merged at `d509551e1f0c6f7f9b8fd7969b14ed15e8588e04`;
@@ -104,6 +104,18 @@ solely to replace it with the authorized current candidate.
   loaded skills; the new install is not proof those sessions hot-reloaded.
 - Review monitor now follows this current draft rather than cancelled 0.10.3.
 
-Remaining boundary: James's legal confirmation, completion of all portal skill
-checks, then official review approval. Product/BFM may submit/publish under the
-existing explicit release authority once those prerequisites are genuinely met.
+## Official review receipt — 2026-10-09
+
+James confirmed the six declarations in this Product/BFM conversation. Fresh
+read-only portal inspection found the exact version already submitted, so no
+duplicate submission was attempted. The exact detail page confirms all 13 skill
+checks passed, **In review**, and **Not published**.
+
+- Review ID: `pluginrel_ffeab55a63388191b3f54db1e6463a5c`.
+- [Official review](https://platform.openai.com/plugins/manage/plugins_6ac263ba7b44819190126af939992185?version=pluginrel_ffeab55a63388191b3f54db1e6463a5c).
+- Existing six-hour read-only monitor now follows this review/version and remains
+  quiet while unchanged; it notifies on approval, rejection, requested changes,
+  publication, or an access problem requiring James.
+
+Remaining boundary: official OpenAI review approval. Product/BFM may publish
+under the existing explicit release authority once approval is genuinely verified.

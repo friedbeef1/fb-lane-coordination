@@ -43,9 +43,9 @@ Evidence Against Product OKR: Offloaded local files stalled source checks; an ea
 
 ## Brief Validation
 
-blocked — source, GitHub readiness and installed provenance passed. James must
-confirm the current portal's six legal declarations; OpenAI must approve review
-before official marketplace publication. Product/BFM owns the remaining submission.
+blocked — source, GitHub readiness and installed provenance passed. James confirmed
+the six declarations; the exact official submission is In review. OpenAI must
+approve it before official marketplace publication. Product/BFM owns publication.
 
 ## Task Receipt
 
@@ -55,5 +55,5 @@ before official marketplace publication. Product/BFM owns the remaining submissi
 - Checks, failures, recovery, and results: 42 focused autonomy/efficiency tests passed before integration; [QA evidence](../qa/TASK-098.md) records remaining checks.
 - Review state, direct links, limits, and external gates: [QA evidence](../qa/TASK-098.md); portal approval controls official publication.
 - Repository state: committed release merged to GitHub main; no consumer source or chat topology changed.
-- Remaining owner and action: James confirms the six current portal declarations; Product/BFM submits, then publishes only after OpenAI approval.
+- Remaining owner and action: OpenAI completes review; Product/BFM publishes the approved version under existing explicit release authority.
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#0105-beta--2026-10-09).
