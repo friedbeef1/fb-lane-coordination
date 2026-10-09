@@ -7,7 +7,7 @@ status: checking
 
 # TASK-098 — Autonomous Flow Builder release evidence
 
-Candidate build: `0.10.5-beta+codex.20261009113735`.
+Candidate build: `0.10.5-beta+codex.20261009115545`.
 
 ## Candidate
 
@@ -77,3 +77,12 @@ application deployment evidence.
 GitHub release, new portal upload and publication are authorized by James's
 current explicit request, but are not yet completed. The prior portal submission
 is In review and Not published. No account permission is weakened to publish.
+
+GitHub PR #76 merged at `d509551e1f0c6f7f9b8fd7969b14ed15e8588e04`;
+GitHub readiness passed (46 seconds). The initial 0.10.5 portal upload exposed
+the portal limit of three starters, each at most 128 characters. Metadata repair
+1 removes the accidentally appended operating-policy starter, preserves the
+policy in canonical skills/guidance, and adds a deterministic starter-limit
+contract. Corrected build: `0.10.5-beta+codex.20261009115545`.
+The original uploaded draft is not published. Old 0.10.3 review was cancelled
+solely to replace it with the authorized current candidate.

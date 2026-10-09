@@ -2,7 +2,7 @@
 
 ## 0.10.5-beta — 2026-10-09
 
-Build: `0.10.5-beta+codex.20261009113735`.
+Build: `0.10.5-beta+codex.20261009115545`.
 
 **What changed:** Flow Builder shows the prioritized plan and continues routine
 work after an explicit BFM invocation. Full BFM can make up to five distinct,

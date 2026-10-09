@@ -9,7 +9,7 @@ record_model: normalized-v1
 
 # TASK-098 — Autonomous Flow Builder release
 
-Candidate build: `0.10.5-beta+codex.20261009113735`.
+Candidate build: `0.10.5-beta+codex.20261009115545`.
 
 ## Project Start Brief
 

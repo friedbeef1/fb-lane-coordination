@@ -18,8 +18,11 @@ function validate(candidate) {
   assert.equal(fs.existsSync(path.join(candidate,'.mcp.json')),false);
   assert.equal(manifest.mcpServers,undefined);
   assert.match(manifest.interface.longDescription,/No FB-hosted service or required MCP server/);
-  assert.match(manifest.interface.defaultPrompt.join('\n'),/without a second okay/);
-  assert.match(manifest.interface.defaultPrompt.join('\n'),/five distinct evidence-backed recovery attempts/);
+  assert.ok(manifest.interface.defaultPrompt.length <= 3, 'portal allows at most three conversation starters');
+  for (const prompt of manifest.interface.defaultPrompt) assert.ok(prompt.length <= 128, 'portal starter must be at most 128 characters');
+  assert.match(manifest.interface.defaultPrompt.join('\n'),/preview, then proceed/);
+  assert.match(read('docs/fb/autonomy.md'),/five unsuccessful attempts on that issue/);
+  assert.match(read('docs/fb/autonomy.md'),/distinct supported correction/);
   for(const skill of ['bfm','fb-product','fb-user','fb-business','fb-design','fb-tech','fb-discovery','fb-bugs','fb-setup','fb-release']) {
     const source=read(`skills/${skill}/SKILL.md`);
     assert.match(source,/^---\n[\s\S]*?name:\s*\S[\s\S]*?description:\s*\S[\s\S]*?\n---/);
