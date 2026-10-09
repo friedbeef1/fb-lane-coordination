@@ -48,7 +48,7 @@ See [the problems and FB's responses](../../docs/why-fb.md#before-and-after-with
 
    **Push Live** invokes FB's release skill. It verifies the exact candidate,
    refreshes the configured local or Git marketplace correctly, reinstalls the
-   exact build, proves the installed runtime and MCP, and requires a new Codex
+   exact build, proves the installed local-command runtime, and requires a new Codex
    task after replacement.
 
 Exact-project setup and checkout moves fail closed. Migration atomically records
