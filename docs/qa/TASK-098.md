@@ -98,7 +98,7 @@ solely to replace it with the authorized current candidate.
   no `.mcp.json` is registered. No root-layout test was run against installed cache.
 - ZIP SHA-256: `c42453bd7472d356d4444f13ad42b7407cad7dfcd4965b05f00d787c5dd8bbae`.
 - Official draft: `appsub_6ac8d616e78881919d9774d49219a95a`; correct version uploaded,
-  metadata No Issues, 12/13 skills passed at last observation. Not submitted and
+  metadata and all 13 skills passed: portal reports No issues found. Not submitted and
   Not published. Fresh six-declaration legal confirmation requested in this chat.
 - Existing chats/history are preserved. Already-running sessions may retain old
   loaded skills; the new install is not proof those sessions hot-reloaded.
