@@ -1,8 +1,8 @@
 {
   "name": "fb-lane",
   "interface": {
-    "displayName": "FB",
-    "tagline": "Graph Engineering for Everyday People"
+    "displayName": "Flow Builder (FB)",
+    "tagline": "Deep talks. Coordinated work."
   },
   "plugins": [
     {

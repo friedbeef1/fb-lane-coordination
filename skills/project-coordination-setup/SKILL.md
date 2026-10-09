@@ -3,17 +3,21 @@ name: project-coordination-setup
 description: Use when bootstrapping an FB-coordinated project with board, handoff, workstream, and harness routes.
 ---
 
+Use [local tools](../../docs/fb/local-tools.md) for FB runtime operations.
+The plugin does not register an MCP server. Run the bundled or project-managed
+CLI with an explicit target repository; preserve all existing authority gates.
+
+
 # Set up an FB-coordinated project
 
 The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.
 
-Default execution uses focused proof per slice, one consolidated behavioral
-repair maximum across the candidate, one whole-candidate review, and one final
-release checkpoint. Do not create separate review or re-review loops for
-individual slices. Safety, sensitive-operation, authority, worktree/lock,
-changelog, and **Push Live** gates remain unchanged.
+Default execution uses focused proof per slice, one whole-candidate review,
+and one final release checkpoint. Follow [Autonomous BFM](../../docs/fb/autonomy.md)
+for cumulative five-attempt Full recovery and routine continuation. Quick
+budgets, safety, locks and **Push Live** gates remain controlling.
 
 `$fb-setup` is the primary public invocation for this canonical setup workflow.
 Natural-language setup requests and the long-form skill invocation remain
@@ -223,8 +227,7 @@ upgrade, canonical-root change, task drift, or duplicate evidence. Routine
 reconciling sidebar tasks.
 
 The installed [graph.md](../../docs/fb/graph.md) defines graph-directed
-orientation. For a known task and question, agents call MCP
-`fb_project_context` and open only its relevant cited authoritative records.
+orientation. For a known task and question, agents use the local `fb_project_context` operation (see `docs/fb/local-tools.md`) and open only its relevant cited authoritative records.
 The graph is not a source of truth. Missing, stale, unhealthy, incomplete, or
 contradictory packets fall back to the board → index → handoff → card route.
 Bootstrap and upgrade add derived graph support under ignored `.fb/graph/`
@@ -233,8 +236,7 @@ instruction text. The graph is rebuilt from the active canonical checkout;
 former roots stay quarantined and recoverable through the migration contract.
 
 For routine session orientation, use CLI
-`node tools/fb-lane.cjs status --context` or MCP
-`fb_lane_status({context:true})`. It returns a bounded active-only board packet.
+`node tools/fb-lane.cjs status --context`. It returns a bounded active-only board packet.
 Open the full board only when that packet is insufficient or contradictory.
 Completed-task closeout mechanically archives older terminal board history
 after the board exceeds 64 KiB, while retaining the three most recent terminal
@@ -283,3 +285,6 @@ dependency graph. Full BFM may coordinate many slices for hours and use parallel
 agents or subagents for independent, non-overlapping locks. Keep dependent,
 shared-file, sensitive, and unresolved-decision work sequential; verify each
 slice narrowly and reserve broad validation for the release checkpoint.
+
+Use the shared [autonomy policy](../../docs/fb/autonomy.md)
+for generated project guidance. Setup preserves existing chats and active work.

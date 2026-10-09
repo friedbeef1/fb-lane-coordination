@@ -5,8 +5,9 @@ parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.
 
 Focused proof attaches evidence to each slice. The complete canonical candidate
-receives one whole-candidate review, at most one consolidated behavioral repair,
-and one final release checkpoint. Slice proof does not create a separate
+receives one whole-candidate review and one final release checkpoint.
+Full recovery follows [Autonomous BFM](autonomy.md); each correction reruns
+only the affected proof within the cumulative issue budget. Slice proof does not create a separate
 reviewer or re-review ceremony. Existing safety and release evidence gates
 remain unchanged.
 
@@ -159,7 +160,7 @@ Choose proof by environment:
 | Canonical source checkout | Source/runtime contracts, package generation and parity, targeted record preflight, Doctor, and the repository release validator. |
 | Fresh clone or CI | Portability, clean-checkout behavior, package generation, and supported repository tests without clone-local state. |
 | Configured marketplace | Proven source identity and the refresh route appropriate to its local or Git source type. |
-| Installed cache | Exact installed version and package identity, skill discovery, runtime syntax or exports, bundled manifest, and MCP resolution. |
+| Installed cache | Exact installed version and package identity, skill discovery, runtime syntax or exports, bundled manifest, and local-command resolution. |
 
 An installed cache is not a source checkout. Do not use a root-only package
 manifest or source-layout test as installed-runtime authority. Public release

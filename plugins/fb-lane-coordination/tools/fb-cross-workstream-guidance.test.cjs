@@ -62,9 +62,11 @@ test('installed prompt preserves truthful routing and release boundaries', () =>
     ? '.codex-plugin/plugin.json'
     : 'plugins/fb-lane-coordination/.codex-plugin/plugin.json';
   const manifest = read(manifestPath);
-  assert.match(manifest, /planning only; waiting for you/i);
+  const coordination = read('skills/fb-lane-coordination/SKILL.md').replace(/\s+/g, ' ');
+  assert.match(coordination, /planning only; waiting for you/i);
   assert.match(manifest, /Product\/BFM[\s\S]{0,120}\$bfm|\$bfm[\s\S]{0,120}Product\/BFM/i);
-  assert.match(manifest, /task tools[^\n]*unavailable[^\n]*paste-ready/i);
+  assert.match(coordination, /task tools.{0,120}unavailable.{0,120}paste-ready/i);
+  assert.match(manifest, /Passive handoff pings never invoke BFM/i);
   assert.doesNotMatch(manifest, /arrival[^\n]*(?:starts|activates|executes|delegates)/i);
   assert.match(manifest, /Push Live/);
 });
@@ -84,12 +86,17 @@ test('active skills use one compact-first known-task route without mandatory ful
   assert.doesNotMatch(workflow, /1\. Read `AGENTS\.md`, board, current-task record/);
 });
 
-test('saved Product handoff is distinguished from exact-task message delivery', () => {
+test('authorized Product notification permits acknowledgment but never automatic execution', () => {
   const workflow = read('docs/fb/workflow.md').replace(/\s+/g, ' ');
-  assert.match(workflow, /Saved for Product intake\. No message was sent to the Product task, and you do not need to copy or paste this handoff\. In the Product\/BFM task, invoke \$bfm; it will discover the indexed handoff\./);
-  assert.match(workflow, /Sent|Delivered/);
-  assert.match(workflow, /successful exact receipt-bound native message/);
-  assert.match(workflow, /delivery pending/);
+  assert.match(workflow, /explicit user authorization to notify/);
+  assert.match(workflow, /exact receipt-bound Product\/BFM task/);
+  assert.match(workflow, /notification only; no BFM cycle or execution authorized/);
+  assert.match(workflow, /Noted for the next BFM intake\. No work started/);
+  assert.match(workflow, /no queue scan, prioritization, claim, delegation, source edit, commit or coordination-record mutation/);
+  assert.match(workflow, /Only a successful exact-task message receipt supports/);
+  assert.match(workflow, /Only the user's `\$bfm` invocation activates reconciliation/);
+  assert.match(workflow, /set_thread_read_state\(\{ threadId, read: false \}\)/);
+  assert.match(workflow, /saved-only/);
   for (const skill of [...workstreamSkills, 'fb-user', 'bfm', 'fb-lane-coordination']) {
     assert.match(read(`skills/${skill}/SKILL.md`), /Product handoff delivery states/);
   }

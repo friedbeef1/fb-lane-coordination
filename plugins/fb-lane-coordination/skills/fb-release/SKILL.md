@@ -3,6 +3,11 @@ name: fb-release
 description: Use only when the user explicitly says Push Live in the Product/BFM main task.
 ---
 
+Use [local tools](../../docs/fb/local-tools.md) for FB runtime operations.
+The plugin does not register an MCP server. Run the bundled or project-managed
+CLI with an explicit target repository; preserve all existing authority gates.
+
+
 # Release FB
 
 Treat release as one exact, auditable transaction.

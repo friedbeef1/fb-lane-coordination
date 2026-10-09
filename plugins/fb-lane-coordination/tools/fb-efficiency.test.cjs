@@ -305,14 +305,14 @@ test('repair outcome treats no source or readiness improvement as a harness fail
   });
 });
 
-test('canonical workflow and BFM skill require delta repair context and no-progress stop', () => {
+test('canonical workflow and BFM skill retain focused delta context and cumulative recovery', () => {
   const repoRoot = path.resolve(__dirname, '..');
   for (const relative of ['docs/fb/workflow.md', 'docs/fb/guardrails.md', 'skills/bfm/SKILL.md']) {
     const content = fs.readFileSync(path.join(repoRoot, relative), 'utf8');
     assert.match(content, /fresh delta repair packet/i, relative);
     assert.match(content, /failed criterion/i, relative);
     assert.match(content, /changed files/i, relative);
-    assert.match(content, /no readiness improvement[\s\S]{0,100}harness failure/i, relative);
+    assert.match(content, /autonomy\.md/i, relative);
   }
 });
 
@@ -488,7 +488,7 @@ test('release checkpoint lifecycle requires a Product-owned handoff and permits 
   ]) assert.match(verificationBudget(runtime, { repoRoot, finalRuntimeCheckpoint: true, releaseCheckpoint: checkpoint }).blockedReason, /repair batch|final pass|Product direction/i);
 });
 
-test('Product direction owns one bounded scope-preserving circuit-breaker recovery', () => {
+test('Product direction routes bounded recovery to the shared autonomy policy', () => {
   const repoRoot = path.resolve(__dirname, '..');
   const detailedSurfaces = [
     'docs/fb/guardrails.md',
@@ -498,11 +498,8 @@ test('Product direction owns one bounded scope-preserving circuit-breaker recove
   ];
   for (const relative of detailedSurfaces) {
     const content = fs.readFileSync(path.join(repoRoot, relative), 'utf8');
-    assert.match(content, /Product direction is not (?:automatically )?a user prompt/i, relative);
-    assert.match(content, /one\s+(?:bounded\s+)?Product-directed recovery/i, relative);
-    assert.match(content, /concrete cause[\s\S]{0,180}approved scope/i, relative);
-    assert.match(content, /focused\s+proof[\s\S]{0,180}(?:final|complete)\s+(?:release\s+)?(?:pass|checkpoint)/i, relative);
-    assert.match(content, /ask\s+the\s+user\s+only[\s\S]{0,240}(?:product outcome|scope|priority)[\s\S]{0,240}(?:safety|hard gate)/i, relative);
+    assert.match(content, /autonomy\.md/i, relative);
+    assert.match(content, /Push Live/i, relative);
   }
   const coordination = fs.readFileSync(path.join(repoRoot, 'skills/fb-lane-coordination/SKILL.md'), 'utf8');
   assert.match(coordination, /workflow\.md[\s\S]{0,180}(?:budgets|closeout)/i, 'coordination must route recovery detail to workflow');

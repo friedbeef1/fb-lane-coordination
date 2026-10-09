@@ -3,17 +3,22 @@ name: bfm
 description: Use when Product/Captain must intake, sequence, execute, reconcile, or close FB handoffs.
 ---
 
+Use [local tools](../../docs/fb/local-tools.md) for FB runtime operations.
+The plugin does not register an MCP server. Run the bundled or project-managed
+CLI with an explicit target repository; preserve all existing authority gates.
+
+
 # BFM
 
 The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.
 
-Default execution uses focused proof per slice, one consolidated behavioral
-repair maximum across the candidate, one whole-candidate review, and one final
-release checkpoint. Do not create separate review or re-review loops for
-individual slices. Safety, sensitive-operation, authority, worktree/lock,
-changelog, and **Push Live** gates remain unchanged.
+Default execution uses focused proof per slice, one whole-candidate review,
+and one final release checkpoint. Product-directed Full BFM recovery follows
+[Autonomous BFM](../../docs/fb/autonomy.md): up to five distinct evidence-backed
+attempts per issue, with a cumulative ledger across slices and resumes.
+Quick slice budgets, safety, locks and **Push Live** gates remain controlling.
 
 The visible workflow is **Goal → Split → only the relevant workstreams →
 Verify evidence → Merge findings → Implement → Verify candidate → One clear
@@ -21,6 +26,12 @@ result**. A workstream's common action is **Send this to Product.** Product/BFM
 then synthesizes the evidence and owns one fresh-context integrated candidate
 verification after the bounded implementation slices.
 Workstream reporting follows [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states).
+An arrival is not a BFM invocation. An authorized exact-task notification may
+receive a brief acknowledgment, then stop without intake or execution.
+Follow [Product priorities and delivery implications](../../docs/fb/workflow.md#product-priorities-and-delivery-implications)
+for the human-readable queue and user-forced priorities. Business importance
+does not override readiness, prerequisites, locks or safety gates. Reuse native
+Codex planning for approved work; do not add a second equivalent plan.
 
 Board, receipts, identity hashes, and internal route names are diagnostic
 machinery, not user choices or ordinary milestones. Report them only when they
@@ -170,9 +181,9 @@ checkout-discovery logic in this skill; the runtime owns those rules.
 
 Apply [Queue preview and approval](../../docs/fb/workflow.md#queue-preview-and-approval):
 show every candidate with product, linked handoff, simple outcome, disposition,
-and priority/reason; then the execution scaffold. Wait for “okay” before source
-execution. Technical ledger eligibility is not user approval. A materially
-changed scope needs a refreshed preview; okay never authorizes Push Live.
+and priority/reason; then the execution scaffold. An explicit user `$bfm` authorizes routine execution within the stated scope.
+Show the queue and proceed without another okay. Refresh the preview for
+material changes and resolve required decisions or safety gates.
 Planning intake may show `Pending Product decision`; replace every pending
 item with a proposed disposition before presenting the approval preview. Let
 the user reorder, add, remove or defer proposed items, then show the revision.
@@ -248,7 +259,7 @@ according to whether execution identity remains safe.
 Stop on duplicate or contradictory ready-handoff errors. Product reconciles
 duplicates, conflicts, and dependencies, then prioritizes and sequences only
 **Include now** candidates. Product creates the Project Start Brief plus Build
-Brief and obtains the queue-specific okay before BFM execution. After approval,
+Brief before routine BFM execution. After the visible plan,
 pause for a changed decision, disputed priority, sensitive boundary, conflict,
 or unclear scope. Do not duplicate
 scanner selection rules in the skill. Integrate only relevant **Include now**
@@ -281,8 +292,7 @@ quarantine, hash, and fail-closed details in diagnostics and durable QA.
 Stop before claim/edit/deploy/closeout when Product's **Include now** scope or
 locks are unclear. Ready status does not attach approval to a handoff. After
 `$bfm`, Product records the dispositioned Project Start Brief and Build Brief;
-do not require those briefs to preexist invocation. Wait for “okay” on the
-displayed queue, then do not request repeated per-slice approval. Before source
+do not require those briefs to preexist invocation. Show the displayed queue and proceed within the invoked scope without routine approval prompts. Before source
 changes, require the board target's Goal Alignment
 Session to match the reconciled briefs. Never invent an OKR merely to clear the
 gate. Execute only **Include now**, unlocked work in the approved scope; close
@@ -337,18 +347,12 @@ relevant** correction, not the smallest diff: it must address the diagnosed
 cause, pass the original failed scenario, add or pass a focused regression, and
 materially improve behavior or evidence without weakening the eval or moving
 the failure elsewhere. Start a fresh repair worker rather than resuming
-accumulated conversation context, then rerun only the failed proof. If there is
-no concrete correction, no candidate change, or no readiness improvement, stop
-after one no-progress cycle and classify it as a harness failure; do not broaden
-diagnosis automatically.
-Product direction is not automatically a user prompt. When a circuit breaker
-has a concrete cause and the correction stays inside approved scope without a
-changed user decision or safety/hard gate, Product/BFM owns one bounded
-Product-directed recovery: make one consolidated correction, run the focused
-proof, then the necessary final release pass if already authorized.
-Ask the user only for a changed product outcome, scope, or priority; weakened
-evidence; a safety or hard gate; no concrete progress; or failure of that one
-recovery.
+accumulated conversation context, then rerun only the failed proof. Record each failure in the stable issue ledger. Continue only with a distinct,
+evidence-backed correction within the five-attempt ceiling; stop earlier if
+there is no safe supported correction or an existing gate blocks it.
+Follow [Autonomous BFM](../../docs/fb/autonomy.md) for routine continuation,
+cumulative issue recovery and stop notes. Preserve focused proof and existing
+sensitive-operation and release-checkpoint gates.
 For durable work, promote the approved session in its linked worktree and keep
 the Task Receipt, Brief Validation, reciprocal links, verification checkpoint,
 Verification Handoff, and Test This Now aligned before submit or completed close.

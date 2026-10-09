@@ -1236,7 +1236,14 @@ function validatePluginServerResolution(pluginRoot) {
   try {
     const manifestPath = path.join(pluginRoot, '.codex-plugin', 'plugin.json');
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-    if (!actionable(manifest.mcpServers)) throw new Error('plugin manifest does not declare mcpServers');
+    if (!Object.prototype.hasOwnProperty.call(manifest, 'mcpServers')) {
+      if (fs.existsSync(path.join(pluginRoot, '.mcp.json'))) throw new Error('Unregistered stale MCP configuration remains in the plugin');
+      const runtime = require(path.join(pluginRoot, 'tools', 'fb-lane.cjs'));
+      require(path.join(pluginRoot, 'tools', 'fb-session.cjs'));
+      if (typeof runtime.executeLocalOperation !== 'function') throw new Error('Bundled local operation dispatcher is missing');
+      return { ok: true, detail: 'Bundled local command runtime and session module resolve; no MCP server is required.' };
+    }
+    if (!actionable(manifest.mcpServers)) throw new Error('plugin manifest has invalid mcpServers');
     const configPath = path.resolve(pluginRoot, manifest.mcpServers);
     const rootPrefix = `${path.resolve(pluginRoot)}${path.sep}`;
     if (!configPath.startsWith(rootPrefix) || !fs.existsSync(configPath)) throw new Error(`MCP configuration does not resolve inside the plugin: ${manifest.mcpServers}`);
@@ -1316,7 +1323,7 @@ function collectSessionDoctorChecks(repoRoot) {
     const manifest = path.join(repoRoot, 'tools', 'fb-package-manifest.json');
     add(fs.existsSync(syncTool) && fs.existsSync(manifest) ? 'ok' : 'fail', 'Package synchronization authority', fs.existsSync(syncTool) && fs.existsSync(manifest) ? 'Root/package byte drift is delegated to fb-package-sync --check.' : 'Package synchronizer or manifest is missing.', 'Restore the root-only package synchronizer and manifest.');
     const pluginServer = validatePluginServerResolution(pluginRoot);
-    add(pluginServer.ok ? 'ok' : 'fail', 'Plugin session server resolution', pluginServer.detail, 'Restore the bundled plugin manifest, .mcp.json route, tools/fb-lane.cjs, and fb-session.cjs resolution chain.');
+    add(pluginServer.ok ? 'ok' : 'fail', 'Plugin session server resolution', pluginServer.detail, 'Restore the bundled plugin manifest, tools/fb-lane.cjs local runtime, and fb-session.cjs resolution chain.');
   } else {
     add('ok', 'Package synchronization authority', 'Consumer repository detected; package-source drift checking is not applicable here.');
     add('ok', 'Plugin session server resolution', `The active CLI resolved ${path.basename(__filename)}.`);

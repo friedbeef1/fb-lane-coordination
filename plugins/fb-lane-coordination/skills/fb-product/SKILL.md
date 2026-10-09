@@ -3,17 +3,22 @@ name: fb-product
 description: Use when the Product/BFM control centre must reconcile workstream evidence, prioritize scope, direct implementation, or own verification and release gates.
 ---
 
+Use [local tools](../../docs/fb/local-tools.md) for FB runtime operations.
+The plugin does not register an MCP server. Run the bundled or project-managed
+CLI with an explicit target repository; preserve all existing authority gates.
+
+
 # FB Product/BFM control centre
 
 The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.
 
-Default execution uses focused proof per slice, one consolidated behavioral
-repair maximum across the candidate, one whole-candidate review, and one final
-release checkpoint. Do not create separate review or re-review loops for
-individual slices. Safety, sensitive-operation, authority, worktree/lock,
-changelog, and **Push Live** gates remain unchanged.
+Default execution uses focused proof per slice, one whole-candidate review,
+and one final release checkpoint. Product-directed Full BFM recovery follows
+[Autonomous BFM](../../docs/fb/autonomy.md): up to five distinct evidence-backed
+attempts per issue, with a cumulative ledger across slices and resumes.
+Quick slice budgets, safety, locks and **Push Live** gates remain controlling.
 
 The visible workflow is **Goal → Split → only the relevant workstreams →
 Verify evidence → Merge findings → Implement → Verify candidate → One clear
@@ -21,6 +26,12 @@ result**. Relevant workstreams use one CTA—**Send this to Product.** Product/B
 verifies the evidence, merges it into one plan, directs bounded implementation,
 and owns one fresh-context integrated candidate verification.
 Workstream reporting follows [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states).
+An arriving handoff may receive a brief acknowledgment; then stop without
+intake or execution until the user invokes `$bfm` here.
+Follow [Product priorities and delivery implications](../../docs/fb/workflow.md#product-priorities-and-delivery-implications):
+the user sets business importance; Product explains prerequisites, blockers,
+displaced work and uncertain impacts. Priority is not execution eligibility.
+Use the existing Build Brief and native planning, not a second priority system.
 
 Board, receipts, identity hashes, and internal route names are diagnostic
 machinery, not user choices or ordinary milestones. Show them only when they
@@ -181,7 +192,7 @@ Keep ordinary worker lanes plan-only. Ready handoffs are Product intake
 candidates, not approvals. After invocation, Product records each candidate's
 disposition and the consolidated Project Start Brief and Build Brief before BFM
 starts source-changing work. Follow [Queue preview and approval](../../docs/fb/workflow.md#queue-preview-and-approval)
-and wait for “okay” on the displayed Include now scope. After that approval,
+and proceed within the explicitly invoked scope without another okay. Then
 pause for a changed decision, disputed priority, sensitive boundary, conflict,
 or unclear scope; do not request per-slice approvals. Product closes only with aligned board, repository, evidence, and Git
 state. Product authors the semantic Brief
@@ -192,14 +203,9 @@ Goal Alignment Session. Do not wait for `doctor` to discover a missing OKR. If
 there is no approved goal, block the task instead of inventing one.
 Product privately routes execution by risk, enforcing the
 canonical progress and resource stop predicates before any repeated iteration.
-Product direction is not automatically a user prompt. When a circuit breaker
-has a concrete cause and the correction stays inside approved scope without a
-changed user decision or safety/hard gate, Product owns one bounded
-Product-directed recovery: make one consolidated correction, run the focused
-proof, then the necessary final release pass if already authorized.
-Ask the user only for a changed product outcome, scope, or priority; weakened
-evidence; a safety or hard gate; no concrete progress; or failure of that one
-recovery.
+Follow [Autonomous BFM](../../docs/fb/autonomy.md) for routine continuation,
+cumulative issue recovery and stop notes. Preserve focused proof and existing
+sensitive-operation and release-checkpoint gates.
 Product selects only relevant evals, records every authority decision, and
 provides explicit approval evidence before promotion to blocking or mechanical.
 Subjective product quality remains Product/user judgment, never an automated score.

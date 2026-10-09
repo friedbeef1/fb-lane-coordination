@@ -1,9 +1,9 @@
 {
   "name": "fb-lane-coordination",
-  "version": "0.10.2-beta+codex.20260925083556",
-  "description": "FB is an open-source Codex plugin for Graph Engineering: it turns scattered AI conversations into a living product-delivery graph.",
+  "version": "0.10.5-beta+codex.20261009113735",
+  "description": "Flow Builder helps product managers turn deep workstream conversations into a coordinated, explained delivery plan in Codex.",
   "author": {
-    "name": "FB Contributors",
+    "name": "James Yeang",
     "url": "https://github.com/friedbeef1"
   },
   "homepage": "https://github.com/friedbeef1/fb-lane-coordination",
@@ -11,42 +11,33 @@
   "license": "MIT",
   "keywords": [
     "codex",
-    "coordination",
-    "multi-agent",
-    "subagents",
-    "mcp",
-    "git"
+    "product-management",
+    "prioritization",
+    "workstreams"
   ],
   "skills": "./skills/",
-  "mcpServers": "./.mcp.json",
   "interface": {
-    "displayName": "FB",
-    "shortDescription": "Graph Engineering for Everyday People",
-    "longDescription": "FB is an open-source Codex plugin that turns scattered AI conversations into a living product-delivery graph with six evidence-producing workstreams plus one Product/BFM control centre and seven pinned repository-scoped Codex tasks. $bfm executes only in Product/BFM, then stops at Ready to ship. Only Push Live authorizes merge or deployment; pinning never starts work.",
-    "developerName": "FB Contributors",
+    "displayName": "Flow Builder (FB)",
+    "shortDescription": "Deep talks. Coordinated work.",
+    "longDescription": "Explore product questions deeply across User, Business, Design, Tech, Discovery and Bugs workstreams. Product/BFM (Build For Me) brings their handoffs together into one explained plan: priorities, dependencies, blockers, deferrals and stakeholder trade-offs. Preview what will happen before implementation. Codex executes the work; Flow Builder supplies repository-local coordination, evidence and release boundaries. Requires Codex with local filesystem, Git and Node.js access. Sidebar automation depends on available Codex task controls and otherwise provides a manual fallback. No FB-hosted service or required MCP server. Existing chats and project work are preserved by the upgrade workflow. This beta does not guarantee conflict-free execution, time savings or token savings.",
+    "developerName": "James Yeang",
     "category": "Developer Tools",
     "capabilities": [
-      "Interactive",
-      "Read",
-      "Write"
+      "Coordinate workstreams",
+      "Explain priorities and blockers",
+      "Preserve delivery evidence"
     ],
     "websiteURL": "https://github.com/friedbeef1/fb-lane-coordination",
-    "privacyPolicyURL": "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
-    "termsOfServiceURL": "https://docs.github.com/en/site-policy/github-terms/github-terms-of-service",
+    "supportURL": "https://github.com/friedbeef1/fb-lane-coordination/issues",
+    "privacyPolicyURL": "https://github.com/friedbeef1/fb-lane-coordination/blob/main/PRIVACY.md",
     "defaultPrompt": [
-      "Start here: use $fb-lane. Read bounded current status and current workstream cards first. When a task and question are known, call fb_project_context and open only its relevant cited authoritative records; retrieve completed history through archives, the handoff index, exact handoffs, QA evidence, and Git history only when needed. Run doctor if setup looks incomplete, show current status and active locks, then ask what outcome I want to deliver.",
-      "Treat FB as Graph Engineering for Everyday People. The visible workflow is Goal → Split → only the relevant workstreams → Verify evidence → Merge findings → Implement → Verify candidate → One clear result. The graph is the repository-local delivery map connecting workstreams, decisions, evidence, dependencies, implementation, verification, and release state. Workstream loops move and learn inside it; $bfm navigates and executes it; Push Live authorizes release. Use the versioned graph contract for node and edge types, directionality, entity-scoped states, and transitions: read existing v1 artifacts, normalize contract-backed new writes to canonical schema v2, and fail closed because graph relationships cannot grant approval, verification, release, or Push Live. Do not confuse it with a graph database, knowledge graph, or GraphQL.",
-      "Use $fb-lane to route evidence questions through User, Business, Design, Tech, Discovery, and Bugs. Product/BFM is the control centre, not an evidence-producing workstream. Activate only relevant workstreams. Each selected workstream investigates its question, gathers evidence, recommends a path, and uses the common action Send this to Product. to create or update a ready handoff; record None relevant only when a complete report requires it instead of inventing work.",
-      "On an explicit user request, a main workstream may send a queued fb-workstream-handoff to another. Tell the destination: <Source> handoff queued for <Destination> — planning only; waiting for you. Open: <handoff link>. Keep it idle until the user continues it; any delivery result needs a separate Product-ready handoff. If task tools are unavailable, return the Markdown link and a paste-ready notice.",
-      "Run $bfm only in the Product/BFM main task and only from the active canonical checkout. A ready handoff is queued for Product intake, not approval or execution. $bfm renders the complete intake ledger across User, Business, Design, Tech, Discovery, Bugs, and the separate Product/BFM control centre; dispositions every candidate; reconciles duplicates, contradictions, dependencies, locks, and the approved goal; then records the prioritized Build Brief before directing Codex implementation. Missing, unreadable, drifting, or contradictory intake fails closed through the canonical runtime.",
-      "Before any execution, use planning-only intake to show the complete proposed queue and every disposition. The user can reorder, add, remove, or defer work. Wait for okay on that exact Include now scope, then record the Build Brief and revalidate current intake before implementation. Material changes require a revised preview; no repeated per-slice approval. Planning-only mode never authorizes execution. Push Live remains separate.",
-      "$bfm automatically runs a cheap deterministic preflight. It selects Direct BFM only for one isolated bounded item with no graph-relevant signals. Multiple items, dependencies, conflicts, changed decisions, blocked or stale work, shared locks, applicable lessons, or release relationships select graph-driven orchestration. Report the route and reasons; never ask the user to choose. Missing, stale, or corrupt graph data uses the visible authoritative-record fallback.",
-      "After the Build Brief and slice ownership freeze, send one passive Product/BFM Kickoff to every materially involved exact receipt-bound workstream task with task ID, assigned scope, expected evidence, Product/BFM ownership, and repository brief link. At closeout, write a Product/BFM Result into every acted-on or dispositioned workstream handoff, refresh its originating workstream card, and send one grouped passive result summary per affected workstream. Allow at most one kickoff and one terminal/result notice per workstream per BFM run unless a material status change requires James's attention. If task messaging is unavailable or identity is unproven, persist the repository closeout, record Return delivery: pending plus watch or blocked, and provide paste-ready text without claiming delivery. Notices never start work, continue a queued planning handoff, or invoke $bfm.",
-      "When the approved Build Brief opts into the generic control loop, use deterministic routing before judgment, preserve the baseline, record flat clone-local evidence, compare named criteria, run distinct required gates, and keep configuration candidates isolated until exact Product approval.",
-      "After verification, use project-local continuous learning to record at most one provisional lesson per meaningful failure signature. Give later tasks only matching active lessons, confirm only after two helpful comparable applications, allow one revision, and immediately reject safety or must-pass regressions. Learning never resets Quick or Full repair budgets, executes treatment text, changes product or eval authority, crosses project boundaries, or authorizes release.",
-      "Own automated testing and bounded repair for the exact candidate. For Full BFM, use Product/BFM standing delegation to approve candidate-faithful changelog wording and authorize one release checkpoint without a user prompt. Ask only for changed product decisions, material scope, sensitive gates, or **Push Live**. Verify the Build Brief and Task Receipt changelog decision before reporting Ready to ship. Then say exactly: Automated checks passed. Optional review links are available above. Say **Push Live** to deploy. When the user explicitly says **Push Live** in Product/BFM, invoke fb-release: verify the targeted release preflight, classify the configured marketplace source as local or Git, release and reinstall the exact build, prove the installed runtime and MCP without root-only source-layout tests, reconcile durable records, and require a new Codex task. Never merge or deploy before Push Live.",
-      "When setup is requested, use $fb-setup. Treat Install or update FB from GitHub and set it up in this project. as the same setup intent after the plugin loads; the public GitHub entry point handles missing or outdated installation before this skill is available. It delegates to the canonical project-coordination-setup workflow for Codex only, preserves the fb-lane-coordination IDs and MCP paths, and uses six evidence-producing workstreams plus one Product/BFM control centre and seven pinned repository-scoped Codex tasks. Relay the one-time permission question for FB · Product/BFM, FB · User, FB · Business, FB · Design, FB · Tech, FB · Discovery, and FB · Bugs. After explicit Yes, reconcile only a proven-complete inventory for the verified exact project ID and canonical repository root: reuse and rename legacy sidebar tasks, create only missing tasks, pin all seven, verify them, and leave them idle. When the native recent-task list reaches its fixed limit, use the read-only exact-root candidate adapter joined to current native project, task-detail, and pin evidence; never treat local state alone as authority or retain previews, turns, messages, tool items, or rollout paths. Product/User is a legacy User title; a lone legacy Product title maps to Product/BFM. Checkout moves use transactional migration: disposition every discovered difference, atomically record one canonical root, quarantine recoverable former roots, and rebind the exact seven tasks before retirement can be approved. Pinning never starts work. Use the honest manual fallback when inventory or native controls are unavailable. Then run doctor and report whether FB is ready."
+      "Set up Flow Builder in this project while preserving existing work and chats.",
+      "Preview the queued handoffs, priorities, dependencies and blockers.",
+      "Use $bfm in Product/BFM to plan and execute the ready handoffs.",
+      "On an explicit user $bfm or /bfm invocation in Product/BFM, show the prioritized queue and proceed through routine authorized work without a second okay. Apply the shared autonomy policy: up to five distinct evidence-backed recovery attempts per issue, preserved across slices and resumes. Passive handoff pings never invoke BFM. Full Access is capability, not scope or release approval. Preserve safety and Push Live. End progress and final messages with TLDR and Recommendation."
     ],
-    "brandColor": "#0F766E"
+    "brandColor": "#0F766E",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/icon.svg"
   }
 }

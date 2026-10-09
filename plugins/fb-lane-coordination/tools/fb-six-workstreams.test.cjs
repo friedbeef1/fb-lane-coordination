@@ -180,7 +180,7 @@ try {
 
   const guardrails = read('docs/fb/guardrails.md');
   assert.match(guardrails, /Low-ceremony execution rule/);
-  assert.match(guardrails, /focused proof per slice[\s\S]*one consolidated behavioral[\s\S]*one whole-candidate review[\s\S]*one final[\s\S]*release checkpoint/i);
+  assert.match(guardrails, /focused proof per slice[\s\S]*one whole-candidate review[\s\S]*one final[\s\S]*release checkpoint[\s\S]*autonomy\.md/i);
   assert.doesNotMatch(guardrails, /runtime(?:\/test| and test)[\s\S]{0,80}(?:exactly one|one) reviewer/i);
   assert.match(guardrails, /Report progress only when source, evidence, test state, blocker recovery, or an[\s\S]*approved decision materially changes/i);
 

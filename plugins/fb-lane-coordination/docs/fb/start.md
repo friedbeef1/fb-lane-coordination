@@ -1,5 +1,14 @@
 # Start an FB objective
 
+FB helps you decide what should happen next, what must happen first, and what
+should wait. You set business priorities; Product/BFM explains their delivery
+implications. Native Codex still plans technical work and implements it.
+
+Keep deep, ongoing discussions in the relevant chats. When their conclusions
+leave you asking “What was decided, what is blocked, and what should go first?”,
+capture actionable findings for Product/BFM to reconcile. A recommendation or
+notification alone is not permission to build. See [the problem-to-response map](../why-fb.md#before-and-after-without-fb-lanes--with-fb-lanes).
+
 Describe the objective or question. FB has six evidence-producing workstreams
 plus one Product/BFM control centre and seven pinned repository-scoped Codex
 tasks. Whenever planning or evidence would help, start in the matching
@@ -72,10 +81,10 @@ result**.
 
 1. **Goal:** describe the outcome in the workstream that best matches the question.
 2. **Split:** FB identifies only the relevant workstream questions. Unrelated workstreams remain idle.
-3. **Relevant workstreams:** the selected workstreams investigate in parallel when independent. When a recommendation is actionable, say **Send this to Product.** That creates or updates its indexed handoff ready for Product intake. Follow the [Product handoff delivery states](workflow.md#product-handoff-delivery-states) for saved versus messaged wording.
+3. **Relevant workstreams:** investigate the questions that matter, in parallel when independent. Say **Send this to Product** when a recommendation is actionable and ready for Product intake. This saves its handoff and authorizes an exact-task notification. Product may acknowledge it, but does not start a BFM cycle. See [delivery states](workflow.md#product-handoff-delivery-states) for honest saved-only fallback.
 4. **Verify evidence:** the user says `$bfm` in Product/BFM. Product freezes the intake and checks support, duplicates, contradictions, freshness, blockers, and acceptance criteria.
 5. **Merge findings:** Product must disposition every candidate before source execution, resolve dependencies and conflicts, and merge the included findings into one Project Start Brief and Build Brief. This is synthesis—not a Git merge.
-6. **Preview, then implement:** Product shows the [prioritized queue and short scaffold](workflow.md#queue-preview-and-approval). Say **okay** to approve its current Include now scope. BFM then turns that plan into bounded execution slices and integrates their focused, passing results; no repeated per-slice approvals.
+6. **Preview, then implement:** Product shows the [prioritized queue and short scaffold](workflow.md#queue-preview-and-approval). An explicit `$bfm` invokes the cycle; after the preview BFM proceeds within that scope without another okay. BFM then turns that plan into bounded execution slices and integrates their focused, passing results; no repeated per-slice approvals.
 7. **Verify candidate:** Product/BFM performs one fresh-context integrated candidate verification against the approved brief and required evidence.
 8. **One clear result:** FB reports the delivered outcome, evidence, limits, and **Ready to ship**. Only **Push Live** authorizes release, Git merge, or deployment.
 

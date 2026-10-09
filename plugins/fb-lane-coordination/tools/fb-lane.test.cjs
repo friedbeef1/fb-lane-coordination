@@ -1005,9 +1005,9 @@ function assertCodexBootstrap(args) {
       assert.doesNotMatch(source, /## Project Start Brief|## Test This Now|### Verification Handoff/, `${label} must remain a thin route layer`);
       assertPublicRouteContract(label, source);
       assert.match(source, /node tools\/fb-lane\.cjs status --context/, `${label} must use bounded active context for routine orientation`);
-      assert.match(source, /fb_lane_status\(\{context:true\}\)/, `${label} must request bounded MCP context for routine orientation`);
+      assert.match(source, /local-tools\.md/, `${label} must route structured operations to the local runtime`);
       assert.match(source, /returning-project health[\s\S]*\$fb-lane status/i, `${label} must keep default status for returning health`);
-      assert.match(source, /focused proof per slice[\s\S]{0,220}one consolidated behavioral\s+repair[\s\S]{0,220}one whole-candidate review[\s\S]{0,220}one final\s+release checkpoint/i, `${label} must generate the lean candidate-level execution process`);
+      assert.match(source, /focused proof per slice[\s\S]{0,100}one whole-candidate review[\s\S]{0,100}one final\s+release checkpoint[\s\S]{0,120}autonomy\.md/i, `${label} must generate the bounded candidate process and shared recovery route`);
       assert.doesNotMatch(source, /runtime(?:\/test| and test)[\s\S]{0,80}(?:exactly one|one) reviewer/i, `${label} must not generate the retired runtime per-slice reviewer rule`);
     }
     assert.doesNotMatch(board + agents, /Mode Selection Trigger Rule|normal\/simple|FB light/i, 'generated coordination guidance must not expose internal mode routing');
@@ -1311,7 +1311,6 @@ test('active operational lock guidance always opts into status details', () => {
   for (const relativePath of lockGuides) {
     const source = fs.readFileSync(path.join(repoRoot, relativePath), 'utf8');
     assert.match(source, /node tools\/fb-lane\.cjs status --details/, `${relativePath} must use CLI details for lock inspection`);
-    assert.match(source, /fb_lane_status\(\{details:true\}\)/, `${relativePath} must use MCP details for lock inspection`);
     assert.doesNotMatch(source, /(?:locks with|tasks and locks)[^\n]*`(?:fb_lane_status|node tools\/fb-lane\.cjs status)`/i, `${relativePath} must not claim default status exposes locks`);
   }
 

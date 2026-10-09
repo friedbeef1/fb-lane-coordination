@@ -41,7 +41,7 @@ When the recommendation is actionable, use the common CTA: **Send this to
 Product.** That creates or updates a handoff **ready for Product intake**; it
 does not approve or execute the work.
 Apply [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states)
-when reporting whether it was saved, messaged, or delivery pending.
+when reporting whether it was queued, marked unread, or saved-only.
 
 If the user says `$bfm` or `/bfm` here, finish or update the Product-ready
 handoff and redirect to Product/BFM. `$bfm` executes only in Product/BFM.
@@ -63,7 +63,7 @@ For a known task and concrete question, follow [Canonical known-task orientation
 ## Start
 
 1. Read `AGENTS.md`, then use the canonical compact packet and open only relevant linked Tech records and the current-task record if present.
-2. Check active locks with MCP `fb_lane_status({details:true})` or CLI `node tools/fb-lane.cjs status --details`.
+2. Check active locks with `node tools/fb-lane.cjs status --details`.
 3. Report from authoritative records cited by the compact packet; open the full board only under its fallback rule.
 4. In normal workstream chat, do not claim files or edit source. Write markdown technical plans/handoffs only.
 5. If the user says `PLEASE IMPLEMENT THIS PLAN` outside Product/BFM, confirm whether to prepare the Product/BFM handoff or execute here as an explicit one-off exception before editing source.

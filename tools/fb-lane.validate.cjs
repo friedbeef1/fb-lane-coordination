@@ -77,9 +77,9 @@ for (const file of [
 }
 requireAbsent('codex-lane-demo/CLAUDE.md');
 
-console.log('\n==> Codex plugin manifest and bundled MCP JSON parse');
+console.log('\n==> Codex plugin manifest and local-command package');
 readJson('plugins/fb-lane-coordination/.codex-plugin/plugin.json');
-readJson('plugins/fb-lane-coordination/.mcp.json');
+requireAbsent('plugins/fb-lane-coordination/.mcp.json');
 
 console.log('\n==> skill metadata validation');
 for (const dir of ['skills', 'plugins/fb-lane-coordination/skills']) {

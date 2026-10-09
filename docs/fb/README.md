@@ -1,7 +1,20 @@
 # FB Harness — Graph Engineering for Everyday People
 
+Flow Builder runs through [local commands](local-tools.md); no FB MCP server
+is required. Use the same `$fb-setup` and `$bfm` workflow.
+
+FB helps the person managing a product understand what should happen next,
+what is blocked, and what a changed priority displaces. The user sets business
+importance; Product/BFM explains feasible order and trade-offs. Use the
+[priority and change-impact contract](workflow.md#product-priorities-and-delivery-implications)
+with the existing queue. Codex remains the planning and execution engine.
+
 The graph is the product-delivery map. Workstream loops investigate and improve
-parts of it. Product/BFM navigates the graph, and Codex executes its approved
+parts of it. The human problem is not a lack of useful conversations: it is
+uncertainty about which conclusions belong together, what can proceed and what
+a changed priority displaces. See the [problem-to-response explanation](../why-fb.md#before-and-after-without-fb-lanes--with-fb-lanes).
+
+Product/BFM navigates the graph, and Codex executes its approved
 sequence.
 
 FB is an open-source Codex plugin that turns scattered AI conversations into a
@@ -37,8 +50,7 @@ source of truth.
 
 Read the smallest relevant layer, in this order:
 
-1. `node tools/fb-lane.cjs status --context` or MCP
-   `fb_lane_status({context:true})` — bounded active scope, ownership, locks,
+1. `node tools/fb-lane.cjs status --context` — bounded active scope, ownership, locks,
    gates, and links.
 2. `docs/handoffs/index.md` — compact routing to the relevant handoff.
 3. The linked detailed handoff — plan, rationale, evidence, and closeout.
@@ -66,7 +78,8 @@ create handoffs ready for Product intake. Ready means queued for Product
 review, not approval or execution. Only `$bfm` freezes that intake, makes
 Product disposition and sequence every candidate, records the consolidated
 Build Brief, and shows the [queue preview](workflow.md#queue-preview-and-approval).
-Say **okay** to execute that current included scope; **Push Live** stays separate. FB keeps its
+After an explicit user invocation, proceed within that included scope without
+another okay; **Push Live** stays separate. FB keeps its
 risk and execution classification internal; the user never chooses a mode.
 See [start.md](start.md) for the public sequence and [workflow.md](workflow.md)
 for internal execution budgets and stop predicates.
@@ -105,3 +118,6 @@ owner transfer, staging, or review does not request one.
   configuration evolution: [control-loop.md](control-loop.md)
 - Turning verified project outcomes into bounded lessons for later relevant
   work: [learning.md](learning.md)
+
+Use the shared [autonomy policy](autonomy.md)
+for generated project guidance. Setup preserves existing chats and active work.

@@ -4,11 +4,10 @@ The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.
 
-Default execution uses focused proof per slice, one consolidated behavioral
-repair maximum across the candidate, one whole-candidate review, and one final
-release checkpoint. Do not create separate review or re-review loops for
-individual slices. Safety, sensitive-operation, authority, worktree/lock,
-changelog, and **Push Live** gates remain unchanged.
+Default execution uses focused proof per slice, one whole-candidate review,
+and one final release checkpoint. Follow [Autonomous BFM](docs/fb/autonomy.md)
+for cumulative five-attempt Full recovery and routine continuation. Quick
+budgets, safety, locks and **Push Live** gates remain controlling.
 
 The visible workflow is **Goal → Split → only the relevant workstreams →
 Verify evidence → Merge findings → Implement → Verify candidate → One clear
@@ -56,3 +55,10 @@ Setup and `$bfm` mutate only the active canonical checkout. Before execution,
 Product/BFM shows the complete intake ledger for all six evidence workstreams
 plus the control centre. Checkout moves use transactional migration and keep
 former roots quarantined and recoverable. Only **Push Live** authorizes release.
+
+## Autonomous BFM
+
+Follow [Autonomous BFM](docs/fb/autonomy.md) for routine continuation after an
+explicit user invocation, the cumulative five-attempt recovery ceiling and
+permission versus scope. Passive handoff pings stay queued. End user-facing
+updates with separate **TLDR:** and **Recommendation:** lines.

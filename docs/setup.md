@@ -17,8 +17,8 @@ FB currently supports Codex only. Start with the
 [Codex platform guide](../platforms/codex/README.md); this page is for fallback
 setup paths when you are not installing through the plugin flow.
 
-The current release candidate is **FB 0.10.2-beta** build
-`0.10.2-beta+codex.20260925083556`.
+The current release candidate is **FB 0.10.5-beta** build
+`0.10.5-beta+codex.20261009113735`.
 
 ## Install or update from GitHub
 
@@ -97,7 +97,7 @@ If you already have an AI agent open in your target project workspace, paste thi
 ```text
 I want to bootstrap the FB coordination plugin in this workspace.
 Read the template files and CLI utilities from the fb-lane-coordination repository.
-Use the documented archive fallback so the runtime modules, all ten docs/fb pages, and both docs/evals template assets arrive together.
+Use the documented archive fallback so every manifest-declared runtime module, harness page, and template arrives together.
 Run node tools/fb-lane.cjs bootstrap to set up my project board, lane rules, Codex rules, and handoff routing.
 Do not overwrite existing project rules; merge with them conservatively.
 ```
@@ -114,12 +114,21 @@ FB_LANE_ARCHIVE_URL="${FB_LANE_ARCHIVE_URL:-https://github.com/friedbeef1/fb-lan
 fb_lane_tmp="$(mktemp -d)"
 trap 'rm -rf "$fb_lane_tmp"' EXIT
 curl -fsSL "$FB_LANE_ARCHIVE_URL" | tar -xz -C "$fb_lane_tmp" --strip-components=1
-mkdir -p tools docs/fb docs/evals templates/docs/learning
-cp "$fb_lane_tmp"/tools/fb-{lane,onboarding,session,eval,efficiency,doc-check,changelog-closeout,records,release-preflight,graph-contract,project-graph,graph-scheduler,graph-propagation,graph-learning,graph-bfm,board-context,control-loop,workstream-handoff,learning}.cjs tools/
-cp "$fb_lane_tmp"/tools/fb-graph-contract.json tools/
-cp "$fb_lane_tmp"/docs/fb/{README,start,workflow,evidence,guardrails,sessions,evals,records,graph,control-loop,learning}.md docs/fb/
-cp "$fb_lane_tmp"/docs/evals/{eval-record-template,agent-behavior-scorecard-template}.md docs/evals/
-cp "$fb_lane_tmp"/templates/docs/learning/index.md templates/docs/learning/
+node - "$fb_lane_tmp" <<'NODE'
+const fs = require('node:fs');
+const path = require('node:path');
+const source = process.argv[2];
+const manifest = JSON.parse(fs.readFileSync(path.join(source, 'tools/fb-package-manifest.json'), 'utf8'));
+const dependencies = manifest.filter(file =>
+  (file.startsWith('tools/') && /\.(cjs|json)$/.test(file) && !file.endsWith('.test.cjs'))
+  || file.startsWith('docs/fb/') || file.startsWith('docs/evals/')
+  || file.startsWith('templates/docs/learning/'));
+for (const file of dependencies) {
+  const target = path.resolve(file);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.copyFileSync(path.join(source, file), target);
+}
+NODE
 node tools/fb-lane.cjs bootstrap
 ```
 
@@ -129,7 +138,7 @@ What bootstrap creates:
 - lane boundary rules in `AGENTS.md`
 - local Codex rules in `.codex/rules.md`
 - handoff routing index in `docs/handoffs/index.md`
-- the eleven-page harness, including `docs/fb/sessions.md`, `docs/fb/evals.md`, `docs/fb/records.md`, `docs/fb/graph.md`, `docs/fb/control-loop.md`, and `docs/fb/learning.md`
+- the complete harness, including `docs/fb/sessions.md`, `docs/fb/evals.md`, `docs/fb/records.md`, `docs/fb/graph.md`, `docs/fb/control-loop.md`, `docs/fb/learning.md`, `docs/fb/local-tools.md`, and `docs/fb/autonomy.md`
 - Codex-ready lane guidance
 - one clone-local onboarding receipt in the Git common directory, shared by
   linked worktrees, or ignored `.fb/onboarding.json` for a non-Git project;
@@ -179,7 +188,7 @@ In Product/BFM, explicit **Push Live** invokes the model-invoked `fb-release`
 skill. It verifies the exact candidate, follows this repository's release
 instructions, identifies whether the configured `fb-lane` marketplace source
 is local or Git, uses the matching refresh route, reinstalls the exact build,
-and verifies installed skills, runtime, manifest, and MCP resolution. It then
+and verifies installed skills, local-command runtime and manifest. It then
 requires a new Codex task so the replacement plugin is loaded.
 
 If the automated release route is unavailable, first inspect the configured
@@ -200,12 +209,12 @@ codex plugin list | rg "fb-lane-coordination"
 
 Codex may leave older cache folders under `~/.codex/plugins/cache/`. They are
 not the active install unless `codex plugin list` points at that version. Start a
-new Codex thread after reinstalling so updated skills and MCP tools are loaded
+new Codex thread after reinstalling so updated skills and local tools are loaded
 from the refreshed plugin cache.
 
 Installed verification checks the exact cache artifact: version and package
 identity, skill discovery, runtime syntax or required exports, packaged
-manifest, and bundled MCP resolution. Do not run root-only source-layout tests
+manifest, and bundled local-command resolution. Do not run root-only source-layout tests
 inside the installed cache. Keep public changelog and marketplace wording
 product-generic; project names and exact consumer smokes belong in linked QA.
 

@@ -281,7 +281,9 @@ test('package and active guidance expose graph-first routing without changing au
     'skills/fb-discovery/SKILL.md',
     'skills/fb-bugs/SKILL.md',
   ]) {
-    const source = fs.readFileSync(path.join(surfaceRoot, relative), 'utf8');
+    const direct = fs.readFileSync(path.join(surfaceRoot, relative), 'utf8');
+    const source = /graph\.md(?:#canonical-known-task-orientation)?\)/.test(direct)
+      ? `${direct}\n${graphGuidance}` : direct;
     assert.match(source, /fb_project_context/);
     assert.match(source, /(?:source of truth|authoritative records)/i);
     assert.match(source, /fallback|falls? back/i);
