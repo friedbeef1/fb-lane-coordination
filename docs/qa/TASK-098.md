@@ -56,6 +56,13 @@ Recovery ledger:
 - EVAL-POLICY-LINK-098: attempt 1, assert the linked canonical no-progress policy
   rather than duplicating wording in the skill; final eval proof recorded below.
 
+Final resumed checkpoint: passed. Eval lifecycle 19/19; beginner experience
+13/13; positioning and two-speed contracts passed; efficiency 36/36;
+package parity 100/100; Doctor Ready on a clean committed candidate;
+candidate preflight passed at `237a189fccde58203f32c972f8c3f0f52d8babf3`.
+The earlier green lane, migration and session evidence remains applicable because
+the final repair changes only setup instructions and the eval contract assertion.
+
 ## Consumer evidence
 
 Shared Codex AGENTS policy is updated. Thirteen existing Product/BFM owners
