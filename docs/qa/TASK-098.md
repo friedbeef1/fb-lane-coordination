@@ -2,7 +2,7 @@
 type: fb-qa-artifact
 task: TASK-098
 record_model: normalized-v1
-status: checking
+status: blocked
 ---
 
 # TASK-098 — Autonomous Flow Builder release evidence
@@ -74,9 +74,9 @@ application deployment evidence.
 
 ## External state
 
-GitHub release, new portal upload and publication are authorized by James's
-current explicit request, but are not yet completed. The prior portal submission
-is In review and Not published. No account permission is weakened to publish.
+GitHub release and supported local upgrade are completed. Official portal upload
+is completed, but review submission and publication are not. No account permission
+is weakened, and legal declarations are not approved on James's behalf.
 
 GitHub PR #76 merged at `d509551e1f0c6f7f9b8fd7969b14ed15e8588e04`;
 GitHub readiness passed (46 seconds). The initial 0.10.5 portal upload exposed
@@ -86,3 +86,24 @@ policy in canonical skills/guidance, and adds a deterministic starter-limit
 contract. Corrected build: `0.10.5-beta+codex.20261009115545`.
 The original uploaded draft is not published. Old 0.10.3 review was cancelled
 solely to replace it with the authorized current candidate.
+
+## Published and installed verification
+
+- PR #77 merged at `2b279b75361e76c6c89fc741a27e4dea33ea9bf5` after its exact
+  head `2e463e20140aa38424ff82bf7276602be22fa0df` passed readiness (46 seconds).
+- Git marketplace `fb-lane` refreshed from the configured GitHub source.
+- Supported install reports `0.10.5-beta+codex.20261009115545`, installed and enabled.
+- Active cache: `/Users/jamesyeang/.codex/plugins/cache/fb-lane/fb-lane-coordination/0.10.5-beta+codex.20261009115545`.
+- All 105 release-package files match installed bytes; local runtime modules resolve;
+  no `.mcp.json` is registered. No root-layout test was run against installed cache.
+- ZIP SHA-256: `c42453bd7472d356d4444f13ad42b7407cad7dfcd4965b05f00d787c5dd8bbae`.
+- Official draft: `appsub_6ac8d616e78881919d9774d49219a95a`; correct version uploaded,
+  metadata No Issues, 12/13 skills passed at last observation. Not submitted and
+  Not published. Fresh six-declaration legal confirmation requested in this chat.
+- Existing chats/history are preserved. Already-running sessions may retain old
+  loaded skills; the new install is not proof those sessions hot-reloaded.
+- Review monitor now follows this current draft rather than cancelled 0.10.3.
+
+Remaining boundary: James's legal confirmation, completion of all portal skill
+checks, then official review approval. Product/BFM may submit/publish under the
+existing explicit release authority once those prerequisites are genuinely met.

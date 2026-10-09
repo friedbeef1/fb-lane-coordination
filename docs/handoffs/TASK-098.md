@@ -2,7 +2,7 @@
 type: fb-lane-handoff
 task: TASK-098
 lane: fb-product
-status: in-progress
+status: blocked
 approval: approved
 record_model: normalized-v1
 ---
@@ -43,8 +43,9 @@ Evidence Against Product OKR: Offloaded local files stalled source checks; an ea
 
 ## Brief Validation
 
-pass — focused integration meets the approved behavior; final release checks
-and portal approval are recorded as remaining gates in QA.
+blocked — source, GitHub readiness and installed provenance passed. James must
+confirm the current portal's six legal declarations; OpenAI must approve review
+before official marketplace publication. Product/BFM owns the remaining submission.
 
 ## Task Receipt
 
@@ -53,6 +54,6 @@ and portal approval are recorded as remaining gates in QA.
 - Branch, source commits, and changed surfaces: codex/fb-autonomy-release-20261009; canonical runtime, docs, skills, generated plugin and release metadata.
 - Checks, failures, recovery, and results: 42 focused autonomy/efficiency tests passed before integration; [QA evidence](../qa/TASK-098.md) records remaining checks.
 - Review state, direct links, limits, and external gates: [QA evidence](../qa/TASK-098.md); portal approval controls official publication.
-- Repository state: isolated candidate, intentionally dirty during implementation; commit before release.
-- Remaining owner and action: Product/BFM finishes candidate proof and authorized release steps.
+- Repository state: committed release merged to GitHub main; no consumer source or chat topology changed.
+- Remaining owner and action: James confirms the six current portal declarations; Product/BFM submits, then publishes only after OpenAI approval.
 - Changelog: updated — [CHANGELOG.md](../../CHANGELOG.md#0105-beta--2026-10-09).
