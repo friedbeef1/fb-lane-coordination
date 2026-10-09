@@ -505,6 +505,8 @@ test('documented fallback command sequence acquires every bootstrap runtime and 
   const archiveParent = fs.mkdtempSync(path.join(os.tmpdir(), 'fb-eval-archive-'));
   try {
     const archiveRoot = path.join(archiveParent, 'fb-lane-coordination-main');
+    fs.mkdirSync(path.join(archiveRoot, 'tools'), { recursive: true });
+    fs.copyFileSync(path.join(repoRoot, 'tools/fb-package-manifest.json'), path.join(archiveRoot, 'tools/fb-package-manifest.json'));
     for (const dependency of packageManifest) {
       const target = path.join(archiveRoot, dependency);
       fs.mkdirSync(path.dirname(target), { recursive: true });
@@ -640,7 +642,8 @@ test('eval guidance reports results clearly and requires meaningful repairs', ()
   assert.match(bfmSkill, /smallest \*\*sufficient and causally\s+relevant\*\*\s+correction/i);
   assert.match(bfmSkill, /original\s+failed\s+scenario/i);
   assert.match(bfmSkill, /focused\s+regression/i);
-  assert.match(bfmSkill, /no-progress/i);
+  assert.match(bfmSkill, /Autonomous BFM.*autonomy\.md/);
+  assert.match(fs.readFileSync(path.join(containingRoot, 'docs/fb/autonomy.md'), 'utf8'), /no-progress attempt counts as failed/i);
 });
 
 for (const [name, fn] of tests) {
