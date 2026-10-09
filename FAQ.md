@@ -1,20 +1,32 @@
 # FB FAQ
 
-This FAQ describes the current **FB 0.10.2-beta** model: six evidence-producing
+This FAQ describes the current **FB 0.10.3-beta** model: six evidence-producing
 workstreams plus one Product/BFM control centre and seven pinned
 repository-scoped Codex tasks.
 
 ## What does FB stand for?
 
-FB officially stands for **Focus Bridge**: it bridges user goals, six
-workstreams, Codex implementation, verification, and delivery. It could have
-been Feature Builder, Flow Booster, Fast Build—or, naturally, **Fried Beef**.
-But Focus Bridge is the official name.
+FB stands for **Flow Builder**. It connects six workstreams, product decisions,
+Codex implementation, verification, and delivery. The earlier name was Focus
+Bridge. It could have been Feature Builder, Flow Booster, Fast Build—or,
+naturally, **Fried Beef**. Flow Builder is the current public name.
+
+Product/BFM means **Build For Me**; `$bfm` remains the supported invocation.
 
 ## Is FB a Codex plugin?
 
 Yes. FB adds product coordination, durable handoffs, automated verification,
 and a release boundary around Codex software execution.
+
+## Why use FB if I can already use separate Codex chats?
+
+Each chat can be useful while the combined picture is unclear: which ideas
+became decisions, which recommendation depends on blocked work, what an urgent
+request displaces, and what happened after delivery elsewhere. FB connects
+recorded conclusions into a proposed queue with reasons and returns outcomes
+to the workstreams. Keep the deep conversations; add a shared delivery process.
+Codex can do this with equivalent instructions; FB packages the convention.
+See [without FB / with FB](docs/why-fb.md#before-and-after-without-fb-lanes--with-fb-lanes).
 
 ## Is there a beginner process and a normal process?
 

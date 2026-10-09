@@ -21,6 +21,12 @@ result**. Relevant workstreams use one CTA—**Send this to Product.** Product/B
 verifies the evidence, merges it into one plan, directs bounded implementation,
 and owns one fresh-context integrated candidate verification.
 Workstream reporting follows [Product handoff delivery states](../../docs/fb/workflow.md#product-handoff-delivery-states).
+An arriving handoff may receive a brief acknowledgment; then stop without
+intake or execution until the user invokes `$bfm` here.
+Follow [Product priorities and delivery implications](../../docs/fb/workflow.md#product-priorities-and-delivery-implications):
+the user sets business importance; Product explains prerequisites, blockers,
+displaced work and uncertain impacts. Priority is not execution eligibility.
+Use the existing Build Brief and native planning, not a second priority system.
 
 Board, receipts, identity hashes, and internal route names are diagnostic
 machinery, not user choices or ordinary milestones. Show them only when they

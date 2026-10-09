@@ -1,5 +1,24 @@
 # FB Coordination for Codex
 
+**Know what to do next—and what changes when priorities change.**
+FB helps you reconcile product requests into a reasoned queue: prerequisites,
+blockers, parallel opportunities, deferrals and the impact of a forced priority.
+You set business importance; Product/BFM explains delivery implications. Native
+Codex remains the planning and execution engine. Use only relevant workstreams.
+See [priority handling](docs/fb/workflow.md#product-priorities-and-delivery-implications).
+
+Workstreams are ongoing thinking spaces: return to the same chats for deep
+discussion, follow-up questions, challenged assumptions and new evidence—even
+when nothing is being built. Handoffs carry actionable conclusions, not whole
+transcripts; Product/BFM connects them when you invoke `$bfm`, then returns
+results to inform the next discussion. See [deep conversations](docs/why-fb.md#deep-conversations-connected-when-you-are-ready).
+
+See [without FB Lanes / with FB Lanes](docs/why-fb.md#before-and-after-without-fb-lanes--with-fb-lanes)
+for the problems and their responses: which conclusions became decisions, what
+is blocked, what an urgent request displaces, and what happened after delivery.
+FB connects recorded conclusions, explains the queue and returns outcomes.
+Codex can do this when instructed; FB supplies a consistent working process.
+
 The graph is the product-delivery map. Workstream loops investigate and improve
 parts of it. Product/BFM navigates the graph, and Codex executes its approved
 sequence.
@@ -10,8 +29,8 @@ FB harness. **FB — Graph Engineering for Everyday People** is an open-source
 Codex plugin that turns scattered AI conversations into a living
 product-delivery graph. It has six evidence-producing workstreams plus one
 Product/BFM control centre and seven pinned repository-scoped Codex tasks. The
-current release candidate is **FB 0.10.2-beta**
-`0.10.2-beta+codex.20260925083556`.
+current release candidate is **FB 0.10.3-beta**
+`0.10.3-beta+codex.20260928093237`.
 
 The visible workflow is **Goal → Split → only the relevant workstreams →
 Verify evidence → Merge findings → Implement → Verify candidate → One clear

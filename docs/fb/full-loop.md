@@ -3,6 +3,12 @@
 [Overview](../../README.md) · [Agile Teams](https://github.com/friedbeef1/fb-lane-coordination/blob/main/docs/fb-for-agile-teams.md) · [Why FB](../why-fb.md) · [Full Loop](full-loop.md)
 
 This is the complete operating view of FB's **Graph Engineering** system. The graph
+addresses a coordination problem: separate conversations can each be useful
+without making the combined order, blockers or priority trade-offs clear. FB
+connects their recorded conclusions and returns outcomes to the workstreams.
+See [without FB / with FB](../why-fb.md#before-and-after-without-fb-lanes--with-fb-lanes).
+
+The graph
 is the map connecting decisions, evidence, dependencies, implementation,
 verification, and release state. Workstream loops show how work learns and
 moves inside that map; `$bfm` navigates and executes it, while **Push Live**

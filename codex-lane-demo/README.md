@@ -1,5 +1,10 @@
 # Codex Lane Demo Video
 
+**Historical demo (June 2026).** This video predates the current User plus
+Product/BFM structure and PM-first priority guidance. For the replacement
+storyboard and narration, see [the new explainer script](../docs/media/fb-priorities-explainer.md).
+Do not use this older video as current setup or authority instructions.
+
 This HyperFrames composition explains the Codex value of FB: start from a Product/Captain prompt or talk directly to multiple lane threads, let Codex run safe work concurrently, and use shared claims/handoffs so lanes pass back to Product without overwriting each other.
 
 ## Output
